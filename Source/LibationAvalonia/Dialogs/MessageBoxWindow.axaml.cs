@@ -22,7 +22,7 @@ namespace LibationAvalonia.Dialogs
 		public void Button1_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var vm = DataContext as MessageBoxViewModel;
-			var dialogResult = vm.Buttons switch
+			var dialogResult = vm?.Buttons switch
 			{
 				MessageBoxButtons.OK => DialogResult.OK,
 				MessageBoxButtons.OKCancel => DialogResult.OK,
@@ -38,7 +38,7 @@ namespace LibationAvalonia.Dialogs
 		public void Button2_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var vm = DataContext as MessageBoxViewModel;
-			var dialogResult = vm.Buttons switch
+			var dialogResult = vm?.Buttons switch
 			{
 				MessageBoxButtons.OKCancel => DialogResult.Cancel,
 				MessageBoxButtons.AbortRetryIgnore => DialogResult.Retry,
@@ -53,7 +53,7 @@ namespace LibationAvalonia.Dialogs
 		public void Button3_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var vm = DataContext as MessageBoxViewModel;
-			var dialogResult = vm.Buttons switch
+			var dialogResult = vm?.Buttons switch
 			{
 				MessageBoxButtons.AbortRetryIgnore => DialogResult.Ignore,
 				MessageBoxButtons.YesNoCancel => DialogResult.Cancel,

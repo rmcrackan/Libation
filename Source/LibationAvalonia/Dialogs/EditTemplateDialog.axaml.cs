@@ -17,7 +17,7 @@ namespace LibationAvalonia.Dialogs;
 
 public partial class EditTemplateDialog : DialogWindow
 {
-	private EditTemplateViewModel _viewModel;
+	private EditTemplateViewModel? _viewModel;
 
 	public EditTemplateDialog()
 	{
@@ -51,18 +51,18 @@ public partial class EditTemplateDialog : DialogWindow
 	{
 		var dataGrid = sender as DataGrid;
 
-		var item = (dataGrid.SelectedItem as Tuple<string, string, string>).Item3;
+		var item = (dataGrid?.SelectedItem as Tuple<string, string, string>)?.Item3;
 		if (string.IsNullOrWhiteSpace(item)) return;
 
 		var text = userEditTbox.Text;
 
-		userEditTbox.Text = text.Insert(Math.Min(Math.Max(0, userEditTbox.CaretIndex), text.Length), item);
+		userEditTbox.Text = text?.Insert(Math.Min(Math.Max(0, userEditTbox.CaretIndex), text.Length), item);
 		userEditTbox.CaretIndex += item.Length;
 	}
 
 	protected override async Task SaveAndCloseAsync()
 	{
-		if (!await _viewModel.Validate())
+		if (_viewModel is null || !await _viewModel.Validate())
 			return;
 
 		await base.SaveAndCloseAsync();
@@ -101,7 +101,7 @@ public partial class EditTemplateDialog : DialogWindow
 			=> Go.To.Url(@"ht" + "tps://github.com/rmcrackan/Libation/blob/master/Documentation/NamingTemplates.md");
 
 		// hold the work-in-progress value. not guaranteed to be valid
-		public string UserTemplateText
+		public string? UserTemplateText
 		{
 			get => field;
 			set
@@ -111,7 +111,7 @@ public partial class EditTemplateDialog : DialogWindow
 			}
 		}
 
-		public string WarningText { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+		public string? WarningText { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 
 		public string Description { get; }
 
@@ -147,7 +147,7 @@ public partial class EditTemplateDialog : DialogWindow
 			// \books\author with a very     <= normal line break on space between words
 			// long name\narrator narrator   
 			// \title                        <= line break on the zero-with space we added before slashes
-			string slashWrap(string val) => val.Replace(sing, $"{ZERO_WIDTH_SPACE}{sing}");
+			string slashWrap(string? val) => val?.Replace(sing, $"{ZERO_WIDTH_SPACE}{sing}") ?? string.Empty;
 
 			WarningText
 				= !TemplateEditor.EditingTemplate.HasWarnings

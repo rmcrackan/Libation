@@ -31,12 +31,19 @@ namespace AaxDecrypter
 		{
 			//Finishing configuring lame encoder.
 			if (DownloadOptions.OutputFormat == OutputFormat.Mp3)
+			{
+				if (AaxFile is null)
+					throw new InvalidOperationException($"AaxFile is null during {nameof(OnInitialized)} in {nameof(AaxcDownloadConvertBase)}.");
+				if (DownloadOptions.LameConfig is null)
+					throw new InvalidOperationException($"LameConfig is null during {nameof(OnInitialized)} in {nameof(DownloadOptions)}.");
+
 				MpegUtil.ConfigureLameOptions(
 					AaxFile,
 					DownloadOptions.LameConfig,
 					DownloadOptions.Downsample,
 					DownloadOptions.MatchSourceBitrate,
 					DownloadOptions.ChapterInfo);
+			}
 		}
 
 		protected async override Task<bool> Step_DownloadAndDecryptAudiobookAsync()

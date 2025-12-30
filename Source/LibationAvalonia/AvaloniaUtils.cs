@@ -5,9 +5,9 @@ using Avalonia.Media.Imaging;
 using Avalonia.VisualTree;
 using LibationFileManager;
 using LibationUiBase.Forms;
+using System;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationAvalonia
 {
 	internal static class AvaloniaUtils
@@ -23,7 +23,9 @@ namespace LibationAvalonia
 			? dialogWindow.ShowDialog<DialogResult>(window)
 			: Task.FromResult(DialogResult.None);
 
-		public static Window? GetParentWindow(this Control control) => control.GetVisualRoot() as Window;
+		public static Window GetParentWindow(this Control control)
+			=> control.GetVisualRoot() as Window ?? App.MainWindow
+			?? throw new InvalidOperationException("Cannot find parent window.");
 
 
 		private static Bitmap? defaultImage;

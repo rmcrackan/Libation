@@ -7,6 +7,8 @@ using AudibleUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
+[assembly: Parallelize]
+
 namespace AccountsTests
 {
 #pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.

@@ -376,8 +376,8 @@ namespace ApplicationServices
         #endregion
 
         #region remove/restore books
-        public static Task<int> RemoveBooksAsync(this IEnumerable<LibraryBook> idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
-        private static int removeBooks(IEnumerable<LibraryBook> removeLibraryBooks)
+        public static Task<int> RemoveBooksAsync(this IEnumerable<LibraryBook?>? idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
+        private static int removeBooks(IEnumerable<LibraryBook?>? removeLibraryBooks)
 		{
 			if (removeLibraryBooks is null || !removeLibraryBooks.Any())
 				return 0;
@@ -385,7 +385,7 @@ namespace ApplicationServices
 			return DoDbSizeChangeOperation(ctx =>
 			{
 				// Entry() NoTracking entities before SaveChanges()
-				foreach (var lb in removeLibraryBooks)
+				foreach (var lb in removeLibraryBooks.OfType<LibraryBook>())
 				{
 					lb.IsDeleted = true;
 					ctx.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
@@ -417,8 +417,8 @@ namespace ApplicationServices
             }
         }
 
-		public static Task<int> PermanentlyDeleteBooksAsync(this IEnumerable<LibraryBook> idsToRemove) => Task.Run(() => permanentlyDeleteBooks(idsToRemove));
-		private static int permanentlyDeleteBooks(this IEnumerable<LibraryBook> libraryBooks)
+		public static Task<int> PermanentlyDeleteBooksAsync(this IEnumerable<LibraryBook?>? idsToRemove) => Task.Run(() => permanentlyDeleteBooks(idsToRemove));
+		private static int permanentlyDeleteBooks(this IEnumerable<LibraryBook?>? libraryBooks)
 		{
 			if (libraryBooks is null || !libraryBooks.Any())
 				return 0;
@@ -426,8 +426,8 @@ namespace ApplicationServices
             {
 				return DoDbSizeChangeOperation(ctx =>
                 {
-					ctx.LibraryBooks.RemoveRange(libraryBooks);
-					ctx.Books.RemoveRange(libraryBooks.Select(lb => lb.Book));
+					ctx.LibraryBooks.RemoveRange(libraryBooks.OfType<LibraryBook>());
+					ctx.Books.RemoveRange(libraryBooks.OfType<LibraryBook>().Select(lb => lb.Book));
 				});
             }
             catch (Exception ex)
@@ -514,7 +514,7 @@ namespace ApplicationServices
                         udi.UpdateRating(rating.OverallRating, rating.PerformanceRating, rating.StoryRating);
 				});
 
-        public static async Task<int> UpdateBookStatusAsync(this LibraryBook lb, LiberatedStatus bookStatus, Version? libationVersion, AudioFormat audioFormat, string audioVersion)
+        public static async Task<int> UpdateBookStatusAsync(this LibraryBook lb, LiberatedStatus bookStatus, Version? libationVersion, AudioFormat? audioFormat, string audioVersion)
             => await lb.UpdateUserDefinedItemAsync(udi => { udi.BookStatus = bookStatus; udi.SetLastDownloaded(libationVersion, audioFormat, audioVersion); });
 
         public static async Task<int> UpdateBookStatusAsync(this LibraryBook libraryBook, LiberatedStatus bookStatus)
@@ -529,27 +529,31 @@ namespace ApplicationServices
 
         public static async Task<int> UpdateTagsAsync(this LibraryBook libraryBook, string tags)
             => await libraryBook.UpdateUserDefinedItemAsync(udi => udi.Tags = tags);
-        public static async Task<int> UpdateTagsAsync(this IEnumerable<LibraryBook> libraryBooks, string tags)
-            => await libraryBooks.UpdateUserDefinedItemAsync(udi => udi.Tags = tags);
+        public static async Task<int> UpdateTagsAsync(this IEnumerable<LibraryBook> libraryBooks, string? tags)
+            => await libraryBooks.UpdateUserDefinedItemAsync(udi => udi.Tags = tags ?? string.Empty);
 
 		public static async Task<int> UpdateUserDefinedItemAsync(this LibraryBook libraryBook, Action<UserDefinedItem> action)
             => await UpdateUserDefinedItemAsync([libraryBook], action);
 
-		public static Task<int> UpdateUserDefinedItemAsync(this IEnumerable<LibraryBook> libraryBooks, Action<UserDefinedItem> action)
+		public static Task<int> UpdateUserDefinedItemAsync(this IEnumerable<LibraryBook?>? libraryBooks, Action<UserDefinedItem> action)
             => Task.Run(() => libraryBooks.updateUserDefinedItem(action));
 
-		private static int updateUserDefinedItem(this IEnumerable<LibraryBook> libraryBooks, Action<UserDefinedItem> action)
+		private static int updateUserDefinedItem(this IEnumerable<LibraryBook?>? libraryBooks, Action<UserDefinedItem> action)
         {
             try
             {
                 if (libraryBooks is null || !libraryBooks.Any())
                     return 0;
 
-                int qtyChanges;
+                var nonNullBooks = libraryBooks.OfType<LibraryBook>();
+				if (!nonNullBooks.Any())
+					return 0;
+
+				int qtyChanges;
                 using (var context = DbContexts.GetContext())
                 {
                     // Entry() instead of Attach() due to possible stack overflow with large tables
-                    foreach (var book in libraryBooks)
+                    foreach (var book in nonNullBooks)
                     {
                         action?.Invoke(book.Book.UserDefinedItem);
 
@@ -563,7 +567,7 @@ namespace ApplicationServices
                     qtyChanges = context.SaveChanges();
                 }
                 if (qtyChanges > 0)
-                    BookUserDefinedItemCommitted?.Invoke(null, libraryBooks);
+                    BookUserDefinedItemCommitted?.Invoke(null, nonNullBooks);
 
                 return qtyChanges;
             }

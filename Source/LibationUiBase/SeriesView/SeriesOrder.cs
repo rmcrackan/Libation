@@ -14,7 +14,7 @@ namespace LibationUiBase.SeriesView
 		}
 		public override string ToString() => OrderString;
 
-		public int CompareTo(object obj)
+		public int CompareTo(object? obj)
 		{
 			if (obj is not SeriesOrder other) return 1;
 			return Order.CompareTo(other.Order);

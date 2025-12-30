@@ -18,7 +18,7 @@ public class GridContextMenu
 	public string SetNotDownloadedText => $"Set Download status to '{Accelerator}Not Downloaded'";
 	public string RemoveText => $"{Accelerator}Remove from library";
 	public string LocateFileText => $"{Accelerator}Locate file...";
-	public string LocateFileDialogTitle => $"Locate the audio file for '{GridEntries[0].Book.TitleWithSubtitle}'";
+	public string LocateFileDialogTitle => $"Locate the audio file for '{GridEntries[0].Book?.TitleWithSubtitle ?? "[null]"}'";
 	public string LocateFileErrorMessage => "Error saving book's location";
 	public string ConvertToMp3Text => $"{Accelerator}Convert to Mp3";
 	public string DownloadAsChapters => $"Download {Accelerator}split by chapters";
@@ -29,14 +29,14 @@ public class GridContextMenu
 	public string FileTemplateText => "File Template";
 	public string MultipartTemplateText => "Multipart File Template";
 	public string ViewBookmarksText => $"View {Accelerator}Bookmarks/Clips";
-	public string ViewSeriesText => GridEntries[0].Liberate.IsSeries ? "View All Episodes in Series" : "View All Books in Series";
+	public string ViewSeriesText => GridEntries[0].Liberate?.IsSeries is true ? "View All Episodes in Series" : "View All Books in Series";
 
-	public bool LiberateEpisodesEnabled => GridEntries.OfType<SeriesEntry>().Any(sEntry => sEntry.Children.Any(c => c.Liberate.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload));
-	public bool SetDownloadedEnabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated || ge.Liberate.IsSeries);
-	public bool SetNotDownloadedEnabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated || ge.Liberate.IsSeries);
-	public bool ConvertToMp3Enabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
-	public bool DownloadAsChaptersEnabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error);
-	public bool ReDownloadEnabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
+	public bool LiberateEpisodesEnabled => GridEntries.OfType<SeriesEntry>().Any(sEntry => sEntry.Children.Any(c => c.Liberate?.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload));
+	public bool SetDownloadedEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus != LiberatedStatus.Liberated || ge.Liberate?.IsSeries is true);
+	public bool SetNotDownloadedEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated || ge.Liberate?.IsSeries is true);
+	public bool ConvertToMp3Enabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
+	public bool DownloadAsChaptersEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus is not LiberatedStatus.Error);
+	public bool ReDownloadEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
 
 	private GridEntry[] GridEntries { get; }
 	public LibraryBookEntry[] LibraryBookEntries { get; }
@@ -97,6 +97,6 @@ public class GridContextMenu
 			folderDto = seriesParent?.ToDto() ?? fileDto;
 		}
 
-		return TemplateEditor<T>.CreateFilenameEditor(Configuration.Instance.Books, existingTemplate, folderDto, fileDto);
+		return TemplateEditor<T>.CreateFilenameEditor(Configuration.Instance.Books ?? System.IO.Path.GetTempPath(), existingTemplate, folderDto, fileDto);
 	}
 }

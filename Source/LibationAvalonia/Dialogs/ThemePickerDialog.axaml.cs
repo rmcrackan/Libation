@@ -10,7 +10,6 @@ using System.Linq;
 using Avalonia.Platform.Storage;
 using LibationUiBase.Forms;
 
-#nullable enable
 namespace LibationAvalonia.Dialogs;
 
 public partial class ThemePickerDialog : DialogWindow

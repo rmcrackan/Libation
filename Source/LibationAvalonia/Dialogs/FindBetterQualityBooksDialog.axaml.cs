@@ -17,7 +17,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationAvalonia.Dialogs;
 
 public partial class FindBetterQualityBooksDialog : DialogWindow
@@ -60,6 +59,7 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 		=> lb.Book.ContentType is ContentType.Product //only scan books, not podcasts
 		&& !lb.Book.IsSpatial //skip spatial audio books. When querying the /metadata endpoint, it will only show ac-4 data for spatial audiobooks.
 		&& lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated //only check if the book is liberated
+		&& lb.Book.UserDefinedItem.LastDownloadedFormat is not null //Don't check if it wast downloaded prior to adding format tracking
 		&& lb.Book.UserDefinedItem.LastDownloadedFormat.Codec is not Codec.Mp3 //If they downloaded as mp3, no way to tell what source material was. Skip.
 		&& lb.Book.AudioExists; //only check if audio files exist
 
@@ -224,7 +224,7 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 			LibraryBook = libraryBook;
 			Asin = libraryBook.Book.AudibleProductId;
 			Title = libraryBook.Book.Title;
-			Codec = libraryBook.Book.UserDefinedItem.LastDownloadedFormat.CodecString;
+			Codec = libraryBook.Book.UserDefinedItem.LastDownloadedFormat!.CodecString;
 			Bitrate = libraryBook.Book.UserDefinedItem.LastDownloadedFormat.BitRate;
 			BitrateString = GetBitrateString(Bitrate);
 		}

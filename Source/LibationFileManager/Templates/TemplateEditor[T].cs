@@ -15,7 +15,7 @@ namespace LibationFileManager.Templates
 		string TemplateName { get; }
 		string TemplateDescription { get; }
 		Templates EditingTemplate { get; }
-		bool SetTemplateText(string templateText);
+		bool SetTemplateText(string? templateText);
 		string? GetFolderName();
 		string? GetFileName();
 		string? GetName();
@@ -40,7 +40,7 @@ namespace LibationFileManager.Templates
 
 		private Templates _editingTemplate;
 
-		public bool SetTemplateText(string templateText)
+		public bool SetTemplateText(string? templateText)
 		{
 			if (Templates.TryGetTemplate<T>(templateText, out var template))
 			{

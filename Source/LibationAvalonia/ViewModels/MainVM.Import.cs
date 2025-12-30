@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Avalonia.Input;
 using LibationUiBase.Forms;
 
-#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	public partial class MainVM

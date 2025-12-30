@@ -61,18 +61,20 @@ namespace LibationAvalonia.Controls
 
 		public void Panel_PointerExited(object sender, Avalonia.Input.PointerEventArgs e)
 		{
-			var panel = sender as Panel;
+			if (sender is not Panel panel)
+				return;
 			var stackPanel = panel.Children.OfType<StackPanel>().Single();
 
 			//Restore defaults
 			foreach (TextBlock child in stackPanel.Children)
-				child.Text = (string)child.Tag;
+				child.Text = child.Tag as string;
 		}
 
 		public void Star_PointerEntered(object sender, Avalonia.Input.PointerEventArgs e)
 		{
 			var thisTbox = sender as TextBlock;
-			var stackPanel = thisTbox.Parent as StackPanel;
+			if (thisTbox?.Parent is not StackPanel stackPanel)
+				return;
 			var star = SOLID_STAR;
 
 			foreach (TextBlock child in stackPanel.Children)
@@ -89,7 +91,8 @@ namespace LibationAvalonia.Controls
 			var story = Rating.StoryRating;
 
 			var thisTbox = sender as TextBlock;
-			var stackPanel = thisTbox.Parent as StackPanel;
+			if (thisTbox?.Parent is not StackPanel stackPanel)
+				return;
 
 			int newRatingValue = 0;
 			foreach (var tbox in stackPanel.Children)

@@ -9,8 +9,8 @@ namespace LibationAvalonia.Controls
 {
 	public class DataGridMyRatingColumn : DataGridBoundColumn
 	{
-		[AssignBinding] public IBinding BackgroundBinding { get; set; }
-		[AssignBinding] public IBinding OpacityBinding { get; set; }
+		[AssignBinding] public IBinding? BackgroundBinding { get; set; }
+		[AssignBinding] public IBinding? OpacityBinding { get; set; }
 		private static Rating DefaultRating => new Rating(0, 0, 0);
 		public DataGridMyRatingColumn()
 		{

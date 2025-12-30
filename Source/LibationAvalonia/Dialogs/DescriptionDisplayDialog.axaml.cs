@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using System;
 using System.Linq;
 
-#nullable enable
 namespace LibationAvalonia.Dialogs
 {
 	public partial class DescriptionDisplayDialog : Window

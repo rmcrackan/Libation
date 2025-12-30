@@ -90,11 +90,13 @@ namespace LibationAvalonia
 
 			return true;
 
-			async Task ShowTabPageMessageBoxAsync(TabItem selectedTab)
+			async Task ShowTabPageMessageBoxAsync(TabItem? selectedTab)
 			{
+				if (selectedTab is null)
+					return;
 				tabsToVisit.Remove(selectedTab);
 
-				if (!selectedTab.IsVisible || !(selectedTab.Header is TextBlock header && settingTabMessages.ContainsKey(header.Text))) return;
+				if (!selectedTab.IsVisible || !(selectedTab.Header is TextBlock header && header.Text is string text && settingTabMessages.ContainsKey(text))) return;
 
 				if (tabsToVisit.Count == 0)
 					settingsDialog.saveBtn.Content = "Save";
@@ -104,12 +106,12 @@ namespace LibationAvalonia
 				settingTabMessages.Remove(header.Text);
 			}
 
-			async void SettingsDialog_Opened(object sender, System.EventArgs e)
+			async void SettingsDialog_Opened(object? sender, System.EventArgs e)
 			{
 				await ShowTabPageMessageBoxAsync(tabsToVisit[0]);
 			}
 
-			async void TabControl_PropertyChanged(object sender, Avalonia.AvaloniaPropertyChangedEventArgs e)
+			async void TabControl_PropertyChanged(object? sender, Avalonia.AvaloniaPropertyChangedEventArgs e)
 			{
 				if (e.Property == TabItem.IsSelectedProperty && settingsDialog.IsLoaded)
 				{
@@ -117,7 +119,7 @@ namespace LibationAvalonia
 				}
 			}
 
-			void SettingsDialog_FormClosing(object sender, WindowClosingEventArgs e)
+			void SettingsDialog_FormClosing(object? sender, WindowClosingEventArgs e)
 			{
 				if (tabsToVisit.Count > 0)
 				{
@@ -150,27 +152,27 @@ namespace LibationAvalonia
 			await displayControlAsync(MainForm.importToolStripMenuItem);
 			await displayControlAsync(scanItem);
 
-			scanItem.Command.Execute(null);
+			scanItem.Command?.Execute(null);
 			MainForm.importToolStripMenuItem.Close();
 
 			var tcs = new TaskCompletionSource();
 			LibraryCommands.ScanEnd += LibraryCommands_ScanEnd;
 			await tcs.Task;
 			LibraryCommands.ScanEnd -= LibraryCommands_ScanEnd;
-			MainForm.ViewModel.ProductsDisplay.VisibleCountChanged -= productsDisplay_VisibleCountChanged;
+			MainForm.ViewModel?.ProductsDisplay.VisibleCountChanged -= productsDisplay_VisibleCountChanged;
 
 			return true;
 
-			void LibraryCommands_ScanEnd(object sender, int newCount)
+			void LibraryCommands_ScanEnd(object? sender, int newCount)
 			{
 				//if we imported new books, wait for the grid to update before proceeding.
 				if (newCount > 0)
 					Avalonia.Threading.Dispatcher.UIThread.Invoke(() =>
-						MainForm.ViewModel.ProductsDisplay.VisibleCountChanged += productsDisplay_VisibleCountChanged);
+						MainForm.ViewModel?.ProductsDisplay.VisibleCountChanged += productsDisplay_VisibleCountChanged);
 				else
 					tcs.SetResult();
 			}
-			void productsDisplay_VisibleCountChanged(object sender, int e) => tcs.SetResult();
+			void productsDisplay_VisibleCountChanged(object? sender, int e) => tcs.SetResult();
 		}
 
 		private async Task<bool> ShowSearching()
@@ -195,7 +197,7 @@ namespace LibationAvalonia
 
 			await displayControlAsync(MainForm.filterBtn);
 
-			MainForm.filterBtn.Command.Execute(firstAuthor);
+			MainForm.filterBtn.Command?.Execute(firstAuthor);
 
 			await Task.Delay(1000);
 
@@ -220,11 +222,11 @@ namespace LibationAvalonia
 
 			MainForm.filterSearchTb.Text = firstAuthor;
 
-			var editQuickFiltersToolStripMenuItem = MainForm.quickFiltersToolStripMenuItem.ItemsSource.OfType<MenuItem>().ElementAt(1);
+			var editQuickFiltersToolStripMenuItem = MainForm.quickFiltersToolStripMenuItem.ItemsSource?.OfType<MenuItem>().ElementAt(1);
 
 			await Task.Delay(750);
 			await displayControlAsync(MainForm.addQuickFilterBtn);
-			MainForm.addQuickFilterBtn.Command.Execute(firstAuthor);
+			MainForm.addQuickFilterBtn.Command?.Execute(firstAuthor);
 			await displayControlAsync(MainForm.quickFiltersToolStripMenuItem);
 			await displayControlAsync(editQuickFiltersToolStripMenuItem);
 
@@ -241,14 +243,16 @@ namespace LibationAvalonia
 			return true;
 		}
 
-		private string getFirstAuthor()
+		private string? getFirstAuthor()
 		{
 			var books = DbContexts.GetLibrary_Flat_NoTracking();
 			return books.SelectMany(lb => lb.Book.Authors).FirstOrDefault(a => !string.IsNullOrWhiteSpace(a.Name))?.Name;
 		}
 
-		private async Task displayControlAsync(TemplatedControl control)
+		private async Task displayControlAsync(TemplatedControl? control)
 		{
+			if (control is null)
+				return;
 			control.IsEnabled = false;
 			MainForm.productsDisplay.Focus();
 			await flashControlAsync(control);

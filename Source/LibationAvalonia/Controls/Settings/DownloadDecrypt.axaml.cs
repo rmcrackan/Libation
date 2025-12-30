@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using FileManager;
 using LibationAvalonia.Dialogs;
 using LibationAvalonia.ViewModels.Settings;
 using LibationFileManager;
@@ -10,7 +11,7 @@ namespace LibationAvalonia.Controls.Settings
 {
 	public partial class DownloadDecrypt : UserControl
 	{
-		private DownloadDecryptSettingsVM _viewModel => DataContext as DownloadDecryptSettingsVM;
+		private DownloadDecryptSettingsVM? _viewModel => DataContext as DownloadDecryptSettingsVM;
 		public DownloadDecrypt()
 		{
 			InitializeComponent();
@@ -22,24 +23,24 @@ namespace LibationAvalonia.Controls.Settings
 
 		public async void EditFolderTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			if (_viewModel is null) return;
-			var newTemplate = await editTemplate(TemplateEditor<Templates.FolderTemplate>.CreateFilenameEditor(_viewModel.Config.Books, _viewModel.FolderTemplate));
+			if (_viewModel is null || _viewModel.Config.Books is not LongPath books) return;
+			var newTemplate = await editTemplate(TemplateEditor<Templates.FolderTemplate>.CreateFilenameEditor(books, _viewModel.FolderTemplate));
 			if (newTemplate is not null)
 				_viewModel.FolderTemplate = newTemplate;
 		}
 
 		public async void EditFileTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			if (_viewModel is null) return;
-			var newTemplate = await editTemplate(TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(_viewModel.Config.Books, _viewModel.FileTemplate));
+			if (_viewModel is null || _viewModel.Config.Books is not LongPath books) return;
+			var newTemplate = await editTemplate(TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(books, _viewModel.FileTemplate));
 			if (newTemplate is not null)
 				_viewModel.FileTemplate = newTemplate;
 		}
 
 		public async void EditChapterFileTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			if (_viewModel is null) return;
-			var newTemplate = await editTemplate(TemplateEditor<Templates.ChapterFileTemplate>.CreateFilenameEditor(_viewModel.Config.Books, _viewModel.ChapterFileTemplate));
+			if (_viewModel is null || _viewModel.Config.Books is not LongPath books) return;
+			var newTemplate = await editTemplate(TemplateEditor<Templates.ChapterFileTemplate>.CreateFilenameEditor(books, _viewModel.ChapterFileTemplate));
 			if (newTemplate is not null)
 				_viewModel.ChapterFileTemplate = newTemplate;
 		}
@@ -52,7 +53,7 @@ namespace LibationAvalonia.Controls.Settings
 		}
 
 
-		private async Task<string> editTemplate(ITemplateEditor template)
+		private async Task<string?> editTemplate(ITemplateEditor template)
 		{
 			var form = new EditTemplateDialog(template);
 			if (await form.ShowDialog<DialogResult>(this.GetParentWindow()) == DialogResult.OK)

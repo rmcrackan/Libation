@@ -8,7 +8,6 @@ using ReactiveUI;
 using System;
 using System.Linq;
 
-#nullable enable
 namespace LibationAvalonia.ViewModels.Settings
 {
 	public class AudioSettingsVM : ViewModelBase

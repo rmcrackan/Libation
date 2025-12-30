@@ -7,7 +7,6 @@ using System.Linq;
 
 namespace LibationUiBase.GridView
 {
-#nullable enable
 	public static class QueryExtensions
 	{
 		public static IEnumerable<LibraryBookEntry> BookEntries(this IEnumerable<GridEntry> gridEntries)
@@ -59,10 +58,9 @@ namespace LibationUiBase.GridView
 			var booksFilteredIn = entries.IntersectBy(searchResultSet.Docs.Select(d => d.ProductId), l => l.AudibleProductId);
 
 			//Find all series containing children that match the search criteria
-			var seriesFilteredIn = booksFilteredIn.OfType<LibraryBookEntry>().Where(lbe => lbe.Parent is not null).Select(lbe => lbe.Parent).Distinct();
+			var seriesFilteredIn = booksFilteredIn.OfType<LibraryBookEntry>().Select(lbe => lbe.Parent).OfType<SeriesEntry>().Distinct();
 
 			return booksFilteredIn.Concat(seriesFilteredIn).ToHashSet();
 		}
 	}
-#nullable disable
 }

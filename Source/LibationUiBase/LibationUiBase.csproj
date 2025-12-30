@@ -3,6 +3,7 @@
   <PropertyGroup>
 	<TargetFramework>net10.0</TargetFramework>
 	  <IsPublishable>true</IsPublishable>
+	  <Nullable>enable</Nullable>
 	  <PublishReadyToRun>true</PublishReadyToRun>
 	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	  <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>

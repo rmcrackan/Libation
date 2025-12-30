@@ -26,11 +26,11 @@ namespace LibationAvalonia.Dialogs
 			var mainWindow = Owner as Views.MainWindow;
 
 			var upgrader = new Upgrader();
-			upgrader.DownloadProgress += async (_, e) => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => mainWindow.ViewModel.DownloadProgress = e.ProgressPercentage);
-			upgrader.DownloadCompleted += async (_, _) => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => mainWindow.ViewModel.DownloadProgress = null);
+			upgrader.DownloadProgress += async (_, e) => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => mainWindow?.ViewModel?.DownloadProgress = e.ProgressPercentage);
+			upgrader.DownloadCompleted += async (_, _) => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => mainWindow?.ViewModel?.DownloadProgress = null);
 
 			_viewModel.CanCheckForUpgrade = false;
-			Version latestVersion = null;
+			Version? latestVersion = null;
 			await upgrader.CheckForUpgradeAsync(OnUpgradeAvailable);
 
 			_viewModel.CanCheckForUpgrade = latestVersion is null;

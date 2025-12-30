@@ -53,14 +53,14 @@ namespace LibationUiBase.GridView
 				|| PdfStatus is not null and not LiberatedStatus.Liberated
 			);
 		public double Opacity => !IsSeries && Book.UserDefinedItem.Tags.ContainsInsensitive("hidden") ? 0.4 : 1;
-		public object ButtonImage => GetLiberateIcon();
+		public object? ButtonImage => GetLiberateIcon();
 		public string ToolTip => GetTooltip();
 		private Book Book { get; }
 
 		private DateTime lastBookUpdate;
 		private LiberatedStatus bookStatus;
 		private readonly bool isAbsent;
-		private static readonly Dictionary<string, object> iconCache = new();
+		private static readonly Dictionary<string, object?> iconCache = new();
 
 		internal EntryStatus(LibraryBook libraryBook)
 		{
@@ -79,7 +79,7 @@ namespace LibationUiBase.GridView
 		}
 
 		/// <summary> Defines the Liberate column's sorting behavior </summary>
-		public int CompareTo(object obj)
+		public int CompareTo(object? obj)
 		{
 			if (obj is not EntryStatus second) return -1;
 
@@ -94,12 +94,12 @@ namespace LibationUiBase.GridView
 			var statusCompare = BookStatus.CompareTo(second.BookStatus);
 			if (statusCompare != 0) return statusCompare;
 			else if (PdfStatus is null && second.PdfStatus is null) return 0;
-			else if (PdfStatus is null && second.PdfStatus is not null) return 1;
-			else if (PdfStatus is not null && second.PdfStatus is null) return -1;
+			else if (PdfStatus is null) return 1;
+			else if (second.PdfStatus is null) return -1;
 			else return PdfStatus.Value.CompareTo(second.PdfStatus.Value);
 		}
 
-		private object GetLiberateIcon()
+		private object? GetLiberateIcon()
 		{
 			if (IsSeries)
 				return Expanded ? GetAndCacheResource("minus") : GetAndCacheResource("plus");
@@ -165,7 +165,7 @@ namespace LibationUiBase.GridView
 			return mouseoverText;
 		}
 
-		private object GetAndCacheResource(string rescName)
+		private object? GetAndCacheResource(string rescName)
 		{
 			if (!iconCache.ContainsKey(rescName))
 				iconCache[rescName] = BaseUtil.LoadResourceImage(rescName);

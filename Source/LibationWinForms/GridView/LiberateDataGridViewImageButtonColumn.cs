@@ -38,7 +38,8 @@ namespace LibationWinForms.GridView
 				row.DefaultCellStyle.ForeColor = status.Opacity == 1 ? grid.DefaultCellStyle.ForeColor : HiddenForeColor;
 				base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
 
-				DrawButtonImage(graphics, (Image)status.ButtonImage, cellBounds);
+				if (status.ButtonImage is Image buttonImage)
+					DrawButtonImage(graphics, buttonImage, cellBounds);
                 AccessibilityDescription = status.ToolTip;
 
 				if (status.IsUnavailable || status.Opacity < 1)

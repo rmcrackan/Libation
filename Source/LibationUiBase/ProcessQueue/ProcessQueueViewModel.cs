@@ -8,7 +8,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationUiBase.ProcessQueue;
 
 public record LogEntry(DateTime LogDate, string LogMessage)

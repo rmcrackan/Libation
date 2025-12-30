@@ -10,9 +10,9 @@ namespace LibationAvalonia.Dialogs.Login
 {
 	public partial class LoginExternalDialog : DialogWindow
 	{
-		public Account Account { get; }
-		public string ExternalLoginUrl { get; }
-		public string ResponseUrl { get; set; }
+		public Account? Account { get; }
+		public string? ExternalLoginUrl { get; }
+		public string? ResponseUrl { get; set; }
 
 		public LoginExternalDialog() : base(saveAndRestorePosition: false)
 		{
@@ -54,7 +54,10 @@ namespace LibationAvalonia.Dialogs.Login
 
 
 		public async void CopyUrlToClipboard_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> await App.MainWindow.Clipboard.SetTextAsync(ExternalLoginUrl);
+		{
+			if (App.MainWindow?.Clipboard is not null)
+				await App.MainWindow.Clipboard.SetTextAsync(ExternalLoginUrl);
+		}
 
 		public void LaunchInBrowser_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> Go.To.Url(ExternalLoginUrl);

@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationUiBase.Forms;
 
 public enum DialogResult

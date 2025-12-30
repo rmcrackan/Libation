@@ -9,8 +9,8 @@ namespace LibationAvalonia.Dialogs
 {
 	public partial class ImageDisplayDialog : DialogWindow, INotifyPropertyChanged
 	{
-		public string PictureFileName { get; set; }
-		public string BookSaveDirectory { get; set; }
+		public string? PictureFileName { get; set; }
+		public string? BookSaveDirectory { get; set; }
 
 		private readonly BitmapHolder _bitmapHolder = new BitmapHolder();
 
@@ -50,7 +50,7 @@ namespace LibationAvalonia.Dialogs
 
 			try
 			{
-				_bitmapHolder.CoverImage.Save(selectedFile);
+				_bitmapHolder.CoverImage?.Save(selectedFile);
 			}
 			catch (Exception ex)
 			{
@@ -61,7 +61,7 @@ namespace LibationAvalonia.Dialogs
 
 		public class BitmapHolder : ViewModels.ViewModelBase
 		{
-			public Bitmap CoverImage { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+			public Bitmap? CoverImage { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 		}
 	}
 }

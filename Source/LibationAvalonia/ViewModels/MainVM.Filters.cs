@@ -10,7 +10,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM

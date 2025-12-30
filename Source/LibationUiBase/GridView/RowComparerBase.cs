@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 
-#nullable enable
 namespace LibationUiBase.GridView
 {
 	/// <summary>
@@ -32,9 +31,14 @@ namespace LibationUiBase.GridView
 			{
 				var val1 = x.GetMemberValue(PropertyName);
 				var val2 = y.GetMemberValue(PropertyName);
-				var compare = x.GetMemberComparer(val1.GetType()).Compare(val1, val2);
 
-				return compare == 0 && x.Liberate.IsSeries && y.Liberate.IsSeries
+				var type = val1?.GetType() ?? val2?.GetType();
+				if (type is null)
+					return 0; //both null
+
+				var compare = x.GetMemberComparer(type).Compare(val1, val2);
+
+				return compare == 0 && x.Liberate?.IsSeries is true && y.Liberate?.IsSeries is true
 					//Both a and b are series parents and compare as equal, so break the tie.
 					? x.AudibleProductId.CompareTo(y.AudibleProductId)
 					: compare;
@@ -65,10 +69,10 @@ namespace LibationUiBase.GridView
 				{
 					//Podcast episodes usually all have the same PurchaseDate and DateAdded property:
 					//the date that the series was added to the library. So when sorting by PurchaseDate
-					//and DateAdded, compare SeriesOrder instead..
+					//and DateAdded, compare SeriesOrder instead.
 					return PropertyName switch
 					{
-						nameof(GridEntry.DateAdded) or nameof(GridEntry.PurchaseDate) => geA.SeriesOrder.CompareTo(geB.SeriesOrder),
+						nameof(GridEntry.DateAdded) or nameof(GridEntry.PurchaseDate) => SeriesOrder.Compare(geA.SeriesOrder, geB.SeriesOrder),
 						_ => InternalCompare(geA, geB),
 					};
 				}

@@ -9,21 +9,21 @@ namespace LibationAvalonia.Dialogs
 		private class liberatedComboBoxItem
 		{
 			public LiberatedStatus Status { get; set; }
-			public string Text { get; set; }
-			public override string ToString() => Text;
+			public string? Text { get; set; }
+			public override string? ToString() => Text;
 		}
 
 		public LiberatedStatus BookLiberatedStatus { get; private set; }
 
-		private liberatedComboBoxItem _selectedStatus;
-		public object SelectedItem
+		private liberatedComboBoxItem? _selectedStatus;
+		public object? SelectedItem
 		{
 			get => _selectedStatus;
 			set
 			{
 				_selectedStatus = value as liberatedComboBoxItem;
 
-				BookLiberatedStatus = _selectedStatus.Status;
+				BookLiberatedStatus = _selectedStatus?.Status ?? default;
 			}
 		}
 
@@ -36,7 +36,7 @@ namespace LibationAvalonia.Dialogs
 		public LiberatedStatusBatchManualDialog(bool isPdf) : this()
 		{
 			if (isPdf)
-				this.Title = this.Title.Replace("book", "PDF");
+				Title = Title?.Replace("book", "PDF");
 		}
 
 		public LiberatedStatusBatchManualDialog()

@@ -37,11 +37,11 @@ namespace LibationAvalonia.Views
 
 			KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(selectAndFocusSearchBox), Gesture = new KeyGesture(Key.F, Configuration.IsMacOs ? KeyModifiers.Meta : KeyModifiers.Control) });
 
-			if (!Configuration.IsMacOs)
+			if (!Configuration.IsMacOs && ViewModel is MainVM vm)
 			{
-				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(ViewModel.ShowSettingsAsync), Gesture = new KeyGesture(Key.P, KeyModifiers.Control) });
-				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(ViewModel.ShowAccountsAsync), Gesture = new KeyGesture(Key.A, KeyModifiers.Control | KeyModifiers.Shift) });
-				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(ViewModel.ExportLibraryAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Control) });
+				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(vm.ShowSettingsAsync), Gesture = new KeyGesture(Key.P, KeyModifiers.Control) });
+				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(vm.ShowAccountsAsync), Gesture = new KeyGesture(Key.A, KeyModifiers.Control | KeyModifiers.Shift) });
+				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(vm.ExportLibraryAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Control) });
 			}
 
 			Configuration.Instance.PropertyChanged += Settings_PropertyChanged;
@@ -49,7 +49,7 @@ namespace LibationAvalonia.Views
 		}
 
 		[Dinah.Core.PropertyChangeFilter(nameof(Configuration.Books))]
-		private void Settings_PropertyChanged(object sender, Dinah.Core.PropertyChangedEventArgsEx e)
+		private void Settings_PropertyChanged(object? sender, Dinah.Core.PropertyChangedEventArgsEx? e)
 		{
 			if (!Configuration.IsWindows)
 			{
@@ -61,7 +61,7 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		private void AudibleApiStorage_LoadError(object sender, AccountSettingsLoadErrorEventArgs e)
+		private void AudibleApiStorage_LoadError(object? sender, AccountSettingsLoadErrorEventArgs e)
 		{
 			try
 			{
@@ -111,13 +111,13 @@ namespace LibationAvalonia.Views
 				//Force the message box to show synchronously because we're not handling the exception
 				//and libation will crash after the event handler returns
 				var frame = new DispatcherFrame();
-				_ = messageBoxWindow.ContinueWith(static (_, s) => ((DispatcherFrame)s).Continue = false, frame);
+				_ = messageBoxWindow.ContinueWith(static (_, s) => (s as DispatcherFrame)?.Continue = false, frame);
 				Dispatcher.UIThread.PushFrame(frame);
 				messageBoxWindow.GetAwaiter().GetResult();
 			}
 		}
 
-		private async void MainWindow_Opened(object sender, EventArgs e)
+		private async void MainWindow_Opened(object? sender, EventArgs e)
 		{
 			if (AudibleFileStorage.BooksDirectory is null)
 			{
@@ -146,7 +146,7 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+		private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
 		{
 			productsDisplay?.CloseImageDisplay();
 			this.SaveSizeAndLocation(Configuration.Instance);
@@ -163,21 +163,24 @@ namespace LibationAvalonia.Views
 		public async Task OnLibraryLoadedAsync(List<LibraryBook> initialLibrary)
 		{
 			//Get the ViewModel before crossing the await boundary
-			var vm = ViewModel;
+			if (ViewModel is not MainVM vm)
+				return;
+
 			if (QuickFilters.UseDefault)
 				await vm.PerformFilter(QuickFilters.Filters.FirstOrDefault());
 
-			ViewModel.BindToGridTask = Task.WhenAll(
+			vm.BindToGridTask = Task.WhenAll(
 				vm.SetBackupCountsAsync(initialLibrary),
 				Task.Run(() => vm.ProductsDisplay.BindToGridAsync(initialLibrary)));
-			await ViewModel.BindToGridTask;
+
+			await vm.BindToGridTask;
 		}
 
-		public void ProductsDisplay_LiberateClicked(object _, IList<LibraryBook> libraryBook, Configuration config) => ViewModel.LiberateClicked(libraryBook, config);
-		public void ProductsDisplay_LiberateSeriesClicked(object _, SeriesEntry series) => ViewModel.LiberateSeriesClicked(series);
-		public void ProductsDisplay_ConvertToMp3Clicked(object _, LibraryBook[] libraryBook) => ViewModel.ConvertToMp3Clicked(libraryBook);
+		public void ProductsDisplay_LiberateClicked(object _, IList<LibraryBook> libraryBook, Configuration config) => ViewModel?.LiberateClicked(libraryBook, config);
+		public void ProductsDisplay_LiberateSeriesClicked(object _, SeriesEntry series) => ViewModel?.LiberateSeriesClicked(series);
+		public void ProductsDisplay_ConvertToMp3Clicked(object _, LibraryBook[] libraryBook) => ViewModel?.ConvertToMp3Clicked(libraryBook);
 
-		BookDetailsDialog bookDetailsForm;
+		BookDetailsDialog? bookDetailsForm;
 		public void ProductsDisplay_TagsButtonClicked(object _, LibraryBook libraryBook)
 		{
 			if (bookDetailsForm is null || !bookDetailsForm.IsVisible)
@@ -191,9 +194,9 @@ namespace LibationAvalonia.Views
 
 		public async void filterSearchTb_KeyPress(object _, KeyEventArgs e)
 		{
-			if (e.Key == Key.Return)
+			if (e.Key == Key.Return && ViewModel is not null)
 			{
-				await ViewModel.FilterBtn(filterSearchTb.Text);
+				await ViewModel.FilterBtn(filterSearchTb.Text ?? string.Empty);
 
 				// silence the 'ding'
 				e.Handled = true;
@@ -214,7 +217,7 @@ namespace LibationAvalonia.Views
 #pragma warning restore CS8321 // Local function is declared but never used
 
 			var upgrader = new LibationUiBase.Upgrader();
-			upgrader.DownloadProgress += async (_, e) => await Dispatcher.UIThread.InvokeAsync(() => ViewModel.DownloadProgress = e.ProgressPercentage);
+			upgrader.DownloadProgress += async (_, e) => await Dispatcher.UIThread.InvokeAsync(() => ViewModel?.DownloadProgress = e.ProgressPercentage);
 			upgrader.DownloadBegin += async (_, _) => await Dispatcher.UIThread.InvokeAsync(() => setProgressVisible(true));
 			upgrader.DownloadCompleted += async (_, _) => await Dispatcher.UIThread.InvokeAsync(() => setProgressVisible(false));
 			upgrader.UpgradeFailed += async (_, message) => await Dispatcher.UIThread.InvokeAsync(() => { setProgressVisible(false); MessageBox.Show(this, message, "Upgrade Failed", MessageBoxButtons.OK, MessageBoxIcon.Error); });
@@ -224,7 +227,7 @@ namespace LibationAvalonia.Views
 #endif
 		}
 
-		private void setProgressVisible(bool visible) => ViewModel.DownloadProgress = visible ? 0 : null;
+		private void setProgressVisible(bool visible) => ViewModel?.DownloadProgress = visible ? 0 : null;
 
 		public SearchSyntaxDialog ShowSearchSyntaxDialog()
 		{
@@ -235,15 +238,15 @@ namespace LibationAvalonia.Views
 			dialog.Show(this);
 			return dialog;
 
-			void Dialog_Closed(object sender, EventArgs e)
+			void Dialog_Closed(object? sender, EventArgs e)
 			{
 				dialog.TagDoubleClicked -= Dialog_TagDoubleClicked;
 				filterHelpBtn.IsEnabled = true;
 			}
-			void Dialog_TagDoubleClicked(object sender, string tag)
+			void Dialog_TagDoubleClicked(object? sender, string tag)
 			{
 				var text = filterSearchTb.Text;
-				filterSearchTb.Text = text.Insert(Math.Min(Math.Max(0, filterSearchTb.CaretIndex), text.Length), tag);
+				filterSearchTb.Text = text?.Insert(Math.Min(Math.Max(0, filterSearchTb.CaretIndex), text.Length), tag);
 				filterSearchTb.CaretIndex += tag.Length;
 				filterSearchTb.Focus();
 			}

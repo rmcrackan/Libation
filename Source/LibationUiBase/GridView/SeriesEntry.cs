@@ -43,7 +43,7 @@ namespace LibationUiBase.GridView
 		}
 
 		public SeriesEntry(LibraryBook parent, LibraryBook child) : this(parent, new[] { child }) { }
-		public SeriesEntry(LibraryBook parent, IEnumerable<LibraryBook> children)
+		public SeriesEntry(LibraryBook parent, IEnumerable<LibraryBook> children) : base(parent)
 		{
 			LastDownload = new();
 			SeriesIndex = -1;
@@ -70,14 +70,14 @@ namespace LibationUiBase.GridView
 			//sort episodes by series order descending and update SeriesEntry
 			foreach (var series in seriesEntries)
 			{
-				series.Children.Sort((a, b) => -a.SeriesOrder.CompareTo(b.SeriesOrder));
+				series.Children.Sort((a, b) => -SeriesOrder.Compare(a.SeriesOrder, b.SeriesOrder));
 				series.UpdateLibraryBook(series.LibraryBook);
 			}
 
 			return seriesEntries.Where(s => s.Children.Count != 0).ToList();
 
 			//Create a LibraryBookEntry for an episode and link it to its series parent
-			LibraryBookEntry CreateAndLinkEpisodeEntry(LibraryBook episode)
+			LibraryBookEntry? CreateAndLinkEpisodeEntry(LibraryBook episode)
 			{
 				foreach (var s in episode.Book.SeriesLink)
 				{
@@ -99,7 +99,7 @@ namespace LibationUiBase.GridView
 			Length = GetBookLengthString();
 		}
 
-		protected override string GetBookTags() => null;
+		protected override string? GetBookTags() => null;
 		protected override int GetLengthInMinutes() => Children.Count == 0 ? 0 : Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
 		protected override DateTime GetPurchaseDate() => Children.Count == 0 ? default : Children.Min(c => c.LibraryBook.DateAdded);
 		protected override DateTime? GetIncludedUntil() => Children.Count == 0 ? default : Children.Min(c => c.LibraryBook.IncludedUntil);

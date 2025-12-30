@@ -3,7 +3,6 @@ using LibationFileManager;
 using ReactiveUI;
 using System.Collections.Generic;
 
-#nullable enable
 namespace LibationAvalonia.ViewModels.Settings
 {
 	public class DownloadDecryptSettingsVM : ViewModelBase

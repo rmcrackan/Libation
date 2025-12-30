@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-#nullable enable
 namespace LibationAvalonia.ViewModels.Settings
 {
 	public class ImportantSettingsVM : ViewModelBase

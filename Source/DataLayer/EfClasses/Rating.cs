@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using Dinah.Core;
 
+#nullable enable
 namespace DataLayer
 {
     /// <summary>Parameterless ctor and setters should be used by EF only. Everything else should treat it as immutable</summary>
-    public class Rating : ValueObject_Static<Rating>, IComparable<Rating>, IComparable
+    public record Rating : IComparable<Rating>, IComparable
     {
         public float OverallRating { get; private set; }
         public float PerformanceRating { get; private set; }
@@ -31,23 +30,17 @@ namespace DataLayer
             StoryRating = storyRating;
         }
 
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            yield return OverallRating;
-            yield return PerformanceRating;
-            yield return StoryRating;
-        }
-
         public override string ToString() => $"Overall={OverallRating} Perf={PerformanceRating} Story={StoryRating}";
 
-        public int CompareTo(Rating other)
+        public int CompareTo(Rating? other)
         {
-            var compare = OverallRating.CompareTo(other.OverallRating);
+            if (other is null) return 1;
+			var compare = OverallRating.CompareTo(other.OverallRating);
             if (compare != 0) return compare;
             compare = PerformanceRating.CompareTo(other.PerformanceRating);
             if (compare != 0) return compare;
             return StoryRating.CompareTo(other.StoryRating);
         }
-        public int CompareTo(object obj) => obj is Rating second ? CompareTo(second) : -1;
+        public int CompareTo(object? obj) => obj is Rating second ? CompareTo(second) : 1;
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Dinah.Core;
 
+#nullable enable
 namespace DataLayer
 {
     /// <summary>
@@ -31,17 +32,17 @@ namespace DataLayer
 		/// <summary>
 		/// Version of Libation used the last time the audio file was downloaded.
 		/// </summary>
-		public Version LastDownloadedVersion { get; private set; }
+		public Version? LastDownloadedVersion { get; private set; }
 		/// <summary>
 		/// Audio format of the last downloaded audio file.
 		/// </summary>
-		public AudioFormat LastDownloadedFormat { get; private set; }
+		public AudioFormat? LastDownloadedFormat { get; private set; }
 		/// <summary>
 		/// Version of the audio file that was last downloaded.
 		/// </summary>
-		public string LastDownloadedFileVersion { get; private set; }
+		public string? LastDownloadedFileVersion { get; private set; }
 
-        public void SetLastDownloaded(Version libationVersion, AudioFormat audioFormat, string audioVersion)
+        public void SetLastDownloaded(Version? libationVersion, AudioFormat? audioFormat, string? audioVersion)
         {
             if (LastDownloadedVersion != libationVersion)
             {
@@ -71,9 +72,13 @@ namespace DataLayer
                 OnItemChanged(nameof(LastDownloaded));
             }
 		}
+		private UserDefinedItem()
+        {
+			// for EF
+			Book = null!;
+		}
 
-		private UserDefinedItem() { }
-        internal UserDefinedItem(Book book)
+		internal UserDefinedItem(Book book)
 		{
 			ArgumentValidator.EnsureNotNull(book, nameof(book));
             Book = book;
@@ -162,7 +167,7 @@ namespace DataLayer
         /// Occurs when <see cref="Tags"/>, <see cref="BookStatus"/>, or <see cref="PdfStatus"/> values change.
         /// This signals the change of the in-memory value; it does not ensure that the new value has been persisted.
         /// </summary>
-        public static event EventHandler<string> ItemChanged;
+        public static event EventHandler<string>? ItemChanged;
 
         private void OnItemChanged(string e)
         {

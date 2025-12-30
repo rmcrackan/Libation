@@ -1,13 +1,10 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Dinah.Core;
-using FileManager;
 using LibationAvalonia.Dialogs;
 using LibationAvalonia.ViewModels.Settings;
 using LibationFileManager;
 using System.Linq;
 
-#nullable enable
 namespace LibationAvalonia.Controls.Settings
 {
 	public partial class Important : UserControl

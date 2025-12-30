@@ -4,7 +4,7 @@ namespace LibationAvalonia.Dialogs
 {
 	public partial class TagsBatchDialog : DialogWindow
 	{
-		public string NewTags { get; set; }
+		public string? NewTags { get; set; }
 		public TagsBatchDialog()
 		{
 			InitializeComponent();

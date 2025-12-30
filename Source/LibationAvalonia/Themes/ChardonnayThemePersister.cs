@@ -5,7 +5,6 @@ using LibationFileManager;
 using Newtonsoft.Json;
 using System;
 
-#nullable enable
 namespace LibationAvalonia.Themes;
 
 public class ChardonnayThemePersister : JsonFilePersister<ChardonnayTheme>

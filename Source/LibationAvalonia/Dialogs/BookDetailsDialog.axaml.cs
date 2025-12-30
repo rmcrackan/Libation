@@ -17,26 +17,27 @@ namespace LibationAvalonia.Dialogs
 {
 	public partial class BookDetailsDialog : DialogWindow
 	{
-		private BookDetailsDialogViewModel _viewModel;
-		public LibraryBook LibraryBook
+		private BookDetailsDialogViewModel? _viewModel;
+		public LibraryBook? LibraryBook
 		{
 			get => field;
 			set
 			{
 				field = value;
-				Title = field.Book.TitleWithSubtitle;
-				DataContext = _viewModel = new BookDetailsDialogViewModel(field);
+				Title = field?.Book.TitleWithSubtitle;
+				if (field is not null)
+					DataContext = _viewModel = new BookDetailsDialogViewModel(field);
 			}
 		}
 
-		public string NewTags => _viewModel.Tags;
-		public LiberatedStatus BookLiberatedStatus => _viewModel.BookLiberatedSelectedItem.Status;
-		public LiberatedStatus? PdfLiberatedStatus => _viewModel.PdfLiberatedSelectedItem?.Status;
+		public string? NewTags => _viewModel?.Tags;
+		public LiberatedStatus BookLiberatedStatus => _viewModel?.BookLiberatedSelectedItem?.Status ?? default;
+		public LiberatedStatus? PdfLiberatedStatus => _viewModel?.PdfLiberatedSelectedItem?.Status;
 
 		public BookDetailsDialog()
 		{
 			InitializeComponent();
-			ControlToFocusOnShow = this.Find<TextBox>(nameof(tagsTbox));
+			ControlToFocusOnShow = tagsTbox;
 
 			if (Design.IsDesignMode)
 			{
@@ -60,14 +61,15 @@ namespace LibationAvalonia.Dialogs
 
 		protected override async Task SaveAndCloseAsync()
 		{
-			await LibraryBook.UpdateUserDefinedItemAsync(NewTags, bookStatus: BookLiberatedStatus, pdfStatus: PdfLiberatedStatus);
+			if (LibraryBook is not null)
+				await LibraryBook.UpdateUserDefinedItemAsync(NewTags, bookStatus: BookLiberatedStatus, pdfStatus: PdfLiberatedStatus);
 			await base.SaveAndCloseAsync();
 		}
 
 		public void BookStatus_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			if (sender is not WheelComboBox { SelectedItem: liberatedComboBoxItem { Status: LiberatedStatus.Error } } &&
-				_viewModel.BookLiberatedItems.SingleOrDefault(s => s.Status == LiberatedStatus.Error) is liberatedComboBoxItem errorItem)
+				_viewModel?.BookLiberatedItems.SingleOrDefault(s => s.Status == LiberatedStatus.Error) is liberatedComboBoxItem errorItem)
 			{
 				_viewModel.BookLiberatedItems.Remove(errorItem);
 			}
@@ -78,8 +80,8 @@ namespace LibationAvalonia.Dialogs
 		public class liberatedComboBoxItem
 		{
 			public LiberatedStatus Status { get; set; }
-			public string Text { get; set; }
-			public override string ToString() => Text;
+			public string? Text { get; set; }
+			public override string? ToString() => Text;
 		}
 
 		public class BookDetailsDialogViewModel : ViewModelBase
@@ -92,8 +94,8 @@ namespace LibationAvalonia.Dialogs
 			public bool HasPDF => PdfLiberatedItems?.Count > 0;
 			public AvaloniaList<liberatedComboBoxItem> BookLiberatedItems { get; } = new();
 			public List<liberatedComboBoxItem> PdfLiberatedItems { get; } = new();
-			public liberatedComboBoxItem PdfLiberatedSelectedItem { get; set; }
-			public liberatedComboBoxItem BookLiberatedSelectedItem { get; set; }
+			public liberatedComboBoxItem? PdfLiberatedSelectedItem { get; set; }
+			public liberatedComboBoxItem? BookLiberatedSelectedItem { get; set; }
 			public ICommand OpenInAudibleCommand { get; }
 
 			public BookDetailsDialogViewModel(LibraryBook libraryBook)

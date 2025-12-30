@@ -75,7 +75,7 @@ namespace LibationUiBase.SeriesView
 			finally { Enabled = true; }
 		}
 
-		public override int CompareTo(object ob)
+		public override int CompareTo(object? ob)
 		{
 			if (ob is not WishlistButton other) return -1;
 

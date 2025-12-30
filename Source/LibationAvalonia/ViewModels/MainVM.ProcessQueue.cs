@@ -1,13 +1,11 @@
 ﻿using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
-using LibationUiBase;
 using LibationUiBase.GridView;
 using ReactiveUI;
 using System;
 using System.Linq;
 
-#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM

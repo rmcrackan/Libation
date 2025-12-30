@@ -24,6 +24,7 @@ namespace LibationAvalonia.Dialogs
 		public BookRecordsDialog()
 		{
 			InitializeComponent();
+			libraryBook = MockLibraryBook.CreateBook();
 
 			if (Design.IsDesignMode)
 			{
@@ -43,7 +44,7 @@ namespace LibationAvalonia.Dialogs
 			Loaded += BookRecordsDialog_Loaded;
 		}
 
-		private async void BookRecordsDialog_Loaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		private async void BookRecordsDialog_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			try
 			{
@@ -211,8 +212,8 @@ namespace LibationAvalonia.Dialogs
 			public string Created => Record.Created.ToString(DateFormat);
 			public string Modified => Record is IAnnotation annotation ? annotation.Created.ToString(DateFormat) : string.Empty;
 			public string End => Record is IRangeAnnotation range ? formatTimeSpan(range.End) : string.Empty;
-			public string Note => Record is IRangeAnnotation range ? range.Text : string.Empty;
-			public string Title => Record is Clip range ? range.Title : string.Empty;
+			public string Note => (Record as IRangeAnnotation)?.Text ?? string.Empty;
+			public string Title => (Record as Clip)?.Title ?? string.Empty;
 			public BookRecordEntry(IRecord record) => Record = record;
 
 			private static string formatTimeSpan(TimeSpan timeSpan)

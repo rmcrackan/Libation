@@ -58,7 +58,7 @@ namespace LibationAvalonia.Controls
 			Tapped += LinkLabel_Tapped;
 		}
 
-		private void LinkLabel_Tapped(object sender, TappedEventArgs e)
+		private void LinkLabel_Tapped(object? sender, TappedEventArgs e)
 		{
 			Foreground = ForegroundVisited;
 			if (IsEffectivelyEnabled)
@@ -87,7 +87,7 @@ namespace LibationAvalonia.Controls
 		}
 		protected override bool IsEnabledCore => base.IsEnabledCore && _commandCanExecute;
 
-		protected override void UpdateDataValidation(AvaloniaProperty property, BindingValueType state, Exception error)
+		protected override void UpdateDataValidation(AvaloniaProperty property, BindingValueType state, Exception? error)
 		{
 			base.UpdateDataValidation(property, state, error);
 			if (property == CommandProperty)
