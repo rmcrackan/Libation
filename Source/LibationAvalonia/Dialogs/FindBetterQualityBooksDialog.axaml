@@ -3,10 +3,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
+		xmlns:vm="clr-namespace:LibationUiBase;assembly=LibationUiBase"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 		Width="800" Height="450"
         x:Class="LibationAvalonia.Dialogs.FindBetterQualityBooksDialog"
-		x:DataType="dialogs:FindBetterQualityBooksDialog+ScanVM"
+		x:DataType="vm:FindBetterQualityBooksViewModel"
         Title="FindBetterQualityBooksDialog">
 
   <Grid Margin="5" RowDefinitions="*,Auto">
@@ -20,7 +21,7 @@
 		IsReadOnly="True"
 		ItemsSource="{CompiledBinding Books}">
 		  <DataGrid.Styles>
-			  <Style x:DataType="dialogs:FindBetterQualityBooksDialog+BookData" Selector="DataGridRow">
+			  <Style x:DataType="vm:FindBetterQualityBooksViewModel+BookData" Selector="DataGridRow">
 				  	<Setter Property="Background" Value="{CompiledBinding ScanStatus, Converter={x:Static dialogs:FindBetterQualityBooksDialog.RowConverter }}" />
 			  </Style>
 		  </DataGrid.Styles>
