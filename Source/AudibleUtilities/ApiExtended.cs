@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Channels;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using AudibleApi;
+﻿using AudibleApi;
 using AudibleApi.Common;
 using Dinah.Core;
+using LibationFileManager;
+using Newtonsoft.Json.Linq;
 using Polly;
 using Polly.Retry;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
-using LibationFileManager;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 
 #nullable enable
 namespace AudibleUtilities
@@ -80,6 +81,23 @@ namespace AudibleUtilities
 			//    var page = await api.GetLibraryAsync(new AudibleApi.LibraryOptions { NumberOfResultPerPage = 1, PageNumber = 1, PurchasedAfter = DateTime.Now.AddYears(-20), ResponseGroups = AudibleApi.LibraryOptions.ResponseGroupOptions.ALL_OPTIONS });
 			// i don't want to incur the cost of making a full dummy call every time because it fails sometimes
 			return policy.ExecuteAsync(() => getItemsAsync(libraryOptions));
+		}
+
+		/// <summary>
+		/// A debugging method used to simulate a library scan from a LibraryScans.zip json file.
+		/// Simply replace the Api call to GetLibraryItemsPagesAsync() with a call to this method.
+		/// </summary>
+		private static async IAsyncEnumerable<Item[]> GetItemsFromJsonFile()
+		{
+			var libraryScanJsonPath = @"Path/to/libraryscan.json";
+			using var jsonFile = System.IO.File.OpenText(libraryScanJsonPath);
+
+			var json = await JToken.ReadFromAsync(new Newtonsoft.Json.JsonTextReader(jsonFile));
+			if (json?["Items"] is not JArray items)
+				yield break;
+
+			foreach (var batch in items.Select(i => Item.FromJson(i as JObject)).Chunk(BatchSize))
+				yield return batch;
 		}
 
 		private async Task<List<Item>> getItemsAsync(LibraryOptions libraryOptions)
@@ -162,6 +180,7 @@ namespace AudibleUtilities
 			Serilog.Log.Logger.Information("Completed indexing series episodes after {elappsed_ms} ms.", sw.ElapsedMilliseconds);
 			Serilog.Log.Logger.Information($"Completed library scan in {totalTime.TotalMilliseconds:F0} ms.");
 
+			Array.ForEach(ISanitizer.GetAllSanitizers(), s => s.Sanitize(items));
 			var allExceptions = IValidator.GetAllValidators().SelectMany(v => v.Validate(items)).ToList();
 			if (allExceptions?.Count > 0)
 				throw new ImportValidationException(items, allExceptions);

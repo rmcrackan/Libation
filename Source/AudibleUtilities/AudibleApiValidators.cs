@@ -9,17 +9,21 @@ namespace AudibleUtilities
 	{
 		IEnumerable<Exception> Validate(IEnumerable<Item> items);
 
-		public static IValidator[] GetAllValidators()
-			=> new IValidator[]
-			{
-				new LibraryValidator(),
-				new BookValidator(),
-				new CategoryValidator(),
-				new ContributorValidator(),
-				new SeriesValidator(),
-			};
+		public static IValidator[] GetAllValidators() => [
+			new LibraryValidator(),
+			new BookValidator(),
+			new CategoryValidator(),
+			new SeriesValidator(),
+		];
 	}
 
+	/// <summary>
+	/// To be used when no validation is desired
+	/// </summary>
+	public class ClearValidator : IValidator
+	{
+		public IEnumerable<Exception> Validate(IEnumerable<Item> items) => [];
+	}
 	public class LibraryValidator : IValidator
 	{
 		public IEnumerable<Exception> Validate(IEnumerable<Item> items)
@@ -64,20 +68,6 @@ namespace AudibleUtilities
 				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Categories)} with null {nameof(Ladder.CategoryId)}", nameof(items)));
 			if (distinct.Any(s => s.CategoryName is null))
 				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Categories)} with null {nameof(Ladder.CategoryName)}", nameof(items)));
-
-			return exceptions;
-		}
-	}
-	public class ContributorValidator : IValidator
-	{
-		public IEnumerable<Exception> Validate(IEnumerable<Item> items)
-		{
-			var exceptions = new List<Exception>();
-
-			if (items.GetAuthorsDistinct().Any(a => string.IsNullOrWhiteSpace(a.Name)))
-				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Authors)} with null {nameof(Person.Name)}", nameof(items)));
-			if (items.GetNarratorsDistinct().Any(a => string.IsNullOrWhiteSpace(a.Name)))
-				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Narrators)} with null {nameof(Person.Name)}", nameof(items)));
 
 			return exceptions;
 		}
