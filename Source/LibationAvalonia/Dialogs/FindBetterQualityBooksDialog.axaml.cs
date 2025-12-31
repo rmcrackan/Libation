@@ -3,15 +3,21 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
+using Avalonia.Threading;
 using DataLayer;
 using LibationUiBase;
+using LibationUiBase.Forms;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs;
 
 public partial class FindBetterQualityBooksDialog : DialogWindow
 {
     private FindBetterQualityBooksViewModel VM { get; }
+
+	private Task? scanTask;
 	public FindBetterQualityBooksDialog()
 	{
 		InitializeComponent();
@@ -19,37 +25,126 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 		if (Design.IsDesignMode)
 		{
 			var library = Enumerable.Repeat(MockLibraryBook.CreateBook(), 3);
-			AvaloniaList<FindBetterQualityBooksViewModel.BookData> list = new(library.Select(lb => new FindBetterQualityBooksViewModel.BookData(lb)));
-			DataContext = VM = new FindBetterQualityBooksViewModel(list);
+			DataContext = VM = new FindBetterQualityBooksViewModel()
+			{
+				Books = new AvaloniaList<BookDataViewModel>(library.Select(lb => new BookDataViewModel(lb)))
+			};
 			VM.Books[0].AvailableCodec = "xHE-AAC";
 			VM.Books[0].AvailableBitrate = 256;
-			VM.Books[0].ScanStatus = FindBetterQualityBooksViewModel.ScanStatus.Completed;
-			VM.Books[1].ScanStatus = FindBetterQualityBooksViewModel.ScanStatus.Error;
-			VM.Books[2].ScanStatus = FindBetterQualityBooksViewModel.ScanStatus.Cancelled;
+			VM.Books[0].ScanStatus = BookScanStatus.Completed;
+			VM.Books[1].ScanStatus = BookScanStatus.Error;
+			VM.Books[2].ScanStatus = BookScanStatus.Cancelled;
 			VM.SignificantCount = 1;
 		}
 		else
 		{
-			var library = DbContexts.GetLibrary_Flat_NoTracking();
-			AvaloniaList<FindBetterQualityBooksViewModel.BookData> list = new(library.Where(FindBetterQualityBooksViewModel.ShouldScan).Select(lb => new FindBetterQualityBooksViewModel.BookData(lb)));
-			DataContext = VM = new FindBetterQualityBooksViewModel(list);
+			DataContext = VM = new FindBetterQualityBooksViewModel();
 			VM.BookScanned += VM_BookScanned;
+			VM.PropertyChanged += VM_PropertyChanged;
+			Opened += Opened_LoadLibrary;
+			Opened += Opened_ShowInitialMessage;
+			Closing += FindBetterQualityBooksDialog_Closing;
 		}
 	}
 
-	private void VM_BookScanned(object? sender, FindBetterQualityBooksViewModel.BookData e)
+	private async void Opened_ShowInitialMessage(object? sender, System.EventArgs e)
 	{
-		booksDataGrid.ScrollIntoView(e, booksDataGrid.Columns[0]);
+		await MessageBox.Show(this, FindBetterQualityBooksViewModel.InitialMessage, Title ?? "", MessageBoxButtons.OK, MessageBoxIcon.Information);
 	}
 
+	private async void Opened_LoadLibrary(object? sender, System.EventArgs e)
+	{
+		var library = await Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking());
+		VM.Books = new AvaloniaList<BookDataViewModel>(library.Where(FindBetterQualityBooksViewModel.ShouldScan).Select(lb => new BookDataViewModel(lb)));
+		Dispatcher.UIThread.Invoke(() => scanBtn.IsEnabled = true);
+	}
 
-	public static FuncValueConverter<FindBetterQualityBooksViewModel.ScanStatus, IBrush?> RowConverter { get; } = new(status =>
+	private void VM_BookScanned(object? sender, BookDataViewModel e)
+	{
+		Dispatcher.UIThread.Invoke(() => booksDataGrid.ScrollIntoView(e, booksDataGrid.Columns[0]));
+	}
+
+	private void VM_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+	{
+		if (e.PropertyName == nameof(FindBetterQualityBooksViewModel.IsScanning))
+		{
+			Dispatcher.UIThread.Invoke(() => scanBtn.IsEnabled = true);
+		}
+	}
+
+	private async void FindBetterQualityBooksDialog_Closing(object? sender, WindowClosingEventArgs e)
+	{
+		if (scanTask is not null)
+		{
+			await scanTask;
+			scanTask = null;
+			Dispatcher.UIThread.Invoke(Close);
+		}
+	}
+	protected override void OnClosing(WindowClosingEventArgs e)
+	{
+		if (scanTask is not null)
+		{
+			this.SaveSizeAndLocation(LibationFileManager.Configuration.Instance);
+			e.Cancel = true;
+			VM.StopScan();
+		}
+		base.OnClosing(e);
+	}
+
+	public void Scan_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+	{
+		(sender as Button)?.IsEnabled = false;
+		scanTask = Task.Run(async () =>
+		{
+			try
+			{
+				if (VM.IsScanning)
+					VM.StopScan();
+				else
+					await Task.Run(VM.ScanAsync);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Error(ex, "Failed to scan for better quality books");
+				await MessageBox.Show(this, "An error occurred while scanning for better quality books. Please see the logs for more information.", "Error Scanning Books", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+			finally
+			{
+				Dispatcher.UIThread.Invoke(() =>
+				{
+					VM.IsScanning = false;
+					(sender as Button)?.IsEnabled = true;
+				});
+			}
+		});
+	}
+
+	public async void MarkBooks_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+	{
+		(sender as Button)?.IsEnabled = false;
+		try
+		{
+			await VM.MarkBooksAsync();
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Error(ex, "Failed to mark books as Not Liberated");
+			await MessageBox.Show(this, "An error occurred while marking books as Not Liberated. Please see the logs for more information.", "Error Marking Books", MessageBoxButtons.OK, MessageBoxIcon.Error);
+		}
+		finally
+		{
+			Dispatcher.UIThread.Invoke(() => (sender as Button)?.IsEnabled = true);
+		}
+	}
+
+	public static FuncValueConverter<BookScanStatus, IBrush?> RowConverter { get; } = new(status =>
     {
         var brush = status switch
         {
-			FindBetterQualityBooksViewModel.ScanStatus.Completed => "ProcessQueueBookCompletedBrush",
-			FindBetterQualityBooksViewModel.ScanStatus.Cancelled => "ProcessQueueBookCancelledBrush",
-			FindBetterQualityBooksViewModel.ScanStatus.Error => "ProcessQueueBookFailedBrush",
+			BookScanStatus.Completed => "ProcessQueueBookCompletedBrush",
+			BookScanStatus.Cancelled => "ProcessQueueBookCancelledBrush",
+			BookScanStatus.Error => "ProcessQueueBookFailedBrush",
             _ => null,
         };
         return brush is not null && App.Current.TryGetResource(brush, App.Current.ActualThemeVariant, out var res) ? res as Brush : null;

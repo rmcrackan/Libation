@@ -16,16 +16,28 @@ namespace LibationUiBase;
 
 public class FindBetterQualityBooksViewModel : ReactiveObject
 {
-	public enum ScanStatus
-	{
-		None,
-		Error,
-		Cancelled,
-		Completed,
-	}
+	public const string StartScanBtnText = "Scan Audible for Higher Quality Audio";
+	public const string StopScanBtnText = "Stop Scanning";
+	public const string UseWidevineSboxText = "Use Widevine?";
+	public const string InitialMessage = """
+		This tool will scan your liberated audiobooks to see if Audible
+		has a higher quality version available.
 
-	public event EventHandler<BookData>? BookScanned;
-	public IList<BookData> Books { get; }
+		For each liberated audiobook in your library, it will try to read the existing audio file to determine its codec and bitrate. If no local file is found, it will use the 'Last Downloaded' format information stored in the database.
+		
+		It will then query Audible's API to get the highest quality format currently available for that audiobook.
+		
+		If you check the 'Use Widevine' option, it will query for Widevine-protected formats, which may or may not be xHE-AAC. If unchecked, it will query for Audible DRM-protected formats, which are typically AAC-LC.
+
+		Click 'Scan Audible for Higher Quality Audio' to begin.
+
+		When done, click the 'Mark X books as Not Liberated' to allow Libation to re-download those books in the higher.
+
+		Note: make sure you adjust your download quality settings before re-liberating the books.
+		""";
+
+	public event EventHandler<BookDataViewModel>? BookScanned;
+	public IList<BookDataViewModel>? Books { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 
 	public bool ScanWidevine { get; set; }
 	public int SignificantCount
@@ -33,21 +45,21 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 		get => field;
 		set
 		{
-			this.RaiseAndSetIfChanged(ref field, value);
-			MarkBooksButtonText = value == 0 ? string.Empty
+			RaiseAndSetIfChanged(ref field, value);
+			MarkBooksButtonText = value == 0 ? null
 				: value == 1 ? "Mark 1 book as 'Not Liberated'"
 				: $"Mark {value} books as 'Not Liberated'";
 		}
 	}
-	public bool IsScanning { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
-	public string? MarkBooksButtonText { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
-	public string? ScanCount { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+	public bool IsScanning { get => field; set { RaiseAndSetIfChanged(ref field, value); ScanButtonText = field ? StopScanBtnText : StartScanBtnText; } }
+	public string? MarkBooksButtonText { get => field; set => RaiseAndSetIfChanged(ref field, value); }
+	public string? ScanCount { get => field; set => RaiseAndSetIfChanged(ref field, value); }
+	public string ScanButtonText { get => field; set => RaiseAndSetIfChanged(ref field, value); } = StartScanBtnText;
 
 	private CancellationTokenSource? cts;
 
-	public FindBetterQualityBooksViewModel(IList<BookData> books)
+	public FindBetterQualityBooksViewModel()
 	{
-		Books = books;
 		ScanWidevine = Configuration.Instance.UseWidevine;
 	}
 
@@ -63,17 +75,17 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 
 	public async Task MarkBooksAsync()
 	{
-		var significant = Books.Where(b => b.IsSignificant).ToArray();
+		var significant = Books?.Where(b => b.IsSignificant).ToArray() ?? [];
 
 		await significant.Select(b => b.LibraryBook).UpdateBookStatusAsync(LiberatedStatus.NotLiberated);
-		Array.ForEach(significant, b => Books.Remove(b));
+		Array.ForEach(significant, b => Books?.Remove(b));
 
-		SignificantCount = Books.Count(b => b.IsSignificant);
+		SignificantCount = Books?.Count(b => b.IsSignificant) ?? 0;
 	}
 
 	public async Task ScanAsync()
 	{
-		if (cts?.IsCancellationRequested is true)
+		if (cts?.IsCancellationRequested is true || Books is null)
 			return;
 		IsScanning = true;
 
@@ -81,7 +93,7 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 		{
 			b.AvailableBitrate = 0;
 			b.AvailableCodec = null;
-			b.ScanStatus = ScanStatus.None;
+			b.ScanStatus = BookScanStatus.None;
 		}
 		ScanCount = $"0 of {Books.Count:N0} scanned";
 
@@ -115,7 +127,7 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 						else
 						{
 							b.FoundFile = "File not found and no 'Last Downloaded' format found.";
-							b.ScanStatus = ScanStatus.Error;
+							b.ScanStatus = BookScanStatus.Error;
 							continue;
 						}
 					}
@@ -125,22 +137,23 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 
 					b.AvailableCodec = codecString;
 					b.AvailableBitrate = bitrate;
-					b.ScanStatus = ScanStatus.Completed;
+					b.ScanStatus = BookScanStatus.Completed;
 				}
 				catch (OperationCanceledException)
 				{
-					b.ScanStatus = ScanStatus.Cancelled;
+					b.ScanStatus = BookScanStatus.Cancelled;
 					break;
 				}
 				catch (Exception ex)
 				{
 					Serilog.Log.Logger.Error(ex, "Error checking for better quality for {@Asin}", b.Asin);
-					b.ScanStatus = ScanStatus.Error;
+					b.FoundFile = $"Error: {ex.Message}";
+					b.ScanStatus = BookScanStatus.Error;
 				}
 				finally
 				{
 					SignificantCount = Books.Count(b => b.IsSignificant);
-					ScanCount = $"{i:N0} of {Books.Count:N0} scanned";
+					ScanCount = $"{i + 1:N0} of {Books.Count:N0} scanned";
 					BookScanned?.Invoke(this, b);
 				}
 			}
@@ -196,46 +209,5 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 		return string.Format(BaseUrl, locale.TopDomain, libraryBook.Book.AudibleProductId, drm_type);
 	}
 
-	const string BaseUrl = "ht" + "tps://api.audible.{0}/1.0/content/{1}/metadata?response_groups=chapter_info,content_reference&quality=High&drm_type={2}";
-	public class BookData : ReactiveObject
-	{
-		public LibraryBook LibraryBook { get; }
-		public BookData(LibraryBook libraryBook)
-		{
-			LibraryBook = libraryBook;
-			Asin = libraryBook.Book.AudibleProductId;
-			Title = libraryBook.Book.Title;
-		}
-		public string Asin { get; }
-		public string Title { get; }
-		public string? FoundFile { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
-		public string? Codec { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
-		public string? AvailableCodec { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
-		public int Bitrate
-		{
-			get => field;
-			set
-			{
-				this.RaiseAndSetIfChanged(ref field, value);
-				BitrateString = GetBitrateString(value);
-			}
-		}
-		public int AvailableBitrate
-		{
-			get => field;
-			set
-			{
-				this.RaiseAndSetIfChanged(ref field, value);
-				AvailableBitrateString = GetBitrateString(value);
-				var diff = (double)AvailableBitrate / Bitrate;
-				IsSignificant = diff >= 1.15;
-			}
-		}
-
-		public string? BitrateString { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
-		public string? AvailableBitrateString { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
-		public bool IsSignificant { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
-		public ScanStatus ScanStatus { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
-		private static string? GetBitrateString(int bitrate) => bitrate > 0 ? $"{bitrate} kbps" : null;
-	}
+	const string BaseUrl = "ht" + "tps://api.audible.{0}/1.0/content/{1}/metadata?response_groups=chapter_info,content_reference&quality=High&drm_type={2}";	
 }

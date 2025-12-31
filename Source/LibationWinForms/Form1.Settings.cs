@@ -35,6 +35,8 @@ namespace LibationWinForms
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e) => new AboutDialog().ShowDialog(this);
 		private async void tourToolStripMenuItem_Click(object sender, EventArgs e)
 			=> await new Walkthrough(this).RunAsync();
+		private void scanForHigherQualityBooksStripMenuItem_Click(object sender, EventArgs e)
+			=> new FindBetterQualityBooksDialog().ShowDialog(this);
 
 		private void launchHangoverToolStripMenuItem_Click(object sender, EventArgs e)
         {

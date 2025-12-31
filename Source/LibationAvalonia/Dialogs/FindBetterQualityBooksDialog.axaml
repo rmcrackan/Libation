@@ -8,7 +8,7 @@
 		Width="800" Height="450"
         x:Class="LibationAvalonia.Dialogs.FindBetterQualityBooksDialog"
 		x:DataType="vm:FindBetterQualityBooksViewModel"
-        Title="FindBetterQualityBooksDialog">
+        Title="Scan Audible for Better Quality Audiobooks">
 
   <Grid Margin="5" RowDefinitions="*,Auto">
 	  <DataGrid
@@ -21,7 +21,7 @@
 		IsReadOnly="True"
 		ItemsSource="{CompiledBinding Books}">
 		  <DataGrid.Styles>
-			  <Style x:DataType="vm:FindBetterQualityBooksViewModel+BookData" Selector="DataGridRow">
+			  <Style x:DataType="vm:BookDataViewModel" Selector="DataGridRow">
 				  	<Setter Property="Background" Value="{CompiledBinding ScanStatus, Converter={x:Static dialogs:FindBetterQualityBooksDialog.RowConverter }}" />
 			  </Style>
 		  </DataGrid.Styles>
@@ -82,14 +82,13 @@
 	  <Grid Margin="0,5,0,0" Grid.Row="1"
 		 ColumnDefinitions="Auto,Auto,*,Auto">
 		  
-		  <CheckBox IsChecked="{Binding ScanWidevine, Mode=TwoWay}" Content="Use Widevine?" Margin="0,0,5,0" />
+		  <CheckBox IsChecked="{Binding ScanWidevine, Mode=TwoWay}" Content="{x:Static vm:FindBetterQualityBooksViewModel.UseWidevineSboxText }" Margin="0,0,5,0" />
 
-		  <Button Grid.Column="1" Classes="SaveButton" Content="Scan Audible for Higher Quality Audio" IsVisible="{Binding !IsScanning}" Command="{Binding ScanAsync}" />
-		  <Button Grid.Column="1" Classes="SaveButton" Content="Stop Scan" IsVisible="{Binding IsScanning}" Command="{Binding StopScan}" />
+		  <Button Name="scanBtn" IsEnabled="False" Grid.Column="1" Classes="SaveButton" Content="{Binding ScanButtonText}" Click="Scan_Click" />
 
 		  <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="{Binding ScanCount}" Margin="10,0,0,0" />
 		  <Button Grid.Column="3" Classes="SaveButton" Content="{Binding MarkBooksButtonText}"
-			IsVisible="{Binding SignificantCount}" Command="{Binding MarkBooksAsync}" />
+			IsVisible="{Binding SignificantCount}" Click="MarkBooks_Click" />
 	  </Grid>
   </Grid>
 </Window>
