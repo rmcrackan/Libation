@@ -108,19 +108,22 @@ namespace ApplicationServices
 		[Name("Language")]
         public string Language { get; set; }
 
-		[Name("LastDownloaded")]
+		[Name("Last Downloaded")]
 		public DateTime? LastDownloaded { get; set; }
 
-		[Name("LastDownloadedVersion")]
+		[Name("Last Downloaded Version")]
         public string LastDownloadedVersion { get; set; }
 
-		[Name("IsFinished")]
+		[Name("Is Finished?")]
         public bool IsFinished { get; set; }
 
-		[Name("IsSpatial")]
+		[Name("Is Spatial?")]
 		public bool IsSpatial { get; set; }
 
-		[Name("Last Downloaded File Version")]
+		[Name("Included Until")]
+		public DateTime? IncludedUntil { get; set; }
+
+        [Name("Last Downloaded File Version")]
 		public string LastDownloadedFileVersion { get; set; }
 
 		[Ignore /* csv ignore */]
@@ -177,6 +180,7 @@ namespace ApplicationServices
 				LastDownloadedVersion = a.Book.UserDefinedItem.LastDownloadedVersion?.ToString() ?? "",
 				IsFinished = a.Book.UserDefinedItem.IsFinished,
 				IsSpatial = a.Book.IsSpatial,
+				IncludedUntil = a.IncludedUntil,
 				LastDownloadedFileVersion = a.Book.UserDefinedItem.LastDownloadedFileVersion ?? "",
 				LastDownloadedFormat = a.Book.UserDefinedItem.LastDownloadedFormat
 			}).ToList();
@@ -248,6 +252,7 @@ namespace ApplicationServices
                 nameof(ExportDto.LastDownloadedVersion),
                 nameof(ExportDto.IsFinished),
                 nameof(ExportDto.IsSpatial),
+				nameof(ExportDto.IncludedUntil),
                 nameof(ExportDto.LastDownloadedFileVersion),
                 nameof(ExportDto.CodecString),
                 nameof(ExportDto.SampleRate),
@@ -305,7 +310,8 @@ namespace ApplicationServices
 				row.Cell(col++).Value = dto.LastDownloadedVersion;
 				row.Cell(col++).Value = dto.IsFinished;
 				row.Cell(col++).Value = dto.IsSpatial;
-				row.Cell(col++).Value = dto.LastDownloadedFileVersion;
+                row.Cell(col++).Value = dto.IncludedUntil;
+                row.Cell(col++).Value = dto.LastDownloadedFileVersion;
 				row.Cell(col++).Value = dto.CodecString;
 				row.Cell(col++).Value = dto.SampleRate;
 				row.Cell(col++).Value = dto.ChannelCount;
