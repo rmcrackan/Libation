@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 
-#nullable enable
 namespace LibationUiBase
 {
 	public enum QueuePosition

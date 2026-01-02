@@ -9,17 +9,19 @@ namespace LibationAvalonia.Controls
 {
 	internal static class DataGridContextMenus
 	{
-		public static event EventHandler<DataGridCellContextMenuStripNeededEventArgs> CellContextMenuStripNeeded;
+		public static event EventHandler<DataGridCellContextMenuStripNeededEventArgs>? CellContextMenuStripNeeded;
 		private static readonly ContextMenu ContextMenu = new();
-		private static readonly AvaloniaList<Control> MenuItems = new();
+		public static readonly AvaloniaList<Control> MenuItems = new();
 		private static readonly PropertyInfo OwningColumnProperty;
 		private static readonly PropertyInfo OwningGridProperty;
 
 		static DataGridContextMenus()
 		{
 			ContextMenu.ItemsSource = MenuItems;
-			OwningColumnProperty = typeof(DataGridCell).GetProperty("OwningColumn", BindingFlags.Instance | BindingFlags.NonPublic);
-			OwningGridProperty = typeof(DataGridColumn).GetProperty("OwningGrid", BindingFlags.Instance | BindingFlags.NonPublic);
+			OwningColumnProperty = typeof(DataGridCell).GetProperty("OwningColumn", BindingFlags.Instance | BindingFlags.NonPublic)
+				?? throw new InvalidOperationException("Could not find OwningColumn property on DataGridCell");
+			OwningGridProperty = typeof(DataGridColumn).GetProperty("OwningGrid", BindingFlags.Instance | BindingFlags.NonPublic)
+				?? throw new InvalidOperationException("Could not find OwningGrid property on DataGridColumn");
 		}
 
 		public static void AttachContextMenu(this DataGridCell cell)
@@ -31,7 +33,7 @@ namespace LibationAvalonia.Controls
 			}
 		}
 
-		private static void Cell_ContextRequested(object sender, ContextRequestedEventArgs e)
+		private static void Cell_ContextRequested(object? sender, ContextRequestedEventArgs e)
 		{
 			if (sender is DataGridCell cell &&
 				cell.DataContext is GridEntry clickedEntry &&
@@ -74,7 +76,8 @@ namespace LibationAvalonia.Controls
 		private static readonly MethodInfo GetCellValueMethod;
 		static DataGridCellContextMenuStripNeededEventArgs()
 		{
-			GetCellValueMethod = typeof(DataGridColumn).GetMethod("GetCellValue", BindingFlags.NonPublic | BindingFlags.Instance);
+			GetCellValueMethod = typeof(DataGridColumn).GetMethod("GetCellValue", BindingFlags.NonPublic | BindingFlags.Instance)
+				?? throw new InvalidOperationException("Could not find GetCellValue method on DataGridColumn");
 		}
 
 		private static string GetCellValue(DataGridColumn column, object item)
@@ -96,7 +99,7 @@ namespace LibationAvalonia.Controls
 				Grid.Columns
 				.Where(c => c.IsVisible)
 				.OrderBy(c => c.DisplayIndex)
-				.Select(c => RemoveLineBreaks(c.Header.ToString())));
+				.Select(c => RemoveLineBreaks(c.Header.ToString() ?? "")));
 
 		private static string RemoveLineBreaks(string text)
 			=> text.Replace("\r\n", "").Replace('\r', ' ').Replace('\n', ' ');
@@ -111,7 +114,6 @@ namespace LibationAvalonia.Controls
 		public required DataGridColumn Column { get; init; }
 		public required GridEntry[] GridEntries { get; init; }
 		public required ContextMenu ContextMenu { get; init; }
-		public AvaloniaList<Control> ContextMenuItems
-			=> ContextMenu.ItemsSource as AvaloniaList<Control>;
+		public AvaloniaList<Control> ContextMenuItems => DataGridContextMenus.MenuItems;
 	}
 }

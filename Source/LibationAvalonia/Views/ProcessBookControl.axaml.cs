@@ -1,11 +1,9 @@
-using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls;
 using DataLayer;
 using LibationUiBase;
 using LibationUiBase.ProcessQueue;
 
-#nullable enable
 namespace LibationAvalonia.Views
 {
 	public delegate void QueueItemPositionButtonClicked(ProcessBookViewModel? item, QueuePosition queueButton);

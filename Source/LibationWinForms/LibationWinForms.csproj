@@ -7,7 +7,7 @@
 		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 		<ApplicationIcon>libation.ico</ApplicationIcon>
 		<AssemblyName>Libation</AssemblyName>
-
+		<UseWindowsForms>true</UseWindowsForms>
 		<PublishReadyToRun>true</PublishReadyToRun>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>

@@ -41,12 +41,11 @@ namespace LibationFileManager.Templates
 		#region Template Parsing
 
 		public static T GetTemplate<T>(string? templateText) where T : Templates, ITemplate, new()
-			=> TryGetTemplate<T>(templateText ?? "", out var template) ? template : GetDefaultTemplate<T>();
+			=> TryGetTemplate<T>(templateText, out var template) ? template : GetDefaultTemplate<T>();
 
-		public static bool TryGetTemplate<T>(string templateText, [NotNullWhen(true)] out T? template) where T : Templates, ITemplate, new()
+		public static bool TryGetTemplate<T>(string? templateText, out T template) where T : Templates, ITemplate, new()
 		{
 			var namingTemplate = NamingTemplate.Parse(templateText, T.TagCollections);
-
 			template = new() { NamingTemplate = namingTemplate };
 			return !namingTemplate.Errors.Any();
 		}

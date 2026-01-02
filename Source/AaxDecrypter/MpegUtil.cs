@@ -15,7 +15,7 @@ namespace AaxDecrypter
 			LameConfig lameConfig,
 			bool downsample,
 			bool matchSourceBitrate,
-			ChapterInfo chapters)
+			ChapterInfo? chapters)
 		{
 			double bitrateMultiple = 1;
 

@@ -136,10 +136,13 @@ namespace AppScaffolding
 				}
 			}
 		}
+		static bool migrationsRun = false;
 
 		/// <summary>Initialize logging. Wire-up events. Run after migration</summary>
 		public static void RunPostMigrationScaffolding(Variety variety, Configuration config)
 		{
+			if (System.Threading.Interlocked.CompareExchange(ref migrationsRun, true, false))
+				return;
 			Variety = Enum.IsDefined(variety) ? variety : Variety.None;
 
 			var releaseID = (ReleaseIdentifier)((int)variety | (int)Configuration.OS | (int)RuntimeInformation.ProcessArchitecture);

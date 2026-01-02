@@ -239,7 +239,7 @@ namespace LibationWinForms.GridView
 				}
 				else if (entry is SeriesEntry sEntry)
 				{
-					if (e.ColumnIndex == liberateGVColumn.Index)
+					if (e.ColumnIndex == liberateGVColumn.Index && sEntry.Liberate is not null)
 					{
 						if (sEntry.Liberate.Expanded)
 							bindingList?.CollapseItem(sEntry);
@@ -390,8 +390,8 @@ namespace LibationWinForms.GridView
 				throw new InvalidOperationException($"Must call {nameof(BindToGridAsync)} before calling {nameof(RemoveBooks)}");
 
 			//Remove books in series from their parents' Children list
-			foreach (var removed in removedBooks.Where(b => b.Liberate.IsEpisode))
-				removed.Parent.RemoveChild(removed);
+			foreach (var removed in removedBooks.Where(b => b.Liberate?.IsEpisode is true))
+				removed.Parent?.RemoveChild(removed);
 
 			//Remove series that have no children
 			var removedSeries =
@@ -448,7 +448,7 @@ namespace LibationWinForms.GridView
 					seriesEntries.Add(seriesEntry);
 
 					episodeEntry = seriesEntry.Children[0];
-					seriesEntry.Liberate.Expanded = true;
+					seriesEntry.Liberate?.Expanded = true;
 					bindingList.Insert(0, seriesEntry);
 				}
 				else
@@ -463,7 +463,7 @@ namespace LibationWinForms.GridView
 
 				//Series entry must be expanded so its child can
 				//be placed in the correct position beneath it.
-				var isExpanded = seriesEntry.Liberate.Expanded;
+				var isExpanded = seriesEntry.Liberate?.Expanded;
 				bindingList.ExpandItem(seriesEntry);
 
 				//Add episode to the grid beneath the parent
@@ -471,9 +471,9 @@ namespace LibationWinForms.GridView
 				int episodeIndex = seriesEntry.Children.IndexOf(episodeEntry);
 				bindingList.Insert(seriesIndex + 1 + episodeIndex, episodeEntry);
 
-				if (isExpanded)
+				if (isExpanded.HasValue && isExpanded.Value)
 					bindingList.ExpandItem(seriesEntry);
-				else
+				else if (isExpanded.HasValue)
 					bindingList.CollapseItem(seriesEntry);
 			}
 			else

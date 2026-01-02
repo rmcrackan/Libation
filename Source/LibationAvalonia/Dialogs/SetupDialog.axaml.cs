@@ -9,7 +9,7 @@ namespace LibationAvalonia.Dialogs
 	{
 		public bool IsNewUser { get; private set; }
 		public bool IsReturningUser { get; private set; }
-		public ComboBoxItem SelectedTheme { get; set; }
+		public ComboBoxItem? SelectedTheme { get; set; }
 		public SetupDialog()
 		{
 			InitializeComponent();

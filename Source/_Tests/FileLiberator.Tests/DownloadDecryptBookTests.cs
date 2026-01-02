@@ -3,6 +3,8 @@ using AssertionHelper;
 using AudibleApi.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+[assembly: Parallelize]
+
 namespace FileLiberator.Tests
 {
 	[TestClass]

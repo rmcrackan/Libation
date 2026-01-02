@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-#nullable enable
 namespace LibationAvalonia.Controls
 {
 	public partial class DirectoryOrCustomSelectControl : UserControl

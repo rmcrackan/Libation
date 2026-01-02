@@ -7,7 +7,6 @@ using LibationFileManager;
 using System;
 using System.Linq;
 
-#nullable enable
 namespace LibationAvalonia
 {
 	public static class FormSaveExtension

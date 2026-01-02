@@ -43,7 +43,7 @@ public partial class ThemePreviewControl : UserControl
 		QueuedBook.AddDownloadPdf();
 		WorkingBook.AddDownloadPdf();
 
-		typeof(ProcessBookViewModel).GetProperty(nameof(ProcessBookViewModel.Progress)).SetValue(WorkingBook, 50);
+		typeof(ProcessBookViewModel).GetProperty(nameof(ProcessBookViewModel.Progress))!.SetValue(WorkingBook, 50);
 
 		ProductsDisplay = new ProductsDisplayViewModel();
 		_ = ProductsDisplay.BindToGridAsync(sampleEntries);

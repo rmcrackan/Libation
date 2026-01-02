@@ -13,27 +13,27 @@ namespace LibationAvalonia.Controls
 {
 	public class KnownDirectoryConverter : IValueConverter
 	{
-		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
 		{
 			if (value is Configuration.KnownDirectories dir)
 				return dir.GetDescription();
 			return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
 		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
 		{
 			return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
 		}
 	}
 	public class KnownDirectoryPath : IMultiValueConverter
 	{
-		public object Convert(IList<object> values, Type targetType, object parameter, CultureInfo culture)
+		public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
 		{
 			if (values?.Count == 2 && values[0] is Configuration.KnownDirectories kdir && kdir is not Configuration.KnownDirectories.None)
 			{
 				var subdir = values[1] as string ?? "";
 				var path = kdir is Configuration.KnownDirectories.AppDir ? Configuration.AppDir_Absolute : Configuration.GetKnownDirectoryPath(kdir);
-				return Path.Combine(path, subdir);
+				return path is null ? "" : Path.Combine(path, subdir);
 			}
 			return "";
 		}

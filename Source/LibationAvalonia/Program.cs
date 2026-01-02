@@ -12,9 +12,7 @@ using LibationAvalonia.Dialogs;
 using Avalonia.Threading;
 using FileManager;
 using System.Linq;
-using System.Reflection;
 
-#nullable enable
 namespace LibationAvalonia
 {
 	static class Program

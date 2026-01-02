@@ -22,7 +22,7 @@ namespace LibationUiBase.GridView
 		}
 		public override string ToString() => OrderString;
 
-		public int CompareTo(object obj)
+		public int CompareTo(object? obj)
 		{
 			if (obj is not SeriesOrder other) return 1;
 
@@ -36,6 +36,14 @@ namespace LibationUiBase.GridView
 			if (Orders.Length < other.Orders.Length) return 1;
 			if (Orders.Length > other.Orders.Length) return -1;
 			return 0;
+		}
+
+		public static int Compare(SeriesOrder? a, SeriesOrder? b)
+		{
+			if (a is null && b is null) return 0;
+			else if (a is null) return 1;
+			else if (b is null) return -1;
+			else return a.CompareTo(b);
 		}
 	}
 }

@@ -14,7 +14,7 @@ namespace LibationUiBase.SeriesView
 	{
 		//Making this event and field static prevents concurrent additions to the library.
 		//Search engine indexer does not support concurrent re-indexing.
-		private static event EventHandler ButtonEnabled;
+		private static event EventHandler? ButtonEnabled;
 		private static bool globalEnabled = true;
 
 		public override bool HasButtonAction => true;
@@ -82,7 +82,7 @@ namespace LibationUiBase.SeriesView
 
 			if (!await api.AddItemToLibraryAsync(Item.ProductId)) return;
 
-			Item item = null;
+			Item? item = null;
 
 			for (int tryCount = 0; tryCount < 5 && item is null; tryCount++)
 			{
@@ -115,10 +115,10 @@ namespace LibationUiBase.SeriesView
 			InLibrary = await LibraryCommands.ImportSingleToDbAsync(item, accountBook.Account, accountBook.Book.Locale) != 0;
 		}
 
-		private void DownloadButton_ButtonEnabled(object sender, EventArgs e)
+		private void DownloadButton_ButtonEnabled(object? sender, EventArgs e)
 			=> RaisePropertyChanged(nameof(Enabled));
 
-		public override int CompareTo(object ob)
+		public override int CompareTo(object? ob)
 		{
 			if (ob is not AyceButton other) return 1;
 			return other.InLibrary.CompareTo(InLibrary);

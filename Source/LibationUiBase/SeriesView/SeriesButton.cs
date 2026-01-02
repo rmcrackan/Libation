@@ -39,6 +39,6 @@ namespace LibationUiBase.SeriesView
 
 		public override string ToString() => DisplayText;
 
-		public abstract int CompareTo(object ob);
+		public abstract int CompareTo(object? ob);
 	}
 }

@@ -14,8 +14,8 @@ namespace LibationAvalonia.Views
 {
 	public partial class SeriesViewGrid : UserControl
 	{
-		private ImageDisplayDialog imageDisplayDialog;
-		private readonly LibraryBook LibraryBook;
+		private ImageDisplayDialog? imageDisplayDialog;
+		private readonly LibraryBook? LibraryBook;
 
 		public AvaloniaList<SeriesItem> SeriesEntries { get; } = new();
 
@@ -36,14 +36,14 @@ namespace LibationAvalonia.Views
 
 		public async void Availability_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
-			if (sender is Button button && button.DataContext is SeriesItem sentry && sentry.Button.HasButtonAction)
+			if (LibraryBook is not null && sender is Button button && button.DataContext is SeriesItem sentry && sentry.Button.HasButtonAction)
 			{
 				await sentry.Button.PerformClickAsync(LibraryBook);
 			}
 		}
 		public void Title_Click(object sender, Avalonia.Input.TappedEventArgs args)
 		{
-			if (sender is not LinkLabel label || label.DataContext is not SeriesItem sentry)
+			if (LibraryBook is null || sender is not LinkLabel label || label.DataContext is not SeriesItem sentry)
 				return;
 
 			sentry.ViewOnAudible(LibraryBook.Book.Locale);
@@ -63,7 +63,7 @@ namespace LibationAvalonia.Views
 
 			var picDef = new PictureDefinition(libraryBook.PictureLarge ?? libraryBook.PictureId, PictureSize.Native);
 
-			void PictureCached(object sender, PictureCachedEventArgs e)
+			void PictureCached(object? sender, PictureCachedEventArgs e)
 			{
 				if (e.Definition.PictureId == picDef.PictureId)
 					imageDisplayDialog.SetCoverBytes(e.Picture);

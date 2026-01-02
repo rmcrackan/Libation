@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationAvalonia.Views
 {
 	public partial class ProductsDisplay : UserControl
@@ -94,7 +93,7 @@ namespace LibationAvalonia.Views
 
 		private void ProductsDisplay_LoadingRow(object sender, DataGridRowEventArgs e)
 		{
-			if (e.Row.DataContext is LibraryBookEntry entry && entry.Liberate.IsEpisode)
+			if (e.Row.DataContext is LibraryBookEntry entry && entry.Liberate?.IsEpisode is true)
 				e.Row.DynamicResource(DataGridRow.BackgroundProperty, "SeriesEntryGridBackgroundBrush");
 			else
 				e.Row.DynamicResource(DataGridRow.BackgroundProperty, "SystemRegionColor");
@@ -543,7 +542,7 @@ namespace LibationAvalonia.Views
 
 		public void Version_DoubleClick(object sender, Avalonia.Input.TappedEventArgs args)
 		{
-			if (sender is Control panel && panel.DataContext is LibraryBookEntry lbe && lbe.LastDownload.IsValid)
+			if (sender is Control panel && panel.DataContext is LibraryBookEntry lbe && lbe.LastDownload?.IsValid is true)
 				lbe.LastDownload.OpenReleaseUrl();
 		}
 

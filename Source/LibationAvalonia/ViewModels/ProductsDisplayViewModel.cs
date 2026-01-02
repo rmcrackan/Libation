@@ -16,7 +16,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	public class ProductsDisplayViewModel : ViewModelBase
@@ -196,8 +195,8 @@ namespace LibationAvalonia.ViewModels
 				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId);
 
 			//Remove books in series from their parents' Children list
-			foreach (var removed in removedBooks.Where(b => b.Liberate.IsEpisode))
-				removed.Parent.RemoveChild(removed);
+			foreach (var removed in removedBooks.Where(b => b.Liberate?.IsEpisode is true))
+				removed.Parent?.RemoveChild(removed);
 
 			//Remove series that have no children
 			var removedSeries = sourceSnapshot.EmptySeries();
@@ -265,7 +264,7 @@ namespace LibationAvalonia.ViewModels
 					seriesEntries.Add(seriesEntry);
 
 					episodeEntry = seriesEntry.Children[0];
-					seriesEntry.Liberate.Expanded = true;
+					seriesEntry.Liberate?.Expanded = true;
 					SOURCE.Insert(0, seriesEntry);
 				}
 				else
@@ -300,7 +299,7 @@ namespace LibationAvalonia.ViewModels
 
 		public async Task ToggleSeriesExpanded(SeriesEntry seriesEntry)
 		{
-			seriesEntry.Liberate.Expanded = !seriesEntry.Liberate.Expanded;
+			seriesEntry.Liberate?.Expanded = !seriesEntry.Liberate.Expanded;
 
 			await refreshGrid();
 		}
@@ -324,7 +323,7 @@ namespace LibationAvalonia.ViewModels
 		private bool CollectionFilter(object item)
 		{
 			if (item is LibraryBookEntry lbe
-				&& lbe.Liberate.IsEpisode
+				&& lbe.Liberate?.IsEpisode is true
 				&& lbe.Parent?.Liberate?.Expanded != true)
 				return false;
 

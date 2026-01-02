@@ -79,7 +79,7 @@ namespace AudibleUtilities
 		// more common naming convention alias for internal collection
 		public IReadOnlyList<Account> GetAll() => Accounts;
 
-		public Account Upsert(string accountId, string locale)
+		public Account Upsert(string accountId, string? locale)
 		{
 			var acct = GetAccount(accountId, locale);
 

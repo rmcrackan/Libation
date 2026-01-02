@@ -32,34 +32,34 @@ namespace LibationUiBase.GridView
 		#region Model properties exposed to the view
 
 		protected bool? remove = false;
-		private Lazy<object> _lazyCover;
-		private Rating _myRating;
+		private Lazy<object?>? _lazyCover;
+		private Rating? _myRating;
 		public abstract bool? Remove { get; set; }
-		public EntryStatus Liberate { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
-		public string PurchaseDate { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
-		public string Length { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
-		public LastDownloadStatus LastDownload { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
-		public object Cover { get => _lazyCover.Value; }
-		public string Series { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
-		public SeriesOrder SeriesOrder { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
-		public string Title { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
-		public string Authors { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
-		public string Narrators { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
-		public string Category { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
-		public string Misc { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
-		public string Description { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
-		public Rating ProductRating { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
-		public string BookTags { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public EntryStatus? Liberate { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string? PurchaseDate { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
+		public string? Length { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
+		public LastDownloadStatus? LastDownload { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
+		public object? Cover { get => _lazyCover?.Value; }
+		public string? Series { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public SeriesOrder? SeriesOrder { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string? Title { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string? Authors { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string? Narrators { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string? Category { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string? Misc { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string? Description { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public Rating? ProductRating { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string? BookTags { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
 		public bool IsSpatial { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
-		public string IncludedUntil { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
-		public string Account { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
+		public string? IncludedUntil { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
+		public string? Account { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
 
-		public Rating MyRating
+		public Rating? MyRating
 		{
 			get => _myRating;
 			set
 			{
-				if (_myRating != value && value.OverallRating != 0 && updateReviewTask?.IsCompleted is not false)
+				if (value is not null && _myRating != value && value.OverallRating != 0 && updateReviewTask?.IsCompleted is not false)
 					updateReviewTask = UpdateRating(value);
 			}
 		}
@@ -68,7 +68,7 @@ namespace LibationUiBase.GridView
 
 		#region User rating
 
-		private Task updateReviewTask;
+		private Task? updateReviewTask;
 		private async Task UpdateRating(Rating rating)
 		{
 			var api = await LibraryBook.GetApiAsync();
@@ -78,6 +78,10 @@ namespace LibationUiBase.GridView
 		}
 
 		#endregion
+		protected GridEntry(LibraryBook libraryBook)
+		{
+			LibraryBook = libraryBook;
+		}
 
 		#region View property updating
 
@@ -113,7 +117,7 @@ namespace LibationUiBase.GridView
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
 
-		protected abstract string GetBookTags();
+		protected abstract string? GetBookTags();
 		protected virtual DateTime GetPurchaseDate() => LibraryBook.DateAdded;
 		protected virtual DateTime? GetIncludedUntil() => LibraryBook.IncludedUntil;
 		protected virtual int GetLengthInMinutes() => Book.LengthInMinutes;
@@ -133,11 +137,9 @@ namespace LibationUiBase.GridView
 		/// This event handler receives notifications from the model that it has changed.
 		/// Notify the view that it's changed.
 		/// </summary>
-		private void UserDefinedItem_ItemChanged(object sender, string itemName)
+		private void UserDefinedItem_ItemChanged(object? sender, string itemName)
 		{
-			var udi = sender as UserDefinedItem;
-
-			if (udi.Book.AudibleProductId != Book.AudibleProductId)
+			if (sender is not UserDefinedItem udi || udi.Book.AudibleProductId != Book.AudibleProductId)
 				return;
 
 			if (udi.Book != LibraryBook.Book)
@@ -153,12 +155,12 @@ namespace LibationUiBase.GridView
 			// - Don't restrict notifying view to 'only if property changed'. This same book instance can get passed to a different view, then changed there. When the chain of events makes its way back here, the property is unchanged (because it's the same instance), but this view is out of sync. NotifyPropertyChanged will then update this view.
 			switch (itemName)
 			{
-				case nameof(udi.BookStatus):
-				case nameof(udi.PdfStatus):
+				case nameof(udi.BookStatus) when Liberate is not null:
+				case nameof(udi.PdfStatus) when Liberate is not null:
 					Liberate.Invalidate(nameof(Liberate.BookStatus), nameof(Liberate.PdfStatus), nameof(Liberate.IsUnavailable), nameof(Liberate.ButtonImage), nameof(Liberate.ToolTip));
 					RaisePropertyChanged(nameof(Liberate));
 					break;
-				case nameof(udi.Tags):
+				case nameof(udi.Tags) when Liberate is not null:
 					BookTags = GetBookTags();
 					Liberate.Invalidate(nameof(Liberate.Opacity));
 					RaisePropertyChanged(nameof(Liberate));
@@ -179,7 +181,7 @@ namespace LibationUiBase.GridView
 
 		#region Sorting
 
-		public object GetMemberValue(string memberName) => memberName switch
+		public object? GetMemberValue(string? memberName) => memberName switch
 		{
 			nameof(Remove) => Remove.HasValue ? Remove.Value ? RemoveStatus.Removed : RemoveStatus.NotRemoved : RemoveStatus.SomeRemoved,
 			nameof(Title) => Book.TitleSortable(),
@@ -204,10 +206,10 @@ namespace LibationUiBase.GridView
 			_ => null
 		};
 		
-		public bool MemberValueIsDefault(string memberName) => memberName switch
+		public bool MemberValueIsDefault(string? memberName) => memberName switch
 		{
 			nameof(Series) => Book.SeriesLink?.Any() is not true,
-			nameof(SeriesOrder) => string.IsNullOrWhiteSpace(SeriesOrder.OrderString),
+			nameof(SeriesOrder) => string.IsNullOrWhiteSpace(SeriesOrder?.OrderString),
 			nameof(MyRating) => RatingIsDefault(Book.UserDefinedItem.Rating),
 			nameof(ProductRating) => RatingIsDefault(Book.Rating),
 			nameof(Authors) => string.IsNullOrWhiteSpace(Authors),
@@ -223,11 +225,13 @@ namespace LibationUiBase.GridView
 			=> rating is null || (rating.OverallRating == 0 && rating.PerformanceRating == 0 && rating.StoryRating == 0);
 
 		public IComparer GetMemberComparer(Type memberType)
-			=> memberTypeComparers.TryGetValue(memberType, out IComparer value) ? value : memberTypeComparers[memberType.BaseType];
+			=> memberTypeComparers.TryGetValue(memberType, out IComparer? value) ? value
+			: memberTypeComparers[memberType?.BaseType ?? typeof(object)];
 
 		// Instantiate comparers for every exposed member object type.
 		private static readonly Dictionary<Type, IComparer> memberTypeComparers = new()
 		{
+			{ typeof(object), Comparer<object>.Default },
 			{ typeof(RemoveStatus), Comparer<RemoveStatus>.Default },
 			{ typeof(string), Comparer<string>.Default },
 			{ typeof(int), Comparer <int>.Default },
@@ -253,21 +257,22 @@ namespace LibationUiBase.GridView
 				PictureStorage.PictureCached += PictureStorage_PictureCached;
 
 			// Mutable property. Set the field so PropertyChanged isn't fired.
-			_lazyCover = new Lazy<object>(() => BaseUtil.LoadImage(picture, PictureSize._80x80));
+			_lazyCover = new Lazy<object?>(() => BaseUtil.LoadImage(picture, PictureSize._80x80));
 		}
 
-		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
+		private void PictureStorage_PictureCached(object? sender, PictureCachedEventArgs e)
 		{
 			// state validation
 			if (e?.Definition.PictureId is null ||
 				Book?.PictureId is null ||
-				e.Picture?.Length == 0)
+				e.Picture is null ||
+				e.Picture.Length == 0)
 				return;
 
 			// logic validation
 			if (e.Definition.PictureId == Book.PictureId)
 			{
-				_lazyCover = new Lazy<object>(() => BaseUtil.LoadImage(e.Picture, PictureSize._80x80));
+				_lazyCover = new Lazy<object?>(() => BaseUtil.LoadImage(e.Picture, PictureSize._80x80));
 				RaisePropertyChanged(nameof(Cover));
 				PictureStorage.PictureCached -= PictureStorage_PictureCached;
 			}
@@ -328,7 +333,7 @@ namespace LibationUiBase.GridView
 		/// Creates <see cref="GridEntry"/> for all non-episode books in an enumeration of <see cref="DataLayer.LibraryBook"/>.
 		/// </summary>
 		/// <remarks>Can be called from any thread, but requires the calling thread's <see cref="SynchronizationContext.Current"/> to be valid.</remarks>
-		public static  async Task<List<TEntry>> GetAllProductsAsync<TEntry>(IEnumerable<LibraryBook> libraryBooks, Func<LibraryBook, bool> includeIf, Func<LibraryBook, TEntry> factory)
+		public static  async Task<List<TEntry>> GetAllProductsAsync<TEntry>(IEnumerable<LibraryBook> libraryBooks, Func<LibraryBook, bool> includeIf, Func<LibraryBook, TEntry?> factory)
 			where TEntry : GridEntry
 		{
 			var products = libraryBooks.Where(includeIf).ToArray();

@@ -5,7 +5,6 @@ using LibationAvalonia.ViewModels.Settings;
 using LibationFileManager;
 using LibationFileManager.Templates;
 using LibationUiBase.Forms;
-using ReactiveUI;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,7 +12,7 @@ namespace LibationAvalonia.Controls.Settings
 {
 	public partial class Audio : UserControl
 	{
-		private AudioSettingsVM _viewModel => DataContext as AudioSettingsVM; 
+		private AudioSettingsVM? _viewModel => DataContext as AudioSettingsVM; 
 		public Audio()
 		{
 			InitializeComponent();
@@ -56,12 +55,12 @@ namespace LibationAvalonia.Controls.Settings
 						}
 					}
 
-					_viewModel.UseWidevine = false;
+					_viewModel?.UseWidevine = false;
 				}
 			}
 			else
 			{
-				_viewModel.Request_xHE_AAC = _viewModel.RequestSpatial = false;
+				_viewModel?.Request_xHE_AAC = _viewModel.RequestSpatial = false;
 			}
 		}
 
@@ -73,7 +72,7 @@ namespace LibationAvalonia.Controls.Settings
 				_viewModel.ChapterTitleTemplate = newTemplate;
 		}
 
-		private async Task<string> editTemplate(ITemplateEditor template)
+		private async Task<string?> editTemplate(ITemplateEditor template)
 		{
 			var form = new EditTemplateDialog(template);
 			if (await form.ShowDialog<DialogResult>(this.GetParentWindow()) == DialogResult.OK)

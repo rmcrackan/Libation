@@ -63,6 +63,7 @@
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.openTrashBinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.launchHangoverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.locateAudiobooksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -71,6 +72,7 @@
             this.basicSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.tourToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.scanForHigherQualityBooksStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.upgradePb = new System.Windows.Forms.ToolStripProgressBar();
@@ -387,6 +389,8 @@
 			this.toolStripSeparator4,
 			this.openTrashBinToolStripMenuItem,
 			this.launchHangoverToolStripMenuItem,
+			this.toolStripSeparator5,
+			this.scanForHigherQualityBooksStripMenuItem,
 			this.toolStripSeparator2,
             this.tourToolStripMenuItem,
             this.aboutToolStripMenuItem});
@@ -419,6 +423,13 @@
             this.tourToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.tourToolStripMenuItem.Text = "Take a Guided &Tour of Libation";
             this.tourToolStripMenuItem.Click += new System.EventHandler(this.tourToolStripMenuItem_Click);
+			// 
+			// this.
+			// 
+			this.scanForHigherQualityBooksStripMenuItem.Name = "scanForHigherQualityBooksStripMenuItem";
+            this.scanForHigherQualityBooksStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.scanForHigherQualityBooksStripMenuItem.Text = "Scan for Better Quality Audiobooks";
+            this.scanForHigherQualityBooksStripMenuItem.Click += new System.EventHandler(this.scanForHigherQualityBooksStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
@@ -675,6 +686,7 @@
         private System.Windows.Forms.ToolStripMenuItem removeSomeAccountsToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem tourToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem scanForHigherQualityBooksStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem scanningToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem autoScanLibraryToolStripMenuItem;
@@ -687,6 +699,7 @@
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripMenuItem locateAudiobooksToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
 		private System.Windows.Forms.ToolStripMenuItem openTrashBinToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem launchHangoverToolStripMenuItem;
         private LibationWinForms.FormattableToolStripMenuItem liberateVisibleToolStripMenuItem_LiberateMenu;

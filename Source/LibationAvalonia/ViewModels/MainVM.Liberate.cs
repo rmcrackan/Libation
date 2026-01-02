@@ -5,11 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using DataLayer;
 using LibationUiBase.Forms;
-using LibationUiBase;
 using System.Collections.Generic;
 using Avalonia.Threading;
 
-#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM

@@ -10,7 +10,7 @@ namespace DtoImporterService
 {
 	public class ContributorImporter : ItemsImporterBase
 	{
-		protected override IValidator Validator => new ContributorValidator();
+		protected override IValidator Validator => new ClearValidator();
 
 		public Dictionary<string, Contributor> Cache { get; private set; } = new();
 

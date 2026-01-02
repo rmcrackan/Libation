@@ -14,7 +14,7 @@ namespace LibationAvalonia.Dialogs
 		protected bool CancelOnEscape { get; set; } = true;
 		protected bool SaveOnEnter { get; set; } = true;
 		public bool SaveAndRestorePosition { get; set; }
-		public Control ControlToFocusOnShow { get; set; }
+		public Control? ControlToFocusOnShow { get; set; }
 		protected override Type StyleKeyOverride => typeof(DialogWindow);
 		public DialogResult DialogResult { get; private set; } = DialogResult.None;
 
@@ -39,7 +39,7 @@ namespace LibationAvalonia.Dialogs
 			}
 		}
 
-		private void DialogWindow_Loaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		private void DialogWindow_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			if (!CanResize)
 				this.HideMinMaxBtns();
@@ -57,20 +57,20 @@ namespace LibationAvalonia.Dialogs
 			}
 		}
 
-		private void DialogWindow_Initialized(object sender, EventArgs e)
+		private void DialogWindow_Initialized(object? sender, EventArgs e)
 		{
 			this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 			if (SaveAndRestorePosition)
 				this.RestoreSizeAndLocation(Configuration.Instance);
 		}
 
-		private void DialogWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+		private void DialogWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
 		{
 			if (SaveAndRestorePosition)
 				this.SaveSizeAndLocation(Configuration.Instance);
 		}
 
-		private void DialogWindow_Opened(object sender, EventArgs e)
+		private void DialogWindow_Opened(object? sender, EventArgs e)
 		{
 			ControlToFocusOnShow?.Focus();
 		}
@@ -86,7 +86,7 @@ namespace LibationAvalonia.Dialogs
 		protected virtual void CancelAndClose() => Close(DialogResult.Cancel);
 		protected virtual async Task CancelAndCloseAsync() => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(CancelAndClose);
 
-		private async void DialogWindow_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
+		private async void DialogWindow_KeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
 		{
 			if (CancelOnEscape && e.Key == Avalonia.Input.Key.Escape)
 				await CancelAndCloseAsync();

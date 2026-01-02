@@ -8,7 +8,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationUiBase.ProcessQueue;
 
 public record LogEntry(DateTime LogDate, string LogMessage)
@@ -264,7 +263,8 @@ public class ProcessQueueViewModel : ReactiveObject
 	}
 
 	#endregion
-
+	public event EventHandler<ProcessBookViewModel>? ProcessStart;
+	public event EventHandler<ProcessBookViewModel>? ProcessEnd;
 	private async Task QueueLoop()
 	{
 		try
@@ -288,6 +288,7 @@ public class ProcessQueueViewModel : ReactiveObject
 
 				Serilog.Log.Logger.Information("Begin processing queued item: '{item_LibraryBook}'", nextBook.LibraryBook);
 				SpeedLimit = nextBook.Configuration.DownloadSpeedLimit / 1024m / 1024;
+				ProcessStart?.Invoke(this, nextBook);
 				var result = await nextBook.ProcessOneAsync();
 
 				Serilog.Log.Logger.Information("Completed processing queued item: '{item_LibraryBook}' with result: {result}", nextBook.LibraryBook, result);
@@ -310,6 +311,7 @@ public class ProcessQueueViewModel : ReactiveObject
 					MessageBoxIcon.Asterisk);
 					shownServiceOutageMessage = true;
 				}
+				ProcessEnd?.Invoke(this, nextBook);
 			}
 			Serilog.Log.Logger.Information("Completed processing queue");
 

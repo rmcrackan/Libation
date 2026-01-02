@@ -86,7 +86,11 @@ public class MockLibraryBook : LibraryBook
 		string localeName = "us",
 		bool isAbridged = false,
 		bool isSpatial = false,
-		string language = "English")
+		string language = "English",
+		LiberatedStatus bookStatus = LiberatedStatus.Liberated,
+		LiberatedStatus? pdfStatus = null,
+		AudioFormat? lastDlFormat = null,
+		Version? lastDlVersion = null)
 	{
 		var book = new Book(
 			new AudibleProductId(CalculateAsin(title + subtitle)),
@@ -98,6 +102,12 @@ public class MockLibraryBook : LibraryBook
 			[new Contributor(firstAuthor, CalculateAsin(firstAuthor))],
 			[new Contributor(firstNarrator, CalculateAsin(firstNarrator))],
 			localeName);
+
+		lastDlFormat ??= new AudioFormat(Codec.AAC_LC, 128, 44100, 2);
+		lastDlVersion ??= new Version(13, 0);
+		book.UserDefinedItem.SetLastDownloaded(lastDlVersion, lastDlFormat, "1");
+		book.UserDefinedItem.PdfStatus = pdfStatus;
+		book.UserDefinedItem.BookStatus = bookStatus;
 
 		book.UpdateBookDetails(isAbridged, isSpatial, datePublished ?? DateTime.Now, language);
 

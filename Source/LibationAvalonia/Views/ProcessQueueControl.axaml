@@ -34,7 +34,7 @@
 							HorizontalScrollBarVisibility="Disabled"
 							VerticalScrollBarVisibility="Auto"
 							AllowAutoHide="False">
-							<ItemsControl ItemsSource="{Binding Queue}">
+							<ItemsControl Name="QueueListControl" ItemsSource="{Binding Queue}">
 								<ItemsControl.ItemsPanel>
 									<ItemsPanelTemplate>
 										<VirtualizingStackPanel />

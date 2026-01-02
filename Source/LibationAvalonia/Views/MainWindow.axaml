@@ -154,6 +154,8 @@
 					<MenuItem Command="{CompiledBinding ShowTrashBinAsync}" Header="Trash Bin" />
 					<MenuItem Command="{CompiledBinding LaunchHangover}" Header="Launch _Hangover" />
 					<Separator />
+					<MenuItem Command="{CompiledBinding ShowFindBetterQualityBooksAsync}" Header="Scan for Better Quality Audiobooks"  ToolTip.Tip="{CompiledBinding FindBetterQualityBooksTip}"/>
+					<Separator />
 					<MenuItem Command="{CompiledBinding StartWalkthroughAsync}" Header="Take a Guided _Tour of Libation" />
 					<MenuItem Command="{CompiledBinding ShowAboutAsync}" Header="A_bout..." />
 				</MenuItem>

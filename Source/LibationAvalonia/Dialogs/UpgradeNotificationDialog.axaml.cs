@@ -9,11 +9,11 @@ namespace LibationAvalonia.Dialogs
 	public partial class UpgradeNotificationDialog : DialogWindow
 	{
 		private const string UpdateMessage = "There is a new version available. Would you like to update?\r\n\r\nAfter you close Libation, the upgrade will start automatically.";
-		public string TopMessage { get; }
-		public string DownloadLinkText { get; }
-		public string ReleaseNotes { get; }
-		public string OkText { get; }
-		private string PackageUrl { get; }
+		public string? TopMessage { get; }
+		public string? DownloadLinkText { get; }
+		public string? ReleaseNotes { get; }
+		public string? OkText { get; }
+		private string? PackageUrl { get; }
 		public UpgradeNotificationDialog()
 		{
 			if (Design.IsDesignMode)

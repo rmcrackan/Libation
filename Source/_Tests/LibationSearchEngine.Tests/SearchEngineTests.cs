@@ -3,6 +3,8 @@ using LibationSearchEngine;
 using Lucene.Net.Analysis.Standard;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+[assembly: Parallelize]
+
 namespace SearchEngineTests
 {
 	[TestClass]

@@ -21,7 +21,7 @@ namespace LibationAvalonia.Dialogs
 		{
 			public IReadOnlyList<Locale> Locales => AccountsDialog.Locales;
 			public bool LibraryScan { get; set; } = true;
-			public string AccountId
+			public string? AccountId
 			{
 				get => field;
 				set
@@ -31,8 +31,8 @@ namespace LibationAvalonia.Dialogs
 				}
 			}
 
-			public Locale SelectedLocale { get; set; }
-			public string AccountName { get; set; }
+			public Locale? SelectedLocale { get; set; }
+			public string? AccountName { get; set; }
 			public bool IsDefault => string.IsNullOrEmpty(AccountId);
 
 			public AccountDto() { }
@@ -65,7 +65,7 @@ namespace LibationAvalonia.Dialogs
 			addBlankAccount();
 		}
 
-		private void Accounts_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		private void Accounts_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
 		{
 			if (e.Action is NotifyCollectionChangedAction.Add && e.NewItems?.Count > 0)
 			{
@@ -81,13 +81,13 @@ namespace LibationAvalonia.Dialogs
 
 		private void addBlankAccount() => Accounts.Insert(Accounts.Count, new AccountDto());
 
-		private void AccountDto_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void AccountDto_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			if (!Accounts.Any(a => a.IsDefault))
 				addBlankAccount();
 		}
 
-		public void DeleteButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public void DeleteButton_Clicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			if (e.Source is Button expBtn && expBtn.DataContext is AccountDto acc)
 				Accounts.Remove(acc);
@@ -200,9 +200,9 @@ namespace LibationAvalonia.Dialogs
 			}
 
 			// upsert each. validation occurs through Account and AccountsSettings
-			foreach (var dto in Accounts)
+			foreach (var dto in Accounts.Where(a => a.AccountId is not null))
 			{
-				var acct = accountsSettings.Upsert(dto.AccountId, dto.SelectedLocale?.Name);
+				var acct = accountsSettings.Upsert(dto.AccountId!, dto.SelectedLocale?.Name);
 				acct.LibraryScan = dto.LibraryScan;
 				acct.AccountName
 					= string.IsNullOrWhiteSpace(dto.AccountName)

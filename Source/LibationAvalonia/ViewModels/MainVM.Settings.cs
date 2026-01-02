@@ -4,11 +4,11 @@ using ReactiveUI;
 using System;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
 	{
+		public string FindBetterQualityBooksTip => Configuration.GetHelpText("FindBetterQualityBooks");
 		public bool MenuBarVisible { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = !Configuration.IsMacOs;
 		private void Configure_Settings()
 		{
@@ -21,6 +21,7 @@ namespace LibationAvalonia.ViewModels
 		public Task ShowAccountsAsync() => new LibationAvalonia.Dialogs.AccountsDialog().ShowDialog(MainWindow);
 		public Task ShowSettingsAsync() => new LibationAvalonia.Dialogs.SettingsDialog().ShowDialog(MainWindow);
 		public Task ShowTrashBinAsync() => new LibationAvalonia.Dialogs.TrashBinDialog().ShowDialog(MainWindow);
+		public Task ShowFindBetterQualityBooksAsync() => new LibationAvalonia.Dialogs.FindBetterQualityBooksDialog().ShowDialog(MainWindow);
 
 		public void LaunchHangover()
 		{

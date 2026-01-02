@@ -42,7 +42,7 @@ namespace LibationWinForms.SeriesView
 				{
 					var dgv = createNewSeriesGrid();
 					dgv.CellContentClick += Dgv_CellContentClick;
-					dgv.DataSource = new SeriesEntryBindingList(seriesEntries[series]);
+					dgv.DataSource = new SortBindingList<SeriesItem>(seriesEntries[series]);
 					dgv.BindingContextChanged += (_, _) => dgv.Sort(dgv.Columns["Order"], ListSortDirection.Ascending);
 					dgv.EnableHeadersVisualStyles = !Application.IsDarkModeEnabled;
 

@@ -9,8 +9,8 @@ namespace LibationUiBase.GridView
 	/// <summary>The View Model for a LibraryBook that is ContentType.Product or ContentType.Episode</summary>
 	public class LibraryBookEntry : GridEntry
 	{
-		[Browsable(false)] public override DateTime DateAdded => LibraryBook.DateAdded;
-		[Browsable(false)] public SeriesEntry Parent { get; }
+		[Browsable(false)] public override DateTime DateAdded => LibraryBook?.DateAdded ?? default;
+		[Browsable(false)] public SeriesEntry? Parent { get; }
 
 		public override bool? Remove
 		{
@@ -24,7 +24,7 @@ namespace LibationUiBase.GridView
 			}
 		}
 
-		public LibraryBookEntry(LibraryBook libraryBook, SeriesEntry parent = null)
+		public LibraryBookEntry(LibraryBook libraryBook, SeriesEntry? parent = null) : base(libraryBook)
 		{
 			Parent = parent;
 			UpdateLibraryBook(libraryBook);
@@ -38,6 +38,7 @@ namespace LibationUiBase.GridView
 		public static async Task<List<GridEntry>> GetAllProductsAsync(IEnumerable<LibraryBook> libraryBooks)
 			=> await GetAllProductsAsync(libraryBooks, lb => lb.Book.IsProduct(), lb => new LibraryBookEntry(lb) as GridEntry);
 
-		protected override string GetBookTags() => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
+		protected override string? GetBookTags()
+			=> Book is null ? null : string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
 	}
 }

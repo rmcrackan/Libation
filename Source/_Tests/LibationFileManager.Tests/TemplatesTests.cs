@@ -11,6 +11,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using static TemplatesTests.Shared;
 
+[assembly: Parallelize]
+
 namespace TemplatesTests
 {
 	/////////////////////////////////////////////////

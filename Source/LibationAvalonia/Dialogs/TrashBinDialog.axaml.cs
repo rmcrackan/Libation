@@ -129,7 +129,7 @@ namespace LibationAvalonia.Dialogs
 		}
 
 		private IDisposable tracker;
-		private void CheckboxPropertyChanged(Tuple<object, PropertyChangedEventArgs> e)
+		private void CheckboxPropertyChanged(Tuple<object?, PropertyChangedEventArgs> e)
 		{
 			if (e.Item2.PropertyName == nameof(CheckBoxViewModel.IsChecked))
 				CheckedBooksCount = DeletedBooks.Count(b => b.IsChecked);

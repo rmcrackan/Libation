@@ -51,7 +51,7 @@ public class NamingTemplate
 	/// <param name="template">The template string to parse</param>
 	/// <param name="tagCollections">A collection of <see cref="TagCollection"/> with
 	/// properties registered to match to the <paramref name="template"/></param>
-	public static NamingTemplate Parse(string template, IEnumerable<TagCollection> tagCollections)
+	public static NamingTemplate Parse(string? template, IEnumerable<TagCollection> tagCollections)
 	{
 		var namingTemplate = new NamingTemplate(tagCollections);
 		try

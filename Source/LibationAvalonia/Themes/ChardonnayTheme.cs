@@ -11,7 +11,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Collections.Frozen;
 
-#nullable enable
 namespace LibationAvalonia;
 
 public class ChardonnayTheme : IUpdatable, ICloneable

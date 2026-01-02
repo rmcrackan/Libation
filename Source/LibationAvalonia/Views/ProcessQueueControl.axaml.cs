@@ -1,6 +1,6 @@
-﻿using ApplicationServices;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Data.Converters;
+using Avalonia.Threading;
 using DataLayer;
 using LibationFileManager;
 using LibationUiBase;
@@ -11,7 +11,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationAvalonia.Views
 {
 	public partial class ProcessQueueControl : UserControl
@@ -93,6 +92,42 @@ namespace LibationAvalonia.Views
 #endif
 			#endregion
 		}
+
+		#region Auto-Scroll Current Item Into View
+		protected override void OnDataContextBeginUpdate()
+		{
+			if (DataContext is ProcessQueueViewModel vm)
+			{
+				vm.ProcessStart -= Book_ProcessStart;
+			}
+			base.OnDataContextBeginUpdate();
+		}
+
+		protected override void OnDataContextEndUpdate()
+		{
+			if (DataContext is ProcessQueueViewModel vm)
+			{
+				vm.ProcessStart += Book_ProcessStart;
+			}
+			base.OnDataContextEndUpdate();
+		}
+
+		private void Book_ProcessStart(object? sender, ProcessBookViewModel e)
+		{
+			Dispatcher.UIThread.Invoke(() =>
+			{
+				if (Queue?.IndexOf(e) is int newtBookIndex  && newtBookIndex > 0 && QueueListControl.Presenter?.Panel is VirtualizingStackPanel panel && itemIsVisible(newtBookIndex - 1, panel))
+				{
+					// Only scroll the new item into view if the previous item is visible.
+					// This allows users to scroll through the queue without being interrupted.
+					QueueListControl.ScrollIntoView(newtBookIndex);
+				}
+			});
+
+			static bool itemIsVisible(int newtBookIndex, VirtualizingStackPanel panel)
+				=> panel.FirstRealizedIndex <= newtBookIndex && panel.LastRealizedIndex >= newtBookIndex;
+		}
+		#endregion
 
 		public void NumericUpDown_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
 		{

@@ -2,9 +2,9 @@
 using AudibleApi.Common;
 using DataLayer;
 using FileLiberator;
+using LibationWinForms;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,7 +16,7 @@ namespace LibationWinForms.Dialogs
 	{
 		private readonly Func<ScrollBar> VScrollBar;
 		private readonly LibraryBook libraryBook;
-		private BookRecordBindingList bookRecordEntries;
+		private SortBindingList<BookRecordEntry> bookRecordEntries;
 
 		public BookRecordsDialog()
 		{
@@ -55,7 +55,7 @@ namespace LibationWinForms.Dialogs
 				var api = await libraryBook.GetApiAsync();
 				var records = await api.GetRecordsAsync(libraryBook.Book.AudibleProductId);
 				
-				bookRecordEntries = new BookRecordBindingList(records.Select(r => new BookRecordEntry(r)));
+				bookRecordEntries = new SortBindingList<BookRecordEntry>(records.Select(r => new BookRecordEntry(r)));
 			}
 			catch(Exception ex)
 			{
@@ -158,7 +158,7 @@ namespace LibationWinForms.Dialogs
 				var api = await libraryBook.GetApiAsync();
 				var records = await api.GetRecordsAsync(libraryBook.Book.AudibleProductId);
 
-				bookRecordEntries = new BookRecordBindingList(records.Select(r => new BookRecordEntry(r)));
+				bookRecordEntries = new SortBindingList<BookRecordEntry>(records.Select(r => new BookRecordEntry(r)));
 				syncBindingSource.DataSource = bookRecordEntries;
 			}
 			catch (Exception ex)
@@ -218,37 +218,6 @@ namespace LibationWinForms.Dialogs
 		}
 
 		#region DataGridView Bindings
-
-		private class BookRecordBindingList : BindingList<BookRecordEntry>
-		{
-			private PropertyDescriptor _propertyDescriptor;
-			private ListSortDirection _listSortDirection;
-			private bool _isSortedCore;
-
-			protected override PropertyDescriptor SortPropertyCore => _propertyDescriptor;
-			protected override ListSortDirection SortDirectionCore => _listSortDirection;
-			protected override bool IsSortedCore => _isSortedCore;
-			protected override bool SupportsSortingCore => true;
-			public BookRecordBindingList() : base(new List<BookRecordEntry>()) { }
-			public BookRecordBindingList(IEnumerable<BookRecordEntry> records) : base(records.ToList()) { }
-			protected override void ApplySortCore(PropertyDescriptor prop, ListSortDirection direction)
-			{
-				var itemsList = (List<BookRecordEntry>)Items;
-
-				var sorted =
-					direction is ListSortDirection.Ascending ? itemsList.OrderBy(prop.GetValue).ToList()
-					: itemsList.OrderByDescending(prop.GetValue).ToList();
-
-				itemsList.Clear();
-				itemsList.AddRange(sorted);
-
-				_propertyDescriptor = prop;
-				_listSortDirection = direction;
-				_isSortedCore = true;
-
-				OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
-			}
-		}
 
 		private class BookRecordEntry : LibationUiBase.ReactiveObject
 		{

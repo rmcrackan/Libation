@@ -6,10 +6,6 @@
 			 x:Class="LibationAvalonia.App"
              Name="Libation">
 
-	<Application.DataTemplates>
-		<local:ViewLocator/>
-	</Application.DataTemplates>
-
 	<Application.Resources>
 
 		<ResourceDictionary>

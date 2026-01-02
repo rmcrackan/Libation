@@ -17,11 +17,11 @@ namespace LibationAvalonia.Dialogs
 				Configuration.KnownDirectories.MyDocs
 			};
 
-			public string Directory { get; set; }
+			public string? Directory { get; set; }
 		}
 
 		private readonly DirSelectOptions dirSelectOptions;
-		public string SelectedDirectory => dirSelectOptions.Directory;
+		public string? SelectedDirectory => dirSelectOptions.Directory;
 
 		public LibationFilesDialog() : base(saveAndRestorePosition: false)
 		{
@@ -42,7 +42,7 @@ namespace LibationAvalonia.Dialogs
 		public async void Save_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 
-			if (!System.IO.Directory.Exists(SelectedDirectory))
+			if (SelectedDirectory is not null && !Directory.Exists(SelectedDirectory))
 			{
 				try
 				{

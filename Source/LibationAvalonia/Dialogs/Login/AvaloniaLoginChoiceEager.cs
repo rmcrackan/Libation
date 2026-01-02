@@ -9,7 +9,6 @@ using LibationUiBase.Forms;
 using System;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationAvalonia.Dialogs.Login
 {
 	public class AvaloniaLoginChoiceEager : ILoginChoiceEager

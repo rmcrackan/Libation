@@ -11,7 +11,7 @@ namespace LibationAvalonia.Views
 {
 	public partial class SeriesViewDialog : DialogWindow
 	{
-		private readonly LibraryBook LibraryBook;
+		private readonly LibraryBook? LibraryBook;
 		public AvaloniaList<TabItem> TabItems { get; } = new();
 		public SeriesViewDialog()
 		{
@@ -33,10 +33,12 @@ namespace LibationAvalonia.Views
 			LibraryBook = ArgumentValidator.EnsureNotNull(libraryBook, "libraryBook");
 		}
 
-		private async void SeriesViewDialog_Loaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		private async void SeriesViewDialog_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			try
 			{
+				if (LibraryBook == null)
+					return;
 				var seriesEntries = await SeriesItem.GetAllSeriesItemsAsync(LibraryBook);
 
 				foreach (var series in seriesEntries.Keys)

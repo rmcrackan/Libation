@@ -11,16 +11,26 @@ namespace LibationCli.Options;
 [Verb("search", HelpText = "Search for books in your library")]
 internal class SearchOptions : OptionsBase
 {
-	[Option('n', Default = 10, HelpText = "Number of search results per page")]
+	[Option('n', Default = 10, HelpText = "Number of search results per page (0 shows all results)")]
 	public int NumResultsPerPage { get; set; }
 
 	[Value(0, MetaName = "query", Required = true, HelpText = "Lucene search string")]
 	public IEnumerable<string> Query { get; set; }
 
+	[Option('b', "bare", HelpText = "Print bare list of ASINs without titles")]
+	public bool Bare { get; set; }
+
 	protected override Task ProcessAsync()
 	{
 		var query = string.Join(" ", Query).Trim('\"');
 		var results = SearchEngineCommands.Search(query).Docs.ToList();
+
+		if (NumResultsPerPage == 0)
+		{
+
+			Console.WriteLine(string.Join(Environment.NewLine, results.Select(r => getDocDisplay(r.Doc))));
+			return Task.CompletedTask;
+		}
 
 		Console.WriteLine($"Found {results.Count} matching results.");
 
@@ -47,10 +57,12 @@ internal class SearchOptions : OptionsBase
 		return Task.CompletedTask;
 	}
 
-	private static string getDocDisplay(Lucene.Net.Documents.Document doc)
+	private string getDocDisplay(Lucene.Net.Documents.Document doc)
 	{
-		var title = doc.GetField("title");
 		var id = doc.GetField("_ID_");
+		if (Bare)
+			return id.StringValue;
+		var title = doc.GetField("title");
 		return $"[{id.StringValue}] - {title.StringValue}";
 	}
 }

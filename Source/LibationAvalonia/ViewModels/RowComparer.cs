@@ -3,7 +3,6 @@ using LibationUiBase.GridView;
 using System.ComponentModel;
 using System.Reflection;
 
-#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	internal class RowComparer : RowComparerBase

@@ -10,7 +10,7 @@ namespace LibationAvalonia.Views
 {
 	public partial class LiberateStatusButton : UserControl
 	{
-		public event EventHandler Click;
+		public event EventHandler? Click;
 
 		public static readonly StyledProperty<LiberatedStatus> BookStatusProperty =
 		AvaloniaProperty.Register<LiberateStatusButton, LiberatedStatus>(nameof(BookStatus));
@@ -50,12 +50,12 @@ namespace LibationAvalonia.Views
 			DataContextChanged += LiberateStatusButton_DataContextChanged;
 		}
 
-		private void LiberateStatusButton_DataContextChanged(object sender, EventArgs e)
+		private void LiberateStatusButton_DataContextChanged(object? sender, EventArgs e)
 		{
 			//Force book status recheck when an entry is scrolled into view.
 			//This will force a recheck for a partially downloaded file.
 			var status = DataContext as LibraryBookEntry;
-			status?.Liberate.Invalidate(nameof(status.Liberate.BookStatus));
+			status?.Liberate?.Invalidate(nameof(status.Liberate.BookStatus));
 		}
 
 		private void Button_Click(object sender, RoutedEventArgs e) => Click?.Invoke(this, EventArgs.Empty);

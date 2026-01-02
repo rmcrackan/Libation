@@ -13,13 +13,13 @@ namespace LibationAvalonia.Dialogs
 
 		public class Filter : ViewModels.ViewModelBase
 		{ 
-            public string Name
+            public string? Name
             {
                 get => field;
                 set => this.RaiseAndSetIfChanged(ref field, value);
 			}
 
-			public string FilterString
+			public string? FilterString
 			{
 				get => field;
 				set
@@ -33,7 +33,7 @@ namespace LibationAvalonia.Dialogs
 			public bool IsTop { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 			public bool IsBottom { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 
-			public QuickFilters.NamedFilter AsNamedFilter() => new(FilterString, Name);
+			public QuickFilters.NamedFilter? AsNamedFilter() => FilterString is null ? null : new(FilterString, Name);
 
 		}
 		public EditQuickFilters()
@@ -76,7 +76,7 @@ namespace LibationAvalonia.Dialogs
 			DataContext = this;
 		}
 
-		private void Filter_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void Filter_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			if (Filters.Any(f => f.IsDefault))
 				return;
@@ -88,7 +88,7 @@ namespace LibationAvalonia.Dialogs
 
 		protected override void SaveAndClose()
 		{
-			QuickFilters.ReplaceAll(Filters.Where(f => !f.IsDefault).Select(x => x.AsNamedFilter()));
+			QuickFilters.ReplaceAll(Filters.Select(x => x.AsNamedFilter()).OfType<QuickFilters.NamedFilter>());
 			base.SaveAndClose();
 		}
 

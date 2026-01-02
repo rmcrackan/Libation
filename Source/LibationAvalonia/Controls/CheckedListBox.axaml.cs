@@ -22,6 +22,6 @@ namespace LibationAvalonia.Controls
 	public class CheckBoxViewModel : ViewModelBase
 	{
 		public bool IsChecked { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
-		public object Item { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+		public object? Item { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 	}
 }

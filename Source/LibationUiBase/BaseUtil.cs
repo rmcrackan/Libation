@@ -1,7 +1,6 @@
 ﻿using LibationFileManager;
 using System;
 
-#nullable enable
 namespace LibationUiBase
 {
 	public static class BaseUtil

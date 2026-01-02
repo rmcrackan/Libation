@@ -2,6 +2,8 @@
 using LibationUiBase.Forms;
 using Newtonsoft.Json.Linq;
 
+[assembly: DoNotParallelize]
+
 namespace LibationUiBase.Tests;
 
 [TestClass]

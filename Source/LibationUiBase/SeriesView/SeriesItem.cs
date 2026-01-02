@@ -16,7 +16,7 @@ namespace LibationUiBase.SeriesView
 {
 	public class SeriesItem : ReactiveObject
 	{
-		public object Cover { get; private set; }
+		public object? Cover { get; private set; }
 		public SeriesOrder Order { get; }
 		public string Title => Item.TitleWithSubtitle;
 		public SeriesButton Button { get; }
@@ -38,7 +38,7 @@ namespace LibationUiBase.SeriesView
 			Go.To.Url(link);
 		}
 
-		private void DownloadButton_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		private void DownloadButton_PropertyChanged(object? sender, PropertyChangedEventArgs e)
 			=> RaisePropertyChanged(nameof(Button));
 
 		private void LoadCover(string pictureId)
@@ -51,7 +51,7 @@ namespace LibationUiBase.SeriesView
 			Cover = BaseUtil.LoadImage(picture, PictureSize._80x80);
 		}
 
-		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
+		private void PictureStorage_PictureCached(object? sender, PictureCachedEventArgs e)
 		{
 			if (e?.Definition.PictureId != null && Item?.PictureId != null)
 			{
