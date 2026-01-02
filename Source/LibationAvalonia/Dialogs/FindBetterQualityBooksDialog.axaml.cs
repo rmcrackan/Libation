@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using DataLayer;
 using LibationUiBase;
 using LibationUiBase.Forms;
+using LibationUiBase.ProcessQueue;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,9 +32,9 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 			};
 			VM.Books[0].AvailableCodec = "xHE-AAC";
 			VM.Books[0].AvailableBitrate = 256;
-			VM.Books[0].ScanStatus = BookScanStatus.Completed;
-			VM.Books[1].ScanStatus = BookScanStatus.Error;
-			VM.Books[2].ScanStatus = BookScanStatus.Cancelled;
+			VM.Books[0].ScanStatus = ProcessBookStatus.Completed;
+			VM.Books[1].ScanStatus = ProcessBookStatus.Failed;
+			VM.Books[2].ScanStatus = ProcessBookStatus.Cancelled;
 			VM.SignificantCount = 1;
 		}
 		else
@@ -49,7 +50,13 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 
 	private async void Opened_ShowInitialMessage(object? sender, System.EventArgs e)
 	{
-		await MessageBox.Show(this, FindBetterQualityBooksViewModel.InitialMessage, Title ?? "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+		if (!VM.ShowFindBetterQualityBooksHelp)
+			return;
+		var result = await MessageBox.Show(this, FindBetterQualityBooksViewModel.InitialMessage, Title ?? "", MessageBoxButtons.YesNo, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+		if (result == DialogResult.No)
+		{
+			VM.ShowFindBetterQualityBooksHelp = false;
+		}
 	}
 
 	private async void Opened_LoadLibrary(object? sender, System.EventArgs e)
@@ -102,7 +109,7 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 				if (VM.IsScanning)
 					VM.StopScan();
 				else
-					await Task.Run(VM.ScanAsync);
+					await VM.ScanAsync();
 			}
 			catch (Exception ex)
 			{
@@ -138,15 +145,15 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 		}
 	}
 
-	public static FuncValueConverter<BookScanStatus, IBrush?> RowConverter { get; } = new(status =>
+	public static FuncValueConverter<ProcessBookStatus, IBrush?> RowConverter { get; } = new(status =>
     {
         var brush = status switch
         {
-			BookScanStatus.Completed => "ProcessQueueBookCompletedBrush",
-			BookScanStatus.Cancelled => "ProcessQueueBookCancelledBrush",
-			BookScanStatus.Error => "ProcessQueueBookFailedBrush",
+			ProcessBookStatus.Completed => "ProcessQueueBookCompletedBrush",
+			ProcessBookStatus.Cancelled => "ProcessQueueBookCancelledBrush",
+			ProcessBookStatus.Failed => "ProcessQueueBookFailedBrush",
             _ => null,
         };
-        return brush is not null && App.Current.TryGetResource(brush, App.Current.ActualThemeVariant, out var res) ? res as Brush : null;
+		return brush is not null && App.Current.TryGetResource(brush, App.Current.ActualThemeVariant, out var res) ? res as Brush : null;
     });
 }

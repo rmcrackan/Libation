@@ -4,6 +4,7 @@ using DataLayer;
 using Dinah.Core;
 using Dinah.Core.Net.Http;
 using LibationFileManager;
+using LibationUiBase.ProcessQueue;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,11 +35,13 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 		When done, click the 'Mark X books as Not Liberated' to allow Libation to re-download those books in the higher.
 
 		Note: make sure you adjust your download quality settings before re-liberating the books.
+
+		Display this help message again in the future?
 		""";
 
 	public event EventHandler<BookDataViewModel>? BookScanned;
 	public IList<BookDataViewModel>? Books { get => field; set => RaiseAndSetIfChanged(ref field, value); }
-
+	public bool ShowFindBetterQualityBooksHelp { get => Configuration.Instance.GetNonString(defaultValue: true); set => Configuration.Instance.SetNonString(value); }
 	public bool ScanWidevine { get; set; }
 	public int SignificantCount
 	{
@@ -93,7 +96,7 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 		{
 			b.AvailableBitrate = 0;
 			b.AvailableCodec = null;
-			b.ScanStatus = BookScanStatus.None;
+			b.ScanStatus = ProcessBookStatus.Queued;
 		}
 		ScanCount = $"0 of {Books.Count:N0} scanned";
 
@@ -104,19 +107,20 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 			for (int i = 0; i < Books.Count; i++)
 			{
 				var b = Books[i];
-				var url = GetUrl(b.LibraryBook);
 				try
 				{
+					cts.Token.ThrowIfCancellationRequested();
+					var url = GetUrl(b.LibraryBook);
 					//Don't re-scan a file if we have already loaded existing audio codec and bitrate.
 					if (b.Bitrate == 0 && b.Codec == null)
 					{
-						var (file, bestformat) = FindHighestExistingFormat(b.LibraryBook);
+						var (file, bestFormat) = FindHighestExistingFormat(b.LibraryBook);
 
 						if (file is not null)
 						{
 							b.FoundFile = Configuration.Instance.Books?.Path is string booksDir ? Path.GetRelativePath(booksDir, file) : file;
-							b.Bitrate = bestformat.BitRate;
-							b.Codec = bestformat.CodecString;
+							b.Bitrate = bestFormat.BitRate;
+							b.Codec = bestFormat.CodecString;
 						}
 						else if (b.LibraryBook.Book.UserDefinedItem.LastDownloadedFormat is not null)
 						{
@@ -127,7 +131,7 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 						else
 						{
 							b.FoundFile = "File not found and no 'Last Downloaded' format found.";
-							b.ScanStatus = BookScanStatus.Error;
+							b.ScanStatus = ProcessBookStatus.Failed;
 							continue;
 						}
 					}
@@ -137,18 +141,18 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 
 					b.AvailableCodec = codecString;
 					b.AvailableBitrate = bitrate;
-					b.ScanStatus = BookScanStatus.Completed;
+					b.ScanStatus = ProcessBookStatus.Completed;
 				}
 				catch (OperationCanceledException)
 				{
-					b.ScanStatus = BookScanStatus.Cancelled;
+					b.ScanStatus = ProcessBookStatus.Cancelled;
 					break;
 				}
 				catch (Exception ex)
 				{
 					Serilog.Log.Logger.Error(ex, "Error checking for better quality for {@Asin}", b.Asin);
 					b.FoundFile = $"Error: {ex.Message}";
-					b.ScanStatus = BookScanStatus.Error;
+					b.ScanStatus = ProcessBookStatus.Failed;
 				}
 				finally
 				{
@@ -168,20 +172,20 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 
 	private static (string? file, AudioFormat format) FindHighestExistingFormat(LibraryBook libraryBook)
 	{
-		var largestfile
+		var largestFile
 			= AudibleFileStorage.Audio
 			.GetPaths(libraryBook.Book.AudibleProductId)
 			.Select(p => new FileInfo(p))
 			.Where(f => f.Exists && f.Extension.EqualsInsensitive(".m4b"))
 			.OrderByDescending(f => f.Length)
-			.FirstOrDefault();
+			.FirstOrDefault()
+			?.FullName;
 
-		if (largestfile is null)
-			return (null, AudioFormat.Default);
-		return (largestfile.FullName, AudioFormatDecoder.FromMpeg4(largestfile.FullName));
+		return largestFile is null ? (null, AudioFormat.Default)
+			: (largestFile, AudioFormatDecoder.FromMpeg4(largestFile));
 	}
 
-	static async Task<(string codec, int bitrate)> ReadAudioInfoAsync(HttpResponseMessage response)
+	private static async Task<(string codec, int bitrate)> ReadAudioInfoAsync(HttpResponseMessage response)
 	{
 		var data = await response.Content.ReadAsJObjectAsync();
 		var totalLengthMs = data["content_metadata"]?["chapter_info"]?.Value<long>("runtime_length_ms") ?? throw new InvalidDataException("Missing runtime length");
@@ -202,12 +206,12 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 		return (codecString, bitrate);
 	}
 
-	string GetUrl(LibraryBook libraryBook)
+	private string GetUrl(LibraryBook libraryBook)
 	{
 		var drm_type = ScanWidevine ? "Widevine" : "Adrm";
 		var locale = AudibleApi.Localization.Get(libraryBook.Book.Locale);
 		return string.Format(BaseUrl, locale.TopDomain, libraryBook.Book.AudibleProductId, drm_type);
 	}
 
-	const string BaseUrl = "ht" + "tps://api.audible.{0}/1.0/content/{1}/metadata?response_groups=chapter_info,content_reference&quality=High&drm_type={2}";	
+	private const string BaseUrl = "ht" + "tps://api.audible.{0}/1.0/content/{1}/metadata?response_groups=chapter_info,content_reference&quality=High&drm_type={2}";	
 }

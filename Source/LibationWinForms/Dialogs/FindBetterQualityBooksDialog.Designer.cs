@@ -64,7 +64,6 @@ partial class FindBetterQualityBooksDialog
 		dataGridView1.RowHeadersVisible = false;
 		dataGridView1.Size = new System.Drawing.Size(897, 397);
 		dataGridView1.TabIndex = 0;
-		dataGridView1.CellFormatting += dataGridView1_CellFormatting;
 		// 
 		// asinDataGridViewTextBoxColumn
 		// 

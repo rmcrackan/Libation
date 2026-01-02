@@ -1,8 +1,10 @@
 ﻿using ApplicationServices;
 using LibationUiBase;
+using LibationUiBase.ProcessQueue;
 using System;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -34,12 +36,23 @@ public partial class FindBetterQualityBooksDialog : Form
 		Shown += Shown_LoadLibrary;
 		Shown += Shown_ShowInitialMessage;
 		FormClosing += FindBetterQualityBooksDialog_FormClosing;
+		SetDoubleBuffer(dataGridView1, true);
 	}
 
+	static void SetDoubleBuffer(Control control, bool DoubleBuffered)
+	{
+		typeof(Control).InvokeMember("DoubleBuffered", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.SetProperty, null, control, [DoubleBuffered]);
+	}
 
 	private void Shown_ShowInitialMessage(object? sender, EventArgs e)
 	{
-		MessageBox.Show(this, FindBetterQualityBooksViewModel.InitialMessage, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+		if (!VM.ShowFindBetterQualityBooksHelp)
+			return;
+		var result = MessageBox.Show(this, FindBetterQualityBooksViewModel.InitialMessage, Text, MessageBoxButtons.YesNo, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+		if (result == DialogResult.No)
+		{
+			VM.ShowFindBetterQualityBooksHelp = false;
+		}
 	}
 
 	private async void Shown_LoadLibrary(object? sender, EventArgs e)
@@ -51,7 +64,13 @@ public partial class FindBetterQualityBooksDialog : Form
 		Invoke(() =>
 		{
 			bookDataViewModelBindingSource.DataSource = VM.Books;
+			foreach (DataGridViewRow r in dataGridView1.Rows)
+			{
+				//Force creation of DefaultCellStyle to speed up later coloring
+				//_ = r.DefaultCellStyle;
+			}
 			btnScan.Enabled = true;
+			dataGridView1.CellFormatting += dataGridView1_CellFormatting;
 		});
 	}
 
@@ -87,6 +106,8 @@ public partial class FindBetterQualityBooksDialog : Form
 		{
 			await scanTask;
 			scanTask = null;
+			//give the UI a moment to update after cancelling the first close
+			await Task.Delay(100);
 			Invoke(Close);
 		}
 	}
@@ -148,7 +169,7 @@ public partial class FindBetterQualityBooksDialog : Form
 		}
 	}
 
-	private void dataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+	private void dataGridView1_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
 	{
 		if (e.RowIndex < 0 || e.RowIndex >= dataGridView1.Rows.Count)
 			return;
@@ -156,18 +177,7 @@ public partial class FindBetterQualityBooksDialog : Form
 		var row = dataGridView1.Rows[e.RowIndex];
 		if (row.DataBoundItem is BookDataViewModel bvm)
 		{
-			///yes, this is tight coupling and bad practice.
-			///If we ever need tese colors in a third place,
-			///consider moving them to a shared location like
-			///App.axaml in LibationAvalonia
-			var color = bvm.ScanStatus switch
-			{
-				BookScanStatus.Completed => ProcessQueue.ProcessBookControl.SuccessColor,
-				BookScanStatus.Cancelled => ProcessQueue.ProcessBookControl.CancelledColor,
-				BookScanStatus.Error => ProcessQueue.ProcessBookControl.FailedColor,
-				_ => ProcessQueue.ProcessBookControl.QueuedColor,
-			};
-			row.DefaultCellStyle.BackColor = color;
+			row.DefaultCellStyle.BackColor = bvm.ScanStatus.GetColor();
 		}
 	}
 }

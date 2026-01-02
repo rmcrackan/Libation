@@ -1,14 +1,7 @@
 ﻿using DataLayer;
+using LibationUiBase.ProcessQueue;
 
 namespace LibationUiBase;
-
-public enum BookScanStatus
-{
-	None,
-	Error,
-	Cancelled,
-	Completed,
-}
 
 public class BookDataViewModel : ReactiveObject
 {
@@ -48,6 +41,6 @@ public class BookDataViewModel : ReactiveObject
 	public string? BitrateString { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
 	public string? AvailableBitrateString { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
 	public bool IsSignificant { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
-	public BookScanStatus ScanStatus { get => field; set => RaiseAndSetIfChanged(ref field, value); }
+	public ProcessBookStatus ScanStatus { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	private static string? GetBitrateString(int bitrate) => bitrate > 0 ? $"{bitrate} kbps" : null;
 }

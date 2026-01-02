@@ -12,11 +12,6 @@ namespace LibationWinForms.ProcessQueue
 		private readonly int ProgressBarDistanceFromEdge;
 		private object? m_OldContext;
 
-		public static Color FailedColor => Application.IsDarkModeEnabled ? Color.FromArgb(0x50, 0x27, 0x27) : Color.LightCoral;
-		public static Color CancelledColor => Application.IsDarkModeEnabled ? Color.FromArgb(0x4e, 0x4b, 0x15) : Color.Khaki;
-		public static Color QueuedColor { get; } = SystemColors.Control;
-		public static Color SuccessColor => Application.IsDarkModeEnabled ? Color.FromArgb(0x1c, 0x3e, 0x20) : Color.PaleGreen;
-
 		public ProcessBookControl()
 		{
 			InitializeComponent();
@@ -82,15 +77,6 @@ namespace LibationWinForms.ProcessQueue
 
 		private void SetStatus(ProcessBookStatus status, string statusText)
 		{
-			Color backColor = status switch
-			{
-				ProcessBookStatus.Completed => SuccessColor,
-				ProcessBookStatus.Cancelled => CancelledColor,
-				ProcessBookStatus.Queued => QueuedColor,
-				ProcessBookStatus.Working => QueuedColor,
-				_ => FailedColor
-			};
-
 			cancelBtn.Visible = status is ProcessBookStatus.Queued or ProcessBookStatus.Working;
 			moveLastBtn.Visible = status == ProcessBookStatus.Queued;
 			moveDownBtn.Visible = status == ProcessBookStatus.Queued;
@@ -101,7 +87,7 @@ namespace LibationWinForms.ProcessQueue
 			etaLbl.Visible = status == ProcessBookStatus.Working;
 			statusLbl.Visible = status != ProcessBookStatus.Working;
 			statusLbl.Text = statusText;
-			BackColor = backColor;
+			BackColor = status.GetColor();
 
 			int deltaX = Width - cancelBtn.Location.X - CancelBtnDistanceFromEdge;
 
