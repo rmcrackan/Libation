@@ -1,41 +1,39 @@
-using ApplicationServices;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using DataLayer;
-using LibationAvalonia.ViewModels;
+using Dinah.Core;
 using LibationFileManager;
-using ReactiveUI;
+using LibationUiBase;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading;
 
 namespace LibationAvalonia.Dialogs
 {
 	public partial class LocateAudiobooksDialog : DialogWindow
 	{
-		private event EventHandler<FilePathCache.CacheEntry>? FileFound;
 		private readonly CancellationTokenSource tokenSource = new();
-		private readonly List<string> foundAsins = new();
 		private readonly LocatedAudiobooksViewModel _viewModel;
 		public LocateAudiobooksDialog()
 		{
 			InitializeComponent();
 
-			DataContext = _viewModel = new();
+			var list = new AvaloniaList<FoundAudiobook>();
+			DataContext = _viewModel = new(list);
+			list.CollectionChanged += (_, _) => foundFilesDataGrid.ScrollIntoView(list[^1], foundFilesDataGrid.Columns[0]);
 			this.RestoreSizeAndLocation(Configuration.Instance);
 
 			if (Design.IsDesignMode)
 			{
-				_viewModel.FoundFiles.Add(new("[0000001]", "Filename 1.m4b"));
-				_viewModel.FoundFiles.Add(new("[0000002]", "Filename 2.m4b"));
+				_viewModel.AddFoundFile(new("0000000001", FileType.Audio, "Filename 1.m4b"));
+				_viewModel.AddFoundFile(new("0000000002", FileType.Audio, "Filename 2.m4b"));
 			}
 			else
 			{
 				Opened += LocateAudiobooksDialog_Opened;
-				FileFound += LocateAudiobooks_FileFound;
 				Closing += LocateAudiobooksDialog_Closing;
 			}
 		}
@@ -47,19 +45,6 @@ namespace LibationAvalonia.Dialogs
 			//once for the form closing and again for the MessageBox closing.
 			Closing -= LocateAudiobooksDialog_Closing;
 			this.SaveSizeAndLocation(Configuration.Instance);
-		}
-
-		private void LocateAudiobooks_FileFound(object? sender, FilePathCache.CacheEntry e)
-		{
-			var newItem = new Tuple<string, string>($"[{e.Id}]", Path.GetFileName(e.Path));
-			_viewModel.FoundFiles.Add(newItem);
-			foundAudiobooksLB.SelectedItem = newItem;
-
-			if (!foundAsins.Any(asin => asin == e.Id))
-			{
-				foundAsins.Add(e.Id);
-				_viewModel.FoundAsins = foundAsins.Count;
-			}
 		}
 
 		private async void LocateAudiobooksDialog_Opened(object? sender, EventArgs e)
@@ -76,37 +61,18 @@ namespace LibationAvalonia.Dialogs
 			if (selectedFolder is null || !Directory.Exists(selectedFolder))
 			{
 				await CancelAndCloseAsync();
-				return;
 			}
-
-			await foreach (var book in AudioFileStorage.FindAudiobooksAsync(selectedFolder, tokenSource.Token))
+			else
 			{
-				try
-				{
-					FilePathCache.Insert(book);
-
-					var lb = DbContexts.GetLibraryBook_Flat_NoTracking(book.Id);
-					if (lb is not null && lb.Book?.UserDefinedItem.BookStatus is not LiberatedStatus.Liberated)
-						await lb.UpdateBookStatusAsync(LiberatedStatus.Liberated);
-
-					tokenSource.Token.ThrowIfCancellationRequested();
-					FileFound?.Invoke(this, book);
-				}
-				catch (OperationCanceledException) { }
-				catch (Exception ex)
-				{
-					Serilog.Log.Error(ex, "Error adding found audiobook file to Libation. {@audioFile}", book);
-				}
+				await _viewModel.FindAndAddBooksAsync(selectedFolder, tokenSource.Token);
+				await MessageBox.Show(this, $"Libation has found {_viewModel.FoundAsinCount} unique audiobooks and added them to its database. ", $"Found {_viewModel.FoundAsinCount} Audiobooks");
 			}
-
-			await MessageBox.Show(this, $"Libation has found {foundAsins.Count} unique audiobooks and added them to its database. ", $"Found {foundAsins.Count} Audiobooks");
-			await SaveAndCloseAsync();
 		}
-	}
 
-	public class LocatedAudiobooksViewModel : ViewModelBase
-	{
-		public AvaloniaList<Tuple<string, string>> FoundFiles { get; } = new();
-		public int FoundAsins { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+		private void foundFilesDataGrid_DoubleTapped(object? sender, Avalonia.Input.TappedEventArgs e)
+		{
+			if (sender is DataGrid dg && dg.SelectedItem is FoundAudiobook foundAudiobook)
+				Go.To.File(foundAudiobook.Entry.Path);
+		}
 	}
 }
