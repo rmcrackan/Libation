@@ -476,7 +476,7 @@ namespace FileLiberator
 			{
 				//Failure to download records should not be considered a failure to download the book
 				if (!cancellationToken.IsCancellationRequested)
-					Serilog.Log.Logger.Error(ex, "Error downloading clips and bookmarks for {@Book} to {@recordsPath}.", options.LibraryBook, recordsPath);
+					Serilog.Log.Logger.Error(ex, "Error downloading clips and bookmarks for {@Book} to {@recordsPath}.", options.LibraryBook.LogFriendly(), recordsPath);
 				throw;
 			}
 		}
