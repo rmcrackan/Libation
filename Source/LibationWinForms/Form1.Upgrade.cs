@@ -11,14 +11,12 @@ namespace LibationWinForms
 		{
 			setProgressVisible(false);
 #pragma warning disable CS8321 // Local function is declared but never used
-			Task upgradeAvailable(UpgradeEventArgs e)
+			async Task upgradeAvailable(UpgradeEventArgs e)
 			{
-				var notificationResult = new UpgradeNotificationDialog(e.UpgradeProperties).ShowDialog(this);
+				var notificationResult = await new UpgradeNotificationDialog(e.UpgradeProperties).ShowDialogAsync(this);
 
 				e.Ignore = notificationResult == DialogResult.Ignore;
 				e.InstallUpgrade = notificationResult == DialogResult.Yes;
-
-				return Task.CompletedTask;
 			}
 #pragma warning restore CS8321 // Local function is declared but never used
 

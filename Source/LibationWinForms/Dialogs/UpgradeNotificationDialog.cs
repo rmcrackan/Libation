@@ -24,21 +24,6 @@ namespace LibationWinForms.Dialogs
 			releaseNotesTbox.Text = upgradeProperties.Notes;			
 
 			Shown += (_, _) => yesBtn.Focus();
-			Load += UpgradeNotificationDialog_Load;
-		}
-
-		private void UpgradeNotificationDialog_Load(object sender, EventArgs e)
-		{
-			//This dialog starts before Form1, soposition it at the center of where Form1 will be.
-			var savedState = Configuration.Instance.GetNonString<FormSizeAndPosition>(defaultValue: null, nameof(Form1));
-
-			if (savedState is null) return;
-
-			int x = savedState.X + (savedState.Width - Width) / 2;
-			int y = savedState.Y + (savedState.Height - Height) / 2;
-
-			Location = new(x, y);
-			TopMost = true;
 		}
 
 		private void PackageDlLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
