@@ -47,6 +47,7 @@ public class LibationContributor
 			GitHubUser("twsouthwick"),
 			GitHubUser("radiorambo"),
 			GitHubUser("Youssef1313"),
+            GitHubUser("niontrix"),
 		]);
 
 	private LibationContributor(string name, LibationContributorType type,Uri link)
