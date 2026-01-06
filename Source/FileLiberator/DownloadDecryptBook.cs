@@ -322,7 +322,7 @@ namespace FileLiberator
 			catch (Exception ex)
 			{
 				//Failure to determine output audio format should not be considered a failure to download the book
-				Serilog.Log.Logger.Error(ex, "Error determining output audio format for {@Book}. File = '{@audioFile}'", options.LibraryBook, firstAudioFile);
+				Serilog.Log.Logger.Error(ex, "Error determining output audio format for {@Book}. File = '{@audioFile}'", options.LibraryBook.LogFriendly(), firstAudioFile);
 				return AudioFormat.Default;
 			}
 
@@ -427,7 +427,7 @@ namespace FileLiberator
 			{
 				//Failure to download cover art should not be considered a failure to download the book
 				if (!cancellationToken.IsCancellationRequested)
-					Serilog.Log.Logger.Error(ex, "Error downloading cover art for {@Book} to {@metadataFile}.", options.LibraryBook, coverPath);
+					Serilog.Log.Logger.Error(ex, "Error downloading cover art for {@Book} to {@metadataFile}.", options.LibraryBook.LogFriendly(), coverPath);
 				throw;
 			}
 		}
@@ -512,7 +512,7 @@ namespace FileLiberator
 			{
 				//Failure to download metadata should not be considered a failure to download the book
 				if (!cancellationToken.IsCancellationRequested)
-					Serilog.Log.Logger.Error(ex, "Error downloading metdatat of {@Book} to {@metadataFile}.", options.LibraryBook, metadataPath);
+					Serilog.Log.Logger.Error(ex, "Error downloading metdatat of {@Book} to {@metadataFile}.", options.LibraryBook.LogFriendly(), metadataPath);
 				throw;
 			}
 		}
