@@ -69,6 +69,16 @@ Thanks to [mhdi](https://aur.archlinux.org/account/mhdi) for taking care of AUR 
 
   Thanks to [TomaSajt](https://github.com/tomasajt) for taking care of Nix package maintenance.
 
+### Pacstall
+
+Pacstall is the AUR Ubuntu wishes it had. It takes the concept of the AUR and puts a spin on it, making it easier to install programs without scouring github repos and the likes. See the [Pacstall](https://pacstall.dev/) project for more information.
+
+```bash
+pacstall -I libation-deb
+```
+
+---
+
 If your desktop uses gtk, you should now see Libation among your applications.
 
 Additionally, you may launch Libation, LibationCli, and Hangover (the Libation recovery app) via the command line using 'libation, libationcli', and 'hangover' aliases respectively.
