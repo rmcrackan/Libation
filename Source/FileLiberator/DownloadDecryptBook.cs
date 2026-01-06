@@ -512,7 +512,7 @@ namespace FileLiberator
 			{
 				//Failure to download metadata should not be considered a failure to download the book
 				if (!cancellationToken.IsCancellationRequested)
-					Serilog.Log.Logger.Error(ex, "Error downloading metdatat of {@Book} to {@metadataFile}.", options.LibraryBook.LogFriendly(), metadataPath);
+					Serilog.Log.Logger.Error(ex, "Error downloading metadata of {@Book} to {@metadataFile}.", options.LibraryBook.LogFriendly(), metadataPath);
 				throw;
 			}
 		}
