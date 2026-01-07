@@ -7,10 +7,11 @@ using System.Text;
 namespace DataLayer;
 public class MockLibraryBook : LibraryBook
 {
-	protected MockLibraryBook(Book book, DateTime dateAdded, string account, DateTime? includedUntil)
+	protected MockLibraryBook(Book book, DateTime dateAdded, string account, DateTime? includedUntil, bool isAudiblePlus)
 		: base(book, dateAdded, account)
 	{
 		SetIncludedUntil(includedUntil);
+		SetIsAudiblePlus(isAudiblePlus);
 	}
 
 	public MockLibraryBook AddSeries(string seriesName, int order)
@@ -76,6 +77,7 @@ public class MockLibraryBook : LibraryBook
 		DateTime? dateAdded = null,
 		DateTime? datePublished = null,
 		DateTime? includedUntil = null,
+		bool isAudiblePlus = false,
 		string title = "Mock Book Title",
 		string subtitle = "Mock Book Subtitle",
 		string description = "This is a mock book description.",
@@ -115,7 +117,8 @@ public class MockLibraryBook : LibraryBook
 			book,
 			dateAdded ?? DateTime.Now,
 			account,
-			includedUntil)
+			includedUntil,
+			isAudiblePlus)
 		{
 			AbsentFromLastScan = absetFromLastScan
 		};

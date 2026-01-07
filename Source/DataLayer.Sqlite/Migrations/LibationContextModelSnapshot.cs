@@ -15,7 +15,7 @@ namespace DataLayer.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.8");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.0");
 
             modelBuilder.Entity("CategoryCategoryLadder", b =>
                 {
@@ -197,6 +197,9 @@ namespace DataLayer.Migrations
                     b.Property<DateTime?>("IncludedUntil")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsAudiblePlus")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
@@ -334,6 +337,7 @@ namespace DataLayer.Migrations
                                 .HasColumnType("INTEGER");
 
                             b1.Property<string>("Tags")
+                                .IsRequired()
                                 .HasColumnType("TEXT");
 
                             b1.HasKey("BookId");
@@ -367,7 +371,8 @@ namespace DataLayer.Migrations
 
                             b1.Navigation("Book");
 
-                            b1.Navigation("Rating");
+                            b1.Navigation("Rating")
+                                .IsRequired();
                         });
 
                     b.Navigation("Rating");
