@@ -37,7 +37,7 @@ namespace LibationFileManager
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Error(ex, "Error creating subdirectory in {@InProgress}", Configuration.Instance.InProgress);
+				Serilog.Log.Error(ex, "Error creating subdirectory in {InProgress}", Configuration.Instance.InProgress);
 				lastInProgressFail = DateTime.UtcNow;
 				return null;
 			}
@@ -86,7 +86,7 @@ namespace LibationFileManager
 				}
 				catch (Exception ex)
 				{
-					Serilog.Log.Error(ex, "Error creating Books directory: {@BooksDirectory}", Configuration.Instance.Books);
+					Serilog.Log.Error(ex, "Error creating Books directory: {BooksDirectory}", Configuration.Instance.Books);
 					return null;
 				}
 			}
@@ -272,7 +272,7 @@ namespace LibationFileManager
 				}
 				catch (Exception ex)
 				{
-					Serilog.Log.Error(ex, "Error checking for asin in {@file}", path);
+					Serilog.Log.Error(ex, "Error checking for asin in {file}", path);
 				}
 				finally
 				{

@@ -87,7 +87,7 @@ namespace LibationCli
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Error(ex, "Failed to read license file: {@LicenseFile}", licFile);
+				Serilog.Log.Error(ex, "Failed to read license file: {LicenseFile}", licFile);
 				Console.Error.WriteLine("Error: Failed to read license file. Please ensure the file is a valid license file in JSON format.");
 			}
 			return null;

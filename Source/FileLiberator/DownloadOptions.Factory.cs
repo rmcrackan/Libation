@@ -56,7 +56,7 @@ public partial class DownloadOptions
 		}
 		else if (metadata.ContentReference != license.ContentMetadata.ContentReference)
 		{
-			Serilog.Log.Logger.Warning("Metadata ContentReference does not match License ContentReference with drm_type = {@DrmType}. {@Metadata}. {@License} ",
+			Serilog.Log.Logger.Warning("Metadata ContentReference does not match License ContentReference with drm_type = {DrmType}. {@Metadata}. {@License} ",
 			license.DrmType,
 			metadata.ContentReference,
 			license.ContentMetadata.ContentReference);
@@ -111,7 +111,7 @@ public partial class DownloadOptions
 				if (canUseWidevine)
 					Serilog.Log.Logger.Warning("Unable to get a Widevine CDM. Falling back to ADRM.");
 				else
-					Serilog.Log.Logger.Warning("Account {@account} is not registered as an android device, so content will not be downloaded with Widevine DRM. Remove and re-add the account in Libation to fix.", libraryBook.Account.ToMask());
+					Serilog.Log.Logger.Warning("Account {account} is not registered as an android device, so content will not be downloaded with Widevine DRM. Remove and re-add the account in Libation to fix.", libraryBook.Account.ToMask());
 			}
 
 			token.ThrowIfCancellationRequested();
