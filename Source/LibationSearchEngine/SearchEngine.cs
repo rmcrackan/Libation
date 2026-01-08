@@ -59,6 +59,7 @@ namespace LibationSearchEngine
             { FieldType.Bool, lb => lb.AbsentFromLastScan.ToString(), "AbsentFromLastScan", "Absent" },
             { FieldType.Bool, lb => (!string.IsNullOrWhiteSpace(lb.Book.SeriesNames())).ToString(), "IsInSeries", "InSeries" },
             { FieldType.Bool, lb => lb.Book.UserDefinedItem.IsFinished.ToString(), nameof(UserDefinedItem.IsFinished), "Finished", "IsFinished" },
+            { FieldType.Bool, lb => lb.IsAudiblePlus.ToString(), nameof(LibraryBook.IsAudiblePlus), "AudiblePlus", "Plus" },
             // all numbers are padded to 8 char.s
             // This will allow a single method to auto-pad numbers. The method will match these as well as date: yyyymmdd
             { FieldType.Number, lb => lb.Book.LengthInMinutes.ToLuceneString(), nameof(Book.LengthInMinutes), "Length", "Minutes" },
