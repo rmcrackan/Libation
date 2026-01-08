@@ -352,6 +352,20 @@ namespace LibationAvalonia.Views
 				});
 			}
 			#endregion
+			#region Remove Audible Plus Books from Audible Library
+
+			if (entries.Length != 1 || ctx.RemoveFromAudibleEnabled)
+			{
+				args.ContextMenuItems.Add(new Separator());
+				args.ContextMenuItems.Add(new MenuItem
+				{
+					Header = ctx.RemoveFromAudibleText,
+					IsEnabled = ctx.RemoveFromAudibleEnabled,
+					Command = ReactiveCommand.CreateFromTask(ctx.RemoveFromAudibleAsync)
+				});
+			}
+
+			#endregion
 
 			if (entries.Length > 1)
 				return;

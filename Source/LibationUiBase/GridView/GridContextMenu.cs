@@ -1,9 +1,15 @@
 ﻿using ApplicationServices;
 using DataLayer;
+using Dinah.Core;
+using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using DocumentFormat.OpenXml.Wordprocessing;
 using FileLiberator;
 using LibationFileManager;
 using LibationFileManager.Templates;
+using LibationUiBase.Forms;
+using Lucene.Net.Messages;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,6 +23,7 @@ public class GridContextMenu
 	public string SetDownloadedText => $"Set Download status to '{Accelerator}Downloaded'";
 	public string SetNotDownloadedText => $"Set Download status to '{Accelerator}Not Downloaded'";
 	public string RemoveText => $"{Accelerator}Remove from library";
+	public string RemoveFromAudibleText => $"Remove Plus {(GridEntries.Count(e => e.LibraryBook.IsAudiblePlus) == 1 ? "Book" : "Books")} from Audible Library";
 	public string LocateFileText => $"{Accelerator}Locate file...";
 	public string LocateFileDialogTitle => $"Locate the audio file for '{GridEntries[0].Book?.TitleWithSubtitle ?? "[null]"}'";
 	public string LocateFileErrorMessage => "Error saving book's location";
@@ -37,6 +44,7 @@ public class GridContextMenu
 	public bool ConvertToMp3Enabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
 	public bool DownloadAsChaptersEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus is not LiberatedStatus.Error);
 	public bool ReDownloadEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
+	public bool RemoveFromAudibleEnabled => LibraryBookEntries.Any(ge => ge.LibraryBook.IsAudiblePlus);
 
 	private GridEntry[] GridEntries { get; }
 	public LibraryBookEntry[] LibraryBookEntries { get; }
@@ -82,6 +90,64 @@ public class GridContextMenu
 	public async Task RemoveAsync()
 	{
 		await LibraryBookEntries.Select(e => e.LibraryBook).RemoveBooksAsync();
+	}
+
+	public async Task RemoveFromAudibleAsync()
+	{
+		List<LibraryBook> removedFromAudible = [];
+		List<LibraryBook> failedToRemove = [];
+
+		foreach (var entry in LibraryBookEntries.Select(l => l.LibraryBook).Where(lb => lb.IsAudiblePlus))
+		{
+			try
+			{
+				var api = await entry.GetApiAsync();
+				var success = await api.RemoveItemFromLibraryAsync(entry.Book.AudibleProductId);
+				if (success)
+				{
+					removedFromAudible.Add(entry);
+				}
+				else
+				{
+					failedToRemove.Add(entry);
+				}
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Failed to remove book from audible account. {@Book}", entry.LogFriendly());
+				failedToRemove.Add(entry);
+			}
+		}
+		if (failedToRemove.Count > 0)
+		{
+			var count = failedToRemove.Count;
+			string bookBooks = count == 1 ? "book" : "books";
+
+			var message = $"""
+				Failed to remove {count} {bookBooks} from Audible.
+
+				{failedToRemove.AggregateTitles()}
+				""";
+			await MessageBoxBase.Show(message, $"Failed to Remove {bookBooks.FirstCharToUpper()} from Audible");
+		}
+		try
+		{
+			await removedFromAudible.PermanentlyDeleteBooksAsync();
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Failed to delete locally removed from Audible books.");
+			
+			var count = removedFromAudible.Count;
+			string bookBooks = count == 1 ? "book" : "books";
+
+			var message = $"""
+				Failed to delete {count} {bookBooks} from Libation.
+
+				{removedFromAudible.AggregateTitles()}
+				""";
+			await MessageBoxBase.Show(message, $"Failed to Delete {bookBooks.FirstCharToUpper()} from Libation");
+		}
 	}
 
 	public ITemplateEditor CreateTemplateEditor<T>(LibraryBook libraryBook, string existingTemplate)

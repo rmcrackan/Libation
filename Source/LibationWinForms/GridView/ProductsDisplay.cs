@@ -262,7 +262,17 @@ namespace LibationWinForms.GridView
 			}
 
 			#endregion
+			#region Remove Audible Plus Books from Audible Library
 
+			if (entries.Length != 1 || ctx.RemoveFromAudibleEnabled)
+			{
+				ctxMenu.Items.Add(new ToolStripSeparator());
+				var removeFromAudibleMenuItem = new ToolStripMenuItem() { Text = ctx.RemoveFromAudibleText, Enabled = ctx.RemoveFromAudibleEnabled };
+				removeFromAudibleMenuItem.Click += async (_, _) => await ctx.RemoveFromAudibleAsync();
+				ctxMenu.Items.Add(removeFromAudibleMenuItem);
+			}
+
+			#endregion
 			if (entries.Length > 1)
 				return;
 
