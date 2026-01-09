@@ -1,8 +1,6 @@
-using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input.Platform;
-using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using DataLayer;
@@ -30,13 +28,31 @@ namespace LibationAvalonia.Views
 		public event EventHandler<LibraryBook[]>? ConvertToMp3Clicked;
 		public event EventHandler<LibraryBook>? TagsButtonClicked;
 
+
+		public static readonly StyledProperty<bool> DisableContextMenuProperty =
+		AvaloniaProperty.Register<GroupBox, bool>(nameof(DisableContextMenu));
+
+		public static readonly StyledProperty<bool> DisableColumnCustomizationProperty =
+		AvaloniaProperty.Register<GroupBox, bool>(nameof(DisableColumnCustomization));
+
+		public bool DisableContextMenu
+		{
+			get { return GetValue(DisableContextMenuProperty); }
+			set { SetValue(DisableContextMenuProperty, value); }
+		}
+
+		public bool DisableColumnCustomization
+		{
+			get { return GetValue(DisableColumnCustomizationProperty); }
+			set { SetValue(DisableColumnCustomizationProperty, value); }
+		}
+
 		private ProductsDisplayViewModel? _viewModel => DataContext as ProductsDisplayViewModel;
 		ImageDisplayDialog? imageDisplayDialog;
 
 		public ProductsDisplay()
 		{
 			InitializeComponent();
-			DataGridContextMenus.CellContextMenuStripNeeded += ProductsGrid_CellContextMenuStripNeeded;
 
 			var cellSelector = Selectors.Is<DataGridCell>(null);
 			rowHeightStyle = new Style(_ => cellSelector);
@@ -89,6 +105,18 @@ namespace LibationAvalonia.Views
 			{
 				column.CustomSortComparer = new RowComparer(column);
 			}
+		}
+
+		protected override void OnApplyTemplate(Avalonia.Controls.Primitives.TemplateAppliedEventArgs e)
+		{
+			ApplyDisableColumnCustimaziton();
+			base.OnApplyTemplate(e);
+		}
+		protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+		{
+			if (change.Property == DisableColumnCustomizationProperty)
+				ApplyDisableColumnCustimaziton();
+			base.OnPropertyChanged(change);
 		}
 
 		private void ProductsDisplay_LoadingRow(object sender, DataGridRowEventArgs e)
@@ -180,10 +208,19 @@ namespace LibationAvalonia.Views
 		#endregion
 
 		#region Cell Context Menu
-
-		public void ProductsGrid_CellContextMenuStripNeeded(object? sender, DataGridCellContextMenuStripNeededEventArgs args)
+		public void GridCellContextMenu_Opening(object? sender, System.ComponentModel.CancelEventArgs e)
 		{
-			var entries = args.GridEntries;
+			e.Cancel = DisableContextMenu;
+		}
+
+		//Use Opened instead of opening because the parent is not set yet in Opening
+		public void GridCellContextMenu_Opened(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			if (sender is not ContextMenu contextMenu ||
+				DataGridCellContextMenu<GridEntry>.Create(contextMenu) is not { } args)
+				return;
+
+			var entries = args.RowItems;
 			var ctx = new GridContextMenu(entries, '_');
 
 			if (App.MainWindow?.Clipboard is IClipboard clipboard)
@@ -206,8 +243,8 @@ namespace LibationAvalonia.Views
 				});
 
 				args.ContextMenuItems.Add(new Separator());
-			}
-			
+			}			
+
 
 			#region Liberate all Episodes (Single series only)
 
@@ -454,13 +491,13 @@ namespace LibationAvalonia.Views
 				var itemName = column.SortMemberPath;
 				if (itemName == nameof(GridEntry.Remove))
 					continue;
-
+				
 				GridHeaderContextMenu.Items.Add(new MenuItem
 				{
 					Header = new CheckBox { Content = new TextBlock { Text = ((string)column.Header).Replace('\n', ' ') } },
 					Tag = column,
 				});
-
+				
 				column.IsVisible = Configuration.Instance.GetColumnVisibility(itemName);
 			}
 
@@ -478,10 +515,19 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		public void ContextMenu_ContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
+		private void ApplyDisableColumnCustimaziton()
 		{
-			if (sender is not ContextMenu contextMenu)
+			_viewModel?.DisablePersistColumnWidths = DisableColumnCustomization;
+			productsGrid.CanUserReorderColumns = !DisableColumnCustomization;
+		}
+
+		public void GridHeaderContextMenu_Opening(object? sender, System.ComponentModel.CancelEventArgs e)
+		{
+			if (DisableContextMenu || sender is not ContextMenu contextMenu)
+			{
+				e.Cancel = true;
 				return;
+			}
 			foreach (var mi in contextMenu.Items.OfType<MenuItem>())
 			{
 				if (mi.Tag is DataGridColumn column && mi.Header is CheckBox cbox)
@@ -491,7 +537,7 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		public void ContextMenu_MenuClosed(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public void GridHeaderContextMenu_Closed(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			if (sender is not ContextMenu contextMenu)
 				return;
@@ -518,6 +564,7 @@ namespace LibationAvalonia.Views
 
 		private void ProductsGrid_ColumnDisplayIndexChanged(object? sender, DataGridColumnEventArgs e)
 		{
+			if (DisableColumnCustomization) return;
 			var config = Configuration.Instance;
 
 			var dictionary = config.GridColumnsDisplayIndices;

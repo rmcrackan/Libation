@@ -25,7 +25,7 @@ namespace LibationAvalonia.Controls
 				IsEditingMode = false
 			};
 
-			cell?.AttachContextMenu();
+			cell.Tag = this;
 
 			if (!IsReadOnly)
 				ToolTip.SetTip(myRatingElement, "Click to change ratings");

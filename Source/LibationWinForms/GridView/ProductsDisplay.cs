@@ -32,6 +32,7 @@ namespace LibationWinForms.GridView
 		public ProductsDisplay()
 		{
 			InitializeComponent();
+			productsGrid.SearchEngine = MainSearchEngine.Instance;
 		}
 
 		#region Button controls		
@@ -432,7 +433,7 @@ namespace LibationWinForms.GridView
 
 		#endregion
 
-		internal List<LibraryBook> GetVisible() => productsGrid.GetVisibleBooks().ToList();
+		internal List<LibraryBook> GetVisible() => productsGrid.GetVisibleBookEntries().ToList();
 
 		private void productsGrid_VisibleCountChanged(object sender, int count)
 		{

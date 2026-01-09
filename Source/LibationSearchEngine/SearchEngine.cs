@@ -93,6 +93,12 @@ namespace LibationSearchEngine
             }
         }
 
+        public SearchEngine(string directory = null)
+        {
+            SearchEngineDirectory = directory
+                ?? new System.IO.DirectoryInfo(Configuration.Instance.LibationFiles.Location).CreateSubdirectoryEx("SearchEngine").FullName;
+		}
+
         /// <summary>Long running. Use await Task.Run(() => UpdateBook(productId))</summary>
         public void UpdateBook(LibationContext context, string productId)
         {
@@ -131,7 +137,7 @@ namespace LibationSearchEngine
         public void UpdateTags(string productId, string tags) => updateAnalyzedField(productId, TAGS, tags);
 
         // all fields are case-specific
-        private static void updateAnalyzedField(string productId, string fieldName, string newValue)
+        private void updateAnalyzedField(string productId, string fieldName, string newValue)
             => updateDocument(
                 productId,
                 d =>
@@ -170,7 +176,7 @@ namespace LibationSearchEngine
 					d.AddIndexRule(rating, book);
 				});
 
-        private static void updateDocument(string productId, Action<Document> action)
+        private void updateDocument(string productId, Action<Document> action)
         {
             var productTerm = new Term(_ID_, productId);
 
@@ -277,10 +283,10 @@ namespace LibationSearchEngine
 		}
 		#endregion
 
-		private static Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
+		private Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
 
-        // not customizable. don't move to config
-        private static string SearchEngineDirectory { get; }
-            = new System.IO.DirectoryInfo(Configuration.Instance.LibationFiles.Location).CreateSubdirectoryEx("SearchEngine").FullName;
+		//Defaults  to "LibationFiles/SearchEngine, but can be overridden
+        //in constructor for use in TrashBinDialog search
+		private string SearchEngineDirectory { get; }
     }
 }

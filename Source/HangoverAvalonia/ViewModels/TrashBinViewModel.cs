@@ -97,7 +97,7 @@ public class TrashBinViewModel : ViewModelBase, IDisposable
 
 	public void Reload()
 	{
-		var deletedBooks = DbContexts.GetDeletedLibraryBooks();
+		var deletedBooks = DbContexts.GetDeletedLibraryBooks().Where(lb => lb.Book.ContentType is not ContentType.Parent);
 
 		DeletedBooks.Clear();
 		DeletedBooks.AddRange(deletedBooks.Select(lb => new CheckBoxViewModel { Item = lb }));
