@@ -39,6 +39,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			DownloadClipsBookmarks = config.DownloadClipsBookmarks;
 			ClipBookmarkFormat = config.ClipsBookmarksFileFormat;
 			SplitFilesByChapter = config.SplitFilesByChapter;
+			MinimumFileDuration = config.MinimumFileDuration;
 			MergeOpeningAndEndCredits = config.MergeOpeningAndEndCredits;
 			StripAudibleBrandAudio = config.StripAudibleBrandAudio;
 			StripUnabridged = config.StripUnabridged;
@@ -71,6 +72,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			config.DownloadClipsBookmarks = DownloadClipsBookmarks;
 			config.ClipsBookmarksFileFormat = ClipBookmarkFormat;
 			config.SplitFilesByChapter = SplitFilesByChapter;
+			config.MinimumFileDuration = MinimumFileDuration;
 			config.MergeOpeningAndEndCredits = MergeOpeningAndEndCredits;
 			config.StripAudibleBrandAudio = StripAudibleBrandAudio;
 			config.StripUnabridged = StripUnabridged;
@@ -118,6 +120,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string DownloadCoverArtText { get; } = Configuration.GetDescription(nameof(Configuration.DownloadCoverArt));
 		public string RetainAaxFileText { get; } = Configuration.GetDescription(nameof(Configuration.RetainAaxFile));
 		public string SplitFilesByChapterText { get; } = Configuration.GetDescription(nameof(Configuration.SplitFilesByChapter));
+		public string MinimumFileDurationText { get; } = Configuration.GetDescription(nameof(Configuration.MinimumFileDuration));
 		public string MergeOpeningEndCreditsText { get; } = Configuration.GetDescription(nameof(Configuration.MergeOpeningAndEndCredits));
 		public string StripAudibleBrandingText { get; } = Configuration.GetDescription(nameof(Configuration.StripAudibleBrandAudio));
 		public string StripUnabridgedText { get; } = Configuration.GetDescription(nameof(Configuration.StripUnabridged));
@@ -146,6 +149,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string StripUnabridgedTip => Configuration.GetHelpText(nameof(StripUnabridged));
 		public bool DecryptToLossy { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 		public string DecryptToLossyTip => Configuration.GetHelpText(nameof(DecryptToLossy));
+		public string MinimumFileDurationTip => Configuration.GetHelpText(nameof(MinimumFileDuration));
 		public bool MoveMoovToBeginning { get; set; }
 
 		public bool LameDownsampleMono { get; set; } = Design.IsDesignMode;
@@ -153,6 +157,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		public bool LameConstantBitrate { get; set; } = Design.IsDesignMode;
 
 		public bool SplitFilesByChapter { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
+		public int MinimumFileDuration { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
 		public bool LameTargetBitrate { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
 		public bool LameMatchSource { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
 		public int LameBitrate { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }

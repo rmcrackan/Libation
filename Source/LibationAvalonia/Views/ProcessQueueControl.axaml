@@ -58,7 +58,10 @@
 							</StackPanel.Styles>
 							<TextBlock Margin="0,0,6,0" FontSize="11" Text="DL&#xA;Limit" VerticalAlignment="Center" />
 							<NumericUpDown
+								Classes="SmallNumericUpDown"
+								MinWidth="100"
 								FontSize="12"
+								HorizontalContentAlignment="Center"
 								VerticalContentAlignment="Center"
 								TextConverter="{StaticResource myConverter}"
 								Height="{Binding #cancelAllBtn.DesiredSize.Height}"
