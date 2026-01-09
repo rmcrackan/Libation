@@ -1,16 +1,20 @@
 ﻿using ApplicationServices;
 using CommandLine;
+using DataLayer;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationCli
 {
 	[Verb("export", HelpText = "Must include path and flag for export file type: --xlsx , --csv , --json")]
 	public class ExportOptions : OptionsBase
 	{
 		[Option(shortName: 'p', longName: "path", Required = true, HelpText = "Path to save file to.")]
-		public string FilePath { get; set; }
+		public string? FilePath { get; set; }
 
 		#region explanation of mutually exclusive options
 		/*
@@ -36,9 +40,12 @@ namespace LibationCli
 		[Option(shortName: 'j', longName: "json", HelpText = "JavaScript Object Notation", SetName = "json")]
 		public bool json { get; set; }
 
+		[Value(0, MetaName = "[asins]", HelpText = "Optional product IDs of books to process.")]
+		public IEnumerable<string>? Asins { get; set; }
+
 		protected override Task ProcessAsync()
 		{
-			Action<string> exporter
+			Action<string, IEnumerable<LibraryBook>?>? exporter
 				= csv ? LibraryExporter.ToCsv
 				: json ? LibraryExporter.ToJson
 				: xlsx ? LibraryExporter.ToXlsx
@@ -54,9 +61,18 @@ namespace LibationCli
 			{
 				PrintVerbUsage($"Undefined export format for file type \"{Path.GetExtension(FilePath)}\"");
 			}
+			else if (FilePath is null)
+			{
+				PrintVerbUsage($"Undefined export file name");
+			}
 			else
 			{
-				exporter(FilePath);
+				IEnumerable<LibraryBook>? booksToScan = null;
+				if (Asins?.Any() is true)
+				{
+					booksToScan = DbContexts.GetLibrary_Flat_NoTracking().IntersectBy(Asins, l => l.Book.AudibleProductId);
+				}
+				exporter(FilePath, booksToScan);
 				Console.WriteLine($"Library exported to: {FilePath}");
 			}
 			return Task.CompletedTask;

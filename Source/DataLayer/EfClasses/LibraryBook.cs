@@ -15,6 +15,7 @@ namespace DataLayer
         public bool AbsentFromLastScan { get; set; }
         
         public DateTime? IncludedUntil { get; private set; }
+        public bool IsAudiblePlus { get; set; }
         private LibraryBook() { }
         public LibraryBook(Book book, DateTime dateAdded, string account)
         {
@@ -28,6 +29,7 @@ namespace DataLayer
 
         public void SetAccount(string account) => Account = account;
         public void SetIncludedUntil(DateTime? includedUntil) => IncludedUntil = includedUntil;
+        public void SetIsAudiblePlus(bool isAudiblePlus) => IsAudiblePlus = isAudiblePlus;
         public override string ToString() => $"{DateAdded:d} {Book}";
     }
 }

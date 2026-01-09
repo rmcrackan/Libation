@@ -59,6 +59,7 @@ namespace LibationSearchEngine
             { FieldType.Bool, lb => lb.AbsentFromLastScan.ToString(), "AbsentFromLastScan", "Absent" },
             { FieldType.Bool, lb => (!string.IsNullOrWhiteSpace(lb.Book.SeriesNames())).ToString(), "IsInSeries", "InSeries" },
             { FieldType.Bool, lb => lb.Book.UserDefinedItem.IsFinished.ToString(), nameof(UserDefinedItem.IsFinished), "Finished", "IsFinished" },
+            { FieldType.Bool, lb => lb.IsAudiblePlus.ToString(), nameof(LibraryBook.IsAudiblePlus), "AudiblePlus", "Plus" },
             // all numbers are padded to 8 char.s
             // This will allow a single method to auto-pad numbers. The method will match these as well as date: yyyymmdd
             { FieldType.Number, lb => lb.Book.LengthInMinutes.ToLuceneString(), nameof(Book.LengthInMinutes), "Length", "Minutes" },
@@ -91,6 +92,12 @@ namespace LibationSearchEngine
                 ixWriter.AddDocument(doc);
             }
         }
+
+        public SearchEngine(string directory = null)
+        {
+            SearchEngineDirectory = directory
+                ?? new System.IO.DirectoryInfo(Configuration.Instance.LibationFiles.Location).CreateSubdirectoryEx("SearchEngine").FullName;
+		}
 
         /// <summary>Long running. Use await Task.Run(() => UpdateBook(productId))</summary>
         public void UpdateBook(LibationContext context, string productId)
@@ -130,7 +137,7 @@ namespace LibationSearchEngine
         public void UpdateTags(string productId, string tags) => updateAnalyzedField(productId, TAGS, tags);
 
         // all fields are case-specific
-        private static void updateAnalyzedField(string productId, string fieldName, string newValue)
+        private void updateAnalyzedField(string productId, string fieldName, string newValue)
             => updateDocument(
                 productId,
                 d =>
@@ -169,7 +176,7 @@ namespace LibationSearchEngine
 					d.AddIndexRule(rating, book);
 				});
 
-        private static void updateDocument(string productId, Action<Document> action)
+        private void updateDocument(string productId, Action<Document> action)
         {
             var productTerm = new Term(_ID_, productId);
 
@@ -276,10 +283,10 @@ namespace LibationSearchEngine
 		}
 		#endregion
 
-		private static Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
+		private Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
 
-        // not customizable. don't move to config
-        private static string SearchEngineDirectory { get; }
-            = new System.IO.DirectoryInfo(Configuration.Instance.LibationFiles.Location).CreateSubdirectoryEx("SearchEngine").FullName;
+		//Defaults  to "LibationFiles/SearchEngine, but can be overridden
+        //in constructor for use in TrashBinDialog search
+		private string SearchEngineDirectory { get; }
     }
 }

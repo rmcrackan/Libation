@@ -45,16 +45,13 @@ namespace LibationUiBase.GridView
 			=> searchSet is null != otherSet is null ||
 					(searchSet is not null &&
 					otherSet is not null &&
-					searchSet.Intersect(otherSet).Count() != searchSet.Count);
+					searchSet.Intersect(otherSet).Count() != searchSet.Count);		
 
-		[return: NotNullIfNotNull(nameof(searchString))]
-		public static HashSet<GridEntry>? FilterEntries(this IEnumerable<GridEntry> entries, string? searchString)
+		[return: NotNullIfNotNull(nameof(searchResultSet))]
+		public static HashSet<GridEntry>? FilterEntries(this IEnumerable<GridEntry> entries, LibationSearchEngine.SearchResultSet? searchResultSet)
 		{
-			if (string.IsNullOrEmpty(searchString))
+			if (searchResultSet is null)
 				return null;
-
-			var searchResultSet = SearchEngineCommands.Search(searchString);
-
 			var booksFilteredIn = entries.IntersectBy(searchResultSet.Docs.Select(d => d.ProductId), l => l.AudibleProductId);
 
 			//Find all series containing children that match the search criteria

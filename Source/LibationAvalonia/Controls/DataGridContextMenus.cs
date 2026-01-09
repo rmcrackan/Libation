@@ -1,119 +1,121 @@
 ﻿using Avalonia.Collections;
 using Avalonia.Controls;
-using LibationUiBase.GridView;
+using Avalonia.Input;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
-namespace LibationAvalonia.Controls
+namespace LibationAvalonia.Controls;
+
+public class DataGridCellContextMenu<TContext> where TContext : class
 {
-	internal static class DataGridContextMenus
+	public static DataGridCellContextMenu<TContext>? Create(ContextMenu? contextMenu)
 	{
-		public static event EventHandler<DataGridCellContextMenuStripNeededEventArgs>? CellContextMenuStripNeeded;
-		private static readonly ContextMenu ContextMenu = new();
-		public static readonly AvaloniaList<Control> MenuItems = new();
-		private static readonly PropertyInfo OwningColumnProperty;
-		private static readonly PropertyInfo OwningGridProperty;
-
-		static DataGridContextMenus()
+		DataGrid? grid = null;
+		DataGridCell? cell = null;
+		var parent = contextMenu?.Parent;
+		while (parent is not null && grid is null)
 		{
-			ContextMenu.ItemsSource = MenuItems;
-			OwningColumnProperty = typeof(DataGridCell).GetProperty("OwningColumn", BindingFlags.Instance | BindingFlags.NonPublic)
-				?? throw new InvalidOperationException("Could not find OwningColumn property on DataGridCell");
-			OwningGridProperty = typeof(DataGridColumn).GetProperty("OwningGrid", BindingFlags.Instance | BindingFlags.NonPublic)
-				?? throw new InvalidOperationException("Could not find OwningGrid property on DataGridColumn");
+			grid ??= parent as DataGrid;
+			cell ??= parent as DataGridCell;
+
+			parent = parent.Parent;
 		}
 
-		public static void AttachContextMenu(this DataGridCell cell)
+		if (grid is null || cell is null || cell.Tag is not DataGridColumn column || contextMenu!.DataContext is not TContext clickedEntry)
+			return null;
+
+		var allSelected = grid.SelectedItems.OfType<TContext>().ToArray();
+		var clickedIndex = Array.IndexOf(allSelected, clickedEntry);
+		if (clickedIndex == -1)
 		{
-			if (cell is not null && cell.ContextMenu is null)
-			{
-				cell.ContextRequested += Cell_ContextRequested;
-				cell.ContextMenu = ContextMenu;
-			}
+			//User didn't right-click on a selected cell
+			grid.SelectedItem = clickedEntry;
+			allSelected = [clickedEntry];
+		}
+		else if (clickedIndex > 0)
+		{
+			//Ensure the clicked entry is first in the list
+			(allSelected[0], allSelected[clickedIndex]) = (allSelected[clickedIndex], allSelected[0]);
 		}
 
-		private static void Cell_ContextRequested(object? sender, ContextRequestedEventArgs e)
+		return new DataGridCellContextMenu<TContext>(contextMenu, grid, column, allSelected);
+	}
+
+	public string CellClipboardContents
+	{
+		get
 		{
-			if (sender is DataGridCell cell &&
-				cell.DataContext is GridEntry clickedEntry &&
-				OwningColumnProperty.GetValue(cell) is DataGridColumn column &&
-				OwningGridProperty.GetValue(column) is DataGrid grid)
+			var lines = GetClipboardLines(getClickedCell: true);
+			return lines.Count >= 1 ? lines[0] : string.Empty;
+		}
+	}
+	public string GetRowClipboardContents() => string.Join(Environment.NewLine, GetClipboardLines(false));
+
+	public ContextMenu ContextMenu { get; }
+	public DataGrid Grid { get; }
+	public DataGridColumn Column { get; }
+	public TContext[] RowItems { get; }
+	public AvaloniaList<Control> ContextMenuItems { get; }
+
+	private DataGridCellContextMenu(ContextMenu contextMenu, DataGrid grid, DataGridColumn column, TContext[] rowItems)
+	{
+		Grid = grid;
+		Column = column;
+		RowItems = rowItems;
+		ContextMenu = contextMenu;
+		ContextMenuItems = contextMenu.ItemsSource as AvaloniaList<Control> ?? new();
+		contextMenu.ItemsSource = ContextMenuItems;
+		ContextMenuItems.Clear();
+	}
+
+	private List<string> GetClipboardLines(bool getClickedCell)
+	{
+		if (RowItems is null || RowItems.Length == 0)
+			return [];
+
+		List<string> lines = [];
+		Grid.CopyingRowClipboardContent += Grid_CopyingRowClipboardContent;
+		Grid.RaiseEvent(GetCopyEventArgs());
+		Grid.CopyingRowClipboardContent -= Grid_CopyingRowClipboardContent;
+		return lines;
+
+		void Grid_CopyingRowClipboardContent(object? sender, DataGridRowClipboardEventArgs e)
+		{
+			if (getClickedCell)
 			{
-				var allSelected = grid.SelectedItems.OfType<GridEntry>().ToArray();
-				var clickedIndex = Array.IndexOf(allSelected, clickedEntry);
-				if (clickedIndex == -1)
+				if (e.IsColumnHeadersRow)
+					return;
+				var cellContent = e.ClipboardRowContent.FirstOrDefault(c => c.Column == Column);
+				if (cellContent.Column is not null)
 				{
-					//User didn't right-click on a selected cell
-					grid.SelectedItem = clickedEntry;
-					allSelected = [clickedEntry];
+					lines.Add(cellContent.Content?.ToString() ?? string.Empty);
 				}
-				else if (clickedIndex > 0)
-				{
-					//Ensure the clicked entry is first in the list
-					(allSelected[0], allSelected[clickedIndex]) = (allSelected[clickedIndex], allSelected[0]);
-				}
-
-				var args = new DataGridCellContextMenuStripNeededEventArgs
-				{
-					Column = column,
-					Grid = grid,
-					GridEntries = allSelected,
-					ContextMenu = ContextMenu
-				};
-
-				args.ContextMenuItems.Clear();
-				CellContextMenuStripNeeded?.Invoke(sender, args);
-				e.Handled = args.ContextMenuItems.Count == 0;
 			}
+			else if (e.Item == RowItems[0])
+				lines.Insert(1, FormatClipboardRowContent(e));
 			else
-				e.Handled = true;
+				lines.Add(FormatClipboardRowContent(e));
+
+			//Clear so that the DataGrid copy implementation doesn't set the clipboard
+			e.ClipboardRowContent.Clear();
 		}
 	}
 
-	public class DataGridCellContextMenuStripNeededEventArgs
+	private static KeyEventArgs GetCopyEventArgs() => new()
 	{
-		private static readonly MethodInfo GetCellValueMethod;
-		static DataGridCellContextMenuStripNeededEventArgs()
-		{
-			GetCellValueMethod = typeof(DataGridColumn).GetMethod("GetCellValue", BindingFlags.NonPublic | BindingFlags.Instance)
-				?? throw new InvalidOperationException("Could not find GetCellValue method on DataGridColumn");
-		}
+		Key = Key.C,
+		KeyModifiers = KeyModifiers.Control,
+		Route = Avalonia.Interactivity.RoutingStrategies.Bubble,
+		PhysicalKey = PhysicalKey.C,
+		KeySymbol = "c",
+		KeyDeviceType = KeyDeviceType.Keyboard,
+		RoutedEvent = InputElement.KeyDownEvent
+	};
 
-		private static string GetCellValue(DataGridColumn column, object item)
-			=> GetCellValueMethod.Invoke(column, new object[] { item, column.ClipboardContentBinding })?.ToString() ?? "";
+	private string FormatClipboardRowContent(DataGridRowClipboardEventArgs e)
+		=> string.Join("\t", e.ClipboardRowContent.Select(c => RemoveLineBreaks(c.Content?.ToString())));
+	private static string RemoveLineBreaks(string? text)
+		=> text?.Replace("\r\n", " ").Replace('\r', ' ').Replace('\n', ' ') ?? "";
 
-		public string CellClipboardContents => GetCellValue(Column, GridEntries[0]);
-		public string GetRowClipboardContents()
-		{
-			if (GridEntries is null || GridEntries.Length == 0)
-				return string.Empty;
-			else if (GridEntries.Length == 1)
-				return HeaderNames + Environment.NewLine + GetRowClipboardContents(GridEntries[0]);
-			else
-				return string.Join(Environment.NewLine, GridEntries.Select(GetRowClipboardContents).Prepend(HeaderNames));
-		}
-
-		private string HeaderNames
-			=> string.Join("\t",
-				Grid.Columns
-				.Where(c => c.IsVisible)
-				.OrderBy(c => c.DisplayIndex)
-				.Select(c => RemoveLineBreaks(c.Header.ToString() ?? "")));
-
-		private static string RemoveLineBreaks(string text)
-			=> text.Replace("\r\n", "").Replace('\r', ' ').Replace('\n', ' ');
-
-		private string GetRowClipboardContents(GridEntry gridEntry)
-		{
-			var contents = Grid.Columns.Where(c => c.IsVisible).OrderBy(c => c.DisplayIndex).Select(c => RemoveLineBreaks(GetCellValue(c, gridEntry))).ToArray();
-			return string.Join("\t", contents);
-		}
-
-		public required DataGrid Grid { get; init; }
-		public required DataGridColumn Column { get; init; }
-		public required GridEntry[] GridEntries { get; init; }
-		public required ContextMenu ContextMenu { get; init; }
-		public AvaloniaList<Control> ContextMenuItems => DataGridContextMenus.MenuItems;
-	}
 }

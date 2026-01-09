@@ -32,6 +32,7 @@ namespace LibationWinForms.GridView
 		public ProductsDisplay()
 		{
 			InitializeComponent();
+			productsGrid.SearchEngine = MainSearchEngine.Instance;
 		}
 
 		#region Button controls		
@@ -262,7 +263,17 @@ namespace LibationWinForms.GridView
 			}
 
 			#endregion
+			#region Remove Audible Plus Books from Audible Library
 
+			if (entries.Length != 1 || ctx.RemoveFromAudibleEnabled)
+			{
+				ctxMenu.Items.Add(new ToolStripSeparator());
+				var removeFromAudibleMenuItem = new ToolStripMenuItem() { Text = ctx.RemoveFromAudibleText, Enabled = ctx.RemoveFromAudibleEnabled };
+				removeFromAudibleMenuItem.Click += async (_, _) => await ctx.RemoveFromAudibleAsync();
+				ctxMenu.Items.Add(removeFromAudibleMenuItem);
+			}
+
+			#endregion
 			if (entries.Length > 1)
 				return;
 
@@ -422,7 +433,7 @@ namespace LibationWinForms.GridView
 
 		#endregion
 
-		internal List<LibraryBook> GetVisible() => productsGrid.GetVisibleBooks().ToList();
+		internal List<LibraryBook> GetVisible() => productsGrid.GetVisibleBookEntries().ToList();
 
 		private void productsGrid_VisibleCountChanged(object sender, int count)
 		{

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
+#nullable enable
 namespace LibationWinForms.GridView
 {
 	/*
@@ -43,8 +44,10 @@ namespace LibationWinForms.GridView
 				.OfType<LibraryBookEntry>()
 				.Union(Items.OfType<LibraryBookEntry>());
 
+		public ISearchEngine? SearchEngine { get; set; }
+
 		public bool SupportsFiltering => true;
-		public string Filter
+		public string? Filter
 		{
 			get => FilterString;
 			set
@@ -54,7 +57,8 @@ namespace LibationWinForms.GridView
 				if (Items.Count + FilterRemoved.Count == 0)
 					return;
 
-				FilteredInGridEntries = AllItems().FilterEntries(FilterString);
+				var searchResultSet = SearchEngine?.GetSearchResultSet(FilterString);
+				FilteredInGridEntries = AllItems().FilterEntries(searchResultSet);
 				refreshEntries();
 			}
 		}
@@ -63,16 +67,16 @@ namespace LibationWinForms.GridView
 		protected override bool SupportsSortingCore => true;
 		protected override bool SupportsSearchingCore => true;
 		protected override bool IsSortedCore => isSorted;
-		protected override PropertyDescriptor SortPropertyCore => propertyDescriptor;
+		protected override PropertyDescriptor? SortPropertyCore => propertyDescriptor;
 		protected override ListSortDirection SortDirectionCore => Comparer.SortOrder;
 
 		/// <summary> Items that were removed from the base list due to filtering </summary>
 		private readonly List<GridEntry> FilterRemoved = new();
-		private string FilterString;
+		private string? FilterString;
 		private bool isSorted;
-		private PropertyDescriptor propertyDescriptor;
+		private PropertyDescriptor? propertyDescriptor;
 		/// <summary> All GridEntries present in the current filter set. If null, no filter is applied and all entries are filtered in.(This was a performance choice)</summary>
-		private HashSet<GridEntry> FilteredInGridEntries;
+		private HashSet<GridEntry>? FilteredInGridEntries;
 
 		#region Unused - Advanced Filtering
 		public bool SupportsAdvancedSorting => false;
@@ -128,7 +132,7 @@ namespace LibationWinForms.GridView
 				//(except for episodes that are collapsed)
 				foreach (var addBack in addBackEntries)
 				{
-					if (addBack is LibraryBookEntry lbe && lbe.Parent is SeriesEntry se && !se.Liberate.Expanded)
+					if (addBack is LibraryBookEntry lbe && lbe.Parent is SeriesEntry se && se.Liberate?.Expanded is not true)
 						continue;
 
 					FilterRemoved.Remove(addBack);
@@ -137,9 +141,10 @@ namespace LibationWinForms.GridView
 			}
 		}
 
-		private void SearchEngineCommands_SearchEngineUpdated(object sender, EventArgs e)
+		private void SearchEngineCommands_SearchEngineUpdated(object? sender, EventArgs e)
 		{
-			var filterResults = AllItems().FilterEntries(FilterString);
+			var searchResultSet = SearchEngine?.GetSearchResultSet(FilterString);
+			var filterResults = AllItems().FilterEntries(searchResultSet);
 
 			if (FilteredInGridEntries.SearchSetsDiffer(filterResults))
 			{
@@ -168,7 +173,7 @@ namespace LibationWinForms.GridView
 				base.Remove(episode);
 			}
 
-			sEntry.Liberate.Expanded = false;
+			sEntry.Liberate?.Expanded = false;
 		}
 
 		public void ExpandItem(SeriesEntry sEntry)
@@ -183,7 +188,7 @@ namespace LibationWinForms.GridView
 					InsertItem(++sindex, episode);
 				}
 			}
-			sEntry.Liberate.Expanded = true;
+			sEntry.Liberate?.Expanded = true;
 		}
 
 		public void RemoveFilter()
@@ -216,7 +221,7 @@ namespace LibationWinForms.GridView
 			itemsList.AddRange(sortedItems);
 		}
 
-		private void GridEntryBindingList_ListChanged(object sender, ListChangedEventArgs e)
+		private void GridEntryBindingList_ListChanged(object? sender, ListChangedEventArgs e)
 		{
 			if (e.ListChangedType == ListChangedType.ItemChanged && IsSortedCore && e.PropertyDescriptor == SortPropertyCore)
 				refreshEntries();

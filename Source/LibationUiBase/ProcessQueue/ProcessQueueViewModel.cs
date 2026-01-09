@@ -168,7 +168,7 @@ public class ProcessQueueViewModel : ReactiveObject
 
 	private bool IsBooksDirectoryValid(Configuration config)
 	{
-		if (string.IsNullOrWhiteSpace(config.Books))
+		if (string.IsNullOrWhiteSpace(config.Books?.Path))
 		{
 			Serilog.Log.Logger.Error("Books location is not set in configuration.");
 			MessageBoxBase.Show(
@@ -180,7 +180,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		}
 		else if (AudibleFileStorage.BooksDirectory is null)
 		{
-			Serilog.Log.Logger.Error("Failed to create books directory: {@booksDir}", config.Books);
+			Serilog.Log.Logger.Error("Failed to create books directory: {booksDir}", config.Books?.Path);
 			MessageBoxBase.Show(
 				$"Libation was unable to create the \"Books location\" folder at:\n{config.Books}\n\nPlease change the Books location in the settings menu.",
 				"Failed to Create Books Directory",
@@ -190,7 +190,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		}
 		else if (AudibleFileStorage.DownloadsInProgressDirectory is null)
 		{
-			Serilog.Log.Logger.Error("Failed to create DownloadsInProgressDirectory in {@InProgress}", config.InProgress);
+			Serilog.Log.Logger.Error("Failed to create DownloadsInProgressDirectory in {InProgress}", config.InProgress);
 			MessageBoxBase.Show(
 				$"Libation was unable to create the \"Downloads In Progress\" folder in:\n{config.InProgress}\n\nPlease change the In Progress location in the settings menu.",
 				"Failed to Create Downloads In Progress Directory",
@@ -200,7 +200,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		}
 		else if (AudibleFileStorage.DecryptInProgressDirectory is null)
 		{
-			Serilog.Log.Logger.Error("Failed to create DecryptInProgressDirectory in {@InProgress}", config.InProgress);
+			Serilog.Log.Logger.Error("Failed to create DecryptInProgressDirectory in {InProgress}", config.InProgress);
 			MessageBoxBase.Show(
 				$"Libation was unable to create the \"Decrypt In Progress\" folder in:\n{config.InProgress}\n\nPlease change the In Progress location in the settings menu.",
 				"Failed to Create Decrypt In Progress Directory",

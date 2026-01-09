@@ -4,49 +4,72 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="630" d:DesignHeight="480"
         x:Class="LibationAvalonia.Dialogs.TrashBinDialog"
-		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
-		MinWidth="630" MinHeight="480" 
-		Width="630" Height="480"
+		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
+		xmlns:views="clr-namespace:LibationAvalonia.Views"
+		x:DataType="dialogs:TrashBinViewModel"
+		x:CompileBindings="True"
+		MinWidth="680" MinHeight="480" 
+		Width="680" Height="480"
         Title="Trash Bin"
 		WindowStartupLocation="CenterOwner"
 		Icon="/Assets/libation.ico">
 	
-	<Grid
-		RowDefinitions="Auto,*,Auto">
+	<Grid Margin="5"
+		RowDefinitions="Auto,Auto,*,Auto">
 		
-		<TextBlock
-			Grid.Row="0"
-			Margin="5"
-			Text="Check books you want to permanently delete from or restore to Libation" />
+		<TextBlock Text="Check books you want to permanently delete from or restore to Libation"/>
 
-		<controls:CheckedListBox
-			Grid.Row="1"
-			Margin="5,0,5,0"
-			BorderThickness="1"
-			BorderBrush="Gray"
-			IsEnabled="{Binding	ControlsEnabled}"
-			Items="{Binding DeletedBooks}" />
+		<Grid Margin="0,5" Grid.Row="1" Grid.ColumnDefinitions="Auto,*,Auto">
+			<TextBlock VerticalAlignment="Center" Text="Search Deleted Books:"/>
+			<TextBox Name="searchTb" Margin="5,0" Grid.Column="1" Text="{Binding FilterString}" IsEnabled="{Binding ControlsEnabled}">
+				<TextBox.KeyBindings>
+					<KeyBinding Command="{Binding FilterBtnAsync}" Gesture="Enter" />
+				</TextBox.KeyBindings>
+			</TextBox>
+			<Button Classes="SaveButton" Grid.Column="2" Command="{Binding FilterBtnAsync}" IsEnabled="{Binding ControlsEnabled}" VerticalAlignment="Stretch" Content="Filter" />
+		</Grid>
+
+		<views:ProductsDisplay
+			Grid.Row="2"
+			DisableContextMenu="True"
+			DisableColumnCustomization="True"
+			IsEnabled="{Binding $parent.((dialogs:TrashBinViewModel)DataContext).ControlsEnabled}"
+			DataContext="{Binding ProductsDisplay}" />
 
 		<Grid
-			Grid.Row="2"
-			Margin="5"
-			ColumnDefinitions="Auto,Auto,*,Auto">
+			Margin="0,5,0,0"
+			Grid.Row="3"
+			ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto">
 
 			<CheckBox
 				IsEnabled="{Binding	ControlsEnabled}"
 				IsThreeState="True"
-				Margin="0,0,20,0"
+				Margin="0,0,14,0"
 				IsChecked="{Binding EverythingChecked}"
 				Content="Everything" />
 			
 			<TextBlock
 				Grid.Column="1"
+				Margin="0,0,14,0"
 				VerticalAlignment="Center"
 				Text="{Binding CheckedCountText}" />
+
+			<CheckBox
+				Grid.Column="2"
+				IsEnabled="{Binding	ControlsEnabled}"
+				IsThreeState="True"
+				Margin="0,0,15,0"
+				IsChecked="{Binding AudiblePlusChecked}"
+				Content="Audible Plus Books" />
+			
+			<TextBlock
+				Grid.Column="3"
+				VerticalAlignment="Center"
+				Text="{Binding AudiblePlusCheckedCountText}" />
 			
 			<Button
 				IsEnabled="{Binding	ControlsEnabled}"
-				Grid.Column="2"
+				Grid.Column="4"
 				Margin="0,0,20,0"
 				HorizontalAlignment="Right"
 				VerticalAlignment="Stretch"
@@ -56,7 +79,7 @@
 			
 			<Button
 				IsEnabled="{Binding	ControlsEnabled}"
-				Grid.Column="3"
+				Grid.Column="5"
 				Command="{Binding PermanentlyDeleteCheckedAsync}" >
 				<TextBlock
 					TextAlignment="Center"

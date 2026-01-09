@@ -54,7 +54,7 @@ namespace HangoverWinForms
             deletedCbl.Items.Clear();
             List<LibraryBook> deletedBooks = DbContexts.GetDeletedLibraryBooks();
 
-			foreach (var lb in deletedBooks)
+			foreach (var lb in deletedBooks.Where(lb => lb.Book.ContentType is not ContentType.Parent))
                 deletedCbl.Items.Add(lb);
 
             setLabel();

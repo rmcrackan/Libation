@@ -150,7 +150,7 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 				}
 				catch (Exception ex)
 				{
-					Serilog.Log.Logger.Error(ex, "Error checking for better quality for {@Asin}", b.Asin);
+					Serilog.Log.Logger.Error(ex, "Error checking for better quality for {@Asin}", new { b.Asin });
 					b.FoundFile = $"Error: {ex.Message}";
 					b.ScanStatus = ProcessBookStatus.Failed;
 				}

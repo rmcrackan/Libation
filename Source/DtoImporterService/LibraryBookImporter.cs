@@ -85,7 +85,8 @@ namespace DtoImporterService
   				  }
   			  }
   			  
-  			  existing.SetIncludedUntil(GetExpirationDate(item));
+  			  existing.SetIncludedUntil(item.DtoItem.GetExpirationDate());
+  			  existing.SetIsAudiblePlus(item.DtoItem.IsAyce is true);
   		  }
 
   		  var scannedAccounts = importItems.Select(i => i.AccountId).Distinct().ToList();
@@ -126,18 +127,5 @@ namespace DtoImporterService
   	  private static bool isPlusTitleUnavailable(ImportItem item)
   		  => item.DtoItem.ContentType is null
   		  || (item.DtoItem.IsAyce is true && item.DtoItem.Plans?.Any(p => p.IsAyce) is not true);
-
-  	  /// <summary>
-  	  /// Determines when your audible plus or free book will expire from your library  
-  	  /// plan.IsAyce from underlying AudibleApi project determines the plans to look at, first plan found is used.
-  	  /// In some cases current date is later than end date so exclude.
-  	  /// </summary>
-  	  /// <returns>The DateTime that this title will become unavailable, otherwise null</returns>
-  	  private static DateTime? GetExpirationDate(ImportItem item)
-  		  => item.DtoItem.Plans
-  		  ?.Where(p => p.IsAyce)
-  		  .Select(p => p.EndDate)
-  		  .FirstOrDefault(end => end.HasValue && end.Value.Year is not (2099 or 9999) && end.Value.LocalDateTime >= DateTime.Now) 
-  		  ?.DateTime;
     }
 }

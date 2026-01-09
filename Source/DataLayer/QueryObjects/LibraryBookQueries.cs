@@ -47,7 +47,8 @@ namespace DataLayer
             => context
                 .LibraryBooks
                 .AsNoTrackingWithIdentityResolution()
-                .Where(lb => lb.IsDeleted)
+				//Return all parents so the trash bin grid can show podcasts beneath their parents
+				.Where(lb => lb.IsDeleted || lb.Book.ContentType == ContentType.Parent)
                 .getLibrary()
                 .ToList();
 

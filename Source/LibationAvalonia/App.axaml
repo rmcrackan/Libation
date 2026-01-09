@@ -101,6 +101,29 @@
 				<Setter Property="BorderThickness" Value="2" />
 			</Style>
 		</Style>
+		
+		<Style Selector="NumericUpDown.SmallNumericUpDown">
+			<Setter Property="Height" Value="{DynamicResource TextControlThemeMinHeight}" />
+			<Setter Property="HorizontalContentAlignment" Value="Center" />
+			<Style Selector="^ /template/ ButtonSpinner#PART_Spinner">
+				<Style Selector="^ RepeatButton#PART_IncreaseButton">
+					<Setter Property="MinWidth" Value="24" />
+					<Style Selector="^ > PathIcon">
+						<Setter Property="Data">
+							M0,0 l8,-10 l8,10 Z
+						</Setter>
+					</Style>
+				</Style>
+				<Style Selector="^ RepeatButton#PART_DecreaseButton">
+					<Setter Property="MinWidth" Value="24" />
+					<Style Selector="^ > PathIcon">
+						<Setter Property="Data">
+							M0,0 l8,10 l8,-10 Z
+						</Setter>
+					</Style>
+				</Style>
+			</Style>
+		</Style>
 	</Application.Styles>
 
 	<NativeMenu.Menu>

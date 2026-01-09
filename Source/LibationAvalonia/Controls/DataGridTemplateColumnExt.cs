@@ -6,7 +6,7 @@ namespace LibationAvalonia.Controls
 	{
 		protected override Control GenerateElement(DataGridCell cell, object dataItem)
 		{
-			cell?.AttachContextMenu();
+			cell.Tag = this;
 			return base.GenerateElement(cell, dataItem);
 		}
 	}

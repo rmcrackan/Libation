@@ -40,58 +40,14 @@ namespace AaxDecrypter
 			}
 		}
 
-		/*
-https://github.com/rmcrackan/Libation/pull/127#issuecomment-939088489
 
-If the chapter truly is empty, that is, 0 audio frames in length, then yes it is ignored.
-If the chapter is shorter than 3 seconds long but still has some audio frames, those frames are combined with the following chapter and not split into a new file.
-
-I also implemented file naming by chapter title. When 2 or more consecutive chapters are combined, the first of the combined chapter's title is used in the file name. For example, given an audiobook with the following chapters:
-
-00:00:00 - 00:00:02 | Part 1
-00:00:02 - 00:35:00 | Chapter 1
-00:35:02 - 01:02:00 | Chapter 2
-01:02:00 - 01:02:02 | Part 2
-01:02:02 - 01:41:00 | Chapter 3
-01:41:00 - 02:05:00 | Chapter 4
-
-The book will be split into the following files:
-
-00:00:00 - 00:35:00 | Book - 01 - Part 1.m4b
-00:35:00 - 01:02:00 | Book - 02 - Chapter 2.m4b
-01:02:00 - 01:41:00 | Book - 03 - Part 2.m4b
-01:41:00 - 02:05:00 | Book - 04 - Chapter 4.m4b
-
-That naming may not be desirable for everyone, but it's an easy change to instead use the last of the combined chapter's title in the file name.
-		 */
 		protected async override Task<bool> Step_DownloadAndDecryptAudiobookAsync()
 		{
 			if (AaxFile is null) return false;
-			var chapters = DownloadOptions.ChapterInfo.Chapters;
-
-			// Ensure split files are at least minChapterLength in duration.
-			var splitChapters = new ChapterInfo(DownloadOptions.ChapterInfo.StartOffset);
-
-			var runningTotal = TimeSpan.Zero;
-			string title = "";
-
-			for (int i = 0; i < chapters.Count; i++)
-			{
-				if (runningTotal == TimeSpan.Zero)
-					title = chapters[i].Title;
-
-				runningTotal += chapters[i].Duration;
-
-				if (runningTotal >= minChapterLength)
-				{
-					splitChapters.AddChapter(title, runningTotal);
-					runningTotal = TimeSpan.Zero;
-				}
-			}
-
+		
 			try
 			{
-				await (AaxConversion = decryptMultiAsync(AaxFile, splitChapters));
+				await (AaxConversion = decryptMultiAsync(AaxFile, DownloadOptions.ChapterInfo));
 
 				if (AaxConversion.IsCompletedSuccessfully)
 					await moveMoovToBeginning(AaxFile, workingFileStream?.Name);

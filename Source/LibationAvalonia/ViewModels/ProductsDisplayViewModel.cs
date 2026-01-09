@@ -34,24 +34,20 @@ namespace LibationAvalonia.ViewModels
 		public bool RemoveColumnVisible { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 
 		public List<LibraryBook> GetVisibleBookEntries()
-			=> FilteredInGridEntries?
-				.OfType<LibraryBookEntry>()
-				.Select(lbe => lbe.LibraryBook)
-				.ToList()
-			?? SOURCE
-				.OfType<LibraryBookEntry>()
-				.Select(lbe => lbe.LibraryBook)
-				.ToList();
+			=> GetVisibleGridEntries().Select(lbe => lbe.LibraryBook).ToList();
 
-		private IEnumerable<LibraryBookEntry> GetAllBookEntries()
-			=> SOURCE
-			.BookEntries();
+		public IEnumerable<LibraryBookEntry> GetVisibleGridEntries()
+			=> (FilteredInGridEntries as IEnumerable<GridEntry> ?? SOURCE).OfType<LibraryBookEntry>();
+
+		private IEnumerable<LibraryBookEntry> GetAllBookEntries() => SOURCE.BookEntries();
 
 		public ProductsDisplayViewModel()
 		{
 			SearchEngineCommands.SearchEngineUpdated += SearchEngineCommands_SearchEngineUpdated;
 			VisibleCountChanged?.Invoke(this, 0);
 		}
+
+		public ISearchEngine? SearchEngine { get; set; }
 
 		private static readonly System.Reflection.MethodInfo? SetFlagsMethod;
 
@@ -120,7 +116,8 @@ namespace LibationAvalonia.ViewModels
 			}
 
 			//Create the filtered-in list before adding entries to GridEntries to avoid a refresh or UI action
-			FilteredInGridEntries = geList.Union(seriesEntries.SelectMany(s => s.Children)).FilterEntries(FilterString);
+			var searchResultSet = SearchEngine?.GetSearchResultSet(FilterString);
+			FilteredInGridEntries = geList.Union(seriesEntries.SelectMany(s => s.Children)).FilterEntries(searchResultSet);
 
 			// Adding SOURCE to the DataGridViewCollection _after_ building the SOURCE list 
 			//Saves ~500 ms on a library of ~4500 books.
@@ -315,7 +312,8 @@ namespace LibationAvalonia.ViewModels
 			if (SOURCE.Count == 0)
 				return;
 
-			FilteredInGridEntries = SOURCE.FilterEntries(searchString);
+			var results = SearchEngine?.GetSearchResultSet(searchString);
+			FilteredInGridEntries = SOURCE.FilterEntries(results);
 
 			await refreshGrid();
 		}
@@ -334,7 +332,9 @@ namespace LibationAvalonia.ViewModels
 
 		private async void SearchEngineCommands_SearchEngineUpdated(object? sender, EventArgs? e)
 		{
-			var filterResults = SOURCE.FilterEntries(FilterString);
+
+			var searchResultSet = SearchEngine?.GetSearchResultSet(FilterString);
+			var filterResults = SOURCE.FilterEntries(searchResultSet);
 
 			if (FilteredInGridEntries.SearchSetsDiffer(filterResults))
 			{
@@ -454,7 +454,7 @@ namespace LibationAvalonia.ViewModels
 		#endregion
 
 		#region Column Widths
-
+		public bool DisablePersistColumnWidths { get; set; }
 		public DataGridLength TitleWidth { get => getColumnWidth("Title", 200); set => setColumnWidth("Title", value); }
 		public DataGridLength AuthorsWidth { get => getColumnWidth("Authors", 100); set => setColumnWidth("Authors", value); }
 		public DataGridLength NarratorsWidth { get => getColumnWidth("Narrators", 100); set => setColumnWidth("Narrators", value); }
@@ -480,6 +480,7 @@ namespace LibationAvalonia.ViewModels
 
 		private void setColumnWidth(string columnName, DataGridLength width, [CallerMemberName] string propertyName = "")
 		{
+			if (DisablePersistColumnWidths) return;
 			var dictionary = Configuration.Instance.GridColumnsWidths;
 
 			var newValue = (int)width.DisplayValue;

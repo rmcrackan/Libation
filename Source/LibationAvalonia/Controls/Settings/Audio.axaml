@@ -6,6 +6,7 @@
 			 xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 			 xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
 			 x:DataType="vm:AudioSettingsVM"
+			 x:CompileBindings="True"
              x:Class="LibationAvalonia.Controls.Settings.Audio">
 	
 	<Grid
@@ -38,43 +39,43 @@
 			<Grid ColumnDefinitions="*,Auto">
 				<TextBlock
 					VerticalAlignment="Center"
-					Text="{CompiledBinding FileDownloadQualityText}" />
+					Text="{Binding FileDownloadQualityText}" />
 
 				<controls:WheelComboBox
 					Margin="5,0,0,0"
 					Grid.Column="1"
-					ItemsSource="{CompiledBinding DownloadQualities}"
-					SelectedItem="{CompiledBinding FileDownloadQuality}"/>
+					ItemsSource="{Binding DownloadQualities}"
+					SelectedItem="{Binding FileDownloadQuality}"/>
 			</Grid>
 
 			<Grid ColumnDefinitions="*,Auto">
 				<CheckBox
-					ToolTip.Tip="{CompiledBinding UseWidevineTip}"
+					ToolTip.Tip="{Binding UseWidevineTip}"
 					IsCheckedChanged="UseWidevine_IsCheckedChanged"
-					IsChecked="{CompiledBinding UseWidevine, Mode=TwoWay}">
-					<TextBlock Text="{CompiledBinding UseWidevineText}" />
+					IsChecked="{Binding UseWidevine, Mode=TwoWay}">
+					<TextBlock Text="{Binding UseWidevineText}" />
 				</CheckBox>
 				<CheckBox
 					Grid.Column="1"
-					ToolTip.Tip="{CompiledBinding Request_xHE_AACTip}"
-					IsEnabled="{CompiledBinding UseWidevine}"
-					IsChecked="{CompiledBinding Request_xHE_AAC, Mode=TwoWay}">
-					<TextBlock Text="{CompiledBinding Request_xHE_AACText}" />
+					ToolTip.Tip="{Binding Request_xHE_AACTip}"
+					IsEnabled="{Binding UseWidevine}"
+					IsChecked="{Binding Request_xHE_AAC, Mode=TwoWay}">
+					<TextBlock Text="{Binding Request_xHE_AACText}" />
 				</CheckBox>
 			</Grid>
 
 			<Grid ColumnDefinitions="*,Auto">
 				<CheckBox
-					ToolTip.Tip="{CompiledBinding RequestSpatialTip}"
-					IsEnabled="{CompiledBinding UseWidevine}"
-					IsChecked="{CompiledBinding RequestSpatial, Mode=TwoWay}">
-					<TextBlock Text="{CompiledBinding RequestSpatialText}" />
+					ToolTip.Tip="{Binding RequestSpatialTip}"
+					IsEnabled="{Binding UseWidevine}"
+					IsChecked="{Binding RequestSpatial, Mode=TwoWay}">
+					<TextBlock Text="{Binding RequestSpatialText}" />
 				</CheckBox>
 				<Grid
 					Grid.Column="1"
 					ColumnDefinitions="Auto,Auto"
 					VerticalAlignment="Top"
-					ToolTip.Tip="{CompiledBinding SpatialAudioCodecTip}">
+					ToolTip.Tip="{Binding SpatialAudioCodecTip}">
 					<Grid.IsEnabled>
 						<MultiBinding Converter="{x:Static BoolConverters.And}">
 							<MultiBinding.Bindings>
@@ -92,78 +93,100 @@
 						Margin="5,0,0,0"
 						Grid.Column="1"
 						VerticalAlignment="Center"
-						ItemsSource="{CompiledBinding SpatialAudioCodecs}"
-						SelectedItem="{CompiledBinding SpatialAudioCodec}"/>
+						ItemsSource="{Binding SpatialAudioCodecs}"
+						SelectedItem="{Binding SpatialAudioCodec}"/>
 				</Grid>
 				
 			</Grid>
 
-			<CheckBox IsChecked="{CompiledBinding CreateCueSheet, Mode=TwoWay}">
-				<TextBlock Text="{CompiledBinding CreateCueSheetText}" />
+			<CheckBox IsChecked="{Binding CreateCueSheet, Mode=TwoWay}">
+				<TextBlock Text="{Binding CreateCueSheetText}" />
 			</CheckBox>
 
-			<CheckBox IsChecked="{CompiledBinding DownloadCoverArt, Mode=TwoWay}">
-				<TextBlock Text="{CompiledBinding DownloadCoverArtText}" />
+			<CheckBox IsChecked="{Binding DownloadCoverArt, Mode=TwoWay}">
+				<TextBlock Text="{Binding DownloadCoverArtText}" />
 			</CheckBox>
 
 			<Grid ColumnDefinitions="*,Auto">
-				<CheckBox IsChecked="{CompiledBinding DownloadClipsBookmarks, Mode=TwoWay}">
+				<CheckBox IsChecked="{Binding DownloadClipsBookmarks, Mode=TwoWay}">
 					<TextBlock Text="Download Clips, Notes and Bookmarks as" />
 				</CheckBox>
 
 				<controls:WheelComboBox
 					Margin="5,0,0,0"
 					Grid.Column="1"
-					IsEnabled="{CompiledBinding DownloadClipsBookmarks}"
-					ItemsSource="{CompiledBinding ClipBookmarkFormats}"
-					SelectedItem="{CompiledBinding ClipBookmarkFormat}"/>
+					IsEnabled="{Binding DownloadClipsBookmarks}"
+					ItemsSource="{Binding ClipBookmarkFormats}"
+					SelectedItem="{Binding ClipBookmarkFormat}"/>
 			</Grid>
 
 			<CheckBox
-				IsChecked="{CompiledBinding RetainAaxFile, Mode=TwoWay}"
-				ToolTip.Tip="{CompiledBinding RetainAaxFileTip}">
-				<TextBlock Text="{CompiledBinding RetainAaxFileText}" />
+				IsChecked="{Binding RetainAaxFile, Mode=TwoWay}"
+				ToolTip.Tip="{Binding RetainAaxFileTip}">
+				<TextBlock Text="{Binding RetainAaxFileText}" />
 			</CheckBox>
 
 			<CheckBox
-				IsChecked="{CompiledBinding MergeOpeningAndEndCredits, Mode=TwoWay}"
-				ToolTip.Tip="{CompiledBinding MergeOpeningAndEndCreditsTip}">
-				<TextBlock Text="{CompiledBinding MergeOpeningEndCreditsText}" />
+				IsChecked="{Binding MergeOpeningAndEndCredits, Mode=TwoWay}"
+				ToolTip.Tip="{Binding MergeOpeningAndEndCreditsTip}">
+				<TextBlock Text="{Binding MergeOpeningEndCreditsText}" />
 			</CheckBox>
 
 			<CheckBox				
-				ToolTip.Tip="{CompiledBinding CombineNestedChapterTitlesTip}"
-				IsChecked="{CompiledBinding CombineNestedChapterTitles, Mode=TwoWay}">
-				<TextBlock Text="{CompiledBinding CombineNestedChapterTitlesText}" />
+				ToolTip.Tip="{Binding CombineNestedChapterTitlesTip}"
+				IsChecked="{Binding CombineNestedChapterTitles, Mode=TwoWay}">
+				<TextBlock Text="{Binding CombineNestedChapterTitlesText}" />
 			</CheckBox>
 
 			<CheckBox
-				ToolTip.Tip="{CompiledBinding AllowLibationFixupTip}"
-				IsChecked="{CompiledBinding AllowLibationFixup, Mode=TwoWay}">
-				<TextBlock Text="{CompiledBinding AllowLibationFixupText}" />
+				ToolTip.Tip="{Binding AllowLibationFixupTip}"
+				IsChecked="{Binding AllowLibationFixup, Mode=TwoWay}">
+				<TextBlock Text="{Binding AllowLibationFixupText}" />
 			</CheckBox>
 
 			<controls:GroupBox
 				Grid.Row="1"
 				Label="Audiobook Fix-ups"
-				IsEnabled="{CompiledBinding AllowLibationFixup}">
+				IsEnabled="{Binding AllowLibationFixup}">
 
 				<StackPanel Orientation="Vertical">
 
-					<CheckBox IsChecked="{CompiledBinding SplitFilesByChapter, Mode=TwoWay}">
-						<TextBlock Text="{CompiledBinding SplitFilesByChapterText}" />
+					<Grid
+						Margin="0,0,0,5"
+						Grid.ColumnDefinitions="Auto,Auto"
+						Grid.RowDefinitions="Auto,Auto">
+						
+						<CheckBox Margin="0" Grid.ColumnSpan="2" IsChecked="{Binding SplitFilesByChapter, Mode=TwoWay}">						
+							<TextBlock Grid.ColumnSpan="2" Text="{Binding SplitFilesByChapterText}" />						
+						</CheckBox>
+
+						<TextBlock Grid.Row="1" Margin="15,0" VerticalAlignment="Center" ToolTip.Tip="{Binding MinimumFileDurationTip}" Text="{Binding MinimumFileDurationText}" />
+							
+						<NumericUpDown
+							Classes="SmallNumericUpDown"
+							Grid.Column="1"
+							Grid.Row="1"
+							ToolTip.Tip="{Binding MinimumFileDurationTip}"
+							MinWidth="100"
+							Minimum="0"
+							Maximum="120"
+							Increment="1"
+							FormatString="N0"
+							ParsingNumberStyle="Integer"
+							IsEnabled="{Binding SplitFilesByChapter}"
+							Value="{Binding MinimumFileDuration, Mode=TwoWay}"/>
+					</Grid>
+
+					<CheckBox
+						IsChecked="{Binding StripAudibleBrandAudio, Mode=TwoWay}"
+						ToolTip.Tip="{Binding StripAudibleBrandAudioTip}">
+						<TextBlock Text="{Binding StripAudibleBrandingText}" />
 					</CheckBox>
 
 					<CheckBox
-						IsChecked="{CompiledBinding StripAudibleBrandAudio, Mode=TwoWay}"
-						ToolTip.Tip="{CompiledBinding StripAudibleBrandAudioTip}">
-						<TextBlock Text="{CompiledBinding StripAudibleBrandingText}" />
-					</CheckBox>
-
-					<CheckBox
-						IsChecked="{CompiledBinding StripUnabridged, Mode=TwoWay}"
-						ToolTip.Tip="{CompiledBinding StripUnabridgedTip}">
-						<TextBlock Text="{CompiledBinding StripUnabridgedText}" />
+						IsChecked="{Binding StripUnabridged, Mode=TwoWay}"
+						ToolTip.Tip="{Binding StripUnabridgedTip}">
+						<TextBlock Text="{Binding StripUnabridgedText}" />
 					</CheckBox>
 				</StackPanel>
 			</controls:GroupBox>
@@ -178,24 +201,24 @@
 			Margin="10,0,0,0">
 			
 			<RadioButton
-				IsChecked="{CompiledBinding !DecryptToLossy, Mode=TwoWay}"				
-				ToolTip.Tip="{CompiledBinding DecryptToLossyTip}">
+				IsChecked="{Binding !DecryptToLossy, Mode=TwoWay}"				
+				ToolTip.Tip="{Binding DecryptToLossyTip}">
 				
 				<StackPanel VerticalAlignment="Center">
 					<TextBlock
 						Text="Download my books in the original audio format (Lossless)" />
 					<CheckBox
-						IsEnabled="{CompiledBinding !DecryptToLossy}"
-						IsChecked="{CompiledBinding MoveMoovToBeginning, Mode=TwoWay}"
-						ToolTip.Tip="{CompiledBinding MoveMoovToBeginningTip}">
-						<TextBlock Text="{CompiledBinding MoveMoovToBeginningText}" />
+						IsEnabled="{Binding !DecryptToLossy}"
+						IsChecked="{Binding MoveMoovToBeginning, Mode=TwoWay}"
+						ToolTip.Tip="{Binding MoveMoovToBeginningTip}">
+						<TextBlock Text="{Binding MoveMoovToBeginningText}" />
 					</CheckBox>
 				</StackPanel>
 			</RadioButton>
 
 			<RadioButton
-				IsChecked="{CompiledBinding DecryptToLossy, Mode=TwoWay}"
-				ToolTip.Tip="{CompiledBinding DecryptToLossyTip}">
+				IsChecked="{Binding DecryptToLossy, Mode=TwoWay}"
+				ToolTip.Tip="{Binding DecryptToLossyTip}">
 				<TextBlock
 					TextWrapping="Wrap"
 					Text="Download my books as .MP3 files (transcode if necessary)" />
@@ -203,7 +226,7 @@
 
 			<controls:GroupBox
 				Grid.Column="1"
-				IsEnabled="{CompiledBinding DecryptToLossy}"
+				IsEnabled="{Binding DecryptToLossy}"
 				Label="Mp3 Encoding Options">
 
 				<Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
@@ -220,21 +243,21 @@
 								<RadioButton
 									Margin="5"
 									Content="Bitrate"
-									IsChecked="{CompiledBinding LameTargetBitrate, Mode=TwoWay}"/>
+									IsChecked="{Binding LameTargetBitrate, Mode=TwoWay}"/>
 
 								<RadioButton
 									Grid.Column="1"
 									Margin="5"
 									Content="Quality"
-									IsChecked="{CompiledBinding !LameTargetBitrate, Mode=TwoWay}"/>
+									IsChecked="{Binding !LameTargetBitrate, Mode=TwoWay}"/>
 							</Grid>
 						</controls:GroupBox>
 
 						<CheckBox
 							HorizontalAlignment="Right"
 							Grid.Column="1"
-							IsChecked="{CompiledBinding LameDownsampleMono, Mode=TwoWay}"
-							ToolTip.Tip="{CompiledBinding LameDownsampleMonoTip}">
+							IsChecked="{Binding LameDownsampleMono, Mode=TwoWay}"
+							ToolTip.Tip="{Binding LameDownsampleMonoTip}">
 
 							<TextBlock
 								TextWrapping="Wrap"
@@ -249,8 +272,8 @@
 						<controls:WheelComboBox
 							Grid.Row="1"
 							HorizontalAlignment="Stretch"
-							ItemsSource="{CompiledBinding SampleRates}"
-							SelectedItem="{CompiledBinding SelectedSampleRate, Mode=TwoWay}"/>
+							ItemsSource="{Binding SampleRates}"
+							SelectedItem="{Binding SelectedSampleRate, Mode=TwoWay}"/>
 
 						<TextBlock Margin="0,0,0,5" Grid.Column="2" Text="Encoder Quality:" />
 
@@ -258,23 +281,23 @@
 							Grid.Column="2"
 							Grid.Row="1"
 							HorizontalAlignment="Stretch"
-							ItemsSource="{CompiledBinding EncoderQualities}"
-							SelectedItem="{CompiledBinding SelectedEncoderQuality, Mode=TwoWay}"/>
+							ItemsSource="{Binding EncoderQualities}"
+							SelectedItem="{Binding SelectedEncoderQuality, Mode=TwoWay}"/>
 					</Grid>
 
 					<controls:GroupBox
 						Grid.Row="2"
 						Margin="0,5"
 						Label="Bitrate"
-						IsEnabled="{CompiledBinding LameTargetBitrate}" >
+						IsEnabled="{Binding LameTargetBitrate}" >
 
 						<StackPanel>
 							<Grid ColumnDefinitions="*,25,Auto">
 
 								<Slider
 									Grid.Column="0"
-									IsEnabled="{CompiledBinding !LameMatchSource}"
-									Value="{CompiledBinding LameBitrate, Mode=TwoWay}"
+									IsEnabled="{Binding !LameMatchSource}"
+									Value="{Binding LameBitrate, Mode=TwoWay}"
 									Minimum="16"
 									Maximum="320"
 									IsSnapToTickEnabled="True" TickFrequency="16"
@@ -283,7 +306,7 @@
 
 									<Slider.Styles>
 										<Style Selector="Slider /template/ Thumb">
-											<Setter Property="ToolTip.Tip" Value="{CompiledBinding $parent[Slider].Value, Mode=OneWay, StringFormat='\{0:f0\} Kbps'}" />
+											<Setter Property="ToolTip.Tip" Value="{Binding $parent[Slider].Value, Mode=OneWay, StringFormat='\{0:f0\} Kbps'}" />
 											<Setter Property="ToolTip.Placement" Value="Top" />
 											<Setter Property="ToolTip.VerticalOffset" Value="-10" />
 											<Setter Property="ToolTip.HorizontalOffset" Value="-30" />
@@ -294,7 +317,7 @@
 								<TextBlock
 									Grid.Column="1"
 									HorizontalAlignment="Right"
-									Text="{CompiledBinding LameBitrate}" />
+									Text="{Binding LameBitrate}" />
 
 								<TextBlock
 									Grid.Column="2"
@@ -306,7 +329,7 @@
 
 								<CheckBox
 									Grid.Column="0"
-									IsChecked="{CompiledBinding LameConstantBitrate, Mode=TwoWay}">
+									IsChecked="{Binding LameConstantBitrate, Mode=TwoWay}">
 
 									<TextBlock
 										TextWrapping="Wrap"
@@ -317,7 +340,7 @@
 								<CheckBox
 									Grid.Column="1"
 									HorizontalAlignment="Right"
-									IsChecked="{CompiledBinding LameMatchSource, Mode=TwoWay}">
+									IsChecked="{Binding LameMatchSource, Mode=TwoWay}">
 
 									<TextBlock
 										TextWrapping="Wrap"
@@ -332,7 +355,7 @@
 						Grid.Row="3"
 						Margin="0,5"
 						Label="Quality"
-						IsEnabled="{CompiledBinding !LameTargetBitrate}">
+						IsEnabled="{Binding !LameTargetBitrate}">
 
 						<Grid
 							ColumnDefinitions="*,Auto,25"
@@ -341,7 +364,7 @@
 							<Slider
 								Grid.Column="0"
 								Grid.ColumnSpan="2"
-								Value="{CompiledBinding LameVBRQuality, Mode=TwoWay}"
+								Value="{Binding LameVBRQuality, Mode=TwoWay}"
 								Minimum="0"
 								Maximum="9"
 								IsSnapToTickEnabled="True" TickFrequency="1"
@@ -349,7 +372,7 @@
 								TickPlacement="Outside">
 								<Slider.Styles>
 									<Style Selector="Slider /template/ Thumb">
-										<Setter Property="ToolTip.Tip" Value="{CompiledBinding $parent[Slider].Value, Mode=OneWay, StringFormat='V\{0:f0\}'}" />
+										<Setter Property="ToolTip.Tip" Value="{Binding $parent[Slider].Value, Mode=OneWay, StringFormat='V\{0:f0\}'}" />
 										<Setter Property="ToolTip.Placement" Value="Top" />
 										<Setter Property="ToolTip.VerticalOffset" Value="-10" />
 										<Setter Property="ToolTip.HorizontalOffset" Value="-30" />
@@ -363,7 +386,7 @@
 								Orientation="Horizontal">
 
 								<TextBlock Text="V" />
-								<TextBlock Text="{CompiledBinding LameVBRQuality}" />
+								<TextBlock Text="{Binding LameVBRQuality}" />
 
 							</StackPanel>
 
@@ -397,8 +420,8 @@
 			Grid.Row="2"
 			Grid.ColumnSpan="2"
 			Margin="0,10,0,0"
-			IsEnabled="{CompiledBinding SplitFilesByChapter}"
-			Label="{CompiledBinding ChapterTitleTemplateText}">
+			IsEnabled="{Binding SplitFilesByChapter}"
+			Label="{Binding ChapterTitleTemplateText}">
 
 			<Grid ColumnDefinitions="*,Auto" Margin="0,8" >
 
@@ -406,7 +429,7 @@
 					Grid.Column="0"
 					FontSize="14"
 					IsReadOnly="True"
-					Text="{CompiledBinding ChapterTitleTemplate}" />
+					Text="{Binding ChapterTitleTemplate}" />
 
 				<Button
 					Grid.Column="1"

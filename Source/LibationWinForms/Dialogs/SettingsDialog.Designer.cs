@@ -99,6 +99,8 @@
 			clipsBookmarksFormatCb = new System.Windows.Forms.ComboBox();
 			downloadClipsBookmarksCbox = new System.Windows.Forms.CheckBox();
 			audiobookFixupsGb = new System.Windows.Forms.GroupBox();
+			minFileDurationLbl = new System.Windows.Forms.Label();
+			minFileDurationNud = new System.Windows.Forms.NumericUpDown();
 			stripUnabridgedCbox = new System.Windows.Forms.CheckBox();
 			chapterTitleTemplateGb = new System.Windows.Forms.GroupBox();
 			chapterTitleTemplateBtn = new System.Windows.Forms.Button();
@@ -154,6 +156,7 @@
 			customFileNamingGb.SuspendLayout();
 			tab4AudioFileOptions.SuspendLayout();
 			audiobookFixupsGb.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)minFileDurationNud).BeginInit();
 			chapterTitleTemplateGb.SuspendLayout();
 			lameOptionsGb.SuspendLayout();
 			lameBitrateGb.SuspendLayout();
@@ -289,7 +292,7 @@
 			// stripAudibleBrandingCbox
 			// 
 			stripAudibleBrandingCbox.AutoSize = true;
-			stripAudibleBrandingCbox.Location = new System.Drawing.Point(13, 70);
+			stripAudibleBrandingCbox.Location = new System.Drawing.Point(13, 88);
 			stripAudibleBrandingCbox.Name = "stripAudibleBrandingCbox";
 			stripAudibleBrandingCbox.Size = new System.Drawing.Size(143, 34);
 			stripAudibleBrandingCbox.TabIndex = 16;
@@ -960,20 +963,41 @@
 			// 
 			// audiobookFixupsGb
 			// 
+			audiobookFixupsGb.Controls.Add(minFileDurationLbl);
+			audiobookFixupsGb.Controls.Add(minFileDurationNud);
 			audiobookFixupsGb.Controls.Add(splitFilesByChapterCbox);
 			audiobookFixupsGb.Controls.Add(stripUnabridgedCbox);
 			audiobookFixupsGb.Controls.Add(stripAudibleBrandingCbox);
 			audiobookFixupsGb.Location = new System.Drawing.Point(6, 254);
 			audiobookFixupsGb.Name = "audiobookFixupsGb";
-			audiobookFixupsGb.Size = new System.Drawing.Size(416, 114);
+			audiobookFixupsGb.Size = new System.Drawing.Size(416, 128);
 			audiobookFixupsGb.TabIndex = 14;
 			audiobookFixupsGb.TabStop = false;
 			audiobookFixupsGb.Text = "Audiobook Fix-ups";
 			// 
+			// minFileDurationLbl
+			// 
+			minFileDurationLbl.AutoSize = true;
+			minFileDurationLbl.Location = new System.Drawing.Point(34, 44);
+			minFileDurationLbl.Margin = new System.Windows.Forms.Padding(0, 0, 2, 0);
+			minFileDurationLbl.Name = "minFileDurationLbl";
+			minFileDurationLbl.Size = new System.Drawing.Size(159, 15);
+			minFileDurationLbl.TabIndex = 29;
+			minFileDurationLbl.Text = "[MinimumFileDuration desc]";
+			// 
+			// minFileDurationNud
+			// 
+			minFileDurationNud.Location = new System.Drawing.Point(243, 41);
+			minFileDurationNud.Maximum = new decimal(new int[] { 120, 0, 0, 0 });
+			minFileDurationNud.Name = "minFileDurationNud";
+			minFileDurationNud.Size = new System.Drawing.Size(51, 23);
+			minFileDurationNud.TabIndex = 17;
+			minFileDurationNud.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
 			// stripUnabridgedCbox
 			// 
 			stripUnabridgedCbox.AutoSize = true;
-			stripUnabridgedCbox.Location = new System.Drawing.Point(13, 46);
+			stripUnabridgedCbox.Location = new System.Drawing.Point(13, 63);
 			stripUnabridgedCbox.Name = "stripUnabridgedCbox";
 			stripUnabridgedCbox.Size = new System.Drawing.Size(147, 19);
 			stripUnabridgedCbox.TabIndex = 15;
@@ -1498,6 +1522,7 @@
 			tab4AudioFileOptions.PerformLayout();
 			audiobookFixupsGb.ResumeLayout(false);
 			audiobookFixupsGb.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)minFileDurationNud).EndInit();
 			chapterTitleTemplateGb.ResumeLayout(false);
 			chapterTitleTemplateGb.PerformLayout();
 			lameOptionsGb.ResumeLayout(false);
@@ -1627,5 +1652,7 @@
 		private System.Windows.Forms.ComboBox themeCb;
 		private System.Windows.Forms.Label themeLbl;
 		private System.Windows.Forms.CheckBox importPlusTitlesCb;
+		private System.Windows.Forms.Label minFileDurationLbl;
+		private System.Windows.Forms.NumericUpDown minFileDurationNud;
 	}
 }

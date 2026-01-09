@@ -1,18 +1,21 @@
 ﻿using ApplicationServices;
+using DataLayer;
+using Dinah.Core.Collections.Generic;
+using LibationFileManager;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using DataLayer;
-using LibationFileManager;
-using System.Collections;
 
+#nullable enable
 namespace LibationWinForms.Dialogs
 {
 	public partial class TrashBinDialog : Form
 	{
-		private readonly string deletedCheckedTemplate;
+		private string lastGoodFilter = "";
+		private TempSearchEngine SearchEngine { get; } = new TempSearchEngine();
 		public TrashBinDialog()
 		{
 			InitializeComponent();
@@ -21,29 +24,67 @@ namespace LibationWinForms.Dialogs
 			this.RestoreSizeAndLocation(Configuration.Instance);
 			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 
-			deletedCheckedTemplate = deletedCheckedLbl.Text;
-
-			var deletedBooks = DbContexts.GetDeletedLibraryBooks();
-			foreach (var lb in deletedBooks)
-				deletedCbl.Items.Add(lb);
-
-			setLabel();
+			deletedCheckedLbl.Text = "";
+			plusBookcSheckedLbl.Text = "";
+			productsGrid1.SearchEngine = SearchEngine;
+			productsGrid1.RemovableCountChanged += (_, _) => UpdateCounts();
+			productsGrid1.VisibleCountChanged += (_, _) => UpdateCounts();
+			Load += TrashBinDialog_Load;
 		}
 
-		private void deletedCbl_ItemCheck(object sender, ItemCheckEventArgs e)
+		private IEnumerable<LibraryBook> GetCheckedBooks() => productsGrid1.GetVisibleGridEntries().Where(i => i.Remove is true).Select(i => i.LibraryBook);
+
+		private async void TrashBinDialog_Load(object? sender, EventArgs e)
 		{
-			// CheckedItems.Count is not updated until after the event fires
-			setLabel(e.NewValue);
+			productsGrid1.RemoveColumnVisible = true;
+			await InitAsync();
+		}
+
+		private void UpdateCounts()
+		{
+			var visible = productsGrid1.GetVisibleGridEntries().ToArray();
+			var plusVisibleCount = visible.Count(e => e.LibraryBook.IsAudiblePlus);
+
+			var checkedCount = visible.Count(e => e.Remove is true);
+			var plusCheckedCount = visible.Count(e => e.LibraryBook.IsAudiblePlus && e.Remove is true);
+
+			deletedCheckedLbl.Text = $"Checked: {checkedCount} of {visible.Length}";
+			plusBookcSheckedLbl.Text = $"Checked: {plusCheckedCount} of {plusVisibleCount}";
+
+			everythingCb.CheckStateChanged -= everythingCb_CheckStateChanged;
+			everythingCb.CheckState = checkedCount == 0 || visible.Length == 0 ? CheckState.Unchecked
+				: checkedCount == visible.Length ? CheckState.Checked
+				: CheckState.Indeterminate;
+			everythingCb.CheckStateChanged += everythingCb_CheckStateChanged;
+
+			audiblePlusCb.CheckStateChanged -= audiblePlusCb_CheckStateChanged;
+			audiblePlusCb.CheckState = plusCheckedCount == 0 || plusVisibleCount == 0 ? CheckState.Unchecked
+				: plusCheckedCount == plusVisibleCount ? CheckState.Checked
+				: CheckState.Indeterminate;
+			audiblePlusCb.CheckStateChanged += audiblePlusCb_CheckStateChanged;
+		}
+
+		private async Task InitAsync()
+		{
+			var deletedBooks = DbContexts.GetDeletedLibraryBooks();
+			SearchEngine.ReindexSearchEngine(deletedBooks);
+			await productsGrid1.BindToGridAsync(deletedBooks);
+		}
+
+		private void Reload()
+		{
+			var deletedBooks = DbContexts.GetDeletedLibraryBooks();
+			SearchEngine.ReindexSearchEngine(deletedBooks);
+			productsGrid1.UpdateGrid(deletedBooks);
 		}
 
 		private async void permanentlyDeleteBtn_Click(object sender, EventArgs e)
 		{
 			setControlsEnabled(false);
 
-			var removed = deletedCbl.CheckedItems.Cast<LibraryBook>().ToList();
-
-			removeFromCheckList(removed);
-			await removed.PermanentlyDeleteBooksAsync();
+			var qtyChanges = await GetCheckedBooks().PermanentlyDeleteBooksAsync();
+			if (qtyChanges > 0)
+				Reload();
 
 			setControlsEnabled(true);
 		}
@@ -52,65 +93,70 @@ namespace LibationWinForms.Dialogs
 		{
 			setControlsEnabled(false);
 
-			var removed = deletedCbl.CheckedItems.Cast<LibraryBook>().ToList();
-
-			removeFromCheckList(removed);
-			await removed.RestoreBooksAsync();
+			var qtyChanges = await GetCheckedBooks().RestoreBooksAsync();
+			if (qtyChanges > 0)
+				Reload();
 
 			setControlsEnabled(true);
 		}
 
-		private void removeFromCheckList(IEnumerable objects)
-		{
-			foreach (var o in objects)
-				deletedCbl.Items.Remove(o);
-
-			deletedCbl.Refresh();
-			setLabel();
-		}
-
 		private void setControlsEnabled(bool enabled)
-			=> restoreBtn.Enabled = permanentlyDeleteBtn.Enabled = deletedCbl.Enabled = everythingCb.Enabled = enabled;
+			=> Invoke(() => productsGrid1.Enabled = restoreBtn.Enabled = permanentlyDeleteBtn.Enabled = everythingCb.Enabled = enabled);
 
-		private void everythingCb_CheckStateChanged(object sender, EventArgs e)
+		private void textBox1_KeyDown(object sender, KeyEventArgs e)
 		{
-			if (everythingCb.CheckState is CheckState.Indeterminate)
-			{
-				everythingCb.CheckState = CheckState.Unchecked;
-				return;
-			}
-
-			deletedCbl.ItemCheck -= deletedCbl_ItemCheck;
-
-			for (var i = 0; i < deletedCbl.Items.Count; i++)
-				deletedCbl.SetItemChecked(i, everythingCb.CheckState is CheckState.Checked);
-
-			setLabel();
-
-			deletedCbl.ItemCheck += deletedCbl_ItemCheck;
+			if (e.KeyCode == Keys.Enter)
+				searchBtn_Click(sender, e);
 		}
 
-
-		private void setLabel(CheckState? checkedState = null)
+		private void searchBtn_Click(object sender, EventArgs e)
 		{
-			var pre = deletedCbl.CheckedItems.Count;
-			int count = checkedState switch
+			try
 			{
-				CheckState.Checked => pre + 1,
-				CheckState.Unchecked => pre - 1,
-				_ => pre,
-			};
+				productsGrid1.Filter(textBox1.Text);
+				lastGoodFilter = textBox1.Text;
+			}
+			catch
+			{
+				productsGrid1.Filter(lastGoodFilter);
+			}
+		}
 
-			everythingCb.CheckStateChanged -= everythingCb_CheckStateChanged;
+		private void audiblePlusCb_CheckStateChanged(object? sender, EventArgs e)
+		{
+			switch (audiblePlusCb.CheckState)
+			{
+				case CheckState.Checked:
+					SetVisibleChecked(e => e.IsAudiblePlus, isChecked: true);
+					break;
+				case CheckState.Unchecked:
+					SetVisibleChecked(e => e.IsAudiblePlus, isChecked: false);
+					break;
+				default:
+					audiblePlusCb.CheckState = CheckState.Unchecked;
+					break;
+			}
+		}
+		private void everythingCb_CheckStateChanged(object? sender, EventArgs e)
+		{
+			switch (everythingCb.CheckState)
+			{
+				case CheckState.Checked:
+					SetVisibleChecked(_ => true, isChecked: true);
+					break;
+				case CheckState.Unchecked:
+					SetVisibleChecked(_ => true, isChecked: false);
+					break;
+				default:
+					everythingCb.CheckState = CheckState.Unchecked;
+					break;
+			}
+		}
 
-			everythingCb.CheckState
-				= count > 0 && count == deletedCbl.Items.Count ? CheckState.Checked
-				: count == 0 ? CheckState.Unchecked
-				: CheckState.Indeterminate;
-
-			everythingCb.CheckStateChanged += everythingCb_CheckStateChanged;
-
-			deletedCheckedLbl.Text = string.Format(deletedCheckedTemplate, count, deletedCbl.Items.Count);
+		public void SetVisibleChecked(Func<LibraryBook, bool> predicate, bool isChecked)
+		{
+			productsGrid1.GetVisibleGridEntries().Where(e => predicate(e.LibraryBook)).ForEach(i => i.Remove = isChecked);
+			UpdateCounts();
 		}
 	}
 }

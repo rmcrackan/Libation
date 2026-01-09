@@ -69,16 +69,16 @@ namespace DtoImporterService
 		{
 			var qtyNew = 0;
 
-			foreach (var item in importItems)
-			{
-				if (!Cache.TryGetValue(item.DtoItem.ProductId, out var book))
+				foreach (var item in importItems)
 				{
-					book = createNewBook(item);
-					qtyNew++;
-				}
+					if (!Cache.TryGetValue(item.DtoItem.ProductId, out var book))
+					{
+						book = createNewBook(item);
+						qtyNew++;
+					}
 
-				updateBook(item, book);
-			}
+					updateBook(item, book);
+				}
 
 			return qtyNew;
 		}
@@ -159,6 +159,14 @@ namespace DtoImporterService
 		private void updateBook(ImportItem importItem, Book book)
 		{
 			var item = importItem.DtoItem;
+
+			// Replacing narrators only became necessary to correct a bug introduced in 13.1.0
+			// which would no import narrators with null ASINs. Thus, affected books had the
+			// author listed as the narrators. This can probably be removed in the future.
+			// Bug went live in 13.1.0 on 2026/01/02. Today is 2026/01/08.
+			var narrators = item.Narrators?.DistinctBy(a => a.Name).Select(n => contributorImporter.Cache[n.Name]).ToArray();
+			if (narrators is not null && narrators.Length > 0)
+				book.ReplaceNarrators(narrators);
 
 			book.UpdateLengthInMinutes(item.LengthInMinutes);
 

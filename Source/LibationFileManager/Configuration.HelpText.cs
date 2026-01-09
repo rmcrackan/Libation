@@ -82,6 +82,13 @@ namespace LibationFileManager
                 from the decrypted audiobook. This does not require
                 re-encoding.
                 """ },
+            {nameof(MinimumFileDuration), """
+                The minimum duration (in minutes) for an chapter to
+                be split into its own file. Chapters shorter than
+                this duration will be merged with the following
+                chapter. Merged chapter titles will be joined with
+                a space between them.
+                """ },
             {nameof(SpatialAudioCodec), """
                 The Dolby Digital Plus (E-AC-3) codec is more widely
                 supported than the AC-4 codec, but E-AC-3 files are

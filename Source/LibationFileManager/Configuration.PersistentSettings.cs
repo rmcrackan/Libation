@@ -169,6 +169,9 @@ namespace LibationFileManager
 		[Description("Split my books into multiple files by chapter")]
 		public bool SplitFilesByChapter { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
+		[Description("Minimum file duration (seconds)")]
+		public int MinimumFileDuration { get => Math.Max(0, GetNonString(defaultValue: 3)); set => SetNonString(value); }
+
 		[Description("Merge Opening/End Credits into the following/preceding chapters")]
 		public bool MergeOpeningAndEndCredits { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
