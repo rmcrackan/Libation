@@ -28,6 +28,6 @@ public class ContributorSanitizer : ISanitizer
 	private static Person[]? SanitizePersonArray(Person?[]? contributors)
 		=> contributors
 		?.OfType<Person>()
-		.Where(c => !string.IsNullOrWhiteSpace(c.Asin) && !string.IsNullOrWhiteSpace(c.Name))
+		.Where(c => !string.IsNullOrWhiteSpace(c.Name))
 		.ToArray();
 }
