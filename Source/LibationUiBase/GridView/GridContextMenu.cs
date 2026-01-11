@@ -1,13 +1,10 @@
 ﻿using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
-using DocumentFormat.OpenXml.Office2010.ExcelAc;
-using DocumentFormat.OpenXml.Wordprocessing;
 using FileLiberator;
 using LibationFileManager;
 using LibationFileManager.Templates;
 using LibationUiBase.Forms;
-using Lucene.Net.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,15 +91,40 @@ public class GridContextMenu
 
 	public async Task RemoveFromAudibleAsync()
 	{
+		LibraryBook[] toRemove = LibraryBookEntries.Select(l => l.LibraryBook).Where(lb => lb.IsAudiblePlus).ToArray();
+		if (toRemove.Length == 0)
+			return;
+
+		string bookStr = "book".PluralizeWithCount(toRemove.Length), itsThem = toRemove.Length == 1 ? "it" : "them";
+		string confirmMessage = $"""
+			Libation is about to remove {bookStr} from your Audible account. The only way to get {itsThem} back
+			is to re-add {itsThem} to your Audible Library through the Audible website or app.
+			
+			Are you sure you want to remove the following {bookStr}?
+			
+			{toRemove.AggregateTitles()}
+			""";
+		DialogResult result = await MessageBoxBase.Show(confirmMessage, "Confirm Remove from Audible Library", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+		if (result != DialogResult.Yes)
+			return;
+
 		List<LibraryBook> removedFromAudible = [];
 		List<LibraryBook> failedToRemove = [];
 
-		foreach (var entry in LibraryBookEntries.Select(l => l.LibraryBook).Where(lb => lb.IsAudiblePlus))
+		//Getting the API loads AccountsSettings every time and es expensive
+		//cache Api to improve perfomanc on large batches of deletions
+		Dictionary<string, AudibleApi.Api> apis = [];
+
+		foreach (var entry in toRemove)
 		{
 			try
 			{
-				var api = await entry.GetApiAsync();
-				var success = await api.RemoveItemFromLibraryAsync(entry.Book.AudibleProductId);
+				if (!apis.TryGetValue(entry.Account, out var api))
+				{
+					apis[entry.Account] = api = await entry.GetApiAsync();
+				}
+
+				bool success = await api.RemoveItemFromLibraryAsync(entry.Book.AudibleProductId);
 				if (success)
 				{
 					removedFromAudible.Add(entry);
@@ -120,15 +142,13 @@ public class GridContextMenu
 		}
 		if (failedToRemove.Count > 0)
 		{
-			var count = failedToRemove.Count;
-			string bookBooks = count == 1 ? "book" : "books";
-
-			var message = $"""
-				Failed to remove {count} {bookBooks} from Audible.
+			string booksStr = "book".PluralizeWithCount(failedToRemove.Count);
+			string message = $"""
+				Failed to remove {booksStr} from Audible.
 
 				{failedToRemove.AggregateTitles()}
 				""";
-			await MessageBoxBase.Show(message, $"Failed to Remove {bookBooks.FirstCharToUpper()} from Audible");
+			await MessageBoxBase.Show(message, $"Failed to Remove {booksStr} from Audible");
 		}
 		try
 		{
@@ -138,15 +158,13 @@ public class GridContextMenu
 		{
 			Serilog.Log.Logger.Error(ex, "Failed to delete locally removed from Audible books.");
 			
-			var count = removedFromAudible.Count;
-			string bookBooks = count == 1 ? "book" : "books";
-
-			var message = $"""
-				Failed to delete {count} {bookBooks} from Libation.
+			string booksStr = "book".PluralizeWithCount(removedFromAudible.Count);
+			string message = $"""
+				Failed to delete {booksStr} from Libation.
 
 				{removedFromAudible.AggregateTitles()}
 				""";
-			await MessageBoxBase.Show(message, $"Failed to Delete {bookBooks.FirstCharToUpper()} from Libation");
+			await MessageBoxBase.Show(message, $"Failed to Delete {booksStr} from Libation");
 		}
 	}
 
