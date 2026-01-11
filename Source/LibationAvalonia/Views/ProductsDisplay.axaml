@@ -26,7 +26,7 @@
 			<DataGrid.Styles>
 				<Style Selector="DataGridColumnHeader">
 					<Setter Property="ContextMenu">
-						<ContextMenu Name="GridHeaderContextMenu" Opening="ContextMenu_ContextMenuOpening" Closed="ContextMenu_MenuClosed">
+						<ContextMenu Name="GridHeaderContextMenu" Opening="GridHeaderContextMenu_Opening" Closed="GridHeaderContextMenu_Closed">
 							<ContextMenu.Styles>
 								<Style Selector="MenuItem">
 									<Setter Property="Padding" Value="10,0,-10,0" />
@@ -49,6 +49,11 @@
 							</MenuItem>
 							<MenuItem Header="-"/>                    
 						</ContextMenu>
+					</Setter>
+				</Style>
+				<Style Selector="DataGridCell">
+					<Setter Property="ContextMenu">
+						<ContextMenu Opening="GridCellContextMenu_Opening" Opened="GridCellContextMenu_Opened"/>
 					</Setter>
 				</Style>
 				<Style Selector="DataGridCell > Panel">

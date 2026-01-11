@@ -1,9 +1,12 @@
 ﻿using ApplicationServices;
 using DataLayer;
+using Dinah.Core;
 using FileLiberator;
 using LibationFileManager;
 using LibationFileManager.Templates;
+using LibationUiBase.Forms;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,6 +20,7 @@ public class GridContextMenu
 	public string SetDownloadedText => $"Set Download status to '{Accelerator}Downloaded'";
 	public string SetNotDownloadedText => $"Set Download status to '{Accelerator}Not Downloaded'";
 	public string RemoveText => $"{Accelerator}Remove from library";
+	public string RemoveFromAudibleText => $"Remove Plus {(GridEntries.Count(e => e.LibraryBook.IsAudiblePlus) == 1 ? "Book" : "Books")} from Audible Library";
 	public string LocateFileText => $"{Accelerator}Locate file...";
 	public string LocateFileDialogTitle => $"Locate the audio file for '{GridEntries[0].Book?.TitleWithSubtitle ?? "[null]"}'";
 	public string LocateFileErrorMessage => "Error saving book's location";
@@ -37,6 +41,7 @@ public class GridContextMenu
 	public bool ConvertToMp3Enabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
 	public bool DownloadAsChaptersEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus is not LiberatedStatus.Error);
 	public bool ReDownloadEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
+	public bool RemoveFromAudibleEnabled => LibraryBookEntries.Any(ge => ge.LibraryBook.IsAudiblePlus);
 
 	private GridEntry[] GridEntries { get; }
 	public LibraryBookEntry[] LibraryBookEntries { get; }
@@ -82,6 +87,85 @@ public class GridContextMenu
 	public async Task RemoveAsync()
 	{
 		await LibraryBookEntries.Select(e => e.LibraryBook).RemoveBooksAsync();
+	}
+
+	public async Task RemoveFromAudibleAsync()
+	{
+		LibraryBook[] toRemove = LibraryBookEntries.Select(l => l.LibraryBook).Where(lb => lb.IsAudiblePlus).ToArray();
+		if (toRemove.Length == 0)
+			return;
+
+		string bookStr = "book".PluralizeWithCount(toRemove.Length), itsThem = toRemove.Length == 1 ? "it" : "them";
+		string confirmMessage = $"""
+			Libation is about to remove {bookStr} from your Audible account. The only way to get {itsThem} back
+			is to re-add {itsThem} to your Audible Library through the Audible website or app.
+			
+			Are you sure you want to remove the following {bookStr}?
+			
+			{toRemove.AggregateTitles()}
+			""";
+		DialogResult result = await MessageBoxBase.Show(confirmMessage, "Confirm Remove from Audible Library", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+		if (result != DialogResult.Yes)
+			return;
+
+		List<LibraryBook> removedFromAudible = [];
+		List<LibraryBook> failedToRemove = [];
+
+		//Getting the API loads AccountsSettings every time and es expensive
+		//cache Api to improve perfomanc on large batches of deletions
+		Dictionary<string, AudibleApi.Api> apis = [];
+
+		foreach (var entry in toRemove)
+		{
+			try
+			{
+				if (!apis.TryGetValue(entry.Account, out var api))
+				{
+					apis[entry.Account] = api = await entry.GetApiAsync();
+				}
+
+				bool success = await api.RemoveItemFromLibraryAsync(entry.Book.AudibleProductId);
+				if (success)
+				{
+					removedFromAudible.Add(entry);
+				}
+				else
+				{
+					failedToRemove.Add(entry);
+				}
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Failed to remove book from audible account. {@Book}", entry.LogFriendly());
+				failedToRemove.Add(entry);
+			}
+		}
+		if (failedToRemove.Count > 0)
+		{
+			string booksStr = "book".PluralizeWithCount(failedToRemove.Count);
+			string message = $"""
+				Failed to remove {booksStr} from Audible.
+
+				{failedToRemove.AggregateTitles()}
+				""";
+			await MessageBoxBase.Show(message, $"Failed to Remove {booksStr} from Audible");
+		}
+		try
+		{
+			await removedFromAudible.PermanentlyDeleteBooksAsync();
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Failed to delete locally removed from Audible books.");
+			
+			string booksStr = "book".PluralizeWithCount(removedFromAudible.Count);
+			string message = $"""
+				Failed to delete {booksStr} from Libation.
+
+				{removedFromAudible.AggregateTitles()}
+				""";
+			await MessageBoxBase.Show(message, $"Failed to Delete {booksStr} from Libation");
+		}
 	}
 
 	public ITemplateEditor CreateTemplateEditor<T>(LibraryBook libraryBook, string existingTemplate)

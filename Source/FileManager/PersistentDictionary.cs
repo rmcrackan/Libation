@@ -142,7 +142,7 @@ namespace FileManager
                     File.WriteAllText(Filepath, endContents);
                     success = true;
                 }
-                Serilog.Log.Logger.Information("Removed property. {@DebugInfo}", propertyName);
+                Serilog.Log.Logger.Information("Removed property. {propertyName}", propertyName);
             }
             catch { }
 

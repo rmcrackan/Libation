@@ -87,7 +87,7 @@ namespace DtoImporterService
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "Error adding category ladder. {@DebugInfo}", categoryList);
+				Serilog.Log.Logger.Error(ex, "Error adding category ladder.");
 				throw;
 			}
 		}

@@ -220,6 +220,8 @@ namespace ApplicationServices
 				{
 					book.AbsentFromLastScan = false;
 				}
+                book.SetIncludedUntil(importItem.DtoItem.GetExpirationDate());
+                book.SetIsAudiblePlus(importItem.DtoItem.IsAyce is true);
 			});
 		}
 

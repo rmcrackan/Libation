@@ -18,6 +18,14 @@ namespace DtoImporterService
 		private SeriesImporter seriesImporter { get; }
 		private CategoryImporter categoryImporter { get; }
 
+		/// <summary>
+		/// Indicates whether <see cref="BookImporter"/> loaded every Book from the <seealso cref="LibationContext"/> during import.
+		/// If true, the DbContext was queried for all Books, rather than just those being imported.
+		/// If means that all <see cref="LibraryBook"/> objects in the DbContext will have their <see cref="LibraryBook.Book"/> property populated.
+		/// If false, only those Books being imported were loaded, and some <see cref="LibraryBook"/> objects will have a null <see cref="LibraryBook.Book"/> property for books not included in the import set.
+		/// </summary>
+		internal bool LoadedEntireLibrary {get; private set; }
+
 		public BookImporter(LibationContext context) : base(context)
 		{
 			contributorImporter = new ContributorImporter(DbContext);
@@ -56,6 +64,7 @@ namespace DtoImporterService
 					.ToArray()
 					.Where(b => productIds.Contains(b.AudibleProductId))
 					.ToDictionarySafe(b => b.AudibleProductId);
+				LoadedEntireLibrary = true;
 			}
 			else
 			{
@@ -69,16 +78,16 @@ namespace DtoImporterService
 		{
 			var qtyNew = 0;
 
-			foreach (var item in importItems)
-			{
-				if (!Cache.TryGetValue(item.DtoItem.ProductId, out var book))
+				foreach (var item in importItems)
 				{
-					book = createNewBook(item);
-					qtyNew++;
-				}
+					if (!Cache.TryGetValue(item.DtoItem.ProductId, out var book))
+					{
+						book = createNewBook(item);
+						qtyNew++;
+					}
 
-				updateBook(item, book);
-			}
+					updateBook(item, book);
+				}
 
 			return qtyNew;
 		}
@@ -159,6 +168,14 @@ namespace DtoImporterService
 		private void updateBook(ImportItem importItem, Book book)
 		{
 			var item = importItem.DtoItem;
+
+			// Replacing narrators only became necessary to correct a bug introduced in 13.1.0
+			// which would no import narrators with null ASINs. Thus, affected books had the
+			// author listed as the narrators. This can probably be removed in the future.
+			// Bug went live in 13.1.0 on 2026/01/02. Today is 2026/01/08.
+			var narrators = item.Narrators?.DistinctBy(a => a.Name).Select(n => contributorImporter.Cache[n.Name]).ToArray();
+			if (narrators is not null && narrators.Length > 0)
+				book.ReplaceNarrators(narrators);
 
 			book.UpdateLengthInMinutes(item.LengthInMinutes);
 

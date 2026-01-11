@@ -427,7 +427,7 @@ namespace FileLiberator
 			{
 				//Failure to download cover art should not be considered a failure to download the book
 				if (!cancellationToken.IsCancellationRequested)
-					Serilog.Log.Logger.Error(ex, "Error downloading cover art for {@Book} to {@metadataFile}.", options.LibraryBook.LogFriendly(), coverPath);
+					Serilog.Log.Logger.Error(ex, "Error downloading cover art for {@Book} to {coverPath}.", options.LibraryBook.LogFriendly(), coverPath);
 				throw;
 			}
 		}
@@ -476,7 +476,7 @@ namespace FileLiberator
 			{
 				//Failure to download records should not be considered a failure to download the book
 				if (!cancellationToken.IsCancellationRequested)
-					Serilog.Log.Logger.Error(ex, "Error downloading clips and bookmarks for {@Book} to {@recordsPath}.", options.LibraryBook.LogFriendly(), recordsPath);
+					Serilog.Log.Logger.Error(ex, "Error downloading clips and bookmarks for {@Book} to {recordsPath}.", options.LibraryBook.LogFriendly(), recordsPath);
 				throw;
 			}
 		}
@@ -512,7 +512,7 @@ namespace FileLiberator
 			{
 				//Failure to download metadata should not be considered a failure to download the book
 				if (!cancellationToken.IsCancellationRequested)
-					Serilog.Log.Logger.Error(ex, "Error downloading metadata of {@Book} to {@metadataFile}.", options.LibraryBook.LogFriendly(), metadataPath);
+					Serilog.Log.Logger.Error(ex, "Error downloading metadata of {@Book} to {metadataFile}.", options.LibraryBook.LogFriendly(), metadataPath);
 				throw;
 			}
 		}
@@ -523,12 +523,12 @@ namespace FileLiberator
 		{
 			Serilog.Log.Verbose("Getting destination directory for {@Book}", libraryBook.LogFriendly());
 			var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook, Configuration);
-			Serilog.Log.Verbose("Got destination directory for {@Book}. {@Directory}", libraryBook.LogFriendly(), destinationDir);
+			Serilog.Log.Verbose("Got destination directory for {@Book}. {Directory}", libraryBook.LogFriendly(), destinationDir);
 			if (!Directory.Exists(destinationDir))
 			{
-				Serilog.Log.Verbose("Creating destination {@Directory}", destinationDir);
+				Serilog.Log.Verbose("Creating destination {Directory}", destinationDir);
 				Directory.CreateDirectory(destinationDir);
-				Serilog.Log.Verbose("Created destination {@Directory}", destinationDir);
+				Serilog.Log.Verbose("Created destination {Directory}", destinationDir);
 			}
 			return destinationDir;
 		}

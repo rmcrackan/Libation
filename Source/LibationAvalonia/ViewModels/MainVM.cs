@@ -13,7 +13,7 @@ namespace LibationAvalonia.ViewModels
 	{
 		public Task? BindToGridTask { get; set; }
 		public ProcessQueueViewModel ProcessQueue { get; } = new ProcessQueueViewModel();
-		public ProductsDisplayViewModel ProductsDisplay { get; } = new ProductsDisplayViewModel();
+		public ProductsDisplayViewModel ProductsDisplay { get; } = new() { SearchEngine = MainSearchEngine.Instance };
 
 		public double? DownloadProgress { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 

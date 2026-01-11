@@ -1,4 +1,5 @@
-﻿using DataLayer;
+﻿using ApplicationServices;
+using DataLayer;
 using Dinah.Core;
 using Dinah.Core.Collections.Generic;
 using Dinah.Core.WindowsDesktop.Forms;
@@ -6,6 +7,7 @@ using LibationFileManager;
 using LibationUiBase.GridView;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
@@ -22,6 +24,23 @@ namespace LibationWinForms.GridView
 
 	public partial class ProductsGrid : UserControl
 	{
+		[DefaultValue(false)]
+		[Category("Behavior")]
+		[Description("Disable the grid context menu")]
+		public bool DisableContextMenu { get; set; }
+		[DefaultValue(false)]
+		[Category("Behavior")]
+		[Description("Disable grid column reordering and don't persist width changes")]
+		public bool DisableColumnCustomization
+		{
+			get => field;
+			set
+			{
+				field = value;
+				gridEntryDataGridView.AllowUserToOrderColumns = !value;
+			}
+		}
+
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int>? VisibleCountChanged;
 		public event LibraryBookEntryClickedEventHandler? LiberateClicked;
@@ -33,12 +52,16 @@ namespace LibationWinForms.GridView
 		public event ProductsGridCellContextMenuStripNeededEventHandler? LiberateContextMenuStripNeeded;
 
 		private GridEntryBindingList? bindingList;
-		internal IEnumerable<LibraryBook> GetVisibleBooks()
-			=> bindingList
-			?.GetFilteredInItems()
-			.Select(lbe => lbe.LibraryBook) ?? Enumerable.Empty<LibraryBook>();
+		internal IEnumerable<LibraryBook> GetVisibleBookEntries()
+			=> GetVisibleGridEntries().Select(lbe => lbe.LibraryBook);
+
+		public IEnumerable<LibraryBookEntry> GetVisibleGridEntries()
+			=> bindingList?.GetFilteredInItems().OfType<LibraryBookEntry>() ?? [];
+
 		internal IEnumerable<LibraryBookEntry> GetAllBookEntries()
 			=> bindingList?.AllItems().BookEntries() ?? Enumerable.Empty<LibraryBookEntry>();
+
+		public ISearchEngine? SearchEngine { get => field; set { field = value; bindingList?.SearchEngine = value; } }
 
 		public ProductsGrid()
 		{
@@ -47,19 +70,7 @@ namespace LibationWinForms.GridView
 			gridEntryDataGridView.Scroll += (_, s) => Scroll?.Invoke(this, s);
 			gridEntryDataGridView.CellContextMenuStripNeeded += GridEntryDataGridView_CellContextMenuStripNeeded;
 			removeGVColumn.Frozen = false;
-
-			defaultFont = gridEntryDataGridView.DefaultCellStyle.Font ?? gridEntryDataGridView.Font;
-			setGridFontScale(Configuration.Instance.GridFontScaleFactor);
-			setGridScale(Configuration.Instance.GridScaleFactor);
-			Configuration.Instance.PropertyChanged += Configuration_ScaleChanged;
-			Configuration.Instance.PropertyChanged += Configuration_FontScaleChanged;
-			gridEntryDataGridView.EnableHeadersVisualStyles = !Application.IsDarkModeEnabled;
-
-			gridEntryDataGridView.Disposed += (_, _) =>
-			{
-				Configuration.Instance.PropertyChanged -= Configuration_ScaleChanged;
-				Configuration.Instance.PropertyChanged -= Configuration_FontScaleChanged;
-			};
+			defaultFont = gridEntryDataGridView.DefaultCellStyle.Font ?? gridEntryDataGridView.Font;						
 		}
 
 		#region Scaling
@@ -120,7 +131,7 @@ namespace LibationWinForms.GridView
 		private void GridEntryDataGridView_CellContextMenuStripNeeded(object? sender, DataGridViewCellContextMenuStripNeededEventArgs e)
 		{
 			// header
-			if (e.RowIndex < 0 || sender is not DataGridView dgv)
+			if (DisableContextMenu || e.RowIndex < 0 || sender is not DataGridView dgv)
 				return;
 
 			e.ContextMenuStrip = new ContextMenuStrip();
@@ -313,7 +324,7 @@ namespace LibationWinForms.GridView
 			}
 			System.Threading.SynchronizationContext.SetSynchronizationContext(null);
 						
-			bindingList = new GridEntryBindingList(geList);
+			bindingList = new GridEntryBindingList(geList) { SearchEngine = SearchEngine };
 			bindingList.CollapseAll();
 
 			//The syncBindingSource ensures that the IGridEntry list is added on the UI thread 
@@ -381,7 +392,8 @@ namespace LibationWinForms.GridView
 
 			RemoveBooks(removedBooks);
 
-			gridEntryDataGridView.FirstDisplayedScrollingRowIndex = topRow;
+			if (topRow >= 0 && topRow < gridEntryDataGridView.RowCount)
+				gridEntryDataGridView.FirstDisplayedScrollingRowIndex = topRow;
 		}
 
 		public void RemoveBooks(IEnumerable<LibraryBookEntry> removedBooks)
@@ -505,8 +517,21 @@ namespace LibationWinForms.GridView
 
 		private void ProductsGrid_Load(object sender, EventArgs e)
 		{
-			//https://stackoverflow.com/a/4498512/3335599
-			if (System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime) return;
+			//DesignMode is not set in constructor
+			if (DesignMode)
+				return;
+
+			setGridFontScale(Configuration.Instance.GridFontScaleFactor);
+			setGridScale(Configuration.Instance.GridScaleFactor);
+			Configuration.Instance.PropertyChanged += Configuration_ScaleChanged;
+			Configuration.Instance.PropertyChanged += Configuration_FontScaleChanged;
+			gridEntryDataGridView.EnableHeadersVisualStyles = !Application.IsDarkModeEnabled;
+
+			gridEntryDataGridView.Disposed += (_, _) =>
+			{
+				Configuration.Instance.PropertyChanged -= Configuration_ScaleChanged;
+				Configuration.Instance.PropertyChanged -= Configuration_FontScaleChanged;
+			};
 
 			gridEntryDataGridView.ColumnWidthChanged += gridEntryDataGridView_ColumnWidthChanged;
 			gridEntryDataGridView.ColumnDisplayIndexChanged += gridEntryDataGridView_ColumnDisplayIndexChanged;
@@ -523,6 +548,8 @@ namespace LibationWinForms.GridView
 
 			foreach (DataGridViewColumn column in gridEntryDataGridView.Columns)
 			{
+				if (column == removeGVColumn)
+					continue;
 				var itemName = column.DataPropertyName;
 				var visible = config.GetColumnVisibility(itemName);
 
@@ -596,6 +623,7 @@ namespace LibationWinForms.GridView
 
 		private void gridEntryDataGridView_ColumnDisplayIndexChanged(object? sender, DataGridViewColumnEventArgs e)
 		{
+			if (DisableColumnCustomization) return;
 			var config = Configuration.Instance;
 
 			var dictionary = config.GridColumnsDisplayIndices;
@@ -613,6 +641,7 @@ namespace LibationWinForms.GridView
 
 		private void gridEntryDataGridView_ColumnWidthChanged(object? sender, DataGridViewColumnEventArgs e)
 		{
+			if (DisableColumnCustomization) return;
 			var config = Configuration.Instance;
 
 			var dictionary = config.GridColumnsWidths;

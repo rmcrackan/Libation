@@ -56,7 +56,7 @@ public partial class DownloadOptions
 		}
 		else if (metadata.ContentReference != license.ContentMetadata.ContentReference)
 		{
-			Serilog.Log.Logger.Warning("Metadata ContentReference does not match License ContentReference with drm_type = {@DrmType}. {@Metadata}. {@License} ",
+			Serilog.Log.Logger.Warning("Metadata ContentReference does not match License ContentReference with drm_type = {DrmType}. {@Metadata}. {@License} ",
 			license.DrmType,
 			metadata.ContentReference,
 			license.ContentMetadata.ContentReference);
@@ -111,7 +111,7 @@ public partial class DownloadOptions
 				if (canUseWidevine)
 					Serilog.Log.Logger.Warning("Unable to get a Widevine CDM. Falling back to ADRM.");
 				else
-					Serilog.Log.Logger.Warning("Account {@account} is not registered as an android device, so content will not be downloaded with Widevine DRM. Remove and re-add the account in Libation to fix.", libraryBook.Account.ToMask());
+					Serilog.Log.Logger.Warning("Account {account} is not registered as an android device, so content will not be downloaded with Widevine DRM. Remove and re-add the account in Libation to fix.", libraryBook.Account.ToMask());
 			}
 
 			token.ThrowIfCancellationRequested();
@@ -170,17 +170,6 @@ public partial class DownloadOptions
 	/// </summary>
 	public static DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, LicenseInfo licInfo)
 	{
-		long chapterStartMs
-			= config.StripAudibleBrandAudio
-			? licInfo.ContentMetadata.ChapterInfo.BrandIntroDurationMs
-			: 0;
-
-		var dlOptions = new DownloadOptions(config, libraryBook, licInfo)
-		{
-			ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(chapterStartMs)),
-			RuntimeLength = TimeSpan.FromMilliseconds(licInfo.ContentMetadata.ChapterInfo.RuntimeLengthMs),
-		};
-
 		var titleConcat = config.CombineNestedChapterTitles ? ": " : null;
 		var chapters
 			= flattenChapters(licInfo.ContentMetadata.ChapterInfo.Chapters, titleConcat)
@@ -190,18 +179,22 @@ public partial class DownloadOptions
 		if (config.MergeOpeningAndEndCredits)
 			combineCredits(chapters);
 
+		if (config.StripAudibleBrandAudio)
+			stripBranding(chapters, licInfo.ContentMetadata.ChapterInfo.BrandIntroDurationMs, licInfo.ContentMetadata.ChapterInfo.BrandOutroDurationMs);
+
+		if (config.SplitFilesByChapter)
+			combineShortChapters(chapters, config.MinimumFileDuration * 1000);
+
+		var dlOptions = new DownloadOptions(config, libraryBook, licInfo)
+		{
+			ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(chapters[0].StartOffsetMs)),
+			RuntimeLength = TimeSpan.FromMilliseconds(licInfo.ContentMetadata.ChapterInfo.RuntimeLengthMs),
+		};
+
+		//Build AAXClean.ChapterInfo
 		for (int i = 0; i < chapters.Count; i++)
 		{
-			var chapter = chapters[i];
-			long chapLenMs = chapter.LengthMs;
-
-			if (i == 0)
-				chapLenMs -= chapterStartMs;
-
-			if (config.StripAudibleBrandAudio && i == chapters.Count - 1)
-				chapLenMs -= licInfo.ContentMetadata.ChapterInfo.BrandOutroDurationMs;
-
-			dlOptions.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
+			dlOptions.ChapterInfo.AddChapter(chapters[i].Title, TimeSpan.FromMilliseconds(chapters[i].LengthMs));
 		}
 
 		return dlOptions;
@@ -347,6 +340,50 @@ public partial class DownloadOptions
 			}
 		}
 		return chaps;
+	}
+
+	/*
+	https://github.com/rmcrackan/Libation/pull/127#issuecomment-939088489
+
+	If the chapter truly is empty, that is, 0 audio frames in length, then yes it is ignored.
+	If the chapter is shorter than minChapterLength but still has some audio frames, those
+	frames are combined with the following chapter and not split into a new file.
+
+	When 2 or more consecutive chapters are combined, chapter titles are concatenated
+	with a apace in between. For example, given an audiobook with the following chapters:
+
+	00:00:00 - 00:00:02 | Part 1
+	00:00:02 - 00:35:00 | Chapter 1
+	00:35:02 - 01:02:00 | Chapter 2
+	01:02:00 - 01:02:02 | Part 2
+	01:02:02 - 01:41:00 | Chapter 3
+	01:41:00 - 02:05:00 | Chapter 4
+
+	The book will be split into the following files:
+
+	00:00:00 - 00:35:00 | Book - 01 - Part 1 Chapter 1.m4b
+	00:35:00 - 01:02:00 | Book - 02 - Chapter 2.m4b
+	01:02:00 - 01:41:00 | Book - 03 - Part 2.m4b
+	01:41:00 - 02:05:00 | Book - 04 - Chapter 4.m4b
+	*/
+	public static void combineShortChapters(List<Chapter> chapters, long minChapterLengthMs)
+	{
+		for (int i = 0; i < chapters.Count; i++)
+		{
+			while (chapters[i].LengthMs < minChapterLengthMs && chapters.Count > i + 1)
+			{
+				chapters[i].Title += " " + chapters[i + 1].Title;
+				chapters[i].LengthMs += chapters[i + 1].LengthMs;
+				chapters.RemoveAt(i + 1);
+			}
+		}
+	}
+
+	public static void stripBranding(List<Chapter> chapters, long introMs, long outroMs)
+	{
+		chapters[0].LengthMs -= introMs;
+		chapters[0].StartOffsetMs += introMs;
+		chapters[^1].LengthMs -= outroMs;
 	}
 
 	public static void combineCredits(IList<Chapter> chapters)

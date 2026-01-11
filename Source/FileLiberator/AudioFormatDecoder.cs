@@ -67,7 +67,7 @@ public static class AudioFormatDecoder
 		var mpegSize = mp3File.Length - mp3File.Position;
 		if (mpegSize < 64)
 		{
-			Serilog.Log.Logger.Warning("Remaining file length is too short to contain any mp3 frames. {@File}", mp3Filename);
+			Serilog.Log.Logger.Warning("Remaining file length is too short to contain any mp3 frames. {File}", mp3Filename);
 			return AudioFormat.Default;
 		}
 
@@ -80,7 +80,7 @@ public static class AudioFormatDecoder
 
 		if (layerDesc is not Layer.Layer_3)
 		{
-			Serilog.Log.Logger.Warning("Could not read mp3 data from {@layerVersion} file.", layerDesc.ToString());
+			Serilog.Log.Logger.Warning("Could not read mp3 data from {layerVersion} file.", layerDesc);
 			return AudioFormat.Default;
 		}
 

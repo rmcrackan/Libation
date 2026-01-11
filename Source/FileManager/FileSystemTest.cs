@@ -46,7 +46,7 @@ namespace FileManager
 			if (!Directory.Exists(directoryName))
 				return false;
 
-			Serilog.Log.Logger.Debug("Testing write permissions for directory: {@DirectoryName}", directoryName);
+			Serilog.Log.Logger.Debug("Testing write permissions for directory: {DirectoryName}", directoryName);
 			var testFilePath = Path.Combine(directoryName, Guid.NewGuid().ToString());
 			return CanWriteFile(testFilePath);
 		}
@@ -55,9 +55,9 @@ namespace FileManager
 		{
 			try
 			{
-				Serilog.Log.Logger.Debug("Testing ability to write filename: {@filename}", filename);
+				Serilog.Log.Logger.Debug("Testing ability to write filename: {filename}", filename);
 				File.WriteAllBytes(filename, []);
-				Serilog.Log.Logger.Debug("Deleting test file after successful write: {@filename}", filename);
+				Serilog.Log.Logger.Debug("Deleting test file after successful write: {filename}", filename);
 				try
 				{
 					FileUtility.SaferDelete(filename);
@@ -65,13 +65,13 @@ namespace FileManager
 				catch (Exception ex)
 				{
 					//An error deleting the file doesn't constitute a write failure.
-					Serilog.Log.Logger.Debug(ex, "Error deleting test file: {@filename}", filename);
+					Serilog.Log.Logger.Debug(ex, "Error deleting test file: {filename}", filename);
 				}
 				return true;
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Debug(ex, "Error writing test file: {@filename}", filename);
+				Serilog.Log.Logger.Debug(ex, "Error writing test file: {filename}", filename);
 				return false;
 			}
 		}

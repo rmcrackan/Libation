@@ -114,24 +114,24 @@ public  class LibationFiles
 		}
 		catch (Exception ex)
 		{
-			Log.Logger.Error(ex, "Failed to load settings file: {@SettingsFile}", settingsFile);
+			Log.Logger.Error(ex, "Failed to load settings file: {SettingsFile}", settingsFile);
 			try
 			{
-				Log.Logger.Information("Deleting invalid settings file: {@SettingsFile}", settingsFile);
+				Log.Logger.Information("Deleting invalid settings file: {SettingsFile}", settingsFile);
 				FileUtility.SaferDelete(settingsFile);
-				Log.Logger.Information("Creating a new, empty setting file: {@SettingsFile}", settingsFile);
+				Log.Logger.Information("Creating a new, empty setting file: {SettingsFile}", settingsFile);
 				try
 				{
 					File.WriteAllText(settingsFile, "{}");
 				}
 				catch (Exception createEx)
 				{
-					Log.Logger.Error(createEx, "Failed to create new settings file: {@SettingsFile}", settingsFile);
+					Log.Logger.Error(createEx, "Failed to create new settings file: {SettingsFile}", settingsFile);
 				}
 			}
 			catch (Exception deleteEx)
 			{
-				Log.Logger.Error(deleteEx, "Failed to delete the invalid settings file: {@SettingsFile}", settingsFile);
+				Log.Logger.Error(deleteEx, "Failed to delete the invalid settings file: {SettingsFile}", settingsFile);
 			}
 
 			return false;

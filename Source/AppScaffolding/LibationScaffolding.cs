@@ -121,7 +121,7 @@ namespace AppScaffolding
 				}
 				catch(Exception ex)
 				{
-					Log.Logger.Warning(ex, "Could not delete SQLite WAL file: {@WalFile}", walFile);
+					Log.Logger.Warning(ex, "Could not delete SQLite WAL file: {WalFile}", walFile);
 				}
 			}
 			if (File.Exists(shmFile))
@@ -132,7 +132,7 @@ namespace AppScaffolding
 				}
 				catch (Exception ex)
 				{
-					Log.Logger.Warning(ex, "Could not delete SQLite SHM file: {@ShmFile}", shmFile);
+					Log.Logger.Warning(ex, "Could not delete SQLite SHM file: {ShmFile}", shmFile);
 				}
 			}
 		}
