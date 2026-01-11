@@ -18,6 +18,14 @@ namespace DtoImporterService
 		private SeriesImporter seriesImporter { get; }
 		private CategoryImporter categoryImporter { get; }
 
+		/// <summary>
+		/// Indicates whether <see cref="BookImporter"/> loaded every Book from the <seealso cref="LibationContext"/> during import.
+		/// If true, the DbContext was queried for all Books, rather than just those being imported.
+		/// If means that all <see cref="LibraryBook"/> objects in the DbContext will have their <see cref="LibraryBook.Book"/> property populated.
+		/// If false, only those Books being imported were loaded, and some <see cref="LibraryBook"/> objects will have a null <see cref="LibraryBook.Book"/> property for books not included in the import set.
+		/// </summary>
+		internal bool LoadedEntireLibrary {get; private set; }
+
 		public BookImporter(LibationContext context) : base(context)
 		{
 			contributorImporter = new ContributorImporter(DbContext);
@@ -56,6 +64,7 @@ namespace DtoImporterService
 					.ToArray()
 					.Where(b => productIds.Contains(b.AudibleProductId))
 					.ToDictionarySafe(b => b.AudibleProductId);
+				LoadedEntireLibrary = true;
 			}
 			else
 			{

@@ -47,8 +47,8 @@ namespace LibationUiBase.GridView
 		public bool IsBook => !IsSeries && !IsEpisode;
 		public bool IsUnavailable
 			=> !IsSeries
-			& isAbsent
-			& (
+			&& isAbsent
+			&& (
 				BookStatus is not LiberatedStatus.Liberated
 				|| PdfStatus is not null and not LiberatedStatus.Liberated
 			);
