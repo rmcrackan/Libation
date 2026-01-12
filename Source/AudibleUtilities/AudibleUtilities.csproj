@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="AudibleApi" Version="10.1.2.1" />
-    <PackageReference Include="Google.Protobuf" Version="3.33.2" />
+    <PackageReference Include="Google.Protobuf" Version="3.33.3" />
   </ItemGroup>
 
   <ItemGroup>

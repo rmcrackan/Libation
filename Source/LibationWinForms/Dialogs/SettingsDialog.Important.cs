@@ -1,6 +1,4 @@
 ﻿using Dinah.Core;
-using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.Office2013.Theme;
 using FileManager;
 using LibationFileManager;
 using LibationUiBase;
