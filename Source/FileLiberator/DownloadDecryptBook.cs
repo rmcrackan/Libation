@@ -334,13 +334,15 @@ namespace FileLiberator
 
 		/// <summary>Move new files to 'Books' directory</summary>
 		/// <returns>Return directory if audiobook file(s) were successfully created and can be located on disk. Else null.</returns>
-		private void MoveFilesToBooksDir(LibraryBook libraryBook, LongPath destinationDir, List<TempFile> entries, CancellationToken cancellationToken)
+		private async Task MoveFilesToBooksDir(LibraryBook libraryBook, LongPath destinationDir, List<TempFile> entries, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 			AverageSpeed averageSpeed = new();
+			MoveWithProgress moveWithProgress = new();
 
 			var totalSizeToMove = entries.Sum(f => new FileInfo(f.FilePath).Length);
 			long totalBytesMoved = 0;
+			moveWithProgress.MoveProgress += onMovefileProgress;
 
 			for (var i = 0; i < entries.Count; i++)
 			{
@@ -355,28 +357,13 @@ namespace FileLiberator
 						Configuration.OverwriteExisting);
 
 				var realDest
-					= FileUtility.SaferMoveToValidPath(
-						entry.FilePath,
+					= FileUtility.GetValidFilename(
 						destFileName,
 						Configuration.ReplacementCharacters,
 						entry.Extension,
 						Configuration.OverwriteExisting);
 
-				#region File Move Progress
-				totalBytesMoved += new FileInfo(realDest).Length;
-				averageSpeed.AddPosition(totalBytesMoved);
-				var estSecsRemaining = (totalSizeToMove - totalBytesMoved) / averageSpeed.Average;
-
-				if (double.IsNormal(estSecsRemaining))
-					OnStreamingTimeRemaining(TimeSpan.FromSeconds(estSecsRemaining));
-
-				OnStreamingProgressChanged(new DownloadProgress
-					{
-						ProgressPercentage = 100d * totalBytesMoved / totalSizeToMove,
-						BytesReceived = totalBytesMoved,
-						TotalBytesToReceive = totalSizeToMove
-					});
-				#endregion
+				await moveWithProgress.MoveAsync(entry.FilePath, realDest, Configuration.OverwriteExisting, cancellationToken);
 
 				// propagate corrected path for cue file (after this for-loop)
 				entries[i] = entry with { FilePath = realDest };
@@ -395,6 +382,23 @@ namespace FileLiberator
 
 			cancellationToken.ThrowIfCancellationRequested();
 			AudibleFileStorage.Audio.Refresh();
+
+			void onMovefileProgress(object? sender, MoveFileProgressEventArgs e)
+			{
+				totalBytesMoved += e.BytesMoved;
+				averageSpeed.AddPosition(totalBytesMoved);
+				var estSecsRemaining = (totalSizeToMove - totalBytesMoved) / averageSpeed.Average;
+
+				if (double.IsNormal(estSecsRemaining))
+					OnStreamingTimeRemaining(TimeSpan.FromSeconds(estSecsRemaining));
+
+				OnStreamingProgressChanged(new DownloadProgress
+				{
+					ProgressPercentage = 100d * totalBytesMoved / totalSizeToMove,
+					BytesReceived = totalBytesMoved,
+					TotalBytesToReceive = totalSizeToMove
+				});
+			};
 		}
 
 		private void DownloadCoverArt(LongPath destinationDir, DownloadOptions options, CancellationToken cancellationToken)
