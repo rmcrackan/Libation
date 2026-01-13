@@ -81,43 +81,36 @@ public class MoveWithProgress
 		using FileStream sourceStream = sourceFileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
 		using FileStream destinationStream = destinationFile.Open(FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
 
-		byte[] readBuff = ArrayPool<byte>.Shared.Rent(BlockSizeBytes);
-		byte[] writeBuff = ArrayPool<byte>.Shared.Rent(BlockSizeBytes);
+		using IMemoryOwner<byte> pool = MemoryPool<byte>.Shared.Rent(2 * BlockSizeBytes);
+		Memory<byte> readBuff = pool.Memory.Slice(0, BlockSizeBytes);
+		Memory<byte> writeBuff = pool.Memory.Slice(BlockSizeBytes, BlockSizeBytes);
 
 		long totalCopied = 0, bytesMovedSinceLastReport = 0;
 		DateTime nextReport = default;
-		try
+		int bytesRead = await sourceStream.ReadAsync(writeBuff, cancellation);
+		while (bytesRead > 0)
 		{
-			int bytesRead = await sourceStream.ReadAsync(writeBuff, 0, BlockSizeBytes, cancellation);
-			while (bytesRead > 0)
+			totalCopied += bytesRead;
+			bytesMovedSinceLastReport += bytesRead;
+
+			var readTask = sourceStream.ReadAsync(readBuff, cancellation);
+			await destinationStream.WriteAsync(writeBuff[..bytesRead], cancellation);
+
+			if (DateTime.UtcNow >= nextReport)
 			{
-				totalCopied += bytesRead;
-				bytesMovedSinceLastReport += bytesRead;
-
-				var readTask = sourceStream.ReadAsync(readBuff, 0, BlockSizeBytes, cancellation);
-				await destinationStream.WriteAsync(writeBuff, 0, bytesRead, cancellation);
-
-				if (DateTime.UtcNow >= nextReport)
-				{
-					var args = new MoveFileProgressEventArgs(bytesMovedSinceLastReport, totalCopied, sourceFileInfo.Length);
-					bytesMovedSinceLastReport = 0;
-					MoveProgress?.Invoke(this, args);
-					if (!args.Continue)
-						break;
-					nextReport = DateTime.UtcNow.AddMilliseconds(200.0);
-				}
-				bytesRead = await readTask;
-				(readBuff, writeBuff) = (writeBuff, readBuff);
+				var args = new MoveFileProgressEventArgs(bytesMovedSinceLastReport, totalCopied, sourceFileInfo.Length);
+				bytesMovedSinceLastReport = 0;
+				MoveProgress?.Invoke(this, args);
+				if (!args.Continue)
+					break;
+				nextReport = DateTime.UtcNow.AddMilliseconds(200.0);
 			}
+			bytesRead = await readTask;
+			(readBuff, writeBuff) = (writeBuff, readBuff);
+		}
 
-			destinationStream.SetLength(totalCopied);
-			MoveProgress?.Invoke(this, new MoveFileProgressEventArgs(bytesMovedSinceLastReport, totalCopied, sourceFileInfo.Length));
-		}
-		finally
-		{
-			ArrayPool<byte>.Shared.Return(readBuff);
-			ArrayPool<byte>.Shared.Return(writeBuff);
-		}
+		destinationStream.SetLength(totalCopied);
+		MoveProgress?.Invoke(this, new MoveFileProgressEventArgs(bytesMovedSinceLastReport, totalCopied, sourceFileInfo.Length));
 		return totalCopied == sourceFileInfo.Length;
 	}
 
