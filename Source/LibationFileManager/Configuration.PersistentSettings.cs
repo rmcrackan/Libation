@@ -306,10 +306,10 @@ namespace LibationFileManager
 		[Description("Request xHE-AAC codec")]
 		public bool Request_xHE_AAC { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
-		[Description("Request Spatial Audio")]
-		public bool RequestSpatial { get => GetNonString(defaultValue: true); set => SetNonString(value); }
+		//[Description("Request Spatial Audio")]
+		public bool RequestSpatial { get => false; set { } } // { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
-		[Description("Spatial audio codec:")]
+		//[Description("Spatial audio codec:")]
 		public SpatialCodec SpatialAudioCodec { get => GetNonString(defaultValue: SpatialCodec.EC_3); set => SetNonString(value); }
 
 		[Description("Audio quality to request from Audible:")]

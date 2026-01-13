@@ -63,7 +63,7 @@
 					<TextBlock Text="{Binding Request_xHE_AACText}" />
 				</CheckBox>
 			</Grid>
-
+			<!--
 			<Grid ColumnDefinitions="*,Auto">
 				<CheckBox
 					ToolTip.Tip="{Binding RequestSpatialTip}"
@@ -95,9 +95,9 @@
 						VerticalAlignment="Center"
 						ItemsSource="{Binding SpatialAudioCodecs}"
 						SelectedItem="{Binding SpatialAudioCodec}"/>
-				</Grid>
-				
+				</Grid>				
 			</Grid>
+			-->
 
 			<CheckBox IsChecked="{Binding CreateCueSheet, Mode=TwoWay}">
 				<TextBlock Text="{Binding CreateCueSheetText}" />
