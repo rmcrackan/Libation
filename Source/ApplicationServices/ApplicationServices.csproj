@@ -5,8 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="33.1.0" PrivateAssets="all" />
-	<PackageReference Include="ClosedXML" Version="0.105.0" PrivateAssets="all" />
+	<PackageReference Include="CsvHelper" Version="33.1.0">
+      <PrivateAssets>compile;contentFiles;build;buildMultitargeting;buildTransitive;analyzers;native</PrivateAssets>
+	</PackageReference>
+	<PackageReference Include="ClosedXML" Version="0.105.0">
+      <PrivateAssets>compile;contentFiles;build;buildMultitargeting;buildTransitive;analyzers;native</PrivateAssets>
+	</PackageReference>
   </ItemGroup>
 
   <ItemGroup>

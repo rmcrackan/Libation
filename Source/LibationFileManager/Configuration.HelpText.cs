@@ -98,8 +98,8 @@ namespace LibationFileManager
                 Some audiobooks are only delivered in the highest
                 available quality with special, third-party content
                 protection. Enabling this option will allows you to
-                request audiobooks in the xHE-AAC codec and in
-                spatial (Dolby Atmos) audio formats.
+                request audiobooks in the xHE-AAC codec, which is
+                often higher quality than the standard AAC-LC codec.
                 """ },
 			{nameof(Request_xHE_AAC), """
                 If selected, Libation will request audiobooks in the

@@ -73,12 +73,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.10" />
-		<PackageReference Include="Avalonia.Diagnostics" Version="11.3.10" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
-		<PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.10" />
-		<PackageReference Include="Avalonia.Desktop" Version="11.3.10" />
+		<PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.11" />
+		<PackageReference Include="Avalonia.Diagnostics" Version="11.3.11" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
+		<PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.11" />
+		<PackageReference Include="Avalonia.Desktop" Version="11.3.11" />
 		<PackageReference Include="ReactiveUI.Avalonia" Version="11.3.8" />
-		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.10" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11" />
 		<PackageReference Include="WebViewControlAvaloniaFree" Version="11.3.15" />
 	</ItemGroup>
 
