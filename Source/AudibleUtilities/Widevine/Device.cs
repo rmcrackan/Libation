@@ -35,10 +35,6 @@ internal class Device
 
 		if (FileVersion != 2)
 			throw new InvalidDataException($"Unknown CDM File Version: '{FileVersion}'");
-		if (Type != DeviceTypes.Android)
-			throw new InvalidDataException($"Unknown CDM Type: '{Type}'");
-		if (SecurityLevel != 3)
-			throw new InvalidDataException($"Unknown CDM Security Level: '{SecurityLevel}'");
 
 		var privateKeyLength = (fileData[7] << 8) | fileData[8];
 
