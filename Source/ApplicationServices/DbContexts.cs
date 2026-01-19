@@ -25,6 +25,12 @@ namespace ApplicationServices
             return context.GetLibrary_Flat_NoTracking(includeParents);
         }
 
+        public static List<LibraryBook> GetUnliberated_Flat_NoTracking(bool includeParents = false)
+        {
+            using var context = GetContext();
+            return context.GetUnLiberated_Flat_NoTracking();
+        }
+
         public static List<LibraryBook> GetDeletedLibraryBooks()
         {
             using var context = GetContext();

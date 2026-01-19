@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
 #nullable enable
@@ -37,8 +38,23 @@ namespace DataLayer
                 : libraryQuery.SingleOrDefault(lb => EF.Functions.Collate(lb.Book.AudibleProductId, "NOCASE") == productId);
 		}
 
-        /// <summary>This is still IQueryable. YOU MUST CALL ToList() YOURSELF</summary>
-        public static IQueryable<LibraryBook> GetLibrary(this IQueryable<LibraryBook> library)
+		public static List<LibraryBook> GetUnLiberated_Flat_NoTracking(this LibationContext context)
+			=> context
+				.LibraryBooks
+				.AsNoTrackingWithIdentityResolution()
+				.GetLibrary()
+                .Where(IsUnLiberated())
+				.AsEnumerable()
+				.ToList();
+
+        private static Expression<System.Func<LibraryBook, bool>> IsUnLiberated()
+            => lb =>
+            !lb.AbsentFromLastScan &&
+            (lb.Book.ContentType == ContentType.Product || lb.Book.ContentType == ContentType.Episode) &&
+            (lb.Book.UserDefinedItem.PdfStatus == LiberatedStatus.NotLiberated || lb.Book.UserDefinedItem.BookStatus == LiberatedStatus.NotLiberated || lb.Book.UserDefinedItem.BookStatus == LiberatedStatus.PartialDownload);
+
+		/// <summary>This is still IQueryable. YOU MUST CALL ToList() YOURSELF</summary>
+		public static IQueryable<LibraryBook> GetLibrary(this IQueryable<LibraryBook> library)
             => library
                 .Where(lb => !lb.IsDeleted)
                 .getLibrary();
@@ -107,10 +123,10 @@ namespace DataLayer
                     ).ToList();
 
 		public static bool NeedsPdfDownload(this LibraryBook libraryBook)
-			=> !libraryBook.AbsentFromLastScan && libraryBook.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated;
+			=> !libraryBook.AbsentFromLastScan && libraryBook.Book.ContentType is ContentType.Product or ContentType.Episode && libraryBook.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated;
 		public static bool NeedsBookDownload(this LibraryBook libraryBook)
-			=> !libraryBook.AbsentFromLastScan && libraryBook.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload;
+			=> !libraryBook.AbsentFromLastScan && libraryBook.Book.ContentType is ContentType.Product or ContentType.Episode && libraryBook.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload;
 		public static IEnumerable<LibraryBook> UnLiberated(this IEnumerable<LibraryBook> bookList)
-            => bookList.Where(lb => lb.NeedsPdfDownload() || lb.NeedsBookDownload());
+            => bookList.Where(lb => (lb.NeedsPdfDownload() || lb.NeedsBookDownload()));
     }
 }
