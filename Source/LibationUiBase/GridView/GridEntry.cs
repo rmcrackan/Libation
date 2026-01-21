@@ -221,6 +221,8 @@ namespace LibationUiBase.GridView
 			nameof(Category) => string.IsNullOrWhiteSpace(Category),
 			nameof(Misc) => string.IsNullOrWhiteSpace(Misc),
 			nameof(BookTags) => string.IsNullOrWhiteSpace(BookTags),
+			nameof(IncludedUntil) => string.IsNullOrWhiteSpace(IncludedUntil),
+			nameof(LastDownload) => LastDownload?.IsValid is not true,
 			_ => false
 		};
 
