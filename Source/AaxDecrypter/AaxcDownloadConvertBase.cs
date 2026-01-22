@@ -42,8 +42,10 @@ namespace AaxDecrypter
 				var keyIds = keys.Select(k => new Guid(k.KeyPart1, bigEndian: true)).ToArray();
 
 				var dash = new DashFile(InputFileStream);
-				var kidIndex = Array.IndexOf(keyIds, dash.Tenc.DefaultKID);
+				if (dash.Tenc is null)
+					throw new InvalidOperationException("The DASH file does not contain 'tenc' box, indicating that it is unencrypted.");
 
+				var kidIndex = Array.IndexOf(keyIds, dash.Tenc.DefaultKID);
 				if (kidIndex == -1)
 					throw new InvalidOperationException($"None of the {keyIds.Length} key IDs match the dash file's default KeyID of {dash.Tenc.DefaultKID}");
 
@@ -52,6 +54,11 @@ namespace AaxDecrypter
 				var key = keys[kidIndex].KeyPart2 ?? throw new InvalidOperationException($"{nameof(DownloadOptions.DecryptionKeys)} for '{DownloadOptions.InputType}' must have a non-null decryption key (KeyPart2).");
 				dash.SetDecryptionKey(keyId, key);
 				WriteKeyFile($"KeyId={Convert.ToHexString(keyId)}{Environment.NewLine}Key={Convert.ToHexString(key)}");
+
+				//Remove meta box containing DRM info
+				if (DownloadOptions.FixupFile && dash.Moov.GetChild<Mpeg4Lib.Boxes.MetaBox>() is { } meta)
+					dash.Moov.Children.Remove(meta);
+
 				return dash;
 			}
 			else if (DownloadOptions.InputType is FileType.Aax)
