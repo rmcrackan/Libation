@@ -96,7 +96,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		if (!IsBooksDirectoryValid(config))
 			return false;
 
-		var needsPdf = libraryBooks.Where(lb => lb.NeedsPdfDownload()).ToArray();
+		var needsPdf = libraryBooks.Where(lb => lb.NeedsPdfDownload).ToArray();
 		if (needsPdf.Length > 0)
 		{
 			Serilog.Log.Logger.Information("Begin download {count} pdfs", needsPdf.Length);
@@ -137,14 +137,14 @@ public class ProcessQueueViewModel : ReactiveObject
 
 			if (item.AbsentFromLastScan)
 				return false;
-			else if (item.NeedsBookDownload())
+			else if (item.NeedsBookDownload)
 			{
 				RemoveCompleted(item);
 				Serilog.Log.Logger.Information("Begin single library book backup of {libraryBook}", item);
 				AddDownloadDecrypt([item], config);
 				return true;
 			}
-			else if (item.NeedsPdfDownload())
+			else if (item.NeedsPdfDownload)
 			{
 				RemoveCompleted(item);
 				Serilog.Log.Logger.Information("Begin single pdf backup of {libraryBook}", item);

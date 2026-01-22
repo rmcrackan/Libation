@@ -25,7 +25,7 @@ namespace ApplicationServices
             return context.GetLibrary_Flat_NoTracking(includeParents);
         }
 
-        public static List<LibraryBook> GetUnliberated_Flat_NoTracking(bool includeParents = false)
+        public static List<LibraryBook> GetUnliberated_Flat_NoTracking()
         {
             using var context = GetContext();
             return context.GetUnLiberated_Flat_NoTracking();
