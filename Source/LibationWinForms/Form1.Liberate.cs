@@ -15,7 +15,7 @@ namespace LibationWinForms
 		//GetLibrary_Flat_NoTracking() may take a long time on a hugh library. so run in new thread 
 		private async void beginBookBackupsToolStripMenuItem_Click(object _ = null, EventArgs __ = null)
 		{
-			var library = await Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking());
+			var library = await Task.Run(DbContexts.GetUnliberated_Flat_NoTracking);
 			BackupAllBooks(library);
 		}
 

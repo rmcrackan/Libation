@@ -17,7 +17,7 @@ namespace LibationAvalonia.ViewModels
 		/// <summary> This gets called by the "Begin Book and PDF Backups" menu item. </summary>
 		public async Task BackupAllBooks()
 		{
-			var books = await Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking());
+			var books = await Task.Run(DbContexts.GetUnliberated_Flat_NoTracking);
 			BackupAllBooks(books);
 		}
 
