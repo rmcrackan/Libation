@@ -31,6 +31,18 @@ sudo dnf5 install ./libation.rpm
 
 ---
 
+### AppImage
+
+- Install via [AppMan](https://github.com/ivan-hc/AppMan) (rootless)
+  ```bash
+  appman -i libation
+  ```
+- Install via [AM](https://github.com/ivan-hc/AM)
+  ```bash
+  am -i libation
+  ```
+Thanks to Package Forge dev [Samuel](https://github.com/Samueru-sama) for [AppImage](https://github.com/pkgforge-dev/Libation-AppImage) maintenence.
+  
 ### Arch Linux
 
 ```bash
@@ -76,6 +88,7 @@ Pacstall is the AUR Ubuntu wishes it had. It takes the concept of the AUR and pu
 ```bash
 pacstall -I libation-deb
 ```
+Thanks to [Tobias Heinlein](https://github.com/niontrix) for Pacstall package maintenance.
 
 ---
 
