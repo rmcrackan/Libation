@@ -77,7 +77,10 @@ export default defineConfig({
       {
         text: "Advanced",
         collapsed: false,
-        items: [{ text: "Advanced Topics", link: "/docs/advanced/advanced" }],
+        items: [
+          { text: "Advanced Topics", link: "/docs/advanced/advanced" },
+          { text: "Troubleshooting", link: "/docs/advanced/troubleshoot" }
+        ],
       },
       {
         text: "Development",
