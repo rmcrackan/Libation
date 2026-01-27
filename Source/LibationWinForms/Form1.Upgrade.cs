@@ -3,6 +3,7 @@ using LibationWinForms.Dialogs;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+#nullable enable
 namespace LibationWinForms
 {
 	public partial class Form1

@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using LibationWinForms.Dialogs;
 
+#nullable enable
 namespace LibationWinForms
 {
     public partial class Form1
@@ -27,8 +28,8 @@ namespace LibationWinForms
 
 		private void filterBtn_Click(object sender, EventArgs e) => performFilter(this.filterSearchTb.Text);
 
-		private string lastGoodFilter = "";
-		private void performFilter(string filterString)
+		private string? lastGoodFilter = null;
+		private void performFilter(string? filterString)
 		{
 			this.filterSearchTb.Text = filterString;
 
@@ -55,12 +56,12 @@ namespace LibationWinForms
 			dialog.Show(this);
 			return dialog;
 
-			void Dialog_Closed(object sender, FormClosedEventArgs e)
+			void Dialog_Closed(object? sender, FormClosedEventArgs e)
 			{
 				dialog.TagDoubleClicked -= Dialog_TagDoubleClicked;
 				filterHelpBtn.Enabled = true;
 			}
-			void Dialog_TagDoubleClicked(object sender, string tag)
+			void Dialog_TagDoubleClicked(object? sender, string tag)
 			{
 				if (string.IsNullOrEmpty(tag)) return;
 

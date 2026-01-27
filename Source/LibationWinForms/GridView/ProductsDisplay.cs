@@ -14,18 +14,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-
+#nullable enable
 namespace LibationWinForms.GridView
 {
 	public partial class ProductsDisplay : UserControl
 	{
 		/// <summary>Number of visible rows has changed</summary>
-		public event EventHandler<int> VisibleCountChanged;
-		public event EventHandler<int> RemovableCountChanged;
-		public event LiberateClickedHandler LiberateClicked;
-		public event EventHandler<SeriesEntry> LiberateSeriesClicked;
-		public event EventHandler<LibraryBook[]> ConvertToMp3Clicked;
-		public event EventHandler InitialLoaded;
+		public event EventHandler<int>? VisibleCountChanged;
+		public event EventHandler<int>? RemovableCountChanged;
+		public event LiberateClickedHandler? LiberateClicked;
+		public event EventHandler<SeriesEntry>? LiberateSeriesClicked;
+		public event EventHandler<LibraryBook[]>? ConvertToMp3Clicked;
+		public event EventHandler? InitialLoaded;
 
 		private bool hasBeenDisplayed;
 
@@ -37,15 +37,15 @@ namespace LibationWinForms.GridView
 
 		#region Button controls		
 
-		private ImageDisplay imageDisplay;
+		private ImageDisplay? imageDisplay;
 		private void productsGrid_CoverClicked(GridEntry liveGridEntry)
 		{
 			var picDef = new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureLarge ?? liveGridEntry.LibraryBook.Book.PictureId, PictureSize.Native);
 
-			void PictureCached(object sender, PictureCachedEventArgs e)
+			void PictureCached(object? sender, PictureCachedEventArgs e)
 			{
 				if (e.Definition.PictureId == picDef.PictureId)
-					imageDisplay.SetCoverArt(e.Picture);
+					imageDisplay?.SetCoverArt(e.Picture);
 
 				PictureStorage.PictureCached -= PictureCached;
 			}
@@ -82,7 +82,7 @@ namespace LibationWinForms.GridView
 				BorderThickness = 2,
 			};
 
-			void CloseWindow(object o, EventArgs e)
+			void CloseWindow(object? o, EventArgs e)
 			{
 				displayWindow.Close();
 			}
@@ -92,7 +92,7 @@ namespace LibationWinForms.GridView
 			displayWindow.Show(this);
 		}
 
-		private BookDetailsDialog bookDetailsForm;
+		private BookDetailsDialog? bookDetailsForm;
 		private void productsGrid_DetailsClicked(LibraryBookEntry liveGridEntry)
 		{
 			if (bookDetailsForm is null || bookDetailsForm.IsDisposed || !bookDetailsForm.Visible)
@@ -106,7 +106,7 @@ namespace LibationWinForms.GridView
 			if (!bookDetailsForm.Visible)
 				bookDetailsForm.Show(this);
 
-			async void bookDetailsForm_FormClosed(object sender, FormClosedEventArgs e)
+			async void bookDetailsForm_FormClosed(object? sender, FormClosedEventArgs e)
 			{
 				bookDetailsForm.FormClosed -= bookDetailsForm_FormClosed;
 				bookDetailsForm.SaveSizeAndLocation(Configuration.Instance);
@@ -381,7 +381,7 @@ namespace LibationWinForms.GridView
 				foreach (var r in removable)
 					r.Remove = true;
 
-				productsGrid_RemovableCountChanged(this, null);
+				productsGrid_RemovableCountChanged(this, EventArgs.Empty);
 			}
 			catch (OperationCanceledException)
 			{
@@ -401,7 +401,7 @@ namespace LibationWinForms.GridView
 
 		#region UI display functions		
 
-		public async Task DisplayAsync(List<LibraryBook> libraryBooks = null)
+		public async Task DisplayAsync(List<LibraryBook>? libraryBooks = null)
 		{
 			try
 			{
@@ -428,7 +428,7 @@ namespace LibationWinForms.GridView
 
 		#region Filter
 
-		public void Filter(string searchString)
+		public void Filter(string? searchString)
 			=> productsGrid.Filter(searchString);
 
 		#endregion
@@ -443,7 +443,7 @@ namespace LibationWinForms.GridView
 		private void productsGrid_LiberateClicked(LibraryBookEntry liveGridEntry)
 		{
 			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error
-				&& !liveGridEntry.Liberate.IsUnavailable)
+				&& liveGridEntry.Liberate?.IsUnavailable is false)
 				LiberateClicked?.Invoke(this, [liveGridEntry.LibraryBook], Configuration.Instance);
 		}
 

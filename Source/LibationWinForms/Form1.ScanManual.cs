@@ -8,6 +8,7 @@ using AudibleUtilities;
 using LibationFileManager;
 using LibationWinForms.Dialogs;
 
+#nullable enable
 namespace LibationWinForms
 {
 	// this is for manual scan/import. Unrelated to auto-scan
@@ -20,7 +21,7 @@ namespace LibationWinForms
 			locateAudiobooksToolStripMenuItem.ToolTipText = Configuration.GetHelpText("LocateAudiobooks");
 		}
 
-		private void refreshImportMenu(object _, EventArgs __)
+		private void refreshImportMenu(object? _, EventArgs? __)
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			var count = persister.AccountsSettings.Accounts.Count;
@@ -46,8 +47,8 @@ namespace LibationWinForms
 		private async void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-			var firstAccount = persister.AccountsSettings.GetAll().FirstOrDefault();
-			await scanLibrariesAsync(firstAccount);
+			if (persister.AccountsSettings.GetAll().FirstOrDefault() is { } firstAccount)
+				await scanLibrariesAsync(firstAccount);
 		}
 
 		private async void scanLibraryOfAllAccountsToolStripMenuItem_Click(object sender, EventArgs e)

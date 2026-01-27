@@ -4,6 +4,7 @@ using Dinah.Core;
 using Dinah.Core.Threading;
 using System.Collections.Generic;
 
+#nullable enable
 namespace LibationWinForms
 {
 	public partial class Form1
@@ -30,7 +31,7 @@ namespace LibationWinForms
 
 		private bool runBackupCountsAgain;
 
-		private void setBackupCounts(object _, List<LibraryBook> libraryBooks)
+		private void setBackupCounts(object? _, List<LibraryBook>? libraryBooks)
 		{
 			runBackupCountsAgain = true;
 
@@ -38,7 +39,7 @@ namespace LibationWinForms
 				updateCountsBw.RunWorkerAsync(libraryBooks);
 		}
 
-		private void UpdateCountsBw_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+		private void UpdateCountsBw_DoWork(object? sender, System.ComponentModel.DoWorkEventArgs e)
 		{
 			while (runBackupCountsAgain)
 			{
@@ -47,47 +48,47 @@ namespace LibationWinForms
 			}
 		}
 
-		private void exportMenuEnable(object _, System.ComponentModel.RunWorkerCompletedEventArgs e)
+		private void exportMenuEnable(object? _, System.ComponentModel.RunWorkerCompletedEventArgs e)
 		{
 			var libraryStats = e.Result as LibraryCommands.LibraryStats;
-			Invoke(() => exportLibraryToolStripMenuItem.Enabled = libraryStats.HasBookResults);
+			Invoke(() => exportLibraryToolStripMenuItem.Enabled = libraryStats?.HasBookResults is true);
 		}
 
-		private void updateBottomStats(object _, System.ComponentModel.RunWorkerCompletedEventArgs e)
+		private void updateBottomStats(object? _, System.ComponentModel.RunWorkerCompletedEventArgs e)
 		{
 			var libraryStats = e.Result as LibraryCommands.LibraryStats;
-			statusStrip1.UIThreadAsync(() => backupsCountsLbl.Text = libraryStats.StatusString);
+			statusStrip1.UIThreadAsync(() => backupsCountsLbl.Text = libraryStats?.StatusString ?? "ERROR GETTING STATUS");
 		}
 
 		// update 'begin book and pdf backups' menu item
-		private void update_BeginBookBackups_menuItem(object _, System.ComponentModel.RunWorkerCompletedEventArgs e)
+		private void update_BeginBookBackups_menuItem(object? _, System.ComponentModel.RunWorkerCompletedEventArgs e)
 		{
 			var libraryStats = e.Result as LibraryCommands.LibraryStats;
 
 			var menuItemText
-				= libraryStats.HasPendingBooks
+				= libraryStats?.HasPendingBooks is true
 				? $"{libraryStats.PendingBooks} remaining"
 				: "All books have been liberated";
 			menuStrip1.UIThreadAsync(() =>
 			{
 				beginBookBackupsToolStripMenuItem.Format(menuItemText);
-				beginBookBackupsToolStripMenuItem.Enabled = libraryStats.HasPendingBooks;
+				beginBookBackupsToolStripMenuItem.Enabled = libraryStats?.HasPendingBooks is true;
 			});
 		}
 
 		// update 'begin pdf only backups' menu item
-		private void udpate_BeginPdfOnlyBackups_menuItem(object _, System.ComponentModel.RunWorkerCompletedEventArgs e)
+		private void udpate_BeginPdfOnlyBackups_menuItem(object? _, System.ComponentModel.RunWorkerCompletedEventArgs e)
 		{
 			var libraryStats = e.Result as LibraryCommands.LibraryStats;
 
 			var menuItemText
-				= libraryStats.pdfsNotDownloaded > 0
+				= libraryStats?.pdfsNotDownloaded > 0
 				? $"{libraryStats.pdfsNotDownloaded} remaining"
 				: "All PDFs have been downloaded";
 			menuStrip1.UIThreadAsync(() =>
 			{
 				beginPdfBackupsToolStripMenuItem.Format(menuItemText);
-				beginPdfBackupsToolStripMenuItem.Enabled = libraryStats.pdfsNotDownloaded > 0;
+				beginPdfBackupsToolStripMenuItem.Enabled = libraryStats?.pdfsNotDownloaded > 0;
 			});
 		}
     }

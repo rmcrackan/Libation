@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using LibationWinForms.Dialogs;
 
+#nullable enable
 namespace LibationWinForms
 {
     public partial class Form1
@@ -11,7 +12,7 @@ namespace LibationWinForms
 			Shown += FormShown_Settings;
 		}
 
-		private void FormShown_Settings(object sender, EventArgs e)
+		private void FormShown_Settings(object? sender, EventArgs e)
 		{
 			if (LibationFileManager.AudibleFileStorage.BooksDirectory is null)
 			{

@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using LibationFileManager;
 using LibationWinForms.Dialogs;
 
+#nullable enable
 namespace LibationWinForms
 {
     public partial class Form1
@@ -17,7 +18,7 @@ namespace LibationWinForms
 		}
 
 		private object quickFilterTag { get; } = new();
-		private void updateFiltersMenu(object _ = null, object __ = null)
+		private void updateFiltersMenu(object? _ = null, object? __ = null)
 		{
 			// remove old
 			var removeUs = quickFiltersToolStripMenuItem.DropDownItems
@@ -41,7 +42,7 @@ namespace LibationWinForms
 			}
 		}
 
-		private void updateFirstFilterIsDefaultToolStripMenuItem(object sender, EventArgs e)
+		private void updateFirstFilterIsDefaultToolStripMenuItem(object? sender, EventArgs e)
 			=> firstFilterIsDefaultToolStripMenuItem.Checked = QuickFilters.UseDefault;
 
 		private void firstFilterIsDefaultToolStripMenuItem_Click(object sender, EventArgs e)

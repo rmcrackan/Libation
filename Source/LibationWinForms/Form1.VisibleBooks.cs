@@ -8,6 +8,7 @@ using Dinah.Core.Threading;
 using LibationUiBase;
 using LibationWinForms.Dialogs;
 
+#nullable enable
 namespace LibationWinForms
 {
 	public partial class Form1
@@ -24,7 +25,7 @@ namespace LibationWinForms
 
 			LibraryCommands.BookUserDefinedItemCommitted += setLiberatedVisibleMenuItemAsync;
 		}
-		private async void setLiberatedVisibleMenuItemAsync(object _, object __)
+		private async void setLiberatedVisibleMenuItemAsync(object? _, object __)
 			=> await Task.Run(setLiberatedVisibleMenuItem);
 
 		private static DateTime lastVisibleCountUpdated;
