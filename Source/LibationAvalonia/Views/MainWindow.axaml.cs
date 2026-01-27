@@ -119,6 +119,8 @@ namespace LibationAvalonia.Views
 
 		private async void MainWindow_Opened(object? sender, EventArgs e)
 		{
+			await MessageBox.VerboseLoggingWarning_ShowIfTrue();
+
 			if (AudibleFileStorage.BooksDirectory is null)
 			{
 				var result = await MessageBox.Show(

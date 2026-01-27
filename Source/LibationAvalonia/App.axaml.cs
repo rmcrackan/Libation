@@ -50,7 +50,16 @@ public class App : Application
 			// Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
 			// More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
 			DisableAvaloniaDataAnnotationValidation();
-			RunSetupIfNeededAsync(desktop, Configuration.Instance);
+			if (LibraryTask is null)
+			{
+				RunSetupIfNeededAsync(desktop, Configuration.Instance);
+			}
+			else
+			{
+				//LibraryTask was already started early in Program.Main(),
+				//which means config is valid and migrations have already run.
+				ShowMainWindow(desktop);
+			}
 		}
 
 		base.OnFrameworkInitializationCompleted();
@@ -66,7 +75,7 @@ public class App : Application
 		if (await setup.RunSetupIfNeededAsync())
 		{
 			// setup succeeded or wasn't needed and LibationFiles are valid
-			await RunMigrationsAsync(config);
+			RunMigrations(config);
 			LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 			ShowMainWindow(desktop);
 		}
@@ -97,11 +106,10 @@ public class App : Application
 		return await tcs.Task;
 	}
 
-	private static async Task RunMigrationsAsync(Configuration config)
+	public static void RunMigrations(Configuration config)
 	{
 		// most migrations go in here
 		LibationScaffolding.RunPostConfigMigrations(config);
-		await MessageBox.VerboseLoggingWarning_ShowIfTrue();
 		// logging is init'd here
 		LibationScaffolding.RunPostMigrationScaffolding(Variety.Chardonnay, config);
 	}
