@@ -1,5 +1,5 @@
-﻿using AAXClean;
-using AAXClean.Codecs;
+﻿using AAXClean.Codecs;
+using Mpeg4Lib;
 using NAudio.Lame;
 using System;
 using System.Linq;
@@ -11,7 +11,7 @@ namespace AaxDecrypter
 	{
 		private const string TagDomain = "com.pilabor.tone";
 		public static void ConfigureLameOptions(
-			Mp4File mp4File,
+			Mpeg4File mp4File,
 			LameConfig lameConfig,
 			bool downsample,
 			bool matchSourceBitrate,
@@ -47,9 +47,9 @@ namespace AaxDecrypter
 			}
 
 			//Setup metadata tags
-			lameConfig.ID3 = mp4File.AppleTags.ToIDTags();
+			lameConfig.ID3 = mp4File.MetadataItems.ToIDTags();
 
-			if (mp4File.AppleTags.AppleListBox.GetFreeformTagString(TagDomain, "SUBTITLE") is string subtitle)
+			if (mp4File.MetadataItems.AppleListBox.GetFreeformTagString(TagDomain, "SUBTITLE") is string subtitle)
 				lameConfig.ID3.Subtitle = subtitle;
 
 			if (chapters?.Count > 0)
@@ -59,12 +59,12 @@ namespace AaxDecrypter
 			}
 
 			//Copy over all other freeform tags
-			foreach (var t in mp4File.AppleTags.AppleListBox.Tags.OfType<Mpeg4Lib.Boxes.FreeformTagBox>())
+			foreach (var t in mp4File.MetadataItems.AppleListBox.Tags.OfType<Mpeg4Lib.Boxes.FreeformTagBox>())
 			{
 				if (t.Name?.Name is string name &&
 					t.Mean?.ReverseDnsDomain is string domain &&
 					!lameConfig.ID3.UserDefinedText.ContainsKey(name) &&
-					mp4File.AppleTags.AppleListBox.GetFreeformTagString(domain, name) is string tagStr &&
+					mp4File.MetadataItems.AppleListBox.GetFreeformTagString(domain, name) is string tagStr &&
 					!string.IsNullOrWhiteSpace(tagStr))
 					lameConfig.ID3.UserDefinedText.Add(name, tagStr);
 			}

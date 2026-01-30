@@ -251,7 +251,7 @@ namespace LibationFileManager
 				{
 					if (format is OutputFormat.M4b)
 					{
-						var tags = await Task.Run(() => AAXClean.AppleTags.FromFile(path));
+						var tags = await Task.Run(() => Mpeg4Lib.MetadataItems.FromFile(path));
 
 						if (tags?.Asin is not null)
 							audioFile = new FilePathCache.CacheEntry(tags.Asin, FileType.Audio, path);
@@ -259,10 +259,10 @@ namespace LibationFileManager
 					else
 					{
 						using var fileStream = File.OpenRead(path);
-						var id3 = await Task.Run(() => NAudio.Lame.ID3.Id3Tag.Create(fileStream));
+						var id3 = await Task.Run(() => Mpeg4Lib.ID3.Id3Tag.Create(fileStream));
 
 						var asin = id3?.Children
-							.OfType<NAudio.Lame.ID3.TXXXFrame>()
+							.OfType<Mpeg4Lib.ID3.TXXXFrame>()
 							.FirstOrDefault(f => f.FieldName == "AUDIBLE_ASIN")
 							?.FieldValue;
 
