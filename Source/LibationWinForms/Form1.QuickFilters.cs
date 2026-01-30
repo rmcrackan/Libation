@@ -58,7 +58,7 @@ namespace LibationWinForms
 		private void productsDisplay_InitialLoaded(object sender, EventArgs e)
 		{
 			if (QuickFilters.UseDefault)
-				performFilter(QuickFilters.Filters.FirstOrDefault()?.Filter ?? "");
+				performFilter(QuickFilters.Filters.FirstOrDefault()?.Filter);
 		}
 	}
 }
