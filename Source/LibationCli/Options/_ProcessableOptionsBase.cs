@@ -20,9 +20,15 @@ namespace LibationCli
 		protected static TProcessable CreateProcessable<TProcessable>(EventHandler<LibraryBook>? completedAction = null)
 			where TProcessable : Processable, IProcessable<TProcessable>
 		{
-			var progressBar = new ConsoleProgressBar(Console.Out);
 			var strProc = TProcessable.Create(Configuration.Instance);
 			LibraryBook? currentLibraryBook = null;
+
+			if (Environment.UserInteractive && !Console.IsOutputRedirected && !Console.IsErrorRedirected) {
+				var progressBar = new ConsoleProgressBar(Console.Out);
+				strProc.Completed += (_, e) => progressBar.Clear();
+				strProc.StreamingTimeRemaining += (_, e) => progressBar.RemainingTime = e;
+				strProc.StreamingProgressChanged += (_, e) => progressBar.Progress = e.ProgressPercentage;
+			}
 
 			strProc.Begin += (o, e) =>
 			{
@@ -32,7 +38,6 @@ namespace LibationCli
 
 			strProc.Completed += (o, e) =>
 			{
-				progressBar.Clear();
 				Console.WriteLine($"{typeof(TProcessable).Name} Completed: {e}");
 			};
 
@@ -48,9 +53,6 @@ namespace LibationCli
 					Serilog.Log.Logger.Error(ex, "CLI error");
 				}
 			};
-
-			strProc.StreamingTimeRemaining += (_, e) => progressBar.RemainingTime = e;
-			strProc.StreamingProgressChanged += (_, e) => progressBar.Progress = e.ProgressPercentage;
 
 			if (strProc is AudioDecodable audDec)
 			{
