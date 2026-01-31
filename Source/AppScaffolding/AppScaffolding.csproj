@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <Version>13.1.5.1</Version>
+    <Version>13.1.6.1</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Octokit" Version="14.0.0" />
