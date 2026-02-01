@@ -58,7 +58,23 @@ namespace LibationWinForms
 		private void productsDisplay_InitialLoaded(object sender, EventArgs e)
 		{
 			if (QuickFilters.UseDefault)
-				performFilter(QuickFilters.Filters.FirstOrDefault()?.Filter);
+            {
+                // begin verbose null checking. shouldn't be possible, yet NRE in #1578
+                var f = QuickFilters.Filters;
+                if (f is null)
+					Serilog.Log.Logger.Error("Unexpected exception. QuickFilters.Filters is null");
+
+				var first = f.FirstOrDefault();
+                if (first is null)
+                    Serilog.Log.Logger.Information("QuickFilters.Filters.FirstOrDefault() is null");
+
+				var filter = first?.Filter;
+                if (filter is null)
+                    Serilog.Log.Logger.Information("QuickFilters.Filters.FirstOrDefault()?.Filter is null");
+                // end verbose null checking
+
+                performFilter(filter);
+            }
 		}
 	}
 }
