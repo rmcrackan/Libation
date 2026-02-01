@@ -40,7 +40,7 @@
 
 			<TextBlock
 				Grid.Column="0"
-				Text="If you'd like to report this error to an advinistrator:&#xa;&#xa;Step 1: Go to Libation's &quot;issues&quot; page on github&#xa;Step 2: Find your log files&#xa;Setp 3: Click &quot;New issue&quot; button&#xa;Step 4: Drag/drop your log files" />
+				Text="If you'd like to report this error to an administrator:&#xa;&#xa;Step 1: Go to Libation's &quot;issues&quot; page on github&#xa;Step 2: Find your log files&#xa;Setp 3: Click &quot;New issue&quot; button&#xa;Step 4: Drag/drop your log files" />
 
 			<StackPanel
 				Margin="50,0,0,0"
