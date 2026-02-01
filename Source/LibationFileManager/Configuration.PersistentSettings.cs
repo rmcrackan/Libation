@@ -342,7 +342,7 @@ namespace LibationFileManager
 		[Description("Automatically run periodic scans in the background?")]
 		public bool AutoScan { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
-		[Description("Use Libation's buit-in web broswer to log into Audible?")]
+		[Description("Use Libation's built-in web browser to log into Audible?")]
 		public bool UseWebView { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
 		[Description("Auto download books? After scan, download new books in 'checked' accounts.")]
