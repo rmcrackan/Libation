@@ -19,7 +19,7 @@ export default defineConfig({
     },
 
     editLink: {
-      pattern: "https://github.com/rmcrackan/Libation/edit/main/:path",
+      pattern: "https://github.com/rmcrackan/Libation/edit/master/:path",
     },
 
     lastUpdated: true,
