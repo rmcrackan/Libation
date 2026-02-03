@@ -1,5 +1,4 @@
 ﻿using AaxDecrypter;
-using AAXClean;
 using Dinah.Core;
 using DataLayer;
 using LibationFileManager;
@@ -19,7 +18,7 @@ namespace FileLiberator
 		public KeyData[]? DecryptionKeys { get; }
 		public required TimeSpan RuntimeLength { get; init; }
 		public OutputFormat OutputFormat { get; }
-		public required ChapterInfo ChapterInfo { get; init; }
+		public required Mpeg4Lib.ChapterInfo ChapterInfo { get; init; }
 		public string Title => LibraryBook.Book.Title;
 		public string Subtitle => LibraryBook.Book.Subtitle;
 		public string Publisher => LibraryBook.Book.Publisher;

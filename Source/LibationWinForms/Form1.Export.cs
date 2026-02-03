@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using ApplicationServices;
 
+#nullable enable
 namespace LibationWinForms
 {
     public partial class Form1

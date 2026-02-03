@@ -1,4 +1,5 @@
 ﻿using AAXClean;
+using Mpeg4Lib;
 using System;
 using System.IO;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace AaxDecrypter
 {	
 	public abstract class AaxcDownloadConvertBase : AudiobookDownloadBase
 	{
-		public event EventHandler<AppleTags>? RetrievedMetadata;
+		public event EventHandler<MetadataItems>? RetrievedMetadata;
 
 		public Mp4File? AaxFile { get; private set; }
 		protected Mp4Operation? AaxConversion { get; set; }
@@ -21,8 +22,8 @@ namespace AaxDecrypter
 		public override void SetCoverArt(byte[] coverArt)
 		{
 			base.SetCoverArt(coverArt);
-			if (coverArt is not null && AaxFile?.AppleTags is not null)
-				AaxFile.AppleTags.Cover = coverArt;
+			if (coverArt is not null && AaxFile?.MetadataItems is not null)
+				AaxFile.MetadataItems.Cover = coverArt;
 		}
 
 		public override async Task CancelAsync()
@@ -42,8 +43,10 @@ namespace AaxDecrypter
 				var keyIds = keys.Select(k => new Guid(k.KeyPart1, bigEndian: true)).ToArray();
 
 				var dash = new DashFile(InputFileStream);
-				var kidIndex = Array.IndexOf(keyIds, dash.Tenc.DefaultKID);
+				if (dash.Tenc is null)
+					throw new InvalidOperationException("The DASH file does not contain 'tenc' box, indicating that it is unencrypted.");
 
+				var kidIndex = Array.IndexOf(keyIds, dash.Tenc.DefaultKID);
 				if (kidIndex == -1)
 					throw new InvalidOperationException($"None of the {keyIds.Length} key IDs match the dash file's default KeyID of {dash.Tenc.DefaultKID}");
 
@@ -52,6 +55,11 @@ namespace AaxDecrypter
 				var key = keys[kidIndex].KeyPart2 ?? throw new InvalidOperationException($"{nameof(DownloadOptions.DecryptionKeys)} for '{DownloadOptions.InputType}' must have a non-null decryption key (KeyPart2).");
 				dash.SetDecryptionKey(keyId, key);
 				WriteKeyFile($"KeyId={Convert.ToHexString(keyId)}{Environment.NewLine}Key={Convert.ToHexString(key)}");
+
+				//Remove meta box containing DRM info
+				if (DownloadOptions.FixupFile && dash.Moov.GetChild<Mpeg4Lib.Boxes.MetaBox>() is { } meta)
+					dash.Moov.Children.Remove(meta);
+
 				return dash;
 			}
 			else if (DownloadOptions.InputType is FileType.Aax)
@@ -85,55 +93,55 @@ namespace AaxDecrypter
 		{
 			AaxFile = Open();
 
-			RetrievedMetadata?.Invoke(this, AaxFile.AppleTags);
+			RetrievedMetadata?.Invoke(this, AaxFile.MetadataItems);
 
 			if (DownloadOptions.StripUnabridged)
 			{
-				AaxFile.AppleTags.Title = AaxFile.AppleTags.TitleSansUnabridged;
-				AaxFile.AppleTags.Album = AaxFile.AppleTags.Album?.Replace(" (Unabridged)", "");
+				AaxFile.MetadataItems.Title = AaxFile.MetadataItems.TitleSansUnabridged;
+				AaxFile.MetadataItems.Album = AaxFile.MetadataItems.Album?.Replace(" (Unabridged)", "");
 			}
 
 			if (DownloadOptions.FixupFile)
 			{
-				if (!string.IsNullOrWhiteSpace(AaxFile.AppleTags.Narrator))
-					AaxFile.AppleTags.AppleListBox.EditOrAddTag("©wrt", AaxFile.AppleTags.Narrator);
+				if (!string.IsNullOrWhiteSpace(AaxFile.MetadataItems.Narrator))
+					AaxFile.MetadataItems.AppleListBox.EditOrAddTag("©wrt", AaxFile.MetadataItems.Narrator);
 
-				if (!string.IsNullOrWhiteSpace(AaxFile.AppleTags.Copyright))
-					AaxFile.AppleTags.Copyright = AaxFile.AppleTags.Copyright.Replace("(P)", "℗").Replace("&#169;", "©");
+				if (!string.IsNullOrWhiteSpace(AaxFile.MetadataItems.Copyright))
+					AaxFile.MetadataItems.Copyright = AaxFile.MetadataItems.Copyright.Replace("(P)", "℗").Replace("&#169;", "©");
 
 				//Add audiobook shelf tags
 				//https://github.com/advplyr/audiobookshelf/issues/1794#issuecomment-1565050213
 				const string tagDomain = "com.pilabor.tone";
 
-				AaxFile.AppleTags.Title = DownloadOptions.Title;
+				AaxFile.MetadataItems.Title = DownloadOptions.Title;
 
 				if (DownloadOptions.Subtitle is string subtitle)
-					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "SUBTITLE", subtitle);
+					AaxFile.MetadataItems.AppleListBox.EditOrAddFreeformTag(tagDomain, "SUBTITLE", subtitle);
 
 				if (DownloadOptions.Publisher is string publisher)
-					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "PUBLISHER", publisher);
+					AaxFile.MetadataItems.AppleListBox.EditOrAddFreeformTag(tagDomain, "PUBLISHER", publisher);
 
 				if (DownloadOptions.Language is string language)
-					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "LANGUAGE", language);
+					AaxFile.MetadataItems.AppleListBox.EditOrAddFreeformTag(tagDomain, "LANGUAGE", language);
 
 				if (DownloadOptions.AudibleProductId is string asin)
 				{
-					AaxFile.AppleTags.Asin = asin;
-					AaxFile.AppleTags.AppleListBox.EditOrAddTag("asin", asin);
-					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_ASIN", asin);
+					AaxFile.MetadataItems.Asin = asin;
+					AaxFile.MetadataItems.AppleListBox.EditOrAddTag("asin", asin);
+					AaxFile.MetadataItems.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_ASIN", asin);
 				}
 
 				if (DownloadOptions.SeriesName is string series)
-					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "SERIES", series);
+					AaxFile.MetadataItems.AppleListBox.EditOrAddFreeformTag(tagDomain, "SERIES", series);
 
 				if (DownloadOptions.SeriesNumber is string part)
-					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "PART", part);
+					AaxFile.MetadataItems.AppleListBox.EditOrAddFreeformTag(tagDomain, "PART", part);
 			}
 
-			OnRetrievedTitle(AaxFile.AppleTags.TitleSansUnabridged);
-			OnRetrievedAuthors(AaxFile.AppleTags.FirstAuthor);
-			OnRetrievedNarrators(AaxFile.AppleTags.Narrator);
-			OnRetrievedCoverArt(AaxFile.AppleTags.Cover);
+			OnRetrievedTitle(AaxFile.MetadataItems.TitleSansUnabridged);
+			OnRetrievedAuthors(AaxFile.MetadataItems.FirstAuthor);
+			OnRetrievedNarrators(AaxFile.MetadataItems.Narrator);
+			OnRetrievedCoverArt(AaxFile.MetadataItems.Cover);
 			OnInitialized();
 
 			return !IsCanceled;

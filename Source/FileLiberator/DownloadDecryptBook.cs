@@ -206,12 +206,12 @@ namespace FileLiberator
 		}
 
 		#region Decryptor event handlers
-		private void Converter_RetrievedMetadata(object? sender, AAXClean.AppleTags tags)
+		private void Converter_RetrievedMetadata(object? sender, Mpeg4Lib.MetadataItems tags)
 		{
 			if (sender is not AaxcDownloadConvertBase converter ||
-				converter.AaxFile is not AAXClean.Mp4File aaxFile ||
+				converter.AaxFile is not Mpeg4Lib.Mpeg4File aaxFile ||
 				converter.DownloadOptions is not DownloadOptions options ||
-				options.ChapterInfo.Chapters is not List<AAXClean.Chapter> chapters)
+				options.ChapterInfo.Chapters is not List<Mpeg4Lib.Chapter> chapters)
 				return;
 
 			#region Prevent erroneous truncation due to incorrect chapter info
@@ -240,7 +240,7 @@ namespace FileLiberator
 			tags.Album ??= tags.Title;
 			tags.Artist ??= string.Join("; ", options.LibraryBook.Book.Authors.Select(a => a.Name));
 			tags.AlbumArtists ??= tags.Artist;
-			tags.Generes = string.Join(", ", options.LibraryBook.Book.LowestCategoryNames());
+			tags.Genres = string.Join(", ", options.LibraryBook.Book.LowestCategoryNames());
 			tags.ProductID ??= options.ContentMetadata.ContentReference.Sku;
 			tags.Comment ??= options.LibraryBook.Book.Description;
 			tags.LongDescription ??= tags.Comment;
@@ -256,9 +256,9 @@ namespace FileLiberator
 			}
 
 			const string tagDomain = "org.libation";
-			aaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_ACR", tags.Acr);
-			aaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_DRM_TYPE", options.DrmType.ToString());
-			aaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_LOCALE", options.LibraryBook.Book.Locale);
+			tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_ACR", tags.Acr);
+			tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_DRM_TYPE", options.DrmType.ToString());
+			tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_LOCALE", options.LibraryBook.Book.Locale);
 		}
 
 		private void AaxcDownloader_RetrievedCoverArt(object? sender, byte[]? e)

@@ -187,7 +187,7 @@ public partial class DownloadOptions
 
 		var dlOptions = new DownloadOptions(config, libraryBook, licInfo)
 		{
-			ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(chapters[0].StartOffsetMs)),
+			ChapterInfo = new Mpeg4Lib.ChapterInfo(TimeSpan.FromMilliseconds(chapters[0].StartOffsetMs)),
 			RuntimeLength = TimeSpan.FromMilliseconds(licInfo.ContentMetadata.ChapterInfo.RuntimeLengthMs),
 		};
 

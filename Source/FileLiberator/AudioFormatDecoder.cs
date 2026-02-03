@@ -2,8 +2,8 @@
 using DataLayer;
 using FileManager;
 using Mpeg4Lib.Boxes;
+using Mpeg4Lib.ID3;
 using Mpeg4Lib.Util;
-using NAudio.Lame.ID3;
 using System;
 using System.Collections.Generic;
 using System.IO;

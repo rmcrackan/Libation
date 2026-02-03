@@ -6,6 +6,7 @@ using FileManager;
 using LibationFileManager;
 using LibationUiBase;
 
+#nullable enable
 namespace LibationWinForms
 {
     public partial class Form1
@@ -26,7 +27,7 @@ namespace LibationWinForms
 
             // wire-up event to automatically download after scan.
             // winforms only. this should NOT be allowed in cli
-            updateCountsBw.RunWorkerCompleted += (object sender, System.ComponentModel.RunWorkerCompletedEventArgs e) =>
+            updateCountsBw.RunWorkerCompleted += (object? sender, System.ComponentModel.RunWorkerCompletedEventArgs e) =>
             {
                 if (!Configuration.Instance.AutoDownloadEpisodes || e.Result is not LibraryCommands.LibraryStats libraryStats)
                     return;
@@ -36,14 +37,14 @@ namespace LibationWinForms
             };
 		}
 
-		private static object LoadResourceImage(string resourceName)
+		private static object? LoadResourceImage(string resourceName)
 		{
 			if (Application.IsDarkModeEnabled)
 				resourceName += "_dark";
 			return Properties.Resources.ResourceManager.GetObject(resourceName);
 		}
 
-		private void AudibleApiStorage_LoadError(object sender, AccountSettingsLoadErrorEventArgs e)
+		private void AudibleApiStorage_LoadError(object? sender, AccountSettingsLoadErrorEventArgs e)
 		{
 			try
 			{

@@ -7,6 +7,7 @@ using AudibleUtilities;
 using Dinah.Core;
 using LibationFileManager;
 
+#nullable enable
 namespace LibationWinForms
 {
 	// This is for the auto-scanner. It is unrelated to manual scanning/import
@@ -58,7 +59,7 @@ namespace LibationWinForms
 
 
 		[PropertyChangeFilter(nameof(Configuration.AutoScan))]
-		private void Configuration_PropertyChanged(object sender, PropertyChangedEventArgsEx e)
+		private void Configuration_PropertyChanged(object? sender, PropertyChangedEventArgsEx e)
 		{
 			// when autoscan setting is changed, update menu checkbox and run autoscan
 			updateAutoScanLibraryToolStripMenuItem(sender, e);
@@ -75,9 +76,9 @@ namespace LibationWinForms
 				.Select(a => (a.AccountId, a.Locale.Name))
 				.ToList();
 		}
-		private void accountsPreSave(object sender = null, EventArgs e = null)
+		private void accountsPreSave(object? sender = null, EventArgs? e = null)
 			=> preSaveDefaultAccounts = getDefaultAccounts();
-		private void accountsPostSave(object sender = null, EventArgs e = null)
+		private void accountsPostSave(object? sender = null, EventArgs? e = null)
 		{
 			var postSaveDefaultAccounts = getDefaultAccounts();
 			var newDefaultAccounts = postSaveDefaultAccounts.Except(preSaveDefaultAccounts).ToList();
@@ -86,7 +87,7 @@ namespace LibationWinForms
 				startAutoScan();
 		}
 
-		private void startAutoScan(object sender = null, EventArgs e = null)
+		private void startAutoScan(object? sender = null, EventArgs? e = null)
 		{
 			if (Configuration.Instance.AutoScan)
 				autoScanTimer.PerformNow();
@@ -94,8 +95,8 @@ namespace LibationWinForms
 				autoScanTimer.Stop();
 		}
 
-		private void updateAutoScanLibraryToolStripMenuItem(object sender, EventArgs e) => autoScanLibraryToolStripMenuItem.Checked = Configuration.Instance.AutoScan;
+		private void updateAutoScanLibraryToolStripMenuItem(object? sender, EventArgs e) => autoScanLibraryToolStripMenuItem.Checked = Configuration.Instance.AutoScan;
 
-		private void autoScanLibraryToolStripMenuItem_Click(object sender, EventArgs e) => Configuration.Instance.AutoScan = !autoScanLibraryToolStripMenuItem.Checked;
+		private void autoScanLibraryToolStripMenuItem_Click(object? sender, EventArgs e) => Configuration.Instance.AutoScan = !autoScanLibraryToolStripMenuItem.Checked;
 	}
 }

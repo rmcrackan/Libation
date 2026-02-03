@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace LibationUiBase.GridView;
 
-public delegate void LiberateClickedHandler(object sender, System.Collections.Generic.IList<LibraryBook> libraryBooks, Configuration config);
+public delegate void LiberateClickedHandler(object? sender, System.Collections.Generic.IList<LibraryBook> libraryBooks, Configuration config);
 public class GridContextMenu
 {
 	public string CopyCellText => $"{Accelerator}Copy Cell Contents";

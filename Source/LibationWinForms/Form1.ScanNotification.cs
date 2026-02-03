@@ -1,6 +1,7 @@
 ﻿using System;
 using ApplicationServices;
 
+#nullable enable
 namespace LibationWinForms
 {
 	// This is for the Scanning notification in the upper right. This shown for manual scanning and auto-scan
@@ -12,7 +13,7 @@ namespace LibationWinForms
 			LibraryCommands.ScanEnd += LibraryCommands_ScanEnd;
 		}
 
-		private void LibraryCommands_ScanBegin(object sender, int accountsLength)
+		private void LibraryCommands_ScanBegin(object? sender, int accountsLength)
 		{
 			removeLibraryBooksToolStripMenuItem.Enabled = false;
 			removeAllAccountsToolStripMenuItem.Enabled = false;
@@ -29,7 +30,7 @@ namespace LibationWinForms
 				: $"Scanning {accountsLength} accounts...";
 		}
 
-		private void LibraryCommands_ScanEnd(object sender, int newCount)
+		private void LibraryCommands_ScanEnd(object? sender, int newCount)
 		{
 			removeLibraryBooksToolStripMenuItem.Enabled = true;
 			removeAllAccountsToolStripMenuItem.Enabled = true;

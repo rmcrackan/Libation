@@ -51,10 +51,7 @@ namespace LibationAvalonia
 				var config = LibationScaffolding.RunPreConfigMigrations();
 				if (config.LibationFiles.SettingsAreValid)
 				{
-					// most migrations go in here
-					LibationScaffolding.RunPostConfigMigrations(config);
-					LibationScaffolding.RunPostMigrationScaffolding(Variety.Chardonnay, config);
-
+					App.RunMigrations(config);
 					//Start loading the library before loading the main form
 					App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 				}

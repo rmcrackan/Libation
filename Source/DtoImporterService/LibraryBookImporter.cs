@@ -95,7 +95,7 @@ public class LibraryBookImporter : ItemsImporterBase
         {
 			//If the entire library was loaded, we can be sure that all existing LibraryBooks have their Book property populated.
 			//Find LibraryBooks which have a Book but weren't found in the import, and mark them as absent.
-			foreach (var absentBook in allInScannedAccounts.Where(lb => !uniqueImportItems.ContainsKey(lb.Book.AudibleProductId)))
+			foreach (var absentBook in allInScannedAccounts.Where(lb => lb.Book?.AudibleProductId is not string asin || !uniqueImportItems.ContainsKey(asin)))
                 absentBook.AbsentFromLastScan = true;
 		}
         else

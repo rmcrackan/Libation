@@ -1,14 +1,13 @@
 ﻿using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
-using LibationUiBase;
-using LibationUiBase.Forms;
 using LibationUiBase.GridView;
 using LibationWinForms.ProcessQueue;
 using System;
 using System.Linq;
 using System.Windows.Forms;
 
+#nullable enable
 namespace LibationWinForms
 {
 	public partial class Form1
@@ -106,7 +105,7 @@ namespace LibationWinForms
 			SetQueueCollapseState(!splitContainer1.Panel2Collapsed);
 		}
 
-		private void ProcessBookQueue1_PopOut(object sender, EventArgs e)
+		private void ProcessBookQueue1_PopOut(object? sender, EventArgs e)
 		{
 			ProcessBookForm dockForm = new();
 			dockForm.WidthChange = splitContainer1.Panel2.Width + splitContainer1.SplitterWidth;
@@ -124,7 +123,7 @@ namespace LibationWinForms
 			filterSearchTb.Location = new System.Drawing.Point(filterSearchTb.Location.X + deltax, filterSearchTb.Location.Y);
 		}
 
-		private void DockForm_FormClosing(object sender, FormClosingEventArgs e)
+		private void DockForm_FormClosing(object? sender, FormClosingEventArgs e)
 		{
 			if (sender is ProcessBookForm dockForm)
 			{
