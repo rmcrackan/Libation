@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Dinah.Core;
+using Polly;
+using Polly.Retry;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Dinah.Core;
-using Polly;
-using Polly.Retry;
 
 namespace FileManager;
 
@@ -244,13 +244,13 @@ public static class FileUtility
 	public static IEnumerable<LongPath> SaferEnumerateFiles(LongPath path, string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
 	{
 		var enumOptions = new EnumerationOptions
-		{ 
+		{
 			RecurseSubdirectories = searchOption == SearchOption.AllDirectories,
 			IgnoreInaccessible = true,
 			ReturnSpecialDirectories = false,
 			MatchType = MatchType.Simple
 		};
-		return Directory.EnumerateFiles(path.Path, searchPattern, enumOptions).Select(p => (LongPath) p);
+		return Directory.EnumerateFiles(path.Path, searchPattern, enumOptions).Select(p => (LongPath)p);
 	}
 
 	/// <summary>

@@ -1,7 +1,6 @@
-﻿namespace LinuxConfigApp
+﻿namespace LinuxConfigApp;
+
+class Program
 {
-    class Program
-    {
-        static void Main() { }
-    }
+	static void Main() { }
 }

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using AudibleApi;
+﻿using AudibleApi;
 using AudibleApi.Authorization;
 using Dinah.Core;
 using Newtonsoft.Json;
+using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AudibleUtilities;
 

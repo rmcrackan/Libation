@@ -29,10 +29,10 @@ public sealed class LogArchiver : IAsyncDisposable, IDisposable
 
 	public void DeleteOldestN(int quantity)
 		=> DeleteEntries(archive.Entries.OrderBy(e => e.LastWriteTime).Take(quantity).ToList());
-	
+
 	public void DeleteAllButNewestN(int quantity)
 		=> DeleteEntries(archive.Entries.OrderByDescending(e => e.LastWriteTime).Skip(quantity).ToList());
-	
+
 	private void DeleteEntries(List<ZipArchiveEntry> entries)
 	{
 		foreach (var e in entries)
@@ -56,7 +56,7 @@ public sealed class LogArchiver : IAsyncDisposable, IDisposable
 		ArgumentValidator.EnsureNotNull(name, nameof(name));
 
 		name = ReplacementCharacters.Barebones(true).ReplaceFilenameChars(name);
-		return Task.Run(() => AddFileInternal(name, contents.Span, comment));			
+		return Task.Run(() => AddFileInternal(name, contents.Span, comment));
 	}
 
 	private readonly object lockObj = new();

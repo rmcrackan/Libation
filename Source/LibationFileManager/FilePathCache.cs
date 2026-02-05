@@ -68,7 +68,7 @@ public static class FilePathCache
 	public static List<(FileType fileType, LongPath path)> GetFiles(string id)
 	{
 		List<CacheEntry> matchingFiles;
-		lock(locker)
+		lock (locker)
 			matchingFiles = Cache.GetIdEntries(id);
 
 		bool cacheChanged = false;
@@ -150,7 +150,7 @@ public static class FilePathCache
 
 	public static void Insert(CacheEntry entry)
 	{
-		lock(locker)
+		lock (locker)
 			Cache.Add(entry.Id, entry);
 		Inserted?.Invoke(null, entry);
 		save();
@@ -182,7 +182,7 @@ public static class FilePathCache
 	{
 		[JsonProperty]
 		private readonly ConcurrentDictionary<string, HashSet<TEntry>> Dictionary = new();
-		private static object lockObject = new();
+		private static readonly object lockObject = new();
 
 		public List<string> GetIDs() => Dictionary.Keys.ToList();
 

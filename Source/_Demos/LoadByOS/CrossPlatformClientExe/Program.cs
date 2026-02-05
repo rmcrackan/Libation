@@ -1,19 +1,16 @@
-﻿using System;
+﻿namespace CrossPlatformClientExe;
 
-namespace CrossPlatformClientExe
+class Program
 {
-	class Program
+	[STAThread]
+	public static void Main()
 	{
-		[STAThread]
-		public static void Main()
-		{
-			var interopInstance = new OSInteropProxy("this IS SOME text", 42);
+		var interopInstance = new OSInteropProxy("this IS SOME text", 42);
 
-			Console.WriteLine("X-Formed Value 1: {0}", interopInstance.TransformInit1());
-			Console.WriteLine("X-Formed Value 2: {0}", interopInstance.TransformInit2());
+		Console.WriteLine("X-Formed Value 1: {0}", interopInstance.TransformInit1());
+		Console.WriteLine("X-Formed Value 2: {0}", interopInstance.TransformInit2());
 
-			interopInstance.ShowForm();
-			interopInstance.CopyTextToClipboard("This is copied text!");
-		}
+		interopInstance.ShowForm();
+		interopInstance.CopyTextToClipboard("This is copied text!");
 	}
 }

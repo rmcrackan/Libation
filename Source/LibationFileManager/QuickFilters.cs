@@ -56,7 +56,7 @@ public static class QuickFilters
 
 	public static void Add(NamedFilter namedFilter)
 	{
-		if (namedFilter == null) 
+		if (namedFilter == null)
 			throw new ArgumentNullException(nameof(namedFilter));
 
 		if (string.IsNullOrWhiteSpace(namedFilter.Filter))

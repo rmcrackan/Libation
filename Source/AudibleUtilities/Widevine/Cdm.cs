@@ -191,7 +191,7 @@ public partial class Cdm
 					id = id.Append(new byte[16 - id.Length]);
 				}
 
-				keys[i] = new WidevineKey(new Guid(id,bigEndian: true), keyContainer.Type, keyBytes);
+				keys[i] = new WidevineKey(new Guid(id, bigEndian: true), keyContainer.Type, keyBytes);
 			}
 			return keys;
 		}

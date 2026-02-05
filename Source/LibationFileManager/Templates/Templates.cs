@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using AaxDecrypter;
+﻿using AaxDecrypter;
 using Dinah.Core;
 using FileManager;
 using FileManager.NamingTemplate;
 using NameParser;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace LibationFileManager.Templates;
 

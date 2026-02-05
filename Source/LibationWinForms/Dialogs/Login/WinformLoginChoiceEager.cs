@@ -1,9 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using AudibleApi;
+﻿using AudibleApi;
 using AudibleUtilities;
 using LibationWinForms.Dialogs.Login;
+using System;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace LibationWinForms.Login;
 
@@ -30,7 +30,7 @@ public class WinformLoginChoiceEager : ILoginChoiceEager
 			{
 				using var weblogin = new WebLoginDialog(_account.AccountId, choiceIn);
 				if (ShowDialog(weblogin))
-					return Task.FromResult((ChoiceOut?)ChoiceOut.External(weblogin.ResponseUrl));
+					return Task.FromResult(ChoiceOut.External(weblogin.ResponseUrl));
 			}
 			catch (Exception ex)
 			{

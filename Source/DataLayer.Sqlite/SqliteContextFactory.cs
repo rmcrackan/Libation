@@ -1,12 +1,11 @@
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace DataLayer.Sqlite
+namespace DataLayer.Sqlite;
+
+public class SqliteContextFactory : IDesignTimeDbContextFactory<LibationContext>
 {
-    public class SqliteContextFactory : IDesignTimeDbContextFactory<LibationContext>
-    {
-        public LibationContext CreateDbContext(string[] args)
-        {
-            return LibationContextFactory.CreateSqlite(string.Empty);
-        }
-    }
+	public LibationContext CreateDbContext(string[] args)
+	{
+		return LibationContextFactory.CreateSqlite(string.Empty);
+	}
 }

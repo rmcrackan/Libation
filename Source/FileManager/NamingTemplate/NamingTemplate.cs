@@ -37,9 +37,9 @@ public class NamingTemplate
 		// Match propertyClasses to the arguments required by templateToString.DynamicInvoke(). 
 		// First parameter is "this", so ignore it.
 		var delegateArgTypes = templateToString.Method.GetParameters().Skip(1);
-		
+
 		object?[] args = delegateArgTypes.Join(propertyClasses, o => o.ParameterType, i => i?.GetType(), (_, i) => i).ToArray();
-		
+
 		if (args.Length != delegateArgTypes.Count())
 			throw new ArgumentException($"This instance of {nameof(NamingTemplate)} requires the following arguments: {string.Join(", ", delegateArgTypes.Select(t => t.Name).Distinct())}");
 
@@ -60,7 +60,7 @@ public class NamingTemplate
 
 			namingTemplate.templateToString = Expression.Lambda(evalTree, tagCollections.Select(tc => tc.Parameter)).Compile();
 		}
-		catch(Exception ex)
+		catch (Exception ex)
 		{
 			namingTemplate.errors.Add(ex.Message);
 		}

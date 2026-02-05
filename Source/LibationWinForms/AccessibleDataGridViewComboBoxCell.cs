@@ -29,7 +29,7 @@ public class AccessibleDataGridViewComboBoxCell : DataGridViewComboBoxCell
 
 	protected class ComboBoxCellAccessibilityObject : DataGridViewComboBoxCellAccessibleObject
 	{
-		private string _name;
+		private readonly string _name;
 		public override string Name => _name;
 		public override string? Description { get; }
 

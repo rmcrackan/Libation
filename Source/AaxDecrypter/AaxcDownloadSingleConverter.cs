@@ -45,7 +45,7 @@ public class AaxcDownloadSingleConverter : AaxcDownloadConvertBase
 		}
 	}
 
-	protected async override Task<bool> Step_DownloadAndDecryptAudiobookAsync()
+	protected override async Task<bool> Step_DownloadAndDecryptAudiobookAsync()
 	{
 		if (AaxFile is null) return false;
 		outputTempFile = GetNewTempFilePath(DownloadOptions.OutputFormat.ToString());
@@ -56,7 +56,7 @@ public class AaxcDownloadSingleConverter : AaxcDownloadConvertBase
 
 		try
 		{
-			await (AaxConversion = decryptAsync(AaxFile, outputFile));				
+			await (AaxConversion = decryptAsync(AaxFile, outputFile));
 
 			return AaxConversion.IsCompletedSuccessfully;
 		}

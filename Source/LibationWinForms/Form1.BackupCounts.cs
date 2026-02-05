@@ -7,7 +7,7 @@ namespace LibationWinForms;
 
 public partial class Form1
 {
-	private System.ComponentModel.BackgroundWorker updateCountsBw = new();
+	private readonly System.ComponentModel.BackgroundWorker updateCountsBw = new();
 
 	protected void Configure_BackupCounts()
 	{

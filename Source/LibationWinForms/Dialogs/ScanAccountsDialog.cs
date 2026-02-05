@@ -1,7 +1,7 @@
-﻿using System;
+﻿using AudibleUtilities;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using AudibleUtilities;
 
 namespace LibationWinForms.Dialogs;
 
@@ -31,7 +31,7 @@ public partial class ScanAccountsDialog : Form
 			var item = new listItem
 			{
 				Account = account,
-				Text = $"{account.AccountName} ({account.AccountId} - {account.Locale?.Name })"
+				Text = $"{account.AccountName} ({account.AccountId} - {account.Locale?.Name})"
 			};
 			this.accountsClb.Items.Add(item, account.LibraryScan);
 		}

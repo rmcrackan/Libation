@@ -1,8 +1,7 @@
 using ReactiveUI;
 
-namespace HangoverAvalonia.ViewModels
+namespace HangoverAvalonia.ViewModels;
+
+public class ViewModelBase : ReactiveObject
 {
-	public class ViewModelBase : ReactiveObject
-	{
-	}
 }

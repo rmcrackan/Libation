@@ -21,7 +21,7 @@ public partial class UpgradeNotificationDialog : Form
 		Text = $"Libation version {upgradeProperties.LatestRelease.ToVersionString()} is now available.";
 		PackageUrl = upgradeProperties.ZipUrl;
 		packageDlLink.Text = upgradeProperties.ZipName;
-		releaseNotesTbox.Text = upgradeProperties.Notes;			
+		releaseNotesTbox.Text = upgradeProperties.Notes;
 
 		Shown += (_, _) => yesBtn.Focus();
 	}

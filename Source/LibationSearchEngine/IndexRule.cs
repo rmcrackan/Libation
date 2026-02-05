@@ -38,5 +38,5 @@ public class IndexRule
 	public override string ToString()
 		=> FieldNames.Count == 1
 		? $"{FieldNames.First()}"
-		: $"{FieldNames.First()} ({string.Join(", ", FieldNames.Skip(1))})";	
+		: $"{FieldNames.First()} ({string.Join(", ", FieldNames.Skip(1))})";
 }

@@ -135,7 +135,7 @@ public static class PictureStorage
 
 			using var requestMessage = new HttpRequestMessage(HttpMethod.Get, "ht" + $"tps://images-na.ssl-images-amazon.com/images/I/{def.PictureId}{sizeStr}.jpg");
 			using var response = imageDownloadClient.Send(requestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken).EnsureSuccessStatusCode();
-			
+
 			if (response.Content.Headers.ContentLength is not long size)
 				return GetDefaultImage(def.Size);
 

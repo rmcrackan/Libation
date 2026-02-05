@@ -66,7 +66,7 @@ public class ApiExtended
 
 			return new ApiExtended(api);
 		}
-	}	
+	}
 
 	private static AsyncRetryPolicy policy { get; }
 		= Policy.Handle<Exception>()

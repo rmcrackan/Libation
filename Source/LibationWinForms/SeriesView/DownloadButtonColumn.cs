@@ -1,7 +1,7 @@
-﻿using System.Drawing;
+﻿using LibationUiBase.SeriesView;
+using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
-using LibationUiBase.SeriesView;
 
 namespace LibationWinForms.SeriesView;
 

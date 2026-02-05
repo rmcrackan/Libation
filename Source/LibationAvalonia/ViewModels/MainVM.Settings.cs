@@ -4,42 +4,41 @@ using ReactiveUI;
 using System;
 using System.Threading.Tasks;
 
-namespace LibationAvalonia.ViewModels
+namespace LibationAvalonia.ViewModels;
+
+partial class MainVM
 {
-	partial class MainVM
+	public string FindBetterQualityBooksTip => Configuration.GetHelpText("FindBetterQualityBooks");
+	public bool MenuBarVisible { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = !Configuration.IsMacOs;
+	private void Configure_Settings()
 	{
-		public string FindBetterQualityBooksTip => Configuration.GetHelpText("FindBetterQualityBooks");
-		public bool MenuBarVisible { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = !Configuration.IsMacOs;
-		private void Configure_Settings()
-		{
-			if (App.Current is Avalonia.Application app &&
-				NativeMenu.GetMenu(app)?.Items[0] is NativeMenuItem aboutMenu)
-				aboutMenu.Command = ReactiveCommand.Create(ShowAboutAsync);
-		}
+		if (App.Current is Avalonia.Application app &&
+			NativeMenu.GetMenu(app)?.Items[0] is NativeMenuItem aboutMenu)
+			aboutMenu.Command = ReactiveCommand.Create(ShowAboutAsync);
+	}
 
-		public Task ShowAboutAsync() => new LibationAvalonia.Dialogs.AboutDialog().ShowDialog(MainWindow);
-		public Task ShowAccountsAsync() => new LibationAvalonia.Dialogs.AccountsDialog().ShowDialog(MainWindow);
-		public Task ShowSettingsAsync() => new LibationAvalonia.Dialogs.SettingsDialog().ShowDialog(MainWindow);
-		public Task ShowTrashBinAsync() => new LibationAvalonia.Dialogs.TrashBinDialog().ShowDialog(MainWindow);
-		public Task ShowFindBetterQualityBooksAsync() => new LibationAvalonia.Dialogs.FindBetterQualityBooksDialog().ShowDialog(MainWindow);
+	public Task ShowAboutAsync() => new LibationAvalonia.Dialogs.AboutDialog().ShowDialog(MainWindow);
+	public Task ShowAccountsAsync() => new LibationAvalonia.Dialogs.AccountsDialog().ShowDialog(MainWindow);
+	public Task ShowSettingsAsync() => new LibationAvalonia.Dialogs.SettingsDialog().ShowDialog(MainWindow);
+	public Task ShowTrashBinAsync() => new LibationAvalonia.Dialogs.TrashBinDialog().ShowDialog(MainWindow);
+	public Task ShowFindBetterQualityBooksAsync() => new LibationAvalonia.Dialogs.FindBetterQualityBooksDialog().ShowDialog(MainWindow);
 
-		public void LaunchHangover()
+	public void LaunchHangover()
+	{
+		try
 		{
-			try
-			{
-				System.Diagnostics.Process.Start("Hangover" + (Configuration.IsWindows ? ".exe" : ""));
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, "Failed to launch Hangover");
-			}
+			System.Diagnostics.Process.Start("Hangover" + (Configuration.IsWindows ? ".exe" : ""));
 		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Failed to launch Hangover");
+		}
+	}
 
-		public async Task StartWalkthroughAsync()
-		{
-			MenuBarVisible = true;
-			await new Walkthrough(MainWindow).RunAsync();
-			MenuBarVisible = !Configuration.IsMacOs;
-		}
+	public async Task StartWalkthroughAsync()
+	{
+		MenuBarVisible = true;
+		await new Walkthrough(MainWindow).RunAsync();
+		MenuBarVisible = !Configuration.IsMacOs;
 	}
 }

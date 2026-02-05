@@ -1,28 +1,27 @@
 ﻿using Dinah.Core;
 
-namespace DataLayer
-{
-    /// <summary>PDF/ZIP files only. Although book download info could be the same format, they're substantially different and subject to change</summary>
-    public class Supplement
-    {
-        internal int SupplementId { get; private set; }
-        internal int BookId { get; private set; }
+namespace DataLayer;
 
-        public Book Book { get; private set; }
-        public string Url { get; private set; }
+/// <summary>PDF/ZIP files only. Although book download info could be the same format, they're substantially different and subject to change</summary>
+public class Supplement
+{
+	internal int SupplementId { get; private set; }
+	internal int BookId { get; private set; }
+
+	public Book Book { get; private set; }
+	public string Url { get; private set; }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-		private Supplement() { }
+	private Supplement() { }
 #pragma warning restore CS8618
-		public Supplement(Book book, string url)
-        {
-            ArgumentValidator.EnsureNotNull(book, nameof(book));
-            ArgumentValidator.EnsureNotNullOrWhiteSpace(url, nameof(url));
+	public Supplement(Book book, string url)
+	{
+		ArgumentValidator.EnsureNotNull(book, nameof(book));
+		ArgumentValidator.EnsureNotNullOrWhiteSpace(url, nameof(url));
 
-            Book = book;
-            Url = url;
-        }
-
-		public override string ToString() => $"{Book} {Url.Substring(Url.Length - 4)}";
+		Book = book;
+		Url = url;
 	}
+
+	public override string ToString() => $"{Book} {Url.Substring(Url.Length - 4)}";
 }

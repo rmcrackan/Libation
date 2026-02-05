@@ -1,27 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
-namespace DataLayer
+namespace DataLayer;
+
+internal class Formatters
 {
-    internal class Formatters
+	private static string[] _sortPrefixIgnores { get; } = { "the", "a", "an" };
+
+	public static string GetSortName(string unformattedName)
 	{
-		private static string[] _sortPrefixIgnores { get; } = { "the", "a", "an" };
+		var sortName = unformattedName
+			.Replace("|", "")
+			.Replace(":", "")
+			.ToLowerInvariant()
+			.Trim();
 
-		public static string GetSortName(string unformattedName)
-		{
-			var sortName = unformattedName
-				.Replace("|", "")
-				.Replace(":", "")
-				.ToLowerInvariant()
-				.Trim();
+		if (_sortPrefixIgnores.Any(prefix => sortName.StartsWith(prefix + " ")))
+			sortName = sortName
+				.Substring(sortName.IndexOf(" ") + 1)
+				.TrimStart();
 
-			if (_sortPrefixIgnores.Any(prefix => sortName.StartsWith(prefix + " ")))
-				sortName = sortName
-					.Substring(sortName.IndexOf(" ") + 1)
-					.TrimStart();
-
-			return sortName;
-		}
+		return sortName;
 	}
 }

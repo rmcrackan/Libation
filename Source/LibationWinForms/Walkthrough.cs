@@ -15,7 +15,7 @@ namespace LibationWinForms;
 
 internal class Walkthrough
 {
-	private Dictionary<string, string> settingTabMessages = new()
+	private readonly Dictionary<string, string> settingTabMessages = new()
 	{
 		{ "Important settings", "From here you can change where liberated books are stored and how detailed Libation's logs are.\r\n\r\nIf you experience a problem and need help, you'll be asked to provide your log file. In certain circumstances we may need you to reproduce the error with a higher level of logging detail."},
 		{ "Import library", "In this tab you can change how your library is scanned and imported into Libation, as well as automatic liberation."},
@@ -128,7 +128,7 @@ internal class Walkthrough
 			return true;
 		}
 
-		var accounts = count > 1 ? "accounts" :"account";
+		var accounts = count > 1 ? "accounts" : "account";
 		var library = count > 1 ? "libraries" : "library";
 		if (!ProceedMessageBox($"Finally, scan your Audible {accounts} to sync your {library} with Libation.\r\n\r\nIf this is your first time scanning an account, you'll be prompted to enter your account's password to log into your Audible account.", $"Scan {accounts}"))
 			return false;

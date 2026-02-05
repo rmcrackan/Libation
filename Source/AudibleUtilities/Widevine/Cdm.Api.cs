@@ -1,15 +1,14 @@
 ﻿using AudibleApi;
+using AudibleApi.Cryptography;
+using Dinah.Core.Net.Http;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Net.Http;
-using AudibleApi.Cryptography;
-using Newtonsoft.Json.Linq;
-using Dinah.Core.Net.Http;
 using System.Text.Json.Nodes;
+using System.Threading.Tasks;
 
-#nullable enable
 namespace AudibleUtilities.Widevine;
 
 public partial class Cdm
@@ -112,7 +111,7 @@ public partial class Cdm
 			var uris = urlArray.Select(u => u.Value<string>()).OfType<string>().Select(u => new Uri(u)).ToArray();
 
 			if (uris.Length == 0)
-				throw  new System.IO.InvalidDataException("No CDM url found in JSON: " + fileContents);
+				throw new System.IO.InvalidDataException("No CDM url found in JSON: " + fileContents);
 
 			return uris;
 		}

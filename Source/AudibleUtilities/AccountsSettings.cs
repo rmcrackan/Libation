@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AudibleApi;
+﻿using AudibleApi;
 using AudibleApi.Authorization;
 using Dinah.Core;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AudibleUtilities;
 
@@ -30,7 +30,7 @@ public class AccountsSettings : IUpdatable
 	protected AccountsSettings(List<Account> accountsSettings) { }
 
 	#region Accounts
-	private List<Account> _accounts_backing = new List<Account>();
+	private readonly List<Account> _accounts_backing = new List<Account>();
 	[JsonProperty(PropertyName = nameof(Accounts))]
 	private List<Account> _accounts_json
 	{
@@ -150,7 +150,7 @@ public class AccountsSettings : IUpdatable
 		// same account instance: ok
 		if (acct == account)
 			return;
-		
+
 		// same account id + locale, different instance: bad
 		throw new InvalidOperationException("Cannot add an account with the same account Id and Locale");
 	}

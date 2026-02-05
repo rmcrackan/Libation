@@ -13,7 +13,7 @@ public partial class MyRatingCellEditor : UserControl, IDataGridViewEditingContr
 	private const string HOLLOW_STAR = "☆";
 
 	public Rating Rating
-	{ 
+	{
 		get => field;
 		set
 		{

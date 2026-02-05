@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 
 namespace LibationAvalonia.Controls;
+
 internal class DataGridTextColumnExt : DataGridTextColumn
 {
 	public static readonly StyledProperty<int> MaxLengthProperty =

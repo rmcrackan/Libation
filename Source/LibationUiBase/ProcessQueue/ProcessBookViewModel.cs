@@ -1,4 +1,4 @@
-﻿﻿using ApplicationServices;
+﻿using ApplicationServices;
 using AudibleApi;
 using AudibleApi.Common;
 using DataLayer;

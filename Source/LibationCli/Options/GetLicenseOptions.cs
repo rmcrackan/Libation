@@ -32,7 +32,7 @@ internal class GetLicenseOptions : OptionsBase
 
 		var api = await libraryBook.GetApiAsync();
 		var license = await DownloadOptions.GetDownloadLicenseAsync(api, libraryBook, Configuration.Instance, default);
-		
+
 		var jsonSettings = new JsonSerializerSettings
 		{
 			NullValueHandling = NullValueHandling.Ignore,

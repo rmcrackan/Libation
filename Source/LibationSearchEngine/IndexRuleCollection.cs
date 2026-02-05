@@ -18,7 +18,7 @@ public class IndexRuleCollection : IEnumerable<IndexRule>
 
 	public void Add(FieldType fieldType, Func<LibraryBook, string?> getter, params string[] fieldNames)
 		=> rules.Add(new IndexRule(fieldType, getter, fieldNames));
-	
+
 	public IndexRule? GetRuleByFieldName(string fieldName)
 		=> rules.SingleOrDefault(r => r.FieldNames.Any(n => n.Equals(fieldName, StringComparison.OrdinalIgnoreCase)));
 

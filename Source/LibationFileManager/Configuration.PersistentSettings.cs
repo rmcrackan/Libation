@@ -1,13 +1,13 @@
-﻿using System;
+﻿using FileManager;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using FileManager;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
 
 namespace LibationFileManager;
 
@@ -109,7 +109,8 @@ public partial class Configuration
 	public bool BetaOptIn { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 	[Description("Location for book storage. Includes destination of newly liberated books")]
-	public LongPath? Books {
+	public LongPath? Books
+	{
 		get => GetString();
 		set
 		{
@@ -215,12 +216,12 @@ public partial class Configuration
 		new ("SeriesOrder", false),
 		new ("LastDownload", false),
 		new ("IsSpatial", false),
-		new ("IncludedUntil", false), 
+		new ("IncludedUntil", false),
 		new ("Account", false),
 		]);
 	public bool GetColumnVisibility(string columnName)
 		=> GridColumnsVisibilities.TryGetValue(columnName, out var isVisible) ? isVisible
-		:DefaultColumns.GetValueOrDefault(columnName, true);
+		: DefaultColumns.GetValueOrDefault(columnName, true);
 
 	[Description("A Dictionary of GridView data property names and bool indicating its column's visibility in ProductsGrid")]
 	public Dictionary<string, bool> GridColumnsVisibilities { get => GetNonString(defaultValue: DefaultColumns).Clone(); set => SetNonString(value); }

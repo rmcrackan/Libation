@@ -29,7 +29,7 @@ public class AccessibleDataGridViewButtonCell : DataGridViewButtonCell
 
 	protected class ButtonCellAccessibilityObject : DataGridViewButtonCellAccessibleObject
 	{
-		private string _name;
+		private readonly string _name;
 		public override string Name => _name;
 		public override string? Description { get; }
 

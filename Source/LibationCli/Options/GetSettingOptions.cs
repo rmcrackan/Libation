@@ -96,7 +96,7 @@ internal class GetSettingOptions : OptionsBase
 
 	private ConfigOption[] GetConfigOptions()
 	{
-		var configs = GetConfigurationProperties().Where(o=> o.PropertyType != typeof(ReplacementCharacters)).Select(p => new ConfigOption(p));
+		var configs = GetConfigurationProperties().Where(o => o.PropertyType != typeof(ReplacementCharacters)).Select(p => new ConfigOption(p));
 		var replacements = GetConfigurationProperties().SingleOrDefault(o => o.PropertyType == typeof(ReplacementCharacters))?.GetValue(Configuration.Instance) as ReplacementCharacters;
 
 		if (replacements is not null)
@@ -134,6 +134,6 @@ internal class GetSettingOptions : OptionsBase
 		}
 
 		private static string GetTypeString(Type type)
-		=> type.IsEnum ? $"{type.Name} (enum)": type.Name;
+		=> type.IsEnum ? $"{type.Name} (enum)" : type.Name;
 	}
 }

@@ -22,7 +22,7 @@ public partial class WebLoginDialog : Form
 
 		webView.NavigationStarting += WebView_NavigationStarting;
 		this.SetLibationIcon();
-	}		
+	}
 
 	public WebLoginDialog(string accountID, ChoiceIn choiceIn) : this()
 	{

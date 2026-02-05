@@ -69,7 +69,7 @@ public partial class ProductsGrid : UserControl
 		gridEntryDataGridView.Scroll += (_, s) => Scroll?.Invoke(this, s);
 		gridEntryDataGridView.CellContextMenuStripNeeded += GridEntryDataGridView_CellContextMenuStripNeeded;
 		removeGVColumn.Frozen = false;
-		defaultFont = gridEntryDataGridView.DefaultCellStyle.Font ?? gridEntryDataGridView.Font;						
+		defaultFont = gridEntryDataGridView.DefaultCellStyle.Font ?? gridEntryDataGridView.Font;
 	}
 
 	#region Scaling
@@ -181,7 +181,7 @@ public partial class ProductsGrid : UserControl
 					}
 					Clipboard.SetDataObject(clipboardText, false, 5, 150);
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
 					Serilog.Log.Logger.Error(ex, "Error copying text to clipboard");
 				}
@@ -322,7 +322,7 @@ public partial class ProductsGrid : UserControl
 				geList.Insert(++seriesIndex, child);
 		}
 		System.Threading.SynchronizationContext.SetSynchronizationContext(null);
-					
+
 		bindingList = new GridEntryBindingList(geList) { SearchEngine = SearchEngine };
 		bindingList.CollapseAll();
 

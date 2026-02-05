@@ -23,7 +23,7 @@ internal class LiberateDataGridViewImageButtonCell : DataGridViewImageButtonCell
 	private static readonly Color HiddenForeColor = Color.LightGray;
 	private static readonly Color SERIES_BG_COLOR = Color.FromArgb(230, 255, 230);
 	private static readonly Color SERIES_BG_COLOR_DARK = Color.FromArgb(76, 82, 93);
-	private static Color SeriesBgColor => Application.IsDarkModeEnabled ? SERIES_BG_COLOR_DARK:SERIES_BG_COLOR;
+	private static Color SeriesBgColor => Application.IsDarkModeEnabled ? SERIES_BG_COLOR_DARK : SERIES_BG_COLOR;
 
 	protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object? value, object? formattedValue, string? errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 	{

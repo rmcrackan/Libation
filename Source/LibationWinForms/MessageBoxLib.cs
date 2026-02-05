@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-using DataLayer;
+﻿using DataLayer;
 using Dinah.Core.Logging;
 using Dinah.Core.Threading;
 using LibationWinForms.Dialogs;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace LibationWinForms;
 
@@ -48,7 +48,7 @@ public static class MessageBoxLib
 		form.ShowDialog();
 	}
 
-        public static void VerboseLoggingWarning_ShowIfTrue()
+	public static void VerboseLoggingWarning_ShowIfTrue()
 	{
 		// when turning on debug (and especially Verbose) to share logs, some privacy settings may not be obscured
 		if (Log.Logger.IsVerboseEnabled())

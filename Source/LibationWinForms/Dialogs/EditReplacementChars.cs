@@ -9,7 +9,7 @@ namespace LibationWinForms.Dialogs;
 
 public partial class EditReplacementChars : Form
 {
-	Configuration? config;
+	readonly Configuration? config;
 	public EditReplacementChars()
 	{
 		InitializeComponent();

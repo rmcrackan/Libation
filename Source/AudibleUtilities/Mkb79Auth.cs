@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AudibleApi;
+﻿using AudibleApi;
 using AudibleApi.Authorization;
 using AudibleApi.Cryptography;
 using Dinah.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AudibleUtilities;
 
@@ -15,7 +15,7 @@ public partial class Mkb79Auth : IIdentityMaintainer
 {
 	[JsonProperty("website_cookies")]
 	private JObject? _websiteCookies { get; set; }
-   
+
 	[JsonProperty("adp_token")]
 	public string? AdpToken { get; private set; }
 
@@ -83,7 +83,7 @@ public partial class Mkb79Auth : IIdentityMaintainer
 	public Task<AdpToken?> GetAdpTokenAsync()
 		=> AdpToken is null ? Task.FromResult((AdpToken?)null) : Task.FromResult((AdpToken?)new AdpToken(AdpToken));
 
-	public Task<PrivateKey?> GetPrivateKeyAsync() 
+	public Task<PrivateKey?> GetPrivateKeyAsync()
 		=> DevicePrivateKey is null ? Task.FromResult((PrivateKey?)null) : Task.FromResult((PrivateKey?)new PrivateKey(DevicePrivateKey));
 }
 
@@ -188,7 +188,7 @@ public partial class Mkb79Auth
 			AccessTokenExpires = account.IdentityTokens?.ExistingAccessToken.Expires ?? default,
 			LocaleCode = account.Locale?.CountryCode,
 			WithUsername = account.Locale?.WithUsername ?? false,
-			RefreshToken = account.IdentityTokens?.RefreshToken?.Value,				
+			RefreshToken = account.IdentityTokens?.RefreshToken?.Value,
 			StoreAuthenticationCookie = account.IdentityTokens?.StoreAuthenticationCookie,
 			WebsiteCookies = new(account.IdentityTokens?.Cookies ?? []),
 		};
@@ -196,7 +196,7 @@ public partial class Mkb79Auth
 
 public static class Serialize
 {
-	public static string ToJson(this Mkb79Auth self) 
+	public static string ToJson(this Mkb79Auth self)
 		=> JObject.Parse(JsonConvert.SerializeObject(self, Converter.Settings)).ToString(Formatting.Indented);
 }
 

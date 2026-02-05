@@ -1,7 +1,6 @@
-namespace WindowsConfigApp
+namespace WindowsConfigApp;
+
+class Program
 {
-    class Program
-    {
-        static void Main() { }
-    }
+	static void Main() { }
 }

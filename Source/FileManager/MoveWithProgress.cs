@@ -1,12 +1,12 @@
-﻿﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using Serilog;
+using System;
 using System.Buffers;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Win32.SafeHandles;
-using Serilog;
 
 namespace FileManager;
 
@@ -169,15 +169,15 @@ public class MoveWithProgress
 	[StructLayout(LayoutKind.Sequential, Pack = 4)]
 	private struct BY_HANDLE_FILE_INFORMATION
 	{
-		private uint dwFileAttributes;
-		private long ftCreationTime;
-		private long ftLastAccessTime;
-		private long ftLastWriteTime;
+		private readonly uint dwFileAttributes;
+		private readonly long ftCreationTime;
+		private readonly long ftLastAccessTime;
+		private readonly long ftLastWriteTime;
 		public uint dwVolumeSerialNumber;
-		private uint nFileSizeHigh;
-		private uint nFileSizeLow;
-		private uint nNumberOfLinks;
-		private uint nFileIndexHigh;
-		private uint nFileIndexLow;
+		private readonly uint nFileSizeHigh;
+		private readonly uint nFileSizeLow;
+		private readonly uint nNumberOfLinks;
+		private readonly uint nFileIndexHigh;
+		private readonly uint nFileIndexLow;
 	}
 }

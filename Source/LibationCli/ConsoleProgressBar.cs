@@ -50,7 +50,7 @@ internal class ConsoleProgressBar
 
 	private void WriteProgress()
 	{
-		var numCompleted = (int)Math.Round(double.Min(100, Progress?? 0) * m_NumProgressPieces / 100);
+		var numCompleted = (int)Math.Round(double.Min(100, Progress ?? 0) * m_NumProgressPieces / 100);
 		var numRemaining = m_NumProgressPieces - numCompleted;
 		var progressBar = $"[{new string(ProgressChar, numCompleted)}{new string(NoProgressChar, numRemaining)}]  ";
 

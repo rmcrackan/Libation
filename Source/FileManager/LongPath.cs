@@ -49,7 +49,7 @@ public class LongPath
 
 		Path = path;
 	}
-	
+
 	//Filename limits on NTFS and FAT filesystems are based on characters,
 	//but on ext* filesystems they're based on bytes. The ext* filesystems
 	//don't care about encoding, so how unicode characters are encoded is

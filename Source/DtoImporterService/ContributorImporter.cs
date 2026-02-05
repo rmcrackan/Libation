@@ -1,122 +1,121 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AudibleApi.Common;
+﻿using AudibleApi.Common;
 using AudibleUtilities;
 using DataLayer;
 using Dinah.Core.Collections.Generic;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace DtoImporterService
+namespace DtoImporterService;
+
+public class ContributorImporter : ItemsImporterBase
 {
-	public class ContributorImporter : ItemsImporterBase
+	protected override IValidator Validator => new ClearValidator();
+
+	public Dictionary<string, Contributor> Cache { get; private set; } = new();
+
+	public ContributorImporter(LibationContext context) : base(context) { }
+
+	protected override int DoImport(IEnumerable<ImportItem> importItems)
 	{
-		protected override IValidator Validator => new ClearValidator();
+		// get distinct
+		var authors = importItems
+			.Select(i => i.DtoItem)
+			.GetAuthorsDistinct()
+			.ToList();
+		var narrators = importItems
+			.Select(i => i.DtoItem)
+			.GetNarratorsDistinct()
+			.ToList();
+		var publishers = importItems
+			.Select(i => i.DtoItem)
+			.GetPublishersDistinct()
+			.ToList();
 
-		public Dictionary<string, Contributor> Cache { get; private set; } = new();
+		// load db existing => .Local
+		var allNames = publishers
+			.Union(authors.Select(n => n.Name))
+			.Union(narrators.Select(n => n.Name))
+			.Where(name => !string.IsNullOrWhiteSpace(name))
+			.Cast<string>()
+			.ToList();
+		loadLocal_contributors(allNames);
 
-		public ContributorImporter(LibationContext context) : base(context) { }
+		// upsert
+		var qtyNew = 0;
+		qtyNew += upsertPeople(authors);
+		qtyNew += upsertPeople(narrators);
+		qtyNew += upsertPublishers(publishers);
+		return qtyNew;
+	}
 
-		protected override int DoImport(IEnumerable<ImportItem> importItems)
+	private void loadLocal_contributors(List<string> contributorNames)
+	{
+		// must include default/empty/missing
+		contributorNames.Add(Contributor.GetEmpty().Name);
+
+		// load existing => local
+		Cache = DbContext.Contributors
+			.Where(c => contributorNames.Contains(c.Name))
+			.ToDictionarySafe(c => c.Name);
+	}
+
+	private int upsertPeople(List<Person> people)
+	{
+		var qtyNew = 0;
+		foreach (var person in people)
 		{
-			// get distinct
-			var authors = importItems
-				.Select(i => i.DtoItem)
-				.GetAuthorsDistinct()
-				.ToList();
-			var narrators = importItems
-				.Select(i => i.DtoItem)
-				.GetNarratorsDistinct()
-				.ToList();
-			var publishers = importItems
-				.Select(i => i.DtoItem)
-				.GetPublishersDistinct()
-				.ToList();
-
-			// load db existing => .Local
-			var allNames = publishers
-				.Union(authors.Select(n => n.Name))
-				.Union(narrators.Select(n => n.Name))
-				.Where(name => !string.IsNullOrWhiteSpace(name))
-				.Cast<string>()
-				.ToList();
-			loadLocal_contributors(allNames);
-
-			// upsert
-			var qtyNew = 0;
-			qtyNew += upsertPeople(authors);
-			qtyNew += upsertPeople(narrators);
-			qtyNew += upsertPublishers(publishers);
-			return qtyNew;
-		}
-
-		private void loadLocal_contributors(List<string> contributorNames)
-		{
-			// must include default/empty/missing
-			contributorNames.Add(Contributor.GetEmpty().Name);
-
-			// load existing => local
-			Cache = DbContext.Contributors
-				.Where(c => contributorNames.Contains(c.Name))
-				.ToDictionarySafe(c => c.Name);
-		}
-
-		private int upsertPeople(List<Person> people)
-		{
-			var qtyNew = 0;
-			foreach (var person in people)
+			if (person.Name is null)
+				continue;
+			if (!Cache.TryGetValue(person.Name, out var contributor))
 			{
-				if (person.Name is null)
-					continue;
-				if (!Cache.TryGetValue(person.Name, out var contributor))
-				{
-					contributor = createContributor(person.Name, person.Asin);
-					qtyNew++;
-				}
-
-				updateContributor(person, contributor);
+				contributor = createContributor(person.Name, person.Asin);
+				qtyNew++;
 			}
 
-			return qtyNew;
+			updateContributor(person, contributor);
 		}
 
-		// only use after loading contributors => local
-		private int upsertPublishers(List<string> publishers)
+		return qtyNew;
+	}
+
+	// only use after loading contributors => local
+	private int upsertPublishers(List<string> publishers)
+	{
+		var hash = publishers
+			// new publishers only
+			.Where(p => !Cache.ContainsKey(p))
+			// remove duplicates
+			.ToHashSet();
+
+		foreach (var pub in hash)
+			createContributor(pub);
+
+		return hash.Count;
+	}
+
+	private void updateContributor(Person person, Contributor contributor)
+	{
+		if (person.Asin != contributor.AudibleContributorId)
+			contributor.SetAudibleContributorId(person.Asin);
+	}
+
+	private Contributor createContributor(string name, string? id = null)
+	{
+		try
 		{
-			var hash = publishers
-				// new publishers only
-				.Where(p => !Cache.ContainsKey(p))
-				// remove duplicates
-				.ToHashSet();
+			var newContrib = new Contributor(name, id);
 
-			foreach (var pub in hash)
-				createContributor(pub);
+			var entityEntry = DbContext.Contributors.Add(newContrib);
+			var entity = entityEntry.Entity;
 
-			return hash.Count;
+			Cache.Add(entity.Name, entity);
+			return entity;
 		}
-
-		private void updateContributor(Person person, Contributor contributor)
+		catch (Exception ex)
 		{
-			if (person.Asin != contributor.AudibleContributorId)
-				contributor.SetAudibleContributorId(person.Asin);
-		}
-
-		private Contributor createContributor(string name, string? id = null)
-		{
-			try
-			{
-				var newContrib = new Contributor(name, id);
-
-				var entityEntry = DbContext.Contributors.Add(newContrib);
-				var entity = entityEntry.Entity;
-
-				Cache.Add(entity.Name, entity);
-				return entity;
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, "Error adding contributor. {@DebugInfo}", new { name, id });
-				throw;
-			}
+			Serilog.Log.Logger.Error(ex, "Error adding contributor. {@DebugInfo}", new { name, id });
+			throw;
 		}
 	}
 }

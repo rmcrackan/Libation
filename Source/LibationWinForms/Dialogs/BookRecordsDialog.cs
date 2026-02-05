@@ -56,10 +56,10 @@ public partial class BookRecordsDialog : Form
 		{
 			var api = await libraryBook.GetApiAsync();
 			var records = await api.GetRecordsAsync(libraryBook.Book.AudibleProductId);
-			
+
 			bookRecordEntries = new SortBindingList<BookRecordEntry>(records.Select(r => new BookRecordEntry(r)));
 		}
-		catch(Exception ex)
+		catch (Exception ex)
 		{
 			Serilog.Log.Error(ex, "Failed to retrieve records for {libraryBook}", libraryBook);
 			bookRecordEntries = new();
@@ -71,7 +71,7 @@ public partial class BookRecordsDialog : Form
 			//Autosize columns and resize form to column width so no horizontal scroll bar is necessary.
 			dataGridView1.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
 			var columnWidth = dataGridView1.Columns.OfType<DataGridViewColumn>().Sum(c => c.Width);
-			Width = Width - dataGridView1.Width + columnWidth + dataGridView1.Margin.Right + (VScrollBar().Visible? VScrollBar().ClientSize.Width : 0);
+			Width = Width - dataGridView1.Width + columnWidth + dataGridView1.Margin.Right + (VScrollBar().Visible ? VScrollBar().ClientSize.Width : 0);
 		}
 	}
 
@@ -192,7 +192,7 @@ public partial class BookRecordsDialog : Form
 
 		try
 		{
-			var saveFileDialog = 
+			var saveFileDialog =
 				Invoke(() => new SaveFileDialog
 				{
 					Title = "Where to export records",
@@ -225,7 +225,7 @@ public partial class BookRecordsDialog : Form
 			MessageBoxLib.ShowAdminAlert(this, "Error attempting to export your library.", "Error exporting", ex);
 		}
 	}
-	
+
 	protected override void OnKeyDown(KeyEventArgs e)
 	{
 		if (e.KeyCode == Keys.Escape) Close();

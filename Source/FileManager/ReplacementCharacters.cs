@@ -168,7 +168,7 @@ public class ReplacementCharacters
 			Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
 		}).ToArray();
 
-	required public IReadOnlyList<Replacement> Replacements { get; init; }
+	public required IReadOnlyList<Replacement> Replacements { get; init; }
 	private string DefaultReplacement => Replacements[0].ReplacementString;
 	private Replacement ForwardSlash => Replacements[1];
 	private Replacement BackSlash => Replacements[2];

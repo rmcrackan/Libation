@@ -1,7 +1,7 @@
-﻿using System;
-using System.Windows.Forms;
-using LibationFileManager;
+﻿using LibationFileManager;
 using LibationFileManager.Templates;
+using System;
+using System.Windows.Forms;
 
 namespace LibationWinForms.Dialogs;
 

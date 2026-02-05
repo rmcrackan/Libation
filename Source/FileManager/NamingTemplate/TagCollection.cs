@@ -60,7 +60,7 @@ public abstract class TagCollection : IEnumerable<ITemplateTag>
 	/// <returns>True if the <paramref name="templateString"/> starts with this tag.</returns>
 	internal bool StartsWithClosing(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? closingPropertyTag)
 	{
-		foreach (var  cg in PropertyTags.OfType<IClosingPropertyTag>())
+		foreach (var cg in PropertyTags.OfType<IClosingPropertyTag>())
 		{
 			if (cg.StartsWithClosing(templateString, out exactName, out closingPropertyTag))
 				return true;

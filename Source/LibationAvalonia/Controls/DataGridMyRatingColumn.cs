@@ -1,73 +1,70 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Interactivity;
 using DataLayer;
-using ReactiveUI;
 
-namespace LibationAvalonia.Controls
+namespace LibationAvalonia.Controls;
+
+public class DataGridMyRatingColumn : DataGridBoundColumn
 {
-	public class DataGridMyRatingColumn : DataGridBoundColumn
+	[AssignBinding] public IBinding? BackgroundBinding { get; set; }
+	[AssignBinding] public IBinding? OpacityBinding { get; set; }
+	private static Rating DefaultRating => new Rating(0, 0, 0);
+	public DataGridMyRatingColumn()
 	{
-		[AssignBinding] public IBinding? BackgroundBinding { get; set; }
-		[AssignBinding] public IBinding? OpacityBinding { get; set; }
-		private static Rating DefaultRating => new Rating(0, 0, 0);
-		public DataGridMyRatingColumn()
+		BindingTarget = MyRatingCellEditor.RatingProperty;
+	}
+
+	protected override Control GenerateElement(DataGridCell cell, object dataItem)
+	{
+		var myRatingElement = new MyRatingCellEditor
 		{
-			BindingTarget = MyRatingCellEditor.RatingProperty;
-		}
+			Name = "CellMyRatingDisplay",
+			IsEditingMode = false
+		};
 
-		protected override Control GenerateElement(DataGridCell cell, object dataItem)
+		cell.Tag = this;
+
+		if (!IsReadOnly)
+			ToolTip.SetTip(myRatingElement, "Click to change ratings");
+
+		if (Binding != null)
+			myRatingElement.Bind(BindingTarget, Binding);
+		if (BackgroundBinding != null)
+			myRatingElement.Bind(MyRatingCellEditor.BackgroundProperty, BackgroundBinding);
+		if (OpacityBinding != null)
+			myRatingElement.Bind(MyRatingCellEditor.OpacityProperty, OpacityBinding);
+
+		return myRatingElement;
+	}
+
+	protected override Control GenerateEditingElementDirect(DataGridCell cell, object dataItem)
+	{
+		var myRatingElement = new MyRatingCellEditor
 		{
-			var myRatingElement = new MyRatingCellEditor
-			{
-				Name = "CellMyRatingDisplay",
-				IsEditingMode = false
-			};
+			Name = "CellMyRatingEditor",
+			IsEditingMode = true
+		};
 
-			cell.Tag = this;
+		if (BackgroundBinding != null)
+			myRatingElement.Bind(MyRatingCellEditor.BackgroundProperty, BackgroundBinding);
+		if (OpacityBinding != null)
+			myRatingElement.Bind(MyRatingCellEditor.OpacityProperty, OpacityBinding);
 
-			if (!IsReadOnly)
-				ToolTip.SetTip(myRatingElement, "Click to change ratings");
+		return myRatingElement;
+	}
 
-			if (Binding != null)
-				myRatingElement.Bind(BindingTarget, Binding);
-			if (BackgroundBinding != null)
-				myRatingElement.Bind(MyRatingCellEditor.BackgroundProperty, BackgroundBinding);
-			if (OpacityBinding != null)
-				myRatingElement.Bind(MyRatingCellEditor.OpacityProperty, OpacityBinding);
+	protected override object PrepareCellForEdit(Control editingElement, RoutedEventArgs editingEventArgs)
+		=> editingElement is MyRatingCellEditor myRating
+		? myRating.Rating
+		: DefaultRating;
 
-			return myRatingElement;
-		}
-
-		protected override Control GenerateEditingElementDirect(DataGridCell cell, object dataItem)
+	protected override void CancelCellEdit(Control editingElement, object uneditedValue)
+	{
+		if (editingElement is MyRatingCellEditor myRating)
 		{
-			var myRatingElement = new MyRatingCellEditor
-			{
-				Name = "CellMyRatingEditor",
-				IsEditingMode = true
-			};
-
-			if (BackgroundBinding != null)
-				myRatingElement.Bind(MyRatingCellEditor.BackgroundProperty, BackgroundBinding);
-			if (OpacityBinding != null)
-				myRatingElement.Bind(MyRatingCellEditor.OpacityProperty, OpacityBinding);
-
-			return myRatingElement;
-		}
-
-		protected override object PrepareCellForEdit(Control editingElement, RoutedEventArgs editingEventArgs)
-			=> editingElement is MyRatingCellEditor myRating
-			? myRating.Rating
-			: DefaultRating;
-
-		protected override void CancelCellEdit(Control editingElement, object uneditedValue)
-		{
-			if (editingElement is MyRatingCellEditor myRating)
-			{
-				var uneditedRating = uneditedValue as Rating;
-				myRating.Rating = uneditedRating ?? DefaultRating;
-			}
+			var uneditedRating = uneditedValue as Rating;
+			myRating.Rating = uneditedRating ?? DefaultRating;
 		}
 	}
 }

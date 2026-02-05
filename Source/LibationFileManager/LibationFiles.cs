@@ -11,13 +11,13 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("AppScaffolding")]
 [assembly: InternalsVisibleTo("LibationUiBase.Tests")]
 
-namespace LibationFileManager;	
+namespace LibationFileManager;
 
 /// <summary>
 /// Provides access to Libation's configuration and settings file locations, including methods for validating and
 /// updating the Libation files directory and Settings.json file. An instance is bount to a single appsettings.json file.
 /// </summary>
-public  class LibationFiles
+public class LibationFiles
 {
 	internal static string? s_DefaultLibationFilesDirectory;
 	public static string DefaultLibationFilesDirectory => s_DefaultLibationFilesDirectory ??= Configuration.IsWindows ? Configuration.UserProfile : Configuration.LocalAppData;

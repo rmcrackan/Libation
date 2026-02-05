@@ -33,7 +33,7 @@ public partial class ImageDisplay : Form
 	private int formExtraWidth;
 	private int formExtraHeight;
 
-	private double pictureAR = 1;
+	private readonly double pictureAR = 1;
 	protected override void OnResizeBegin(EventArgs e)
 	{
 		detectedResizeDirection = false;

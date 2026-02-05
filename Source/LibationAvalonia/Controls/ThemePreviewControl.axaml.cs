@@ -6,7 +6,6 @@ using LibationFileManager;
 using LibationUiBase.ProcessQueue;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.Controls;
@@ -23,7 +22,7 @@ public partial class ThemePreviewControl : UserControl
 	public ProcessBookViewModel CancelledBook { get; }
 	public ProcessBookViewModel FailedBook { get; }
 	public ThemePreviewControl()
-    {
+	{
 		InitializeComponent();
 		List<LibraryBook> sampleEntries;
 		sampleEntries = CreateMockBooks().ToList();
@@ -48,7 +47,7 @@ public partial class ThemePreviewControl : UserControl
 		ProductsDisplay = new ProductsDisplayViewModel();
 		_ = ProductsDisplay.BindToGridAsync(sampleEntries);
 		DataContext = this;
-    }
+	}
 
 	private IEnumerable<LibraryBook> CreateMockBooks()
 	{

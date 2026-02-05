@@ -27,7 +27,7 @@ public class SeriesOrder : IFormattable
 		while (TryParseNumber(order, out var value, out var range))
 		{
 			var prefix = order[..range.Start.Value];
-			if(!string.IsNullOrEmpty(prefix))
+			if (!string.IsNullOrEmpty(prefix))
 				parts.Add(prefix);
 
 			parts.Add(value);

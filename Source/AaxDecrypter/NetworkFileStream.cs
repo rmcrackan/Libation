@@ -171,12 +171,12 @@ public class NetworkFileStream : Stream, IUpdatable
 
 		if (ContentLength != 0 && ContentLength != response.FileSize)
 			throw new WebException($"Content length of 0x{response.FileSize:X10} differs from partially downloaded content length of 0x{ContentLength:X10}");
-		
+
 		ContentLength = response.FileSize;
 
 		_downloadedPiece = new EventWaitHandle(false, EventResetMode.AutoReset);
 		//Hand off the client and the open request to the downloader to download and write data to file.
-		DownloadTask = Task.Run(() => DownloadLoopInternal(client , response), _cancellationSource.Token);
+		DownloadTask = Task.Run(() => DownloadLoopInternal(client, response), _cancellationSource.Token);
 	}
 
 	private async Task DownloadLoopInternal(HttpClient client, BlockResponse blockResponse)

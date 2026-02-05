@@ -1,7 +1,7 @@
-﻿using System;
-using AudibleApi.Authorization;
+﻿using AudibleApi.Authorization;
 using Dinah.Core.IO;
 using Newtonsoft.Json;
+using System;
 
 namespace AudibleUtilities;
 

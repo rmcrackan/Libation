@@ -8,7 +8,7 @@ namespace DataLayer;
 public interface INotifyDisposed : IDisposable
 {
 	/// <summary> Event raised when the object is disposed. </summary>
-	event EventHandler? ObjectDisposed;	
+	event EventHandler? ObjectDisposed;
 }
 
 /// <summary> Creates a single instance of <typeparamref name="TDisposable"/> at a time, blocking subsequent creations until the previous creations are disposed. </summary>

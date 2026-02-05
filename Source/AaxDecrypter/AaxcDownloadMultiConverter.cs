@@ -41,10 +41,10 @@ public class AaxcDownloadMultiConverter : AaxcDownloadConvertBase
 	}
 
 
-	protected async override Task<bool> Step_DownloadAndDecryptAudiobookAsync()
+	protected override async Task<bool> Step_DownloadAndDecryptAudiobookAsync()
 	{
 		if (AaxFile is null) return false;
-	
+
 		try
 		{
 			await (AaxConversion = decryptMultiAsync(AaxFile, DownloadOptions.ChapterInfo));

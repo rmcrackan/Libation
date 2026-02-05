@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-#nullable enable
 namespace AaxDecrypter;
 
 /// <summary> Read audio codec, bitrate, sample rate, and channel count from MP4 and MP3 audio files. </summary>
@@ -218,10 +217,10 @@ public static class AudioFormatDecoder
 
 	private static byte GetSideInfo(bool stereo, Version version) => (stereo, version) switch
 	{
-		(true,  Version.Version_1)                        => 32,
-		(true,  Version.Version_2 or Version.Version_2_5) => 17,
-		(false, Version.Version_1)                        => 17,
-		(false, Version.Version_2 or Version.Version_2_5) =>  9,
+		(true, Version.Version_1) => 32,
+		(true, Version.Version_2 or Version.Version_2_5) => 17,
+		(false, Version.Version_1) => 17,
+		(false, Version.Version_2 or Version.Version_2_5) => 9,
 		_ => 0,
 	};
 

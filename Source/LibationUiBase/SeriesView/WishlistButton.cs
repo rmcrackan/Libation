@@ -5,82 +5,81 @@ using FileLiberator;
 using System;
 using System.Threading.Tasks;
 
-namespace LibationUiBase.SeriesView
+namespace LibationUiBase.SeriesView;
+
+internal class WishlistButton : SeriesButton
 {
-	internal class WishlistButton : SeriesButton
+	private bool instanceEnabled = true;
+
+	private bool inWishList;
+
+	public override bool HasButtonAction => !InLibrary;
+	public override string DisplayText
+		=> InLibrary ? "Already\r\nOwned"
+		: InWishList ? "Remove\r\nFrom\r\nWishlist"
+		: "Add to\r\nWishlist";
+
+	public override bool Enabled
 	{
-		private bool instanceEnabled = true;
+		get => instanceEnabled;
+		protected set => RaiseAndSetIfChanged(ref instanceEnabled, value);
+	}
 
-		private bool inWishList;
-
-		public override bool HasButtonAction => !InLibrary;
-		public override string DisplayText
-			=> InLibrary ? "Already\r\nOwned"
-			: InWishList ? "Remove\r\nFrom\r\nWishlist"
-			: "Add to\r\nWishlist";
-
-		public override bool Enabled
+	private bool InWishList
+	{
+		get => inWishList;
+		set
 		{
-			get => instanceEnabled;
-			protected set => RaiseAndSetIfChanged(ref instanceEnabled, value);
-		}
-
-		private bool InWishList
-		{
-			get => inWishList;
-			set
+			if (inWishList != value)
 			{
-				if (inWishList != value)
-				{
-					inWishList = value;
-					RaisePropertyChanged(nameof(InWishList));
-					RaisePropertyChanged(nameof(DisplayText));
-				}
+				inWishList = value;
+				RaisePropertyChanged(nameof(InWishList));
+				RaisePropertyChanged(nameof(DisplayText));
 			}
 		}
+	}
 
-		internal WishlistButton(Item item, bool inLibrary, bool inWishList) : base(item, inLibrary)
+	internal WishlistButton(Item item, bool inLibrary, bool inWishList) : base(item, inLibrary)
+	{
+		this.inWishList = inWishList;
+	}
+
+	public override async Task PerformClickAsync(LibraryBook accountBook)
+	{
+		if (!Enabled || !HasButtonAction || Item.Asin is null) return;
+
+		Enabled = false;
+
+		try
 		{
-			this.inWishList = inWishList;
-		}
+			Api api = await accountBook.GetApiAsync();
 
-		public override async Task PerformClickAsync(LibraryBook accountBook)
-		{
-			if (!Enabled || !HasButtonAction || Item.Asin is null) return;
-
-			Enabled = false;
-
-			try
+			if (InWishList)
 			{
-				Api api = await accountBook.GetApiAsync();
-
-				if (InWishList)
-				{
-					await api.DeleteFromWishListAsync(Item.Asin);
-					InWishList = false;
-				}
-				else
-				{
-					await api.AddToWishListAsync(Item.Asin);
-					InWishList = true;
-				}
+				await api.DeleteFromWishListAsync(Item.Asin);
+				InWishList = false;
 			}
-			catch (Exception ex)
+			else
 			{
-				var addRemove = InWishList ? "remove" : "add";
-				var toFrom = InWishList ? "from" : "to";
-
-				Serilog.Log.Logger.Error(ex, $"Failed to {addRemove} {{book}} {toFrom} wish list", new { Item.ProductId, Item.TitleWithSubtitle });
+				await api.AddToWishListAsync(Item.Asin);
+				InWishList = true;
 			}
-			finally { Enabled = true; }
 		}
-
-		public override int CompareTo(object? ob)
+		catch (Exception ex)
 		{
-			if (ob is not WishlistButton other) return -1;
+			var addRemove = InWishList ? "remove" : "add";
+			var toFrom = InWishList ? "from" : "to";
 
-			int libcmp = other.InLibrary.CompareTo(InLibrary);
-			return (libcmp == 0) ? other.InWishList.CompareTo(InWishList) : libcmp;
+			Serilog.Log.Logger.Error(ex, $"Failed to {addRemove} {{book}} {toFrom} wish list", new { Item.ProductId, Item.TitleWithSubtitle });
 		}
+		finally { Enabled = true; }
+	}
+
+	public override int CompareTo(object? ob)
+	{
+		if (ob is not WishlistButton other) return -1;
+
+		int libcmp = other.InLibrary.CompareTo(InLibrary);
+		return (libcmp == 0) ? other.InWishList.CompareTo(InWishList) : libcmp;
 	}
 }

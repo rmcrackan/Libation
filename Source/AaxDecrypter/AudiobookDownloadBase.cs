@@ -45,7 +45,7 @@ public abstract class AudiobookDownloadBase
 	private readonly string tempFilePath;
 
 	protected AudiobookDownloadBase(string outDirectory, string cacheDirectory, IDownloadOptions dlOptions)
-	{			
+	{
 		OutputDirectory = ArgumentValidator.EnsureNotNullOrWhiteSpace(outDirectory, nameof(outDirectory));
 		DownloadOptions = ArgumentValidator.EnsureNotNull(dlOptions, nameof(dlOptions));
 		DownloadOptions.DownloadSpeedChanged += (_, speed) => InputFileStream.SpeedLimit = speed;

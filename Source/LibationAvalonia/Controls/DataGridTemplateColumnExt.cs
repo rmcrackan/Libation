@@ -1,13 +1,12 @@
 ﻿using Avalonia.Controls;
 
-namespace LibationAvalonia.Controls
+namespace LibationAvalonia.Controls;
+
+public partial class DataGridTemplateColumnExt : DataGridTemplateColumn
 {
-	public partial class DataGridTemplateColumnExt : DataGridTemplateColumn
+	protected override Control GenerateElement(DataGridCell cell, object dataItem)
 	{
-		protected override Control GenerateElement(DataGridCell cell, object dataItem)
-		{
-			cell.Tag = this;
-			return base.GenerateElement(cell, dataItem);
-		}
+		cell.Tag = this;
+		return base.GenerateElement(cell, dataItem);
 	}
 }

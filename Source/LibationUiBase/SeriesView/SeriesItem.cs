@@ -12,137 +12,136 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LibationUiBase.SeriesView
+namespace LibationUiBase.SeriesView;
+
+public class SeriesItem : ReactiveObject
 {
-	public class SeriesItem : ReactiveObject
+	public object? Cover { get; private set; }
+	public SeriesOrder Order { get; }
+	public string? Title => Item.TitleWithSubtitle;
+	public SeriesButton Button { get; }
+	public Item Item { get; }
+
+	private SeriesItem(Item item, string order, bool inLibrary, bool inWishList)
 	{
-		public object? Cover { get; private set; }
-		public SeriesOrder Order { get; }
-		public string? Title => Item.TitleWithSubtitle;
-		public SeriesButton Button { get; }
-		public Item Item { get; }
+		Item = item;
+		Order = new SeriesOrder(order);
+		Button = Item.Plans?.Any(p => p.IsAyce) is true ? new AyceButton(item, inLibrary) : new WishlistButton(item, inLibrary, inWishList);
+		LoadCover(item.PictureId ?? Item.PictureLarge);
+		Button.PropertyChanged += DownloadButton_PropertyChanged;
+	}
 
-		private SeriesItem(Item item, string order, bool inLibrary, bool inWishList)
+	public void ViewOnAudible(string localeString)
+	{
+		var locale = Localization.Get(localeString);
+		var link = $"https://www.audible.{locale.TopDomain}/pd/{Item.ProductId}";
+		Go.To.Url(link);
+	}
+
+	private void DownloadButton_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+		=> RaisePropertyChanged(nameof(Button));
+
+	private void LoadCover(string? pictureId)
+	{
+		if (string.IsNullOrEmpty(pictureId))
+			return;
+		var (isDefault, picture) = PictureStorage.GetPicture(new PictureDefinition(pictureId, PictureSize._80x80));
+		if (isDefault)
 		{
-			Item = item;
-			Order = new SeriesOrder(order);
-			Button = Item.Plans?.Any(p => p.IsAyce) is true ? new AyceButton(item, inLibrary) : new WishlistButton(item, inLibrary, inWishList);
-			LoadCover(item.PictureId ?? Item.PictureLarge);
-			Button.PropertyChanged += DownloadButton_PropertyChanged;
+			PictureStorage.PictureCached += PictureStorage_PictureCached;
 		}
+		Cover = BaseUtil.LoadImage(picture, PictureSize._80x80);
+	}
 
-		public void ViewOnAudible(string localeString)
+	private void PictureStorage_PictureCached(object? sender, PictureCachedEventArgs e)
+	{
+		if (e?.Definition.PictureId != null && Item?.PictureId != null)
 		{
-			var locale = Localization.Get(localeString);
-			var link = $"https://www.audible.{locale.TopDomain}/pd/{Item.ProductId}";
-			Go.To.Url(link);
-		}
-
-		private void DownloadButton_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-			=> RaisePropertyChanged(nameof(Button));
-
-		private void LoadCover(string? pictureId)
-		{
-			if (string.IsNullOrEmpty(pictureId))
-				return;
-			var (isDefault, picture) = PictureStorage.GetPicture(new PictureDefinition(pictureId, PictureSize._80x80));
-			if (isDefault)
+			byte[] picture = e.Picture;
+			if ((picture == null || picture.Length != 0) && e.Definition.PictureId == Item.PictureId)
 			{
-				PictureStorage.PictureCached += PictureStorage_PictureCached;
-			}
-			Cover = BaseUtil.LoadImage(picture, PictureSize._80x80);
-		}
-
-		private void PictureStorage_PictureCached(object? sender, PictureCachedEventArgs e)
-		{
-			if (e?.Definition.PictureId != null && Item?.PictureId != null)
-			{
-				byte[] picture = e.Picture;
-				if ((picture == null || picture.Length != 0) && e.Definition.PictureId == Item.PictureId)
-				{
-					Cover = BaseUtil.LoadImage(e.Picture, PictureSize._80x80);
-					PictureStorage.PictureCached -= PictureStorage_PictureCached;
-					RaisePropertyChanged(nameof(Cover));
-				}
+				Cover = BaseUtil.LoadImage(e.Picture, PictureSize._80x80);
+				PictureStorage.PictureCached -= PictureStorage_PictureCached;
+				RaisePropertyChanged(nameof(Cover));
 			}
 		}
+	}
 
-		public static async Task<Dictionary<Item, List<SeriesItem>>> GetAllSeriesItemsAsync(LibraryBook libraryBook)
+	public static async Task<Dictionary<Item, List<SeriesItem>>> GetAllSeriesItemsAsync(LibraryBook libraryBook)
+	{
+		var api = await libraryBook.GetApiAsync();
+
+		//Get Item for each series that this book belong to
+		var seriesItemsTask = api.GetCatalogProductsAsync(libraryBook.Book.SeriesLink.Select(s => s.Series.AudibleSeriesId), CatalogOptions.ResponseGroupOptions.Media | CatalogOptions.ResponseGroupOptions.Relationships);
+
+		using var semaphore = new SemaphoreSlim(10);
+
+		//Start getting the wishlist in the background
+		var wishlistTask = api.GetWishListProductsAsync(
+			new WishListOptions
+			{
+				PageNumber = 0,
+				NumberOfResultPerPage = 50,
+				ResponseGroups = WishListOptions.ResponseGroupOptions.None
+			},
+			numItemsPerRequest: 50,
+			semaphore);
+
+		var items = new Dictionary<Item, List<Item>>();
+
+		//Get all children of all series
+		foreach (var series in await seriesItemsTask)
 		{
-			var api = await libraryBook.GetApiAsync();
+			//Books that are part of series have RelationshipType.Series
+			//Podcast episodes have RelationshipType.Episode
+			var childrenAsins = series.Relationships
+				?.Where(r => r.RelationshipType is RelationshipType.Series or RelationshipType.Episode && r.RelationshipToProduct is RelationshipToProduct.Child)
+				.Select(r => r.Asin)
+				.OfType<string>()
+				.ToList();
 
-			//Get Item for each series that this book belong to
-			var seriesItemsTask = api.GetCatalogProductsAsync(libraryBook.Book.SeriesLink.Select(s => s.Series.AudibleSeriesId), CatalogOptions.ResponseGroupOptions.Media | CatalogOptions.ResponseGroupOptions.Relationships);
-
-			using var semaphore = new SemaphoreSlim(10);
-
-			//Start getting the wishlist in the background
-			var wishlistTask = api.GetWishListProductsAsync(
-				new WishListOptions
-				{
-					PageNumber = 0,
-					NumberOfResultPerPage = 50,
-					ResponseGroups = WishListOptions.ResponseGroupOptions.None
-				},
-				numItemsPerRequest: 50,
-				semaphore);
-
-			var items = new Dictionary<Item, List<Item>>();
-
-			//Get all children of all series
-			foreach (var series in await seriesItemsTask)
+			if (childrenAsins?.Count > 0)
 			{
-				//Books that are part of series have RelationshipType.Series
-				//Podcast episodes have RelationshipType.Episode
-				var childrenAsins = series.Relationships
-					?.Where(r => r.RelationshipType is RelationshipType.Series or RelationshipType.Episode && r.RelationshipToProduct is RelationshipToProduct.Child)
-					.Select(r => r.Asin)
-					.OfType<string>()
-					.ToList();
+				var children = await api.GetCatalogProductsAsync(childrenAsins, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS, 50, semaphore);
 
-				if (childrenAsins?.Count > 0)
-				{
-					var children = await api.GetCatalogProductsAsync(childrenAsins, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS, 50, semaphore);
-					
-					//If the price is null, this item is not available to the user
-					var childrenWithPrices = children.Where(p => p.Price != null).ToList();
+				//If the price is null, this item is not available to the user
+				var childrenWithPrices = children.Where(p => p.Price != null).ToList();
 
-					if (childrenWithPrices.Count > 0)
-						items[series] = childrenWithPrices;
-				}
+				if (childrenWithPrices.Count > 0)
+					items[series] = childrenWithPrices;
 			}
-
-			//Await the wishlist asins
-			var wishlistAsins = (await wishlistTask).Select(w => w.Asin).ToHashSet();
-
-			var fullLib = DbContexts.GetLibrary_Flat_NoTracking();
-			var seriesEntries = new Dictionary<Item, List<SeriesItem>>();
-
-			//Create a SeriesItem liste for each series.
-			foreach (var series in items.Keys)
-			{
-				ApiExtended.SetSeries(series, items[series]);
-
-				seriesEntries[series] = new List<SeriesItem>();
-
-				foreach (var item in items[series].Where(i => !string.IsNullOrEmpty(i.PictureId)))
-				{
-					var order = item.Series?.Single(s => s.Asin == series.Asin).Sequence ?? "-1";
-					//Match the account/book in the database
-					var inLibrary = fullLib.Any(lb => lb.Account == libraryBook.Account && lb.Book.AudibleProductId == item.ProductId && !lb.AbsentFromLastScan);
-					var inWishList = wishlistAsins.Contains(item.Asin);
-
-					seriesEntries[series].Add(new SeriesItem(item, order, inLibrary, inWishList));
-				}
-			}
-
-			return seriesEntries;
 		}
 
-		~SeriesItem()
+		//Await the wishlist asins
+		var wishlistAsins = (await wishlistTask).Select(w => w.Asin).ToHashSet();
+
+		var fullLib = DbContexts.GetLibrary_Flat_NoTracking();
+		var seriesEntries = new Dictionary<Item, List<SeriesItem>>();
+
+		//Create a SeriesItem liste for each series.
+		foreach (var series in items.Keys)
 		{
-			PictureStorage.PictureCached -= PictureStorage_PictureCached;
-			Button.PropertyChanged -= DownloadButton_PropertyChanged;
+			ApiExtended.SetSeries(series, items[series]);
+
+			seriesEntries[series] = new List<SeriesItem>();
+
+			foreach (var item in items[series].Where(i => !string.IsNullOrEmpty(i.PictureId)))
+			{
+				var order = item.Series?.Single(s => s.Asin == series.Asin).Sequence ?? "-1";
+				//Match the account/book in the database
+				var inLibrary = fullLib.Any(lb => lb.Account == libraryBook.Account && lb.Book.AudibleProductId == item.ProductId && !lb.AbsentFromLastScan);
+				var inWishList = wishlistAsins.Contains(item.Asin);
+
+				seriesEntries[series].Add(new SeriesItem(item, order, inLibrary, inWishList));
+			}
 		}
+
+		return seriesEntries;
+	}
+
+	~SeriesItem()
+	{
+		PictureStorage.PictureCached -= PictureStorage_PictureCached;
+		Button.PropertyChanged -= DownloadButton_PropertyChanged;
 	}
 }

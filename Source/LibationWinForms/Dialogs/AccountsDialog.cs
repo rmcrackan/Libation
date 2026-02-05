@@ -112,7 +112,7 @@ public partial class AccountsDialog : Form
 		this.Close();
 	}
 
-	private record AccountDto (string AccountId, string? AccountName, string LocaleName,bool LibraryScan);
+	private record AccountDto(string AccountId, string? AccountName, string LocaleName, bool LibraryScan);
 
 	private void saveBtn_Click(object sender, EventArgs e)
 	{

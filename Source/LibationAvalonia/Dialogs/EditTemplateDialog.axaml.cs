@@ -17,7 +17,7 @@ namespace LibationAvalonia.Dialogs;
 
 public partial class EditTemplateDialog : DialogWindow
 {
-	private EditTemplateViewModel? _viewModel;
+	private readonly EditTemplateViewModel? _viewModel;
 
 	public EditTemplateDialog()
 	{
@@ -27,7 +27,7 @@ public partial class EditTemplateDialog : DialogWindow
 		{
 			var mockInstance = Configuration.CreateMockInstance();
 			mockInstance.Books = "/Path/To/Books";
-			RequestedThemeVariant  = ThemeVariant.Dark;
+			RequestedThemeVariant = ThemeVariant.Dark;
 			var editor = TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(mockInstance.Books, mockInstance.FileTemplate);
 			_viewModel = new(mockInstance, editor);
 			_viewModel.ResetTextBox(editor.EditingTemplate.TemplateText);

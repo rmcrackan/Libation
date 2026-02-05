@@ -14,7 +14,7 @@ public class IcoEncoder : IImageEncoder
 {
 	public bool SkipMetadata { get; init; } = true;
 	public ReadOnlyCollection<int> ExportSizes { get; }
-	public IcoEncoder(): this(512, 256, 128, 96, 64, 48, 32, 24) { }
+	public IcoEncoder() : this(512, 256, 128, 96, 64, 48, 32, 24) { }
 	public IcoEncoder(params int[] icoSizes)
 	{
 		Array.Sort(icoSizes);
