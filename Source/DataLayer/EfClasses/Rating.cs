@@ -1,6 +1,5 @@
 ﻿using System;
 
-#nullable enable
 namespace DataLayer
 {
     /// <summary>Parameterless ctor and setters should be used by EF only. Everything else should treat it as immutable</summary>

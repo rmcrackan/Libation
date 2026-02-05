@@ -607,17 +607,24 @@ namespace LibationAvalonia.Views
 				lbe.LastDownload.OpenReleaseUrl();
 		}
 
-		public void Cover_Click(object sender, Avalonia.Input.TappedEventArgs args)
+		public async void Cover_Click(object sender, Avalonia.Input.TappedEventArgs args)
 		{
 			if (sender is not Image tblock || tblock.DataContext is not GridEntry gEntry)
 				return;
+
+			var pictureId = gEntry.LibraryBook.Book.PictureLarge ?? gEntry.LibraryBook.Book.PictureId;
+			if (string.IsNullOrEmpty(pictureId))
+			{
+				await MessageBox.Show(VisualRoot as Window, "No cover art is available for this book.", "No Cover Art", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return;
+			}
 
 			if (imageDisplayDialog is null || !imageDisplayDialog.IsVisible)
 			{
 				imageDisplayDialog = new ImageDisplayDialog();
 			}
 
-			var picDef = new PictureDefinition(gEntry.LibraryBook.Book.PictureLarge ?? gEntry.LibraryBook.Book.PictureId, PictureSize.Native);
+			var picDef = new PictureDefinition(pictureId, PictureSize.Native);
 
 			void PictureCached(object? sender, PictureCachedEventArgs e)
 			{

@@ -36,7 +36,7 @@ namespace DataLayer
         public string AudibleProductId { get; private set; }
         public string Title { get; private set; }
         public string Subtitle { get; private set; }
-        private string _titleWithSubtitle;
+        private string? _titleWithSubtitle;
         public string TitleWithSubtitle => _titleWithSubtitle ??= string.IsNullOrEmpty(Subtitle) ? Title : $"{Title}: {Subtitle}";
         public string Description { get; private set; }
         public int LengthInMinutes { get; private set; }
@@ -44,14 +44,14 @@ namespace DataLayer
         public string Locale { get; private set; }
 
         // mutable
-        public string PictureId { get; set; }
-        public string PictureLarge { get; set; }
+        public string? PictureId { get; set; }
+        public string? PictureLarge { get; set; }
 
         // book details
         public bool IsAbridged { get; private set; }
         public bool IsSpatial { get; private set; }
         public DateTime? DatePublished { get; private set; }
-        public string Language { get; private set; }
+        public string? Language { get; private set; }
 
         // is owned, not optional 1:1
         public UserDefinedItem UserDefinedItem { get; private set; }
@@ -60,15 +60,17 @@ namespace DataLayer
         /// <summary>The product's aggregate community rating</summary>
         public Rating Rating { get; private set; } = new Rating(0, 0, 0);
 
-        // ef-ctor
-        private Book() { }
-        // non-ef ctor
-        /// <param name="audibleProductId">special id class b/c it's too easy to get string order mixed up</param>
-        public Book(
+		// ef-ctor
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+		private Book() { }
+#pragma warning restore CS8618
+							  // non-ef ctor
+		/// <param name="audibleProductId">special id class b/c it's too easy to get string order mixed up</param>
+		public Book(
             AudibleProductId audibleProductId,
-            string title,
-            string subtitle,
-            string description,
+            string? title,
+            string? subtitle,
+            string? description,
             int lengthInMinutes,
             ContentType contentType,
             IEnumerable<Contributor> authors,
@@ -94,8 +96,10 @@ namespace DataLayer
             _seriesLink = new HashSet<SeriesBook>();
             _supplements = new HashSet<Supplement>();
 
-            // simple assigns
-            UpdateTitle(title, subtitle);
+			// simple assigns
+
+			Title = title?.Trim() ?? "";
+			Subtitle = subtitle?.Trim() ?? "";
             Description = description?.Trim() ?? "";
             LengthInMinutes = lengthInMinutes;
             ContentType = contentType;
@@ -105,7 +109,7 @@ namespace DataLayer
             ReplaceNarrators(narrators);
         }
 
-        public void UpdateTitle(string title, string subtitle)
+        public void UpdateTitle(string? title, string? subtitle)
         {
             Title = title?.Trim() ?? "";
             Subtitle = subtitle?.Trim() ?? "";
@@ -120,32 +124,36 @@ namespace DataLayer
 
         public IEnumerable<Contributor> Authors => ContributorsLink.ByRole(Role.Author).Select(bc => bc.Contributor).ToList();
         public IEnumerable<Contributor> Narrators => ContributorsLink.ByRole(Role.Narrator).Select(bc => bc.Contributor).ToList();
-        public string Publisher => ContributorsLink.ByRole(Role.Publisher).SingleOrDefault()?.Contributor.Name;
+        public string? Publisher => ContributorsLink.ByRole(Role.Publisher).SingleOrDefault()?.Contributor.Name;
 
-        public void ReplaceAuthors(IEnumerable<Contributor> authors, DbContext context = null)
+        public void ReplaceAuthors(IEnumerable<Contributor> authors, DbContext? context = null)
             => replaceContributors(authors, Role.Author, context);
-        public void ReplaceNarrators(IEnumerable<Contributor> narrators, DbContext context = null)
+        public void ReplaceNarrators(IEnumerable<Contributor> narrators, DbContext? context = null)
             => replaceContributors(narrators, Role.Narrator, context);
-        public void ReplacePublisher(Contributor publisher, DbContext context = null)
+        public void ReplacePublisher(Contributor publisher, DbContext? context = null)
             => replaceContributors(new List<Contributor> { publisher }, Role.Publisher, context);
-        private void replaceContributors(IEnumerable<Contributor> newContributors, Role role, DbContext context = null)
+        private void replaceContributors(IEnumerable<Contributor> newContributors, Role role, DbContext? context = null)
         {
             ArgumentValidator.EnsureEnumerableNotNullOrEmpty(newContributors, nameof(newContributors));
 
             // the edge cases of doing local-loaded vs remote-only got weird. just load it
             if (ContributorsLink is null)
-                getEntry(context).Collection(s => s.ContributorsLink).Load();
+			{
+				if (context is null)
+					throw new ArgumentNullException(nameof(context), "A DbContext is required to load the ContributorsLink collection");
+				getEntry(context).Collection(s => s.ContributorsLink).Load();
+            }
 
             var isIdentical
                 = ContributorsLink
-                .ByRole(role)
+                !.ByRole(role)
                 .Select(c => c.Contributor)
                 .SequenceEqual(newContributors);
 
             if (isIdentical)
                 return;
 
-            ContributorsLink.RemoveWhere(bc => bc.Role == role);
+            ContributorsLink!.RemoveWhere(bc => bc.Role == role);
             addNewContributors(newContributors, role);
         }
 
@@ -174,7 +182,7 @@ namespace DataLayer
         #region categories
         internal HashSet<BookCategory> CategoriesLink { get; private set; }
 
-        private ReadOnlyCollection<BookCategory> _categoriesReadOnly;
+        private ReadOnlyCollection<BookCategory>? _categoriesReadOnly;
         public ReadOnlyCollection<BookCategory> Categories
         {
             get
@@ -196,29 +204,33 @@ namespace DataLayer
 		#endregion
 
 		#region series
-		private HashSet<SeriesBook> _seriesLink;
-        public IEnumerable<SeriesBook> SeriesLink => _seriesLink?.ToList();
+		private HashSet<SeriesBook>? _seriesLink;
+        public IEnumerable<SeriesBook> SeriesLink => _seriesLink?.ToList() ?? [];
 
-        public void UpsertSeries(Series series, string order, DbContext context = null)
+        public void UpsertSeries(Series series, string? order, DbContext? context = null)
         {
             ArgumentValidator.EnsureNotNull(series, nameof(series));
 
             // our add() is conditional upon what's already included in the collection.
             // therefore if not loaded, a trip is required. might as well just load it
             if (_seriesLink is null)
+            {
+                if (context is null)
+                    throw new ArgumentNullException(nameof(context), "A DbContext is required to load the SeriesLink collection");
 				getEntry(context).Collection(s => s.SeriesLink).Load();
+            }
 
-			var singleSeriesBook = _seriesLink.SingleOrDefault(sb => sb.Series == series);
+			var singleSeriesBook = _seriesLink!.SingleOrDefault(sb => sb.Series == series);
             if (singleSeriesBook is null)
-                _seriesLink.Add(new SeriesBook(series, this, order));
+                _seriesLink!.Add(new SeriesBook(series, this, order));
             else
                 singleSeriesBook.UpdateOrder(order);
         }
         #endregion
 
         #region supplements
-        private HashSet<Supplement> _supplements;
-        public IEnumerable<Supplement> Supplements => _supplements?.ToList();
+        private HashSet<Supplement>? _supplements;
+        public IEnumerable<Supplement> Supplements => _supplements?.ToList() ?? [];
 
         public void AddSupplementDownloadUrl(string url)
         {
@@ -227,10 +239,10 @@ namespace DataLayer
 
             ArgumentValidator.EnsureNotNullOrWhiteSpace(url, nameof(url));
 
-            if (_supplements.Any(s => url.EqualsInsensitive(url)))
+            if (_supplements?.Any(s => url.EqualsInsensitive(url)) is true)
                 return;
 
-            _supplements.Add(new Supplement(this, url));
+            _supplements?.Add(new Supplement(this, url));
             UserDefinedItem.PdfStatus ??= LiberatedStatus.NotLiberated;
         }
         #endregion
@@ -238,7 +250,7 @@ namespace DataLayer
         public void UpdateProductRating(float overallRating, float performanceRating, float storyRating)
             => Rating.Update(overallRating, performanceRating, storyRating);
 
-        public void UpdateBookDetails(bool isAbridged, bool? isSpatial, DateTime? datePublished, string language)
+        public void UpdateBookDetails(bool isAbridged, bool? isSpatial, DateTime? datePublished, string? language)
         {
             // don't overwrite with default values
             IsAbridged |= isAbridged;

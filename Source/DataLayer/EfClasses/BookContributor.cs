@@ -14,8 +14,10 @@ namespace DataLayer
         public Book Book { get; private set; }
         public Contributor Contributor { get; private set; }
 
-        private BookContributor() { }
-        internal BookContributor(Book book, Contributor contributor, Role role, byte order)
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+		private BookContributor() { }
+#pragma warning restore CS8618
+		internal BookContributor(Book book, Contributor contributor, Role role, byte order)
         {
             ArgumentValidator.EnsureNotNull(book, nameof(book));
             ArgumentValidator.EnsureNotNull(contributor, nameof(contributor));

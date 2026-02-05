@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 
-#nullable enable
 namespace LibationCli;
 
 public enum Justify

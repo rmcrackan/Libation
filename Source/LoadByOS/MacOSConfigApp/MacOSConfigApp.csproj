@@ -9,6 +9,7 @@
     <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup>

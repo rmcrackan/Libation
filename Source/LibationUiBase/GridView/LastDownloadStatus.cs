@@ -25,14 +25,14 @@ namespace LibationUiBase.GridView
 		public void OpenReleaseUrl()
 		{
 			if (IsValid)
-				Dinah.Core.Go.To.Url($"{AppScaffolding.LibationScaffolding.RepositoryUrl}/releases/tag/v{LastDownloadedVersion!.ToVersionString()}");
+				Dinah.Core.Go.To.Url($"{AppScaffolding.LibationScaffolding.RepositoryUrl}/releases/tag/v{LastDownloadedVersion.ToVersionString()}");
 		}
 
 		public override string ToString()
 			=> IsValid ? $"""
 				{dateString()} {versionString()}
 				{LastDownloadedFormat}
-				Libation v{LastDownloadedVersion!.ToVersionString()}
+				Libation v{LastDownloadedVersion.ToVersionString()}
 				""" : "";
 
 		private string versionString() => LastDownloadedFileVersion is string ver ? $"(File v.{ver})" : "";

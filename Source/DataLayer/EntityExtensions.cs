@@ -52,15 +52,15 @@ namespace DataLayer
 				string getSeriesNameString(SeriesBook sb)
 					=> includeIndex && !string.IsNullOrWhiteSpace(sb.Order) && sb.Order != "-1"
 					? $"{sb.Series.Name} (#{sb.Order})"
-					: sb.Series.Name;
+					: sb.Series.Name ?? "";
 			}
 
 			public string[] LowestCategoryNames()
-				=> book.CategoriesLink?.Any() is not true ? Array.Empty<string>()
+				=> book.CategoriesLink?.Count is 0 or null ? []
 				: book
 					.CategoriesLink
 					.Select(cl => cl.CategoryLadder.Categories.LastOrDefault()?.Name)
-					.Where(c => c is not null)
+					.OfType<string>()
 					.Distinct()
 					.ToArray();
 
@@ -72,8 +72,8 @@ namespace DataLayer
 					.Select(c => c.Name)
 					.ToArray();
 
-			public string[] AllCategoryIds()
-				=> book.CategoriesLink?.Any() is not true ? null
+			public string[]? AllCategoryIds()
+				=> book.CategoriesLink?.Count is null or 0 ? null
 				: book
 					.CategoriesLink
 					.SelectMany(cl => cl.CategoryLadder.Categories)

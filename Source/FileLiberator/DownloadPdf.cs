@@ -33,7 +33,8 @@ namespace FileLiberator
 				if (result.IsSuccess)
 				{
 					SetFileTime(libraryBook, actualDownloadedFilePath);
-					SetDirectoryTime(libraryBook, Path.GetDirectoryName(actualDownloadedFilePath));
+					if (Path.GetDirectoryName(actualDownloadedFilePath) is string outputDir)
+						SetDirectoryTime(libraryBook, outputDir);
 				}
 				await libraryBook.UpdatePdfStatusAsync(result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated);
 
@@ -56,7 +57,7 @@ namespace FileLiberator
 
 		private static string getProposedDownloadFilePath(LibraryBook libraryBook)
 		{
-			var extension = Path.GetExtension(getdownloadUrl(libraryBook));
+			var extension = Path.GetExtension(getdownloadUrl(libraryBook)) ?? ".pdf";
 
 			// if audio file exists, get it's dir. else return base Book dir
 			var existingPath = Path.GetDirectoryName(AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId));
@@ -66,7 +67,7 @@ namespace FileLiberator
 			return AudibleFileStorage.Audio.GetBooksDirectoryFilename(libraryBook, extension);
 		}
 
-		private static string getdownloadUrl(LibraryBook libraryBook)
+		private static string? getdownloadUrl(LibraryBook libraryBook)
 			=> libraryBook?.Book?.Supplements?.FirstOrDefault()?.Url;
 
 		private async Task<string> downloadPdfAsync(LibraryBook libraryBook, string proposedDownloadFilePath)

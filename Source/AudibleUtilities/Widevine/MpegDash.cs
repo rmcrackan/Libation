@@ -6,7 +6,6 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-#nullable enable
 namespace AudibleUtilities.Widevine;
 
 public class MpegDash

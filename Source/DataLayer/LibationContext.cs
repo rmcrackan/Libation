@@ -27,7 +27,7 @@ namespace DataLayer
         public DbSet<Category> Categories { get; private set; }
         public DbSet<CategoryLadder> CategoryLadders { get; private set; }
 
-        public event EventHandler ObjectDisposed;
+        public event EventHandler? ObjectDisposed;
         public override void Dispose()
         {
             base.Dispose();

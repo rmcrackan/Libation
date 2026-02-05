@@ -123,8 +123,8 @@ namespace LibationUiBase
 			return Task.FromResult<UpgradeProperties?>(new UpgradeProperties(
 						"http://fake.url/to/bundle.zip",
 						"",
-						Path.GetFileName(MockUpgradeBundle),
-						LibationScaffolding.BuildVersion,
+						Path.GetFileName(MockUpgradeBundle) ?? "",
+						LibationScaffolding.BuildVersion ?? new(1, 0, 0, 0),
 						"<RELEASE NOTES>"));
 		}
 

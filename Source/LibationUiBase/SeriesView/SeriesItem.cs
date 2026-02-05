@@ -18,7 +18,7 @@ namespace LibationUiBase.SeriesView
 	{
 		public object? Cover { get; private set; }
 		public SeriesOrder Order { get; }
-		public string Title => Item.TitleWithSubtitle;
+		public string? Title => Item.TitleWithSubtitle;
 		public SeriesButton Button { get; }
 		public Item Item { get; }
 
@@ -26,8 +26,8 @@ namespace LibationUiBase.SeriesView
 		{
 			Item = item;
 			Order = new SeriesOrder(order);
-			Button = Item.Plans.Any(p => p.IsAyce) ? new AyceButton(item, inLibrary) : new WishlistButton(item, inLibrary, inWishList);
-			LoadCover(item.PictureId);
+			Button = Item.Plans?.Any(p => p.IsAyce) is true ? new AyceButton(item, inLibrary) : new WishlistButton(item, inLibrary, inWishList);
+			LoadCover(item.PictureId ?? Item.PictureLarge);
 			Button.PropertyChanged += DownloadButton_PropertyChanged;
 		}
 
@@ -41,8 +41,10 @@ namespace LibationUiBase.SeriesView
 		private void DownloadButton_PropertyChanged(object? sender, PropertyChangedEventArgs e)
 			=> RaisePropertyChanged(nameof(Button));
 
-		private void LoadCover(string pictureId)
+		private void LoadCover(string? pictureId)
 		{
+			if (string.IsNullOrEmpty(pictureId))
+				return;
 			var (isDefault, picture) = PictureStorage.GetPicture(new PictureDefinition(pictureId, PictureSize._80x80));
 			if (isDefault)
 			{
@@ -93,11 +95,12 @@ namespace LibationUiBase.SeriesView
 				//Books that are part of series have RelationshipType.Series
 				//Podcast episodes have RelationshipType.Episode
 				var childrenAsins = series.Relationships
-					.Where(r => r.RelationshipType is RelationshipType.Series or RelationshipType.Episode && r.RelationshipToProduct is RelationshipToProduct.Child)
+					?.Where(r => r.RelationshipType is RelationshipType.Series or RelationshipType.Episode && r.RelationshipToProduct is RelationshipToProduct.Child)
 					.Select(r => r.Asin)
+					.OfType<string>()
 					.ToList();
 
-				if (childrenAsins.Count > 0)
+				if (childrenAsins?.Count > 0)
 				{
 					var children = await api.GetCatalogProductsAsync(childrenAsins, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS, 50, semaphore);
 					
@@ -124,7 +127,7 @@ namespace LibationUiBase.SeriesView
 
 				foreach (var item in items[series].Where(i => !string.IsNullOrEmpty(i.PictureId)))
 				{
-					var order = item.Series.Single(s => s.Asin == series.Asin).Sequence;
+					var order = item.Series?.Single(s => s.Asin == series.Asin).Sequence ?? "-1";
 					//Match the account/book in the database
 					var inLibrary = fullLib.Any(lb => lb.Account == libraryBook.Account && lb.Book.AudibleProductId == item.ProductId && !lb.AbsentFromLastScan);
 					var inWishList = wishlistAsins.Contains(item.Asin);

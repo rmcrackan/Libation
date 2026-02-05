@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Dinah.Core;
 
-#nullable enable
 namespace DataLayer
 {
     /// <summary>

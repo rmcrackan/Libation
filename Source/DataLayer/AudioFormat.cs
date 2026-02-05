@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace DataLayer;
 

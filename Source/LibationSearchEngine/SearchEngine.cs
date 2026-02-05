@@ -42,7 +42,7 @@ namespace LibationSearchEngine
             { FieldType.String, lb => lb.Book.Publisher, nameof(Book.Publisher) },
             { FieldType.String, lb => lb.Book.SeriesNames(), "SeriesNames", "Narrator", "Series" },
             { FieldType.String, lb => string.Join(", ", lb.Book.SeriesLink.Select(s => s.Series.AudibleSeriesId)), "SeriesId" },
-            { FieldType.String, lb => lb.Book.AllCategoryIds() is null ? null : string.Join(", ", lb.Book.AllCategoryIds()), "CategoriesId", "CategoryId" },
+            { FieldType.String, lb => lb.Book.AllCategoryIds() is not { } categories ? null : string.Join(", ", categories), "CategoriesId", "CategoryId" },
             { FieldType.String, lb => lb.Book.AllCategoryNames() is null ? null : string.Join(", ", lb.Book.AllCategoryNames()), "Category", "Categories", "CategoriesNames" },
             { FieldType.String, lb => lb.Book.UserDefinedItem.Tags, TAGS.FirstCharToUpper() },
             { FieldType.String, lb => lb.Book.Locale, "Locale", "Region" },
@@ -93,7 +93,7 @@ namespace LibationSearchEngine
             }
         }
 
-        public SearchEngine(string directory = null)
+        public SearchEngine(string? directory = null)
         {
             SearchEngineDirectory = directory
                 ?? new System.IO.DirectoryInfo(Configuration.Instance.LibationFiles.Location).CreateSubdirectoryEx("SearchEngine").FullName;
@@ -102,13 +102,14 @@ namespace LibationSearchEngine
         /// <summary>Long running. Use await Task.Run(() => UpdateBook(productId))</summary>
         public void UpdateBook(LibationContext context, string productId)
         {
-            var libraryBook = context.GetLibraryBook_Flat_NoTracking(productId);
-            var term = new Term(_ID_, productId);
+            if (context.GetLibraryBook_Flat_NoTracking(productId) is not { } libraryBook)
+                return;
 
-            var document = createBookIndexDocument(libraryBook);
+			var document = createBookIndexDocument(libraryBook);
             var createNewIndex = false;
 
-            using var index = getIndex();
+			var term = new Term(_ID_, productId);
+			using var index = getIndex();
             using var analyzer = new StandardAnalyzer(Version);
             using var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
             ixWriter.DeleteDocuments(term);
@@ -123,7 +124,8 @@ namespace LibationSearchEngine
             var allConcat =
                 FieldIndexRules
                 .Select(rule => rule.GetValue(libraryBook))
-                .Aggregate((a, b) => $"{a} {b}");
+                .OfType<string>()
+				.Aggregate((a, b) => $"{a} {b}");
             doc.AddAnalyzed(ALL, allConcat);
 
             foreach (var rule in FieldIndexRules)
@@ -152,17 +154,21 @@ namespace LibationSearchEngine
                 book.Book.AudibleProductId,
                 d =>
                 {
-                    var lib = FieldIndexRules.GetRuleByFieldName("IsLiberated");
-                    var libError = FieldIndexRules.GetRuleByFieldName("LiberatedError");
-                    var lastDl = FieldIndexRules.GetRuleByFieldName(nameof(UserDefinedItem.LastDownloaded));
-
-                    d.RemoveRule(lib);
-                    d.RemoveRule(libError);
-                    d.RemoveRule(lastDl);
-
-                    d.AddIndexRule(lib, book);
-                    d.AddIndexRule(libError, book);
-                    d.AddIndexRule(lastDl, book);
+                    if (FieldIndexRules.GetRuleByFieldName("IsLiberated") is { } lib)
+					{
+						d.RemoveRule(lib);
+						d.AddIndexRule(lib, book);
+					}
+                    if (FieldIndexRules.GetRuleByFieldName("LiberatedError") is { } libError)
+					{
+						d.RemoveRule(libError);
+						d.AddIndexRule(libError, book);
+					}
+					if (FieldIndexRules.GetRuleByFieldName(nameof(UserDefinedItem.LastDownloaded)) is { } lastDl)
+					{
+						d.RemoveRule(lastDl);
+						d.AddIndexRule(lastDl, book);
+					}
 				});
 
         public void UpdateUserRatings(LibraryBook book)
@@ -170,10 +176,11 @@ namespace LibationSearchEngine
                 book.Book.AudibleProductId,
                 d =>
 				{
-					var rating = FieldIndexRules.GetRuleByFieldName("UserRating");
-
-					d.RemoveRule(rating);
-					d.AddIndexRule(rating, book);
+					if (FieldIndexRules.GetRuleByFieldName("UserRating") is { } rating)
+					{
+						d.RemoveRule(rating);
+						d.AddIndexRule(rating, book);
+					}
 				});
 
         private void updateDocument(string productId, Action<Document> action)

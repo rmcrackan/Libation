@@ -41,7 +41,7 @@ namespace LinuxConfigApp
 				RunAsRoot("apt", $"install '{upgradeBundle}'");
 		}
 
-		private bool FindPkexec(out string exePath)
+		private bool FindPkexec(out string? exePath)
 		{
 			if (File.Exists("/usr/bin/pkexec"))
 			{
@@ -57,7 +57,7 @@ namespace LinuxConfigApp
 			return false;
 		}
 
-		public Process RunAsRoot(string exe, string args)
+		public Process? RunAsRoot(string exe, string args)
 		{
 			//try to use polkit directly
 			if (FindPkexec(out var pkexec))

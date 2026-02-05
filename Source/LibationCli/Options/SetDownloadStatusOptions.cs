@@ -25,7 +25,7 @@ namespace LibationCli
 		public bool Force { get; set; }
 
 		[Value(0, MetaName = "[asins]", HelpText = "Optional product IDs of books on which to set download status.")]
-		public IEnumerable<string> Asins { get; set; }
+		public IEnumerable<string>? Asins { get; set; }
 
 		protected override async Task ProcessAsync()
 		{
@@ -37,7 +37,7 @@ namespace LibationCli
 
 			var libraryBooks = DbContexts.GetLibrary_Flat_NoTracking();
 
-			if (Asins.Any())
+			if (Asins?.Any() is true)
 			{
 				var asins = Asins.Select(a => a.TrimStart('[').TrimEnd(']').ToLower()).ToArray();
 				libraryBooks = libraryBooks.Where(lb => lb.Book.AudibleProductId.ToLower().In(asins)).ToList();

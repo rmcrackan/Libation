@@ -17,7 +17,7 @@ namespace LibationAvalonia.Dialogs
 			{
 				Account = account;
 				IsChecked = account.LibraryScan;
-				Text = $"{account.AccountName} ({account.AccountId} - {account.Locale.Name})";
+				Text = $"{account.AccountName} ({account.AccountId} - {account.Locale?.Name})";
 			}
 			public Account Account { get; }
 			public string Text { get; }

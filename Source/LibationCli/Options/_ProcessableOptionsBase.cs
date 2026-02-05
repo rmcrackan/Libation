@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationCli
 {
 	public abstract class ProcessableOptionsBase : OptionsBase
@@ -61,12 +60,11 @@ namespace LibationCli
 					if (currentLibraryBook is null)
 						return null;
 
-					var quality
-						= Configuration.Instance.FileDownloadQuality == Configuration.DownloadQuality.High && currentLibraryBook.Book.PictureLarge is not null
-						? new PictureDefinition(currentLibraryBook.Book.PictureLarge, PictureSize.Native)
-						: new PictureDefinition(currentLibraryBook.Book.PictureId, PictureSize._500x500);
+					var pictureId = Configuration.Instance.FileDownloadQuality == Configuration.DownloadQuality.High
+					? currentLibraryBook.Book.PictureLarge ?? currentLibraryBook.Book.PictureId
+					: currentLibraryBook.Book.PictureId;
 
-					return PictureStorage.GetPictureSynchronously(quality);
+					return pictureId is null ? null : PictureStorage.GetPictureSynchronously(new PictureDefinition(pictureId, PictureSize.Native));
 				};
 			}
 

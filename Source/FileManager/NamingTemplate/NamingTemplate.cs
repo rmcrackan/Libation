@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 
-#nullable enable
 namespace FileManager.NamingTemplate;
 
 public class NamingTemplate

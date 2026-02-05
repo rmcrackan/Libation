@@ -6,91 +6,89 @@ using FileManager;
 using LibationFileManager;
 using LibationUiBase;
 
-#nullable enable
-namespace LibationWinForms
+namespace LibationWinForms;
+
+public partial class Form1
 {
-    public partial class Form1
-    {
-        private void Configure_NonUI()
+	private void Configure_NonUI()
+	{
+		AudibleApiStorage.LoadError += AudibleApiStorage_LoadError;
+
+		// init default/placeholder cover art
+		var format = System.Drawing.Imaging.ImageFormat.Jpeg;
+		PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));
+		PictureStorage.SetDefaultImage(PictureSize._300x300, Properties.Resources.default_cover_300x300.ToBytes(format));
+		PictureStorage.SetDefaultImage(PictureSize._500x500, Properties.Resources.default_cover_500x500.ToBytes(format));
+		PictureStorage.SetDefaultImage(PictureSize.Native, Properties.Resources.default_cover_500x500.ToBytes(format));
+
+		BaseUtil.SetLoadImageDelegate(WinFormsUtil.TryLoadImageOrDefault);
+		BaseUtil.SetLoadResourceImageDelegate(LoadResourceImage);
+
+		// wire-up event to automatically download after scan.
+		// winforms only. this should NOT be allowed in cli
+		updateCountsBw.RunWorkerCompleted += (object? sender, System.ComponentModel.RunWorkerCompletedEventArgs e) =>
 		{
-			AudibleApiStorage.LoadError += AudibleApiStorage_LoadError;
+			if (!Configuration.Instance.AutoDownloadEpisodes || e.Result is not LibraryCommands.LibraryStats libraryStats)
+				return;
 
-			// init default/placeholder cover art
-			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
-            PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));
-            PictureStorage.SetDefaultImage(PictureSize._300x300, Properties.Resources.default_cover_300x300.ToBytes(format));
-            PictureStorage.SetDefaultImage(PictureSize._500x500, Properties.Resources.default_cover_500x500.ToBytes(format));
-            PictureStorage.SetDefaultImage(PictureSize.Native, Properties.Resources.default_cover_500x500.ToBytes(format));
+			if ((libraryStats.PendingBooks + libraryStats.pdfsNotDownloaded) > 0)
+				BackupAllBooks(libraryStats.LibraryBooks);
+		};
+	}
 
-            BaseUtil.SetLoadImageDelegate(WinFormsUtil.TryLoadImageOrDefault);
-            BaseUtil.SetLoadResourceImageDelegate(LoadResourceImage);
+	private static object? LoadResourceImage(string resourceName)
+	{
+		if (Application.IsDarkModeEnabled)
+			resourceName += "_dark";
+		return Properties.Resources.ResourceManager.GetObject(resourceName);
+	}
 
-            // wire-up event to automatically download after scan.
-            // winforms only. this should NOT be allowed in cli
-            updateCountsBw.RunWorkerCompleted += (object? sender, System.ComponentModel.RunWorkerCompletedEventArgs e) =>
-            {
-                if (!Configuration.Instance.AutoDownloadEpisodes || e.Result is not LibraryCommands.LibraryStats libraryStats)
-                    return;
+	private void AudibleApiStorage_LoadError(object? sender, AccountSettingsLoadErrorEventArgs e)
+	{
+		try
+		{
+			//Backup AccountSettings.json and create a new, empty file.
+			var backupFile =
+				FileUtility.SaferMoveToValidPath(
+					e.SettingsFilePath,
+					e.SettingsFilePath,
+					Configuration.Instance.ReplacementCharacters,
+					"bak");
 
-                if ((libraryStats.PendingBooks + libraryStats.pdfsNotDownloaded) > 0)
-					BackupAllBooks(libraryStats.LibraryBooks);
-            };
+			AudibleApiStorage.EnsureAccountsSettingsFileExists();
+			e.Handled = true;
+
+			showAccountSettingsRecoveredMessage(backupFile);
+		}
+		catch
+		{
+			showAccountSettingsUnrecoveredMessage();
 		}
 
-		private static object? LoadResourceImage(string resourceName)
-		{
-			if (Application.IsDarkModeEnabled)
-				resourceName += "_dark";
-			return Properties.Resources.ResourceManager.GetObject(resourceName);
-		}
+		void showAccountSettingsRecoveredMessage(LongPath backupFile)
+		=> MessageBox.Show(this, $"""
+			Libation could not load your account settings, so it had created a new, empty account settings file.
 
-		private void AudibleApiStorage_LoadError(object? sender, AccountSettingsLoadErrorEventArgs e)
-		{
-			try
-			{
-				//Backup AccountSettings.json and create a new, empty file.
-				var backupFile = 
-					FileUtility.SaferMoveToValidPath(
-						e.SettingsFilePath,
-						e.SettingsFilePath,
-						Configuration.Instance.ReplacementCharacters,
-						"bak");
+			You will need to re-add you Audible account(s) before scanning or downloading.
 
-				AudibleApiStorage.EnsureAccountsSettingsFileExists();
-				e.Handled = true;
+			The old account settings file has been archived at '{backupFile.PathWithoutPrefix}'
 
-				showAccountSettingsRecoveredMessage(backupFile);
-			}
-			catch
-			{
-				showAccountSettingsUnrecoveredMessage();
-			}
+			{e.GetException().ToString()}
+			""",
+			"Error Loading Account Settings",
+			MessageBoxButtons.OK,
+			MessageBoxIcon.Warning);
 
-			void showAccountSettingsRecoveredMessage(LongPath backupFile)
-			=> MessageBox.Show(this, $"""
-				Libation could not load your account settings, so it had created a new, empty account settings file.
+		void showAccountSettingsUnrecoveredMessage()
+		=> MessageBox.Show(this, $"""
+			Libation could not load your account settings. The file may be corrupted, but Libation is unable to delete it.
 
-				You will need to re-add you Audible account(s) before scanning or downloading.
+			Please move or delete the account settings file '{e.SettingsFilePath}'
 
-				The old account settings file has been archived at '{backupFile.PathWithoutPrefix}'
-
-				{e.GetException().ToString()}
-				""",
-				"Error Loading Account Settings",
-				MessageBoxButtons.OK,
-				MessageBoxIcon.Warning);
-
-			void showAccountSettingsUnrecoveredMessage()
-			=> MessageBox.Show(this, $"""
-				Libation could not load your account settings. The file may be corrupted, but Libation is unable to delete it.
-
-				Please move or delete the account settings file '{e.SettingsFilePath}'
-
-				{e.GetException().ToString()}
-				""",
-				"Error Loading Account Settings",
-				MessageBoxButtons.OK,
-				MessageBoxIcon.Error);
-		}
+			{e.GetException().ToString()}
+			""",
+			"Error Loading Account Settings",
+			MessageBoxButtons.OK,
+			MessageBoxIcon.Error);
 	}
 }

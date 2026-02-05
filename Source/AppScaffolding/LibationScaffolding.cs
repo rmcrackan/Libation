@@ -46,21 +46,19 @@ namespace AppScaffolding
 		public static Variety Variety { get; private set; }
 
 		// AppScaffolding
-		private static Assembly _executingAssembly;
+		private static Assembly? _executingAssembly;
 		private static Assembly ExecutingAssembly
 			=> _executingAssembly ??= Assembly.GetExecutingAssembly();
 
 		// LibationWinForms or LibationCli
-		private static Assembly _entryAssembly;
-		private static Assembly EntryAssembly
+		private static Assembly? _entryAssembly;
+		private static Assembly? EntryAssembly
 			=> _entryAssembly ??= Assembly.GetEntryAssembly();
 
 		// previously: System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-		private static Version _buildVersion;
-		public static Version BuildVersion
-			=> _buildVersion
-			??= new[] { ExecutingAssembly.GetName(), EntryAssembly.GetName() }
-			.Max(a => a.Version);
+		private static Version? _buildVersion;
+		public static Version? BuildVersion
+			=> _buildVersion ??= new[] { ExecutingAssembly.GetName(), EntryAssembly?.GetName() }.Max(a => a?.Version);
 
 		/// <summary>Run migrations before loading Configuration for the first time. Then load and return Configuration</summary>
 		public static Configuration RunPreConfigMigrations()
@@ -305,8 +303,8 @@ namespace AppScaffolding
 
             Log.Logger.Information("Begin. {@DebugInfo}", new
 			{
-				AppName = EntryAssembly.GetName().Name,
-				Version = BuildVersion.ToString(),
+				AppName = EntryAssembly?.GetName().Name,
+				Version = BuildVersion?.ToString(),
 				ReleaseIdentifier,
 				Configuration.OS,
                 Environment.OSVersion,
@@ -342,14 +340,14 @@ namespace AppScaffolding
 #nullable restore
 		private static void wireUpSystemEvents(Configuration configuration)
 		{
-			LibraryCommands.LibrarySizeChanged += (object _, List<DataLayer.LibraryBook> libraryBooks)
+			LibraryCommands.LibrarySizeChanged += (object? _, List<DataLayer.LibraryBook> libraryBooks)
 				=> SearchEngineCommands.FullReIndex(libraryBooks);
 
 			LibraryCommands.BookUserDefinedItemCommitted += (_, books)
 				=> SearchEngineCommands.UpdateBooks(books);
 		}
 
-		public static UpgradeProperties GetLatestRelease()
+		public static UpgradeProperties? GetLatestRelease()
 		{
 			// timed out
 			(var version, var latest, var zip) = getLatestRelease(TimeSpan.FromSeconds(10));
@@ -358,7 +356,7 @@ namespace AppScaffolding
 				return null;
 
 			// we have an update
-			var zipUrl = zip?.BrowserDownloadUrl;
+			var zipUrl = zip.BrowserDownloadUrl;
 
 			Log.Logger.Information("Update available: {@DebugInfo}", new
 			{
@@ -369,7 +367,7 @@ namespace AppScaffolding
 
 			return new(zipUrl, latest.HtmlUrl, zip.Name, version, latest.Body);
 		}
-		private static (Version releaseVersion, Octokit.Release, Octokit.ReleaseAsset) getLatestRelease(TimeSpan timeout)
+		private static (Version? releaseVersion, Octokit.Release?, Octokit.ReleaseAsset?) getLatestRelease(TimeSpan timeout)
 		{
 			try
 			{
@@ -385,7 +383,7 @@ namespace AppScaffolding
 			}
 			return (null, null, null);
 		}
-		private static async System.Threading.Tasks.Task<(Version releaseVersion, Octokit.Release, Octokit.ReleaseAsset)> getLatestRelease()
+		private static async System.Threading.Tasks.Task<(Version? releaseVersion, Octokit.Release?, Octokit.ReleaseAsset?)> getLatestRelease()
 		{
 			const string ownerAccount = "rmcrackan";
 			const string repoName = "Libation";
@@ -404,7 +402,7 @@ namespace AppScaffolding
 			var bts = await gitHubClient.Repository.Content.GetRawContent(ownerAccount, repoName, ".releaseindex.json");
 			var releaseIndex = JObject.Parse(System.Text.Encoding.ASCII.GetString(bts));
 
-			string regexPattern;
+			string? regexPattern;
 
 			try
 			{
@@ -414,6 +412,8 @@ namespace AppScaffolding
 			{
 				regexPattern = releaseIndex.Value<string>(ReleaseIdentifier.ToString());
 			}
+			if (regexPattern is null)
+				return (null, null, null);
 
 			var regex = new System.Text.RegularExpressions.Regex(regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
@@ -516,7 +516,7 @@ namespace AppScaffolding
 							.Select(i => new JObject
 							{
 								{ "Id", i.Id },
-								{ "FileType", (int)FileTypes.GetFileTypeFromPath(i.Path) },
+								{ "FileType", (int)FileTypes.GetFileTypeFromPath(i.Path!) },
 								{ "Path", new JObject{ { "Path", i.Path } } }
 							})
 							.ToArray();

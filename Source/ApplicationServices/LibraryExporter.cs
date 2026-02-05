@@ -8,7 +8,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
-#nullable enable
 namespace ApplicationServices;
 
 public static class LibraryExporter

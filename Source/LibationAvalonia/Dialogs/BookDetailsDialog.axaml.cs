@@ -111,7 +111,8 @@ namespace LibationAvalonia.Dialogs
 				Tags = libraryBook.Book.UserDefinedItem.Tags;
 
 				//init cover image
-				var picture = PictureStorage.GetPictureSynchronously(new PictureDefinition(libraryBook.Book.PictureId, PictureSize._80x80));
+				byte[]? picture = libraryBook.Book.PictureId is not string picId  ? null
+					: PictureStorage.GetPictureSynchronously(new PictureDefinition(picId, PictureSize._80x80));
 				Cover = AvaloniaUtils.TryLoadImageOrDefault(picture, PictureSize._80x80);
 
 				var title = string.IsNullOrEmpty(Book.Subtitle) ? Book.Title : $"{Book.Title}\r\n        {Book.Subtitle}";

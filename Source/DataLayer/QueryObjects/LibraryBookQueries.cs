@@ -3,7 +3,6 @@ using System.Linq;
 using Dinah.Core;
 using Microsoft.EntityFrameworkCore;
 
-#nullable enable
 namespace DataLayer;
 
 // only library importing should use tracking. All else should be NoTracking.

@@ -58,7 +58,8 @@ namespace LibationAvalonia.ViewModels
 			return persister.AccountsSettings
 				.GetAll()
 				.Where(a => a.LibraryScan)
-				.Select(a => (a.AccountId, a.Locale.Name))
+				.Select(a => (a.AccountId, a.Locale?.Name))
+				.OfType<(string, string)>()
 				.ToList();
 		}
 

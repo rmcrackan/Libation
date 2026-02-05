@@ -24,7 +24,7 @@ namespace DtoImporterService
 		/// If means that all <see cref="LibraryBook"/> objects in the DbContext will have their <see cref="LibraryBook.Book"/> property populated.
 		/// If false, only those Books being imported were loaded, and some <see cref="LibraryBook"/> objects will have a null <see cref="LibraryBook.Book"/> property for books not included in the import set.
 		/// </summary>
-		internal bool LoadedEntireLibrary {get; private set; }
+		internal bool LoadedEntireLibrary { get; private set; }
 
 		public BookImporter(LibationContext context) : base(context)
 		{
@@ -78,16 +78,18 @@ namespace DtoImporterService
 		{
 			var qtyNew = 0;
 
-				foreach (var item in importItems)
+			foreach (var item in importItems)
+			{
+				if (item.DtoItem.ProductId is null)
+					continue;
+				if (!Cache.TryGetValue(item.DtoItem.ProductId, out var book))
 				{
-					if (!Cache.TryGetValue(item.DtoItem.ProductId, out var book))
-					{
-						book = createNewBook(item);
-						qtyNew++;
-					}
-
-					updateBook(item, book);
+					book = createNewBook(item);
+					qtyNew++;
 				}
+
+				updateBook(item, book);
+			}
 
 			return qtyNew;
 		}
@@ -99,30 +101,25 @@ namespace DtoImporterService
 			var contentType = GetContentType(item);
 
 			// absence of authors is very rare, but possible
-			if (!item.Authors?.Any() ?? true)
-				item.Authors = new[] { new Person { Name = "", Asin = null } };
+			if (item.Authors?.Length is null or 0)
+				item.Authors = [new Person { Name = "", Asin = null }];
 
 			// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
-			var authors = item
-				.Authors
-                .DistinctBy(a => a.Name)
-                .Select(a => contributorImporter.Cache[a.Name])
-				.ToList();
+			var authors = ContributorsFromCache(item.Authors);
 
 			var narrators
-				= item.Narrators is null || !item.Narrators.Any()
+				= item.Narrators?.Length is null or 0
 				// if no narrators listed, author is the narrator
 				? authors
 				// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
-				: item
-					.Narrators
-					.DistinctBy(a => a.Name)
-                    .Select(n => contributorImporter.Cache[n.Name])
-					.ToList();
+				: ContributorsFromCache(item.Narrators);
 
 			Book book;
 			try
 			{
+				if (item.ProductId is null)
+					throw new ArgumentNullException(nameof(item.ProductId), "ProductId is null when trying to create new Book.");
+
 				book = DbContext.Books.Add(new Book(
 					new AudibleProductId(item.ProductId),
 					item.Title,
@@ -139,14 +136,15 @@ namespace DtoImporterService
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "Error adding book. {@DebugInfo}", new {
+				Serilog.Log.Logger.Error(ex, "Error adding book. {@DebugInfo}", new
+				{
 					item.ProductId,
 					item.TitleWithSubtitle,
 					item.Description,
 					item.LengthInMinutes,
 					contentType,
-					QtyAuthors = authors?.Count,
-					QtyNarrators = narrators?.Count,
+					QtyAuthors = authors?.Length,
+					QtyNarrators = narrators?.Length,
 					importItem.LocaleName
 				});
 				throw;
@@ -159,7 +157,7 @@ namespace DtoImporterService
 				book.ReplacePublisher(publisher);
 			}
 
-            if (item.PdfUrl is not null)
+			if (item.PdfUrl is not null)
 				book.AddSupplementDownloadUrl(item.PdfUrl.ToString());
 
 			return book;
@@ -173,8 +171,7 @@ namespace DtoImporterService
 			// which would no import narrators with null ASINs. Thus, affected books had the
 			// author listed as the narrators. This can probably be removed in the future.
 			// Bug went live in 13.1.0 on 2026/01/02. Today is 2026/01/08.
-			var narrators = item.Narrators?.DistinctBy(a => a.Name).Select(n => contributorImporter.Cache[n.Name]).ToArray();
-			if (narrators is not null && narrators.Length > 0)
+			if (ContributorsFromCache(item.Narrators) is { } narrators && narrators.Length > 0)
 				book.ReplaceNarrators(narrators);
 
 			book.UpdateLengthInMinutes(item.LengthInMinutes);
@@ -185,20 +182,20 @@ namespace DtoImporterService
 			// set/update book-specific info which may have changed
 			if (item.PictureId is not null)
 				book.PictureId = item.PictureId;
-			
+
 			if (item.PictureLarge is not null)
 				book.PictureLarge = item.PictureLarge;
 
 			if (item.IsFinished is not null)
-                book.UserDefinedItem.IsFinished = item.IsFinished.Value;
+				book.UserDefinedItem.IsFinished = item.IsFinished.Value;
 
-            // 2023-02-01
-            // updateBook must update language on books which were imported before the migration which added language.
-            // 2025-07-30
-            // updateBook must update isSpatial on books which were imported before the migration which added isSpatial.
-            book.UpdateBookDetails(item.IsAbridged, item.AssetDetails?.Any(a => a.IsSpatial), item.DatePublished, item.Language);
+			// 2023-02-01
+			// updateBook must update language on books which were imported before the migration which added language.
+			// 2025-07-30
+			// updateBook must update isSpatial on books which were imported before the migration which added isSpatial.
+			book.UpdateBookDetails(item.IsAbridged, item.AssetDetails?.Any(a => a.IsSpatial), item.DatePublished, item.Language);
 
-            book.UpdateProductRating(
+			book.UpdateProductRating(
 				(float)(item.Rating?.OverallDistribution?.AverageRating ?? 0),
 				(float)(item.Rating?.PerformanceDistribution?.AverageRating ?? 0),
 				(float)(item.Rating?.StoryDistribution?.AverageRating ?? 0));
@@ -212,6 +209,8 @@ namespace DtoImporterService
 			{
 				foreach (var seriesEntry in item.Series)
 				{
+					if (string.IsNullOrEmpty(seriesEntry.SeriesId))
+						continue;
 					var series = seriesImporter.Cache[seriesEntry.SeriesId];
 					book.UpsertSeries(series, seriesEntry.Sequence);
 				}
@@ -220,9 +219,9 @@ namespace DtoImporterService
 			if (item.CategoryLadders is not null)
 			{
 				var ladders = new List<DataLayer.CategoryLadder>();
-				foreach (var ladder in item.CategoryLadders.Select(cl => cl.Ladder).Where(l => l?.Length > 0))
+				foreach (var ladder in item.CategoryLadders.Select(cl => cl?.Ladder).Where(l => l?.Length > 0))
 				{
-					var categoryIds = ladder.Select(l => l.CategoryId).ToList();
+					var categoryIds = ladder?.Select(l => l?.CategoryId).ToList();
 					ladders.Add(categoryImporter.LadderCache.Single(c => c.Equals(categoryIds)));
 				}
 				//Set all ladders at once so ladders that have been
@@ -237,8 +236,17 @@ namespace DtoImporterService
 				return DataLayer.ContentType.Episode;
 			else if (item.IsSeriesParent)
 				return DataLayer.ContentType.Parent;
-			else 
-				return DataLayer.ContentType.Product;			
+			else
+				return DataLayer.ContentType.Product;
 		}
+
+		[return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(toLoad))]
+		private Contributor[]? ContributorsFromCache(IEnumerable<Person>? toLoad)
+			=> toLoad
+			?.Select(a => a.Name)
+			.OfType<string>()
+			.Distinct()
+			.Select(name => contributorImporter.Cache[name])
+			.ToArray();
 	}
 }

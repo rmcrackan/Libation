@@ -26,9 +26,10 @@ namespace DtoImporterService
 			//Import item may not have no (null) categories
 			var categoryLadders = importItems
 				.Where(i => i.DtoItem.CategoryLadders is not null)
-				.SelectMany(i => i.DtoItem.CategoryLadders)
+				.SelectMany(i => i.DtoItem.CategoryLadders!)
 				.Select(cl => cl?.Ladder)
 				.Where(l => l?.Length > 0)
+				.OfType<Ladder[]>()
 				.ToList();
 
 			var qtyNew = upsertCategories(categoryLadders);
@@ -55,6 +56,8 @@ namespace DtoImporterService
 				{
 					var id = ladder[i].CategoryId;
 					var name = ladder[i].CategoryName;
+					if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(name))
+						continue;
 
 					if (!CategoryCache.TryGetValue(id, out var category))
 					{

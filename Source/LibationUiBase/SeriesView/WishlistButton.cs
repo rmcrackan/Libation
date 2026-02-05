@@ -46,7 +46,7 @@ namespace LibationUiBase.SeriesView
 
 		public override async Task PerformClickAsync(LibraryBook accountBook)
 		{
-			if (!Enabled || !HasButtonAction) return;
+			if (!Enabled || !HasButtonAction || Item.Asin is null) return;
 
 			Enabled = false;
 

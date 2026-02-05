@@ -11,8 +11,8 @@ namespace LibationWinForms.Dialogs
         public class liberatedComboBoxItem
         {
             public LiberatedStatus Status { get; set; }
-            public string Text { get; set; }
-            public override string ToString() => Text;
+            public string? Text { get; set; }
+            public override string? ToString() => Text;
         }
 
         public LiberatedStatusBatchManualDialog(bool isPdf) : this()
@@ -34,7 +34,8 @@ namespace LibationWinForms.Dialogs
 
         private void saveBtn_Click(object sender, EventArgs e)
         {
-            BookLiberatedStatus = ((liberatedComboBoxItem)this.bookLiberatedCb.SelectedItem).Status;
+            if (bookLiberatedCb.SelectedItem is liberatedComboBoxItem item)
+                BookLiberatedStatus = item.Status;
             this.DialogResult = DialogResult.OK;
         }
     }

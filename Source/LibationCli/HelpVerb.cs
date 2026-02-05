@@ -12,7 +12,7 @@ internal class HelpVerb
 	/// Name of the verb to get help about
 	/// </summary>
 	[Value(0, Default = "")]
-	public string HelpType { get; set; }
+	public string? HelpType { get; set; }
 
 	/// <summary>
 	/// Create a base <see cref="HelpText"/> for <see cref="LibationCli"/>
@@ -32,7 +32,7 @@ internal class HelpVerb
 	public HelpText GetHelpText()
 	{
 		var helpText = CreateHelpText();
-		var result = new Parser().ParseArguments(new string[] { HelpType }, Program.VerbTypes);
+		var result = new Parser().ParseArguments([HelpType], Program.VerbTypes);
 		if (result.TypeInfo.Current == typeof(NullInstance))
 		{
 			//HelpType is not a defined verb so get LibationCli usage

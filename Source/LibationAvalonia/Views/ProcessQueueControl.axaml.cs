@@ -2,11 +2,9 @@
 using Avalonia.Data.Converters;
 using Avalonia.Threading;
 using DataLayer;
-using LibationFileManager;
 using LibationUiBase;
 using LibationUiBase.ProcessQueue;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,49 +28,49 @@ namespace LibationAvalonia.Views
 			if (Design.IsDesignMode)
 			{
 				ViewModels.MainVM.Configure_NonUI();
-				Configuration.CreateMockInstance();
+				var config  = LibationFileManager.Configuration.CreateMockInstance();
 				var vm = new ProcessQueueViewModel();
 				DataContext = vm;
 
 				var trialBook = MockLibraryBook.CreateBook();
-				List<ProcessBookViewModel> testList = new()
+				System.Collections.Generic.List<ProcessBookViewModel> testList = new()
 				{
-					new ProcessBookViewModel(trialBook, Configuration.Instance)
+					new ProcessBookViewModel(trialBook, config)
 					{
 						Result = ProcessBookResult.FailedAbort,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(trialBook, Configuration.Instance)
+					new ProcessBookViewModel(trialBook, config)
 					{
 						Result = ProcessBookResult.FailedSkip,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(trialBook, Configuration.Instance)
+					new ProcessBookViewModel(trialBook, config)
 					{
 						Result = ProcessBookResult.FailedRetry,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(trialBook, Configuration.Instance)
+					new ProcessBookViewModel(trialBook, config)
 					{
 						Result = ProcessBookResult.ValidationFail,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(trialBook, Configuration.Instance)
+					new ProcessBookViewModel(trialBook, config)
 					{
 						Result = ProcessBookResult.Cancelled,
 						Status = ProcessBookStatus.Cancelled,
 					},
-					new ProcessBookViewModel(trialBook, Configuration.Instance)
+					new ProcessBookViewModel(trialBook, config)
 					{
 						Result = ProcessBookResult.Success,
 						Status = ProcessBookStatus.Completed,
 					},
-					new ProcessBookViewModel(trialBook, Configuration.Instance)
+					new ProcessBookViewModel(trialBook, config)
 					{
 						Result = ProcessBookResult.None,
 						Status = ProcessBookStatus.Working,
 					},
-					new ProcessBookViewModel(trialBook, Configuration.Instance)
+					new ProcessBookViewModel(trialBook, config)
 					{
 						Result = ProcessBookResult.None,
 						Status = ProcessBookStatus.Queued,

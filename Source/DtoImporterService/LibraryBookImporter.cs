@@ -48,12 +48,14 @@ public class LibraryBookImporter : ItemsImporterBase
         var existingEntries = DbContext.LibraryBooks.AsEnumerable().Where(l => l.Book is not null).ToDictionarySafe(l => l.Book.AudibleProductId);
 
         //If importItems are contains duplicates by asin, keep the Item that's "available"
-        var uniqueImportItems = ToDictionarySafe(importItems, dto => dto.DtoItem.ProductId, tieBreak);
+        var uniqueImportItems = ToDictionarySafe(importItems, dto => dto.DtoItem.ProductId ?? string.Empty, tieBreak);
 
         int qtyNew = 0;
         foreach (var item in uniqueImportItems.Values)
         {
-            if (existingEntries.TryGetValue(item.DtoItem.ProductId, out LibraryBook existing))
+            if (item.DtoItem.ProductId is null)
+                continue;
+            if (existingEntries.TryGetValue(item.DtoItem.ProductId, out LibraryBook? existing))
             {
                 if (existing.Account != item.AccountId)
                 {
@@ -93,7 +95,10 @@ public class LibraryBookImporter : ItemsImporterBase
 
         if (bookImporter.LoadedEntireLibrary)
         {
-			//If the entire library was loaded, we can be sure that all existing LibraryBooks have their Book property populated.
+			//If the entire library was loaded, all Books should be loaded onto their LibraryBook. HOWEVER,
+            //a malformed Database may have a LibraryBook with a BookID that doesn't match any Book in the
+            //Books table. In this case, the Books property will still be null we should also mark those
+            //LibraryBooks as absent.
 			//Find LibraryBooks which have a Book but weren't found in the import, and mark them as absent.
 			foreach (var absentBook in allInScannedAccounts.Where(lb => lb.Book?.AudibleProductId is not string asin || !uniqueImportItems.ContainsKey(asin)))
                 absentBook.AbsentFromLastScan = true;
@@ -110,7 +115,8 @@ public class LibraryBookImporter : ItemsImporterBase
     }
 
     private static Dictionary<TKey, TSource> ToDictionarySafe<TKey, TSource>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TSource, TSource> tieBreaker)
-    {
+        where TKey : notnull
+	{
         var dictionary = new Dictionary<TKey, TSource>();
 
         foreach (TSource newItem in source)
@@ -118,7 +124,7 @@ public class LibraryBookImporter : ItemsImporterBase
             TKey key = keySelector(newItem);
 
             dictionary[key]
-                = dictionary.TryGetValue(key, out TSource existingItem)
+                = dictionary.TryGetValue(key, out TSource? existingItem)
                 ? tieBreaker(existingItem, newItem)
                 : newItem;
         }

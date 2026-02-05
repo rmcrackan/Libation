@@ -104,7 +104,11 @@ public class ProcessBookViewModel : ReactiveObject
 		Author = LibraryBook.Book.AuthorNames;
 		Narrator = LibraryBook.Book.NarratorNames;
 
-		(bool isDefault, byte[] picture) = PictureStorage.GetPicture(new PictureDefinition(LibraryBook.Book.PictureId, PictureSize._80x80));
+		var pictureId = LibraryBook.Book.PictureId ?? LibraryBook.Book.PictureLarge;
+		if (string.IsNullOrEmpty(pictureId))
+			return;
+
+		(bool isDefault, byte[] picture) = PictureStorage.GetPicture(new PictureDefinition(pictureId, PictureSize._80x80));
 
 		if (isDefault)
 			PictureStorage.PictureCached += PictureStorage_PictureCached;
@@ -258,15 +262,16 @@ public class ProcessBookViewModel : ReactiveObject
 	private void AudioDecodable_CoverImageDiscovered(object? sender, byte[] coverArt)
 		=> Cover = BaseUtil.LoadImage(coverArt, PictureSize._80x80);
 
-	private byte[] AudioDecodable_RequestCoverArt(object? sender, EventArgs e)
+	private byte[]? AudioDecodable_RequestCoverArt(object? sender, EventArgs e)
 	{
-		var quality
-			= Configuration.FileDownloadQuality == Configuration.DownloadQuality.High && LibraryBook.Book.PictureLarge is not null
-			? new PictureDefinition(LibraryBook.Book.PictureLarge, PictureSize.Native)
-			: new PictureDefinition(LibraryBook.Book.PictureId, PictureSize._500x500);
+		var pictureId = Configuration.Instance.FileDownloadQuality == Configuration.DownloadQuality.High
+		? LibraryBook.Book.PictureLarge ?? LibraryBook.Book.PictureId
+		: LibraryBook.Book.PictureId;
 
-		byte[] coverData = PictureStorage.GetPictureSynchronously(quality);
+		if (pictureId is null)
+			return null;
 
+		byte[] coverData = PictureStorage.GetPictureSynchronously(new PictureDefinition(pictureId, PictureSize.Native));
 		AudioDecodable_CoverImageDiscovered(this, coverData);
 		return coverData;
 	}

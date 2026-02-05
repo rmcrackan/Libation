@@ -7,7 +7,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-#nullable enable
 namespace AudibleUtilities.Widevine;
 
 public enum KeyType
@@ -40,7 +39,7 @@ public enum KeyType
 
 public interface ISession : IDisposable
 {
-	string? GetLicenseChallenge(MpegDash dash);
+	string GetLicenseChallenge(MpegDash dash);
 	WidevineKey[] ParseLicense(string licenseMessage);
 }
 
@@ -107,10 +106,10 @@ public partial class Cdm
 				Cdm.Sessions.TryRemove(Id, out var session);
 		}
 
-		public string? GetLicenseChallenge(MpegDash dash)
+		public string GetLicenseChallenge(MpegDash dash)
 		{
 			if (!dash.TryGetPssh(Cdm.WidevineContentProtection, out var pssh))
-				return null;
+				throw new InvalidDataException("No Widevine PSSH found in DASH");
 
 			var licRequest = new LicenseRequest
 			{

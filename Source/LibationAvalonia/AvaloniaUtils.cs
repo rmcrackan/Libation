@@ -29,8 +29,11 @@ namespace LibationAvalonia
 
 
 		private static Bitmap? defaultImage;
-		public static Bitmap TryLoadImageOrDefault(byte[] picture, PictureSize defaultSize = PictureSize.Native)
+		public static Bitmap TryLoadImageOrDefault(byte[]? picture, PictureSize defaultSize = PictureSize.Native)
 		{
+			if (picture is null || picture.Length == 0)
+				return getDefaultImage();
+
 			try
 			{
 				using var ms = new System.IO.MemoryStream(picture);
@@ -39,7 +42,17 @@ namespace LibationAvalonia
 			catch
 			{
 				using var ms = new System.IO.MemoryStream(PictureStorage.GetDefaultImage(defaultSize));
-				return defaultImage ??= new Bitmap(ms);
+				return getDefaultImage();
+			}
+
+			Bitmap getDefaultImage()
+			{
+				if (defaultImage is null)
+				{
+					using var ms = new System.IO.MemoryStream(PictureStorage.GetDefaultImage(defaultSize));
+					defaultImage = new Bitmap(ms);
+				}
+				return defaultImage;
 			}
 		}
 	}

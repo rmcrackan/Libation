@@ -23,7 +23,7 @@ public partial class Cdm
 		using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 
 		//Check if there are any Android accounts. If not, we can't use Widevine.
-		if (!persister.Target.Accounts.Any(a => a.IdentityTokens.DeviceType == Resources.DeviceType))
+		if (!persister.Target.Accounts.Any(a => a.IdentityTokens?.DeviceType == Resources.DeviceType))
 			return null;
 
 		if (!string.IsNullOrEmpty(persister.Target.Cdm))
@@ -49,7 +49,7 @@ public partial class Cdm
 
 			//try to get a CDM file for any account that's registered as an android device.
 			//CDMs are not account-specific, so it doesn't matter which account we're successful with.
-			foreach (var account in persister.Target.Accounts.Where(a => a.IdentityTokens.DeviceType == Resources.DeviceType))
+			foreach (var account in persister.Target.Accounts.Where(a => a.IdentityTokens?.DeviceType == Resources.DeviceType))
 			{
 				try
 				{
@@ -174,7 +174,13 @@ public partial class Cdm
 	{
 		const string ACCOUNT_INFO_PATH = "/1.0/account/information";
 
+		if (account?.Locale is null)
+			throw new ArgumentException("Account does not have a valid locale.", nameof(account));
+		if (account.IdentityTokens?.AdpToken is null || account.IdentityTokens.PrivateKey is null)
+			throw new ArgumentException("Account does not have valid identity tokens.", nameof(account));
+
 		var message = new HttpRequestMessage(HttpMethod.Get, ACCOUNT_INFO_PATH);
+
 		message.SignRequest(
 					DateTime.UtcNow,
 					account.IdentityTokens.AdpToken,

@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Threading;
 
-#nullable enable
 namespace DataLayer;
 
 /// <summary> Notifies clients that the object is being disposed. </summary>

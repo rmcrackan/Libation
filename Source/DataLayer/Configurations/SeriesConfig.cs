@@ -13,7 +13,7 @@ namespace DataLayer.Configurations
             entity
                 .Metadata
                 .FindNavigation(nameof(Series.BooksLink))
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
+                ?.SetPropertyAccessMode(PropertyAccessMode.Field);
         }
     }
 }

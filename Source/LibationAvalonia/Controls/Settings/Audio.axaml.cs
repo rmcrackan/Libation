@@ -28,7 +28,7 @@ namespace LibationAvalonia.Controls.Settings
 			{
 				using var accounts = AudibleApiStorage.GetAccountsSettingsPersister();
 
-				if (!accounts.AccountsSettings.Accounts.All(a => a.IdentityTokens.DeviceType == AudibleApi.Resources.DeviceType))
+				if (!accounts.AccountsSettings.Accounts.All(a => a.IdentityTokens?.DeviceType == AudibleApi.Resources.DeviceType))
 				{
 					if (VisualRoot is Window parent)
 					{
@@ -44,7 +44,7 @@ namespace LibationAvalonia.Controls.Settings
 						{
 							foreach (var account in accounts.AccountsSettings.Accounts.ToArray())
 							{
-								if (account.IdentityTokens.DeviceType != AudibleApi.Resources.DeviceType)
+								if (account.Locale is not null && account.IdentityTokens?.DeviceType != AudibleApi.Resources.DeviceType)
 								{
 									accounts.AccountsSettings.Delete(account);
 									var acc = accounts.AccountsSettings.Upsert(account.AccountId, account.Locale.Name);

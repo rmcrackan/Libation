@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-#nullable enable
 namespace DataLayer
 {
 	public class CategoryLadder : IEquatable<CategoryLadder>

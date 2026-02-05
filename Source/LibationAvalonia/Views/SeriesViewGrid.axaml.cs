@@ -6,6 +6,7 @@ using Dinah.Core;
 using LibationAvalonia.Controls;
 using LibationAvalonia.Dialogs;
 using LibationFileManager;
+using LibationUiBase.Forms;
 using LibationUiBase.SeriesView;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,19 +50,26 @@ namespace LibationAvalonia.Views
 			sentry.ViewOnAudible(LibraryBook.Book.Locale);
 		}
 
-		public void Cover_Click(object sender, Avalonia.Input.TappedEventArgs args)
+		public async void Cover_Click(object sender, Avalonia.Input.TappedEventArgs args)
 		{
 			if (sender is not Image tblock || tblock.DataContext is not SeriesItem sentry)
 				return;
 
 			Item libraryBook = sentry.Item;
 
+			var pictureId = libraryBook.PictureLarge ?? libraryBook.PictureId;
+			if (string.IsNullOrEmpty(pictureId))
+			{
+				await MessageBox.Show(VisualRoot as Window, "No cover art is available for this book.", "No Cover Art", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return;
+			}
+
 			if (imageDisplayDialog is null || !imageDisplayDialog.IsVisible)
 			{
 				imageDisplayDialog = new ImageDisplayDialog();
 			}
 
-			var picDef = new PictureDefinition(libraryBook.PictureLarge ?? libraryBook.PictureId, PictureSize.Native);
+			var picDef = new PictureDefinition(pictureId, PictureSize.Native);
 
 			void PictureCached(object? sender, PictureCachedEventArgs e)
 			{

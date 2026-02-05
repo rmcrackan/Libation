@@ -10,13 +10,13 @@ namespace DataLayer
     // only library importing should directly query Book. All else should use LibraryBook
     public static class BookQueries
     {
-        public static Book GetBook_Flat_NoTracking(this LibationContext context, string productId)
+        public static Book? GetBook_Flat_NoTracking(this LibationContext context, string productId)
             => context
                 .Books
                 .AsNoTrackingWithIdentityResolution()
                 .GetBook(productId);
 
-        public static Book GetBook(this IQueryable<Book> books, string productId)
+        public static Book? GetBook(this IQueryable<Book> books, string productId)
             => books
                 .GetBooks()
                 // 'Single' is more accurate but 'First' is faster and less error prone

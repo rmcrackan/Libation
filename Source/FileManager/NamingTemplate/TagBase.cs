@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
-#nullable enable
 namespace FileManager.NamingTemplate;
 
 internal interface IPropertyTag

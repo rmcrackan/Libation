@@ -28,6 +28,11 @@ internal static class ThemeExtensions
 		}
 	}
 
+	public static Rectangle GetPrimaryScreenWorkingArea()
+		=> Screen.PrimaryScreen is not null ? Screen.PrimaryScreen.WorkingArea
+		: Screen.AllScreens.Length > 0 ? Screen.AllScreens[0].WorkingArea
+		: default;
+
 	extension(ProcessBookStatus status)
 	{
 		public Color GetColor() => status switch

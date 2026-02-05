@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Dinah.Core;
 
-#nullable enable
 namespace DataLayer
 {
     public class AudibleCategoryId
@@ -19,9 +18,9 @@ namespace DataLayer
     public class Category
     {
         internal int CategoryId { get; private set; }
-        public string? AudibleCategoryId { get; private set; }
+        public string AudibleCategoryId { get; }
 
-        public string? Name { get; internal set; }
+        public string Name { get; }
 
         internal List<CategoryLadder> _categoryLadders = new();
         private ReadOnlyCollection<CategoryLadder>? _categoryLaddersReadOnly;
@@ -35,9 +34,11 @@ namespace DataLayer
 			}
 		}
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 		private Category() { }
-        /// <summary>special id class b/c it's too easy to get string order mixed up</summary>
-        public Category(AudibleCategoryId audibleSeriesId, string name)
+#pragma warning restore CS8618
+		/// <summary>special id class b/c it's too easy to get string order mixed up</summary>
+		public Category(AudibleCategoryId audibleSeriesId, string name)
         {
             ArgumentValidator.EnsureNotNull(audibleSeriesId, nameof(audibleSeriesId));
             var id = audibleSeriesId.Id;

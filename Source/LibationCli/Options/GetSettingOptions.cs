@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationCli.Options;
 
 [Verb("get-setting", HelpText = "List current settings files and their locations.")]

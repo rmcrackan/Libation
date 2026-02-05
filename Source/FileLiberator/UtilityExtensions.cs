@@ -47,7 +47,7 @@ namespace FileLiberator
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			var nickname
 				= persister.AccountsSettings.Accounts
-				.FirstOrDefault(a => a.AccountId == libraryBook.Account && a.Locale.Name == libraryBook.Book.Locale)
+				.FirstOrDefault(a => a.AccountId == libraryBook.Account && a.Locale?.Name == libraryBook.Book.Locale)
 				?.AccountName;
 
 			return new()
@@ -76,7 +76,7 @@ namespace FileLiberator
 				BitRate = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.BitRate,
 				SampleRate = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.SampleRate,
 				Channels = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.ChannelCount,
-				LibationVersion = libraryBook.Book.UserDefinedItem.LastDownloadedVersion?.ToVersionString(),
+				LibationVersion = libraryBook.Book.UserDefinedItem.LastDownloadedVersion.ToVersionString(),
 				FileVersion = libraryBook.Book.UserDefinedItem.LastDownloadedFileVersion
 			};
 		}

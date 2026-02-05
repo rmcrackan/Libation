@@ -3,58 +3,57 @@ using LibationUiBase;
 using System;
 using System.Windows.Forms;
 
-namespace LibationWinForms.Dialogs
+namespace LibationWinForms.Dialogs;
+
+public partial class LibationFilesDialog : Form, ILibationInstallLocation
 {
-	public partial class LibationFilesDialog : Form, ILibationInstallLocation
+	public string? SelectedDirectory { get; private set; }
+
+	public LibationFilesDialog() => InitializeComponent();
+
+	private void LibationFilesDialog_Load(object sender, EventArgs e)
 	{
-		public string SelectedDirectory { get; private set; }
+		if (this.DesignMode)
+			return;
 
-		public LibationFilesDialog() => InitializeComponent();
+		var config = Configuration.Instance;
 
-		private void LibationFilesDialog_Load(object sender, EventArgs e)
+		libationFilesDescLbl.Text = Configuration.GetDescription(nameof(config.LibationFiles));
+
+		libationFilesSelectControl.SetSearchTitle("Libation Files");
+		libationFilesSelectControl.SetDirectoryItems(new()
 		{
-			if (this.DesignMode)
-				return;
+			Configuration.KnownDirectories.UserProfile,
+			Configuration.KnownDirectories.AppDir,
+			Configuration.KnownDirectories.MyDocs
+		}, Configuration.KnownDirectories.UserProfile);
 
-			var config = Configuration.Instance;
+		var selectedDir = System.IO.Directory.Exists(Configuration.Instance.LibationFiles.Location.PathWithoutPrefix)
+			? Configuration.Instance.LibationFiles.Location.PathWithoutPrefix
+			: Configuration.GetKnownDirectoryPath(Configuration.KnownDirectories.UserProfile);
 
-			libationFilesDescLbl.Text = Configuration.GetDescription(nameof(config.LibationFiles));
+		libationFilesSelectControl.SelectDirectory(selectedDir);
+	}
 
-			libationFilesSelectControl.SetSearchTitle("Libation Files");
-			libationFilesSelectControl.SetDirectoryItems(new()
-			{
-				Configuration.KnownDirectories.UserProfile,
-				Configuration.KnownDirectories.AppDir,
-				Configuration.KnownDirectories.MyDocs
-			}, Configuration.KnownDirectories.UserProfile);
+	private void saveBtn_Click(object sender, EventArgs e)
+	{
+		var libationDir = libationFilesSelectControl.SelectedDirectory;
 
-			var selectedDir = System.IO.Directory.Exists(Configuration.Instance.LibationFiles.Location.PathWithoutPrefix)
-				? Configuration.Instance.LibationFiles.Location.PathWithoutPrefix
-				: Configuration.GetKnownDirectoryPath(Configuration.KnownDirectories.UserProfile);
-
-			libationFilesSelectControl.SelectDirectory(selectedDir);
+		if (!System.IO.Directory.Exists(libationDir))
+		{
+			MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + libationDir, "Folder does not exist", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			return;
 		}
 
-		private void saveBtn_Click(object sender, EventArgs e)
-		{
-			var libationDir = libationFilesSelectControl.SelectedDirectory;
+		SelectedDirectory = libationDir;
 
-			if (!System.IO.Directory.Exists(libationDir))
-			{
-				MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + libationDir, "Folder does not exist", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				return;
-			}
+		this.DialogResult = DialogResult.OK;
+		this.Close();
+	}
 
-			SelectedDirectory = libationDir;
-
-			this.DialogResult = DialogResult.OK;
-			this.Close();
-		}
-
-		private void cancelBtn_Click(object sender, EventArgs e)
-		{
-			this.DialogResult = DialogResult.Cancel;
-			this.Close();
-		}
+	private void cancelBtn_Click(object sender, EventArgs e)
+	{
+		this.DialogResult = DialogResult.Cancel;
+		this.Close();
 	}
 }

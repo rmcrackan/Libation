@@ -16,7 +16,7 @@ namespace DataLayer.Configurations
             entity
                 .Metadata
                 .FindNavigation(nameof(Contributor.BooksLink))
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
+                ?.SetPropertyAccessMode(PropertyAccessMode.Field);
 
             // seeds go here. examples in Dinah.EntityFrameworkCore.Tests\DbContextFactoryExample.cs
             entity.HasData(Contributor.GetEmpty());

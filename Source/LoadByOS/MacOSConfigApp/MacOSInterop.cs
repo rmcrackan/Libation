@@ -35,7 +35,7 @@ namespace MacOSConfigApp
 
 		//Using osascript -e '[script]' works from the terminal, but I haven't figured
 		//out the syntax for it to work from create_process, so write to stdin instead.
-		public Process RunAsRoot(string _, string command)
+		public Process? RunAsRoot(string _, string command)
 		{
 			const string osascript = "osascript";
 			var fullCommand = $"do shell script \"{command}\" with administrator privileges";
@@ -52,7 +52,8 @@ namespace MacOSConfigApp
 
 			Serilog.Log.Logger.Information($"running {osascript} as root: {{script}}", fullCommand);
 
-			var proc = Process.Start(psi);
+			if (Process.Start(psi) is not { } proc)
+				return null;
 			proc.ErrorDataReceived += Proc_ErrorDataReceived;
 			proc.OutputDataReceived += Proc_OutputDataReceived;
 			proc.BeginErrorReadLine();

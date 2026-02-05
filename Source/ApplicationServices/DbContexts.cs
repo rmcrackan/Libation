@@ -3,7 +3,6 @@ using LibationFileManager;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 
-#nullable enable
 namespace ApplicationServices
 {
     public static class DbContexts

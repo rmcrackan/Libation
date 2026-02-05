@@ -36,7 +36,7 @@ namespace DtoImporterService
 		{
 			var seriesIds = series.Select(s => s.SeriesId).Distinct().ToList();
 
-			if (seriesIds.Any())
+			if (seriesIds.Count != 0)
 				Cache = DbContext.Series
 					.Where(s => seriesIds.Contains(s.AudibleSeriesId))
 					.ToDictionarySafe(s => s.AudibleSeriesId);
@@ -48,6 +48,8 @@ namespace DtoImporterService
 
 			foreach (var s in requestedSeries)
 			{
+				if (string.IsNullOrEmpty(s.SeriesId))
+					continue;
 				// AudibleApi.Common.Series.SeriesId == DataLayer.AudibleSeriesId
 				if (!Cache.TryGetValue(s.SeriesId, out var series))
 				{

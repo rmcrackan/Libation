@@ -268,7 +268,8 @@ namespace FileLiberator
 				try
 				{
 					e = OnRequestCoverArt();
-					downloader.SetCoverArt(e);
+					if (e is not null)
+						downloader.SetCoverArt(e);
 				}
 				catch (Exception ex)
 				{
@@ -406,6 +407,12 @@ namespace FileLiberator
 			if (!options.Config.DownloadCoverArt) return;
 
 			var coverPath = "[null]";
+			var picId = options.LibraryBook.Book.PictureLarge ?? options.LibraryBook.Book.PictureId;
+			if (picId is null)
+			{
+				Serilog.Log.Logger.Warning("No cover art available for {@Book}.", options.LibraryBook.LogFriendly());
+				return;
+			}
 
 			try
 			{
@@ -419,7 +426,8 @@ namespace FileLiberator
 				if (File.Exists(coverPath))
 					FileUtility.SaferDelete(coverPath);
 
-				var picBytes = PictureStorage.GetPictureSynchronously(new(options.LibraryBook.Book.PictureLarge ?? options.LibraryBook.Book.PictureId, PictureSize.Native), cancellationToken);
+
+				var picBytes = PictureStorage.GetPictureSynchronously(new(picId, PictureSize.Native), cancellationToken);
 				if (picBytes.Length > 0)
 				{
 					File.WriteAllBytes(coverPath, picBytes);
@@ -504,11 +512,17 @@ namespace FileLiberator
 					FileUtility.SaferDelete(metadataPath);
 
 				var item = await api.GetCatalogProductAsync(options.LibraryBook.Book.AudibleProductId, AudibleApi.CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
-				item.SourceJson.Add(nameof(ContentMetadata.ChapterInfo), Newtonsoft.Json.Linq.JObject.FromObject(options.ContentMetadata.ChapterInfo));
-				item.SourceJson.Add(nameof(ContentMetadata.ContentReference), Newtonsoft.Json.Linq.JObject.FromObject(options.ContentMetadata.ContentReference));
+
+				if (item?.SourceJson is not { } sourceJson)
+				{
+					Serilog.Log.Logger.Error("Failed to retrieve metadata from server for {@Book}.", options.LibraryBook.LogFriendly());
+					return;
+				}
+				sourceJson.Add(nameof(ContentMetadata.ChapterInfo), Newtonsoft.Json.Linq.JObject.FromObject(options.ContentMetadata.ChapterInfo));
+				sourceJson.Add(nameof(ContentMetadata.ContentReference), Newtonsoft.Json.Linq.JObject.FromObject(options.ContentMetadata.ContentReference));
 
 				cancellationToken.ThrowIfCancellationRequested();
-				File.WriteAllText(metadataPath, item.SourceJson.ToString());
+				File.WriteAllText(metadataPath, sourceJson.ToString());
 				SetFileTime(options.LibraryBook, metadataPath);
 				OnFileCreated(options.LibraryBook, metadataPath);
 			}

@@ -16,8 +16,10 @@ namespace DataLayer
         
         public DateTime? IncludedUntil { get; private set; }
         public bool IsAudiblePlus { get; set; }
-        private LibraryBook() { }
-        public LibraryBook(Book book, DateTime dateAdded, string account)
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+		private LibraryBook() { }
+#pragma warning restore CS8618
+		public LibraryBook(Book book, DateTime dateAdded, string account)
         {
             ArgumentValidator.EnsureNotNull(book, nameof(book));
             ArgumentValidator.EnsureNotNull(account, nameof(account));

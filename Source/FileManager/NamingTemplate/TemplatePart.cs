@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
-#nullable enable
 namespace FileManager.NamingTemplate;
 
 /// <summary>Represents one part of an evaluated <see cref="NamingTemplate"/>.</summary>

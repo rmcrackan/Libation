@@ -16,16 +16,18 @@ namespace AccountsTests
     {
         protected string EMPTY_FILE { get; } = "{\r\n  \"Accounts\": [],\r\n  \"Cdm\": null\r\n}".Replace("\r\n", Environment.NewLine);
 
-        protected string TestFile;
+        private string? _testFile;
         protected Locale usLocale => Localization.Get("us");
         protected Locale ukLocale => Localization.Get("uk");
 
         protected void WriteToTestFile(string contents)
-            => File.WriteAllText(TestFile, contents);
+            => File.WriteAllText(TestFile , contents);
 
-        [TestInitialize]
+		protected string TestFile => _testFile ??= Guid.NewGuid() + ".txt";
+
+		[TestInitialize]
         public void TestInit()
-            => TestFile = Guid.NewGuid() + ".txt";
+            => _ = TestFile;
 
         [TestCleanup]
         public void TestCleanup()
@@ -42,7 +44,8 @@ namespace AccountsTests
         public void _0_accounts()
         {
             var accountsSettings = AccountsSettings.FromJson(EMPTY_FILE);
-            accountsSettings.Accounts.Count.Should().Be(0);
+            accountsSettings.BeNotNull();
+			accountsSettings.Accounts.Count.Should().Be(0);
         }
 
         [TestMethod]
@@ -61,7 +64,8 @@ namespace AccountsTests
 }
 ".Trim();
             var accountsSettings = AccountsSettings.FromJson(json);
-            accountsSettings.Accounts.Count.Should().Be(1);
+			accountsSettings.BeNotNull();
+			accountsSettings.Accounts.Count.Should().Be(1);
             accountsSettings.Accounts[0].AccountId.Should().Be("cng");
             accountsSettings.Accounts[0].IdentityTokens.Should().BeNull();
         }
@@ -123,7 +127,8 @@ namespace AccountsTests
             var persister = new AccountsSettingsPersister(TestFile);
             var acct = persister.AccountsSettings.Accounts[0];
             acct.AccountName.Should().Be("n0");
-            acct.Locale.CountryCode.Should().Be("us");
+			acct.Locale.BeNotNull();
+			acct.Locale.CountryCode.Should().Be("us");
         }
     }
 
@@ -152,7 +157,8 @@ namespace AccountsTests
                 p.AccountsSettings.Accounts.Count.Should().Be(1);
                 var acct0 = p.AccountsSettings.Accounts[0];
                 acct0.AccountName.Should().Be("n0");
-                acct0.Locale.CountryCode.Should().Be("us");
+				acct0.Locale.BeNotNull();
+				acct0.Locale.CountryCode.Should().Be("us");
             }
         }
 
@@ -180,7 +186,8 @@ namespace AccountsTests
 
                 var acct0 = p.AccountsSettings.Accounts[0];
                 acct0.AccountName.Should().Be("n0");
-                acct0.Locale.CountryCode.Should().Be("us");
+                acct0.Locale.BeNotNull();
+				acct0.Locale.CountryCode.Should().Be("us");
             }
 
             // load file. create account 1
@@ -199,11 +206,13 @@ namespace AccountsTests
 
                 var acct0 = p.AccountsSettings.Accounts[0];
                 acct0.AccountName.Should().Be("n0");
-                acct0.Locale.CountryCode.Should().Be("us");
+				acct0.Locale.BeNotNull();
+				acct0.Locale.CountryCode.Should().Be("us");
 
                 var acct1 = p.AccountsSettings.Accounts[1];
                 acct1.AccountName.Should().Be("n1");
-                acct1.Locale.CountryCode.Should().Be("uk");
+				acct1.Locale.BeNotNull();
+				acct1.Locale.CountryCode.Should().Be("uk");
             }
         }
 
@@ -268,11 +277,13 @@ namespace AccountsTests
                 // new
                 acct0.AccountName.Should().Be("new");
 
-                // still here
-                acct0.Locale.CountryCode.Should().Be("us");
+				// still here
+				acct0.Locale.BeNotNull();
+				acct0.Locale.CountryCode.Should().Be("us");
                 var acct1 = p.AccountsSettings.Accounts[1];
                 acct1.AccountName.Should().Be("n1");
-                acct1.Locale.CountryCode.Should().Be("uk");
+				acct1.Locale.BeNotNull();
+				acct1.Locale.CountryCode.Should().Be("uk");
             }
         }
 
@@ -311,14 +322,16 @@ namespace AccountsTests
                 p.AccountsSettings.Accounts.Count.Should().Be(2);
 
                 var acct0 = p.AccountsSettings.Accounts[0];
-                // new
-                acct0.Locale.CountryCode.Should().Be("uk");
+				// new
+				acct0.Locale.BeNotNull();
+				acct0.Locale.CountryCode.Should().Be("uk");
 
                 // still here
                 acct0.AccountName.Should().Be("n0");
                 var acct1 = p.AccountsSettings.Accounts[1];
                 acct1.AccountName.Should().Be("n1");
-                acct1.Locale.CountryCode.Should().Be("uk");
+				acct1.Locale.BeNotNull();
+				acct1.Locale.CountryCode.Should().Be("uk");
             }
         }
 
@@ -346,9 +359,11 @@ namespace AccountsTests
             // update identity on existing file
             using (var p = new AccountsSettingsPersister(TestFile))
             {
-                p.AccountsSettings.Accounts[0]
-                    .IdentityTokens
-                    .Update(new AccessToken("Atna|_NEW_", DateTime.Now.AddDays(1)));
+                var acct0 = p.AccountsSettings.Accounts[0];
+
+                acct0.IdentityTokens.BeNotNull();
+				acct0.IdentityTokens
+					.Update(new AccessToken("Atna|_NEW_", DateTime.Now.AddDays(1)));
             }
 
             // re-load file. ensure both accounts still exist
@@ -357,15 +372,18 @@ namespace AccountsTests
                 p.AccountsSettings.Accounts.Count.Should().Be(2);
 
                 var acct0 = p.AccountsSettings.Accounts[0];
-                // new
-                acct0.IdentityTokens.ExistingAccessToken.TokenValue.Should().Be("Atna|_NEW_");
+				// new
+				acct0.IdentityTokens.BeNotNull();
+				acct0.IdentityTokens.ExistingAccessToken.TokenValue.Should().Be("Atna|_NEW_");
 
                 // still here
                 acct0.AccountName.Should().Be("n0");
-                acct0.Locale.CountryCode.Should().Be("us");
+				acct0.Locale.BeNotNull();
+				acct0.Locale.CountryCode.Should().Be("us");
                 var acct1 = p.AccountsSettings.Accounts[1];
                 acct1.AccountName.Should().Be("n1");
-                acct1.Locale.CountryCode.Should().Be("uk");
+				acct1.Locale.BeNotNull();
+				acct1.Locale.CountryCode.Should().Be("uk");
             }
         }
     }
@@ -386,7 +404,9 @@ namespace AccountsTests
             accountsSettings.Add(acct1);
             accountsSettings.Add(acct2);
 
-            accountsSettings.GetAccount("cng", "uk").AccountName.Should().Be("bar");
+            var acct = accountsSettings.GetAccount("cng", "uk");
+			acct.BeNotNull();
+			acct.AccountName.Should().Be("bar");
         }
     }
 
@@ -402,7 +422,9 @@ namespace AccountsTests
             accountsSettings.Upsert("cng", "us");
 
             accountsSettings.Accounts.Count.Should().Be(1);
-            accountsSettings.GetAccount("cng", "us").AccountId.Should().Be("cng");
+			var acct = accountsSettings.GetAccount("cng", "us");
+			acct.BeNotNull();
+			acct.AccountId.Should().Be("cng");
         }
 
         [TestMethod]
@@ -453,7 +475,7 @@ namespace AccountsTests
         public void delete_updates()
         {
             var i = 0;
-            void update(object sender, EventArgs e) => i++;
+            void update(object? sender, EventArgs e) => i++;
 
             var accountsSettings = new AccountsSettings();
 			accountsSettings.Updated += update;

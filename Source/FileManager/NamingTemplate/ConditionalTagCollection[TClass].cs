@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
-#nullable enable
 namespace FileManager.NamingTemplate;
 
 internal interface IClosingPropertyTag : IPropertyTag

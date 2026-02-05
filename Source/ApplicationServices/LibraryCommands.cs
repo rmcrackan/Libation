@@ -6,7 +6,6 @@ using Dinah.Core.Logging;
 using DtoImporterService;
 using FileManager;
 using LibationFileManager;
-using Microsoft.Extensions.DependencyModel;
 using Newtonsoft.Json.Linq;
 using Serilog;
 using System;
@@ -16,7 +15,6 @@ using System.Text;
 using System.Threading.Tasks;
 using static DtoImporterService.PerfLogger;
 
-#nullable enable
 namespace ApplicationServices
 {
     public static class LibraryCommands
@@ -184,16 +182,11 @@ namespace ApplicationServices
         public static Task<int> ImportSingleToDbAsync(AudibleApi.Common.Item item, string accountId, string localeName) => Task.Run(() => importSingleToDb(item, accountId, localeName));
 		private static int importSingleToDb(AudibleApi.Common.Item item, string accountId, string localeName)
         {
-            ArgumentValidator.EnsureNotNull(item, "item");
-            ArgumentValidator.EnsureNotNull(accountId, "accountId");
-            ArgumentValidator.EnsureNotNull(localeName, "localeName");
+            ArgumentValidator.EnsureNotNull(item, nameof(item));
+            ArgumentValidator.EnsureNotNull(accountId, nameof(accountId));
+            ArgumentValidator.EnsureNotNull(localeName, nameof(localeName));
 
-            var importItem = new ImportItem
-            {
-                DtoItem = item,
-                AccountId = accountId,
-                LocaleName = localeName
-            };
+            var importItem = new ImportItem(item, accountId, localeName);
 
             var importItems = new List<ImportItem> { importItem };
             var validator = new LibraryValidator();
@@ -207,6 +200,9 @@ namespace ApplicationServices
 
 			return DoDbSizeChangeOperation(ctx =>
 			{
+                if (importItem.DtoItem.ProductId is null)
+                    return;
+
 				var bookImporter = new BookImporter(ctx);
 				bookImporter.Import(importItems);
 				var book = ctx.LibraryBooks.FirstOrDefault(lb => lb.Book.AudibleProductId == importItem.DtoItem.ProductId);
@@ -291,6 +287,7 @@ namespace ApplicationServices
         private static async Task<List<ImportItem>> scanAccountAsync(ApiExtended apiExtended, Account account, LibraryOptions libraryOptions, LogArchiver? archiver)
         {
             ArgumentValidator.EnsureNotNull(account, nameof(account));
+            var locale = ArgumentValidator.EnsureNotNull(account.Locale, nameof(account.Locale));
 
             Log.Logger.Information("ImportLibraryAsync. {@DebugInfo}", new
             {
@@ -307,7 +304,7 @@ namespace ApplicationServices
                 
                 await logDtoItemsAsync(dtoItems);
 
-				return dtoItems.Select(d => new ImportItem { DtoItem = d, AccountId = account.AccountId, LocaleName = account.Locale?.Name }).ToList();
+				return dtoItems.Select(d => new ImportItem(d, account.AccountId, locale.Name)).ToList();
             }
             catch(ImportValidationException ex)
 			{

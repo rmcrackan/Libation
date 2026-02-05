@@ -125,7 +125,7 @@ public class AverageSpeed
 
 		var time = now - start;
 
-		while (speeds.Count > MAX_SPEEDS || (speeds.Count > 2 && time - speeds.First.Value.Time > SlowWindow))
+		while (speeds.Count > MAX_SPEEDS || (speeds.Count > 2 && time - speeds.First!.Value.Time > SlowWindow))
 			speeds.RemoveFirst();
 
 		if (!double.IsNaN(lastPosition))
@@ -145,7 +145,7 @@ public class AverageSpeed
 		if (speeds.Count == 0)
 			return 0;
 		else if (speeds.Count == 1)
-			return speeds.Last.Value.Velocity;
+			return speeds.Last!.Value.Velocity;
 		else
 		{
 			var n_newest = speeds.Count(s => s.Time > lastTime.Subtract(FastWindow));

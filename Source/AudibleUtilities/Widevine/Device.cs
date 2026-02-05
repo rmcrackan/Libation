@@ -3,7 +3,6 @@ using System.IO;
 using System.Numerics;
 using System.Security.Cryptography;
 
-#nullable enable
 namespace AudibleUtilities.Widevine;
 
 internal enum DeviceTypes : byte

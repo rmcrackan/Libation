@@ -29,7 +29,7 @@ namespace ApplicationServices
 		}
 		#endregion
 
-		public static event EventHandler SearchEngineUpdated;
+		public static event EventHandler? SearchEngineUpdated;
 
 		#region Update
 		private static bool isUpdating;
@@ -85,7 +85,7 @@ namespace ApplicationServices
 
 				action(new SearchEngine());
 				if (!prevIsUpdating)
-					SearchEngineUpdated?.Invoke(null, null);
+					SearchEngineUpdated?.Invoke(null, EventArgs.Empty);
 			}
 			finally
 			{

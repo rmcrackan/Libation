@@ -21,9 +21,9 @@ namespace FileLiberator
 		public required Mpeg4Lib.ChapterInfo ChapterInfo { get; init; }
 		public string Title => LibraryBook.Book.Title;
 		public string Subtitle => LibraryBook.Book.Subtitle;
-		public string Publisher => LibraryBook.Book.Publisher;
-		public string Language => LibraryBook.Book.Language;
-		public string? AudibleProductId => LibraryBookDto.AudibleProductId;
+		public string? Publisher => LibraryBook.Book.Publisher;
+		public string? Language => LibraryBook.Book.Language;
+		public string AudibleProductId => LibraryBookDto.AudibleProductId;
 		public string? SeriesName => LibraryBookDto.FirstSeries?.Name;
 		public string? SeriesNumber => LibraryBookDto.FirstSeries?.Order?.ToString();
 		public NAudio.Lame.LameConfig? LameConfig { get; }
@@ -57,7 +57,7 @@ namespace FileLiberator
 
 			ArgumentValidator.EnsureNotNull(licInfo, nameof(licInfo));
 
-			if (licInfo.ContentMetadata.ContentUrl.OfflineUrl is not string licUrl)
+			if (licInfo.ContentMetadata.ContentUrl?.OfflineUrl is not string licUrl)
 				throw new InvalidDataException("Content license doesn't contain an offline Url");
 
 			DownloadUrl = licUrl;

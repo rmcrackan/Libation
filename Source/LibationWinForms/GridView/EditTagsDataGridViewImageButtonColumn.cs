@@ -3,50 +3,49 @@ using System.Windows.Forms;
 using Dinah.Core.WindowsDesktop.Forms;
 using LibationUiBase.GridView;
 
-namespace LibationWinForms.GridView
+namespace LibationWinForms.GridView;
+
+public interface IDataGridScaleColumn
 {
-	public interface IDataGridScaleColumn
+	float ScaleFactor { get; set; }
+}
+public class EditTagsDataGridViewImageButtonColumn : DataGridViewButtonColumn, IDataGridScaleColumn
+{
+	public EditTagsDataGridViewImageButtonColumn()
 	{
-		float ScaleFactor { get; set; }
+		CellTemplate = new EditTagsDataGridViewImageButtonCell();
 	}
-    public class EditTagsDataGridViewImageButtonColumn : DataGridViewButtonColumn, IDataGridScaleColumn
+
+	public float ScaleFactor { get; set; }
+}
+
+internal class EditTagsDataGridViewImageButtonCell : DataGridViewImageButtonCell
+{
+	public EditTagsDataGridViewImageButtonCell() : base("Edit Tags button") { }
+
+	private static Image ButtonImage => Application.IsDarkModeEnabled ? Properties.Resources.edit_25x25_dark : Properties.Resources.edit_25x25;
+
+	protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object? value, object? formattedValue, string? errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 	{
-		public EditTagsDataGridViewImageButtonColumn()
+		// series
+		if (rowIndex >= 0 && DataGridView.GetBoundItem<GridEntry>(rowIndex) is SeriesEntry)
 		{
-			CellTemplate = new EditTagsDataGridViewImageButtonCell();
+			base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, DataGridViewPaintParts.Background | DataGridViewPaintParts.Border);
 		}
-
-		public float ScaleFactor { get; set; }
-	}
-
-	internal class EditTagsDataGridViewImageButtonCell : DataGridViewImageButtonCell
-    {
-        public EditTagsDataGridViewImageButtonCell() : base("Edit Tags button") { }
-
-        private static Image ButtonImage => Application.IsDarkModeEnabled ? Properties.Resources.edit_25x25_dark : Properties.Resources.edit_25x25;
-
-		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
+		// tag: empty
+		else if (value is string tagStr && tagStr.Length == 0)
 		{
-            // series
-            if (rowIndex >= 0 && DataGridView.GetBoundItem<GridEntry>(rowIndex) is SeriesEntry)
-			{
-                base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, DataGridViewPaintParts.Background | DataGridViewPaintParts.Border);
-            }
-            // tag: empty
-            else if (value is string tagStr && tagStr.Length == 0)
-			{
-				base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
+			base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
 
-				DrawButtonImage(graphics, ButtonImage, cellBounds);
-                AccessibilityDescription = "Click to edit tags";
-            }
-			// tag: not empty
-			else
-			{
-                base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, value, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
+			DrawButtonImage(graphics, ButtonImage, cellBounds);
+			AccessibilityDescription = "Click to edit tags";
+		}
+		// tag: not empty
+		else
+		{
+			base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, value, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
 
-                AccessibilityDescription = (string)value;
-            }
-        }
+			AccessibilityDescription = value as string;
+		}
 	}
 }

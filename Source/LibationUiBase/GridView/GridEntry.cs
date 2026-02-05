@@ -256,13 +256,23 @@ namespace LibationUiBase.GridView
 		protected void LoadCover()
 		{
 			// Get cover art. If it's default, subscribe to PictureCached
-			(bool isDefault, byte[] picture) = PictureStorage.GetPicture(new PictureDefinition(Book.PictureId, PictureSize._80x80));
 
-			if (isDefault)
-				PictureStorage.PictureCached += PictureStorage_PictureCached;
+			var picId = Book.PictureId ?? Book.PictureLarge;
+			if (picId is null)
+			{
+				// no picture id at all, use built-in default
+				_lazyCover = new Lazy<object?>(() => BaseUtil.LoadImage(null, PictureSize._80x80));
+			}
+			else
+			{
+				(bool isDefault, byte[] picture) = PictureStorage.GetPicture(new PictureDefinition(picId, PictureSize._80x80));
 
-			// Mutable property. Set the field so PropertyChanged isn't fired.
-			_lazyCover = new Lazy<object?>(() => BaseUtil.LoadImage(picture, PictureSize._80x80));
+				if (isDefault)
+					PictureStorage.PictureCached += PictureStorage_PictureCached;
+
+				// Mutable property. Set the field so PropertyChanged isn't fired.
+				_lazyCover = new Lazy<object?>(() => BaseUtil.LoadImage(picture, PictureSize._80x80));
+			}
 		}
 
 		private void PictureStorage_PictureCached(object? sender, PictureCachedEventArgs e)

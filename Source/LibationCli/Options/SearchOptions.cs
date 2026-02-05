@@ -15,14 +15,14 @@ internal class SearchOptions : OptionsBase
 	public int NumResultsPerPage { get; set; }
 
 	[Value(0, MetaName = "query", Required = true, HelpText = "Lucene search string")]
-	public IEnumerable<string> Query { get; set; }
+	public IEnumerable<string>? Query { get; set; }
 
 	[Option('b', "bare", HelpText = "Print bare list of ASINs without titles")]
 	public bool Bare { get; set; }
 
 	protected override Task ProcessAsync()
 	{
-		var query = string.Join(" ", Query).Trim('\"');
+		var query = string.Join(" ", Query ?? []).Trim('\"');
 		var results = SearchEngineCommands.Search(query).Docs.ToList();
 
 		if (NumResultsPerPage == 0)

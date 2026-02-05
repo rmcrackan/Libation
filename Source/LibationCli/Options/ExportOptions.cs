@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationCli
 {
 	[Verb("export", HelpText = "Must include path and flag for export file type: --xlsx , --csv , --json")]

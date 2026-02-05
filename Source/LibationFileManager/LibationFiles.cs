@@ -11,7 +11,6 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("AppScaffolding")]
 [assembly: InternalsVisibleTo("LibationUiBase.Tests")]
 
-#nullable enable
 namespace LibationFileManager;	
 
 /// <summary>

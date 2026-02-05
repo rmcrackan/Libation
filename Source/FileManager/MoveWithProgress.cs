@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.Win32.SafeHandles;
 using Serilog;
 
-#nullable enable
 namespace FileManager;
 
 public class MoveFileProgressEventArgs : EventArgs

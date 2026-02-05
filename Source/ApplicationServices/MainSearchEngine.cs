@@ -1,6 +1,5 @@
 ﻿using LibationSearchEngine;
 
-#nullable enable
 namespace ApplicationServices;
 
 /// <summary>

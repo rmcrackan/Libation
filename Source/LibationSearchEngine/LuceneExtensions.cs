@@ -27,8 +27,8 @@ namespace LibationSearchEngine
 
         internal static void AddIndexRule(this Document document, IndexRule rule, LibraryBook libraryBook)
 		{
-			string value = rule.GetValue(libraryBook);
-			if (value is null) return;
+			if (rule.GetValue(libraryBook) is not string value)
+				return;
 
 			foreach (var name in rule.FieldNames)
 			{

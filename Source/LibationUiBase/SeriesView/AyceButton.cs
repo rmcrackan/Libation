@@ -68,7 +68,7 @@ namespace LibationUiBase.SeriesView
 		{
 			Api api = await accountBook.GetApiAsync();
 
-			if (await api.RemoveItemFromLibraryAsync(Item.ProductId))
+			if (Item.ProductId is not null && await api.RemoveItemFromLibraryAsync(Item.ProductId))
 			{
 				var lb = DbContexts.GetLibraryBook_Flat_NoTracking(Item.ProductId);
 				int result = await LibraryCommands.PermanentlyDeleteBooksAsync([lb]);
@@ -78,6 +78,9 @@ namespace LibationUiBase.SeriesView
 
 		private async Task AddToLibraryAsync(LibraryBook accountBook)
 		{
+			if (Item.ProductId is null)
+				return;
+
 			Api api = await accountBook.GetApiAsync();
 
 			if (!await api.AddItemToLibraryAsync(Item.ProductId)) return;
@@ -91,13 +94,13 @@ namespace LibationUiBase.SeriesView
 				item = await api.GetLibraryBookAsync(Item.ProductId, LibraryOptions.ResponseGroupOptions.ALL_OPTIONS);
 			}
 
-			if (item is null) return;
+			if (item?.Relationships is null) return;
 
 			if (item.IsEpisodes)
 			{
 				var seriesParent = DbContexts.GetLibrary_Flat_NoTracking(includeParents: true)
 					.Select(lb => lb.Book)
-					.FirstOrDefault(b => b.IsEpisodeParent() && b.AudibleProductId.In(item.Relationships.Select((Relationship r) => r.Asin)));
+					.FirstOrDefault(b => b.IsEpisodeParent() && b.AudibleProductId.In(item.Relationships.Select(r => r.Asin)));
 
 				if (seriesParent is null) return;
 

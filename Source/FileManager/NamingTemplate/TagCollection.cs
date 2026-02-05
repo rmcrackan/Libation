@@ -6,7 +6,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
-#nullable enable
 namespace FileManager.NamingTemplate;
 
 /// <summary>A collection of <see cref="IPropertyTag"/>s registered to a single <see cref="Type"/>.</summary>

@@ -6,7 +6,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationCli
 {
     [Verb("copydb", HelpText = "Copy the local sqlite database to postgres.")]

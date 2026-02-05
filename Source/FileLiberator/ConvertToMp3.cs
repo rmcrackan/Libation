@@ -16,14 +16,15 @@ namespace FileLiberator
 	public class ConvertToMp3 : AudioDecodable, IProcessable<ConvertToMp3>
 	{
 		public override string Name => "Convert to Mp3";
-		private Mp4Operation Mp4Operation;
+		private Mp4Operation? Mp4Operation;
 		private readonly AaxDecrypter.AverageSpeed averageSpeed = new();
 		private static string Mp3FileName(string m4bPath) => Path.ChangeExtension(m4bPath ?? "", ".mp3");
 
-		private CancellationTokenSource CancellationTokenSource { get; set; }
+		private CancellationTokenSource? CancellationTokenSource { get; set; }
 		public override async Task CancelAsync()
 		{
-			await CancellationTokenSource.CancelAsync();
+			if (CancellationTokenSource is not null)
+				await CancellationTokenSource.CancelAsync();
 			if (Mp4Operation is not null)
 				await Mp4Operation.CancelAsync();
 		}
@@ -63,10 +64,14 @@ namespace FileLiberator
 					using var m4bFileStream = File.Open(entry.m4bPath, FileMode.Open, FileAccess.Read, FileShare.Read);
 					var m4bBook = new Mp4File(m4bFileStream);
 
-					OnTitleDiscovered(m4bBook.AppleTags.Title);
-					OnAuthorsDiscovered(m4bBook.AppleTags.FirstAuthor);
-					OnNarratorsDiscovered(m4bBook.AppleTags.Narrator);
-					OnCoverImageDiscovered(m4bBook.AppleTags.Cover);
+					if (m4bBook.MetadataItems.Title is string title)
+						OnTitleDiscovered(title);
+					if (m4bBook.MetadataItems.FirstAuthor is string firstAuthor)
+						OnAuthorsDiscovered(firstAuthor);
+					if (m4bBook.MetadataItems.Narrator is string narrator)
+						OnNarratorsDiscovered(narrator);
+					if (m4bBook.MetadataItems.Cover is byte[] cover)
+						OnCoverImageDiscovered(cover);
 
 					var lameConfig = DownloadOptions.GetLameOptions(Configuration);
 					var chapters = m4bBook.GetChaptersFromMetadata();
@@ -78,9 +83,9 @@ namespace FileLiberator
 						Configuration.LameMatchSourceBR,
 						chapters);
 
-					if (m4bBook.AppleTags.Tracks is (int trackNum, int trackCount))
+					if (m4bBook.MetadataItems.TrackNumber is { } trackNum && lameConfig.ID3 is not null)
 					{
-						lameConfig.ID3.Track = trackCount > 0 ? $"{trackNum}/{trackCount}" : trackNum.ToString();
+						lameConfig.ID3.Track = trackNum.TotalTracks > 0 ? $"{trackNum.Track}/{trackNum.TotalTracks}" : trackNum.Track.ToString();
 					}
 
 					long currentFileNumBytesProcessed = 0;
@@ -108,7 +113,8 @@ namespace FileLiberator
 									Configuration.OverwriteExisting);
 
 						SetFileTime(libraryBook, realMp3Path);
-						SetDirectoryTime(libraryBook, Path.GetDirectoryName(realMp3Path));
+						if (Path.GetDirectoryName(realMp3Path) is string outputDir)
+							SetDirectoryTime(libraryBook, outputDir);
 						OnFileCreated(libraryBook, realMp3Path);
 					}
 					finally
@@ -118,7 +124,7 @@ namespace FileLiberator
 
 						sizeOfCompletedFiles += entry.m4bSize;
 					}
-					void m4bBook_ConversionProgressUpdate(object sender, ConversionProgressEventArgs e)
+					void m4bBook_ConversionProgressUpdate(object? sender, ConversionProgressEventArgs e)
 					{
 						currentFileNumBytesProcessed = (long)(e.FractionCompleted * entry.m4bSize);
 						var bytesCompleted = sizeOfCompletedFiles + currentFileNumBytesProcessed;

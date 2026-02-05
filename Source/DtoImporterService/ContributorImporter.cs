@@ -37,6 +37,7 @@ namespace DtoImporterService
 				.Union(authors.Select(n => n.Name))
 				.Union(narrators.Select(n => n.Name))
 				.Where(name => !string.IsNullOrWhiteSpace(name))
+				.Cast<string>()
 				.ToList();
 			loadLocal_contributors(allNames);
 
@@ -64,6 +65,8 @@ namespace DtoImporterService
 			var qtyNew = 0;
 			foreach (var person in people)
 			{
+				if (person.Name is null)
+					continue;
 				if (!Cache.TryGetValue(person.Name, out var contributor))
 				{
 					contributor = createContributor(person.Name, person.Asin);
@@ -97,7 +100,7 @@ namespace DtoImporterService
 				contributor.SetAudibleContributorId(person.Asin);
 		}
 
-		private Contributor createContributor(string name, string id = null)
+		private Contributor createContributor(string name, string? id = null)
 		{
 			try
 			{

@@ -40,7 +40,7 @@ namespace LibationAvalonia.Dialogs
 			{
 				LibraryScan = account.LibraryScan;
 				AccountId = account.AccountId;
-				SelectedLocale = Locales.Single(l => l.Name == account.Locale.Name);
+				SelectedLocale = Locales.Single(l => l.Name == account.Locale?.Name);
 				AccountName = account.AccountName;
 			}
 		}
@@ -121,15 +121,15 @@ namespace LibationAvalonia.Dialogs
 			try
 			{
 				var jsonText = File.ReadAllText(selectedFile);
-				var mkbAuth = Mkb79Auth.FromJson(jsonText);
+				var mkbAuth = Mkb79Auth.FromJson(jsonText) ?? throw new Exception("File did not contain valid mkb79/audible-cli account data.");
 				var account = await mkbAuth.ToAccountAsync();
 
 				// without transaction, accounts persister will write ANY EDIT immediately to file
 				using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 
-				if (persister.AccountsSettings.Accounts.Any(a => a.AccountId == account.AccountId && a.IdentityTokens.Locale.Name == account.Locale.Name))
+				if (persister.AccountsSettings.Accounts.Any(a => a.AccountId == account.AccountId && a.IdentityTokens?.Locale.Name == account.Locale?.Name))
 				{
-					await MessageBox.Show(this, $"An account with that account id and country already exists.\r\n\r\nAccount ID: {account.AccountId}\r\nCountry: {account.Locale.Name}", "Cannot Add Duplicate Account");
+					await MessageBox.Show(this, $"An account with that account id and country already exists.\r\n\r\nAccount ID: {account.AccountId}\r\nCountry: {account.Locale?.Name}", "Cannot Add Duplicate Account");
 					return;
 				}
 
@@ -241,7 +241,7 @@ namespace LibationAvalonia.Dialogs
 			// without transaction, accounts persister will write ANY EDIT immediately to file
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 
-			var account = persister.AccountsSettings.Accounts.FirstOrDefault(a => a.AccountId == acc.AccountId && a.Locale.Name == acc.SelectedLocale?.Name);
+			var account = persister.AccountsSettings.Accounts.FirstOrDefault(a => a.AccountId == acc.AccountId && a.Locale?.Name == acc.SelectedLocale?.Name);
 
 			if (account is null)
 				return;

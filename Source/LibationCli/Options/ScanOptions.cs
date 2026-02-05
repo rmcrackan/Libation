@@ -12,7 +12,7 @@ namespace LibationCli
 	public class ScanOptions : OptionsBase
 	{
 		[Value(0, MetaName = "Accounts", HelpText = "Optional: user ID or nicknames of accounts to scan.", Required = false)]
-		public IEnumerable<string> AccountNames { get; set; }
+		public IEnumerable<string>? AccountNames { get; set; }
 
 		protected override async Task ProcessAsync()
 		{
@@ -44,14 +44,14 @@ namespace LibationCli
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			var allAccounts = persister.AccountsSettings.GetAll().ToArray();
 
-			if (!AccountNames.Any())
+			if (AccountNames?.Any() is not true)
 				return allAccounts;
 
 			var accountNames = AccountNames.Select(n => n.ToLower()).ToArray();
 
 			var found
 				= allAccounts
-				.Where(acct => accountNames.Contains(acct.AccountName.ToLower()) || accountNames.Contains(acct.AccountId.ToLower()))
+				.Where(acct => accountNames.Contains(acct.AccountName?.ToLower()) || accountNames.Contains(acct.AccountId.ToLower()))
 				.ToArray();
 
 			var notFound = allAccounts.Except(found).ToArray();

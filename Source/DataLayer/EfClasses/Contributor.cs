@@ -26,25 +26,28 @@ namespace DataLayer
         public string Name { get; private set; }
 
         private HashSet<BookContributor> _booksLink;
-        public IEnumerable<BookContributor> BooksLink => _booksLink?.ToList();
+        public IEnumerable<BookContributor> BooksLink => _booksLink?.ToList() ?? [];
 
-        public string AudibleContributorId { get; private set; }
+        public string? AudibleContributorId { get; private set; }
 
-        private Contributor() { }
-        public Contributor(string name, string audibleContributorId = null)
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+		private Contributor() { }
+#pragma warning restore CS8618
+		public Contributor(string name, string? audibleContributorId = null)
         {
             Name = ArgumentValidator.EnsureNotNullOrWhiteSpace(name, nameof(name));
 
             _booksLink = new HashSet<BookContributor>();
+			SetAudibleContributorId(audibleContributorId);
+		}
 
+		public override string ToString() => Name;
+		public void SetAudibleContributorId(string? audibleContributorId)
+		{
 			// don't overwrite with null or whitespace but not an error
 			if (!string.IsNullOrWhiteSpace(audibleContributorId))
 				AudibleContributorId = audibleContributorId;
 		}
-
-		public override string ToString() => Name;
-		public void SetAudibleContributorId(string audibleContributorId)
-			=> AudibleContributorId = audibleContributorId;
 
         public bool IsEmpty => ContributorId == -1;
     }

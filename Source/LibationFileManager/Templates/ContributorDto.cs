@@ -1,7 +1,6 @@
 ﻿using NameParser;
 using System;
 
-#nullable enable
 namespace LibationFileManager.Templates;
 
 public class ContributorDto : IFormattable
@@ -24,8 +23,8 @@ public class ContributorDto : IFormattable
 
 		//Single-word names parse as first names. Use it as last name.
 		var lastName = string.IsNullOrWhiteSpace(HumanName.Last) ? HumanName.First : HumanName.Last;
-  		//Because of the above, if the have only a first name, then we'd double the name as "FirstName FirstName", so clear the first name in that situation.
-  		var firstName = string.IsNullOrWhiteSpace(HumanName.Last) ? HumanName.Last : HumanName.First;
+		//Because of the above, if the have only a first name, then we'd double the name as "FirstName FirstName", so clear the first name in that situation.
+		var firstName = string.IsNullOrWhiteSpace(HumanName.Last) ? HumanName.Last : HumanName.First;
 
 		return format
 			.Replace("{T}", HumanName.Title)

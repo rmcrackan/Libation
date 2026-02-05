@@ -10,7 +10,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationCli
 {
 	[Verb("liberate", HelpText = "Liberate: book and pdf backups. Default: download and decrypt all un-liberated titles and download pdfs.\n"

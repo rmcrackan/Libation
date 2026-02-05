@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-#nullable enable
 namespace LibationFileManager.Templates;
 
 public class SeriesOrder : IFormattable

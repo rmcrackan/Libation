@@ -7,36 +7,36 @@ namespace NamingTemplateTests
 {
 	class TemplateTag : ITemplateTag
 	{
-		public string TagName { get; init; }
+		public required string TagName { get; init; }
 	}
 
 	class PropertyClass1
 	{
-		public string Item1 { get; set; }
-		public string Item2 { get; set; }
-		public string Item3 { get; set; }
-		public string NullItem { get; set; }
+		public string? Item1 { get; set; }
+		public string? Item2 { get; set; }
+		public string? Item3 { get; set; }
+		public string? NullItem { get; set; }
 		public int Int1 { get; set; }
 		public bool Condition { get; set; }
 	}
 
 	class PropertyClass2
 	{
-		public string Item1 { get; set; }
-		public string Item2 { get; set; }
-		public string Item3 { get; set; }
-		public string Item4 { get; set; }
-		public string NullItem { get; set; }
+		public string? Item1 { get; set; }
+		public string? Item2 { get; set; }
+		public string? Item3 { get; set; }
+		public string? Item4 { get; set; }
+		public string? NullItem { get; set; }
 		public bool Condition { get; set; }
 	}
 	class PropertyClass3
 	{
-		public string Item1 { get; set; }
-		public string Item2 { get; set; }
-		public string Item3 { get; set; }
-		public string Item4 { get; set; }
-		public string NullItem { get; set; }
-		public ReferenceType RefType { get; set; }
+		public string? Item1 { get; set; }
+		public string? Item2 { get; set; }
+		public string? Item3 { get; set; }
+		public string? Item4 { get; set; }
+		public string? NullItem { get; set; }
+		public ReferenceType? RefType { get; set; }
 		public int? Int2 { get; set; }
 		public bool Condition { get; set; }
 	}
@@ -270,10 +270,11 @@ namespace NamingTemplateTests
 				return value.ToString();
 			}
 
-			string formatString(ITemplateTag templateTag, string value, string formatString)
+			string formatString(ITemplateTag templateTag, string? value, string formatString)
 			{
-				if (string.Compare(formatString, "u", ignoreCase: true) == 0) return value?.ToUpper();
-				else if (string.Compare(formatString, "l", ignoreCase: true) == 0) return value?.ToLower();
+				if (value is null) return string.Empty;
+				else if (string.Compare(formatString, "u", ignoreCase: true) == 0) return value.ToUpper();
+				else if (string.Compare(formatString, "l", ignoreCase: true) == 0) return value.ToLower();
 				else return value;
 			}
 		}

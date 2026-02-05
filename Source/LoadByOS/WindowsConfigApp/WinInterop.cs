@@ -29,6 +29,9 @@ namespace WindowsConfigApp
 			const string ExtractorExeName = "ZipExtractor.exe";
 			var thisExe = Environment.ProcessPath;
 			var thisDir = Path.GetDirectoryName(thisExe);
+			if (!File.Exists(thisExe) || !Directory.Exists(thisDir))
+				return;
+
 			var zipExtractor = Path.Combine(Path.GetTempPath(), ExtractorExeName);
 
 			File.Copy(Path.Combine(thisDir, ExtractorExeName), zipExtractor, overwrite: true);
@@ -39,7 +42,7 @@ namespace WindowsConfigApp
                 $"--executable {thisExe.SurroundWithQuotes()}");
 		}
 
-		public Process RunAsRoot(string exe, string args)
+		public Process? RunAsRoot(string exe, string args)
         {
 			var psi = new ProcessStartInfo()
 			{

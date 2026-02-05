@@ -1,6 +1,5 @@
 ﻿using ApplicationServices;
 using LibationUiBase;
-using LibationUiBase.ProcessQueue;
 using System;
 using System.Data;
 using System.Linq;
@@ -8,7 +7,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-#nullable enable
 namespace LibationWinForms.Dialogs;
 
 public partial class FindBetterQualityBooksDialog : Form

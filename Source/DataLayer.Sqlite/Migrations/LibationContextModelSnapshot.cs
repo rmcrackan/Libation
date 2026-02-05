@@ -15,7 +15,7 @@ namespace DataLayer.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.0");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
 
             modelBuilder.Entity("CategoryCategoryLadder", b =>
                 {
@@ -39,6 +39,7 @@ namespace DataLayer.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("AudibleProductId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("ContentType")
@@ -48,6 +49,7 @@ namespace DataLayer.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsAbridged")
@@ -63,6 +65,7 @@ namespace DataLayer.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Locale")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PictureId")
@@ -72,9 +75,11 @@ namespace DataLayer.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Subtitle")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("BookId");
@@ -131,9 +136,7 @@ namespace DataLayer.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("AudibleCategoryId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("CategoryId");
@@ -164,6 +167,7 @@ namespace DataLayer.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("ContributorId");
@@ -189,6 +193,7 @@ namespace DataLayer.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Account")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateAdded")
@@ -215,6 +220,7 @@ namespace DataLayer.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("AudibleSeriesId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
@@ -296,6 +302,7 @@ namespace DataLayer.Migrations
                                 .HasColumnType("INTEGER");
 
                             b1.Property<string>("Url")
+                                .IsRequired()
                                 .HasColumnType("TEXT");
 
                             b1.HasKey("SupplementId");
@@ -375,11 +382,13 @@ namespace DataLayer.Migrations
                                 .IsRequired();
                         });
 
-                    b.Navigation("Rating");
+                    b.Navigation("Rating")
+                        .IsRequired();
 
                     b.Navigation("Supplements");
 
-                    b.Navigation("UserDefinedItem");
+                    b.Navigation("UserDefinedItem")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DataLayer.BookCategory", b =>

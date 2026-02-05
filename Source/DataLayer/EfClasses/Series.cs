@@ -20,17 +20,19 @@ namespace DataLayer
         public string AudibleSeriesId { get; private set; }
 
         /// <summary>optional</summary>
-        public string Name { get; private set; }
+        public string? Name { get; private set; }
 
         private HashSet<SeriesBook> _booksLink;
         public IEnumerable<SeriesBook> BooksLink
             => _booksLink?
                 .OrderBy(sb => sb.Index)
-                .ToList();
+                .ToList() ?? [];
 
-        private Series() { }
-        /// <summary>special id class b/c it's too easy to get string order mixed up</summary>
-        public Series(AudibleSeriesId audibleSeriesId, string name = null)
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+		private Series() { }
+#pragma warning restore CS8618
+		/// <summary>special id class b/c it's too easy to get string order mixed up</summary>
+		public Series(AudibleSeriesId audibleSeriesId, string? name = null)
         {
             ArgumentValidator.EnsureNotNull(audibleSeriesId, nameof(audibleSeriesId));
             var id = audibleSeriesId.Id;
@@ -40,13 +42,13 @@ namespace DataLayer
             UpdateName(name);
         }
 
-        public void UpdateName(string name)
+        public void UpdateName(string? name)
         {
             // don't overwrite with null or whitespace but not an error
             if (!string.IsNullOrWhiteSpace(name))
                 Name = name;
         }
 
-		public override string ToString() => Name;
+		public override string? ToString() => Name;
 	}
 }

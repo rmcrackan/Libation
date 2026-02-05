@@ -34,7 +34,7 @@ namespace DataLayer.Configurations
             entity
                 .Metadata
                 .FindNavigation(nameof(Book.Supplements))
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
+                ?.SetPropertyAccessMode(PropertyAccessMode.Field);
 
             // owns it 1:1, store in separate table
             entity
@@ -48,10 +48,10 @@ namespace DataLayer.Configurations
                     b_udi.Property(udi => udi.LastDownloaded);
                     b_udi
                         .Property(udi => udi.LastDownloadedVersion)
-                        .HasConversion(ver => ver.ToString(), str => Version.Parse(str));
+                        .HasConversion(ver => ver == null ? null : ver.ToString(), str => str == null ? null : Version.Parse(str));
                     b_udi
                         .Property(udi => udi.LastDownloadedFormat)
-                        .HasConversion(af => af.Serialize(), str => AudioFormat.Deserialize(str));
+                        .HasConversion(af => af == null ? 0 : af.Serialize(), str => AudioFormat.Deserialize(str));
 
 					b_udi.Property(udi => udi.LastDownloadedFileVersion);
 

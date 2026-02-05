@@ -15,7 +15,7 @@ namespace FileUtilityTests
 		static readonly ReplacementCharacters Barebones = ReplacementCharacters.Barebones(Environment.OSVersion.Platform == PlatformID.Win32NT);
 
 		[TestMethod]
-		public void null_path_throws() => Assert.ThrowsExactly<ArgumentNullException>(() => FileUtility.GetSafePath(null, Default));
+		public void null_path_throws() => Assert.ThrowsExactly<ArgumentNullException>(() => FileUtility.GetSafePath(null!, Default));
 
 		[TestMethod]
 		// non-empty replacement
@@ -184,7 +184,7 @@ namespace FileUtilityTests
 		[DataRow("txt", ".txt")]
 		[DataRow(".txt", ".txt")]
 		[DataRow("   .txt   ", ".txt")]
-		public void Tests(string input, string expected)
+		public void Tests(string? input, string expected)
 			=> FileUtility.GetStandardizedExtension(input).Should().Be(expected);
 	}
 
@@ -226,7 +226,7 @@ namespace FileUtilityTests
 	public class RemoveLastCharacter
 	{
 		[TestMethod]
-		public void is_null() => Tests(null, null);
+		public void is_null() => Tests(null!, null);
 
 		[TestMethod]
 		public void empty() => Tests("", "");
@@ -242,7 +242,7 @@ namespace FileUtilityTests
 		[DataRow("1 ", "1")]
 		[DataRow("12", "1")]
 		[DataRow("123", "12")]
-		public void Tests(string input, string expected)
+		public void Tests(string input, string? expected)
 			=> FileUtility.RemoveLastCharacter(input).Should().Be(expected);
 	}
 }

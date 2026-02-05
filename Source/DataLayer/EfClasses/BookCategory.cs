@@ -9,7 +9,9 @@ namespace DataLayer
 
 		public Book Book { get; private set; }
 		public CategoryLadder CategoryLadder { get; private set; }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 		private BookCategory() { }
+#pragma warning restore CS8618
 
 		internal BookCategory(Book book, CategoryLadder categoriesList)
 		{

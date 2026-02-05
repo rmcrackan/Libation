@@ -8,7 +8,6 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationCli.Options;
 
 [Verb("get-license", HelpText = "Get the license information for a book.")]
