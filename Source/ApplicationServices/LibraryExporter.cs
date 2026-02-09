@@ -8,7 +8,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
-#nullable enable
 namespace ApplicationServices;
 
 public static class LibraryExporter
@@ -23,7 +22,8 @@ public static class LibraryExporter
 		using var csv = new CsvWriter(new System.IO.StreamWriter(saveFilePath), CultureInfo.CurrentCulture);
 		csv.WriteHeader(typeof(ExportDto));
 		csv.NextRecord();
-		csv.WriteRecords(dtos);	}
+		csv.WriteRecords(dtos);
+	}
 
 	public static void ToJson(string saveFilePath, IEnumerable<LibraryBook>? libraryBooks = null)
 	{

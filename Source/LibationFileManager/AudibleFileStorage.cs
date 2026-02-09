@@ -1,296 +1,294 @@
-﻿using System;
+﻿using AaxDecrypter;
+using Dinah.Core;
+using FileManager;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using Dinah.Core;
-using System.Threading.Tasks;
 using System.Threading;
-using FileManager;
-using AaxDecrypter;
+using System.Threading.Tasks;
 
-#nullable enable
-namespace LibationFileManager
+namespace LibationFileManager;
+
+public abstract class AudibleFileStorage
 {
-	public abstract class AudibleFileStorage
+	protected abstract LongPath? GetFilePathCustom(string productId);
+	protected abstract List<LongPath> GetFilePathsCustom(string productId);
+
+	#region static
+
+	/*
+	 * Operations like LibraryCommands.GetCounts() hit the file system hard.
+	 * Since failing to create a directory and exception handling is expensive,
+	 * only retry creating InProgress subdirectories every RetryInProgressInterval.
+	 */
+	private static DateTime lastInProgressFail;
+	private static readonly TimeSpan RetryInProgressInterval = TimeSpan.FromSeconds(2);
+
+	private static DirectoryInfo? CreateInProgressDirectory(string subDirectory)
 	{
-		protected abstract LongPath? GetFilePathCustom(string productId);
-		protected abstract List<LongPath> GetFilePathsCustom(string productId);
-
-		#region static
-
-		/*
-		 * Operations like LibraryCommands.GetCounts() hit the file system hard.
-		 * Since failing to create a directory and exception handling is expensive,
-		 * only retry creating InProgress subdirectories every RetryInProgressInterval.
-		 */
-		private static DateTime lastInProgressFail;
-		private static readonly TimeSpan RetryInProgressInterval = TimeSpan.FromSeconds(2);
-
-		private static DirectoryInfo? CreateInProgressDirectory(string subDirectory)
+		try
 		{
+			return (DateTime.UtcNow - lastInProgressFail) < RetryInProgressInterval ? null
+				: new DirectoryInfo(Configuration.Instance.InProgress).CreateSubdirectoryEx(subDirectory);
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Error(ex, "Error creating subdirectory in {InProgress}", Configuration.Instance.InProgress);
+			lastInProgressFail = DateTime.UtcNow;
+			return null;
+		}
+	}
+
+	public static LongPath? DownloadsInProgressDirectory => CreateInProgressDirectory("DownloadsInProgress")?.FullName;
+	public static LongPath? DecryptInProgressDirectory => CreateInProgressDirectory("DecryptInProgress")?.FullName;
+
+	static AudibleFileStorage()
+	{
+		//Clean up any partially-decrypted files from previous Libation instances.
+		//Do not clean DownloadsInProgressDirectory. Those files are resumable.
+		try
+		{
+			if (DecryptInProgressDirectory is not LongPath decryptDir)
+				return;
+			foreach (var tempFile in FileUtility.SaferEnumerateFiles(decryptDir))
+				FileUtility.SaferDelete(tempFile);
+		}
+		catch (Exception ex)
+		{
+			// since this is a static constructor which may be called very early, do not assume Serilog is initialized
+			try { Serilog.Log.Error(ex, "Error cleaning up partially-decrypted files"); }
+			catch { }
+		}
+	}
+
+
+	private static AaxcFileStorage AAXC { get; } = new AaxcFileStorage();
+	public static bool AaxcExists(string productId) => AAXC.Exists(productId);
+
+	public static AudioFileStorage Audio { get; } = new AudioFileStorage();
+
+	/// <summary>
+	/// The fully-qualified Books durectory path if the directory exists, otherwise null.
+	/// </summary>
+	public static LongPath? BooksDirectory
+	{
+		get
+		{
+			if (string.IsNullOrWhiteSpace(Configuration.Instance.Books))
+				return null;
 			try
 			{
-				return (DateTime.UtcNow - lastInProgressFail) < RetryInProgressInterval ? null
-					: new DirectoryInfo(Configuration.Instance.InProgress).CreateSubdirectoryEx(subDirectory);
+				return Directory.CreateDirectory(Configuration.Instance.Books)?.FullName;
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Error(ex, "Error creating subdirectory in {InProgress}", Configuration.Instance.InProgress);
-				lastInProgressFail = DateTime.UtcNow;
+				Serilog.Log.Error(ex, "Error creating Books directory: {BooksDirectory}", Configuration.Instance.Books);
 				return null;
 			}
 		}
+	}
+	#endregion
 
-		public static LongPath? DownloadsInProgressDirectory => CreateInProgressDirectory("DownloadsInProgress")?.FullName;
-		public static LongPath? DecryptInProgressDirectory => CreateInProgressDirectory("DecryptInProgress")?.FullName;
+	#region instance
+	private FileType FileType { get; }
+	private string regexTemplate { get; }
 
-		static AudibleFileStorage()
+	protected AudibleFileStorage(FileType fileType)
+	{
+		FileType = fileType;
+
+		var extAggr = FileTypes.GetExtensions(FileType).Aggregate((a, b) => $"{a}|{b}");
+		regexTemplate = $@"{{0}}.*?\.({extAggr})$";
+	}
+
+	protected LongPath? GetFilePath(string productId)
+	{
+		// primary lookup
+		var cachedFile = FilePathCache.GetFirstPath(productId, FileType);
+		if (cachedFile is not null && File.Exists(cachedFile))
+			return cachedFile;
+
+		// secondary lookup attempt
+		var firstOrNull = GetFilePathCustom(productId);
+		if (firstOrNull is not null)
+			FilePathCache.Insert(productId, firstOrNull);
+
+		return firstOrNull;
+	}
+
+	public List<LongPath> GetPaths(string productId)
+		=> GetFilePathsCustom(productId);
+
+	protected Regex GetBookSearchRegex(string productId)
+	{
+		var pattern = string.Format(regexTemplate, productId);
+		return new Regex(pattern, RegexOptions.IgnoreCase);
+	}
+	#endregion
+}
+
+internal class AaxcFileStorage : AudibleFileStorage
+{
+	internal AaxcFileStorage() : base(FileType.AAXC) { }
+
+	protected override LongPath? GetFilePathCustom(string productId)
+		=> GetFilePathsCustom(productId).FirstOrDefault();
+
+	//GetFilePathsCustom gets called for every book during LibraryCommands.GetCounts().
+	//Cache the results for a short time to avoid excessive file system hits.
+	private DateTime lastDlInProgressEnumeration;
+	private static readonly TimeSpan dlInProgressCacheTime = TimeSpan.FromSeconds(10);
+	private IEnumerable<LongPath>? dlInProgressFilesCache;
+
+	protected override List<LongPath> GetFilePathsCustom(string productId)
+	{
+		if (DownloadsInProgressDirectory is not LongPath dlFolder)
+			return [];
+
+		var regex = GetBookSearchRegex(productId);
+
+		if (DateTime.UtcNow - lastDlInProgressEnumeration > dlInProgressCacheTime)
 		{
-			//Clean up any partially-decrypted files from previous Libation instances.
-			//Do not clean DownloadsInProgressDirectory. Those files are resumable.
+			dlInProgressFilesCache = null;
+		}
+
+		if (dlInProgressFilesCache is null)
+		{
+			dlInProgressFilesCache
+				= FileUtility
+				.SaferEnumerateFiles(dlFolder, "*.*", SearchOption.AllDirectories)
+				.ToArray();
+
+			lastDlInProgressEnumeration = DateTime.UtcNow;
+		}
+
+		return dlInProgressFilesCache.Where(s => regex.IsMatch(s)).ToList();
+	}
+
+	public bool Exists(string productId) => GetFilePath(productId) is not null;
+}
+
+public class AudioFileStorage : AudibleFileStorage
+{
+	internal AudioFileStorage() : base(FileType.Audio)
+		=> BookDirectoryFiles ??= newBookDirectoryFiles();
+
+	private static BackgroundFileSystem? BookDirectoryFiles { get; set; }
+	private static Lock bookDirectoryFilesLocker { get; } = new();
+	private static EnumerationOptions enumerationOptions { get; } = new()
+	{
+		RecurseSubdirectories = true,
+		IgnoreInaccessible = true,
+		AttributesToSkip = FileAttributes.Hidden,
+	};
+
+	protected override LongPath? GetFilePathCustom(string productId)
+		=> GetFilePathsCustom(productId).FirstOrDefault();
+
+	private static BackgroundFileSystem? newBookDirectoryFiles()
+		=> BooksDirectory is LongPath books ? new BackgroundFileSystem(books, "*.*", SearchOption.AllDirectories)
+		: null;
+
+	protected override List<LongPath> GetFilePathsCustom(string productId)
+	{
+		ValidateBookDirectoryFiles();
+		var regex = GetBookSearchRegex(productId);
+		var diskFiles = BookDirectoryFiles?.FindFiles(regex) ?? [];
+
+		//Find all extant files matching the productId
+		//using both the file system and the file path cache
+		return
+			FilePathCache
+			.GetFiles(productId)
+			.Where(c => c.fileType == FileType.Audio && File.Exists(c.path))
+			.Select(c => c.path)
+			.Union(diskFiles)
+			.ToList();
+	}
+
+	public void Refresh()
+	{
+		ValidateBookDirectoryFiles();
+		BookDirectoryFiles?.RefreshFiles();
+	}
+
+	private void ValidateBookDirectoryFiles()
+	{
+		lock (bookDirectoryFilesLocker)
+		{
+			if (BooksDirectory != BookDirectoryFiles?.RootDirectory)
+			{
+				//Will happen if the user changed the Books directory
+				//or if BackgroundFileSystem errored out.
+				BookDirectoryFiles?.Dispose();
+				BookDirectoryFiles = newBookDirectoryFiles();
+			}
+		}
+	}
+
+
+	public LongPath? GetPath(string productId) => GetFilePath(productId);
+
+	public static async IAsyncEnumerable<FilePathCache.CacheEntry> FindAudiobooksAsync(LongPath searchDirectory, [EnumeratorCancellation] CancellationToken cancellationToken)
+	{
+		ArgumentValidator.EnsureNotNull(searchDirectory, nameof(searchDirectory));
+
+		foreach (LongPath path in Directory.EnumerateFiles(searchDirectory, "*.*", enumerationOptions))
+		{
+			if (cancellationToken.IsCancellationRequested)
+				yield break;
+
+			if (getFormatByExtension(path) is not OutputFormat format)
+				continue;
+
+			FilePathCache.CacheEntry? audioFile = default;
+
 			try
-            {
-				if (DecryptInProgressDirectory is not LongPath decryptDir)
-					return;
-                foreach (var tempFile in FileUtility.SaferEnumerateFiles(decryptDir))
-                    FileUtility.SaferDelete(tempFile);
-            }
-            catch (Exception ex)
-            {
-                // since this is a static constructor which may be called very early, do not assume Serilog is initialized
-                try { Serilog.Log.Error(ex, "Error cleaning up partially-decrypted files"); }
-				catch { }
-            }
-		}
-
-
-		private static AaxcFileStorage AAXC { get; } = new AaxcFileStorage();
-		public static bool AaxcExists(string productId) => AAXC.Exists(productId);
-
-		public static AudioFileStorage Audio { get; } = new AudioFileStorage();
-
-		/// <summary>
-		/// The fully-qualified Books durectory path if the directory exists, otherwise null.
-		/// </summary>
-		public static LongPath? BooksDirectory
-		{
-			get
 			{
-				if (string.IsNullOrWhiteSpace(Configuration.Instance.Books))
-					return null;
-				try
+				if (format is OutputFormat.M4b)
 				{
-					return Directory.CreateDirectory(Configuration.Instance.Books)?.FullName;
+					var tags = await Task.Run(() => Mpeg4Lib.MetadataItems.FromFile(path));
+
+					if (tags?.Asin is not null)
+						audioFile = new FilePathCache.CacheEntry(tags.Asin, FileType.Audio, path);
 				}
-				catch (Exception ex)
+				else
 				{
-					Serilog.Log.Error(ex, "Error creating Books directory: {BooksDirectory}", Configuration.Instance.Books);
-					return null;
+					using var fileStream = File.OpenRead(path);
+					var id3 = await Task.Run(() => Mpeg4Lib.ID3.Id3Tag.Create(fileStream));
+
+					var asin = id3?.Children
+						.OfType<Mpeg4Lib.ID3.TXXXFrame>()
+						.FirstOrDefault(f => f.FieldName == "AUDIBLE_ASIN")
+						?.FieldValue;
+
+					if (!string.IsNullOrWhiteSpace(asin))
+						audioFile = new FilePathCache.CacheEntry(asin, FileType.Audio, path);
 				}
 			}
-		}
-		#endregion
-
-		#region instance
-		private FileType FileType { get; }
-		private string regexTemplate { get; }
-
-		protected AudibleFileStorage(FileType fileType)
-		{
-			FileType = fileType;
-
-			var extAggr = FileTypes.GetExtensions(FileType).Aggregate((a, b) => $"{a}|{b}");
-			regexTemplate = $@"{{0}}.*?\.({extAggr})$";
-		}
-
-		protected LongPath? GetFilePath(string productId)
-		{
-			// primary lookup
-			var cachedFile = FilePathCache.GetFirstPath(productId, FileType);
-			if (cachedFile is not null && File.Exists(cachedFile))
-				return cachedFile;
-
-			// secondary lookup attempt
-			var firstOrNull = GetFilePathCustom(productId);
-			if (firstOrNull is not null)
-				FilePathCache.Insert(productId, firstOrNull);
-
-			return firstOrNull;
-		}
-
-		public List<LongPath> GetPaths(string productId)
-			=> GetFilePathsCustom(productId);
-
-		protected Regex GetBookSearchRegex(string productId)
-		{
-			var pattern = string.Format(regexTemplate, productId);
-			return new Regex(pattern, RegexOptions.IgnoreCase);
-		}
-		#endregion
-	}
-
-	internal class AaxcFileStorage : AudibleFileStorage
-	{
-		internal AaxcFileStorage() : base(FileType.AAXC) { }
-
-		protected override LongPath? GetFilePathCustom(string productId)
-			=> GetFilePathsCustom(productId).FirstOrDefault();
-
-		//GetFilePathsCustom gets called for every book during LibraryCommands.GetCounts().
-		//Cache the results for a short time to avoid excessive file system hits.
-		private DateTime lastDlInProgressEnumeration;
-		private static TimeSpan dlInProgressCacheTime = TimeSpan.FromSeconds(10);
-		private IEnumerable<LongPath>? dlInProgressFilesCache;
-
-		protected override List<LongPath> GetFilePathsCustom(string productId)
-		{
-			if (DownloadsInProgressDirectory is not LongPath dlFolder)
-				return [];
-
-			var regex = GetBookSearchRegex(productId);
-
-			if (DateTime.UtcNow - lastDlInProgressEnumeration > dlInProgressCacheTime)
+			catch (Exception ex)
 			{
-				dlInProgressFilesCache = null;
+				Serilog.Log.Error(ex, "Error checking for asin in {file}", path);
+			}
+			finally
+			{
+				GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
 			}
 
-			if (dlInProgressFilesCache is null)
-			{
-				dlInProgressFilesCache
-					= FileUtility
-					.SaferEnumerateFiles(dlFolder, "*.*", SearchOption.AllDirectories)
-					.ToArray();
-
-				lastDlInProgressEnumeration = DateTime.UtcNow;
-			}
-
-			return dlInProgressFilesCache.Where(s => regex.IsMatch(s)).ToList();
+			if (audioFile is not null)
+				yield return audioFile;
 		}
 
-		public bool Exists(string productId) => GetFilePath(productId) is not null;
-	}
-
-	public class AudioFileStorage : AudibleFileStorage
-	{
-		internal AudioFileStorage() : base(FileType.Audio)
-			=> BookDirectoryFiles ??= newBookDirectoryFiles();
-
-		private static BackgroundFileSystem? BookDirectoryFiles { get; set; }
-		private static Lock bookDirectoryFilesLocker { get; } = new();
-		private static EnumerationOptions enumerationOptions { get; } = new()
+		static OutputFormat? getFormatByExtension(string path)
 		{
-			RecurseSubdirectories = true,
-			IgnoreInaccessible = true,
-			AttributesToSkip = FileAttributes.Hidden,
-		};
+			var ext = Path.GetExtension(path).ToLower();
 
-		protected override LongPath? GetFilePathCustom(string productId)
-			=> GetFilePathsCustom(productId).FirstOrDefault();
-
-		private static BackgroundFileSystem? newBookDirectoryFiles()
-			=> BooksDirectory is LongPath books ? new BackgroundFileSystem(books, "*.*", SearchOption.AllDirectories)
-			: null;
-
-		protected override List<LongPath> GetFilePathsCustom(string productId)
-		{
-			ValidateBookDirectoryFiles();
-			var regex = GetBookSearchRegex(productId);
-			var diskFiles = BookDirectoryFiles?.FindFiles(regex) ?? [];
-
-			//Find all extant files matching the productId
-			//using both the file system and the file path cache
-			return
-				FilePathCache
-				.GetFiles(productId)
-				.Where(c => c.fileType == FileType.Audio && File.Exists(c.path))
-				.Select(c => c.path)
-				.Union(diskFiles)
-				.ToList();
-		}
-
-		public void Refresh()
-		{
-			ValidateBookDirectoryFiles();
-			BookDirectoryFiles?.RefreshFiles();
-		}
-
-		private void ValidateBookDirectoryFiles()
-		{
-			lock (bookDirectoryFilesLocker)
-			{
-				if (BooksDirectory != BookDirectoryFiles?.RootDirectory)
-				{
-					//Will happen if the user changed the Books directory
-					//or if BackgroundFileSystem errored out.
-					BookDirectoryFiles?.Dispose();
-					BookDirectoryFiles = newBookDirectoryFiles();
-				}
-			}
-		}
-
-
-		public LongPath? GetPath(string productId) => GetFilePath(productId);
-
-		public static async IAsyncEnumerable<FilePathCache.CacheEntry> FindAudiobooksAsync(LongPath searchDirectory, [EnumeratorCancellation] CancellationToken cancellationToken)
-		{
-			ArgumentValidator.EnsureNotNull(searchDirectory, nameof(searchDirectory));
-
-			foreach (LongPath path in Directory.EnumerateFiles(searchDirectory, "*.*", enumerationOptions))
-			{
-				if (cancellationToken.IsCancellationRequested)
-					yield break;
-
-				if (getFormatByExtension(path) is not OutputFormat format)
-					continue;
-
-				FilePathCache.CacheEntry? audioFile = default;
-
-				try
-				{
-					if (format is OutputFormat.M4b)
-					{
-						var tags = await Task.Run(() => Mpeg4Lib.MetadataItems.FromFile(path));
-
-						if (tags?.Asin is not null)
-							audioFile = new FilePathCache.CacheEntry(tags.Asin, FileType.Audio, path);
-					}
-					else
-					{
-						using var fileStream = File.OpenRead(path);
-						var id3 = await Task.Run(() => Mpeg4Lib.ID3.Id3Tag.Create(fileStream));
-
-						var asin = id3?.Children
-							.OfType<Mpeg4Lib.ID3.TXXXFrame>()
-							.FirstOrDefault(f => f.FieldName == "AUDIBLE_ASIN")
-							?.FieldValue;
-
-						if (!string.IsNullOrWhiteSpace(asin))
-							audioFile = new FilePathCache.CacheEntry(asin, FileType.Audio, path);
-					}
-				}
-				catch (Exception ex)
-				{
-					Serilog.Log.Error(ex, "Error checking for asin in {file}", path);
-				}
-				finally
-				{
-					GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
-				}
-
-				if (audioFile is not null)
-					yield return audioFile;
-			}
-
-			static OutputFormat? getFormatByExtension(string path)
-			{
-				var ext = Path.GetExtension(path).ToLower();
-
-				return ext == ".mp3" ? OutputFormat.Mp3
-					: ext == ".m4b" ? OutputFormat.M4b
-					: null;
-			}
+			return ext == ".mp3" ? OutputFormat.Mp3
+				: ext == ".m4b" ? OutputFormat.M4b
+				: null;
 		}
 	}
 }

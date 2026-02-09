@@ -1,24 +1,23 @@
 ﻿using AppScaffolding;
 
-namespace HangoverWinForms
+namespace HangoverWinForms;
+
+public partial class Form1 : Form
 {
-    public partial class Form1 : Form
-    {
-        public Form1()
-        {
-            InitializeComponent();
+	public Form1()
+	{
+		InitializeComponent();
 
-            var config = LibationScaffolding.RunPreConfigMigrations();
-            LibationScaffolding.RunPostConfigMigrations(config);
-            LibationScaffolding.RunPostMigrationScaffolding(Variety.Classic, config);
+		var config = LibationScaffolding.RunPreConfigMigrations();
+		LibationScaffolding.RunPostConfigMigrations(config);
+		LibationScaffolding.RunPostMigrationScaffolding(Variety.Classic, config);
 
-            databaseTab.VisibleChanged += databaseTab_VisibleChanged;
-            cliTab.VisibleChanged += cliTab_VisibleChanged;
-            deletedTab.VisibleChanged += deletedTab_VisibleChanged;
+		databaseTab.VisibleChanged += databaseTab_VisibleChanged;
+		cliTab.VisibleChanged += cliTab_VisibleChanged;
+		deletedTab.VisibleChanged += deletedTab_VisibleChanged;
 
-            Load_databaseTab();
-            Load_cliTab();
-            Load_deletedTab();
-        }
-    }
+		Load_databaseTab();
+		Load_cliTab();
+		Load_deletedTab();
+	}
 }

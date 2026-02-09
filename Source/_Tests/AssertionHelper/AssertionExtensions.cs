@@ -1,10 +1,13 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
+[assembly: Parallelize]
 namespace AssertionHelper;
 
 public static class AssertionExtensions
 {
 	[StackTraceHidden]
+	[return: NotNullIfNotNull(nameof(value))]
 	public static T? Should<T>(this T? value) => value;
 
 	[StackTraceHidden]
@@ -14,6 +17,10 @@ public static class AssertionExtensions
 	[StackTraceHidden]
 	public static void BeNull<T>(this T? value) where T : class
 		=> Assert.IsNull(value);
+
+	[StackTraceHidden]
+	public static void BeNotNull<T>([NotNull] this T? value) where T : class
+		=> Assert.IsNotNull(value);
 
 	[StackTraceHidden]
 	public static void BeSameAs<T>(this T? value, T? otherValue)

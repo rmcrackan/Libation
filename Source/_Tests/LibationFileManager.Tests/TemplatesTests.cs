@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using AaxDecrypter;
+﻿using AaxDecrypter;
 using AssertionHelper;
 using FileManager;
 using FileManager.NamingTemplate;
 using LibationFileManager.Templates;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using static TemplatesTests.Shared;
 
 [assembly: Parallelize]
@@ -33,7 +32,7 @@ namespace TemplatesTests
 		public static LibraryBookDto GetLibraryBook()
 			=> GetLibraryBook([new SeriesDto("Sherlock Holmes", "1", "B08376S3R2")]);
 
-		public static LibraryBookDto GetLibraryBook(IEnumerable<SeriesDto> series)
+		public static LibraryBookDto GetLibraryBook(IEnumerable<SeriesDto>? series)
 			=> new()
 			{
 				Account = "myaccount@example.co",
@@ -51,7 +50,7 @@ namespace TemplatesTests
 				BitRate = 128,
 				SampleRate = 44100,
 				Channels = 2,
-                Language = "English",
+				Language = "English",
 				Subtitle = "An Audible Original Drama",
 				TitleWithSubtitle = "A Study in Scarlet: An Audible Original Drama",
 				Codec = "AAC-LC",
@@ -78,7 +77,7 @@ namespace TemplatesTests
 	[TestClass]
 	public class getFileNamingTemplate
 	{
-		static ReplacementCharacters Replacements = ReplacementCharacters.Default(Environment.OSVersion.Platform == PlatformID.Win32NT);
+		static readonly ReplacementCharacters Replacements = ReplacementCharacters.Default(Environment.OSVersion.Platform == PlatformID.Win32NT);
 
 		[TestMethod]
 		[DataRow(null)]
@@ -102,8 +101,8 @@ namespace TemplatesTests
 		[DataRow("f.txt", @"C:\foo\bar", ".ext", @"C:\foo\bar\f.txt.ext")]
 		[DataRow("f", @"C:\foo\bar", ".ext", @"C:\foo\bar\f.ext")]
 		[DataRow("<id>", @"C:\foo\bar", ".ext", @"C:\foo\bar\asin.ext")]
-        [DataRow("<bitrate> - <samplerate> - <channels>", @"C:\foo\bar", ".ext", @"C:\foo\bar\128 - 44100 - 2.ext")]
-        [DataRow("<year> - <channels>", @"C:\foo\bar", ".ext", @"C:\foo\bar\2017 - 2.ext")]
+		[DataRow("<bitrate> - <samplerate> - <channels>", @"C:\foo\bar", ".ext", @"C:\foo\bar\128 - 44100 - 2.ext")]
+		[DataRow("<year> - <channels>", @"C:\foo\bar", ".ext", @"C:\foo\bar\2017 - 2.ext")]
 		[DataRow("(000.0) <year> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\(000.0) 2017 - 2.ext")]
 		public void Tests(string template, string dirFullPath, string extension, string expected)
 		{
@@ -146,7 +145,8 @@ namespace TemplatesTests
 					Replacements = Replacements.Replacements
 					.Append(new Replacement('4', "  ", ""))
 					.Append(new Replacement('2', "  ", ""))
-					.ToArray() };
+					.ToArray()
+				};
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 
@@ -360,7 +360,7 @@ namespace TemplatesTests
 		public void NameFormat_formatters(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
-			bookDto.Authors = 
+			bookDto.Authors =
 			[
 				new("Jill Conner Browne", "B1"),
 				new("Charles E. Gannon", "B2"),
@@ -418,6 +418,7 @@ namespace TemplatesTests
 				PartsPosition = 1,
 				PartsTotal = 2,
 				Title = bookDto.Title,
+				OutputFileName = "outputfile.m4b"
 			};
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
@@ -451,7 +452,7 @@ namespace TemplatesTests
 				new("Series C", "2",  "B3"),
 				new("Series D", "1-5",  "B4"),
 			];
-			
+
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate
 				.GetFilename(bookDto, "", "", Replacements)
@@ -475,7 +476,7 @@ namespace TemplatesTests
 		public void SeriesOrder_formatters(string template, string seriesOrder, string expected)
 		{
 			var bookDto = GetLibraryBook();
-			bookDto.Series = [new("Series A", seriesOrder,  "B1")];
+			bookDto.Series = [new("Series A", seriesOrder, "B1")];
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate
@@ -540,7 +541,7 @@ namespace Templates_Other
 	[TestClass]
 	public class GetFilePath
 	{
-		static ReplacementCharacters Replacements = ReplacementCharacters.Default(Environment.OSVersion.Platform == PlatformID.Win32NT);
+		static readonly ReplacementCharacters Replacements = ReplacementCharacters.Default(Environment.OSVersion.Platform == PlatformID.Win32NT);
 
 		[TestMethod]
 		[DataRow(@"C:\foo\bar", @"\\Folder\<title>\[<id>]\\", @"C:\foo\bar\Folder\my_ book 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\[ID123456].txt", PlatformID.Win32NT)]
@@ -579,10 +580,10 @@ namespace Templates_Other
 
 		private class TemplateTag : ITemplateTag
 		{
-			public string TagName { get; init; }
-			public string DefaultValue { get; }
-			public string Description { get; }
-			public string Display { get; }
+			public required string TagName { get; init; }
+			public string? DefaultValue { get; }
+			public string? Description { get; }
+			public string? Display { get; }
 		}
 		private static string NEW_GetValidFilename_FileNamingTemplate(string dirFullPath, string template, string title, string extension)
 		{
@@ -613,7 +614,7 @@ namespace Templates_Other
 			// 100-999 => 001-999
 
 			var estension = Path.GetExtension(originalPath);
-			var dir = Path.GetDirectoryName(originalPath);
+			var dir = Path.GetDirectoryName(originalPath)!;
 			var template = Path.GetFileNameWithoutExtension(originalPath) + " - <ch# 0> - <title>" + estension;
 
 			var lbDto = GetLibraryBook();
@@ -622,7 +623,7 @@ namespace Templates_Other
 			Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterFileTemplate).Should().BeTrue();
 
 			return chapterFileTemplate
-				.GetFilename(lbDto, new AaxDecrypter.MultiConvertFileProperties { Title = suffix, PartsTotal = partsTotal, PartsPosition = partsPosition }, dir, estension, Replacements)
+				.GetFilename(lbDto, new MultiConvertFileProperties { Title = suffix, PartsTotal = partsTotal, PartsPosition = partsPosition, OutputFileName = string.Empty }, dir, estension, Replacements)
 				.PathWithoutPrefix;
 		}
 
@@ -636,7 +637,7 @@ namespace Templates_Other
 				var lbDto = GetLibraryBook();
 				lbDto.TitleWithSubtitle = @"s\l/a\s/h\e/s";
 
-				var directory = Path.GetDirectoryName(inStr);
+				var directory = Path.GetDirectoryName(inStr)!;
 				var fileName = Path.GetFileName(inStr);
 
 				Templates.TryGetTemplate<Templates.FileTemplate>(fileName, out var fileNamingTemplate).Should().BeTrue();
@@ -673,7 +674,7 @@ namespace Templates_Folder_Tests
 
 		[TestMethod]
 		[DataRow(@"C:\", PlatformID.Win32NT, Templates.ERROR_FULL_PATH_IS_INVALID)]
-		public void Tests(string template, PlatformID platformID, params string[] expected)
+		public void Tests(string? template, PlatformID platformID, params string[] expected)
 		{
 			if ((platformID & Environment.OSVersion.Platform) == Environment.OSVersion.Platform)
 			{
@@ -735,7 +736,7 @@ namespace Templates_Folder_Tests
 		[TestMethod]
 		[DataRow(@"no tags", NamingTemplate.WARNING_NO_TAGS)]
 		[DataRow("<ch#> chapter tag", NamingTemplate.WARNING_NO_TAGS)]
-		public void Tests(string template, params string[] expected)
+		public void Tests(string? template, params string[] expected)
 		{
 			Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var folderTemplate);
 			var result = folderTemplate.Warnings;
@@ -760,7 +761,7 @@ namespace Templates_Folder_Tests
 		[DataRow(@"no tags", true)]
 		[DataRow(@"<id>\foo\bar", false)]
 		[DataRow("<ch#> chapter tag", true)]
-		public void Tests(string template, bool expected)
+		public void Tests(string? template, bool expected)
 		{
 			Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var folderTemplate);
 			folderTemplate.HasWarnings.Should().Be(expected);
@@ -820,7 +821,7 @@ namespace Templates_File_Tests
 		[DataRow(@"<id>")]
 		public void valid_tests(string template) => Tests(template, Environment.OSVersion.Platform, Array.Empty<string>());
 
-		public void Tests(string template, PlatformID platformID, params string[] expected)
+		public void Tests(string? template, PlatformID platformID, params string[] expected)
 		{
 			if (Environment.OSVersion.Platform == platformID)
 			{
@@ -904,7 +905,7 @@ namespace Templates_ChapterFile_Tests
 		[DataRow(@"<id>\foo\bar", true, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
 		[DataRow(@"<id>/foo/bar", false, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
 		[DataRow("<chapter count> -- chapter tag but not ch# or ch_#", null, NamingTemplate.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
-		public void Tests(string template, bool? windows, params string[] expected)
+		public void Tests(string? template, bool? windows, params string[] expected)
 		{
 			if (windows is null
 			|| (windows is true && Environment.OSVersion.Platform is PlatformID.Win32NT)
@@ -937,7 +938,7 @@ namespace Templates_ChapterFile_Tests
 		[DataRow("<ch#> <id>", false)]
 		[DataRow("<ch#> -- chapter tag", false)]
 		[DataRow("<chapter count> -- chapter tag but not ch# or ch_#", true)]
-		public void Tests(string template, bool expected)
+		public void Tests(string? template, bool expected)
 		{
 			Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterFileTemplate);
 			chapterFileTemplate.HasWarnings.Should().Be(expected);

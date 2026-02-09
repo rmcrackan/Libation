@@ -1,14 +1,8 @@
-﻿using System;
-using AudibleApi.Common;
+﻿using AudibleApi.Common;
 
-namespace DtoImporterService
+namespace DtoImporterService;
+
+public record ImportItem(Item DtoItem, string AccountId, string LocaleName)
 {
-	public class ImportItem
-	{
-		public Item DtoItem { get; set; }
-		public string AccountId { get; set; }
-		public string LocaleName { get; set; }
-		public override string ToString()
-			=> DtoItem is null ? base.ToString() : $"[{DtoItem.ProductId}] {DtoItem.Title}";
-	}
+	public override string ToString() => $"[{DtoItem.ProductId}] {DtoItem.Title}";
 }

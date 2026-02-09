@@ -216,7 +216,7 @@ public class LibationFilesTest
 		return new LibationSetup(libationFiles)
 		{
 			SetupPrompt = () => new MockLibationSetup { IsNewUser = isNewUser, IsReturningUser = isReturningUser },
-			SelectFolderPrompt = () => new MockLibationInstallLocation { SelectedDirectory = selectedDirectory}
+			SelectFolderPrompt = () => new MockLibationInstallLocation { SelectedDirectory = selectedDirectory }
 		};
 	}
 	private static void MakeUnixReadOnly(FileSystemInfo di)

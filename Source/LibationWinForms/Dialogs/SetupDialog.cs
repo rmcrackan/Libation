@@ -1,31 +1,29 @@
 ﻿using LibationUiBase;
 using System;
-using System.Linq;
 using System.Windows.Forms;
 
-namespace LibationWinForms.Dialogs
+namespace LibationWinForms.Dialogs;
+
+public partial class SetupDialog : Form, ILibationSetup
 {
-	public partial class SetupDialog : Form, ILibationSetup
+	public bool IsNewUser { get; private set; }
+	public bool IsReturningUser { get; private set; }
+
+	public SetupDialog() => InitializeComponent();
+
+	private void newUserBtn_Click(object sender, EventArgs e)
 	{
-		public bool IsNewUser { get; private set; }
-		public bool IsReturningUser { get; private set; }
+		IsNewUser = true;
 
-		public SetupDialog() => InitializeComponent();
+		this.DialogResult = DialogResult.OK;
+		Close();
+	}
 
-		private void newUserBtn_Click(object sender, EventArgs e)
-		{
-			IsNewUser = true;
+	private void returningUserBtn_Click(object sender, EventArgs e)
+	{
+		IsReturningUser = true;
 
-			this.DialogResult = DialogResult.OK;
-			Close();
-		}
-
-		private void returningUserBtn_Click(object sender, EventArgs e)
-		{
-			IsReturningUser = true;
-
-			this.DialogResult = DialogResult.OK;
-			Close();
-		}
+		this.DialogResult = DialogResult.OK;
+		Close();
 	}
 }

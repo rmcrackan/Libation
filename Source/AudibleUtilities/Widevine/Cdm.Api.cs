@@ -1,15 +1,14 @@
 ﻿using AudibleApi;
+using AudibleApi.Cryptography;
+using Dinah.Core.Net.Http;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Net.Http;
-using AudibleApi.Cryptography;
-using Newtonsoft.Json.Linq;
-using Dinah.Core.Net.Http;
 using System.Text.Json.Nodes;
+using System.Threading.Tasks;
 
-#nullable enable
 namespace AudibleUtilities.Widevine;
 
 public partial class Cdm
@@ -23,7 +22,7 @@ public partial class Cdm
 		using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 
 		//Check if there are any Android accounts. If not, we can't use Widevine.
-		if (!persister.Target.Accounts.Any(a => a.IdentityTokens.DeviceType == Resources.DeviceType))
+		if (!persister.Target.Accounts.Any(a => a.IdentityTokens?.DeviceType == Resources.DeviceType))
 			return null;
 
 		if (!string.IsNullOrEmpty(persister.Target.Cdm))
@@ -49,7 +48,7 @@ public partial class Cdm
 
 			//try to get a CDM file for any account that's registered as an android device.
 			//CDMs are not account-specific, so it doesn't matter which account we're successful with.
-			foreach (var account in persister.Target.Accounts.Where(a => a.IdentityTokens.DeviceType == Resources.DeviceType))
+			foreach (var account in persister.Target.Accounts.Where(a => a.IdentityTokens?.DeviceType == Resources.DeviceType))
 			{
 				try
 				{
@@ -112,7 +111,7 @@ public partial class Cdm
 			var uris = urlArray.Select(u => u.Value<string>()).OfType<string>().Select(u => new Uri(u)).ToArray();
 
 			if (uris.Length == 0)
-				throw  new System.IO.InvalidDataException("No CDM url found in JSON: " + fileContents);
+				throw new System.IO.InvalidDataException("No CDM url found in JSON: " + fileContents);
 
 			return uris;
 		}
@@ -174,7 +173,13 @@ public partial class Cdm
 	{
 		const string ACCOUNT_INFO_PATH = "/1.0/account/information";
 
+		if (account?.Locale is null)
+			throw new ArgumentException("Account does not have a valid locale.", nameof(account));
+		if (account.IdentityTokens?.AdpToken is null || account.IdentityTokens.PrivateKey is null)
+			throw new ArgumentException("Account does not have valid identity tokens.", nameof(account));
+
 		var message = new HttpRequestMessage(HttpMethod.Get, ACCOUNT_INFO_PATH);
+
 		message.SignRequest(
 					DateTime.UtcNow,
 					account.IdentityTokens.AdpToken,

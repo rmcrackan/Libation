@@ -3,7 +3,6 @@ using LibationFileManager;
 using LibationSearchEngine;
 using System.Collections.Generic;
 
-#nullable enable
 namespace ApplicationServices;
 
 /// <summary>

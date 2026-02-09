@@ -9,130 +9,129 @@ using LibationUiBase.Forms;
 using System;
 using System.Threading.Tasks;
 
-namespace LibationAvalonia.Dialogs.Login
+namespace LibationAvalonia.Dialogs.Login;
+
+public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 {
-	public class AvaloniaLoginChoiceEager : ILoginChoiceEager
+	public ILoginCallback LoginCallback { get; } = new AvaloniaLoginCallback();
+
+	private readonly Account _account;
+
+	public AvaloniaLoginChoiceEager(Account account)
 	{
-		public ILoginCallback LoginCallback { get; } = new AvaloniaLoginCallback();
+		_account = Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
+	}
 
-		private readonly Account _account;
+	public async Task<ChoiceOut?> StartAsync(ChoiceIn choiceIn)
+		=> await Dispatcher.UIThread.InvokeAsync(() => StartAsyncInternal(choiceIn));
 
-		public AvaloniaLoginChoiceEager(Account account)
+	private async Task<ChoiceOut?> StartAsyncInternal(ChoiceIn choiceIn)
+	{
+		try
 		{
-			_account = Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
+			if (Configuration.Instance.UseWebView && await BrowserLoginAsync(choiceIn) is ChoiceOut external)
+				return external;
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, $"Failed to use the {nameof(NativeWebDialog)}");
 		}
 
-		public async Task<ChoiceOut?> StartAsync(ChoiceIn choiceIn)
-			=> await Dispatcher.UIThread.InvokeAsync(() => StartAsyncInternal(choiceIn));
+		var externalDialog = new LoginExternalDialog(_account, choiceIn.LoginUrl);
+		return await externalDialog.ShowDialogAsync() is DialogResult.OK
+			? ChoiceOut.External(externalDialog.ResponseUrl)
+			: null;
+	}
 
-		private async Task<ChoiceOut?> StartAsyncInternal(ChoiceIn choiceIn)
+	private async Task<ChoiceOut?> BrowserLoginAsync(ChoiceIn shoiceIn)
+	{
+		TaskCompletionSource<ChoiceOut?> tcs = new();
+
+		NativeWebDialog dialog = new()
 		{
-			try
-			{
-				if (Configuration.Instance.UseWebView && await BrowserLoginAsync(choiceIn) is ChoiceOut external)
-					return external;
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, $"Failed to use the {nameof(NativeWebDialog)}");
-			}
-
-			var externalDialog = new LoginExternalDialog(_account, choiceIn.LoginUrl);
-			return await externalDialog.ShowDialogAsync() is DialogResult.OK
-				? ChoiceOut.External(externalDialog.ResponseUrl)
-				: null;
-		}
-
-		private async Task<ChoiceOut?> BrowserLoginAsync(ChoiceIn shoiceIn)
+			Title = "Audible Login",
+			CanUserResize = true
+		};
+		dialog.EnvironmentRequested += Dialog_EnvironmentRequested;
+		dialog.NavigationCompleted += Dialog_NavigationCompleted;
+		dialog.Closing += (_, _) => tcs.TrySetResult(null);
+		dialog.NavigationStarted += async (_, e) =>
 		{
-			TaskCompletionSource<ChoiceOut?> tcs = new();
-
-			NativeWebDialog dialog = new()
+			if (e.Request?.AbsolutePath.StartsWith("/ap/maplanding") is true)
 			{
-				Title = "Audible Login",
-				CanUserResize = true
-			};
-			dialog.EnvironmentRequested += Dialog_EnvironmentRequested;
-			dialog.NavigationCompleted += Dialog_NavigationCompleted;
-			dialog.Closing += (_, _) => tcs.TrySetResult(null);
-			dialog.NavigationStarted += async (_, e) =>
+				tcs.TrySetResult(ChoiceOut.External(e.Request.ToString()));
+				dialog.Close();
+			}
+		};
+		dialog.AdapterCreated += (s, e) =>
+		{
+			if (dialog.TryGetCookieManager() is NativeWebViewCookieManager cookieManager)
 			{
-				if (e.Request?.AbsolutePath.StartsWith("/ap/maplanding") is true)
+				foreach (System.Net.Cookie c in shoiceIn.SignInCookies ?? [])
 				{
-					tcs.TrySetResult(ChoiceOut.External(e.Request.ToString()));
-					dialog.Close();
-				}
-			};
-			dialog.AdapterCreated += (s, e) =>
-			{
-				if (dialog.TryGetCookieManager() is NativeWebViewCookieManager cookieManager)
-				{
-					foreach (System.Net.Cookie c in shoiceIn.SignInCookies ?? [])
+					try
 					{
-						try
-						{
-							cookieManager.AddOrUpdateCookie(c);
-						}
-						catch (Exception ex)
-						{
-							Serilog.Log.Logger.Error(ex, $"Failed to set cookie {c.Name} for domain {c.Domain}");
-						}
+						cookieManager.AddOrUpdateCookie(c);
+					}
+					catch (Exception ex)
+					{
+						Serilog.Log.Logger.Error(ex, $"Failed to set cookie {c.Name} for domain {c.Domain}");
 					}
 				}
-				//Set the source only after loading cookies
-				dialog.Source = new Uri(shoiceIn.LoginUrl);
-			};
-
-			if (!Configuration.IsLinux && App.MainWindow is TopLevel topLevel)
-				dialog.Show(topLevel);
-			else
-				dialog.Show();
-
-			return await tcs.Task;
-
-			void Dialog_EnvironmentRequested(object? sender, WebViewEnvironmentRequestedEventArgs e)
-			{
-				// Private browsing & user agent setting
-				switch (e)
-				{
-					case WindowsWebView2EnvironmentRequestedEventArgs webView2Args:
-						webView2Args.IsInPrivateModeEnabled = true;
-						webView2Args.AdditionalBrowserArguments = "--user-agent=\"" + Resources.User_Agent + "\"";
-						break;
-					case AppleWKWebViewEnvironmentRequestedEventArgs appleArgs:
-						appleArgs.NonPersistentDataStore = true;
-						appleArgs.ApplicationNameForUserAgent = Resources.User_Agent;
-						break;
-					case GtkWebViewEnvironmentRequestedEventArgs gtkArgs:
-						gtkArgs.EphemeralDataManager = true;
-						gtkArgs.ApplicationNameForUserAgent = Resources.User_Agent;
-						break;
-				}
 			}
-		}		 
+			//Set the source only after loading cookies
+			dialog.Source = new Uri(shoiceIn.LoginUrl);
+		};
 
-		private async void Dialog_NavigationCompleted(object? sender, WebViewNavigationCompletedEventArgs e)
+		if (!Configuration.IsLinux && App.MainWindow is TopLevel topLevel)
+			dialog.Show(topLevel);
+		else
+			dialog.Show();
+
+		return await tcs.Task;
+
+		void Dialog_EnvironmentRequested(object? sender, WebViewEnvironmentRequestedEventArgs e)
 		{
-			if (e.IsSuccess && sender is NativeWebDialog dialog)
+			// Private browsing & user agent setting
+			switch (e)
 			{
-				await dialog.InvokeScript(getScript(_account.AccountId));
+				case WindowsWebView2EnvironmentRequestedEventArgs webView2Args:
+					webView2Args.IsInPrivateModeEnabled = true;
+					webView2Args.AdditionalBrowserArguments = "--user-agent=\"" + Resources.User_Agent + "\"";
+					break;
+				case AppleWKWebViewEnvironmentRequestedEventArgs appleArgs:
+					appleArgs.NonPersistentDataStore = true;
+					appleArgs.ApplicationNameForUserAgent = Resources.User_Agent;
+					break;
+				case GtkWebViewEnvironmentRequestedEventArgs gtkArgs:
+					gtkArgs.EphemeralDataManager = true;
+					gtkArgs.ApplicationNameForUserAgent = Resources.User_Agent;
+					break;
 			}
 		}
-
-		private static string getScript(string accountID) => $$"""
-			(function() {
-				function populateForm(){
-					var email = document.querySelector("input[id='ap_email_login']");
-					if (email !== null)
-						email.value = '{{accountID}}';
-					
-					var pass = document.querySelector("input[name='password']");
-					if (pass !== null)
-						pass.focus();
-				}
-				window.addEventListener("load", (event) => { populateForm(); });
-				populateForm();
-			})()
-			""";
 	}
+
+	private async void Dialog_NavigationCompleted(object? sender, WebViewNavigationCompletedEventArgs e)
+	{
+		if (e.IsSuccess && sender is NativeWebDialog dialog)
+		{
+			await dialog.InvokeScript(getScript(_account.AccountId));
+		}
+	}
+
+	private static string getScript(string accountID) => $$"""
+		(function() {
+			function populateForm(){
+				var email = document.querySelector("input[id='ap_email_login']");
+				if (email !== null)
+					email.value = '{{accountID}}';
+				
+				var pass = document.querySelector("input[name='password']");
+				if (pass !== null)
+					pass.focus();
+			}
+			window.addEventListener("load", (event) => { populateForm(); });
+			populateForm();
+		})()
+		""";
 }

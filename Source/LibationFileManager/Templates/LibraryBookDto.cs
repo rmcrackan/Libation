@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
-#nullable enable
 namespace LibationFileManager.Templates;
 
 public class BookDto
 {
-	public string? AudibleProductId { get; set; }
+	public required string AudibleProductId { get; set; }
 	public string? Title { get; set; }
 	public string? Subtitle { get; set; }
 	public string? TitleWithSubtitle { get; set; }

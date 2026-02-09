@@ -108,7 +108,7 @@ public class LibationSetup
 				Would you like to create a new install settings in this folder?
 				
 				{chooseFolderResult.SelectedDirectory}
-				""",				
+				""",
 				"New install?",
 				MessageBoxButtons.YesNo,
 				MessageBoxIcon.Question,
@@ -133,7 +133,7 @@ public class LibationSetup
 					
 					Would you like to create a new install settings in this folder?
 					{LibationFiles.DefaultLibationFilesDirectory}
-					""",					
+					""",
 					"Error Creating Libation Settings",
 					MessageBoxButtons.YesNo,
 					MessageBoxIcon.Question,
@@ -151,7 +151,7 @@ public class LibationSetup
 					$"""
 					An error occurred while creating default settings folder:
 					{LibationFiles.DefaultLibationFilesDirectory}
-					""",					
+					""",
 					"Error Creating Libation Settings",
 					MessageBoxButtons.OK,
 					MessageBoxIcon.Error,
@@ -184,7 +184,7 @@ public class LibationSetup
 					
 					Would you like to create a new install settings in this folder?
 					{LibationFiles.DefaultLibationFilesDirectory}
-					""",					
+					""",
 					"Error Creating Libation Settings",
 					MessageBoxButtons.YesNo,
 					MessageBoxIcon.Question,

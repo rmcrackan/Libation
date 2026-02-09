@@ -16,7 +16,7 @@ namespace LibationAvalonia.Dialogs;
 
 public partial class FindBetterQualityBooksDialog : DialogWindow
 {
-    private FindBetterQualityBooksViewModel VM { get; }
+	private FindBetterQualityBooksViewModel VM { get; }
 
 	private Task? scanTask;
 	public FindBetterQualityBooksDialog()
@@ -146,14 +146,14 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 	}
 
 	public static FuncValueConverter<ProcessBookStatus, IBrush?> RowConverter { get; } = new(status =>
-    {
-        var brush = status switch
-        {
+	{
+		var brush = status switch
+		{
 			ProcessBookStatus.Completed => "ProcessQueueBookCompletedBrush",
 			ProcessBookStatus.Cancelled => "ProcessQueueBookCancelledBrush",
 			ProcessBookStatus.Failed => "ProcessQueueBookFailedBrush",
-            _ => null,
-        };
+			_ => null,
+		};
 		return brush is not null && App.Current.TryGetResource(brush, App.Current.ActualThemeVariant, out var res) ? res as Brush : null;
-    });
+	});
 }

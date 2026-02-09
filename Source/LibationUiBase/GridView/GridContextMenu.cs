@@ -157,7 +157,7 @@ public class GridContextMenu
 		catch (Exception ex)
 		{
 			Serilog.Log.Logger.Error(ex, "Failed to delete locally removed from Audible books.");
-			
+
 			string booksStr = "book".PluralizeWithCount(removedFromAudible.Count);
 			string message = $"""
 				Failed to delete {booksStr} from Libation.

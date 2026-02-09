@@ -106,7 +106,7 @@ public class TrashBinViewModel : ViewModelBase, IDisposable
 		CheckedBooksCount = 0;
 	}
 
-	private IDisposable tracker;
+	private readonly IDisposable tracker;
 	private void CheckboxPropertyChanged(Tuple<object, PropertyChangedEventArgs> e)
 	{
 		if (e.Item2.PropertyName == nameof(CheckBoxViewModel.IsChecked))

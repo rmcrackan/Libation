@@ -1,96 +1,94 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ApplicationServices;
+using DataLayer;
+using Dinah.Core.ErrorHandling;
+using Dinah.Core.Net.Http;
+using LibationFileManager;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using ApplicationServices;
-using DataLayer;
-using Dinah.Core.ErrorHandling;
-using Dinah.Core.Net.Http;
-using FileManager;
-using LibationFileManager;
 
-namespace FileLiberator
+namespace FileLiberator;
+
+public class DownloadPdf : Processable, IProcessable<DownloadPdf>
 {
-	public class DownloadPdf : Processable, IProcessable<DownloadPdf>
+	public override string Name => "Download Pdf";
+	public override bool Validate(LibraryBook libraryBook)
+		=> !string.IsNullOrWhiteSpace(getdownloadUrl(libraryBook))
+		&& !libraryBook.Book.PdfExists;
+
+	public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
 	{
-		public override string Name => "Download Pdf";
-		public override bool Validate(LibraryBook libraryBook)
-			=> !string.IsNullOrWhiteSpace(getdownloadUrl(libraryBook))
-			&& !libraryBook.Book.PdfExists;
+		OnBegin(libraryBook);
 
-		public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
+		try
 		{
-			OnBegin(libraryBook);
+			var proposedDownloadFilePath = getProposedDownloadFilePath(libraryBook);
+			var actualDownloadedFilePath = await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
+			var result = verifyDownload(actualDownloadedFilePath);
 
-            try
+			if (result.IsSuccess)
 			{
-				var proposedDownloadFilePath = getProposedDownloadFilePath(libraryBook);
-				var actualDownloadedFilePath = await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
-				var result = verifyDownload(actualDownloadedFilePath);
+				SetFileTime(libraryBook, actualDownloadedFilePath);
+				if (Path.GetDirectoryName(actualDownloadedFilePath) is string outputDir)
+					SetDirectoryTime(libraryBook, outputDir);
+			}
+			await libraryBook.UpdatePdfStatusAsync(result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated);
 
-				if (result.IsSuccess)
-				{
-					SetFileTime(libraryBook, actualDownloadedFilePath);
-					SetDirectoryTime(libraryBook, Path.GetDirectoryName(actualDownloadedFilePath));
-				}
-				await libraryBook.UpdatePdfStatusAsync(result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated);
-
-                return result;
-            }
-			catch (Exception ex)
-            {
-                Serilog.Log.Logger.Error(ex, "Error downloading PDF");
-
-                var result = new StatusHandler();
-                result.AddError($"Error downloading PDF. See log for details. Error summary: {ex.Message}");
-
-                return result;
-            }
-			finally
-			{
-				OnCompleted(libraryBook);
-            }
-        }
-
-		private static string getProposedDownloadFilePath(LibraryBook libraryBook)
-		{
-			var extension = Path.GetExtension(getdownloadUrl(libraryBook));
-
-			// if audio file exists, get it's dir. else return base Book dir
-			var existingPath = Path.GetDirectoryName(AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId));
-			if (existingPath is not null)
-				return AudibleFileStorage.Audio.GetCustomDirFilename(libraryBook, existingPath, extension);
-
-			return AudibleFileStorage.Audio.GetBooksDirectoryFilename(libraryBook, extension);
+			return result;
 		}
-
-		private static string getdownloadUrl(LibraryBook libraryBook)
-			=> libraryBook?.Book?.Supplements?.FirstOrDefault()?.Url;
-
-		private async Task<string> downloadPdfAsync(LibraryBook libraryBook, string proposedDownloadFilePath)
+		catch (Exception ex)
 		{
-			var api = await libraryBook.GetApiAsync();
-			var downloadUrl = await api.GetPdfDownloadLinkAsync(libraryBook.Book.AudibleProductId);
+			Serilog.Log.Logger.Error(ex, "Error downloading PDF");
 
-			var progress = new Progress<DownloadProgress>(OnStreamingProgressChanged);
+			var result = new StatusHandler();
+			result.AddError($"Error downloading PDF. See log for details. Error summary: {ex.Message}");
 
-			var client = new HttpClient();
-
-			var actualDownloadedFilePath = await client.DownloadFileAsync(downloadUrl, proposedDownloadFilePath, progress);
-			OnFileCreated(libraryBook, actualDownloadedFilePath);
-
-			OnStatusUpdate(actualDownloadedFilePath);
-			return actualDownloadedFilePath;
+			return result;
 		}
-
-		private static StatusHandler verifyDownload(string actualDownloadedFilePath)
-			=> !File.Exists(actualDownloadedFilePath)
-			? new StatusHandler { "Downloaded PDF cannot be found" }
-			: new StatusHandler();
-
-		public static DownloadPdf Create(Configuration config) => new() { Configuration = config };
-		private DownloadPdf() { }
+		finally
+		{
+			OnCompleted(libraryBook);
+		}
 	}
+
+	private static string getProposedDownloadFilePath(LibraryBook libraryBook)
+	{
+		var extension = Path.GetExtension(getdownloadUrl(libraryBook)) ?? ".pdf";
+
+		// if audio file exists, get it's dir. else return base Book dir
+		var existingPath = Path.GetDirectoryName(AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId));
+		if (existingPath is not null)
+			return AudibleFileStorage.Audio.GetCustomDirFilename(libraryBook, existingPath, extension);
+
+		return AudibleFileStorage.Audio.GetBooksDirectoryFilename(libraryBook, extension);
+	}
+
+	private static string? getdownloadUrl(LibraryBook libraryBook)
+		=> libraryBook?.Book?.Supplements?.FirstOrDefault()?.Url;
+
+	private async Task<string> downloadPdfAsync(LibraryBook libraryBook, string proposedDownloadFilePath)
+	{
+		var api = await libraryBook.GetApiAsync();
+		var downloadUrl = await api.GetPdfDownloadLinkAsync(libraryBook.Book.AudibleProductId);
+
+		var progress = new Progress<DownloadProgress>(OnStreamingProgressChanged);
+
+		var client = new HttpClient();
+
+		var actualDownloadedFilePath = await client.DownloadFileAsync(downloadUrl, proposedDownloadFilePath, progress);
+		OnFileCreated(libraryBook, actualDownloadedFilePath);
+
+		OnStatusUpdate(actualDownloadedFilePath);
+		return actualDownloadedFilePath;
+	}
+
+	private static StatusHandler verifyDownload(string actualDownloadedFilePath)
+		=> !File.Exists(actualDownloadedFilePath)
+		? new StatusHandler { "Downloaded PDF cannot be found" }
+		: new StatusHandler();
+
+	public static DownloadPdf Create(Configuration config) => new() { Configuration = config };
+	private DownloadPdf() { }
 }

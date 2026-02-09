@@ -5,339 +5,337 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-#nullable enable
-namespace FileManager
+namespace FileManager;
+
+public record Replacement
 {
-	public record Replacement
+	public const int FIXED_COUNT = 6;
+
+	internal const char QUOTE_MARK = '"';
+	[JsonIgnore] public bool Mandatory { get; set; }
+	[JsonProperty] public char CharacterToReplace { get; private set; }
+	[JsonProperty] public string ReplacementString { get; private set; }
+	[JsonProperty] public string Description { get; set; }
+	public override string ToString() => $"{CharacterToReplace} → {ReplacementString} ({Description})";
+
+	public Replacement(char charToReplace, string replacementString, string description)
 	{
-		public const int FIXED_COUNT = 6;
+		CharacterToReplace = charToReplace;
+		ReplacementString = replacementString;
+		Description = description;
+	}
+	private Replacement(char charToReplace, string replacementString, string description, bool mandatory)
+		: this(charToReplace, replacementString, description)
+	{
+		Mandatory = mandatory;
+	}
 
-		internal const char QUOTE_MARK = '"';
-		[JsonIgnore] public bool Mandatory { get; set; }
-		[JsonProperty] public char CharacterToReplace { get; private set; }
-		[JsonProperty] public string ReplacementString { get; private set; }
-		[JsonProperty] public string Description { get; set; }
-		public override string ToString() => $"{CharacterToReplace} → {ReplacementString} ({Description})";
+	public void Update(char charToReplace, string replacementString, string description)
+	{
+		ReplacementString = replacementString;
 
-		public Replacement(char charToReplace, string replacementString, string description)
+		if (!Mandatory)
 		{
 			CharacterToReplace = charToReplace;
-			ReplacementString = replacementString;
 			Description = description;
 		}
-		private Replacement(char charToReplace, string replacementString, string description, bool mandatory)
-			: this(charToReplace, replacementString, description)
-		{
-			Mandatory = mandatory;
-		}
-
-		public void Update(char charToReplace, string replacementString, string description)
-		{
-			ReplacementString = replacementString;
-
-			if (!Mandatory)
-			{
-				CharacterToReplace = charToReplace;
-				Description = description;
-			}
-		}
-
-		public static Replacement OtherInvalid(string replacement) => new(default, replacement, "All other invalid characters", true);
-		public static Replacement FilenameForwardSlash(string replacement) => new('/', replacement, "Forward Slash (Filename Only)", true);
-		public static Replacement FilenameBackSlash(string replacement) => new('\\', replacement, "Back Slash (Filename Only)", true);
-		public static Replacement OpenQuote(string replacement) => new('"', replacement, "Open Quote", true);
-		public static Replacement CloseQuote(string replacement) => new('"', replacement, "Close Quote", true);
-		public static Replacement OtherQuote(string replacement) => new('"', replacement, "Other Quote", true);
-		public static Replacement Colon(string replacement) => new(':', replacement, "Colon");
-		public static Replacement Asterisk(string replacement) => new('*', replacement, "Asterisk");
-		public static Replacement QuestionMark(string replacement) => new('?', replacement, "Question Mark");
-		public static Replacement OpenAngleBracket(string replacement) => new('<', replacement, "Open Angle Bracket");
-		public static Replacement CloseAngleBracket(string replacement) => new('>', replacement, "Close Angle Bracket");
-		public static Replacement Pipe(string replacement) => new('|', replacement, "Vertical Line");
-
 	}
 
-	[JsonConverter(typeof(ReplacementCharactersConverter))]
-	public class ReplacementCharacters
+	public static Replacement OtherInvalid(string replacement) => new(default, replacement, "All other invalid characters", true);
+	public static Replacement FilenameForwardSlash(string replacement) => new('/', replacement, "Forward Slash (Filename Only)", true);
+	public static Replacement FilenameBackSlash(string replacement) => new('\\', replacement, "Back Slash (Filename Only)", true);
+	public static Replacement OpenQuote(string replacement) => new('"', replacement, "Open Quote", true);
+	public static Replacement CloseQuote(string replacement) => new('"', replacement, "Close Quote", true);
+	public static Replacement OtherQuote(string replacement) => new('"', replacement, "Other Quote", true);
+	public static Replacement Colon(string replacement) => new(':', replacement, "Colon");
+	public static Replacement Asterisk(string replacement) => new('*', replacement, "Asterisk");
+	public static Replacement QuestionMark(string replacement) => new('?', replacement, "Question Mark");
+	public static Replacement OpenAngleBracket(string replacement) => new('<', replacement, "Open Angle Bracket");
+	public static Replacement CloseAngleBracket(string replacement) => new('>', replacement, "Close Angle Bracket");
+	public static Replacement Pipe(string replacement) => new('|', replacement, "Vertical Line");
+
+}
+
+[JsonConverter(typeof(ReplacementCharactersConverter))]
+public class ReplacementCharacters
+{
+	public override bool Equals(object? obj)
 	{
-		public override bool Equals(object? obj)
+		if (obj is ReplacementCharacters second && Replacements.Count == second.Replacements.Count)
 		{
-			if (obj is ReplacementCharacters second && Replacements.Count == second.Replacements.Count)
-			{
-				for (int i = 0; i < Replacements.Count; i++)
-					if (Replacements[i] != second.Replacements[i])
-						return false;
+			for (int i = 0; i < Replacements.Count; i++)
+				if (Replacements[i] != second.Replacements[i])
+					return false;
 
-				return true;
-			}
-			return false;
+			return true;
 		}
-		public override int GetHashCode() => Replacements.GetHashCode();
+		return false;
+	}
+	public override int GetHashCode() => Replacements.GetHashCode();
 
-		public static ReplacementCharacters Default(bool ntfs) => ntfs ? HiFi_NTFS : HiFi_Other;
-		public static ReplacementCharacters LoFiDefault(bool ntfs) => ntfs ? LoFi_NTFS : LoFi_Other;
-		public static ReplacementCharacters Barebones(bool ntfs) => ntfs ? BareBones_NTFS : BareBones_Other;
+	public static ReplacementCharacters Default(bool ntfs) => ntfs ? HiFi_NTFS : HiFi_Other;
+	public static ReplacementCharacters LoFiDefault(bool ntfs) => ntfs ? LoFi_NTFS : LoFi_Other;
+	public static ReplacementCharacters Barebones(bool ntfs) => ntfs ? BareBones_NTFS : BareBones_Other;
 
-		#region Defaults
-		private static readonly ReplacementCharacters HiFi_NTFS = new()
+	#region Defaults
+	private static readonly ReplacementCharacters HiFi_NTFS = new()
+	{
+		Replacements = [
+				Replacement.OtherInvalid("_"),
+				Replacement.FilenameForwardSlash("∕"),
+				Replacement.FilenameBackSlash(""),
+				Replacement.OpenQuote("“"),
+				Replacement.CloseQuote("”"),
+				Replacement.OtherQuote("＂"),
+				Replacement.OpenAngleBracket("＜"),
+				Replacement.CloseAngleBracket("＞"),
+				Replacement.Colon("_"),
+				Replacement.Asterisk("✱"),
+				Replacement.QuestionMark("？"),
+				Replacement.Pipe("⏐")]
+	};
+
+	private static readonly ReplacementCharacters HiFi_Other = new()
+	{
+		Replacements = [
+				Replacement.OtherInvalid("_"),
+				Replacement.FilenameForwardSlash("∕"),
+				Replacement.FilenameBackSlash("\\"),
+				Replacement.OpenQuote("“"),
+				Replacement.CloseQuote("”"),
+				Replacement.OtherQuote("\"")]
+	};
+
+	private static readonly ReplacementCharacters LoFi_NTFS = new()
+	{
+		Replacements = [
+				Replacement.OtherInvalid("_"),
+				Replacement.FilenameForwardSlash("_"),
+				Replacement.FilenameBackSlash("_"),
+				Replacement.OpenQuote("'"),
+				Replacement.CloseQuote("'"),
+				Replacement.OtherQuote("'"),
+				Replacement.OpenAngleBracket("{"),
+				Replacement.CloseAngleBracket("}"),
+				Replacement.Colon("-")]
+	};
+
+	private static readonly ReplacementCharacters LoFi_Other = new()
+	{
+		Replacements = [
+				Replacement.OtherInvalid("_"),
+				Replacement.FilenameForwardSlash("_"),
+				Replacement.FilenameBackSlash("\\"),
+				Replacement.OpenQuote("\""),
+				Replacement.CloseQuote("\""),
+				Replacement.OtherQuote("\"")]
+	};
+
+	private static readonly ReplacementCharacters BareBones_NTFS = new()
+	{
+		Replacements = [
+				Replacement.OtherInvalid("_"),
+				Replacement.FilenameForwardSlash("_"),
+				Replacement.FilenameBackSlash("_"),
+				Replacement.OpenQuote("_"),
+				Replacement.CloseQuote("_"),
+				Replacement.OtherQuote("_")]
+	};
+
+	private static readonly ReplacementCharacters BareBones_Other = new()
+	{
+		Replacements = [
+				Replacement.OtherInvalid("_"),
+				Replacement.FilenameForwardSlash("_"),
+				Replacement.FilenameBackSlash("\\"),
+				Replacement.OpenQuote("\""),
+				Replacement.CloseQuote("\""),
+				Replacement.OtherQuote("\"")]
+	};
+	#endregion
+	/// <summary>
+	/// Characters to consider invalid in filenames in addition to those returned by <see cref="Path.GetInvalidFileNameChars()"/>
+	/// </summary>
+	public static char[] AdditionalInvalidFilenameCharacters { get; set; } = [];
+
+	internal static bool IsWindows => Environment.OSVersion.Platform is PlatformID.Win32NT;
+
+	private static char[] invalidPathChars { get; } = Path.GetInvalidFileNameChars().Except(new[] {
+			Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
+		}).ToArray();
+
+	private static char[] invalidSlashes { get; } = Path.GetInvalidFileNameChars().Intersect(new[] {
+			Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
+		}).ToArray();
+
+	public required IReadOnlyList<Replacement> Replacements { get; init; }
+	private string DefaultReplacement => Replacements[0].ReplacementString;
+	private Replacement ForwardSlash => Replacements[1];
+	private Replacement BackSlash => Replacements[2];
+	private string OpenQuote => Replacements[3].ReplacementString;
+	private string CloseQuote => Replacements[4].ReplacementString;
+	private string OtherQuote => Replacements[5].ReplacementString;
+
+	private string GetFilenameCharReplacement(char toReplace, char preceding, char succeding)
+	{
+		if (toReplace == ForwardSlash.CharacterToReplace)
+			return ForwardSlash.ReplacementString;
+		else if (toReplace == BackSlash.CharacterToReplace)
+			return BackSlash.ReplacementString;
+		else return GetPathCharReplacement(toReplace, preceding, succeding);
+	}
+	private string GetPathCharReplacement(char toReplace, char preceding, char succeding)
+	{
+		if (toReplace == Replacement.QUOTE_MARK)
 		{
-			Replacements = [
-					Replacement.OtherInvalid("_"),
-					Replacement.FilenameForwardSlash("∕"),
-					Replacement.FilenameBackSlash(""),
-					Replacement.OpenQuote("“"),
-					Replacement.CloseQuote("”"),
-					Replacement.OtherQuote("＂"),
-					Replacement.OpenAngleBracket("＜"),
-					Replacement.CloseAngleBracket("＞"),
-					Replacement.Colon("_"),
-					Replacement.Asterisk("✱"),
-					Replacement.QuestionMark("？"),
-					Replacement.Pipe("⏐")]
-		};
-
-		private static readonly ReplacementCharacters HiFi_Other = new()
-		{
-			Replacements = [
-					Replacement.OtherInvalid("_"),
-					Replacement.FilenameForwardSlash("∕"),
-					Replacement.FilenameBackSlash("\\"),
-					Replacement.OpenQuote("“"),
-					Replacement.CloseQuote("”"),
-					Replacement.OtherQuote("\"")]
-		};
-
-		private static readonly ReplacementCharacters LoFi_NTFS = new()
-		{
-			Replacements = [
-					Replacement.OtherInvalid("_"),
-					Replacement.FilenameForwardSlash("_"),
-					Replacement.FilenameBackSlash("_"),
-					Replacement.OpenQuote("'"),
-					Replacement.CloseQuote("'"),
-					Replacement.OtherQuote("'"),
-					Replacement.OpenAngleBracket("{"),
-					Replacement.CloseAngleBracket("}"),
-					Replacement.Colon("-")]
-		};
-
-		private static readonly ReplacementCharacters LoFi_Other = new()
-		{
-			Replacements = [
-					Replacement.OtherInvalid("_"),
-					Replacement.FilenameForwardSlash("_"),
-					Replacement.FilenameBackSlash("\\"),
-					Replacement.OpenQuote("\""),
-					Replacement.CloseQuote("\""),
-					Replacement.OtherQuote("\"")]
-		};
-
-		private static readonly ReplacementCharacters BareBones_NTFS = new()
-		{
-			Replacements = [
-					Replacement.OtherInvalid("_"),
-					Replacement.FilenameForwardSlash("_"),
-					Replacement.FilenameBackSlash("_"),
-					Replacement.OpenQuote("_"),
-					Replacement.CloseQuote("_"),
-					Replacement.OtherQuote("_")]
-		};
-
-		private static readonly ReplacementCharacters BareBones_Other = new()
-		{
-			Replacements = [
-					Replacement.OtherInvalid("_"),
-					Replacement.FilenameForwardSlash("_"),
-					Replacement.FilenameBackSlash("\\"),
-					Replacement.OpenQuote("\""),
-					Replacement.CloseQuote("\""),
-					Replacement.OtherQuote("\"")]
-		};
-		#endregion
-		/// <summary>
-		/// Characters to consider invalid in filenames in addition to those returned by <see cref="Path.GetInvalidFileNameChars()"/>
-		/// </summary>
-		public static char[] AdditionalInvalidFilenameCharacters { get; set; } = [];
-
-		internal static bool IsWindows => Environment.OSVersion.Platform is PlatformID.Win32NT;
-
-		private static char[] invalidPathChars { get; } = Path.GetInvalidFileNameChars().Except(new[] {
-				Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
-			}).ToArray();
-
-		private static char[] invalidSlashes { get; } = Path.GetInvalidFileNameChars().Intersect(new[] {
-				Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
-			}).ToArray();
-
-		required public IReadOnlyList<Replacement> Replacements { get; init; }
-		private string DefaultReplacement => Replacements[0].ReplacementString;
-		private Replacement ForwardSlash => Replacements[1];
-		private Replacement BackSlash => Replacements[2];
-		private string OpenQuote => Replacements[3].ReplacementString;
-		private string CloseQuote => Replacements[4].ReplacementString;
-		private string OtherQuote => Replacements[5].ReplacementString;
-
-		private string GetFilenameCharReplacement(char toReplace, char preceding, char succeding)
-		{
-			if (toReplace == ForwardSlash.CharacterToReplace)
-				return ForwardSlash.ReplacementString;
-			else if (toReplace == BackSlash.CharacterToReplace)
-				return BackSlash.ReplacementString;
-			else return GetPathCharReplacement(toReplace, preceding, succeding);
-		}
-		private string GetPathCharReplacement(char toReplace, char preceding, char succeding)
-		{
-			if (toReplace == Replacement.QUOTE_MARK)
-			{
-				if (
-					preceding == default ||
-						(
-							!char.IsLetter(preceding) &&
-							!char.IsNumber(preceding) &&
-							(char.IsLetter(succeding) || char.IsNumber(succeding))
-						)
-					)
-					return OpenQuote;
-				else if (
-						succeding == default ||
-							(
-								!char.IsLetter(succeding) &&
-								!char.IsNumber(succeding) &&
-								(char.IsLetter(preceding) || char.IsNumber(preceding))
-							)
-						)
-					return CloseQuote;
-				else
-					return OtherQuote;
-			}
-
-			if (!IsWindows && toReplace == BackSlash.CharacterToReplace)
-				return BackSlash.ReplacementString;
-
-			//Replace any other non-mandatory characters
-			for (int i = Replacement.FIXED_COUNT; i < Replacements.Count; i++)
-			{
-				var r = Replacements[i];
-				if (r.CharacterToReplace == toReplace)
-					return r.ReplacementString;
-			}
-			return DefaultReplacement;
-		}
-
-		private static bool CharIsPathInvalid(char c)
-			=> invalidPathChars.Contains(c) || AdditionalInvalidFilenameCharacters.Contains(c);
-
-		public static bool ContainsInvalidPathChar(string path)
-			=> path.Any(CharIsPathInvalid);
-		public static bool ContainsInvalidFilenameChar(string path)
-			=> ContainsInvalidPathChar(path) || path.Any(c => invalidSlashes.Contains(c));
-
-		public string ReplaceFilenameChars(string fileName)
-		{
-			if (string.IsNullOrEmpty(fileName)) return string.Empty;
-			var builder = new System.Text.StringBuilder();
-			for (var i = 0; i < fileName.Length; i++)
-			{
-				var c = fileName[i];
-
-				if (CharIsPathInvalid(c)
-					|| invalidSlashes.Contains(c)
-					|| Replacements.Any(r => r.CharacterToReplace == c) /* Replace any other legal characters that they user wants. */ )
-				{
-					char preceding = i > 0 ? fileName[i - 1] : default;
-					char succeeding = i < fileName.Length - 1 ? fileName[i + 1] : default;
-					builder.Append(GetFilenameCharReplacement(c, preceding, succeeding));
-				}
-				else
-					builder.Append(c);
-			}
-			return builder.ToString();
-		}
-
-		public string ReplacePathChars(string pathStr)
-		{
-			if (string.IsNullOrEmpty(pathStr)) return string.Empty;
-
-			var builder = new System.Text.StringBuilder();
-			for (var i = 0; i < pathStr.Length; i++)
-			{
-				var c = pathStr[i];
-
-				if (
+			if (
+				preceding == default ||
 					(
-						CharIsPathInvalid(c)
-						|| (    // Replace any other legal characters that they user wants.
-								c != Path.DirectorySeparatorChar
-								&& c != Path.AltDirectorySeparatorChar
-								&& Replacements.Any(r => r.CharacterToReplace == c)
-							)
-					)
-					&& !(   // replace all colons except drive letter designator on Windows
-							c == ':'
-							&& i == 1
-							&& Path.IsPathRooted(pathStr)
-							&& IsWindows
+						!char.IsLetter(preceding) &&
+						!char.IsNumber(preceding) &&
+						(char.IsLetter(succeding) || char.IsNumber(succeding))
 					)
 				)
-				{
-					char preceding = i > 0 ? pathStr[i - 1] : default;
-					char succeeding = i < pathStr.Length - 1 ? pathStr[i + 1] : default;
-					builder.Append(GetPathCharReplacement(c, preceding, succeeding));
-				}
-				else
-					builder.Append(c);
-			}
-			return builder.ToString();
+				return OpenQuote;
+			else if (
+					succeding == default ||
+						(
+							!char.IsLetter(succeding) &&
+							!char.IsNumber(succeding) &&
+							(char.IsLetter(preceding) || char.IsNumber(preceding))
+						)
+					)
+				return CloseQuote;
+			else
+				return OtherQuote;
 		}
+
+		if (!IsWindows && toReplace == BackSlash.CharacterToReplace)
+			return BackSlash.ReplacementString;
+
+		//Replace any other non-mandatory characters
+		for (int i = Replacement.FIXED_COUNT; i < Replacements.Count; i++)
+		{
+			var r = Replacements[i];
+			if (r.CharacterToReplace == toReplace)
+				return r.ReplacementString;
+		}
+		return DefaultReplacement;
 	}
 
-	#region JSON Converter
-	internal class ReplacementCharactersConverter : JsonConverter
+	private static bool CharIsPathInvalid(char c)
+		=> invalidPathChars.Contains(c) || AdditionalInvalidFilenameCharacters.Contains(c);
+
+	public static bool ContainsInvalidPathChar(string path)
+		=> path.Any(CharIsPathInvalid);
+	public static bool ContainsInvalidFilenameChar(string path)
+		=> ContainsInvalidPathChar(path) || path.Any(c => invalidSlashes.Contains(c));
+
+	public string ReplaceFilenameChars(string fileName)
 	{
-		public override bool CanConvert(Type objectType)
-			=> objectType == typeof(ReplacementCharacters);
-
-		public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+		if (string.IsNullOrEmpty(fileName)) return string.Empty;
+		var builder = new System.Text.StringBuilder();
+		for (var i = 0; i < fileName.Length; i++)
 		{
-			var defaults = ReplacementCharacters.Default(ReplacementCharacters.IsWindows).Replacements;
+			var c = fileName[i];
 
-			var jObj = JObject.Load(reader);
-			var replaceArr = jObj[nameof(Replacement)];
-			var dict = replaceArr?.ToObject<Replacement[]>()?.ToList() ?? defaults;
-
-			//Ensure that the first 6 replacements are for the expected chars and that all replacement strings are valid.
-			//If not, reset to default.
-			for (int i = 0; i < Replacement.FIXED_COUNT; i++)
+			if (CharIsPathInvalid(c)
+				|| invalidSlashes.Contains(c)
+				|| Replacements.Any(r => r.CharacterToReplace == c) /* Replace any other legal characters that they user wants. */ )
 			{
-				if (dict.Count < Replacement.FIXED_COUNT
-					|| dict[i].CharacterToReplace != defaults[i].CharacterToReplace
-					|| dict[i].Description != defaults[i].Description)
-				{
-					dict = defaults;
-					break;
-				}
+				char preceding = i > 0 ? fileName[i - 1] : default;
+				char succeeding = i < fileName.Length - 1 ? fileName[i + 1] : default;
+				builder.Append(GetFilenameCharReplacement(c, preceding, succeeding));
+			}
+			else
+				builder.Append(c);
+		}
+		return builder.ToString();
+	}
 
-				//First FIXED_COUNT are mandatory
-				dict[i].Mandatory = true;
+	public string ReplacePathChars(string pathStr)
+	{
+		if (string.IsNullOrEmpty(pathStr)) return string.Empty;
+
+		var builder = new System.Text.StringBuilder();
+		for (var i = 0; i < pathStr.Length; i++)
+		{
+			var c = pathStr[i];
+
+			if (
+				(
+					CharIsPathInvalid(c)
+					|| (    // Replace any other legal characters that they user wants.
+							c != Path.DirectorySeparatorChar
+							&& c != Path.AltDirectorySeparatorChar
+							&& Replacements.Any(r => r.CharacterToReplace == c)
+						)
+				)
+				&& !(   // replace all colons except drive letter designator on Windows
+						c == ':'
+						&& i == 1
+						&& Path.IsPathRooted(pathStr)
+						&& IsWindows
+				)
+			)
+			{
+				char preceding = i > 0 ? pathStr[i - 1] : default;
+				char succeeding = i < pathStr.Length - 1 ? pathStr[i + 1] : default;
+				builder.Append(GetPathCharReplacement(c, preceding, succeeding));
+			}
+			else
+				builder.Append(c);
+		}
+		return builder.ToString();
+	}
+}
+
+#region JSON Converter
+internal class ReplacementCharactersConverter : JsonConverter
+{
+	public override bool CanConvert(Type objectType)
+		=> objectType == typeof(ReplacementCharacters);
+
+	public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+	{
+		var defaults = ReplacementCharacters.Default(ReplacementCharacters.IsWindows).Replacements;
+
+		var jObj = JObject.Load(reader);
+		var replaceArr = jObj[nameof(Replacement)];
+		var dict = replaceArr?.ToObject<Replacement[]>()?.ToList() ?? defaults;
+
+		//Ensure that the first 6 replacements are for the expected chars and that all replacement strings are valid.
+		//If not, reset to default.
+		for (int i = 0; i < Replacement.FIXED_COUNT; i++)
+		{
+			if (dict.Count < Replacement.FIXED_COUNT
+				|| dict[i].CharacterToReplace != defaults[i].CharacterToReplace
+				|| dict[i].Description != defaults[i].Description)
+			{
+				dict = defaults;
+				break;
 			}
 
-			return new ReplacementCharacters { Replacements = dict };
+			//First FIXED_COUNT are mandatory
+			dict[i].Mandatory = true;
 		}
 
-		public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
-		{
-			if (value is not ReplacementCharacters replacements)
-				return;
-
-			var propertyNames = replacements.Replacements
-				.Select(JObject.FromObject).ToList();
-
-			var prop = new JProperty(nameof(Replacement), new JArray(propertyNames));
-
-			var obj = new JObject();
-			obj.AddFirst(prop);
-			obj.WriteTo(writer);
-		}
+		return new ReplacementCharacters { Replacements = dict };
 	}
-	#endregion
+
+	public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+	{
+		if (value is not ReplacementCharacters replacements)
+			return;
+
+		var propertyNames = replacements.Replacements
+			.Select(JObject.FromObject).ToList();
+
+		var prop = new JProperty(nameof(Replacement), new JArray(propertyNames));
+
+		var obj = new JObject();
+		obj.AddFirst(prop);
+		obj.WriteTo(writer);
+	}
 }
+#endregion

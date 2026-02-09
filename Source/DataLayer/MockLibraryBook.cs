@@ -3,8 +3,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-#nullable enable
 namespace DataLayer;
+
 public class MockLibraryBook : LibraryBook
 {
 	protected MockLibraryBook(Book book, DateTime dateAdded, string account, DateTime? includedUntil, bool isAudiblePlus)
@@ -124,6 +124,6 @@ public class MockLibraryBook : LibraryBook
 		};
 	}
 
-	private static string CalculateAsin(string name) 
+	private static string CalculateAsin(string name)
 		=> Convert.ToHexString(System.Security.Cryptography.MD5.HashData(Encoding.UTF8.GetBytes(name))).Substring(0, 10);
 }

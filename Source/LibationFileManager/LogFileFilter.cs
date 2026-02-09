@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-#nullable enable
 namespace LibationFileManager;
 
 /// <summary>
@@ -40,7 +39,7 @@ public class LogFileFilter : IDestructuringPolicy
 	public static string? LogFilePath { get; private set; }
 	internal static void SetLogFilePath(string? logFilePath)
 	{
-		lock(lockObj)
+		lock (lockObj)
 		{
 			(LogFilePath, ZipFilePath)
 				= File.Exists(logFilePath) && Path.GetDirectoryName(logFilePath) is string logDir

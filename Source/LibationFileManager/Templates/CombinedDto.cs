@@ -1,6 +1,5 @@
 ﻿using AaxDecrypter;
 
-#nullable enable
 namespace LibationFileManager.Templates;
 
 public class CombinedDto

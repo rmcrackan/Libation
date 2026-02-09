@@ -1,7 +1,6 @@
 ﻿using FileManager;
 using Newtonsoft.Json.Linq;
 
-#nullable enable
 namespace LibationFileManager;
 
 internal class EphemeralDictionary : IJsonBackedDictionary

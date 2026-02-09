@@ -3,7 +3,6 @@ using System.IO;
 using System.Numerics;
 using System.Security.Cryptography;
 
-#nullable enable
 namespace AudibleUtilities.Widevine;
 
 internal enum DeviceTypes : byte
@@ -66,11 +65,11 @@ internal class Device
 	public byte[] DecryptSessionKey(byte[] sessionKey)
 		=> CdmKey.Decrypt(sessionKey, RSAEncryptionPadding.OaepSHA1);
 
-    /// <summary>
-    /// Completely managed implementation of RSASSA-PSS using SHA-1.
-    /// https://github.com/bcgit/bc-csharp/blob/master/crypto/src/crypto/signers/PssSigner.cs
-    /// 
-    /// Absolutely nobody anywhere should use this RSASSA-PSS implementation in anything where they care about security at all. We completely skipped the random salt part of it because libation doesn't need security; it only needs to satisfy Audible server's challenge-response requirements.
+	/// <summary>
+	/// Completely managed implementation of RSASSA-PSS using SHA-1.
+	/// https://github.com/bcgit/bc-csharp/blob/master/crypto/src/crypto/signers/PssSigner.cs
+	/// 
+	/// Absolutely nobody anywhere should use this RSASSA-PSS implementation in anything where they care about security at all. We completely skipped the random salt part of it because libation doesn't need security; it only needs to satisfy Audible server's challenge-response requirements.
 	/// </summary>
 	private static class PssSha1Signer
 	{

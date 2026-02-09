@@ -1,82 +1,83 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AudibleApi.Common;
+﻿using AudibleApi.Common;
 using AudibleUtilities;
 using DataLayer;
 using Dinah.Core.Collections.Generic;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace DtoImporterService
+namespace DtoImporterService;
+
+public class SeriesImporter : ItemsImporterBase
 {
-	public class SeriesImporter : ItemsImporterBase
+	protected override IValidator Validator => new SeriesValidator();
+
+	public Dictionary<string, DataLayer.Series> Cache { get; private set; } = new();
+
+	public SeriesImporter(LibationContext context) : base(context) { }
+
+	protected override int DoImport(IEnumerable<ImportItem> importItems)
 	{
-		protected override IValidator Validator => new SeriesValidator();
+		// get distinct
+		var series = importItems
+			.Select(i => i.DtoItem)
+			.GetSeriesDistinct()
+			.ToList();
 
-		public Dictionary<string, DataLayer.Series> Cache { get; private set; } = new();
+		// load db existing => .Local
+		loadLocal_series(series);
 
-		public SeriesImporter(LibationContext context) : base(context) { }
+		// upsert
+		var qtyNew = upsertSeries(series);
+		return qtyNew;
+	}
 
-		protected override int DoImport(IEnumerable<ImportItem> importItems)
+	private void loadLocal_series(List<AudibleApi.Common.Series> series)
+	{
+		var seriesIds = series.Select(s => s.SeriesId).Distinct().ToList();
+
+		if (seriesIds.Count != 0)
+			Cache = DbContext.Series
+				.Where(s => seriesIds.Contains(s.AudibleSeriesId))
+				.ToDictionarySafe(s => s.AudibleSeriesId);
+	}
+
+	private int upsertSeries(List<AudibleApi.Common.Series> requestedSeries)
+	{
+		var qtyNew = 0;
+
+		foreach (var s in requestedSeries)
 		{
-			// get distinct
-			var series = importItems
-				.Select(i => i.DtoItem)
-				.GetSeriesDistinct()
-				.ToList();
-
-			// load db existing => .Local
-			loadLocal_series(series);
-
-			// upsert
-			var qtyNew = upsertSeries(series);
-			return qtyNew;
+			if (string.IsNullOrEmpty(s.SeriesId))
+				continue;
+			// AudibleApi.Common.Series.SeriesId == DataLayer.AudibleSeriesId
+			if (!Cache.TryGetValue(s.SeriesId, out var series))
+			{
+				series = addSeries(s.SeriesId);
+				qtyNew++;
+			}
+			series.UpdateName(s.SeriesName);
 		}
 
-		private void loadLocal_series(List<AudibleApi.Common.Series> series)
-		{
-			var seriesIds = series.Select(s => s.SeriesId).Distinct().ToList();
+		return qtyNew;
+	}
 
-			if (seriesIds.Any())
-				Cache = DbContext.Series
-					.Where(s => seriesIds.Contains(s.AudibleSeriesId))
-					.ToDictionarySafe(s => s.AudibleSeriesId);
+	private DataLayer.Series addSeries(string seriesId)
+	{
+		try
+		{
+			var series = new DataLayer.Series(new AudibleSeriesId(seriesId));
+
+			var entityEntry = DbContext.Series.Add(series);
+			var entity = entityEntry.Entity;
+
+			Cache.Add(entity.AudibleSeriesId, entity);
+			return entity;
 		}
-
-		private int upsertSeries(List<AudibleApi.Common.Series> requestedSeries)
+		catch (Exception ex)
 		{
-			var qtyNew = 0;
-
-			foreach (var s in requestedSeries)
-			{
-				// AudibleApi.Common.Series.SeriesId == DataLayer.AudibleSeriesId
-				if (!Cache.TryGetValue(s.SeriesId, out var series))
-				{
-					series = addSeries(s.SeriesId);
-					qtyNew++;
-				}
-				series.UpdateName(s.SeriesName);
-			}
-
-			return qtyNew;
-		}
-
-		private DataLayer.Series addSeries(string seriesId)
-		{
-			try
-			{
-				var series = new DataLayer.Series(new AudibleSeriesId(seriesId));
-
-				var entityEntry = DbContext.Series.Add(series);
-				var entity = entityEntry.Entity;
-
-				Cache.Add(entity.AudibleSeriesId, entity);
-				return entity;
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, "Error adding series. {@DebugInfo}", new { seriesId });
-				throw;
-			}
+			Serilog.Log.Logger.Error(ex, "Error adding series. {@DebugInfo}", new { seriesId });
+			throw;
 		}
 	}
 }

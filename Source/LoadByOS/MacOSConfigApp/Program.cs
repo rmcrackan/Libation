@@ -1,7 +1,6 @@
-﻿namespace MacOSConfigApp
+﻿namespace MacOSConfigApp;
+
+class Program
 {
-    class Program
-    {
-        static void Main() { }
-    }
+	static void Main() { }
 }

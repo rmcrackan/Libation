@@ -8,7 +8,6 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace LibationCli.Options;
 
 [Verb("get-license", HelpText = "Get the license information for a book.")]
@@ -33,7 +32,7 @@ internal class GetLicenseOptions : OptionsBase
 
 		var api = await libraryBook.GetApiAsync();
 		var license = await DownloadOptions.GetDownloadLicenseAsync(api, libraryBook, Configuration.Instance, default);
-		
+
 		var jsonSettings = new JsonSerializerSettings
 		{
 			NullValueHandling = NullValueHandling.Ignore,

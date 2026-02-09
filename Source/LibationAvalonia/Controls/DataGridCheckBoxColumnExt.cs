@@ -1,16 +1,15 @@
 ﻿using Avalonia.Controls;
 using LibationUiBase.GridView;
 
-namespace LibationAvalonia.Controls
+namespace LibationAvalonia.Controls;
+
+public class DataGridCheckBoxColumnExt : DataGridCheckBoxColumn
 {
-	public class DataGridCheckBoxColumnExt : DataGridCheckBoxColumn
+	protected override Control? GenerateEditingElementDirect(DataGridCell cell, object dataItem)
 	{
-		protected override Control? GenerateEditingElementDirect(DataGridCell cell, object dataItem)
-		{
-			//Only SeriesEntry types have three-state checks, individual LibraryEntry books are binary.
-			var ele = base.GenerateEditingElementDirect(cell, dataItem) as CheckBox;
-			ele?.IsThreeState = dataItem is SeriesEntry;
-			return ele;
-		}
+		//Only SeriesEntry types have three-state checks, individual LibraryEntry books are binary.
+		var ele = base.GenerateEditingElementDirect(cell, dataItem) as CheckBox;
+		ele?.IsThreeState = dataItem is SeriesEntry;
+		return ele;
 	}
 }

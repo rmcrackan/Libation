@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
-#nullable enable
 namespace FileManager.NamingTemplate;
 
 internal interface IClosingPropertyTag : IPropertyTag
@@ -26,7 +25,7 @@ public delegate bool Conditional<T>(ITemplateTag templateTag, T value, string co
 
 public class ConditionalTagCollection<TClass> : TagCollection
 {
-	public ConditionalTagCollection(bool caseSensative = true) :base(typeof(TClass), caseSensative) { }
+	public ConditionalTagCollection(bool caseSensative = true) : base(typeof(TClass), caseSensative) { }
 
 	/// <summary>
 	/// Register a conditional tag.
@@ -47,7 +46,7 @@ public class ConditionalTagCollection<TClass> : TagCollection
 	{
 		AddPropertyTag(new ConditionalTag(templateTag, Options, Parameter, conditional));
 	}
-	
+
 	private class ConditionalTag : TagBase, IClosingPropertyTag
 	{
 		public override Regex NameMatcher { get; }

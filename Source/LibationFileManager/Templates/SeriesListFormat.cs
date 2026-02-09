@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-#nullable enable
 namespace LibationFileManager.Templates;
 
 internal partial class SeriesListFormat : IListFormat<SeriesListFormat>

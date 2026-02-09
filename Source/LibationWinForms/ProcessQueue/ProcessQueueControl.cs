@@ -7,7 +7,6 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
-#nullable enable
 namespace LibationWinForms.ProcessQueue;
 
 internal partial class ProcessQueueControl : UserControl

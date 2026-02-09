@@ -5,151 +5,150 @@ using LibationFileManager;
 using ReactiveUI;
 using System.Linq;
 
-namespace LibationAvalonia.Dialogs
+namespace LibationAvalonia.Dialogs;
+
+public partial class EditQuickFilters : DialogWindow
 {
-	public partial class EditQuickFilters : DialogWindow
+	public AvaloniaList<Filter> Filters { get; } = new();
+
+	public class Filter : ViewModels.ViewModelBase
 	{
-		public AvaloniaList<Filter> Filters { get; } = new();
-
-		public class Filter : ViewModels.ViewModelBase
-		{ 
-            public string? Name
-            {
-                get => field;
-                set => this.RaiseAndSetIfChanged(ref field, value);
-			}
-
-			public string? FilterString
-			{
-				get => field;
-				set
-				{
-					IsDefault = string.IsNullOrEmpty(value);
-					this.RaiseAndSetIfChanged(ref field, value);
-					this.RaisePropertyChanged(nameof(IsDefault));
-				}
-			}
-			public bool IsDefault { get; private set; } = true;
-			public bool IsTop { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
-			public bool IsBottom { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
-
-			public QuickFilters.NamedFilter? AsNamedFilter() => FilterString is null ? null : new(FilterString, Name);
-
-		}
-		public EditQuickFilters()
+		public string? Name
 		{
-			InitializeComponent();
-			if (Design.IsDesignMode)
+			get => field;
+			set => this.RaiseAndSetIfChanged(ref field, value);
+		}
+
+		public string? FilterString
+		{
+			get => field;
+			set
 			{
-				Filters = [
-					new Filter { Name = "Filter 1", FilterString = "[filter1 string]", IsTop = true },
-					new Filter { Name = "Filter 2", FilterString = "[filter2 string]" },
-					new Filter { Name = "Filter 3", FilterString = "[filter3 string]" },
-					new Filter { Name = "Filter 4", FilterString = "[filter4 string]", IsBottom = true },
-					new Filter()];
-				DataContext = this;
-				return;
+				IsDefault = string.IsNullOrEmpty(value);
+				this.RaiseAndSetIfChanged(ref field, value);
+				this.RaisePropertyChanged(nameof(IsDefault));
 			}
+		}
+		public bool IsDefault { get; private set; } = true;
+		public bool IsTop { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+		public bool IsBottom { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 
-			// WARNING: accounts persister will write ANY EDIT to object immediately to file
-			// here: copy strings and dispose of persister
-			// only persist in 'save' step
-			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-			var accounts = persister.AccountsSettings.Accounts;
-			if (!accounts.Any())
-				return;
+		public QuickFilters.NamedFilter? AsNamedFilter() => FilterString is null ? null : new(FilterString, Name);
 
-			ControlToFocusOnShow = this.FindControl<Button>(nameof(saveBtn));
-
-			var allFilters = QuickFilters.Filters.Select(f => new Filter { FilterString = f.Filter, Name = f.Name }).ToList();
-			if (allFilters.Count > 0)
-			{
-				allFilters[0].IsTop = true;
-				allFilters[^1].IsBottom = true;
-			}
-			allFilters.Add(new Filter());
-
-			foreach (var f in allFilters)
-				f.PropertyChanged += Filter_PropertyChanged;
-
-			Filters = new(allFilters);
+	}
+	public EditQuickFilters()
+	{
+		InitializeComponent();
+		if (Design.IsDesignMode)
+		{
+			Filters = [
+				new Filter { Name = "Filter 1", FilterString = "[filter1 string]", IsTop = true },
+				new Filter { Name = "Filter 2", FilterString = "[filter2 string]" },
+				new Filter { Name = "Filter 3", FilterString = "[filter3 string]" },
+				new Filter { Name = "Filter 4", FilterString = "[filter4 string]", IsBottom = true },
+				new Filter()];
 			DataContext = this;
+			return;
 		}
 
-		private void Filter_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+		// WARNING: accounts persister will write ANY EDIT to object immediately to file
+		// here: copy strings and dispose of persister
+		// only persist in 'save' step
+		using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+		var accounts = persister.AccountsSettings.Accounts;
+		if (!accounts.Any())
+			return;
+
+		ControlToFocusOnShow = this.FindControl<Button>(nameof(saveBtn));
+
+		var allFilters = QuickFilters.Filters.Select(f => new Filter { FilterString = f.Filter, Name = f.Name }).ToList();
+		if (allFilters.Count > 0)
 		{
-			if (Filters.Any(f => f.IsDefault))
-				return;
-			var newBlank = new Filter();
-			newBlank.PropertyChanged += Filter_PropertyChanged;
-			Filters.Insert(Filters.Count, newBlank);
+			allFilters[0].IsTop = true;
+			allFilters[^1].IsBottom = true;
+		}
+		allFilters.Add(new Filter());
+
+		foreach (var f in allFilters)
+			f.PropertyChanged += Filter_PropertyChanged;
+
+		Filters = new(allFilters);
+		DataContext = this;
+	}
+
+	private void Filter_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+	{
+		if (Filters.Any(f => f.IsDefault))
+			return;
+		var newBlank = new Filter();
+		newBlank.PropertyChanged += Filter_PropertyChanged;
+		Filters.Insert(Filters.Count, newBlank);
+		ReIndexFilters();
+	}
+
+	protected override void SaveAndClose()
+	{
+		QuickFilters.ReplaceAll(Filters.Select(x => x.AsNamedFilter()).OfType<QuickFilters.NamedFilter>());
+		base.SaveAndClose();
+	}
+
+	public void DeleteButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+	{
+		if (e.Source is Button btn && btn.DataContext is Filter filter)
+		{
+			var index = Filters.IndexOf(filter);
+			if (index < 0) return;
+
+			filter.PropertyChanged -= Filter_PropertyChanged;
+			Filters.Remove(filter);
 			ReIndexFilters();
 		}
+	}
 
-		protected override void SaveAndClose()
+	public void MoveUpButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+	{
+		if (e.Source is not Button btn || btn.DataContext is not Filter filter || filter.IsDefault)
+			return;
+
+		var oldIndex = Filters.IndexOf(filter);
+		if (oldIndex < 1) return;
+
+		var filterCount = Filters.Count(f => !f.IsDefault);
+
+		MoveFilter(oldIndex, oldIndex - 1, filterCount);
+	}
+
+	public void MoveDownButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+	{
+		if (e.Source is not Button btn || btn.DataContext is not Filter filter || filter.IsDefault)
+			return;
+
+		var filterCount = Filters.Count(f => !f.IsDefault);
+		var oldIndex = Filters.IndexOf(filter);
+		if (oldIndex >= filterCount - 1) return;
+
+		MoveFilter(oldIndex, oldIndex + 1, filterCount);
+	}
+
+	private void MoveFilter(int oldIndex, int newIndex, int filterCount)
+	{
+		var filter = Filters[oldIndex];
+		Filters.RemoveAt(oldIndex);
+		Filters.Insert(newIndex, filter);
+
+		Filters[oldIndex].IsTop = oldIndex == 0;
+		Filters[newIndex].IsTop = newIndex == 0;
+		Filters[newIndex].IsBottom = newIndex == filterCount - 1;
+		Filters[oldIndex].IsBottom = oldIndex == filterCount - 1;
+	}
+
+	private void ReIndexFilters()
+	{
+		var filterCount = Filters.Count(f => !f.IsDefault);
+		for (int i = filterCount - 1; i >= 0; i--)
 		{
-			QuickFilters.ReplaceAll(Filters.Select(x => x.AsNamedFilter()).OfType<QuickFilters.NamedFilter>());
-			base.SaveAndClose();
-		}
-
-		public void DeleteButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			if (e.Source is Button btn && btn.DataContext is Filter filter)
-			{
-				var index = Filters.IndexOf(filter);
-				if (index < 0) return;
-
-				filter.PropertyChanged -= Filter_PropertyChanged;
-				Filters.Remove(filter);
-				ReIndexFilters();
-			}
-		}
-
-		public void MoveUpButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			if (e.Source is not Button btn || btn.DataContext is not Filter filter || filter.IsDefault)
-				return;
-
-			var oldIndex = Filters.IndexOf(filter);
-			if (oldIndex < 1) return;
-
-			var filterCount = Filters.Count(f => !f.IsDefault);
-
-			MoveFilter(oldIndex, oldIndex - 1, filterCount);
-		}
-
-		public void MoveDownButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			if (e.Source is not Button btn || btn.DataContext is not Filter filter || filter.IsDefault)
-				return;
-
-			var filterCount = Filters.Count(f => !f.IsDefault);
-			var oldIndex = Filters.IndexOf(filter);
-			if (oldIndex >= filterCount - 1) return;
-
-			MoveFilter(oldIndex, oldIndex + 1, filterCount);
-		}
-
-		private void MoveFilter(int oldIndex, int newIndex, int filterCount)
-		{
-			var filter = Filters[oldIndex];
-			Filters.RemoveAt(oldIndex);
-			Filters.Insert(newIndex, filter);
-
-			Filters[oldIndex].IsTop = oldIndex == 0;
-			Filters[newIndex].IsTop = newIndex == 0;
-			Filters[newIndex].IsBottom = newIndex == filterCount - 1;
-			Filters[oldIndex].IsBottom = oldIndex == filterCount - 1;
-		}
-
-		private void ReIndexFilters()
-		{
-			var filterCount = Filters.Count(f => !f.IsDefault);
-			for (int i = filterCount - 1; i >= 0; i--)
-			{
-				Filters[i].IsTop = i == 0;
-				Filters[i].IsBottom = i == filterCount - 1;
-			}
+			Filters[i].IsTop = i == 0;
+			Filters[i].IsBottom = i == filterCount - 1;
 		}
 	}
 }

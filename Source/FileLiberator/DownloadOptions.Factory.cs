@@ -15,7 +15,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-#nullable enable
 namespace FileLiberator;
 
 public partial class DownloadOptions
@@ -79,15 +78,22 @@ public partial class DownloadOptions
 		{
 			ContentMetadata = null!;
 		}
-		public LicenseInfo(ContentLicense license, IEnumerable<KeyData>? keys = null)
+
+		public static LicenseInfo Create(ContentLicense license, IEnumerable<KeyData>? keys = null)
 		{
-			DrmType = license.DrmType;
-			ContentMetadata = license.ContentMetadata;
-			DecryptionKeys = keys?.ToArray() ?? ToKeys(license.Voucher);
+			ArgumentNullException.ThrowIfNull(license, nameof(license));
+			ArgumentNullException.ThrowIfNull(license.ContentMetadata, nameof(license.ContentMetadata));
+
+			return new LicenseInfo
+			{
+				DrmType = license.DrmType,
+				ContentMetadata = license.ContentMetadata,
+				DecryptionKeys = keys?.ToArray() ?? ToKeys(license.Voucher)
+			};
 		}
 
 		private static KeyData[]? ToKeys(VoucherDtoV10? voucher)
-			=> voucher is null ? null : [new KeyData(voucher.Key, voucher.Iv)];
+			=> voucher?.Key is null ? null : [new KeyData(voucher.Key, voucher.Iv)];
 	}
 
 	private static async Task<LicenseInfo> ChooseContent(Api api, LibraryBook libraryBook, Configuration config, CancellationToken token)
@@ -116,7 +122,7 @@ public partial class DownloadOptions
 
 			token.ThrowIfCancellationRequested();
 			var license = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
-			return new LicenseInfo(license);
+			return LicenseInfo.Create(license);
 		}
 
 		token.ThrowIfCancellationRequested();
@@ -138,7 +144,12 @@ public partial class DownloadOptions
 					spatialCodecChoice);
 
 			if (contentLic.DrmType is not DrmType.Widevine)
-				return new LicenseInfo(contentLic);
+				return LicenseInfo.Create(contentLic);
+
+			if (contentLic.LicenseResponse is null)
+				throw new InvalidDataException("Widevine license response is null.");
+			if (contentLic.ContentMetadata is null)
+				throw new InvalidDataException("Widevine content metadata is null.");
 
 			using var client = new HttpClient();
 			using var mpdResponse = await client.GetAsync(contentLic.LicenseResponse, token);
@@ -153,7 +164,7 @@ public partial class DownloadOptions
 			var challenge = session.GetLicenseChallenge(dash);
 			var licenseMessage = await api.WidevineDrmLicense(libraryBook.Book.AudibleProductId, challenge);
 			var keys = session.ParseLicense(licenseMessage);
-			return new LicenseInfo(contentLic, keys.Select(k => new KeyData(k.Kid.ToByteArray(bigEndian: true), k.Key)));
+			return LicenseInfo.Create(contentLic, keys.Select(k => new KeyData(k.Kid.ToByteArray(bigEndian: true), k.Key)));
 		}
 		catch (Exception ex)
 		{

@@ -2,14 +2,13 @@
 using System.Diagnostics;
 using System.Threading;
 
-#nullable enable
 namespace DataLayer;
 
 /// <summary> Notifies clients that the object is being disposed. </summary>
 public interface INotifyDisposed : IDisposable
 {
 	/// <summary> Event raised when the object is disposed. </summary>
-	event EventHandler? ObjectDisposed;	
+	event EventHandler? ObjectDisposed;
 }
 
 /// <summary> Creates a single instance of <typeparamref name="TDisposable"/> at a time, blocking subsequent creations until the previous creations are disposed. </summary>

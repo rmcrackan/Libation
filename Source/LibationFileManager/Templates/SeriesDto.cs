@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
-#nullable enable
 namespace LibationFileManager.Templates;
 
 public partial record SeriesDto : IFormattable
 {
-	public string Name { get; }
+	public string? Name { get; }
 
 	public SeriesOrder Order { get; }
 	public string AudibleSeriesId { get; }
-	public SeriesDto(string name, string? number, string audibleSeriesId)
+	public SeriesDto(string? name, string? number, string audibleSeriesId)
 	{
 		Name = name;
 		Order = SeriesOrder.Parse(number);
 		AudibleSeriesId = audibleSeriesId;
 	}
 
-	public override string ToString() => Name.Trim();
+	public override string? ToString() => Name?.Trim();
 	public string ToString(string? format, IFormatProvider? _)
-		=> string.IsNullOrWhiteSpace(format) ? ToString()
+		=> string.IsNullOrWhiteSpace(format) ? ToString() ?? string.Empty
 			: FormatRegex().Replace(format, MatchEvaluator)
 			.Replace("{N}", Name)
 			.Replace("{ID}", AudibleSeriesId)

@@ -1,244 +1,251 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AudibleApi.Common;
+﻿using AudibleApi.Common;
 using AudibleUtilities;
 using DataLayer;
 using Dinah.Core.Collections.Generic;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace DtoImporterService
+namespace DtoImporterService;
+
+public class BookImporter : ItemsImporterBase
 {
-	public class BookImporter : ItemsImporterBase
+	protected override IValidator Validator => new BookValidator();
+
+	public Dictionary<string, Book> Cache { get; private set; } = new();
+
+	private ContributorImporter contributorImporter { get; }
+	private SeriesImporter seriesImporter { get; }
+	private CategoryImporter categoryImporter { get; }
+
+	/// <summary>
+	/// Indicates whether <see cref="BookImporter"/> loaded every Book from the <seealso cref="LibationContext"/> during import.
+	/// If true, the DbContext was queried for all Books, rather than just those being imported.
+	/// If means that all <see cref="LibraryBook"/> objects in the DbContext will have their <see cref="LibraryBook.Book"/> property populated.
+	/// If false, only those Books being imported were loaded, and some <see cref="LibraryBook"/> objects will have a null <see cref="LibraryBook.Book"/> property for books not included in the import set.
+	/// </summary>
+	internal bool LoadedEntireLibrary { get; private set; }
+
+	public BookImporter(LibationContext context) : base(context)
 	{
-		protected override IValidator Validator => new BookValidator();
+		contributorImporter = new ContributorImporter(DbContext);
+		seriesImporter = new SeriesImporter(DbContext);
+		categoryImporter = new CategoryImporter(DbContext);
+	}
 
-		public Dictionary<string, Book> Cache { get; private set; } = new();
+	protected override int DoImport(IEnumerable<ImportItem> importItems)
+	{
+		// pre-req.s
+		contributorImporter.Import(importItems);
+		seriesImporter.Import(importItems);
+		categoryImporter.Import(importItems);
 
-		private ContributorImporter contributorImporter { get; }
-		private SeriesImporter seriesImporter { get; }
-		private CategoryImporter categoryImporter { get; }
+		// load db existing => hash table
+		loadLocal_books(importItems);
 
-		/// <summary>
-		/// Indicates whether <see cref="BookImporter"/> loaded every Book from the <seealso cref="LibationContext"/> during import.
-		/// If true, the DbContext was queried for all Books, rather than just those being imported.
-		/// If means that all <see cref="LibraryBook"/> objects in the DbContext will have their <see cref="LibraryBook.Book"/> property populated.
-		/// If false, only those Books being imported were loaded, and some <see cref="LibraryBook"/> objects will have a null <see cref="LibraryBook.Book"/> property for books not included in the import set.
-		/// </summary>
-		internal bool LoadedEntireLibrary {get; private set; }
+		// upsert
+		var qtyNew = upsertBooks(importItems);
+		return qtyNew;
+	}
 
-		public BookImporter(LibationContext context) : base(context)
+	private void loadLocal_books(IEnumerable<ImportItem> importItems)
+	{
+		// get distinct
+		var productIds = importItems
+			.Select(i => i.DtoItem.ProductId)
+			.Distinct()
+			.ToHashSet();
+
+		if (productIds.Count > 100)
 		{
-			contributorImporter = new ContributorImporter(DbContext);
-			seriesImporter = new SeriesImporter(DbContext);
-			categoryImporter = new CategoryImporter(DbContext);
+			//For large imports, it is faster to get the whole library and filter in memory.
+			Cache = DbContext.Books
+				.GetBooks()
+				.ToArray()
+				.Where(b => productIds.Contains(b.AudibleProductId))
+				.ToDictionarySafe(b => b.AudibleProductId);
+			LoadedEntireLibrary = true;
 		}
-
-		protected override int DoImport(IEnumerable<ImportItem> importItems)
+		else
 		{
-			// pre-req.s
-			contributorImporter.Import(importItems);
-			seriesImporter.Import(importItems);
-			categoryImporter.Import(importItems);
-
-			// load db existing => hash table
-			loadLocal_books(importItems);
-
-			// upsert
-			var qtyNew = upsertBooks(importItems);
-			return qtyNew;
-		}
-
-		private void loadLocal_books(IEnumerable<ImportItem> importItems)
-		{
-			// get distinct
-			var productIds = importItems
-				.Select(i => i.DtoItem.ProductId)
-				.Distinct()
-				.ToHashSet();
-
-			if (productIds.Count > 100)
-			{
-				//For large imports, it is faster to get the whole library and filter in memory.
-				Cache = DbContext.Books
-					.GetBooks()
-					.ToArray()
-					.Where(b => productIds.Contains(b.AudibleProductId))
-					.ToDictionarySafe(b => b.AudibleProductId);
-				LoadedEntireLibrary = true;
-			}
-			else
-			{
-				Cache = DbContext.Books
-					.GetBooks(b => productIds.Contains(b.AudibleProductId))
-					.ToDictionarySafe(b => b.AudibleProductId);
-			}
-		}
-
-		private int upsertBooks(IEnumerable<ImportItem> importItems)
-		{
-			var qtyNew = 0;
-
-				foreach (var item in importItems)
-				{
-					if (!Cache.TryGetValue(item.DtoItem.ProductId, out var book))
-					{
-						book = createNewBook(item);
-						qtyNew++;
-					}
-
-					updateBook(item, book);
-				}
-
-			return qtyNew;
-		}
-
-		private Book createNewBook(ImportItem importItem)
-		{
-			var item = importItem.DtoItem;
-
-			var contentType = GetContentType(item);
-
-			// absence of authors is very rare, but possible
-			if (!item.Authors?.Any() ?? true)
-				item.Authors = new[] { new Person { Name = "", Asin = null } };
-
-			// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
-			var authors = item
-				.Authors
-                .DistinctBy(a => a.Name)
-                .Select(a => contributorImporter.Cache[a.Name])
-				.ToList();
-
-			var narrators
-				= item.Narrators is null || !item.Narrators.Any()
-				// if no narrators listed, author is the narrator
-				? authors
-				// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
-				: item
-					.Narrators
-					.DistinctBy(a => a.Name)
-                    .Select(n => contributorImporter.Cache[n.Name])
-					.ToList();
-
-			Book book;
-			try
-			{
-				book = DbContext.Books.Add(new Book(
-					new AudibleProductId(item.ProductId),
-					item.Title,
-					item.Subtitle,
-					item.Description,
-					item.LengthInMinutes,
-					contentType,
-					authors,
-					narrators,
-					importItem.LocaleName
-					)
-					).Entity;
-				Cache.Add(book.AudibleProductId, book);
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, "Error adding book. {@DebugInfo}", new {
-					item.ProductId,
-					item.TitleWithSubtitle,
-					item.Description,
-					item.LengthInMinutes,
-					contentType,
-					QtyAuthors = authors?.Count,
-					QtyNarrators = narrators?.Count,
-					importItem.LocaleName
-				});
-				throw;
-			}
-
-			var publisherName = item.Publisher;
-			if (!string.IsNullOrWhiteSpace(publisherName))
-			{
-				var publisher = contributorImporter.Cache[publisherName];
-				book.ReplacePublisher(publisher);
-			}
-
-            if (item.PdfUrl is not null)
-				book.AddSupplementDownloadUrl(item.PdfUrl.ToString());
-
-			return book;
-		}
-
-		private void updateBook(ImportItem importItem, Book book)
-		{
-			var item = importItem.DtoItem;
-
-			// Replacing narrators only became necessary to correct a bug introduced in 13.1.0
-			// which would no import narrators with null ASINs. Thus, affected books had the
-			// author listed as the narrators. This can probably be removed in the future.
-			// Bug went live in 13.1.0 on 2026/01/02. Today is 2026/01/08.
-			var narrators = item.Narrators?.DistinctBy(a => a.Name).Select(n => contributorImporter.Cache[n.Name]).ToArray();
-			if (narrators is not null && narrators.Length > 0)
-				book.ReplaceNarrators(narrators);
-
-			book.UpdateLengthInMinutes(item.LengthInMinutes);
-
-			// Update the book titles, since formatting can change
-			book.UpdateTitle(item.Title, item.Subtitle);
-
-			// set/update book-specific info which may have changed
-			if (item.PictureId is not null)
-				book.PictureId = item.PictureId;
-			
-			if (item.PictureLarge is not null)
-				book.PictureLarge = item.PictureLarge;
-
-			if (item.IsFinished is not null)
-                book.UserDefinedItem.IsFinished = item.IsFinished.Value;
-
-            // 2023-02-01
-            // updateBook must update language on books which were imported before the migration which added language.
-            // 2025-07-30
-            // updateBook must update isSpatial on books which were imported before the migration which added isSpatial.
-            book.UpdateBookDetails(item.IsAbridged, item.AssetDetails?.Any(a => a.IsSpatial), item.DatePublished, item.Language);
-
-            book.UpdateProductRating(
-				(float)(item.Rating?.OverallDistribution?.AverageRating ?? 0),
-				(float)(item.Rating?.PerformanceDistribution?.AverageRating ?? 0),
-				(float)(item.Rating?.StoryDistribution?.AverageRating ?? 0));
-
-			// important to update user-specific info. this will have changed if user has rated/reviewed the book since last library import
-			book.UserDefinedItem.UpdateRating(item.MyUserRating_Overall, item.MyUserRating_Performance, item.MyUserRating_Story);
-
-			// update series even for existing books. these are occasionally updated
-			// these will upsert over library-scraped series, but will not leave orphans
-			if (item.Series is not null)
-			{
-				foreach (var seriesEntry in item.Series)
-				{
-					var series = seriesImporter.Cache[seriesEntry.SeriesId];
-					book.UpsertSeries(series, seriesEntry.Sequence);
-				}
-			}
-
-			if (item.CategoryLadders is not null)
-			{
-				var ladders = new List<DataLayer.CategoryLadder>();
-				foreach (var ladder in item.CategoryLadders.Select(cl => cl.Ladder).Where(l => l?.Length > 0))
-				{
-					var categoryIds = ladder.Select(l => l.CategoryId).ToList();
-					ladders.Add(categoryImporter.LadderCache.Single(c => c.Equals(categoryIds)));
-				}
-				//Set all ladders at once so ladders that have been
-				//removed by audible can be removed from the DB
-				book.SetCategoryLadders(ladders);
-			}
-		}
-
-		private static DataLayer.ContentType GetContentType(Item item)
-		{
-			if (item.IsEpisodes)
-				return DataLayer.ContentType.Episode;
-			else if (item.IsSeriesParent)
-				return DataLayer.ContentType.Parent;
-			else 
-				return DataLayer.ContentType.Product;			
+			Cache = DbContext.Books
+				.GetBooks(b => productIds.Contains(b.AudibleProductId))
+				.ToDictionarySafe(b => b.AudibleProductId);
 		}
 	}
+
+	private int upsertBooks(IEnumerable<ImportItem> importItems)
+	{
+		var qtyNew = 0;
+
+		foreach (var item in importItems)
+		{
+			if (item.DtoItem.ProductId is null)
+				continue;
+			if (!Cache.TryGetValue(item.DtoItem.ProductId, out var book))
+			{
+				book = createNewBook(item);
+				qtyNew++;
+			}
+
+			updateBook(item, book);
+		}
+
+		return qtyNew;
+	}
+
+	private Book createNewBook(ImportItem importItem)
+	{
+		var item = importItem.DtoItem;
+
+		var contentType = GetContentType(item);
+
+		// absence of authors is very rare, but possible
+		if (item.Authors?.Length is null or 0)
+			item.Authors = [new Person { Name = "", Asin = null }];
+
+		// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
+		var authors = ContributorsFromCache(item.Authors);
+
+		var narrators
+			= item.Narrators?.Length is null or 0
+			// if no narrators listed, author is the narrator
+			? authors
+			// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
+			: ContributorsFromCache(item.Narrators);
+
+		Book book;
+		try
+		{
+			if (item.ProductId is null)
+				throw new ArgumentNullException(nameof(item.ProductId), "ProductId is null when trying to create new Book.");
+
+			book = DbContext.Books.Add(new Book(
+				new AudibleProductId(item.ProductId),
+				item.Title,
+				item.Subtitle,
+				item.Description,
+				item.LengthInMinutes,
+				contentType,
+				authors,
+				narrators,
+				importItem.LocaleName
+				)
+				).Entity;
+			Cache.Add(book.AudibleProductId, book);
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Error adding book. {@DebugInfo}", new
+			{
+				item.ProductId,
+				item.TitleWithSubtitle,
+				item.Description,
+				item.LengthInMinutes,
+				contentType,
+				QtyAuthors = authors?.Length,
+				QtyNarrators = narrators?.Length,
+				importItem.LocaleName
+			});
+			throw;
+		}
+
+		var publisherName = item.Publisher;
+		if (!string.IsNullOrWhiteSpace(publisherName))
+		{
+			var publisher = contributorImporter.Cache[publisherName];
+			book.ReplacePublisher(publisher);
+		}
+
+		if (item.PdfUrl is not null)
+			book.AddSupplementDownloadUrl(item.PdfUrl.ToString());
+
+		return book;
+	}
+
+	private void updateBook(ImportItem importItem, Book book)
+	{
+		var item = importItem.DtoItem;
+
+		// Replacing narrators only became necessary to correct a bug introduced in 13.1.0
+		// which would no import narrators with null ASINs. Thus, affected books had the
+		// author listed as the narrators. This can probably be removed in the future.
+		// Bug went live in 13.1.0 on 2026/01/02. Today is 2026/01/08.
+		if (ContributorsFromCache(item.Narrators) is { } narrators && narrators.Length > 0)
+			book.ReplaceNarrators(narrators);
+
+		book.UpdateLengthInMinutes(item.LengthInMinutes);
+
+		// Update the book titles, since formatting can change
+		book.UpdateTitle(item.Title, item.Subtitle);
+
+		// set/update book-specific info which may have changed
+		if (item.PictureId is not null)
+			book.PictureId = item.PictureId;
+
+		if (item.PictureLarge is not null)
+			book.PictureLarge = item.PictureLarge;
+
+		if (item.IsFinished is not null)
+			book.UserDefinedItem.IsFinished = item.IsFinished.Value;
+
+		// 2023-02-01
+		// updateBook must update language on books which were imported before the migration which added language.
+		// 2025-07-30
+		// updateBook must update isSpatial on books which were imported before the migration which added isSpatial.
+		book.UpdateBookDetails(item.IsAbridged, item.AssetDetails?.Any(a => a.IsSpatial), item.DatePublished, item.Language);
+
+		book.UpdateProductRating(
+			(float)(item.Rating?.OverallDistribution?.AverageRating ?? 0),
+			(float)(item.Rating?.PerformanceDistribution?.AverageRating ?? 0),
+			(float)(item.Rating?.StoryDistribution?.AverageRating ?? 0));
+
+		// important to update user-specific info. this will have changed if user has rated/reviewed the book since last library import
+		book.UserDefinedItem.UpdateRating(item.MyUserRating_Overall, item.MyUserRating_Performance, item.MyUserRating_Story);
+
+		// update series even for existing books. these are occasionally updated
+		// these will upsert over library-scraped series, but will not leave orphans
+		if (item.Series is not null)
+		{
+			foreach (var seriesEntry in item.Series)
+			{
+				if (string.IsNullOrEmpty(seriesEntry.SeriesId))
+					continue;
+				var series = seriesImporter.Cache[seriesEntry.SeriesId];
+				book.UpsertSeries(series, seriesEntry.Sequence);
+			}
+		}
+
+		if (item.CategoryLadders is not null)
+		{
+			var ladders = new List<DataLayer.CategoryLadder>();
+			foreach (var ladder in item.CategoryLadders.Select(cl => cl?.Ladder).Where(l => l?.Length > 0))
+			{
+				var categoryIds = ladder?.Select(l => l?.CategoryId).ToList();
+				ladders.Add(categoryImporter.LadderCache.Single(c => c.Equals(categoryIds)));
+			}
+			//Set all ladders at once so ladders that have been
+			//removed by audible can be removed from the DB
+			book.SetCategoryLadders(ladders);
+		}
+	}
+
+	private static DataLayer.ContentType GetContentType(Item item)
+	{
+		if (item.IsEpisodes)
+			return DataLayer.ContentType.Episode;
+		else if (item.IsSeriesParent)
+			return DataLayer.ContentType.Parent;
+		else
+			return DataLayer.ContentType.Product;
+	}
+
+	[return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(toLoad))]
+	private Contributor[]? ContributorsFromCache(IEnumerable<Person>? toLoad)
+		=> toLoad
+		?.Select(a => a.Name)
+		.OfType<string>()
+		.Distinct()
+		.Select(name => contributorImporter.Cache[name])
+		.ToArray();
 }

@@ -1,34 +1,33 @@
 ﻿using FileManager;
 using System.Threading.Tasks;
-#nullable enable
-namespace AaxDecrypter
+
+namespace AaxDecrypter;
+
+public class UnencryptedAudiobookDownloader : AudiobookDownloadBase
 {
-	public class UnencryptedAudiobookDownloader : AudiobookDownloadBase
+	protected override long InputFilePosition => InputFileStream.WritePosition;
+
+	public UnencryptedAudiobookDownloader(string outDirectory, string cacheDirectory, IDownloadOptions dlLic)
+		: base(outDirectory, cacheDirectory, dlLic)
 	{
-		protected override long InputFilePosition => InputFileStream.WritePosition;
+		AsyncSteps.Name = "Download Unencrypted Audiobook";
+		AsyncSteps["Step 1: Download Audiobook"] = Step_DownloadAndDecryptAudiobookAsync;
+		AsyncSteps["Step 2: Create Cue"] = Step_CreateCueAsync;
+	}
 
-		public UnencryptedAudiobookDownloader(string outDirectory, string cacheDirectory, IDownloadOptions dlLic)
-			: base(outDirectory, cacheDirectory, dlLic)
+	protected override async Task<bool> Step_DownloadAndDecryptAudiobookAsync()
+	{
+		await (InputFileStream.DownloadTask ?? Task.CompletedTask);
+
+		if (IsCanceled)
+			return false;
+		else
 		{
-			AsyncSteps.Name = "Download Unencrypted Audiobook";
-			AsyncSteps["Step 1: Download Audiobook"] = Step_DownloadAndDecryptAudiobookAsync;
-			AsyncSteps["Step 2: Create Cue"] = Step_CreateCueAsync;
-		}
-
-		protected override async Task<bool> Step_DownloadAndDecryptAudiobookAsync()
-		{
-			await InputFileStream.DownloadTask;
-
-			if (IsCanceled)
-				return false;
-			else
-			{
-				FinalizeDownload();
-				var tempFile = GetNewTempFilePath(DownloadOptions.OutputFormat.ToString());
-				FileUtility.SaferMove(InputFileStream.SaveFilePath, tempFile.FilePath);
-				OnTempFileCreated(tempFile);
-				return true;
-			}
+			FinalizeDownload();
+			var tempFile = GetNewTempFilePath(DownloadOptions.OutputFormat.ToString());
+			FileUtility.SaferMove(InputFileStream.SaveFilePath, tempFile.FilePath);
+			OnTempFileCreated(tempFile);
+			return true;
 		}
 	}
 }

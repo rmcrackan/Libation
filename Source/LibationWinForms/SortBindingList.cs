@@ -10,11 +10,11 @@ namespace LibationWinForms;
 /// </summary>
 internal class SortBindingList<TItem> : BindingList<TItem>
 {
-	private PropertyDescriptor _propertyDescriptor;
+	private PropertyDescriptor? _propertyDescriptor;
 	private ListSortDirection _listSortDirection;
 	private bool _isSortedCore;
 
-	protected override PropertyDescriptor SortPropertyCore => _propertyDescriptor;
+	protected override PropertyDescriptor? SortPropertyCore => _propertyDescriptor;
 	protected override ListSortDirection SortDirectionCore => _listSortDirection;
 	protected override bool IsSortedCore => _isSortedCore;
 	protected override bool SupportsSortingCore => true;

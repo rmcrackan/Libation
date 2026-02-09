@@ -1,6 +1,5 @@
 ﻿using FileManager;
 
-#nullable enable
 namespace AaxDecrypter;
 
 public record TempFile

@@ -2,7 +2,6 @@
 using System;
 using System.Linq;
 
-#nullable enable
 namespace FileManager;
 
 public interface IJsonBackedDictionary

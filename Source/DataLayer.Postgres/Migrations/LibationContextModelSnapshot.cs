@@ -17,7 +17,7 @@ namespace DataLayer.Postgres.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("ProductVersion", "10.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -46,6 +46,7 @@ namespace DataLayer.Postgres.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BookId"));
 
                     b.Property<string>("AudibleProductId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("ContentType")
@@ -55,6 +56,7 @@ namespace DataLayer.Postgres.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsAbridged")
@@ -70,6 +72,7 @@ namespace DataLayer.Postgres.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Locale")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("PictureId")
@@ -79,9 +82,11 @@ namespace DataLayer.Postgres.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Subtitle")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("BookId");
@@ -140,9 +145,7 @@ namespace DataLayer.Postgres.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
 
                     b.Property<string>("AudibleCategoryId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("CategoryId");
@@ -177,6 +180,7 @@ namespace DataLayer.Postgres.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("ContributorId");
@@ -202,6 +206,7 @@ namespace DataLayer.Postgres.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Account")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("DateAdded")
@@ -230,6 +235,7 @@ namespace DataLayer.Postgres.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SeriesId"));
 
                     b.Property<string>("AudibleSeriesId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -313,6 +319,7 @@ namespace DataLayer.Postgres.Migrations
                                 .HasColumnType("integer");
 
                             b1.Property<string>("Url")
+                                .IsRequired()
                                 .HasColumnType("text");
 
                             b1.HasKey("SupplementId");
@@ -392,11 +399,13 @@ namespace DataLayer.Postgres.Migrations
                                 .IsRequired();
                         });
 
-                    b.Navigation("Rating");
+                    b.Navigation("Rating")
+                        .IsRequired();
 
                     b.Navigation("Supplements");
 
-                    b.Navigation("UserDefinedItem");
+                    b.Navigation("UserDefinedItem")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DataLayer.BookCategory", b =>

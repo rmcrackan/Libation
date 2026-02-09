@@ -8,11 +8,12 @@
 		<ApplicationIcon>libation.ico</ApplicationIcon>
 		<AssemblyName>Libation</AssemblyName>
 		<UseWindowsForms>true</UseWindowsForms>
+		<Nullable>enable</Nullable>
 		<PublishReadyToRun>true</PublishReadyToRun>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 		<IsPublishable>true</IsPublishable>
-		<NoWarn>$(NoWarn);WFO1000</NoWarn>
+		<NoWarn>$(NoWarn);WFO1000;MSB3277</NoWarn>
 		<!-- Version is now in AppScaffolding.csproj -->
 	</PropertyGroup>
 
@@ -41,7 +42,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="10.0.0.1" />
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3650.58" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3719.77" />
 	</ItemGroup>
 
 	<ItemGroup>

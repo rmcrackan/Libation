@@ -18,10 +18,10 @@ public enum FieldType
 public class IndexRule
 {
 	public FieldType FieldType { get; }
-	public Func<LibraryBook, string> GetValue { get; }
+	public Func<LibraryBook, string?> GetValue { get; }
 	public ReadOnlyCollection<string> FieldNames { get; }
 
-	public IndexRule(FieldType fieldType, Func<LibraryBook, string> valueGetter, params string[] fieldNames)
+	public IndexRule(FieldType fieldType, Func<LibraryBook, string?> valueGetter, params string[] fieldNames)
 	{
 		ArgumentValidator.EnsureNotNull(valueGetter, nameof(valueGetter));
 		ArgumentValidator.EnsureNotNull(fieldNames, nameof(fieldNames));
@@ -38,5 +38,5 @@ public class IndexRule
 	public override string ToString()
 		=> FieldNames.Count == 1
 		? $"{FieldNames.First()}"
-		: $"{FieldNames.First()} ({string.Join(", ", FieldNames.Skip(1))})";	
+		: $"{FieldNames.First()} ({string.Join(", ", FieldNames.Skip(1))})";
 }

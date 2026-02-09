@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 using System;
 using System.Linq;
 
-#nullable enable
 namespace ApplicationServices;
 
 internal class ExportDto(LibraryBook libBook)
@@ -46,7 +45,7 @@ internal class ExportDto(LibraryBook libBook)
 	public string Description { get; } = libBook.Book.Description;
 
 	[Name("Publisher")]
-	public string Publisher { get; } = libBook.Book.Publisher;
+	public string? Publisher { get; } = libBook.Book.Publisher;
 
 	[Name("Has PDF")]
 	public bool HasPdf { get; } = libBook.Book.HasPdf;
@@ -67,10 +66,10 @@ internal class ExportDto(LibraryBook libBook)
 	public float? CommunityRatingStory { get; } = ZeroIsNull(libBook.Book.Rating?.StoryRating);
 
 	[Name("Cover Id")]
-	public string PictureId { get; } = libBook.Book.PictureId;
+	public string? PictureId { get; } = libBook.Book.PictureId;
 
 	[Name("Cover Id Large")]
-	public string PictureLarge { get; } = libBook.Book.PictureLarge;
+	public string? PictureLarge { get; } = libBook.Book.PictureLarge;
 
 	[Name("Is Abridged?")]
 	public bool IsAbridged { get; } = libBook.Book.IsAbridged;
@@ -103,7 +102,7 @@ internal class ExportDto(LibraryBook libBook)
 	public string ContentType { get; } = libBook.Book.ContentType.ToString();
 
 	[Name("Language")]
-	public string Language { get; } = libBook.Book.Language;
+	public string? Language { get; } = libBook.Book.Language;
 
 	[Name("Last Downloaded")]
 	public DateTime? LastDownloaded { get; } = libBook.Book.UserDefinedItem.LastDownloaded;

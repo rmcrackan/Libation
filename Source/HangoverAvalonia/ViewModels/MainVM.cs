@@ -1,11 +1,10 @@
-namespace HangoverAvalonia.ViewModels
+namespace HangoverAvalonia.ViewModels;
+
+public partial class MainVM : ViewModelBase
 {
-	public partial class MainVM : ViewModelBase
+	public MainVM()
 	{
-		public MainVM()
-		{
-			Load_databaseVM();
-			Load_deletedVM();
-		}
+		Load_databaseVM();
+		Load_deletedVM();
 	}
 }

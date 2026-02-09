@@ -6,7 +6,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
-#nullable enable
 namespace FileManager.NamingTemplate;
 
 /// <summary>A collection of <see cref="IPropertyTag"/>s registered to a single <see cref="Type"/>.</summary>
@@ -61,7 +60,7 @@ public abstract class TagCollection : IEnumerable<ITemplateTag>
 	/// <returns>True if the <paramref name="templateString"/> starts with this tag.</returns>
 	internal bool StartsWithClosing(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? closingPropertyTag)
 	{
-		foreach (var  cg in PropertyTags.OfType<IClosingPropertyTag>())
+		foreach (var cg in PropertyTags.OfType<IClosingPropertyTag>())
 		{
 			if (cg.StartsWithClosing(templateString, out exactName, out closingPropertyTag))
 				return true;

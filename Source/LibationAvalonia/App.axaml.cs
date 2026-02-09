@@ -69,7 +69,7 @@ public class App : Application
 	{
 		var setup = new LibationSetup(config.LibationFiles)
 		{
-			SetupPromptAsync =() => ShowSetupAsync(desktop),
+			SetupPromptAsync = () => ShowSetupAsync(desktop),
 			SelectFolderPromptAsync = () => SelectInstallLocation(desktop, config.LibationFiles)
 		};
 		if (await setup.RunSetupIfNeededAsync())
