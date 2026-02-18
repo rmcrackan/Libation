@@ -72,6 +72,10 @@ export default defineConfig({
             text: "Searching & Filtering",
             link: "/docs/features/searching-and-filtering",
           },
+          {
+            text: "Easy guide to searching",
+            link: "/docs/features/lucene",
+          },
         ],
       },
       {
