@@ -22,8 +22,8 @@ Libation's advanced searching is built on the powerful Lucene search engine. Sim
 
 - Type anything in the search box to search common fields: title, authors, narrators, and the book's audible id
 - Use Lucene's "Query Parser Syntax" for advanced searching.
-  - Easy tutorial: http://www.lucenetutorial.com/lucene-query-syntax.html
-  - Full official guide: https://lucene.apache.org/core/2_9_4/queryparsersyntax.html
+  - [Easy tutorial](lucene.md)
+  - [Full official guide](https://lucene.apache.org/core/2_9_4/queryparsersyntax.html)
 - Tons of search fields, specific to audiobooks
 - Synonyms so you don't have to memorize magic words. Eg: author and author**s** will both work
 - Click [?] button for a full list of search fields and synonyms ![Filter options](../images/FilterOptionsButton.png)
