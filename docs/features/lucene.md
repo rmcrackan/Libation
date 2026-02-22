@@ -45,4 +45,4 @@ Range Queries allow one to match documents whose field(s) values are between the
 
 ---
 
-Copied from the now inactive [LuceneTutorial.com](http://www.lucenetutorial.com/lucene-query-syntax.html)
+The above guide was helpfully provided by https://supermind.org
