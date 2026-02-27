@@ -96,7 +96,7 @@ jobs:
             xcrun stapler staple "./bundle/${{ steps.bundle.outputs.artifact }}"
           fi
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.bundle.outputs.artifact }}
           path: ./bundle/${{ steps.bundle.outputs.artifact }}

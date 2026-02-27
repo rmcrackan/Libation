@@ -75,7 +75,7 @@ jobs:
           artifact=$(ls ./bundle)
           echo "artifact=${artifact}" >> "${GITHUB_OUTPUT}"
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.bundle.outputs.artifact }}
           path: ./bundle/${{ steps.bundle.outputs.artifact }}
