@@ -9,7 +9,9 @@ using Lucene.Net.Search;
 using Lucene.Net.Store;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace LibationSearchEngine;
 
@@ -77,6 +79,34 @@ public class SearchEngine
 	#region create and update index
 	/// <summary>create new. ie: full re-index</summary>
 	public void CreateNewIndex(IEnumerable<LibraryBook> library, bool overwrite = true)
+	{
+		const int maxRetries = 5;
+		const int retryDelayMs = 400;
+		var libraryList = library.ToList();
+
+		for (var attempt = 0; attempt < maxRetries; attempt++)
+		{
+			try
+			{
+				createNewIndexCore(libraryList, overwrite);
+				return;
+			}
+			catch (IOException ex) when (attempt < maxRetries - 1)
+			{
+				// write.lock can be held by another process (e.g. second Libation instance, antivirus) or a prior writer that did not release. Retry after delay.
+				Serilog.Log.Logger.Warning(ex, "Search index lock conflict (attempt {Attempt}/{Max}), retrying in {Delay}ms", attempt + 1, maxRetries, retryDelayMs);
+				Thread.Sleep(retryDelayMs);
+			}
+			catch (UnauthorizedAccessException ex) when (attempt < maxRetries - 1)
+			{
+				// Windows may report "file in use" as UnauthorizedAccessException
+				Serilog.Log.Logger.Warning(ex, "Search index lock conflict (attempt {Attempt}/{Max}), retrying in {Delay}ms", attempt + 1, maxRetries, retryDelayMs);
+				Thread.Sleep(retryDelayMs);
+			}
+		}
+	}
+
+	private void createNewIndexCore(List<LibraryBook> library, bool overwrite)
 	{
 		// location of index/create the index
 		using var index = getIndex();
@@ -290,7 +320,7 @@ public class SearchEngine
 	}
 	#endregion
 
-	private Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
+	private Lucene.Net.Store.Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
 
 	//Defaults  to "LibationFiles/SearchEngine, but can be overridden
 	//in constructor for use in TrashBinDialog search
