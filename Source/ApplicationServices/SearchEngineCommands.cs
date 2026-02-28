@@ -9,6 +9,9 @@ namespace ApplicationServices;
 
 public static class SearchEngineCommands
 {
+	/// <summary>Serializes all search index access so only one reader/writer is active at a time, avoiding write.lock contention.</summary>
+	private static readonly object IndexLock = new();
+
 	#region Search
 	public static SearchResultSet Search(string searchString) => performSafeQuery(e =>
 		e.Search(searchString)
@@ -16,15 +19,18 @@ public static class SearchEngineCommands
 
 	private static T performSafeQuery<T>(Func<SearchEngine, T> func)
 	{
-		var engine = new SearchEngine();
-		try
+		lock (IndexLock)
 		{
-			return func(engine);
-		}
-		catch (FileNotFoundException)
-		{
-			fullReIndex(engine);
-			return func(engine);
+			var engine = new SearchEngine();
+			try
+			{
+				return func(engine);
+			}
+			catch (FileNotFoundException)
+			{
+				fullReIndex(engine);
+				return func(engine);
+			}
 		}
 	}
 	#endregion
@@ -77,19 +83,22 @@ public static class SearchEngineCommands
 		if (action is null)
 			return;
 
-		// support nesting incl recursion
-		var prevIsUpdating = isUpdating;
-		try
+		lock (IndexLock)
 		{
-			isUpdating = true;
+			// support nesting incl recursion
+			var prevIsUpdating = isUpdating;
+			try
+			{
+				isUpdating = true;
 
-			action(new SearchEngine());
-			if (!prevIsUpdating)
-				SearchEngineUpdated?.Invoke(null, EventArgs.Empty);
-		}
-		finally
-		{
-			isUpdating = prevIsUpdating;
+				action(new SearchEngine());
+				if (!prevIsUpdating)
+					SearchEngineUpdated?.Invoke(null, EventArgs.Empty);
+			}
+			finally
+			{
+				isUpdating = prevIsUpdating;
+			}
 		}
 	}
 
