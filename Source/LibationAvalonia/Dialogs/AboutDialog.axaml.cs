@@ -1,5 +1,6 @@
-using LibationAvalonia.Controls;
+﻿using LibationAvalonia.Controls;
 using LibationAvalonia.ViewModels;
+using AppScaffolding;
 using LibationFileManager;
 using LibationUiBase;
 using LibationUiBase.Forms;
@@ -30,11 +31,16 @@ public partial class AboutDialog : DialogWindow
 
 		_viewModel.CanCheckForUpgrade = false;
 		Version? latestVersion = null;
-		await upgrader.CheckForUpgradeAsync(OnUpgradeAvailable);
+		var result = await upgrader.CheckForUpgradeAsync(OnUpgradeAvailable);
 
-		_viewModel.CanCheckForUpgrade = latestVersion is null;
-
-		_viewModel.UpgradeButtonText = latestVersion is null ? "Libation is up to date. Check Again." : $"Version {latestVersion:3} is available";
+		_viewModel.CanCheckForUpgrade = true;
+		_viewModel.UpgradeButtonText = result.Outcome switch
+		{
+			VersionCheckOutcome.UpToDate => "Libation is up to date. Check Again.",
+			VersionCheckOutcome.UnableToDetermine => "Unable to check for updates. Try again later.",
+			VersionCheckOutcome.UpdateAvailable when result.UpgradeProperties is { } p => $"Version {p.LatestRelease:3} is available",
+			_ => "Check for Upgrade"
+		};
 
 		async Task OnUpgradeAvailable(UpgradeEventArgs e)
 		{

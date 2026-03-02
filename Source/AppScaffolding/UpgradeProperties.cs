@@ -3,6 +3,17 @@ using System.Text.RegularExpressions;
 
 namespace AppScaffolding;
 
+/// <summary>Result of a version check: definitive up-to-date, update available, or unable to determine.</summary>
+public enum VersionCheckOutcome
+{
+	UpToDate,
+	UpdateAvailable,
+	UnableToDetermine,
+}
+
+/// <summary>Result of checking for a new version. Use <see cref="Outcome"/> to show the right message; <see cref="UpgradeProperties"/> is set only when <see cref="Outcome"/> is <see cref="VersionCheckOutcome.UpdateAvailable"/>.</summary>
+public record VersionCheckResult(VersionCheckOutcome Outcome, UpgradeProperties? UpgradeProperties = null);
+
 public partial record UpgradeProperties
 {
 	public string ZipUrl { get; }
