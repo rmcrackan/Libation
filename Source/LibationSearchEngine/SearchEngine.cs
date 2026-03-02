@@ -84,7 +84,9 @@ public class SearchEngine
 		const int baseDelayMs = 400;
 		var libraryList = library.ToList();
 
-		for (var attempt = 0; attempt < maxRetries; attempt++)
+        // Exponential backoff retry: 400 ms, 800 ms, 1600 ms, etc
+		// Total wait time before giving up: 12.4 sec
+        for (var attempt = 0; attempt < maxRetries; attempt++)
 		{
 			try
 			{
