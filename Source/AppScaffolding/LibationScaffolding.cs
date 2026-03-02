@@ -383,11 +383,12 @@ public static class LibationScaffolding
 			if (inner?.Message?.Contains("API rate limit", StringComparison.OrdinalIgnoreCase) == true)
 				Log.Logger.Error(aggEx, "Checking for new version too often");
 			else
-				Log.Logger.Error(aggEx, "Version check failed");
+				Log.Logger.Error(aggEx, "Version check failed. Agg exception");
 		}
 		catch (Exception ex)
 		{
-			Log.Logger.Error(ex, "Version check failed");
+            // different text to make it easier to identify in logs, vs the AggregateException case above
+            Log.Logger.Error(ex, "Version check failed. General exception");
 		}
 		return (null, null, null, false, false);
 	}
