@@ -1,4 +1,5 @@
-﻿using LibationFileManager;
+﻿using AppScaffolding;
+using LibationFileManager;
 using LibationUiBase;
 using System;
 using System.Linq;
@@ -56,11 +57,16 @@ public partial class AboutDialog : Form
 
 		checkForUpgradeBtn.Enabled = false;
 		Version? latestVersion = null;
-		await upgrader.CheckForUpgradeAsync(OnUpgradeAvailable);
+		var result = await upgrader.CheckForUpgradeAsync(OnUpgradeAvailable);
 
-		checkForUpgradeBtn.Enabled = latestVersion is null;
-
-		checkForUpgradeBtn.Text = latestVersion is null ? "Libation is up to date. Check Again." : $"Version {latestVersion:3} is available";
+		checkForUpgradeBtn.Enabled = true;
+		checkForUpgradeBtn.Text = result.Outcome switch
+		{
+			VersionCheckOutcome.UpToDate => "Libation is up to date. Check Again.",
+			VersionCheckOutcome.UnableToDetermine => "Unable to check for updates. Try again later.",
+			VersionCheckOutcome.UpdateAvailable when result.UpgradeProperties is { } p => $"Version {p.LatestRelease:3} is available",
+			_ => "Check for Upgrade"
+		};
 
 		Task OnUpgradeAvailable(UpgradeEventArgs e)
 		{

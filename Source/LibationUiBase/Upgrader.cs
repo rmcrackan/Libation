@@ -36,7 +36,7 @@ public class UpgradeEventArgs
 
 public class Upgrader : UpgraderBase
 {
-	protected override async Task<UpgradeProperties?> CheckForUpgradeAsync()
+	protected override async Task<VersionCheckResult> CheckForUpgradeAsync()
 	{
 		try
 		{
@@ -47,7 +47,7 @@ public class Upgrader : UpgraderBase
 			string message = "An error occurred while checking for app upgrades.";
 			Serilog.Log.Logger.Error(ex, message);
 			OnUpgradeFailed(message, ex);
-			return null;
+			return new VersionCheckResult(VersionCheckOutcome.UnableToDetermine);
 		}
 	}
 
@@ -113,19 +113,19 @@ public class MockUpgrader : UpgraderBase
 	public bool DownloadUpgradeSucceeds { get; set; } = true;
 	public string? MockUpgradeBundle { get; set; }
 
-	protected override Task<UpgradeProperties?> CheckForUpgradeAsync()
+	protected override Task<VersionCheckResult> CheckForUpgradeAsync()
 	{
 		if (!CheckForUpgradeSucceeds)
 		{
 			OnUpgradeFailed("Mock Check For Upgrade Failed", null);
-			return Task.FromResult<UpgradeProperties?>(null);
+			return Task.FromResult(new VersionCheckResult(VersionCheckOutcome.UnableToDetermine));
 		}
-		return Task.FromResult<UpgradeProperties?>(new UpgradeProperties(
+		return Task.FromResult(new VersionCheckResult(VersionCheckOutcome.UpdateAvailable, new UpgradeProperties(
 					"http://fake.url/to/bundle.zip",
 					"",
 					Path.GetFileName(MockUpgradeBundle) ?? "",
 					LibationScaffolding.BuildVersion ?? new(1, 0, 0, 0),
-					"<RELEASE NOTES>"));
+					"<RELEASE NOTES>")));
 	}
 
 	protected override async Task<string?> DownloadUpgradeAsync(UpgradeProperties upgradeProperties)
@@ -166,21 +166,24 @@ public abstract class UpgraderBase
 	protected void OnDownloadProgress(DownloadProgress args) => DownloadProgress?.Invoke(this, args);
 	protected void OnUpgradeFailed(string message, Exception? ex)
 		=> UpgradeFailed?.Invoke(this, (message + Environment.NewLine + Environment.NewLine + ex?.Message).Trim());
-	protected abstract Task<UpgradeProperties?> CheckForUpgradeAsync();
+	protected abstract Task<VersionCheckResult> CheckForUpgradeAsync();
 	protected abstract Task<string?> DownloadUpgradeAsync(UpgradeProperties upgradeProperties);
 
-	public async Task CheckForUpgradeAsync(Func<UpgradeEventArgs, Task> upgradeAvailableHandler)
+	/// <summary>Check for upgrade and invoke <paramref name="upgradeAvailableHandler"/> if an update is available. Returns the check outcome so the UI can show "up to date", "update available", or "unable to determine".</summary>
+	public async Task<VersionCheckResult> CheckForUpgradeAsync(Func<UpgradeEventArgs, Task> upgradeAvailableHandler)
 	{
 		try
 		{
-			if (await CheckForUpgradeAsync() is not UpgradeProperties upgradeProperties)
-				return;
+			var result = await CheckForUpgradeAsync();
+
+			if (result.Outcome != VersionCheckOutcome.UpdateAvailable || result.UpgradeProperties is not UpgradeProperties upgradeProperties)
+				return result;
 
 			const string ignoreUpgrade = "IgnoreUpgrade";
 			var config = Configuration.Instance;
 
 			if (config.GetString(propertyName: ignoreUpgrade) == upgradeProperties.LatestRelease.ToString())
-				return;
+				return result;
 
 			var interop = InteropFactory.Create();
 
@@ -198,7 +201,7 @@ public abstract class UpgraderBase
 			if (upgradeEventArgs.Ignore)
 				config.SetString(upgradeProperties.LatestRelease.ToString(), ignoreUpgrade);
 
-			if (!upgradeEventArgs.InstallUpgrade) return;
+			if (!upgradeEventArgs.InstallUpgrade) return result;
 
 			//Download the upgrade file in the background,
 			DownloadBegin?.Invoke(this, EventArgs.Empty);
@@ -217,12 +220,15 @@ public abstract class UpgraderBase
 				interop.InstallUpgrade(upgradeBundle);
 				Serilog.Log.Logger.Information($"Completed running auto-upgrader");
 			}
+
+			return result;
 		}
 		catch (Exception ex)
 		{
 			var message = "An error occurred while checking for app upgrades.";
 			Serilog.Log.Logger.Error(ex, message);
 			OnUpgradeFailed(message, ex);
+			return new VersionCheckResult(VersionCheckOutcome.UnableToDetermine);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using ApplicationServices;
+using ApplicationServices;
 using AudibleUtilities;
 using Dinah.Core.IO;
 using Dinah.Core.Logging;
@@ -345,13 +345,15 @@ public static class LibationScaffolding
 			=> SearchEngineCommands.UpdateBooks(books);
 	}
 
-	public static UpgradeProperties? GetLatestRelease()
+	public static VersionCheckResult GetLatestRelease()
 	{
-		// timed out
-		(var version, var latest, var zip) = getLatestRelease(TimeSpan.FromSeconds(10));
+		var (version, latest, zip, checkSucceeded, definitive) = getLatestRelease(TimeSpan.FromSeconds(10));
+
+		if (!checkSucceeded || !definitive)
+			return new VersionCheckResult(VersionCheckOutcome.UnableToDetermine);
 
 		if (version is null || latest is null || zip is null)
-			return null;
+			return new VersionCheckResult(VersionCheckOutcome.UpToDate);
 
 		// we have an update
 		var zipUrl = zip.BrowserDownloadUrl;
@@ -363,25 +365,33 @@ public static class LibationScaffolding
 			zipUrl
 		});
 
-		return new(zipUrl, latest.HtmlUrl, zip.Name, version, latest.Body);
+		return new VersionCheckResult(VersionCheckOutcome.UpdateAvailable, new UpgradeProperties(zipUrl, latest.HtmlUrl, zip.Name, version, latest.Body));
 	}
-	private static (Version? releaseVersion, Octokit.Release?, Octokit.ReleaseAsset?) getLatestRelease(TimeSpan timeout)
+	private static (Version? releaseVersion, Octokit.Release?, Octokit.ReleaseAsset? zip, bool checkSucceeded, bool definitive) getLatestRelease(TimeSpan timeout)
 	{
 		try
 		{
-			var task = getLatestRelease();
+			var task = getLatestReleaseAsync();
 			if (task.Wait(timeout))
-				return task.Result;
+				return (task.Result.releaseVersion, task.Result.latest, task.Result.zip, true, task.Result.definitive);
 
-			Log.Logger.Information("Timed out");
+			Log.Logger.Information("Version check timed out");
 		}
 		catch (AggregateException aggEx)
 		{
-			Log.Logger.Error(aggEx, "Checking for new version too often");
+			var inner = aggEx.InnerException;
+			if (inner?.Message?.Contains("API rate limit", StringComparison.OrdinalIgnoreCase) == true)
+				Log.Logger.Error(aggEx, "Checking for new version too often");
+			else
+				Log.Logger.Error(aggEx, "Version check failed");
 		}
-		return (null, null, null);
+		catch (Exception ex)
+		{
+			Log.Logger.Error(ex, "Version check failed");
+		}
+		return (null, null, null, false, false);
 	}
-	private static async System.Threading.Tasks.Task<(Version? releaseVersion, Octokit.Release?, Octokit.ReleaseAsset?)> getLatestRelease()
+	private static async System.Threading.Tasks.Task<(Version? releaseVersion, Octokit.Release? latest, Octokit.ReleaseAsset? zip, bool definitive)> getLatestReleaseAsync()
 	{
 		const string ownerAccount = "rmcrackan";
 		const string repoName = "Libation";
@@ -394,7 +404,7 @@ public static class LibationScaffolding
 		//Ensure that latest release is greater than the current version
 		var latestVersionString = latestRelease.TagName.Trim('v');
 		if (!Version.TryParse(latestVersionString, out var releaseVersion) || releaseVersion <= BuildVersion)
-			return (null, null, null);
+			return (null, null, null, true);
 
 		//Download the release index
 		var bts = await gitHubClient.Repository.Content.GetRawContent(ownerAccount, repoName, ".releaseindex.json");
@@ -408,14 +418,20 @@ public static class LibationScaffolding
 		}
 		catch
 		{
-			regexPattern = releaseIndex.Value<string>(ReleaseIdentifier.ToString());
+			regexPattern = null;
 		}
-		if (regexPattern is null)
-			return (null, null, null);
+		if (string.IsNullOrEmpty(regexPattern))
+			regexPattern = releaseIndex.Value<string>(ReleaseIdentifier.ToString());
+		if (string.IsNullOrEmpty(regexPattern))
+		{
+			Log.Logger.Warning("Release index has no entry for this platform (ReleaseIdentifier: {ReleaseId}). Version check inconclusive.", ReleaseIdentifier);
+			return (null, null, null, false);
+		}
 
 		var regex = new System.Text.RegularExpressions.Regex(regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+		var zip = latestRelease?.Assets?.FirstOrDefault(a => regex.IsMatch(a.Name));
 
-		return (releaseVersion, latestRelease, latestRelease?.Assets?.FirstOrDefault(a => regex.IsMatch(a.Name)));
+		return (releaseVersion, latestRelease, zip, true);
 	}
 }
 

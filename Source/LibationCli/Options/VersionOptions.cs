@@ -24,25 +24,31 @@ internal class VersionOptions : OptionsBase
 			var origColor = Console.ForegroundColor;
 			try
 			{
-				var upgradeProperties = LibationScaffolding.GetLatestRelease();
+				var result = LibationScaffolding.GetLatestRelease();
 
-				if (upgradeProperties is null)
+				switch (result.Outcome)
 				{
-					Console.ForegroundColor = ConsoleColor.Green;
-					ReplaceConsoleText(Console.Out, checkingForUpgrade.Length, "No available upgrade");
-					Console.WriteLine();
-				}
-				else
-				{
-					Console.ForegroundColor = ConsoleColor.Red;
-					ReplaceConsoleText(Console.Out, checkingForUpgrade.Length, $"Upgrade Available: v{upgradeProperties.LatestRelease.ToVersionString()}");
-					Console.WriteLine();
-					Console.WriteLine();
-					Console.WriteLine(upgradeProperties.ZipUrl);
-					Console.WriteLine();
-					Console.WriteLine("Release Notes");
-					Console.WriteLine("=============");
-					Console.WriteLine(upgradeProperties.Notes);
+					case VersionCheckOutcome.UpToDate:
+						Console.ForegroundColor = ConsoleColor.Green;
+						ReplaceConsoleText(Console.Out, checkingForUpgrade.Length, "No available upgrade");
+						Console.WriteLine();
+						break;
+					case VersionCheckOutcome.UpdateAvailable when result.UpgradeProperties is { } upgradeProperties:
+						Console.ForegroundColor = ConsoleColor.Red;
+						ReplaceConsoleText(Console.Out, checkingForUpgrade.Length, $"Upgrade Available: v{upgradeProperties.LatestRelease.ToVersionString()}");
+						Console.WriteLine();
+						Console.WriteLine();
+						Console.WriteLine(upgradeProperties.ZipUrl);
+						Console.WriteLine();
+						Console.WriteLine("Release Notes");
+						Console.WriteLine("=============");
+						Console.WriteLine(upgradeProperties.Notes);
+						break;
+					default:
+						Console.ForegroundColor = ConsoleColor.Yellow;
+						ReplaceConsoleText(Console.Out, checkingForUpgrade.Length, "Unable to check for updates");
+						Console.WriteLine();
+						break;
 				}
 			}
 			catch
