@@ -1,4 +1,4 @@
-﻿using DataLayer;
+using DataLayer;
 using Dinah.Core;
 using FileManager;
 using LibationFileManager;
@@ -81,7 +81,7 @@ public class SearchEngine
 	public void CreateNewIndex(IEnumerable<LibraryBook> library, bool overwrite = true)
 	{
 		const int maxRetries = 5;
-		const int retryDelayMs = 400;
+		const int baseDelayMs = 400;
 		var libraryList = library.ToList();
 
 		for (var attempt = 0; attempt < maxRetries; attempt++)
@@ -93,15 +93,17 @@ public class SearchEngine
 			}
 			catch (IOException ex) when (attempt < maxRetries - 1)
 			{
+				var delayMs = baseDelayMs * (1 << attempt);
 				// write.lock can be held by another process (e.g. second Libation instance, antivirus) or a prior writer that did not release. Retry after delay.
-				Serilog.Log.Logger.Warning(ex, "Search index lock conflict (attempt {Attempt}/{Max}), retrying in {Delay}ms", attempt + 1, maxRetries, retryDelayMs);
-				Thread.Sleep(retryDelayMs);
+				Serilog.Log.Logger.Warning(ex, "Search index lock conflict (attempt {Attempt}/{Max}), retrying in {Delay}ms", attempt + 1, maxRetries, delayMs);
+				Thread.Sleep(delayMs);
 			}
 			catch (UnauthorizedAccessException ex) when (attempt < maxRetries - 1)
 			{
+				var delayMs = baseDelayMs * (1 << attempt);
 				// Windows may report "file in use" as UnauthorizedAccessException
-				Serilog.Log.Logger.Warning(ex, "Search index lock conflict (attempt {Attempt}/{Max}), retrying in {Delay}ms", attempt + 1, maxRetries, retryDelayMs);
-				Thread.Sleep(retryDelayMs);
+				Serilog.Log.Logger.Warning(ex, "Search index lock conflict (attempt {Attempt}/{Max}), retrying in {Delay}ms", attempt + 1, maxRetries, delayMs);
+				Thread.Sleep(delayMs);
 			}
 		}
 	}
