@@ -83,6 +83,7 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: "Advanced Topics", link: "/docs/advanced/advanced" },
+          { text: "Command Line Interface", link: "/docs/advanced/command-line-interface" },
           { text: "Troubleshooting", link: "/docs/advanced/troubleshoot" }
         ],
       },

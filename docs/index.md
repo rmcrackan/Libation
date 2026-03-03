@@ -27,6 +27,8 @@ Learn about Libation's powerful features:
 ## Advanced
 
 - **[Advanced Topics](/docs/advanced/advanced)** - Deep dives and configuration details
+- **[Command Line Interface](/docs/advanced/command-line-interface)** - CLI usage and commands
+- **[Troubleshooting](/docs/advanced/troubleshoot)** - Common errors and solutions
 
 ## Development
 
