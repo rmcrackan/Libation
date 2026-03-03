@@ -8,6 +8,19 @@ Warnings about relying solely on on the CLI:
 - It will show that there is an upgrade, but that will likely scroll by too fast to notice.
 - It will not perform all post-upgrade migrations. Some migrations are only be possible by launching GUI.
 
+## Progress Bar
+
+The **liberate** and **convert** commands show a progress bar in the terminal while downloading or converting (e.g. `[##########----------]  2.5 min remaining`). The progress bar is only shown when the CLI is run interactively with output not redirected.
+
+To **turn off the progress bar** (for scripting, logging, or cleaner output), redirect standard output and/or standard error. The progress bar is automatically disabled when either stream is redirected.
+
+```console
+libationcli liberate > log.txt 2>&1
+libationcli convert 2> errors.txt
+```
+
+Redirecting also avoids progress-bar control characters in log files.
+
 ## Help
 
 ```console
