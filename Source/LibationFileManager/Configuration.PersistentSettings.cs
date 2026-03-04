@@ -341,7 +341,7 @@ public partial class Configuration
 	public bool DownloadEpisodes { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
 	[Description("Automatically run periodic scans in the background?")]
-	public bool AutoScan { get => GetNonString(defaultValue: true); set => SetNonString(value); }
+	public bool AutoScan { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 	[Description("Use Libation's built-in web browser to log into Audible?")]
 	public bool UseWebView { get => GetNonString(defaultValue: true); set => SetNonString(value); }
