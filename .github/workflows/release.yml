@@ -52,7 +52,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: Libation ${{ needs.prerelease.outputs.version }}
-          body: <Put a body here>
+          body: "<Put a body here>"
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: true
           prerelease: false
