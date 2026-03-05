@@ -38,15 +38,15 @@ function getPreviewOverrides() {
 }
 
 function recommendedForLabel(overrides) {
-  if (!d.value) return 'Recommended for your system'
+  if (!d.value) return 'Recommended download for your system'
   const os = (overrides && overrides.os) || d.value.os
   const ver = (overrides && overrides.osVersion) || d.value.osVersion
   const arch = (overrides && overrides.architecture) || d.value.architecture
   const flavor = (overrides && overrides.linuxFlavor !== undefined) ? overrides.linuxFlavor : d.value.linuxFlavor
-  if (os === 'windows') return 'Recommended for Windows (' + arch + ')'
-  if (os === 'mac') return 'Recommended for Mac ' + (ver ? ver + ' ' : '') + '(' + arch + ')'
-  if (os === 'linux') return 'Recommended for ' + (flavor ? flavor + ' ' : '') + 'Linux (' + arch + ')'
-  return 'Recommended for your system'
+  if (os === 'windows') return 'Recommended download for Windows (' + arch + ')'
+  if (os === 'mac') return 'Recommended download for Mac ' + (ver ? ver + ' ' : '') + '(' + arch + ')'
+  if (os === 'linux') return 'Recommended download for ' + (flavor ? flavor + ' ' : '') + 'Linux (' + arch + ')'
+  return 'Recommended download for your system'
 }
 
 function updateRecommendation() {
