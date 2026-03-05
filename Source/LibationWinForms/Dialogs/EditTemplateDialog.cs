@@ -1,4 +1,4 @@
-﻿using Dinah.Core;
+using Dinah.Core;
 using LibationFileManager;
 using LibationFileManager.Templates;
 using System;
@@ -72,11 +72,10 @@ public partial class EditTemplateDialog : Form
 			= !templateEditor.EditingTemplate.HasWarnings
 			? ""
 			: "Warning:\r\n" +
-				templateEditor
-				.EditingTemplate
-				.Warnings
-				.Select(err => $"- {err}")
-				.Aggregate((a, b) => $"{a}\r\n{b}");
+				string.Join("\r\n", templateEditor
+					.EditingTemplate
+					.Warnings
+					.Select(err => $"- {err}"));
 
 		var bold = new System.Drawing.Font(richTextBox1.Font, System.Drawing.FontStyle.Bold);
 		var reg = new System.Drawing.Font(richTextBox1.Font, System.Drawing.FontStyle.Regular);
@@ -119,13 +118,9 @@ public partial class EditTemplateDialog : Form
 
 	private void saveBtn_Click(object sender, EventArgs e)
 	{
-		if (templateEditor?.EditingTemplate.IsValid is true)
+		if (templateEditor is { } te && te.EditingTemplate.IsValid is false)
 		{
-			var errors = templateEditor
-				.EditingTemplate
-				.Errors
-				.Select(err => $"- {err}")
-				.Aggregate((a, b) => $"{a}\r\n{b}");
+			var errors = string.Join("\r\n", te.EditingTemplate.Errors.Select(err => $"- {err}"));
 			MessageBox.Show($"This template text is not valid. Errors:\r\n{errors}", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			return;
 		}
