@@ -179,7 +179,7 @@ onMounted(() => {
 
 <style scoped>
 .download-widget-wrapper {
-  margin: 1.5rem 0;
+  margin: 1.5rem auto;
   max-width: 42rem;
 }
 .download-widget.recommended {
@@ -188,6 +188,14 @@ onMounted(() => {
   padding: 0.75rem 1rem;
   border-radius: 8px;
   font-weight: 600;
+}
+.download-widget.recommended a {
+  color: var(--vp-c-brand-1);
+  text-decoration: underline;
+}
+.download-widget.recommended a:hover {
+  text-decoration: underline;
+  opacity: 0.8;
 }
 .block-head {
   display: flex;
@@ -205,10 +213,23 @@ onMounted(() => {
 .preview-select {
   margin-left: auto;
   font-size: 0.85rem;
+  padding-right: 1.75rem;
+  padding-left: 0.5rem;
+  appearance: none;
+  background-color: var(--vp-c-bg-soft);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.35rem center;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 4px;
+  cursor: pointer;
 }
 .widget-list {
   margin: 0 0 0 1rem;
   padding-left: 0.5rem;
+}
+.widget-list li strong {
+  font-weight: 700;
 }
 .widget-download {
   margin: 0.25rem 0;
