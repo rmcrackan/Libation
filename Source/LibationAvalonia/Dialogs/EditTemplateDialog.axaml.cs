@@ -1,4 +1,4 @@
-﻿using Avalonia.Collections;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
@@ -125,12 +125,7 @@ public partial class EditTemplateDialog : DialogWindow
 			if (TemplateEditor.EditingTemplate.IsValid)
 				return true;
 
-			var errors
-				= TemplateEditor
-					.EditingTemplate
-					.Errors
-					.Select(err => $"- {err}")
-					.Aggregate((a, b) => $"{a}\r\n{b}");
+			var errors = string.Join("\r\n", TemplateEditor.EditingTemplate.Errors.Select(err => $"- {err}"));
 			await MessageBox.Show($"This template text is not valid. Errors:\r\n{errors}", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			return false;
 		}
@@ -153,11 +148,7 @@ public partial class EditTemplateDialog : DialogWindow
 				= !TemplateEditor.EditingTemplate.HasWarnings
 				? ""
 				: "Warning:\r\n" +
-					TemplateEditor
-					.EditingTemplate
-					.Warnings
-					.Select(err => $"- {err}")
-					.Aggregate((a, b) => $"{a}\r\n{b}");
+					string.Join("\r\n", TemplateEditor.EditingTemplate.Warnings.Select(err => $"- {err}"));
 
 			var bold = FontWeight.Bold;
 			var reg = FontWeight.Normal;
