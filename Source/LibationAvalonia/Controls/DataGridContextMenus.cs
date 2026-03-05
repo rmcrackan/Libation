@@ -1,6 +1,7 @@
-﻿using Avalonia.Collections;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.VisualTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,12 @@ public class DataGridCellContextMenu<TContext> where TContext : class
 			parent = parent.Parent;
 		}
 
-		if (grid is null || cell is null || cell.Tag is not DataGridColumn column || contextMenu!.DataContext is not TContext clickedEntry)
+		// Resolve column: custom columns (DataGridTemplateColumnExt) set cell.Tag; plain DataGridTemplateColumn does not.
+		DataGridColumn? column = cell?.Tag as DataGridColumn;
+		if (grid is not null && cell is not null && column is null)
+			column = GetColumnFromCell(grid, cell);
+
+		if (grid is null || cell is null || column is null || contextMenu!.DataContext is not TContext clickedEntry)
 			return null;
 
 		var allSelected = grid.SelectedItems.OfType<TContext>().ToArray();
@@ -40,6 +46,18 @@ public class DataGridCellContextMenu<TContext> where TContext : class
 		}
 
 		return new DataGridCellContextMenu<TContext>(contextMenu, grid, column, allSelected);
+	}
+
+	/// <summary>Resolve column when cell.Tag is not set (e.g. plain DataGridTemplateColumn).</summary>
+	private static DataGridColumn? GetColumnFromCell(DataGrid grid, DataGridCell cell)
+	{
+		var row = cell.FindAncestorOfType<DataGridRow>();
+		if (row is null) return null;
+		var rowCells = row.GetVisualChildren().OfType<DataGridCell>().ToList();
+		var cellIndex = rowCells.IndexOf(cell);
+		if (cellIndex < 0) return null;
+		var visibleColumns = grid.Columns.Where(c => c.IsVisible).OrderBy(c => c.DisplayIndex).ToList();
+		return cellIndex < visibleColumns.Count ? visibleColumns[cellIndex] : null;
 	}
 
 	public string CellClipboardContents

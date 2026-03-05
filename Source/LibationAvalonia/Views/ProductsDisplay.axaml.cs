@@ -223,23 +223,26 @@ public partial class ProductsDisplay : UserControl
 		var entries = args.RowItems;
 		var ctx = new GridContextMenu(entries, '_');
 
-		if (App.MainWindow?.Clipboard is IClipboard clipboard)
+		// Use TopLevel clipboard so copy works when context menu is open (e.g. on macOS).
+		var topLevel = TopLevel.GetTopLevel(contextMenu);
+		var clip = topLevel?.Clipboard ?? App.MainWindow?.Clipboard;
+		if (clip is not null)
 		{
 			//Avalonia's DataGrid can't select individual cells, so add separate
-			//options for copying single cell's contents and who row contents.
+			//options for copying single cell's contents and whole row contents.
 			if (entries.Length == 1 && args.Column.SortMemberPath is not "Liberate" and not "Cover")
 			{
 				args.ContextMenuItems.Add(new MenuItem
 				{
 					Header = ctx.CopyCellText,
-					Command = ReactiveCommand.CreateFromTask(() => clipboard?.SetTextAsync(args.CellClipboardContents) ?? Task.CompletedTask)
+					Command = ReactiveCommand.CreateFromTask(() => clip.SetTextAsync(args.CellClipboardContents))
 				});
 			}
 
 			args.ContextMenuItems.Add(new MenuItem
 			{
 				Header = "_Copy Row Contents",
-				Command = ReactiveCommand.CreateFromTask(() => clipboard?.SetTextAsync(args.GetRowClipboardContents()) ?? Task.CompletedTask)
+				Command = ReactiveCommand.CreateFromTask(() => clip.SetTextAsync(args.GetRowClipboardContents()))
 			});
 
 			args.ContextMenuItems.Add(new Separator());
