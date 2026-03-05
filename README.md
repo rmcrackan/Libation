@@ -2,6 +2,8 @@
 
 **Libation** is a free, open-source application for downloading and managing your Audible audiobooks. It decrypts your library, removes DRM, and lets you own your audiobooks forever.
 
+> **[Which version should I download?](https://getlibation.com)** — get a recommended download for your system on our site.
+
 ## Features
 
 - **Unlock Your Library**: Download and remove DRM from your audiobooks.
