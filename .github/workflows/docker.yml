@@ -43,7 +43,7 @@ jobs:
 
       - name: Generate docker image tags
         id: metadata
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           flavor: |
             latest=true
