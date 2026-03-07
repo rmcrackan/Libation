@@ -147,3 +147,84 @@ foreach($q in $Qualities){
   }
 }
 ```
+
+## Set custom replacement characters
+
+Libation detects the replacment characters for filenames by identifying the
+currently running OS and not the target filesystem. This can lead to problems
+when running the Libation CLI on Linux but targeting an NTFS drive for the
+download.
+
+To change (and override) the replacment characters, the code snippet below can
+be defined in the `Settings.json`. The example below contains the `HiFi_NTFS`
+replacements that allow for high fidelity filenames when targeting an NTFS file
+system.
+
+::: details Example NTFS ReplacementCharacters
+```json
+  "ReplacementCharacters": {
+    "Replacement": [
+      {
+        "CharacterToReplace": "\u0000",
+        "ReplacementString": "_",
+        "Description": "All other invalid characters"
+      },
+      {
+        "CharacterToReplace": "/",
+        "ReplacementString": "∕",
+        "Description": "Forward Slash (Filename Only)"
+      },
+      {
+        "CharacterToReplace": "\\",
+        "ReplacementString": "",
+        "Description": "Back Slash (Filename Only)"
+      },
+      {
+        "CharacterToReplace": "\"",
+        "ReplacementString": "“",
+        "Description": "Open Quote"
+      },
+      {
+        "CharacterToReplace": "\"",
+        "ReplacementString": "”",
+        "Description": "Close Quote"
+      },
+      {
+        "CharacterToReplace": "\"",
+        "ReplacementString": "＂",
+        "Description": "Other Quote"
+      },
+      {
+        "CharacterToReplace": "<",
+        "ReplacementString": "＜",
+        "Description": "Open Angle Bracket"
+      },
+      {
+        "CharacterToReplace": ">",
+        "ReplacementString": "＞",
+        "Description": "Close Angle Bracket"
+      },
+      {
+        "CharacterToReplace": ":",
+        "ReplacementString": "_",
+        "Description": "Colon"
+      },
+      {
+        "CharacterToReplace": "*",
+        "ReplacementString": "✱",
+        "Description": "Asterisk"
+      },
+      {
+        "CharacterToReplace": "?",
+        "ReplacementString": "？",
+        "Description": "Question Mark"
+      },
+      {
+        "CharacterToReplace": "|",
+        "ReplacementString": "⏐",
+        "Description": "Vertical Line"
+      }
+    ]
+  }
+```
+:::
