@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text.RegularExpressions;
 
 namespace AppScaffolding;
@@ -28,9 +28,15 @@ public partial record UpgradeProperties
 		HtmlUrl = htmlUrl;
 		ZipUrl = zipUrl;
 		LatestRelease = latestRelease;
-		Notes = LinkStripRegex().Replace(notes, "$1");
+
+        var text = NoAppBlockRegex().Replace(notes, "");
+		text = LinkStripRegex().Replace(text, "$1");
+		Notes = text.Trim();
 	}
 
 	[GeneratedRegex(@"\[(.*)\]\(.*\)")]
 	private static partial Regex LinkStripRegex();
+
+    [GeneratedRegex(@"<!-- BEGIN NO-APP -->.*?<!-- END NO-APP -->", RegexOptions.Singleline)]
+    private static partial Regex NoAppBlockRegex();
 }
