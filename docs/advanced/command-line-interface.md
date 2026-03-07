@@ -160,7 +160,7 @@ be defined in the `Settings.json`. The example below contains the `HiFi_NTFS`
 replacements that allow for high fidelity filenames when targeting an NTFS file
 system.
 
-::: details Examples NTFS ReplacementCharacters
+::: details Example NTFS ReplacementCharacters
 ```json
   "ReplacementCharacters": {
     "Replacement": [
