@@ -1,4 +1,4 @@
-﻿namespace LibationWinForms.Dialogs.Login
+namespace LibationWinForms.Dialogs.Login
 {
 	partial class LoginExternalDialog
 	{
@@ -48,7 +48,7 @@
             this.submitBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.submitBtn.Name = "submitBtn";
             this.submitBtn.Size = new System.Drawing.Size(88, 27);
-            this.submitBtn.TabIndex = 8;
+            this.submitBtn.TabIndex = 9;
             this.submitBtn.Text = "Submit";
             this.submitBtn.UseVisualStyleBackColor = true;
             this.submitBtn.Click += new System.EventHandler(this.submitBtn_Click);
@@ -124,7 +124,7 @@
             this.instructionsLbl.Location = new System.Drawing.Point(14, 261);
             this.instructionsLbl.Name = "instructionsLbl";
             this.instructionsLbl.Size = new System.Drawing.Size(436, 90);
-            this.instructionsLbl.TabIndex = 6;
+            this.instructionsLbl.TabIndex = 7;
             this.instructionsLbl.Text = resources.GetString("instructionsLbl.Text");
             // 
             // responseUrlTb
@@ -136,7 +136,7 @@
             this.responseUrlTb.Name = "responseUrlTb";
             this.responseUrlTb.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.responseUrlTb.Size = new System.Drawing.Size(739, 98);
-            this.responseUrlTb.TabIndex = 7;
+            this.responseUrlTb.TabIndex = 8;
             // 
             // tldrLbl
             // 
@@ -145,7 +145,7 @@
             this.tldrLbl.Location = new System.Drawing.Point(14, 237);
             this.tldrLbl.Name = "tldrLbl";
             this.tldrLbl.Size = new System.Drawing.Size(421, 15);
-            this.tldrLbl.TabIndex = 9;
+            this.tldrLbl.TabIndex = 6;
             this.tldrLbl.Text = "tl;dr : an ERROR on Amazon is GOOD. Sorry, I can\'t control their weird login";
             // 
             // LoginExternalDialog

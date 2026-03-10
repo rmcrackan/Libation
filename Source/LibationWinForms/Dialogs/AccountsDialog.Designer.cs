@@ -1,4 +1,4 @@
-﻿namespace LibationWinForms.Dialogs
+namespace LibationWinForms.Dialogs
 {
 	partial class AccountsDialog
 	{
@@ -49,7 +49,7 @@
             this.cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.cancelBtn.Name = "cancelBtn";
             this.cancelBtn.Size = new System.Drawing.Size(88, 27);
-            this.cancelBtn.TabIndex = 2;
+            this.cancelBtn.TabIndex = 3;
             this.cancelBtn.Text = "Cancel";
             this.cancelBtn.UseVisualStyleBackColor = true;
             this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
@@ -61,7 +61,7 @@
             this.saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.saveBtn.Name = "saveBtn";
             this.saveBtn.Size = new System.Drawing.Size(88, 27);
-            this.saveBtn.TabIndex = 1;
+            this.saveBtn.TabIndex = 2;
             this.saveBtn.Text = "Save";
             this.saveBtn.UseVisualStyleBackColor = true;
             this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
