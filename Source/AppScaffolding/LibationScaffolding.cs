@@ -42,6 +42,8 @@ public static class LibationScaffolding
 	public const string RepositoryUrl = "ht" + "tps://github.com/rmcrackan/Libation";
 	public const string WebsiteUrl = "ht" + "tps://getlibation.com";
 	public const string RepositoryLatestUrl = "ht" + "tps://github.com/rmcrackan/Libation/releases/latest";
+	/// <summary>Documentation for naming template syntax</summary>
+	public const string NamingTemplatesDocUrl = WebsiteUrl + "/docs/features/naming-templates";
 	public static ReleaseIdentifier ReleaseIdentifier { get; private set; }
 	public static Variety Variety { get; private set; }
 
