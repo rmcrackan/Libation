@@ -1,4 +1,4 @@
-﻿using AudibleApi;
+using AudibleApi;
 using AudibleUtilities;
 using Avalonia.Controls;
 using Avalonia.Platform;
@@ -34,7 +34,7 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Error(ex, $"Failed to use the {nameof(NativeWebDialog)}");
+			Serilog.Log.Logger.Warning(ex, "WebView login failed; falling back to external browser");
 		}
 
 		var externalDialog = new LoginExternalDialog(_account, choiceIn.LoginUrl);
@@ -44,6 +44,19 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 	}
 
 	private async Task<ChoiceOut?> BrowserLoginAsync(ChoiceIn shoiceIn)
+	{
+		try
+		{
+			return await BrowserLoginAsyncCore(shoiceIn);
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Warning(ex, "In-app browser failed; falling back to external browser");
+			return null;
+		}
+	}
+
+	private async Task<ChoiceOut?> BrowserLoginAsyncCore(ChoiceIn shoiceIn)
 	{
 		TaskCompletionSource<ChoiceOut?> tcs = new();
 

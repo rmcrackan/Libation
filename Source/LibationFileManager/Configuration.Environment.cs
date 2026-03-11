@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace LibationFileManager;
 
@@ -24,6 +24,10 @@ public partial class Configuration
 	public static bool IsWindows { get; } = OperatingSystem.IsWindows();
 	public static bool IsLinux { get; } = OperatingSystem.IsLinux();
 	public static bool IsMacOs { get; } = OperatingSystem.IsMacOS();
+
+	/// <summary>True when running inside a (Linux) Snap sandbox (e.g. snap run libation). WebView login is disabled in this environment to avoid portal/sandbox crashes.</summary>
+	public static bool IsRunningUnderSnap { get; } = IsLinux && !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SNAP"));
+
 	public static Version? LibationVersion { get; private set; }
 	public static void SetLibationVersion(Version? version) => LibationVersion = version;
 

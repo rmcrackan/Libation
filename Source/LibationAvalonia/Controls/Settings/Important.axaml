@@ -72,10 +72,18 @@
 		<CheckBox
 			Grid.Row="1"
 			Margin="10,5"
+			IsEnabled="{CompiledBinding !UseWebViewSettingDisabled}"
 			IsChecked="{CompiledBinding UseWebView, Mode=TwoWay}">
-			<TextBlock Text="{CompiledBinding UseWebViewText}" />
-
-			</CheckBox>
+			<StackPanel>
+				<TextBlock Text="{CompiledBinding UseWebViewText}" />
+				<TextBlock
+					IsVisible="{CompiledBinding UseWebViewSettingDisabled}"
+					FontStyle="Italic"
+					Opacity="0.8"
+					Margin="0,2,0,0"
+					Text="{CompiledBinding UseWebViewSnapMessage}" />
+			</StackPanel>
+		</CheckBox>
 
 		<StackPanel
 			Grid.Row="2" Margin="5"

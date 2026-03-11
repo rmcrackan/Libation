@@ -52,6 +52,7 @@ static class Program
 			if (config.LibationFiles.SettingsAreValid)
 			{
 				App.RunMigrations(config);
+				// When running inside Snap, UseWebView getter returns false to avoid portal/sandbox crashes (e.g. github ticket #1664).
 				//Start loading the library before loading the main form
 				App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 			}
