@@ -280,15 +280,7 @@ public class GetPortionFilename
 
 		string FormatString(ITemplateTag templateTag, string? value, string format)
 		{
-			if (value is null) return "";
-			var culture = CultureInfo.CurrentCulture;
-
-			return format switch
-			{
-				"u" or "U" => value.ToUpper(culture),
-				"l" or "L" => value.ToLower(culture),
-				_ => value,
-			};
+			return CommonFormatters.StringFormatter(templateTag, value, format);
 		}
 	}
 }

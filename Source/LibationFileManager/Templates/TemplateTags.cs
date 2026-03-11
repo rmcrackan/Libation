@@ -4,7 +4,6 @@ namespace LibationFileManager.Templates;
 
 public sealed class TemplateTags : ITemplateTag
 {
-	public const string DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
 	public string TagName { get; }
 	public string DefaultValue { get; }
 	public string Description { get; }
@@ -48,9 +47,11 @@ public sealed class TemplateTags : ITemplateTag
 	public static TemplateTags Language { get; } = new("language", "Book's language");
 	public static TemplateTags LanguageShort { get; } = new("language short", "Book's language abbreviated. Eg: ENG");
 
-	public static TemplateTags FileDate { get; } = new TemplateTags("file date", "File date/time. e.g. yyyy-MM-dd HH-mm", $"<file date [{DEFAULT_DATE_FORMAT}]>", "<file date [...]>");
-	public static TemplateTags DatePublished { get; } = new TemplateTags("pub date", "Publication date. e.g. yyyy-MM-dd", $"<pub date [{DEFAULT_DATE_FORMAT}]>", "<pub date [...]>");
-	public static TemplateTags DateAdded { get; } = new TemplateTags("date added", "Date added to your Audible account. e.g. yyyy-MM-dd", $"<date added [{DEFAULT_DATE_FORMAT}]>", "<date added [...]>");
+	public static TemplateTags FileDate { get; } = new TemplateTags("file date", "File date/time. e.g. yyyy-MM-dd HH-mm", $"<file date [{CommonFormatters.DefaultDateFormat}]>", "<file date [...]>");
+	public static TemplateTags DatePublished { get; } = new TemplateTags("pub date", "Publication date. e.g. yyyy-MM-dd", $"<pub date [{CommonFormatters.DefaultDateFormat}]>", "<pub date [...]>");
+
+	public static TemplateTags DateAdded { get; } =
+		new TemplateTags("date added", "Date added to your Audible account. e.g. yyyy-MM-dd", $"<date added [{CommonFormatters.DefaultDateFormat}]>", "<date added [...]>");
 	public static TemplateTags IfSeries { get; } = new TemplateTags("if series", "Only include if part of a book series or podcast", "<if series-><-if series>", "<if series->...<-if series>");
 	public static TemplateTags IfPodcast { get; } = new TemplateTags("if podcast", "Only include if part of a podcast", "<if podcast-><-if podcast>", "<if podcast->...<-if podcast>");
 	public static TemplateTags IfPodcastParent { get; } = new TemplateTags("if podcastparent", "Only include if item is a podcast series parent", "<if podcastparent-><-if podcastparent>", "<if podcastparent->...<-if podcastparent>");

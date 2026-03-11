@@ -252,7 +252,7 @@ public abstract class Templates
 	#region Registered Template Properties
 
 	private static readonly PropertyTagCollection<LibraryBookDto> filePropertyTags =
-		new(caseSensitive: true, StringFormatter, DateTimeFormatter, IntegerFormatter, FloatFormatter)
+		new(caseSensitive: true, CommonFormatters.StringFormatter, CommonFormatters.DateTimeFormatter, CommonFormatters.IntegerFormatter, CommonFormatters.FloatFormatter)
 	{
 		//Don't allow formatting of Id
 		{ TemplateTags.Id, lb => lb.AudibleProductId, v => v },
@@ -261,15 +261,15 @@ public abstract class Templates
 		{ TemplateTags.AudibleTitle, lb => lb.Title },
 		{ TemplateTags.AudibleSubtitle, lb => lb.Subtitle },
 		{ TemplateTags.Author, lb => lb.Authors, NameListFormat.Formatter },
-		{ TemplateTags.FirstAuthor, lb => lb.FirstAuthor, FormattableFormatter },
+		{ TemplateTags.FirstAuthor, lb => lb.FirstAuthor, CommonFormatters.FormattableFormatter },
 		{ TemplateTags.Narrator, lb => lb.Narrators, NameListFormat.Formatter },
-		{ TemplateTags.FirstNarrator, lb => lb.FirstNarrator, FormattableFormatter },
+		{ TemplateTags.FirstNarrator, lb => lb.FirstNarrator, CommonFormatters.FormattableFormatter },
 		{ TemplateTags.Series, lb => lb.Series, SeriesListFormat.Formatter },
-		{ TemplateTags.FirstSeries, lb => lb.FirstSeries, FormattableFormatter },
-		{ TemplateTags.SeriesNumber, lb => lb.FirstSeries?.Order, FormattableFormatter },
+		{ TemplateTags.FirstSeries, lb => lb.FirstSeries, CommonFormatters.FormattableFormatter },
+		{ TemplateTags.SeriesNumber, lb => lb.FirstSeries?.Order, CommonFormatters.FormattableFormatter },
 		{ TemplateTags.Language, lb => lb.Language },
 		//Don't allow formatting of LanguageShort
-		{ TemplateTags.LanguageShort, lb => lb.Language, GetLanguageShort },
+		{ TemplateTags.LanguageShort, lb => lb.Language, CommonFormatters.LanguageShortFormatter },
 		{ TemplateTags.Account, lb => lb.Account },
 		{ TemplateTags.AccountNickname, lb => lb.AccountNickname },
 		{ TemplateTags.Locale, lb => lb.Locale },
@@ -280,7 +280,7 @@ public abstract class Templates
 	};
 
 	private static readonly PropertyTagCollection<LibraryBookDto> audioFilePropertyTags =
-		new(caseSensitive: true, StringFormatter, IntegerFormatter)
+		new(caseSensitive: true, CommonFormatters.StringFormatter, CommonFormatters.IntegerFormatter)
 	{
 		{ TemplateTags.Bitrate, lb => lb.BitRate },
 		{ TemplateTags.SampleRate, lb => lb.SampleRate },
@@ -292,17 +292,16 @@ public abstract class Templates
 
 	private static readonly List<TagCollection> chapterPropertyTags =
 	[
-		new PropertyTagCollection<LibraryBookDto>(caseSensitive: true, StringFormatter)
+		new PropertyTagCollection<LibraryBookDto>(caseSensitive: true, CommonFormatters.StringFormatter)
 		{
 			{ TemplateTags.Title, lb => lb.TitleWithSubtitle },
 			{ TemplateTags.TitleShort, lb => GetTitleShort(lb.Title) },
 			{ TemplateTags.AudibleTitle, lb => lb.Title },
 			{ TemplateTags.AudibleSubtitle, lb => lb.Subtitle },
 			{ TemplateTags.Series, lb => lb.Series, SeriesListFormat.Formatter },
-			{ TemplateTags.FirstSeries, lb => lb.FirstSeries, FormattableFormatter },
+			{ TemplateTags.FirstSeries, lb => lb.FirstSeries, CommonFormatters.FormattableFormatter },
 		},
-
-		new PropertyTagCollection<MultiConvertFileProperties>(caseSensitive: true, StringFormatter, IntegerFormatter, DateTimeFormatter)
+		new PropertyTagCollection<MultiConvertFileProperties>(caseSensitive: true, CommonFormatters.StringFormatter, CommonFormatters.IntegerFormatter, CommonFormatters.DateTimeFormatter)
 		{
 			{ TemplateTags.ChCount, m => m.PartsTotal },
 			{ TemplateTags.ChNumber, m => m.PartsPosition },
@@ -361,67 +360,17 @@ public abstract class Templates
 	private static string? GetTitleShort(string? title)
 		=> title?.IndexOf(':') > 0 ? title.Substring(0, title.IndexOf(':')) : title;
 
-	private static string GetLanguageShort(string? language)
-	{
-		if (language is null)
-			return "";
-
-		language = language.Trim();
-		if (language.Length <= 3)
-			return language.ToUpper();
-		return language[..3].ToUpper();
-	}
-
-	private static string FormattableFormatter(ITemplateTag _, IFormattable? value, string formatString)
-		=> value?.ToString(formatString, null) ?? "";
-
-	private static string StringFormatter(ITemplateTag _, string? value, string formatString)
-	{
-		if (value is null) return "";
-		var culture = CultureInfo.CurrentCulture;
-
-		return formatString switch
-		{
-			"u" or "U" => value.ToUpper(culture),
-			"l" or "L" => value.ToLower(culture),
-			_ => value,
-		};
-	}
-
-	private static string IntegerFormatter(ITemplateTag templateTag, int value, string formatString)
-		=> FloatFormatter(templateTag, value, formatString);
-
-	private static string FloatFormatter(ITemplateTag _, float value, string formatString)
-	{
-		var culture = CultureInfo.CurrentCulture;
-		if (!int.TryParse(formatString, out var numDigits) || numDigits <= 0) return value.ToString(formatString, culture);
-		//Zero-pad the integer part
-		var strValue = value.ToString(culture);
-		var decIndex = culture.CompareInfo.IndexOf(strValue, culture.NumberFormat.NumberDecimalSeparator);
-		var zeroPad = decIndex == -1 ? int.Max(0, numDigits - strValue.Length) : int.Max(0, numDigits - decIndex);
-
-		return new string('0', zeroPad) + strValue;
-	}
-
-	private static string DateTimeFormatter(ITemplateTag _, DateTime value, string formatString)
-	{
-		var culture = CultureInfo.CurrentCulture;
-		if (string.IsNullOrEmpty(formatString))
-			formatString = TemplateTags.DEFAULT_DATE_FORMAT;
-		return value.ToString(formatString, culture);
-	}
-
 	#endregion
 
 	public class FolderTemplate : Templates, ITemplate
 	{
 		public static string Name { get; } = "Folder Template";
-		public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FolderTemplate)) ?? "";
+		public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FolderTemplate));
 		public static string DefaultTemplate { get; } = "<title short> [<id>]";
 		public static IEnumerable<TagCollection> TagCollections { get; } = [filePropertyTags, audioFilePropertyTags, conditionalTags, folderConditionalTags, combinedConditionalTags];
 
 		public override IEnumerable<string> Errors
-			=> TemplateText?.Length >= 2 && Path.IsPathFullyQualified(TemplateText) ? base.Errors.Append(ErrorFullPathIsInvalid) : base.Errors;
+			=> TemplateText.Length >= 2 && Path.IsPathFullyQualified(TemplateText) ? base.Errors.Append(ErrorFullPathIsInvalid) : base.Errors;
 
 		protected override List<string> GetTemplatePartsStrings(List<TemplatePart> parts, ReplacementCharacters replacements)
 			=> parts
@@ -435,7 +384,7 @@ public abstract class Templates
 	public class FileTemplate : Templates, ITemplate
 	{
 		public static string Name { get; } = "File Template";
-		public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FileTemplate)) ?? "";
+		public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FileTemplate));
 		public static string DefaultTemplate { get; } = "<title> [<id>]";
 		public static IEnumerable<TagCollection> TagCollections { get; } = [filePropertyTags, audioFilePropertyTags, conditionalTags, combinedConditionalTags];
 	}
@@ -443,7 +392,7 @@ public abstract class Templates
 	public class ChapterFileTemplate : Templates, ITemplate
 	{
 		public static string Name { get; } = "Chapter File Template";
-		public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.ChapterFileTemplate)) ?? "";
+		public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.ChapterFileTemplate));
 		public static string DefaultTemplate { get; } = "<title> [<id>] - <ch# 0> - <ch title>";
 		public static IEnumerable<TagCollection> TagCollections { get; }
 			= chapterPropertyTags.Append(filePropertyTags).Append(audioFilePropertyTags).Append(conditionalTags).Append(combinedConditionalTags);
@@ -457,7 +406,7 @@ public abstract class Templates
 	public class ChapterTitleTemplate : Templates, ITemplate
 	{
 		public static string Name { get; } = "Chapter Title Template";
-		public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.ChapterTitleTemplate)) ?? "";
+		public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.ChapterTitleTemplate));
 		public static string DefaultTemplate => "<ch#> - <title short>: <ch title>";
 		public static IEnumerable<TagCollection> TagCollections { get; } = chapterPropertyTags.Append(conditionalTags).Append(combinedConditionalTags);
 
