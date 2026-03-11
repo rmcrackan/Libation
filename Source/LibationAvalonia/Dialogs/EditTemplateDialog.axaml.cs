@@ -1,3 +1,4 @@
+using AppScaffolding;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
@@ -98,7 +99,7 @@ public partial class EditTemplateDialog : DialogWindow
 		}
 
 		public void GoToNamingTemplateWiki()
-			=> Go.To.Url(@"ht" + "tps://github.com/rmcrackan/Libation/blob/master/Documentation/NamingTemplates.md");
+			=> Go.To.Url(LibationScaffolding.NamingTemplatesDocUrl);
 
 		// hold the work-in-progress value. not guaranteed to be valid
 		public string? UserTemplateText

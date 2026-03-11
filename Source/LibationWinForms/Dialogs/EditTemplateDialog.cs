@@ -1,3 +1,4 @@
+using AppScaffolding;
 using Dinah.Core;
 using LibationFileManager;
 using LibationFileManager.Templates;
@@ -151,7 +152,7 @@ public partial class EditTemplateDialog : Form
 
 	private void llblGoToWiki_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 	{
-		Go.To.Url(@"ht" + "tps://github.com/rmcrackan/Libation/blob/master/Documentation/NamingTemplates.md");
+		Go.To.Url(LibationScaffolding.NamingTemplatesDocUrl);
 		e.Link?.Visited = true;
 	}
 }
