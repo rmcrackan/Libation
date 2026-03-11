@@ -3,15 +3,10 @@ using System;
 
 namespace LibationFileManager.Templates;
 
-public class ContributorDto : IFormattable
+public class ContributorDto(string name, string? audibleContributorId) : IFormattable
 {
-	public HumanName HumanName { get; }
-	public string? AudibleContributorId { get; }
-	public ContributorDto(string name, string? audibleContributorId)
-	{
-		HumanName = new HumanName(RemoveSuffix(name), Prefer.FirstOverPrefix);
-		AudibleContributorId = audibleContributorId;
-	}
+	public HumanName HumanName { get; } = new(RemoveSuffix(name), Prefer.FirstOverPrefix);
+	private string? AudibleContributorId { get; } = audibleContributorId;
 
 	public override string ToString()
 		=> ToString("{T} {F} {M} {L} {S}", null);
@@ -39,7 +34,7 @@ public class ContributorDto : IFormattable
 	private static string RemoveSuffix(string namesString)
 	{
 		namesString = namesString.Replace('’', '\'').Replace(" - Ret.", ", Ret.");
-		int dashIndex = namesString.IndexOf(" - ");
+		var dashIndex = namesString.IndexOf(" - ", StringComparison.Ordinal);
 		return (dashIndex > 0 ? namesString[..dashIndex] : namesString).Trim();
 	}
 }

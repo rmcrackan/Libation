@@ -8,8 +8,9 @@ namespace LibationFileManager.Templates;
 internal partial class NameListFormat : IListFormat<NameListFormat>
 {
 	public static string Formatter(ITemplateTag _, IEnumerable<ContributorDto>? names, string formatString)
-		=> names is null ? string.Empty
-		: IListFormat<NameListFormat>.Join(formatString, Sort(names, formatString));
+		=> names is null
+			? string.Empty
+			: IListFormat<NameListFormat>.Join(formatString, Sort(names, formatString));
 
 	private static IEnumerable<ContributorDto> Sort(IEnumerable<ContributorDto> names, string formatString)
 	{

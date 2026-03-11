@@ -23,13 +23,12 @@ internal interface IClosingPropertyTag : IPropertyTag
 
 public delegate bool Conditional<T>(ITemplateTag templateTag, T value, string condition);
 
-public class ConditionalTagCollection<TClass> : TagCollection
+public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCollection(typeof(TClass), caseSensitive)
 {
-	public ConditionalTagCollection(bool caseSensative = true) : base(typeof(TClass), caseSensative) { }
-
 	/// <summary>
 	/// Register a conditional tag.
 	/// </summary>
+	/// <param name="templateTag"></param>
 	/// <param name="propertyGetter">A Func to get the condition's <see cref="bool"/> value from <see cref="TClass"/></param>
 	public void Add(ITemplateTag templateTag, Func<TClass, bool> propertyGetter)
 	{
@@ -41,6 +40,7 @@ public class ConditionalTagCollection<TClass> : TagCollection
 	/// <summary>
 	/// Register a conditional tag.
 	/// </summary>
+	/// <param name="templateTag"></param>
 	/// <param name="conditional">A <see cref="Conditional{TClass}"/> to get the condition's <see cref="bool"/> value</param>
 	public void Add(ITemplateTag templateTag, Conditional<TClass> conditional)
 	{
@@ -57,8 +57,8 @@ public class ConditionalTagCollection<TClass> : TagCollection
 		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, Expression conditionExpression)
 			: base(templateTag, conditionExpression)
 		{
-			NameMatcher = new Regex(@$"^<(!)?{templateTag.TagName}->", options);
-			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options);
+			NameMatcher = new Regex(@$"^<(!)?{templateTag.TagName}->", options | RegexOptions.Compiled);
+			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options | RegexOptions.Compiled);
 			CreateConditionExpression = _ => conditionExpression;
 		}
 
@@ -66,9 +66,8 @@ public class ConditionalTagCollection<TClass> : TagCollection
 			: base(templateTag, Expression.Constant(false))
 		{
 			NameMatcher = new Regex(@$"^<(!)?{templateTag.TagName}(?:\s+?(.*?)\s*?)?->", options);
-			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options);
+			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options | RegexOptions.Compiled);
 
-			var target = conditional.Target is null ? null : Expression.Constant(conditional.Target);
 			CreateConditionExpression = condition
 				=> Expression.Call(
 					conditional.Target is null ? null : Expression.Constant(conditional.Target),

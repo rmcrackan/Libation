@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 
 namespace LibationFileManager.Templates;
 
 public class SeriesOrder : IFormattable
 {
-	public object[] OrderParts { get; }
+	private object[] OrderParts { get; }
 	private SeriesOrder(object[] orderParts)
 	{
 		OrderParts = orderParts;
@@ -19,11 +20,15 @@ public class SeriesOrder : IFormattable
 	/// Use float formatters to format the number parts of the order.
 	/// </summary>
 	public string ToString(string? format, IFormatProvider? formatProvider)
-		=> string.Concat(OrderParts.Select(p => p is float f ? f.ToString(format) : p.ToString())).Trim();
+		=> string.Concat(OrderParts.Select(p => p switch
+		{
+			float f => f.ToString(format),
+			_ => p.ToString(),
+		})).Trim();
 
 	public static SeriesOrder Parse(string? order)
 	{
-		List<object> parts = new();
+		List<object> parts = [];
 		while (TryParseNumber(order, out var value, out var range))
 		{
 			var prefix = order[..range.Start.Value];
@@ -57,7 +62,7 @@ public class SeriesOrder : IFormattable
 			return false;
 		}
 
-		for (int s = 0; s < numString.Length; s++)
+		for (var s = 0; s < numString.Length; s++)
 		{
 			//Assume any valid number will begin with a digit.
 			//This way, leading dots and dashes will never be considered part of a number, so
@@ -65,7 +70,7 @@ public class SeriesOrder : IFormattable
 			if (!char.IsDigit(numString[s]))
 				continue;
 
-			for (int e = numString.Length; e > s; e--)
+			for (var e = numString.Length; e > s; e--)
 			{
 				//The float parser will succeed with trailing whitespace,
 				//but we want to preserve it in the final display string.
@@ -73,7 +78,7 @@ public class SeriesOrder : IFormattable
 					continue;
 
 				var substring = numString[s..e];
-				if (float.TryParse(substring, System.Globalization.CultureInfo.InvariantCulture, out value))
+				if (float.TryParse(substring, CultureInfo.InvariantCulture, out value))
 				{
 					range = new Range(s, e);
 					return true;

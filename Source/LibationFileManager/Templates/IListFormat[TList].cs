@@ -47,6 +47,6 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 	private static partial Regex SeparatorRegex();
 
 	/// <summary> Max must have a 1 or 2-digit number </summary>
-	[GeneratedRegex(@"[Mm]ax\(\s*?(\d{1,2})\s*?\)")]
+	[GeneratedRegex(@"[Mm]ax\(\s*(\d{1,2})\s*\)")]
 	private static partial Regex MaxRegex();
 }

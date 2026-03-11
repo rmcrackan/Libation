@@ -1,12 +1,13 @@
-﻿using AaxDecrypter;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using AaxDecrypter;
 using Dinah.Core;
 using FileManager;
 using FileManager.NamingTemplate;
 using NameParser;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace LibationFileManager.Templates;
 
@@ -20,8 +21,8 @@ public interface ITemplate
 
 public abstract class Templates
 {
-	public const string ERROR_FULL_PATH_IS_INVALID = @"No colons or full paths allowed. Eg: should not start with C:\";
-	public const string WARNING_NO_CHAPTER_NUMBER_TAG = "Should include chapter number tag in template used for naming files which are split by chapter. Ie: <ch#> or <ch# 0>";
+	public const string ErrorFullPathIsInvalid = @"No colons or full paths allowed. Eg: should not start with C:\";
+	public const string WarningNoChapterNumberTag = "Should include chapter number tag in template used for naming files which are split by chapter. Ie: <ch#> or <ch# 0>";
 
 	//Assigning the properties in the static constructor will require all
 	//Templates users to have a valid configuration file. To allow tests
@@ -77,11 +78,9 @@ public abstract class Templates
 
 	#region Template Properties
 
-	public IEnumerable<TemplateTags> TagsRegistered
-		=> NamingTemplate?.TagsRegistered.Cast<TemplateTags>() ?? Enumerable.Empty<TemplateTags>();
-	public IEnumerable<TemplateTags> TagsInUse
-		=> NamingTemplate?.TagsInUse.Cast<TemplateTags>() ?? Enumerable.Empty<TemplateTags>();
-	public string TemplateText => NamingTemplate?.TemplateText ?? "";
+	public IEnumerable<TemplateTags> TagsRegistered => NamingTemplate.TagsRegistered.Cast<TemplateTags>();
+	public IEnumerable<TemplateTags> TagsInUse => NamingTemplate.TagsInUse.Cast<TemplateTags>();
+	public string TemplateText => NamingTemplate.TemplateText;
 
 	protected NamingTemplate NamingTemplate
 	{
@@ -253,12 +252,12 @@ public abstract class Templates
 	#region Registered Template Properties
 
 	private static readonly PropertyTagCollection<LibraryBookDto> filePropertyTags =
-		new(caseSensative: true, StringFormatter, DateTimeFormatter, IntegerFormatter, FloatFormatter)
+		new(caseSensitive: true, StringFormatter, DateTimeFormatter, IntegerFormatter, FloatFormatter)
 	{
 		//Don't allow formatting of Id
-		{ TemplateTags.Id, lb => lb.AudibleProductId, v => v ?? "" },
+		{ TemplateTags.Id, lb => lb.AudibleProductId, v => v },
 		{ TemplateTags.Title, lb => lb.TitleWithSubtitle },
-		{ TemplateTags.TitleShort, lb => getTitleShort(lb.Title) },
+		{ TemplateTags.TitleShort, lb => GetTitleShort(lb.Title) },
 		{ TemplateTags.AudibleTitle, lb => lb.Title },
 		{ TemplateTags.AudibleSubtitle, lb => lb.Subtitle },
 		{ TemplateTags.Author, lb => lb.Authors, NameListFormat.Formatter },
@@ -270,7 +269,7 @@ public abstract class Templates
 		{ TemplateTags.SeriesNumber, lb => lb.FirstSeries?.Order, FormattableFormatter },
 		{ TemplateTags.Language, lb => lb.Language },
 		//Don't allow formatting of LanguageShort
-		{ TemplateTags.LanguageShort, lb =>lb.Language, getLanguageShort },
+		{ TemplateTags.LanguageShort, lb => lb.Language, GetLanguageShort },
 		{ TemplateTags.Account, lb => lb.Account },
 		{ TemplateTags.AccountNickname, lb => lb.AccountNickname },
 		{ TemplateTags.Locale, lb => lb.Locale },
@@ -281,7 +280,7 @@ public abstract class Templates
 	};
 
 	private static readonly PropertyTagCollection<LibraryBookDto> audioFilePropertyTags =
-		new(caseSensative: true, StringFormatter, IntegerFormatter)
+		new(caseSensitive: true, StringFormatter, IntegerFormatter)
 	{
 		{ TemplateTags.Bitrate, lb => lb.BitRate },
 		{ TemplateTags.SampleRate, lb => lb.SampleRate },
@@ -291,18 +290,19 @@ public abstract class Templates
 		{ TemplateTags.LibationVersion, lb => lb.LibationVersion },
 	};
 
-	private static readonly List<TagCollection> chapterPropertyTags = new()
-	{
-		new PropertyTagCollection<LibraryBookDto>(caseSensative: true, StringFormatter)
+	private static readonly List<TagCollection> chapterPropertyTags =
+	[
+		new PropertyTagCollection<LibraryBookDto>(caseSensitive: true, StringFormatter)
 		{
 			{ TemplateTags.Title, lb => lb.TitleWithSubtitle },
-			{ TemplateTags.TitleShort, lb => getTitleShort(lb.Title) },
+			{ TemplateTags.TitleShort, lb => GetTitleShort(lb.Title) },
 			{ TemplateTags.AudibleTitle, lb => lb.Title },
 			{ TemplateTags.AudibleSubtitle, lb => lb.Subtitle },
 			{ TemplateTags.Series, lb => lb.Series, SeriesListFormat.Formatter },
 			{ TemplateTags.FirstSeries, lb => lb.FirstSeries, FormattableFormatter },
 		},
-		new PropertyTagCollection<MultiConvertFileProperties>(caseSensative: true, StringFormatter, IntegerFormatter, DateTimeFormatter)
+
+		new PropertyTagCollection<MultiConvertFileProperties>(caseSensitive: true, StringFormatter, IntegerFormatter, DateTimeFormatter)
 		{
 			{ TemplateTags.ChCount, m => m.PartsTotal },
 			{ TemplateTags.ChNumber, m => m.PartsPosition },
@@ -310,13 +310,13 @@ public abstract class Templates
 			{ TemplateTags.ChTitle, m => m.Title },
 			{ TemplateTags.FileDate, m => m.FileDate }
 		}
-	};
+	];
 
 	private static readonly ConditionalTagCollection<LibraryBookDto> conditionalTags = new()
 	{
 		{ TemplateTags.IfSeries, lb => lb.IsSeries || lb.IsPodcastParent },
 		{ TemplateTags.IfPodcast, lb => lb.IsPodcast || lb.IsPodcastParent },
-		{ TemplateTags.IfBookseries, lb => lb.IsSeries && !lb.IsPodcast && !lb.IsPodcastParent },
+		{ TemplateTags.IfBookseries, lb => lb is { IsSeries: true, IsPodcast: false, IsPodcastParent: false } },
 	};
 
 	private static readonly ConditionalTagCollection<CombinedDto> combinedConditionalTags = new()
@@ -324,43 +324,44 @@ public abstract class Templates
 		{ TemplateTags.Has, HasValue}
 	};
 
-	private static bool HasValue(ITemplateTag tag, CombinedDto dtos, string condition)
-	{
-		foreach (var c in chapterPropertyTags.OfType<PropertyTagCollection<LibraryBookDto>>().Append(filePropertyTags).Append(audioFilePropertyTags))
-		{
-			if (c.TryGetValue(condition, dtos.LibraryBook, out var value))
-			{
-				return !string.IsNullOrWhiteSpace(value);
-			}
-		}
-
-		if (dtos.MultiConvert is null)
-			return false;
-
-		foreach (var c in chapterPropertyTags.OfType<PropertyTagCollection<MultiConvertFileProperties>>())
-		{
-			if (c.TryGetValue(condition, dtos.MultiConvert, out var value))
-			{
-				return !string.IsNullOrWhiteSpace(value);
-			}
-		}
-
-		return false;
-	}
-
 	private static readonly ConditionalTagCollection<LibraryBookDto> folderConditionalTags = new()
 	{
 		{ TemplateTags.IfPodcastParent, lb => lb.IsPodcastParent }
 	};
 
+	private static readonly List<TagCollection> allPropertyTags =
+		chapterPropertyTags.Append(filePropertyTags).Append(audioFilePropertyTags).ToList();
+
+	private static bool HasValue(ITemplateTag _, CombinedDto dtos, string property)
+	{
+		Func<string?, bool> check = s => !string.IsNullOrWhiteSpace(s);
+
+		foreach (var c in allPropertyTags.OfType<PropertyTagCollection<LibraryBookDto>>())
+		{
+			if (c.TryGetValue(property, dtos.LibraryBook, out var value))
+				return check(value);
+		}
+
+		if (dtos.MultiConvert is null)
+			return false;
+
+		foreach (var c in allPropertyTags.OfType<PropertyTagCollection<MultiConvertFileProperties>>())
+		{
+			if (c.TryGetValue(property, dtos.MultiConvert, out var value))
+				return check(value);
+		}
+
+		return false;
+	}
+
 	#endregion
 
 	#region Tag Formatters
 
-	private static string? getTitleShort(string? title)
+	private static string? GetTitleShort(string? title)
 		=> title?.IndexOf(':') > 0 ? title.Substring(0, title.IndexOf(':')) : title;
 
-	private static string getLanguageShort(string? language)
+	private static string GetLanguageShort(string? language)
 	{
 		if (language is null)
 			return "";
@@ -371,39 +372,43 @@ public abstract class Templates
 		return language[..3].ToUpper();
 	}
 
-	private static string FormattableFormatter(ITemplateTag templateTag, IFormattable? value, string formatString)
+	private static string FormattableFormatter(ITemplateTag _, IFormattable? value, string formatString)
 		=> value?.ToString(formatString, null) ?? "";
 
-	private static string StringFormatter(ITemplateTag templateTag, string value, string formatString)
+	private static string StringFormatter(ITemplateTag _, string? value, string formatString)
 	{
 		if (value is null) return "";
-		else if (string.Compare(formatString, "u", ignoreCase: true) == 0) return value.ToUpper();
-		else if (string.Compare(formatString, "l", ignoreCase: true) == 0) return value.ToLower();
-		else return value;
+		var culture = CultureInfo.CurrentCulture;
+
+		return formatString switch
+		{
+			"u" or "U" => value.ToUpper(culture),
+			"l" or "L" => value.ToLower(culture),
+			_ => value,
+		};
 	}
 
 	private static string IntegerFormatter(ITemplateTag templateTag, int value, string formatString)
 		=> FloatFormatter(templateTag, value, formatString);
 
-	private static string FloatFormatter(ITemplateTag templateTag, float value, string formatString)
+	private static string FloatFormatter(ITemplateTag _, float value, string formatString)
 	{
-		if (int.TryParse(formatString, out var numDigits) && numDigits > 0)
-		{
-			//Zero-pad the integer part
-			var strValue = value.ToString();
-			var decIndex = strValue.IndexOf(System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator);
-			var zeroPad = decIndex == -1 ? int.Max(0, numDigits - strValue.Length) : int.Max(0, numDigits - decIndex);
+		var culture = CultureInfo.CurrentCulture;
+		if (!int.TryParse(formatString, out var numDigits) || numDigits <= 0) return value.ToString(formatString, culture);
+		//Zero-pad the integer part
+		var strValue = value.ToString(culture);
+		var decIndex = culture.CompareInfo.IndexOf(strValue, culture.NumberFormat.NumberDecimalSeparator);
+		var zeroPad = decIndex == -1 ? int.Max(0, numDigits - strValue.Length) : int.Max(0, numDigits - decIndex);
 
-			return new string('0', zeroPad) + strValue;
-		}
-		return value.ToString(formatString);
+		return new string('0', zeroPad) + strValue;
 	}
 
-	private static string DateTimeFormatter(ITemplateTag templateTag, DateTime value, string formatString)
+	private static string DateTimeFormatter(ITemplateTag _, DateTime value, string formatString)
 	{
+		var culture = CultureInfo.CurrentCulture;
 		if (string.IsNullOrEmpty(formatString))
-			return value.ToString(TemplateTags.DEFAULT_DATE_FORMAT);
-		return value.ToString(formatString);
+			formatString = TemplateTags.DEFAULT_DATE_FORMAT;
+		return value.ToString(formatString, culture);
 	}
 
 	#endregion
@@ -416,7 +421,7 @@ public abstract class Templates
 		public static IEnumerable<TagCollection> TagCollections { get; } = [filePropertyTags, audioFilePropertyTags, conditionalTags, folderConditionalTags, combinedConditionalTags];
 
 		public override IEnumerable<string> Errors
-			=> TemplateText?.Length >= 2 && Path.IsPathFullyQualified(TemplateText) ? base.Errors.Append(ERROR_FULL_PATH_IS_INVALID) : base.Errors;
+			=> TemplateText?.Length >= 2 && Path.IsPathFullyQualified(TemplateText) ? base.Errors.Append(ErrorFullPathIsInvalid) : base.Errors;
 
 		protected override List<string> GetTemplatePartsStrings(List<TemplatePart> parts, ReplacementCharacters replacements)
 			=> parts
@@ -446,7 +451,7 @@ public abstract class Templates
 		public override IEnumerable<string> Warnings
 			=> NamingTemplate.TagsInUse.Any(t => t.TagName.In(TemplateTags.ChNumber.TagName, TemplateTags.ChNumber0.TagName))
 			? base.Warnings
-			: base.Warnings.Append(WARNING_NO_CHAPTER_NUMBER_TAG);
+			: base.Warnings.Append(WarningNoChapterNumberTag);
 	}
 
 	public class ChapterTitleTemplate : Templates, ITemplate

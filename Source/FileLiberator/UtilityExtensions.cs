@@ -66,7 +66,7 @@ public static class UtilityExtensions
 			Authors = libraryBook.Book.Authors.Select(c => new ContributorDto(c.Name, c.AudibleContributorId)).ToList(),
 			Narrators = libraryBook.Book.Narrators.Select(c => new ContributorDto(c.Name, c.AudibleContributorId)).ToList(),
 
-			Series = getSeries(libraryBook.Book.SeriesLink),
+			Series = GetSeries(libraryBook.Book.SeriesLink),
 			IsPodcastParent = libraryBook.Book.IsEpisodeParent(),
 			IsPodcast = libraryBook.Book.IsEpisodeChild() || libraryBook.Book.IsEpisodeParent(),
 
@@ -80,7 +80,7 @@ public static class UtilityExtensions
 		};
 	}
 
-	private static List<SeriesDto>? getSeries(IEnumerable<SeriesBook> seriesBooks)
+	private static List<SeriesDto>? GetSeries(IEnumerable<SeriesBook> seriesBooks)
 	{
 		if (!seriesBooks.Any())
 			return null;

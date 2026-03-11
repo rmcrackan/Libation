@@ -3,18 +3,9 @@ using System.Text.RegularExpressions;
 
 namespace LibationFileManager.Templates;
 
-public partial record SeriesDto : IFormattable
+public partial record SeriesDto(string? Name, string? Number, string AudibleSeriesId) : IFormattable
 {
-	public string? Name { get; }
-
-	public SeriesOrder Order { get; }
-	public string AudibleSeriesId { get; }
-	public SeriesDto(string? name, string? number, string audibleSeriesId)
-	{
-		Name = name;
-		Order = SeriesOrder.Parse(number);
-		AudibleSeriesId = audibleSeriesId;
-	}
+	public SeriesOrder Order { get; } = SeriesOrder.Parse(Number);
 
 	public override string? ToString() => Name?.Trim();
 	public string ToString(string? format, IFormatProvider? _)
@@ -29,5 +20,5 @@ public partial record SeriesDto : IFormattable
 
 	/// <summary> Format must have at least one of the string {N}, {#}, {ID} </summary>
 	[GeneratedRegex(@"{#(?:\:(.*?))?}")]
-	public static partial Regex FormatRegex();
+	private static partial Regex FormatRegex();
 }

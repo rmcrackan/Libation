@@ -14,14 +14,14 @@ public class TemplatePart : IEnumerable<TemplatePart>
 	public string TagName { get; }
 
 	/// <summary> The <see cref="IPropertyTag"/>'s <see cref="ITemplateTag"/> if <see cref="TemplatePart"/> is
-	/// a registered property, otherwise <see cref="null"/> for string literals. </summary>
+	/// a registered property, otherwise <c>null</c> for string literals. </summary>
 	public ITemplateTag? TemplateTag { get; }
 
 	/// <summary>The evaluated string.</summary>
 	public string Value { get; }
 
-	private TemplatePart? previous;
-	private TemplatePart? next;
+	private TemplatePart? _previous;
+	private TemplatePart? _next;
 	private TemplatePart(string name, string value)
 	{
 		TagName = name;
@@ -62,18 +62,18 @@ public class TemplatePart : IEnumerable<TemplatePart>
 
 		if (type.GetConstructor(
 			BindingFlags.NonPublic | BindingFlags.Instance,
-			new Type[] { typeof(string), typeof(string) }) is not ConstructorInfo c1)
+			[typeof(string), typeof(string)]) is not { } c1)
 			throw new MissingMethodException(nameof(TemplatePart));
 
 		if (type.GetConstructor(
 			BindingFlags.NonPublic | BindingFlags.Instance,
-			new Type[] { typeof(ITemplateTag), typeof(string) }) is not ConstructorInfo c2)
+			[typeof(ITemplateTag), typeof(string)]) is not { } c2)
 			throw new MissingMethodException(nameof(TemplatePart));
 
 		if (type.GetMethod(
 			nameof(Concatenate),
 			BindingFlags.NonPublic | BindingFlags.Static,
-			new Type[] { typeof(TemplatePart), typeof(TemplatePart) }) is not MethodInfo m1)
+			[typeof(TemplatePart), typeof(TemplatePart)]) is not { } m1)
 			throw new MissingMethodException(nameof(Concatenate));
 
 		constructorInfo = c1;
@@ -89,7 +89,7 @@ public class TemplatePart : IEnumerable<TemplatePart>
 		{
 			if (firstPart.TemplateTag is not null || firstPart.TagName is not "Blank")
 				yield return firstPart;
-			firstPart = firstPart.next;
+			firstPart = firstPart._next;
 		}
 		while (firstPart is not null);
 	}
@@ -101,8 +101,8 @@ public class TemplatePart : IEnumerable<TemplatePart>
 		get
 		{
 			var part = this;
-			while (part.previous is not null)
-				part = part.previous;
+			while (part._previous is not null)
+				part = part._previous;
 			return part;
 		}
 	}
@@ -112,8 +112,8 @@ public class TemplatePart : IEnumerable<TemplatePart>
 		get
 		{
 			var part = this;
-			while (part.next is not null)
-				part = part.next;
+			while (part._next is not null)
+				part = part._next;
 			return part;
 		}
 	}
@@ -121,8 +121,8 @@ public class TemplatePart : IEnumerable<TemplatePart>
 	private static TemplatePart Concatenate(TemplatePart left, TemplatePart right)
 	{
 		var last = left.LastPart;
-		last.next = right;
-		right.previous = last;
+		last._next = right;
+		right._previous = last;
 		return left.FirstPart;
 	}
 }
