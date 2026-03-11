@@ -1,4 +1,4 @@
-﻿using Dinah.Core;
+using Dinah.Core;
 using FileManager;
 using LibationFileManager;
 using LibationUiBase;
@@ -83,6 +83,9 @@ public class ImportantSettingsVM : ViewModelBase
 		.ToArray();
 
 	public string UseWebViewText { get; } = Configuration.GetDescription(nameof(Configuration.UseWebView));
+	/// <summary>When true, the Use WebView setting is disabled (e.g. when running in Linux Snap to avoid portal/sandbox crashes).</summary>
+	public bool UseWebViewSettingDisabled => Configuration.IsRunningUnderSnap;
+	public string UseWebViewSnapMessage { get; } = Configuration.IsRunningUnderSnap ? "Disabled when running in Linux Snap (avoids login crash). Use external browser instead." : "";
 	public Serilog.Events.LogEventLevel[] LoggingLevels { get; } = Enum.GetValues<Serilog.Events.LogEventLevel>();
 	public string GridScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridScaleFactor));
 	public string GridFontScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridFontScaleFactor));

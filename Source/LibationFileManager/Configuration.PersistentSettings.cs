@@ -1,4 +1,4 @@
-﻿using FileManager;
+using FileManager;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -344,7 +344,11 @@ public partial class Configuration
 	public bool AutoScan { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 	[Description("Use Libation's built-in web browser to log into Audible?")]
-	public bool UseWebView { get => GetNonString(defaultValue: true); set => SetNonString(value); }
+	public bool UseWebView
+	{
+		get => Configuration.IsRunningUnderSnap ? false : GetNonString(defaultValue: true);
+		set { if (!Configuration.IsRunningUnderSnap) SetNonString(value); }
+	}
 
 	[Description("Auto download books? After scan, download new books in 'checked' accounts.")]
 	// poorly named setting. Should just be 'AutoDownload'. It is NOT episode specific
