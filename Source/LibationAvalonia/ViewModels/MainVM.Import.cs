@@ -1,4 +1,4 @@
-﻿using ApplicationServices;
+using ApplicationServices;
 using AudibleUtilities;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -252,17 +252,17 @@ public partial class MainVM
 		}
 		else if (AccountsCount == 1)
 		{
-			importMenuItem.Items.Add(new NativeMenuItem { Header = "Scan Library", Command = ReactiveCommand.Create(ScanAccountAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Alt | KeyModifiers.Meta) });
+			importMenuItem.Items.Add(new NativeMenuItem { Header = "Scan Library", Command = ReactiveCommand.Create(ScanAccountAsync), Gesture = new KeyGesture(Key.S, KeyGestureHelper.MenuModifier) });
 			importMenuItem.Items.Add(new NativeMenuItemSeparator());
-			importMenuItem.Items.Add(new NativeMenuItem { Header = "Remove Library Books", Command = ReactiveCommand.Create(RemoveBooksAsync), Gesture = new KeyGesture(Key.R, KeyModifiers.Alt | KeyModifiers.Meta) });
+			importMenuItem.Items.Add(new NativeMenuItem { Header = "Remove Library Books", Command = ReactiveCommand.Create(RemoveBooksAsync), Gesture = new KeyGesture(Key.R, KeyGestureHelper.MenuModifier) });
 		}
 		else
 		{
-			importMenuItem.Items.Add(new NativeMenuItem { Header = "Scan Library of All Accounts", Command = ReactiveCommand.Create(ScanAllAccountsAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Alt | KeyModifiers.Meta) });
-			importMenuItem.Items.Add(new NativeMenuItem { Header = "Scan Library of Some Accounts", Command = ReactiveCommand.Create(ScanSomeAccountsAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Alt | KeyModifiers.Meta | KeyModifiers.Shift) });
+			importMenuItem.Items.Add(new NativeMenuItem { Header = "Scan Library of All Accounts", Command = ReactiveCommand.Create(ScanAllAccountsAsync), Gesture = new KeyGesture(Key.S, KeyGestureHelper.MenuModifier) });
+			importMenuItem.Items.Add(new NativeMenuItem { Header = "Scan Library of Some Accounts", Command = ReactiveCommand.Create(ScanSomeAccountsAsync), Gesture = new KeyGesture(Key.S, KeyGestureHelper.MenuModifier | KeyModifiers.Shift) });
 			importMenuItem.Items.Add(new NativeMenuItemSeparator());
-			importMenuItem.Items.Add(new NativeMenuItem { Header = "Remove Books from All Accounts", Command = ReactiveCommand.Create(RemoveBooksAllAsync), Gesture = new KeyGesture(Key.R, KeyModifiers.Alt | KeyModifiers.Meta) });
-			importMenuItem.Items.Add(new NativeMenuItem { Header = "Remove Books from Some Accounts", Command = ReactiveCommand.Create(RemoveBooksSomeAsync), Gesture = new KeyGesture(Key.R, KeyModifiers.Alt | KeyModifiers.Meta | KeyModifiers.Shift) });
+			importMenuItem.Items.Add(new NativeMenuItem { Header = "Remove Books from All Accounts", Command = ReactiveCommand.Create(RemoveBooksAllAsync), Gesture = new KeyGesture(Key.R, KeyGestureHelper.MenuModifier) });
+			importMenuItem.Items.Add(new NativeMenuItem { Header = "Remove Books from Some Accounts", Command = ReactiveCommand.Create(RemoveBooksSomeAsync), Gesture = new KeyGesture(Key.R, KeyGestureHelper.MenuModifier | KeyModifiers.Shift) });
 		}
 
 		importMenuItem.Items.Add(new NativeMenuItemSeparator());

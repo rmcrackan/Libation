@@ -35,13 +35,13 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 		Opened += MainWindow_Opened;
 		Closing += MainWindow_Closing;
 
-		KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(selectAndFocusSearchBox), Gesture = new KeyGesture(Key.F, Configuration.IsMacOs ? KeyModifiers.Meta : KeyModifiers.Control) });
+		KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(selectAndFocusSearchBox), Gesture = new KeyGesture(Key.F, KeyGestureHelper.CommandModifier) });
 
 		if (!Configuration.IsMacOs && ViewModel is MainVM vm)
 		{
-			KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(vm.ShowSettingsAsync), Gesture = new KeyGesture(Key.P, KeyModifiers.Control) });
-			KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(vm.ShowAccountsAsync), Gesture = new KeyGesture(Key.A, KeyModifiers.Control | KeyModifiers.Shift) });
-			KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(vm.ExportLibraryAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Control) });
+			KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(vm.ShowSettingsAsync), Gesture = new KeyGesture(Key.P, KeyGestureHelper.CommandModifier) });
+			KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(vm.ShowAccountsAsync), Gesture = new KeyGesture(Key.A, KeyGestureHelper.CommandModifier | KeyModifiers.Shift) });
+			KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(vm.ExportLibraryAsync), Gesture = new KeyGesture(Key.S, KeyGestureHelper.CommandModifier) });
 		}
 
 		Configuration.Instance.PropertyChanged += Settings_PropertyChanged;
