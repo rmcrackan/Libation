@@ -103,23 +103,33 @@ public abstract class Templates
 	#region to file name
 
 	public string GetName(LibraryBookDto libraryBookDto, MultiConvertFileProperties multiChapProps)
+		=> GetName(libraryBookDto, multiChapProps, null);
+
+	public string GetName(LibraryBookDto libraryBookDto, MultiConvertFileProperties multiChapProps, CultureInfo? culture)
 	{
 		ArgumentValidator.EnsureNotNull(libraryBookDto, nameof(libraryBookDto));
 		ArgumentValidator.EnsureNotNull(multiChapProps, nameof(multiChapProps));
-		return string.Concat(NamingTemplate.Evaluate(libraryBookDto, multiChapProps, new CombinedDto(libraryBookDto, multiChapProps)).Select(p => p.Value));
+		return string.Concat(NamingTemplate.Evaluate(culture, libraryBookDto, multiChapProps, new CombinedDto(libraryBookDto, multiChapProps)).Select(p => p.Value));
 	}
 
 	public LongPath GetFilename(LibraryBookDto libraryBookDto, string baseDir, string fileExtension, ReplacementCharacters? replacements = null, bool returnFirstExisting = false)
+		=> GetFilename(libraryBookDto, baseDir, fileExtension, culture: null, replacements: replacements, returnFirstExisting: returnFirstExisting);
+
+	public LongPath GetFilename(LibraryBookDto libraryBookDto, string baseDir, string fileExtension, CultureInfo? culture, ReplacementCharacters? replacements = null, bool returnFirstExisting = false)
 	{
 		ArgumentValidator.EnsureNotNull(libraryBookDto, nameof(libraryBookDto));
 		ArgumentValidator.EnsureNotNull(baseDir, nameof(baseDir));
 		ArgumentValidator.EnsureNotNull(fileExtension, nameof(fileExtension));
 
 		replacements ??= Configuration.Instance.ReplacementCharacters;
-		return GetFilename(baseDir, fileExtension, replacements, returnFirstExisting, libraryBookDto);
+		return GetFilename(baseDir, fileExtension, replacements, returnFirstExisting, libraryBookDto, culture);
 	}
 
 	public LongPath GetFilename(LibraryBookDto libraryBookDto, MultiConvertFileProperties multiChapProps, string baseDir, string fileExtension, ReplacementCharacters? replacements = null, bool returnFirstExisting = false)
+		=> GetFilename(libraryBookDto, multiChapProps, baseDir, fileExtension, culture: null, replacements: replacements, returnFirstExisting: returnFirstExisting);
+
+	public LongPath GetFilename(LibraryBookDto libraryBookDto, MultiConvertFileProperties multiChapProps, string baseDir, string fileExtension, CultureInfo? culture,
+		ReplacementCharacters? replacements = null, bool returnFirstExisting = false)
 	{
 		ArgumentValidator.EnsureNotNull(libraryBookDto, nameof(libraryBookDto));
 		ArgumentValidator.EnsureNotNull(multiChapProps, nameof(multiChapProps));
@@ -127,17 +137,18 @@ public abstract class Templates
 		ArgumentValidator.EnsureNotNull(fileExtension, nameof(fileExtension));
 
 		replacements ??= Configuration.Instance.ReplacementCharacters;
-		return GetFilename(baseDir, fileExtension, replacements, returnFirstExisting, libraryBookDto, multiChapProps);
+		return GetFilename(baseDir, fileExtension, replacements, returnFirstExisting, libraryBookDto, culture, multiChapProps);
 	}
 
 	protected virtual IEnumerable<string> GetTemplatePartsStrings(List<TemplatePart> parts, ReplacementCharacters replacements)
 		=> parts.Select(p => replacements.ReplaceFilenameChars(p.Value));
 
-	private LongPath GetFilename(string baseDir, string fileExtension, ReplacementCharacters replacements, bool returnFirstExisting, LibraryBookDto lbDto, MultiConvertFileProperties? multiDto = null)
+	private LongPath GetFilename(string baseDir, string fileExtension, ReplacementCharacters replacements, bool returnFirstExisting, LibraryBookDto lbDto, CultureInfo? culture,
+		MultiConvertFileProperties? multiDto = null)
 	{
 		fileExtension = FileUtility.GetStandardizedExtension(fileExtension);
 
-		var parts = NamingTemplate.Evaluate(lbDto, multiDto, new CombinedDto(lbDto, multiDto)).ToList();
+		var parts = NamingTemplate.Evaluate(culture, lbDto, multiDto, new CombinedDto(lbDto, multiDto)).ToList();
 		var pathParts = GetPathParts(GetTemplatePartsStrings(parts, replacements));
 
 		//Remove 1 character from the end of the longest filename part until
@@ -331,14 +342,14 @@ public abstract class Templates
 	private static readonly List<TagCollection> allPropertyTags =
 		chapterPropertyTags.Append(filePropertyTags).Append(audioFilePropertyTags).ToList();
 
-	private static bool HasValue(ITemplateTag _, CombinedDto dtos, string property)
+	private static bool HasValue(ITemplateTag _, CombinedDto dtos, string property, CultureInfo? culture)
 	{
-		Func<string?, bool> check = s => !string.IsNullOrWhiteSpace(s);
+		Func<string?, CultureInfo?, bool> check = (s, _) => !string.IsNullOrWhiteSpace(s);
 
 		foreach (var c in allPropertyTags.OfType<PropertyTagCollection<LibraryBookDto>>())
 		{
-			if (c.TryGetValue(property, dtos.LibraryBook, out var value))
-				return check(value);
+			if (c.TryGetValue(property, dtos.LibraryBook, culture, out var value))
+				return check(value, culture ?? CultureInfo.CurrentCulture);
 		}
 
 		if (dtos.MultiConvert is null)
@@ -346,8 +357,8 @@ public abstract class Templates
 
 		foreach (var c in allPropertyTags.OfType<PropertyTagCollection<MultiConvertFileProperties>>())
 		{
-			if (c.TryGetValue(property, dtos.MultiConvert, out var value))
-				return check(value);
+			if (c.TryGetValue(property, dtos.MultiConvert, culture, out var value))
+				return check(value, culture ?? CultureInfo.CurrentCulture);
 		}
 
 		return false;

@@ -1,5 +1,6 @@
 ﻿using FileManager.NamingTemplate;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -7,10 +8,10 @@ namespace LibationFileManager.Templates;
 
 internal partial class NameListFormat : IListFormat<NameListFormat>
 {
-	public static string Formatter(ITemplateTag _, IEnumerable<ContributorDto>? names, string formatString)
+	public static string Formatter(ITemplateTag _, IEnumerable<ContributorDto>? names, string formatString, CultureInfo? culture)
 		=> names is null
 			? string.Empty
-			: IListFormat<NameListFormat>.Join(formatString, Sort(names, formatString));
+			: IListFormat<NameListFormat>.Join(formatString, Sort(names, formatString), culture);
 
 	private static IEnumerable<ContributorDto> Sort(IEnumerable<ContributorDto> names, string formatString)
 	{

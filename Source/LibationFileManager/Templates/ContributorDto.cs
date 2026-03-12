@@ -11,7 +11,7 @@ public class ContributorDto(string name, string? audibleContributorId) : IFormat
 	public override string ToString()
 		=> ToString("{T} {F} {M} {L} {S}", null);
 
-	public string ToString(string? format, IFormatProvider? _)
+	public string ToString(string? format, IFormatProvider? provider)
 	{
 		if (string.IsNullOrWhiteSpace(format))
 			return ToString();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -28,19 +29,36 @@ public class NamingTemplate
 	/// <summary>
 	/// Invoke the <see cref="NamingTemplate"/>
 	/// </summary>
+	/// <param name="culture"></param>
 	/// <param name="propertyClasses">Instances of the TClass used in <see cref="PropertyTagCollection{TClass}"/> and <see cref="ConditionalTagCollection{TClass}"/></param>
-	public TemplatePart Evaluate(params object?[] propertyClasses)
+	public TemplatePart Evaluate(params object?[] propertyClasses) //CultureInfo? culture,  
 	{
 		if (_templateToString is null)
 			throw new InvalidOperationException();
 
 		// Match propertyClasses to the arguments required by templateToString.DynamicInvoke(). 
 		// First parameter is "this", so ignore it.
-		var delegateArgTypes = _templateToString.Method.GetParameters().Skip(1);
+		var parameters = _templateToString.Method.GetParameters();
+		int skip = _templateToString.Target == null ? 0 : 1;
+		var delegateArgTypes = parameters.Skip(skip).ToList();
 
-		object?[] args = delegateArgTypes.Join(propertyClasses, o => o.ParameterType, i => i?.GetType(), (_, i) => i).ToArray();
+		object?[] args = new object?[delegateArgTypes.Count];
+		// args = delegateArgTypes.Join(propertyClasses, dat => dat.ParameterType, pc => pc?.GetType(), (_, i) => i,
+		// 	EqualityComparer<Type?>.Create((datType, pcType) => datType!.IsAssignableFrom(pcType))).ToArray();
+		for (int i = 0; i < delegateArgTypes.Count; i++)
+		{
+			var p = delegateArgTypes[i];
+			if (typeof(CultureInfo).IsAssignableFrom(p.ParameterType) && false)
+			{
+				args[i] = null;//culture;
+			}
+			else
+			{
+				args[i] = propertyClasses.FirstOrDefault(pc => pc != null && p.ParameterType.IsInstanceOfType(pc));
+			}
+		}
 
-		if (args.Length != delegateArgTypes.Count())
+		if (args.Length != delegateArgTypes.Count)
 			throw new ArgumentException($"This instance of {nameof(NamingTemplate)} requires the following arguments: {string.Join(", ", delegateArgTypes.Select(t => t.Name).Distinct())}");
 
 		return (_templateToString.DynamicInvoke(args) as TemplatePart)!.FirstPart;
@@ -58,7 +76,7 @@ public class NamingTemplate
 			BinaryNode intermediate = namingTemplate.IntermediateParse(template);
 			Expression evalTree = GetExpressionTree(intermediate);
 
-			namingTemplate._templateToString = Expression.Lambda(evalTree, tagCollections.Select(tc => tc.Parameter)).Compile();
+			namingTemplate._templateToString = Expression.Lambda(evalTree, tagCollections.Select(tc => tc.Parameter).Append(TagCollection.CultureParameter)).Compile();
 		}
 		catch (Exception ex)
 		{

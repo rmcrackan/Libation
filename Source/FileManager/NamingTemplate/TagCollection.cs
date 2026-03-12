@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
@@ -16,6 +17,8 @@ public abstract class TagCollection : IEnumerable<ITemplateTag>
 
 	/// <summary>The <see cref="ParameterExpression"/> of the <see cref="TagCollection"/>'s TClass type.</summary>
 	internal ParameterExpression Parameter { get; }
+
+	internal static readonly ParameterExpression CultureParameter = Expression.Parameter(typeof(CultureInfo), "culture");
 	protected RegexOptions Options { get; } = RegexOptions.Compiled;
 	private List<IPropertyTag> PropertyTags { get; } = [];
 
@@ -34,7 +37,8 @@ public abstract class TagCollection : IEnumerable<ITemplateTag>
 	/// <param name="propertyTag"></param>
 	/// <param name="propertyValue">The <see cref="Expression"/> that returns the <paramref name="propertyTag"/>'s value</param>
 	/// <returns>True if the <paramref name="templateString"/> starts with a tag registered in this class.</returns>
-	internal bool StartsWith(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IPropertyTag? propertyTag, [NotNullWhen(true)] out Expression? propertyValue)
+	internal bool StartsWith(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IPropertyTag? propertyTag,
+		[NotNullWhen(true)] out Expression? propertyValue)
 	{
 		foreach (var p in PropertyTags)
 		{

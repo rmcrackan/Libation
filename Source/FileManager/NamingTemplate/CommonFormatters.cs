@@ -9,12 +9,12 @@ public static partial class CommonFormatters
 {
 	public const string DefaultDateFormat = "yyyy-MM-dd";
 
-	public delegate string PropertyFormatter<in T>(ITemplateTag templateTag, T value, string formatString);
+	public delegate string PropertyFormatter<in T>(ITemplateTag templateTag, T? value, string formatString, CultureInfo? culture);
 
-	public static string StringFormatter(ITemplateTag _, string? value, string formatString)
+	public static string StringFormatter(ITemplateTag _, string? value, string formatString, CultureInfo? culture)
 	{
 		if (value is null) return "";
-		var culture = CultureInfo.CurrentCulture;
+		culture ??= CultureInfo.CurrentCulture;
 
 		return formatString switch
 		{
@@ -24,15 +24,15 @@ public static partial class CommonFormatters
 		};
 	}
 
-	public static string FormattableFormatter(ITemplateTag _, IFormattable? value, string formatString)
-		=> value?.ToString(formatString, null) ?? "";
+	public static string FormattableFormatter(ITemplateTag _, IFormattable? value, string formatString, CultureInfo? culture)
+		=> value?.ToString(formatString, culture) ?? "";
 
-	public static string IntegerFormatter(ITemplateTag templateTag, int value, string formatString)
-		=> FloatFormatter(templateTag, value, formatString);
+	public static string IntegerFormatter(ITemplateTag templateTag, int value, string formatString, CultureInfo? culture)
+		=> FloatFormatter(templateTag, value, formatString, culture);
 
-	public static string FloatFormatter(ITemplateTag _, float value, string formatString)
+	public static string FloatFormatter(ITemplateTag _, float value, string formatString, CultureInfo? culture)
 	{
-		var culture = CultureInfo.CurrentCulture;
+		culture ??= CultureInfo.CurrentCulture;
 		if (!int.TryParse(formatString, out var numDigits) || numDigits <= 0) return value.ToString(formatString, culture);
 		//Zero-pad the integer part
 		var strValue = value.ToString(culture);
@@ -42,22 +42,22 @@ public static partial class CommonFormatters
 		return new string('0', zeroPad) + strValue;
 	}
 
-	public static string DateTimeFormatter(ITemplateTag _, DateTime value, string formatString)
+	public static string DateTimeFormatter(ITemplateTag _, DateTime value, string formatString, CultureInfo? culture)
 	{
-		var culture = CultureInfo.CurrentCulture;
+		culture ??= CultureInfo.InvariantCulture;
 		if (string.IsNullOrEmpty(formatString))
-			formatString = CommonFormatters.DefaultDateFormat;
+			formatString = DefaultDateFormat;
 		return value.ToString(formatString, culture);
 	}
 
-	public static string LanguageShortFormatter(string? language)
+	public static string LanguageShortFormatter(ITemplateTag templateTag, string? language, string formatString, CultureInfo? culture)
 	{
 		if (language is null)
 			return "";
 
 		language = language.Trim();
-		if (language.Length <= 3)
-			return language.ToUpper();
-		return language[..3].ToUpper();
+		if (language.Length > 3) language = language[..3];
+
+		return StringFormatter(templateTag, language, formatString, culture);
 	}
 }

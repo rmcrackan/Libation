@@ -8,7 +8,7 @@ public partial record SeriesDto(string? Name, string? Number, string AudibleSeri
 	public SeriesOrder Order { get; } = SeriesOrder.Parse(Number);
 
 	public override string? ToString() => Name?.Trim();
-	public string ToString(string? format, IFormatProvider? _)
+	public string ToString(string? format, IFormatProvider? provider)
 		=> string.IsNullOrWhiteSpace(format) ? ToString() ?? string.Empty
 			: FormatRegex().Replace(format, MatchEvaluator)
 			.Replace("{N}", Name)

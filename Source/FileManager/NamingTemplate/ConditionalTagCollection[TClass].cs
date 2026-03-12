@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
@@ -21,7 +22,7 @@ internal interface IClosingPropertyTag : IPropertyTag
 	bool StartsWithClosing(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? propertyTag);
 }
 
-public delegate bool Conditional<T>(ITemplateTag templateTag, T value, string condition);
+public delegate bool Conditional<T>(ITemplateTag templateTag, T value, string condition, CultureInfo? culture);
 
 public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCollection(typeof(TClass), caseSensitive)
 {
@@ -74,7 +75,8 @@ public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCo
 					conditional.Method,
 					Expression.Constant(templateTag),
 					parameter,
-					Expression.Constant(condition));
+					Expression.Constant(condition),
+					CultureParameter);
 		}
 
 		public bool StartsWithClosing(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? propertyTag)

@@ -116,7 +116,7 @@ namespace TemplatesTests
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 
 			fileTemplate
-				.GetFilename(GetLibraryBook(), dirFullPath, extension, Replacements)
+				.GetFilename(GetLibraryBook(), dirFullPath, extension, culture: null, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -131,7 +131,7 @@ namespace TemplatesTests
 		[DataRow("4<bitrate> - <bitrate> 4", "", "", "1 8 - 1 8")]
 		[DataRow("<channels><channels><samplerate><channels><channels>", "", "", "100")]
 		[DataRow(" <channels> <channels> <samplerate> <channels> <channels>", "", "", "100")]
-		[DataRow(" <channels> - <channels> <samplerate> <channels> - <channels>", "", "", "- 100 -")]
+		[DataRow(" <channels> - <channels> <samplerate> <channels> - <channels>", "", "", "- 100 -")] 
 
 		public void Tests_removeSpaces(string template, string dirFullPath, string extension, string expected)
 		{
@@ -152,7 +152,7 @@ namespace TemplatesTests
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 
 			fileTemplate
-				.GetFilename(GetLibraryBook(), dirFullPath, extension, replacements)
+				.GetFilename(GetLibraryBook(), dirFullPath, extension, culture: null, replacements: replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -168,7 +168,7 @@ namespace TemplatesTests
 		public void FormatTags(string template, string expected)
 		{
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
-			fileTemplate.GetFilename(GetLibraryBook(), "", "", Replacements).PathWithoutPrefix.Should().Be(expected);
+			fileTemplate.GetFilename(GetLibraryBook(), "", "", culture: null, replacements: Replacements).PathWithoutPrefix.Should().Be(expected);
 		}
 
 		[TestMethod]
@@ -193,7 +193,7 @@ namespace TemplatesTests
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate
-				.GetFilename(GetLibraryBook(), dirFullPath, extension, Replacements)
+				.GetFilename(GetLibraryBook(), dirFullPath, extension, culture: null, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -222,7 +222,7 @@ namespace TemplatesTests
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate
-				.GetFilename(GetLibraryBook(), dirFullPath, extension, Replacements)
+				.GetFilename(GetLibraryBook(), dirFullPath, extension, culture: null, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -241,7 +241,7 @@ namespace TemplatesTests
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate
-				.GetFilename(GetLibraryBook(), dirFullPath, extension, Replacements)
+				.GetFilename(GetLibraryBook(), dirFullPath, extension, culture: null, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -255,15 +255,13 @@ namespace TemplatesTests
 		[DataRow("<id> - <date added[MM/dd/yy HH:mm]>", @"/foo/bar", ".m4b", @"/foo/bar/asin - 06∕09∕22 00:00.m4b", PlatformID.Unix)]
 		public void DateFormat_illegal(string template, string dirFullPath, string extension, string expected, PlatformID platformId)
 		{
-			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-
 			if (Environment.OSVersion.Platform == platformId)
 			{
 				Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 
 				fileTemplate.HasWarnings.Should().BeFalse();
 				fileTemplate
-					.GetFilename(GetLibraryBook(), dirFullPath, extension, Replacements)
+					.GetFilename(GetLibraryBook(), dirFullPath, extension, culture: CultureInfo.InvariantCulture, replacements: Replacements)
 					.PathWithoutPrefix
 					.Should().Be(expected);
 			}
@@ -285,7 +283,7 @@ namespace TemplatesTests
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate
-				.GetFilename(lbDto, dirFullPath, extension, Replacements)
+				.GetFilename(lbDto, dirFullPath, extension, culture: null, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -326,7 +324,7 @@ namespace TemplatesTests
 			bookDto.Authors = [new(author, null)];
 			Templates.TryGetTemplate<Templates.FileTemplate>("<author[format(Title={T}, First={F}, Middle={M} Last={L}, Suffix={S})]>", out var fileTemplate).Should().BeTrue();
 			fileTemplate
-				.GetFilename(bookDto, "", "", Replacements)
+				.GetFilename(bookDto, "", "", culture: null, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -375,7 +373,7 @@ namespace TemplatesTests
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate
-				.GetFilename(bookDto, "", "", Replacements)
+				.GetFilename(bookDto, "", "", culture: null, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -395,7 +393,7 @@ namespace TemplatesTests
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate
-				.GetFilename(bookDto, multiDto, "", "", Replacements)
+				.GetFilename(bookDto, multiDto, "", "", culture: null, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -445,7 +443,7 @@ namespace TemplatesTests
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate
-				.GetFilename(bookDto, multiDto, "", "", Replacements)
+				.GetFilename(bookDto, multiDto, "", "", culture: null, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -466,8 +464,6 @@ namespace TemplatesTests
 		[DataRow("<first series[{N}, {#:00.0}]>", "Series A, 01.0")]
 		public void SeriesFormat_formatters(string template, string expected)
 		{
-			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-			
 			var bookDto = GetLibraryBook();
 			bookDto.Series =
 			[
@@ -479,7 +475,7 @@ namespace TemplatesTests
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate
-				.GetFilename(bookDto, "", "", Replacements)
+				.GetFilename(bookDto, "", "", culture: CultureInfo.InvariantCulture, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -499,14 +495,12 @@ namespace TemplatesTests
 		[DataRow("<series#>", " 1 6 ", "1 6")]
 		public void SeriesOrder_formatters(string template, string seriesOrder, string expected)
 		{
-			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-			
 			var bookDto = GetLibraryBook();
 			bookDto.Series = [new("Series A", seriesOrder, "B1")];
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate
-				.GetFilename(bookDto, "", "", Replacements)
+				.GetFilename(bookDto, "", "", culture: CultureInfo.InvariantCulture, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -521,7 +515,7 @@ namespace TemplatesTests
 				Templates.TryGetTemplate<Templates.FileTemplate>("foo<if series-><-if series>bar", out var fileTemplate).Should().BeTrue();
 
 				fileTemplate
-					.GetFilename(GetLibraryBook(), directory, "ext", Replacements)
+					.GetFilename(GetLibraryBook(), directory, "ext", culture: null, replacements: Replacements)
 					.PathWithoutPrefix
 					.Should().Be(expected);
 			}
@@ -536,7 +530,7 @@ namespace TemplatesTests
 			{
 				Templates.TryGetTemplate<Templates.FileTemplate>("foo<if series->-<series>-<id>-<-if series>bar", out var fileTemplate).Should().BeTrue();
 
-				fileTemplate.GetFilename(GetLibraryBook(null), directory, "ext", Replacements)
+				fileTemplate.GetFilename(GetLibraryBook(null), directory, "ext", culture: null, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 			}
@@ -552,10 +546,27 @@ namespace TemplatesTests
 				Templates.TryGetTemplate<Templates.FileTemplate>("foo<if series->-<series>-<id>-<-if series>bar", out var fileTemplate).Should().BeTrue();
 
 				fileTemplate
-					.GetFilename(GetLibraryBook(), directory, "ext", Replacements)
+					.GetFilename(GetLibraryBook(), directory, "ext", culture: null, replacements: Replacements)
 					.PathWithoutPrefix
 					.Should().Be(expected);
 			}
+		}
+
+		[TestMethod]
+		[DataRow("<audibletitle [u]>", "I", "en-US", "i")]
+		[DataRow("<audibletitle [l]>", "ı", "tr-TR", "I")]
+		[DataRow("<audibletitle [u]>", "İ", "tr-TR", "i")]
+		public void Tag_culture_test(string template, string expected, string cultureName, string title)
+		{
+			var bookDto = Shared.GetLibraryBook();
+			bookDto.Title = title;
+			var culture = new System.Globalization.CultureInfo(cultureName);
+
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+
+			fileTemplate
+				.GetName(bookDto, new MultiConvertFileProperties { OutputFileName = string.Empty }, culture)
+				.Should().Be(expected);
 		}
 	}
 }
@@ -614,7 +625,7 @@ namespace Templates_Other
 
 			Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var fileNamingTemplate).Should().BeTrue();
 
-			return fileNamingTemplate.GetFilename(lbDto, dirFullPath, extension, Replacements).PathWithoutPrefix;
+			return fileNamingTemplate.GetFilename(lbDto, dirFullPath, extension, culture: null, replacements: Replacements).PathWithoutPrefix;
 		}
 
 		[TestMethod]
@@ -642,7 +653,8 @@ namespace Templates_Other
 			Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterFileTemplate).Should().BeTrue();
 
 			return chapterFileTemplate
-				.GetFilename(lbDto, new MultiConvertFileProperties { Title = suffix, PartsTotal = partsTotal, PartsPosition = partsPosition, OutputFileName = string.Empty }, dir, estension, Replacements)
+				.GetFilename(lbDto, new MultiConvertFileProperties { Title = suffix, PartsTotal = partsTotal, PartsPosition = partsPosition, OutputFileName = string.Empty }, dir, estension,
+					culture: null, replacements: Replacements)
 				.PathWithoutPrefix;
 		}
 
@@ -661,7 +673,7 @@ namespace Templates_Other
 
 				Templates.TryGetTemplate<Templates.FileTemplate>(fileName, out var fileNamingTemplate).Should().BeTrue();
 
-				fileNamingTemplate.GetFilename(lbDto, directory, "txt", Replacements).PathWithoutPrefix.Should().Be(outStr);
+				fileNamingTemplate.GetFilename(lbDto, directory, "txt", culture: null, replacements: Replacements).PathWithoutPrefix.Should().Be(outStr);
 			}
 		}
 	}
@@ -1011,7 +1023,7 @@ namespace Templates_ChapterFile_Tests
 			{
 				Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterTemplate).Should().BeTrue();
 				chapterTemplate
-					.GetFilename(GetLibraryBook(), new() { OutputFileName = $"xyz.{ext}", PartsPosition = pos, PartsTotal = total, Title = chapter }, dir, ext, Default)
+					.GetFilename(GetLibraryBook(), new() { OutputFileName = $"xyz.{ext}", PartsPosition = pos, PartsTotal = total, Title = chapter }, dir, ext, culture: null, replacements: Default)
 					.PathWithoutPrefix
 					.Should().Be(expected);
 			}

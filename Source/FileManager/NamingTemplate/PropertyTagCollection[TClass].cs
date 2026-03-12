@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
@@ -20,10 +21,12 @@ public class PropertyTagCollection<TClass> : TagCollection
 			var parameters = formatter.Method.GetParameters();
 
 			if (formatter.Method.ReturnType != typeof(string)
-				|| parameters.Length != 3
+			    || parameters.Length != 4
 				|| parameters[0].ParameterType != typeof(ITemplateTag)
-				|| parameters[2].ParameterType != typeof(string))
-				throw new ArgumentException($"{nameof(defaultFormatters)} must have a signature of [{nameof(String)} PropertyFormatter<T>({nameof(ITemplateTag)}, T, {nameof(String)})]");
+			    || parameters[2].ParameterType != typeof(string)
+			    || !typeof(CultureInfo).IsAssignableFrom(parameters[3].ParameterType))
+				throw new ArgumentException(
+					$"{nameof(defaultFormatters)} must have a signature of [{nameof(String)} PropertyFormatter<T>({nameof(ITemplateTag)}, T, {nameof(String)}, {nameof(CultureInfo)})]");
 
 			this._defaultFormatters[parameters[1].ParameterType] = formatter;
 		}
@@ -118,15 +121,15 @@ public class PropertyTagCollection<TClass> : TagCollection
 	/// <param name="object">The property class from which the tag's value is read</param>
 	/// <param name="value"><paramref name="tagName"/>'s string value if it is in this collection, otherwise null</param>
 	/// <returns>True if the <paramref name="tagName"/> is in this collection, otherwise false</returns>
-	public bool TryGetValue(string tagName, TClass @object, [NotNullWhen(true)] out string? value)
+	public bool TryGetValue(string tagName, TClass @object, CultureInfo? culture, [NotNullWhen(true)] out string? value)
 	{
 		value = null;
 
 		if (!StartsWith($"<{tagName}>", out _, out _, out var valueExpression))
 			return false;
 
-		var func = Expression.Lambda<Func<TClass, string>>(valueExpression, Parameter).Compile();
-		value = func(@object);
+		var func = Expression.Lambda<Func<TClass, CultureInfo?, string>>(valueExpression, Parameter, CultureParameter).Compile();
+		value = func(@object, culture);
 		return true;
 	}
 
@@ -145,7 +148,8 @@ public class PropertyTagCollection<TClass> : TagCollection
 					formatter.Method,
 					Expression.Constant(templateTag),
 					expVal,
-					Expression.Constant(format));
+					Expression.Constant(format),
+					CultureParameter);
 		}
 
 		public PropertyTag(ITemplateTag templateTag, RegexOptions options, Expression propertyGetter, Func<TPropertyValue, string> toString)

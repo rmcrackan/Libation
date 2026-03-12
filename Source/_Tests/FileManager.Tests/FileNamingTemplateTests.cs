@@ -98,14 +98,14 @@ public class GetPortionFilename
 		{ new TemplateTag { TagName = "has3" }, HasValue }
 	};
 
-	private static bool HasValue(ITemplateTag templateTag, PropertyClass1 referenceType, string condition)
-		=> props1.TryGetValue(condition, referenceType, out var value) && !string.IsNullOrEmpty(value);
+	private static bool HasValue(ITemplateTag templateTag, PropertyClass1 referenceType, string condition, CultureInfo? culture)
+		=> props1.TryGetValue(condition, referenceType, culture, out var value) && !string.IsNullOrEmpty(value);
 
-	private static bool HasValue(ITemplateTag templateTag, PropertyClass2 referenceType, string condition)
-		=> props2.TryGetValue(condition, referenceType, out var value) && !string.IsNullOrEmpty(value);
+	private static bool HasValue(ITemplateTag templateTag, PropertyClass2 referenceType, string condition, CultureInfo? culture)
+		=> props2.TryGetValue(condition, referenceType, culture, out var value) && !string.IsNullOrEmpty(value);
 
-	private static bool HasValue(ITemplateTag templateTag, PropertyClass3 referenceType, string condition)
-		=> props3.TryGetValue(condition, referenceType, out var value) && !string.IsNullOrEmpty(value);
+	private static bool HasValue(ITemplateTag templateTag, PropertyClass3 referenceType, string condition, CultureInfo? culture)
+		=> props3.TryGetValue(condition, referenceType, culture, out var value) && !string.IsNullOrEmpty(value);
 
 	private readonly PropertyClass1 _propertyClass1 = new()
 	{
@@ -156,7 +156,7 @@ public class GetPortionFilename
 		template.Warnings.Should().HaveCount(numTags > 0 ? 0 : 1);
 		template.Errors.Should().HaveCount(0);
 
-		var templateText = string.Concat(template.Evaluate(_propertyClass3, _propertyClass2, _propertyClass1).Select(v => v.Value));
+		var templateText = string.Concat(template.Evaluate(null, _propertyClass3, _propertyClass2, _propertyClass1).Select(v => v.Value));
 
 		templateText.Should().Be(outStr);
 	}
@@ -186,7 +186,7 @@ public class GetPortionFilename
 		template.Warnings.Should().HaveCount(1);
 		template.Errors.Should().HaveCount(0);
 
-		var templateText = string.Concat(template.Evaluate(_propertyClass3, _propertyClass2, _propertyClass1).Select(v => v.Value));
+		var templateText = string.Concat(template.Evaluate(null, _propertyClass3, _propertyClass2, _propertyClass1).Select(v => v.Value));
 
 		templateText.Should().Be(outStr);
 	}
@@ -210,7 +210,7 @@ public class GetPortionFilename
 		template.Warnings.Should().HaveCount(2);
 		template.Errors.Should().HaveCount(0);
 
-		var templateText = string.Concat(template.Evaluate(_propertyClass3, _propertyClass2, _propertyClass1).Select(v => v.Value));
+		var templateText = string.Concat(template.Evaluate(null, _propertyClass3, _propertyClass2, _propertyClass1).Select(v => v.Value));
 
 		templateText.Should().Be(outStr);
 	}
@@ -234,7 +234,7 @@ public class GetPortionFilename
 		template.Warnings.Should().BeEquivalentTo(warnings);
 	}
 
-	static string GetVal(ITemplateTag templateTag, ReferenceType referenceType, string format)
+	static string GetVal(ITemplateTag templateTag, ReferenceType referenceType, string format, CultureInfo? culture)
 	{
 		return "";
 	}
@@ -267,20 +267,20 @@ public class GetPortionFilename
 		template.Warnings.Should().HaveCount(0);
 		template.Errors.Should().HaveCount(0);
 
-		var templateText = string.Concat(template.Evaluate(_propertyClass3, _propertyClass2, _propertyClass1).Select(v => v.Value));
+		var templateText = string.Concat(template.Evaluate(null, _propertyClass3, _propertyClass2, _propertyClass1).Select(v => v.Value));
 
 		templateText.Should().Be(outStr);
 
-		string FormatInt(ITemplateTag templateTag, int value, string format)
+		string FormatInt(ITemplateTag templateTag, int value, string format, CultureInfo? culture)
 		{
 			if (int.TryParse(format, out var numDecs))
-				return value.ToString($"D{numDecs}");
-			return value.ToString();
+				return value.ToString($"D{numDecs}", culture);
+			return value.ToString(culture);
 		}
 
-		string FormatString(ITemplateTag templateTag, string? value, string format)
+		string FormatString(ITemplateTag templateTag, string? value, string format, CultureInfo? culture)
 		{
-			return CommonFormatters.StringFormatter(templateTag, value, format);
+			return CommonFormatters.StringFormatter(templateTag, value, format, culture);
 		}
 	}
 }
