@@ -66,19 +66,30 @@ public class LibationFiles
 
 	/// <summary>
 	/// Set the location of the Libation Files directory, updating appsettings.json. 
+	/// Never persists a relative path; always writes an absolute path so resolution is consistent on all platforms.
 	/// </summary>
 	public void SetLibationFiles(LongPath libationFilesDirectory)
 	{
+		var pathToPersist = libationFilesDirectory.Path;
+		if (!string.IsNullOrWhiteSpace(pathToPersist) && !Path.IsPathRooted(pathToPersist))
+		{
+			var basePath = AppsettingsJsonFile is not null ? Path.GetDirectoryName(AppsettingsJsonFile) : null;
+			pathToPersist = Path.GetFullPath(pathToPersist, !string.IsNullOrEmpty(basePath) ? basePath : Configuration.ProcessDirectory);
+		}
+
 		if (AppsettingsJsonFile is null)
 		{
-			Environment.SetEnvironmentVariable(LIBATION_FILES_DIR, libationFilesDirectory);
+			Environment.SetEnvironmentVariable(LIBATION_FILES_DIR, pathToPersist);
+			Location = pathToPersist;
 			return;
 		}
+
+		Location = pathToPersist;
 
 		var startingContents = File.ReadAllText(AppsettingsJsonFile);
 		var jObj = JObject.Parse(startingContents);
 
-		jObj[LIBATION_FILES_KEY] = (string)(Location = libationFilesDirectory);
+		jObj[LIBATION_FILES_KEY] = pathToPersist;
 
 		var endingContents = JsonConvert.SerializeObject(jObj, Formatting.Indented);
 		if (startingContents == endingContents)
@@ -88,11 +99,11 @@ public class LibationFiles
 		{
 			// now it's set in the file again but no settings have moved yet
 			File.WriteAllText(AppsettingsJsonFile, endingContents);
-			Log.Logger.TryLogInformation("Libation files changed {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, libationFilesDirectory });
+			Log.Logger.TryLogInformation("Libation files changed {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, pathToPersist });
 		}
 		catch (Exception ex)
 		{
-			Log.Logger.TryLogError(ex, "Failed to change Libation files location {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, libationFilesDirectory });
+			Log.Logger.TryLogError(ex, "Failed to change Libation files location {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, pathToPersist });
 		}
 	}
 
