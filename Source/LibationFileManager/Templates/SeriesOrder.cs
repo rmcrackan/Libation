@@ -23,6 +23,7 @@ public class SeriesOrder : IFormattable
 		=> string.Concat(OrderParts.Select(p => p switch
 		{
 			float f => f.ToString(format, formatProvider ?? CultureInfo.InvariantCulture),
+			IFormattable f => f.ToString(format, formatProvider),
 			_ => p.ToString(),
 		})).Trim();
 

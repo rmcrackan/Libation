@@ -31,7 +31,7 @@ public class NamingTemplate
 	/// </summary>
 	/// <param name="culture"></param>
 	/// <param name="propertyClasses">Instances of the TClass used in <see cref="PropertyTagCollection{TClass}"/> and <see cref="ConditionalTagCollection{TClass}"/></param>
-	public TemplatePart Evaluate(params object?[] propertyClasses) //CultureInfo? culture,  
+	public TemplatePart Evaluate(params object?[] propertyClasses)
 	{
 		if (_templateToString is null)
 			throw new InvalidOperationException();
@@ -39,8 +39,7 @@ public class NamingTemplate
 		// Match propertyClasses to the arguments required by templateToString.DynamicInvoke(). 
 		// First parameter is "this", so ignore it.
 		var parameters = _templateToString.Method.GetParameters();
-		int skip = _templateToString.Target == null ? 0 : 1;
-		var delegateArgTypes = parameters.Skip(skip).ToList();
+		var delegateArgTypes = parameters.Skip(1).ToList();
 
 		object?[] args = new object?[delegateArgTypes.Count];
 		// args = delegateArgTypes.Join(propertyClasses, dat => dat.ParameterType, pc => pc?.GetType(), (_, i) => i,
@@ -48,14 +47,7 @@ public class NamingTemplate
 		for (int i = 0; i < delegateArgTypes.Count; i++)
 		{
 			var p = delegateArgTypes[i];
-			if (typeof(CultureInfo).IsAssignableFrom(p.ParameterType) && false)
-			{
-				args[i] = null;//culture;
-			}
-			else
-			{
-				args[i] = propertyClasses.FirstOrDefault(pc => pc != null && p.ParameterType.IsInstanceOfType(pc));
-			}
+			args[i] = propertyClasses.FirstOrDefault(pc => pc != null && p.ParameterType.IsInstanceOfType(pc));
 		}
 
 		if (args.Length != delegateArgTypes.Count)
