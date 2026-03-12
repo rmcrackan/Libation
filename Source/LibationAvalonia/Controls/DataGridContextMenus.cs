@@ -1,4 +1,4 @@
-﻿using Avalonia.Collections;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Input;
 using System;
@@ -105,7 +105,7 @@ public class DataGridCellContextMenu<TContext> where TContext : class
 	private static KeyEventArgs GetCopyEventArgs() => new()
 	{
 		Key = Key.C,
-		KeyModifiers = KeyModifiers.Control,
+		KeyModifiers = KeyGestureHelper.CommandModifier,
 		Route = Avalonia.Interactivity.RoutingStrategies.Bubble,
 		PhysicalKey = PhysicalKey.C,
 		KeySymbol = "c",

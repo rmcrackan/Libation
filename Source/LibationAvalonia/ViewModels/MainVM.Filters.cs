@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Data;
@@ -114,7 +114,7 @@ partial class MainVM
 			{
 				//Register hotkeys Command + 1 - 0 for quick filters
 				var key = index == 10 ? Key.D0 : Key.D0 + index;
-				nativeMenuItem.Gesture = new KeyGesture(key, KeyModifiers.Meta);
+				nativeMenuItem.Gesture = new KeyGesture(key, KeyGestureHelper.CommandModifier);
 			}
 			else if (!Configuration.IsMacOs && index <= 12)
 			{
