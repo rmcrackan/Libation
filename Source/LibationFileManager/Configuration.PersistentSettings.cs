@@ -346,8 +346,8 @@ public partial class Configuration
 	[Description("Use Libation's built-in web browser to log into Audible?")]
 	public bool UseWebView
 	{
-		get => Configuration.IsRunningUnderSnap ? false : GetNonString(defaultValue: true);
-		set { if (!Configuration.IsRunningUnderSnap) SetNonString(value); }
+		get => IsRunningUnderSnap ? false : GetNonString(defaultValue: true);
+		set { if (!IsRunningUnderSnap) SetNonString(value); }
 	}
 
 	[Description("Auto download books? After scan, download new books in 'checked' accounts.")]

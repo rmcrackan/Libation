@@ -22,7 +22,7 @@ internal class Walkthrough
 {
 	private readonly Dictionary<string, string> settingTabMessages = new()
 	{
-		{ "Important Settings", "From here you can change where liberated books are stored and how detailed Libation's logs are.\r\n\r\nIf you experience a problem and need help, you'll be asked to provide your log file. In certain circumstances we may need you to reproduce the error with a higher level of logging detail."},
+		{ "Important Settings", "From here you can change where liberated books are stored and how detailed Libation's logs are.\r\n\r\nIf you experience a problem and need help, you'll be asked to provide your log file. In certain circumstances we may need you to reproduce the error with a higher level of logging detail.\r\n\r\nFor best use with screen readers, uncheck \"Use Libation's built-in web browser to log into Audible?\"."},
 		{ "Import Library", "In this tab you can change how your library is scanned and imported into Libation, as well as automatic liberation."},
 		{ "Download/Decrypt", "These settings allow you to control how liberated files and folders are named and stored.\r\nYou can customize the 'Naming Templates' to use any number of the audiobook's properties to build a customized file and folder naming format. Learn more about the syntax from the wiki at\r\n\r\n" + LibationScaffolding.NamingTemplatesDocUrl},
 		{ "Audio File Settings", "Control how audio files are decrypted, including audio format and metadata handling.\r\n\r\nIf you choose to split your audiobook into multiple files by chapter marker, you may edit the chapter file 'Naming Template' to control how each chapter file is named."},
