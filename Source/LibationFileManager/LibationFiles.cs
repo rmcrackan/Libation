@@ -133,6 +133,7 @@ public class LibationFiles
 				try
 				{
 					File.WriteAllText(settingsFile, "{}");
+					EssentialFileValidator.ValidateCreatedAndReport(settingsFile);
 				}
 				catch (Exception createEx)
 				{
@@ -221,6 +222,7 @@ public class LibationFiles
 			{
 				Directory.CreateDirectory(dir);
 				File.WriteAllText(appsettingsFile, endingContents);
+				EssentialFileValidator.ValidateCreatedAndReport(appsettingsFile);
 				return appsettingsFile;
 			}
 			catch (Exception ex)

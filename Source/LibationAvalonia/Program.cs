@@ -6,6 +6,7 @@ using Avalonia.Threading;
 using FileManager;
 using LibationAvalonia.Dialogs;
 using LibationFileManager;
+using LibationUiBase.Forms;
 using ReactiveUI.Avalonia;
 using System;
 using System.Diagnostics;
@@ -39,6 +40,9 @@ static class Program
 			return;
 		}
 		AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+		// When essential file validation fails and the error cannot be written to the log, show the user
+		EssentialFileValidator.ShowUserWhenLogUnavailable = msg => Dispatcher.UIThread.Post(() => _ = MessageBoxBase.Show(null, msg, "Libation - Essential File Error", MessageBoxButtons.OK, MessageBoxIcon.Warning));
 
 		//***********************************************//
 		//                                               //

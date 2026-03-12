@@ -294,6 +294,10 @@ public static class LibationScaffolding
 		// begin logging session with a form feed
 		Log.Logger.Information("\r\n\f");
 
+		// Validate log file was created and is writable (OS may delay availability)
+		var logFilePath = Path.Combine(config.LibationFiles.Location, "Log.log");
+		EssentialFileValidator.ValidateCreatedAndReport(logFilePath);
+
 		static int fileCount(FileManager.LongPath? longPath)
 		{
 			if (longPath is null)
@@ -389,8 +393,8 @@ public static class LibationScaffolding
 		}
 		catch (Exception ex)
 		{
-            // different text to make it easier to identify in logs, vs the AggregateException case above
-            Log.Logger.Error(ex, "Version check failed. General exception");
+			// different text to make it easier to identify in logs, vs the AggregateException case above
+			Log.Logger.Error(ex, "Version check failed. General exception");
 		}
 		return (null, null, null, false, false);
 	}
