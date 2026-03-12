@@ -248,6 +248,17 @@ public class LibationFiles
 			libationFiles = runShellCommand("echo " + libationFiles) ?? libationFiles;
 		}
 
+		// Resolve relative paths to absolute using the appsettings.json directory as base,
+		// so that Location is consistent everywhere (e.g. avoids different resolution when
+		// loading Serilog config vs. checking SettingsAreValid). Fixes Linux crash when
+		// appsettings in process dir contains "./LibationFiles" (e.g. issue #1677).
+		if (!string.IsNullOrWhiteSpace(libationFiles) && !Path.IsPathRooted(libationFiles))
+		{
+			var appSettingsDir = Path.GetDirectoryName(appsettingsPath.Path);
+			var basePath = !string.IsNullOrEmpty(appSettingsDir) ? appSettingsDir : Configuration.ProcessDirectory;
+			libationFiles = Path.GetFullPath(libationFiles, basePath);
+		}
+
 		return libationFiles;
 
 		static string? runShellCommand(string command)
