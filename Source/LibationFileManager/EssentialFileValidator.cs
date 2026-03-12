@@ -67,6 +67,7 @@ public static class EssentialFileValidator
 					// ensure we can open for read and write
 				}
 
+				Log.Logger.Debug("Essential file validated: {DisplayName} at \"{Path}\"", displayName, path);
 				return (true, null);
 			}
 			catch (Exception ex)
@@ -108,8 +109,8 @@ public static class EssentialFileValidator
 		var fullMessage = $"Critical error! Essential file validation failed: {errorMessage}";
 		try
 		{
-			// Maybe change log level to Fatal later to stand out more
-			Log.Logger.Error(fullMessage);
+			Log.Logger.Error("Critical error! Essential file validation failed: {ErrorMessage}. Call stack: {StackTrace}",
+				errorMessage, Environment.StackTrace);
 		}
 		catch
 		{

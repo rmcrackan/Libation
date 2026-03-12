@@ -282,67 +282,64 @@ public static class LibationScaffolding
 	}
 
 	private static void logStartupState(Configuration config)
-	{
+    {
 #if DEBUG
-		var mode = "Debug";
+        var mode = "Debug";
 #else
 		var mode = "Release";
 #endif
-		if (System.Diagnostics.Debugger.IsAttached)
-			mode += " (Debugger attached)";
+        if (Debugger.IsAttached)
+            mode += " (Debugger attached)";
 
-		// begin logging session with a form feed
-		Log.Logger.Information("\r\n\f");
+        // begin logging session with a form feed
+        Log.Logger.Information("\r\n\f");
 
-		// Validate log file was created and is writable (OS may delay availability)
-		var logFilePath = Path.Combine(config.LibationFiles.Location, "Log.log");
-		EssentialFileValidator.ValidateCreatedAndReport(logFilePath);
+        static int fileCount(FileManager.LongPath? longPath)
+        {
+            if (longPath is null)
+                return -1;
+            try { return FileManager.FileUtility.SaferEnumerateFiles(longPath).Count(); }
+            catch { return -1; }
+        }
 
-		static int fileCount(FileManager.LongPath? longPath)
-		{
-			if (longPath is null)
-				return -1;
-			try { return FileManager.FileUtility.SaferEnumerateFiles(longPath).Count(); }
-			catch { return -1; }
-		}
+        Log.Logger.Information("Begin. {@DebugInfo}", new
+        {
+            AppName = EntryAssembly?.GetName().Name,
+            Version = BuildVersion?.ToString(),
+            ReleaseIdentifier,
+            Configuration.OS,
+            Environment.OSVersion,
+            InteropFactory.InteropFunctionsType,
+            Mode = mode,
+            LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
+            LogLevel_Debug_Enabled = Log.Logger.IsDebugEnabled(),
+            LogLevel_Information_Enabled = Log.Logger.IsInformationEnabled(),
+            LogLevel_Warning_Enabled = Log.Logger.IsWarningEnabled(),
+            LogLevel_Error_Enabled = Log.Logger.IsErrorEnabled(),
+            LogLevel_Fatal_Enabled = Log.Logger.IsFatalEnabled(),
 
-		Log.Logger.Information("Begin. {@DebugInfo}", new
-		{
-			AppName = EntryAssembly?.GetName().Name,
-			Version = BuildVersion?.ToString(),
-			ReleaseIdentifier,
-			Configuration.OS,
-			Environment.OSVersion,
-			InteropFactory.InteropFunctionsType,
-			Mode = mode,
-			LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
-			LogLevel_Debug_Enabled = Log.Logger.IsDebugEnabled(),
-			LogLevel_Information_Enabled = Log.Logger.IsInformationEnabled(),
-			LogLevel_Warning_Enabled = Log.Logger.IsWarningEnabled(),
-			LogLevel_Error_Enabled = Log.Logger.IsErrorEnabled(),
-			LogLevel_Fatal_Enabled = Log.Logger.IsFatalEnabled(),
+            config.AutoScan,
+            config.BetaOptIn,
+            config.UseCoverAsFolderIcon,
+            config.LibationFiles,
+            AudibleFileStorage.BooksDirectory,
 
-			config.AutoScan,
-			config.BetaOptIn,
-			config.UseCoverAsFolderIcon,
-			config.LibationFiles,
-			AudibleFileStorage.BooksDirectory,
+            config.InProgress,
 
-			config.InProgress,
+            AudibleFileStorage.DownloadsInProgressDirectory,
+            DownloadsInProgressFiles = fileCount(AudibleFileStorage.DownloadsInProgressDirectory),
 
-			AudibleFileStorage.DownloadsInProgressDirectory,
-			DownloadsInProgressFiles = fileCount(AudibleFileStorage.DownloadsInProgressDirectory),
+            AudibleFileStorage.DecryptInProgressDirectory,
+            DecryptInProgressFiles = fileCount(AudibleFileStorage.DecryptInProgressDirectory),
 
-			AudibleFileStorage.DecryptInProgressDirectory,
-			DecryptInProgressFiles = fileCount(AudibleFileStorage.DecryptInProgressDirectory),
+            disableIPv6 = AppContext.TryGetSwitch("System.Net.DisableIPv6", out bool disableIPv6Value),
+        });
 
-			disableIPv6 = AppContext.TryGetSwitch("System.Net.DisableIPv6", out bool disableIPv6Value),
-		});
+        if (InteropFactory.InteropFunctionsType is null)
+            Serilog.Log.Logger.Warning("WARNING: OSInteropProxy.InteropFunctionsType is null");
+    }
 
-		if (InteropFactory.InteropFunctionsType is null)
-			Serilog.Log.Logger.Warning("WARNING: OSInteropProxy.InteropFunctionsType is null");
-	}
-	private static void wireUpSystemEvents(Configuration configuration)
+    private static void wireUpSystemEvents(Configuration configuration)
 	{
 		LibraryCommands.LibrarySizeChanged += (object? _, List<DataLayer.LibraryBook> libraryBooks)
 			=> SearchEngineCommands.FullReIndex(libraryBooks);
