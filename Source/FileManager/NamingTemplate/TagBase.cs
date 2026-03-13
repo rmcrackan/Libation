@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -42,8 +43,8 @@ internal abstract class TagBase : IPropertyTag
 
 	/// <summary>Create an <see cref="Expression"/> that returns the property's value.</summary>
 	/// <param name="exactName">The exact string that was matched to <see cref="ITemplateTag"/></param>
-	/// <param name="extraData">Optional extra data parsed from the tag, such as a format string in the match the square brackets, logical negation, and conditional options</param>
-	protected abstract Expression GetTagExpression(string exactName, string[] extraData);
+	/// <param name="matchData">Optional extra data parsed from the tag, such as a format string in the match the square brackets, logical negation, and conditional options</param>
+	protected abstract Expression GetTagExpression(string exactName, Dictionary<string, Group> matchData);
 
 	public bool StartsWith(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out Expression? propertyValue)
 	{
@@ -51,7 +52,7 @@ internal abstract class TagBase : IPropertyTag
 		if (match.Success)
 		{
 			exactName = match.Value;
-			propertyValue = GetTagExpression(exactName, match.Groups.Values.Skip(1).Select(v => v.Value.Trim()).ToArray());
+			propertyValue = GetTagExpression(exactName, match.Groups.Values.Skip(1).ToDictionary(v => v.Name, v => v));
 			return true;
 		}
 

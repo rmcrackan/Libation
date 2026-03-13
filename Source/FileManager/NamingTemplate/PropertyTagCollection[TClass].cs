@@ -175,12 +175,9 @@ public class PropertyTagCollection<TClass> : TagCollection
 						expVal);
 		}
 
-		protected override Expression GetTagExpression(string exactName, string[] extraData)
+		protected override Expression GetTagExpression(string exactName, Dictionary<string, Group> matchData)
 		{
-			if (extraData.Length is not (0 or 1))
-				return Expression.Constant(exactName);
-
-			string formatString = extraData.Length == 1 ? extraData[0] : "";
+			var formatString = matchData.GetValueOrDefault("format")?.Value ?? "";
 
 			Expression toStringExpression
 				= !ReturnType.IsValueType

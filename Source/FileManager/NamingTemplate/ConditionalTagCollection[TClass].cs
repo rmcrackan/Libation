@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq.Expressions;
@@ -106,13 +107,10 @@ public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCo
 			return false;
 		}
 
-		protected override Expression GetTagExpression(string exactName, string[] extraData)
+		protected override Expression GetTagExpression(string exactName, Dictionary<string, Group> matchData)
 		{
-			if (extraData.Length is not (1 or 2) || extraData[0] is not ("!" or "") || extraData.Length == 2 && string.IsNullOrWhiteSpace(extraData[1]))
-				return Expression.Constant(false);
-
-			var getBool = extraData.Length == 2 ? CreateConditionExpression(extraData[1]) : CreateConditionExpression(null);
-			return extraData[0] == "!" ? Expression.Not(getBool) : getBool;
+			var getBool = CreateConditionExpression(matchData.GetValueOrDefault("property")?.Value);
+			return matchData["not"].Success ? Expression.Not(getBool) : getBool;
 		}
 	}
 }
