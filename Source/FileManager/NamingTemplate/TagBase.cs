@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace FileManager.NamingTemplate;
@@ -64,6 +65,31 @@ internal abstract class TagBase : IPropertyTag
 	protected string TagNameForRegex()
 	{
 		return TemplateTag.TagName.Replace(" ", @"\s*").Replace("#", @"\#");
+	}
+
+	protected static string? Unescape(Group? group)
+	{
+		return group?.Success ?? false ? Unescape(group.ValueSpan) : null;
+	}
+
+	protected static string Unescape(ReadOnlySpan<char> valueSpan)
+	{
+		if (valueSpan.IsEmpty) return "";
+
+		var first = valueSpan.IndexOf('\\');
+		if (first < 0)
+			return valueSpan.ToString();
+
+		var sb = new StringBuilder(valueSpan.Length);
+		sb.Append(valueSpan[..first]);
+		for (var i = first; i < valueSpan.Length; i++)
+		{
+			if (valueSpan[i] == '\\' && i + 1 < valueSpan.Length)
+				i++; // skip backslash and take the next char
+			sb.Append(valueSpan[i]);
+		}
+
+		return sb.ToString();
 	}
 
 	public override string ToString()

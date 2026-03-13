@@ -146,14 +146,16 @@ public class PropertyTagCollection<TClass> : TagCollection
 			                         ^<                       # tags start with a '<'
 			                         {TagNameForRegex()}      # next the tagname needs to be matched with space being made optional. Also escape all '#'
 			                         (?:\s*                   # optional whitespace
-			                             \[                   # optional format details enclosed in '[' and ']'.
+			                             \[\s*                # optional format details enclosed in '[' and ']'. Format shall be trimmed. So match whitespace first
 			                                 (?<format>       # - capture inner part as <format>
-			                                     [^\]]*?      # - match any character except ']'
-			                                 )                #
+			                                     (?:\\.       # - '\' escapes allways the next character. Especially further '\' and the closing ']'
+			                                     |[^\\\]])*?  # - match any character except '\' and ']' non greedy so the match won't end whith whitespace
+			                                 )\s*             # - the whitespace after the format is optional
 			                             \]                   # - closing the format part
 			                         )?\s*>                   # Tags end with '>'
 			                         """
-				, options | RegexOptions.Compiled);
+				, options);
+
 			CreateToStringExpression = (expVal, format) =>
 				Expression.Call(
 					formatter.Target is null ? null : Expression.Constant(formatter.Target),
@@ -167,7 +169,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 		public PropertyTag(ITemplateTag templateTag, RegexOptions options, Expression propertyGetter, Func<TPropertyValue, string> toString)
 			: base(templateTag, propertyGetter)
 		{
-			NameMatcher = new Regex(@$"^<{TagNameForRegex()}>", options | RegexOptions.Compiled);
+			NameMatcher = new Regex(@$"^<{TagNameForRegex()}>", options);
 			CreateToStringExpression = (expVal, _) =>
 					Expression.Call(
 						toString.Target is null ? null : Expression.Constant(toString.Target),
@@ -177,7 +179,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 
 		protected override Expression GetTagExpression(string exactName, Dictionary<string, Group> matchData)
 		{
-			var formatString = matchData.GetValueOrDefault("format")?.Value ?? "";
+			var formatString = Unescape(matchData.GetValueOrDefault("format")) ?? "";
 
 			Expression toStringExpression
 				= !ReturnType.IsValueType

@@ -331,7 +331,7 @@ public abstract class Templates
 
 	private static readonly ConditionalTagCollection<CombinedDto> combinedConditionalTags = new()
 	{
-		{ TemplateTags.Has, HasValue}
+		{ TemplateTags.Has, TryGetValue, HasValue }
 	};
 
 	private static readonly ConditionalTagCollection<LibraryBookDto> folderConditionalTags = new()
@@ -342,26 +342,29 @@ public abstract class Templates
 	private static readonly List<TagCollection> allPropertyTags =
 		chapterPropertyTags.Append(filePropertyTags).Append(audioFilePropertyTags).ToList();
 
-	private static bool HasValue(ITemplateTag _, CombinedDto dtos, string property, CultureInfo? culture)
+	private static string? TryGetValue(ITemplateTag _, CombinedDto dtos, string property, CultureInfo? culture)
 	{
-		Func<string?, CultureInfo?, bool> check = (s, _) => !string.IsNullOrWhiteSpace(s);
-
 		foreach (var c in allPropertyTags.OfType<PropertyTagCollection<LibraryBookDto>>())
 		{
 			if (c.TryGetValue(property, dtos.LibraryBook, culture, out var value))
-				return check(value, culture ?? CultureInfo.CurrentCulture);
+				return value;
 		}
 
 		if (dtos.MultiConvert is null)
-			return false;
+			return null;
 
 		foreach (var c in allPropertyTags.OfType<PropertyTagCollection<MultiConvertFileProperties>>())
 		{
 			if (c.TryGetValue(property, dtos.MultiConvert, culture, out var value))
-				return check(value, culture ?? CultureInfo.CurrentCulture);
+				return value;
 		}
 
-		return false;
+		return null;
+	}
+
+	private static bool HasValue(string? value, CultureInfo? culture)
+	{
+		return !string.IsNullOrWhiteSpace(value);
 	}
 
 	#endregion

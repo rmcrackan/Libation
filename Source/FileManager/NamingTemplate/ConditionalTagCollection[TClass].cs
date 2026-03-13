@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -24,7 +23,9 @@ internal interface IClosingPropertyTag : IPropertyTag
 	bool StartsWithClosing(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? propertyTag);
 }
 
-public delegate bool Conditional<T>(ITemplateTag templateTag, T value, string condition, CultureInfo? culture);
+public delegate string? ValueProvider<in T>(ITemplateTag templateTag, T value, string condition, CultureInfo? culture);
+
+public delegate bool ConditionEvaluator(string? value, CultureInfo? culture);
 
 public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCollection(typeof(TClass), caseSensitive)
 {
@@ -44,10 +45,11 @@ public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCo
 	/// Register a conditional tag.
 	/// </summary>
 	/// <param name="templateTag"></param>
-	/// <param name="conditional">A <see cref="Conditional{TClass}"/> to get the condition's <see cref="bool"/> value</param>
-	public void Add(ITemplateTag templateTag, Conditional<TClass> conditional)
+	/// <param name="valueProvider">A <see cref="ValueProvider{T}"/> to get the condition's <see cref="bool"/> value</param>
+	/// <param name="conditionEvaluator"></param>
+	public void Add(ITemplateTag templateTag, ValueProvider<TClass> valueProvider, ConditionEvaluator conditionEvaluator)
 	{
-		AddPropertyTag(new ConditionalTag(templateTag, Options, Parameter, conditional));
+		AddPropertyTag(new ConditionalTag(templateTag, Options, Parameter, valueProvider, conditionEvaluator));
 	}
 
 	private class ConditionalTag : TagBase, IClosingPropertyTag
@@ -61,12 +63,12 @@ public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCo
 			: base(templateTag, conditionExpression)
 		{
 			var tagNameRe = TagNameForRegex();
-			NameMatcher = new Regex($"^<(?<not>!)?{tagNameRe}->", options | RegexOptions.Compiled);
-			NameCloseMatcher = new Regex($"^<-{tagNameRe}>", options | RegexOptions.Compiled);
+			NameMatcher = new Regex($"^<(?<not>!)?{tagNameRe}->", options);
+			NameCloseMatcher = new Regex($"^<-{tagNameRe}>", options);
 			CreateConditionExpression = _ => conditionExpression;
 		}
 
-		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, ParameterExpression parameter, Conditional<TClass> conditional)
+		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, ParameterExpression parameter, ValueProvider<TClass> valueProvider, ConditionEvaluator conditionEvaluator)
 			: base(templateTag, Expression.Constant(false))
 		{
 			// <property> needs to match on at least one character which is not a space
@@ -79,17 +81,32 @@ public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCo
 			                         )?                       # end of optional property and check part
 			                         \s*->                    # Opening tags end with '->' and closing tags begin with '<-', so both sides visually point toward each other
 			                         """
-				, options | RegexOptions.Compiled);
-			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options | RegexOptions.Compiled);
+				, options);
+			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options);
 
-			CreateConditionExpression = condition
-				=> Expression.Call(
-					conditional.Target is null ? null : Expression.Constant(conditional.Target),
-					conditional.Method,
-					Expression.Constant(templateTag),
-					parameter,
-					Expression.Constant(condition),
-					CultureParameter);
+			CreateConditionExpression = property
+				=> ConditionEvaluatorCall(templateTag, parameter, valueProvider, property, conditionEvaluator);
+		}
+
+		private static MethodCallExpression ConditionEvaluatorCall(ITemplateTag templateTag, ParameterExpression parameter, ValueProvider<TClass> valueProvider, string? property,
+			ConditionEvaluator conditionEvaluator)
+		{
+			return Expression.Call(
+				conditionEvaluator.Target is null ? null : Expression.Constant(conditionEvaluator.Target),
+				conditionEvaluator.Method,
+				ValueProviderCall(templateTag, parameter, valueProvider, property),
+				CultureParameter);
+		}
+
+		private static MethodCallExpression ValueProviderCall(ITemplateTag templateTag, ParameterExpression parameter, ValueProvider<TClass> valueProvider, string? property)
+		{
+			return Expression.Call(
+				valueProvider.Target is null ? null : Expression.Constant(valueProvider.Target),
+				valueProvider.Method,
+				Expression.Constant(templateTag),
+				parameter,
+				Expression.Constant(property),
+				CultureParameter);
 		}
 
 		public bool StartsWithClosing(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? propertyTag)

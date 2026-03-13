@@ -83,29 +83,31 @@ public class GetPortionFilename
 	private readonly ConditionalTagCollection<PropertyClass1> _conditional1 = new()
 	{
 		{ new TemplateTag { TagName = "ifc1" }, i => i.Condition },
-		{ new TemplateTag { TagName = "has1" }, HasValue }
+		{ new TemplateTag { TagName = "has1" }, TryGetValue, HasValue }
 	};
 
 	private readonly ConditionalTagCollection<PropertyClass2> _conditional2 = new()
 	{
 		{ new TemplateTag { TagName = "ifc2" }, i => i.Condition },
-		{ new TemplateTag { TagName = "has2" }, HasValue }
+		{ new TemplateTag { TagName = "has2" }, TryGetValue, HasValue }
 	};
 
 	private readonly ConditionalTagCollection<PropertyClass3> _conditional3 = new()
 	{
 		{ new TemplateTag { TagName = "ifc3" }, i => i.Condition },
-		{ new TemplateTag { TagName = "has3" }, HasValue }
+		{ new TemplateTag { TagName = "has3" }, TryGetValue, HasValue }
 	};
 
-	private static bool HasValue(ITemplateTag templateTag, PropertyClass1 referenceType, string condition, CultureInfo? culture)
-		=> props1.TryGetValue(condition, referenceType, culture, out var value) && !string.IsNullOrEmpty(value);
+	private static string? TryGetValue(ITemplateTag templateTag, PropertyClass1 referenceType, string condition, CultureInfo? culture)
+		=> props1.TryGetValue(condition, referenceType, culture, out var value) ? value : null;
 
-	private static bool HasValue(ITemplateTag templateTag, PropertyClass2 referenceType, string condition, CultureInfo? culture)
-		=> props2.TryGetValue(condition, referenceType, culture, out var value) && !string.IsNullOrEmpty(value);
+	private static string? TryGetValue(ITemplateTag templateTag, PropertyClass2 referenceType, string condition, CultureInfo? culture)
+		=> props2.TryGetValue(condition, referenceType, culture, out var value) ? value : null;
 
-	private static bool HasValue(ITemplateTag templateTag, PropertyClass3 referenceType, string condition, CultureInfo? culture)
-		=> props3.TryGetValue(condition, referenceType, culture, out var value) && !string.IsNullOrEmpty(value);
+	private static string? TryGetValue(ITemplateTag templateTag, PropertyClass3 referenceType, string condition, CultureInfo? culture)
+		=> props3.TryGetValue(condition, referenceType, culture, out var value) ? value : null;
+
+	private static bool HasValue(string? value, CultureInfo? culture) => !string.IsNullOrWhiteSpace(value);
 
 	private readonly PropertyClass1 _propertyClass1 = new()
 	{
