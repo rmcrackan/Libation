@@ -44,9 +44,9 @@ namespace TemplatesTests
 				AudibleProductId = "asin",
 				Title = "A Study in Scarlet: A Sherlock Holmes Novel",
 				Locale = "us",
-				YearPublished = 2017,
+				YearPublished = null, // explicitly null
 				Authors = [new("Arthur Conan Doyle", "B000AQ43GQ"), new("Stephen Fry - introductions", "B000APAGVS")],
-				Narrators = [new("Stephen Fry", "B000APAGVS"), new("Some Narrator", "B000000000")],
+				Narrators = [], // explicitly empty list
 				Series = series,
 				BitRate = 128,
 				SampleRate = 44100,
@@ -55,8 +55,8 @@ namespace TemplatesTests
 				Subtitle = "An Audible Original Drama",
 				TitleWithSubtitle = "A Study in Scarlet: An Audible Original Drama",
 				Codec = "AAC-LC",
-				FileVersion = "1.0",
-				LibationVersion = "1.0.0",
+				FileVersion = null, // explicitly null
+				LibationVersion = "", // explicitly empty string
 			};
 	}
 
@@ -103,8 +103,8 @@ namespace TemplatesTests
 		[DataRow("f", @"C:\foo\bar", ".ext", @"C:\foo\bar\f.ext")]
 		[DataRow("<id>", @"C:\foo\bar", ".ext", @"C:\foo\bar\asin.ext")]
 		[DataRow("<bitrate> - <samplerate> - <channels>", @"C:\foo\bar", ".ext", @"C:\foo\bar\128 - 44100 - 2.ext")]
-		[DataRow("<year> - <channels>", @"C:\foo\bar", ".ext", @"C:\foo\bar\2017 - 2.ext")]
-		[DataRow("(000.0) <year> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\(000.0) 2017 - 2.ext")]
+		[DataRow("<year> - <channels>", @"C:\foo\bar", ".ext", @"C:\foo\bar\- 2.ext")]
+		[DataRow("(000.0) <year> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\(000.0)  - 2.ext")]
 		public void Tests(string template, string dirFullPath, string extension, string expected)
 		{
 			if (Environment.OSVersion.Platform is not PlatformID.Win32NT)
@@ -171,6 +171,21 @@ namespace TemplatesTests
 		{
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate.GetFilename(GetLibraryBook(), "", "", culture: null, replacements: Replacements).PathWithoutPrefix.Should().Be(expected);
+		}
+
+		[TestMethod]
+		[DataRow("<narrator>", "")]
+		[DataRow("<narrator[format({L})]>", "")]
+		[DataRow("<first narrator>", "")]
+		[DataRow("<file version>", "")]
+		[DataRow("<libation version>", "")]
+		[DataRow("<year>", "")]
+		public void EmptyFields(string template, string expected)
+		{
+			var bookDto = GetLibraryBook();
+
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate.GetFilename(bookDto, "", "", Replacements).PathWithoutPrefix.Should().Be(expected);
 		}
 
 		[TestMethod]
@@ -383,7 +398,12 @@ namespace TemplatesTests
 		}
 
 		[TestMethod]
+		[DataRow("<has libation version->empty-string<-has>", "")]
+		[DataRow("<has file version->null-string<-has>", "")]
+		[DataRow("<has year->null-int<-has>", "")]
 		[DataRow("<has FAKE->unknown-tag<-has>", "")]
+		[DataRow("<has narrator->empty-list<-has>", "")]
+		[DataRow("<has first narrator->no-first<-has>", "")]
 		public void HasValue_on_empty_test(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
@@ -410,8 +430,6 @@ namespace TemplatesTests
 		[DataRow("<has audible subtitle->true<-has>", "true")]
 		[DataRow("<has author->true<-has>", "true")]
 		[DataRow("<has first author->true<-has>", "true")]
-		[DataRow("<has narrator->true<-has>", "true")]
-		[DataRow("<has first narrator->true<-has>", "true")]
 		[DataRow("<has series->true<-has>", "true")]
 		[DataRow("<has first series->true<-has>", "true")]
 		[DataRow("<has series#->true<-has>", "true")]
@@ -419,12 +437,9 @@ namespace TemplatesTests
 		[DataRow("<has samplerate->true<-has>", "true")]
 		[DataRow("<has channels->true<-has>", "true")]
 		[DataRow("<has codec->true<-has>", "true")]
-		[DataRow("<has file version->true<-has>", "true")]
-		[DataRow("<has libation version->true<-has>", "true")]
 		[DataRow("<has account->true<-has>", "true")]
 		[DataRow("<has account nickname->true<-has>", "true")]
 		[DataRow("<has locale->true<-has>", "true")]
-		[DataRow("<has year->true<-has>", "true")]
 		[DataRow("<has language->true<-has>", "true")]
 		[DataRow("<has language short->true<-has>", "true")]
 		[DataRow("<has file date->true<-has>", "true")]
