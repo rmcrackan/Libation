@@ -26,10 +26,15 @@ internal partial class NameListFormat : IListFormat<NameListFormat>
 			if (!formatReplacements.TryGetValue(m.Groups["token"].Value, out var selector))
 				continue;
 
-			ordered = ordered is null
-				// ReSharper disable once PossibleMultipleEnumeration
-				? entries.OrderBy(selector)
-				: ordered.ThenBy(selector);
+			ordered = m.Groups["descending"].Success
+				? ordered is null
+					// ReSharper disable once PossibleMultipleEnumeration
+					? entries.OrderByDescending(selector)
+					: ordered.ThenByDescending(selector)
+				: ordered is null
+					// ReSharper disable once PossibleMultipleEnumeration
+					? entries.OrderBy(selector)
+					: ordered.ThenBy(selector);
 		}
 
 		return ordered ?? entries;
@@ -41,7 +46,7 @@ internal partial class NameListFormat : IListFormat<NameListFormat>
 	[GeneratedRegex($@"[Ss]ort\(\s*(?i:(?<pattern>(?:{Token}\s*?)+))\s*\)")]
 	private static partial Regex SortRegex();
 
-	[GeneratedRegex($@"\G(?<token>{Token})\s*", RegexOptions.IgnoreCase)]
+	[GeneratedRegex($@"\G(?<token>{Token})(?<descending>(?-i:(?<=\G\P{{Lu}}+)))?\s*", RegexOptions.IgnoreCase)]
 	private static partial Regex SortTokenizer();
 
 	/// <summary> Format must have at least one of the string {T}, {F}, {M}, {L}, {S}, or {ID} </summary>

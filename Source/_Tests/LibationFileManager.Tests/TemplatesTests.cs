@@ -332,25 +332,26 @@ namespace TemplatesTests
 		}
 
 		[TestMethod]
-		[DataRow("<author>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
-		[DataRow("<author[]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
-		[DataRow("<author[sort(F)]>", "Charles E. Gannon, Christopher John Fetherolf, Jill Conner Browne, Jon Bon Jovi, Lucy Maud Montgomery, Paul Van Doren")]
-		[DataRow("<author[sort(M)]>", "Jon Bon Jovi, Paul Van Doren, Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery")]
-		[DataRow("<author[sort(L)]>", "Jon Bon Jovi, Jill Conner Browne, Christopher John Fetherolf, Charles E. Gannon, Lucy Maud Montgomery, Paul Van Doren")]
-		[DataRow("<author[sort(f)]>", "Charles E. Gannon, Christopher John Fetherolf, Jill Conner Browne, Jon Bon Jovi, Lucy Maud Montgomery, Paul Van Doren")]
-		[DataRow("<author[sort(m)]>", "Jon Bon Jovi, Paul Van Doren, Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery")]
-		[DataRow("<author[sort(l)]>", "Jon Bon Jovi, Jill Conner Browne, Christopher John Fetherolf, Charles E. Gannon, Lucy Maud Montgomery, Paul Van Doren")]
+		[DataRow("<author>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren, Emma Gannon")]
+		[DataRow("<author[]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren, Emma Gannon")]
+		[DataRow("<author[sort(F)]>", "Charles E. Gannon, Christopher John Fetherolf, Emma Gannon, Jill Conner Browne, Jon Bon Jovi, Lucy Maud Montgomery, Paul Van Doren")]
+		[DataRow("<author[sort(M)]>", "Jon Bon Jovi, Paul Van Doren, Emma Gannon, Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery")]
+		[DataRow("<author[sort(L)]>", "Jon Bon Jovi, Jill Conner Browne, Christopher John Fetherolf, Charles E. Gannon, Emma Gannon, Lucy Maud Montgomery, Paul Van Doren")]
+		[DataRow("<author[sort(f)]>", "Paul Van Doren, Lucy Maud Montgomery, Jon Bon Jovi, Jill Conner Browne, Emma Gannon, Christopher John Fetherolf, Charles E. Gannon")]
+		[DataRow("<author[sort(m)]>", "Lucy Maud Montgomery, Christopher John Fetherolf, Charles E. Gannon, Jill Conner Browne, Jon Bon Jovi, Paul Van Doren, Emma Gannon")]
+		[DataRow("<author[sort(l)]>", "Paul Van Doren, Lucy Maud Montgomery, Charles E. Gannon, Emma Gannon, Christopher John Fetherolf, Jill Conner Browne, Jon Bon Jovi")]
 		[DataRow("<author  [  max(  1  )  ]>", "Jill Conner Browne")]
 		[DataRow("<author[max(2)]>", "Jill Conner Browne, Charles E. Gannon")]
 		[DataRow("<author[max(3)]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf")]
-		[DataRow("<author[format({L}, {F})]>", "Browne, Jill, Gannon, Charles, Fetherolf, Christopher, Montgomery, Lucy, Bon Jovi, Jon, Van Doren, Paul")]
-		[DataRow("<author[format({L}, {F} {ID})]>", "Browne, Jill B1, Gannon, Charles B2, Fetherolf, Christopher B3, Montgomery, Lucy B4, Bon Jovi, Jon B5, Van Doren, Paul B6")]
-		[DataRow("<author[format({ID})]>", "B1, B2, B3, B4, B5, B6")]
-		[DataRow("<author[format({Id})]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
-		[DataRow("<author[format({iD})]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
-		[DataRow("<author[format({id})]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
-		[DataRow("<author[format({f}, {l})]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
-		[DataRow("<author[format(First={F}, Last={L})]>", "First=Jill, Last=Browne, First=Charles, Last=Gannon, First=Christopher, Last=Fetherolf, First=Lucy, Last=Montgomery, First=Jon, Last=Bon Jovi, First=Paul, Last=Van Doren")]
+		[DataRow("<author[format({L}, {F})]>", "Browne, Jill, Gannon, Charles, Fetherolf, Christopher, Montgomery, Lucy, Bon Jovi, Jon, Van Doren, Paul, Gannon, Emma")]
+		[DataRow("<author[format({L}, {F} {ID})]>", "Browne, Jill B1, Gannon, Charles B2, Fetherolf, Christopher B3, Montgomery, Lucy B4, Bon Jovi, Jon B5, Van Doren, Paul B6, Gannon, Emma B7")]
+		[DataRow("<author[format({ID})]>", "B1, B2, B3, B4, B5, B6, B7")]
+		[DataRow("<author[format({Id})]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren, Emma Gannon")]
+		[DataRow("<author[format({iD})]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren, Emma Gannon")]
+		[DataRow("<author[format({id})]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren, Emma Gannon")]
+		[DataRow("<author[format({f}, {l})]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren, Emma Gannon")]
+		[DataRow("<author[format(First={F}, Last={L})]>",
+			"First=Jill, Last=Browne, First=Charles, Last=Gannon, First=Christopher, Last=Fetherolf, First=Lucy, Last=Montgomery, First=Jon, Last=Bon Jovi, First=Paul, Last=Van Doren, First=Emma, Last=Gannon")]
 		[DataRow("<author[format({L}, {F}) separator( - ) max(3)]>", "Browne, Jill - Gannon, Charles - Fetherolf, Christopher")]
 		[DataRow("<author[sort(F) max(2) separator(; ) format({F})]>", "Charles; Christopher")]
 		[DataRow("<author[sort(L) max(2) separator(; ) format({L})]>", "Bon Jovi; Browne")]
@@ -370,7 +371,8 @@ namespace TemplatesTests
 				new("Christopher John Fetherolf", "B3"),
 				new("Lucy Maud Montgomery", "B4"),
 				new("Jon Bon Jovi", "B5"),
-				new("Paul Van Doren", "B6")
+				new("Paul Van Doren", "B6"),
+				new("Emma Gannon", "B7"),
 			];
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
