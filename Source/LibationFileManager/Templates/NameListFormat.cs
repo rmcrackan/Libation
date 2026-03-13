@@ -16,11 +16,11 @@ internal partial class NameListFormat : IListFormat<NameListFormat>
 
 	private static IEnumerable<T> Sort<T>(IEnumerable<T> entries, string formatString, Dictionary<string, Func<T, object?>> formatReplacements)
 	{
-		var sortMatch = SortRegex().Match(formatString);
-		if (!sortMatch.Success) return entries;
+		var pattern = SortRegex().Match(formatString).ResolveValue("pattern");
+		if (pattern is null) return entries;
 
 		IOrderedEnumerable<T>? ordered = null;
-		foreach (Match m in SortTokenizer().Matches(sortMatch.Groups["pattern"].Value))
+		foreach (Match m in SortTokenizer().Matches(pattern!))
 		{
 			// Dictionary is case-insensitive, no ToUpper needed
 			if (!formatReplacements.TryGetValue(m.Groups["token"].Value, out var selector))
@@ -50,6 +50,6 @@ internal partial class NameListFormat : IListFormat<NameListFormat>
 	private static partial Regex SortTokenizer();
 
 	/// <summary> Format must have at least one of the string {T}, {F}, {M}, {L}, {S}, or {ID} </summary>
-	[GeneratedRegex($@"[Ff]ormat\((.*?\{{{Token}(?::.*?)?\}}.*?)\)")]
+	[GeneratedRegex($@"[Ff]ormat\((?<format>.*?\{{{Token}(?::.*?)?\}}.*?)\)")]
 	public static partial Regex FormatRegex();
 }

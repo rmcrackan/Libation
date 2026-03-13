@@ -141,7 +141,19 @@ public class PropertyTagCollection<TClass> : TagCollection
 		public PropertyTag(ITemplateTag templateTag, RegexOptions options, Expression propertyGetter, PF.PropertyFormatter<TPropertyValue> formatter)
 			: base(templateTag, propertyGetter)
 		{
-			NameMatcher = new Regex(@$"^<{templateTag.TagName.Replace(" ", "\\s*?")}\s*?(?:\[([^\[\]]*?)\]\s*?)?>", options | RegexOptions.Compiled);
+			NameMatcher = new Regex($"""
+			                         (?x)                     # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
+			                         ^<                       # tags start with a '<'
+			                         {TagNameForRegex()}      # next the tagname needs to be matched with space being made optional. Also escape all '#'
+			                         (?:\s*                   # optional whitespace
+			                             \[                   # optional format details enclosed in '[' and ']'.
+			                                 (?<format>       # - capture inner part as <format>
+			                                     [^\]]*?      # - match any character except ']'
+			                                 )                #
+			                             \]                   # - closing the format part
+			                         )?\s*>                   # Tags end with '>'
+			                         """
+				, options | RegexOptions.Compiled);
 			CreateToStringExpression = (expVal, format) =>
 				Expression.Call(
 					formatter.Target is null ? null : Expression.Constant(formatter.Target),
@@ -155,7 +167,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 		public PropertyTag(ITemplateTag templateTag, RegexOptions options, Expression propertyGetter, Func<TPropertyValue, string> toString)
 			: base(templateTag, propertyGetter)
 		{
-			NameMatcher = new Regex(@$"^<{templateTag.TagName.Replace(" ", "\\s*?")}>", options | RegexOptions.Compiled);
+			NameMatcher = new Regex(@$"^<{TagNameForRegex()}>", options | RegexOptions.Compiled);
 			CreateToStringExpression = (expVal, _) =>
 					Expression.Call(
 						toString.Target is null ? null : Expression.Constant(toString.Target),

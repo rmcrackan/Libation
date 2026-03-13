@@ -60,6 +60,11 @@ internal abstract class TagBase : IPropertyTag
 		return false;
 	}
 
+	protected string TagNameForRegex()
+	{
+		return TemplateTag.TagName.Replace(" ", @"\s*").Replace("#", @"\#");
+	}
+
 	public override string ToString()
 	{
 		return $"[Name = {TemplateTag.TagName}, Type = {ReturnType.Name}]";

@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq.Expressions;
@@ -58,15 +59,26 @@ public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCo
 		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, Expression conditionExpression)
 			: base(templateTag, conditionExpression)
 		{
-			NameMatcher = new Regex(@$"^<(!)?{templateTag.TagName}->", options | RegexOptions.Compiled);
-			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options | RegexOptions.Compiled);
+			var tagNameRe = TagNameForRegex();
+			NameMatcher = new Regex($"^<(?<not>!)?{tagNameRe}->", options | RegexOptions.Compiled);
+			NameCloseMatcher = new Regex($"^<-{tagNameRe}>", options | RegexOptions.Compiled);
 			CreateConditionExpression = _ => conditionExpression;
 		}
 
 		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, ParameterExpression parameter, Conditional<TClass> conditional)
 			: base(templateTag, Expression.Constant(false))
 		{
-			NameMatcher = new Regex(@$"^<(!)?{templateTag.TagName}(?:\s+?(.*?)\s*?)?->", options);
+			// <property> needs to match on at least one character which is not a space
+			NameMatcher = new Regex($"""
+			                         (?x)                     # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
+			                         ^<(?<not>!)?             # tags start with a '<'. Condtionals allow an optional ! captured in <not> to negate the condition
+			                         {TagNameForRegex()}      # next the tagname needs to be matched with space being made optional. Also escape all '#'
+			                         (?:\s+                   # the following part is optional. If present it starts with some whitespace
+			                             (?<property>.+?)     # - capture the <property> non greedy so it won't end on whitespace, '[' or '-' (if match is possible)
+			                         )?                       # end of optional property and check part
+			                         \s*->                    # Opening tags end with '->' and closing tags begin with '<-', so both sides visually point toward each other
+			                         """
+				, options | RegexOptions.Compiled);
 			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options | RegexOptions.Compiled);
 
 			CreateConditionExpression = condition

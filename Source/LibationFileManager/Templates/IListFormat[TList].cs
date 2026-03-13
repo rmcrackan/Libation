@@ -14,8 +14,7 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 
 		static IEnumerable<T> Max(string formatString, IEnumerable<T> items)
 		{
-			var maxMatch = MaxRegex().Match(formatString);
-			return maxMatch.Success && int.TryParse(maxMatch.Groups[1].ValueSpan, out var max)
+			return MaxRegex().Match(formatString).TryParseInt("max", out var max)
 				? items.Take(max)
 				: items;
 		}
@@ -23,8 +22,8 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 
 	static IEnumerable<string> FormattedList<T>(string formatString, IEnumerable<T> items, CultureInfo? culture) where T : IFormattable
 	{
-		var format = FormatElement(formatString, TList.FormatRegex);
-		var separator = FormatElement(formatString, SeparatorRegex);
+		var format = TList.FormatRegex().Match(formatString).ResolveValue("format");
+		var separator = SeparatorRegex().Match(formatString).ResolveValue("separator");
 		var formattedItems = FilteredList(formatString, items).Select(ItemFormatter);
 
 		// ReSharper disable PossibleMultipleEnumeration
@@ -36,12 +35,6 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 		// ReSharper restore PossibleMultipleEnumeration
 
 		string ItemFormatter(T n) => n.ToString(format, culture);
-
-		static string? FormatElement(string formatString, Func<Regex> regex)
-		{
-			var match = regex().Match(formatString);
-			return match.Success ? match.Groups[1].Value : null;
-		}
 	}
 
 	static string Join<T>(string formatString, IEnumerable<T> items, CultureInfo? culture) where T : IFormattable
@@ -61,10 +54,38 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 	static abstract Regex FormatRegex();
 
 	/// <summary> Max must have a 1 or 2-digit number </summary>
-	[GeneratedRegex(@"[Mm]ax\(\s*([1-9]\d?)\s*\)")]
+	[GeneratedRegex(@"[Mm]ax\(\s*(?<max>[1-9]\d?)\s*\)")]
 	private static partial Regex MaxRegex();
 
 	/// <summary> Separator can be anything </summary>
-	[GeneratedRegex(@"[Ss]eparator\((.*?)\)")]
+	[GeneratedRegex(@"[Ss]eparator\((?<separator>.*?)\)")]
 	private static partial Regex SeparatorRegex();
+}
+
+static class RegExpExtensions
+{
+	extension(Group group)
+	{
+		public string? ValueOrNull() => group.Success ? group.Value : null;
+		public ReadOnlySpan<char> ValueSpanOrNull() => group.Success ? group.ValueSpan : null;
+	}
+
+	extension(Match match)
+	{
+		public Group Resolve(string? groupName = null)
+		{
+			if (groupName is not null && match.Groups.TryGetValue(groupName, out var group))
+				return group;
+			return match.Groups.Count > 1 ? match.Groups[1] : match.Groups[0];
+		}
+
+		public string? ResolveValue(string? groupName = null) => match.Resolve(groupName).ValueOrNull();
+
+		public bool TryParseInt(string? groupName, out int value)
+		{
+			var span = match.Resolve(groupName).ValueSpanOrNull();
+
+			return int.TryParse(span, out value);
+		}
+	}
 }
