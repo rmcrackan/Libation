@@ -82,6 +82,8 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 			{
 				foreach (System.Net.Cookie c in shoiceIn.SignInCookies ?? [])
 				{
+					if (string.IsNullOrEmpty(c.Value))
+						continue;
 					try
 					{
 						cookieManager.AddOrUpdateCookie(c);
