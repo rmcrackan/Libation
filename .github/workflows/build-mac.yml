@@ -85,12 +85,21 @@ jobs:
             WAIT="--wait"
           fi
           echo "::debug::Submitting the disk image for notarization"
-          RESPONSE=$(xcrun notarytool submit ./bundle/${{ steps.bundle.outputs.artifact }} $WAIT --no-progress --apple-id ${{ vars.APPLE_DEV_EMAIL }} --password ${{ secrets.APPLE_DEV_PASSWORD }} --team-id ${{ secrets.APPLE_TEAM_ID }} 2>&1)
-          SUBMISSION_ID=$(echo "$RESPONSE" | awk '/id: / { print $2;exit; }')
-          
+          # Capture stdout+stderr (2>&1). Use || true so that when notarytool fails (e.g. Apple TOS
+          # agreement required), the script does not exit before we can print RESPONSE—otherwise the
+          # job would fail with no visible error message in the workflow log.
+          RESPONSE=$(xcrun notarytool submit ./bundle/${{ steps.bundle.outputs.artifact }} $WAIT --no-progress --apple-id ${{ vars.APPLE_DEV_EMAIL }} --password ${{ secrets.APPLE_DEV_PASSWORD }} --team-id ${{ secrets.APPLE_TEAM_ID }} 2>&1) || true
           echo "$RESPONSE"
-          echo "::notice::Noraty Submission Id: $SUBMISSION_ID"
-          
+          SUBMISSION_ID=$(echo "$RESPONSE" | awk '/id: / { print $2;exit; }')
+          echo "::notice::Notary Submission Id: $SUBMISSION_ID"
+
+          # Re-fail the step if submit failed (e.g. no submission id). The job still fails, but the
+          # output above is now visible in the log so we can see the real error (e.g. sign agreement).
+          if [ -z "$SUBMISSION_ID" ]; then
+            echo "::error::Notarization submit failed. See output above for details (e.g. Apple TOS agreement)."
+            exit 1
+          fi
+
           if [ ${{ vars.WAIT_FOR_NOTARIZE == 'true' }} ]; then
             echo "::debug::Stapling the notarization ticket to the disk image"
             xcrun stapler staple "./bundle/${{ steps.bundle.outputs.artifact }}"
