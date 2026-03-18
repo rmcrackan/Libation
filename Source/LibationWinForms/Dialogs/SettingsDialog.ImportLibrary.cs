@@ -8,6 +8,7 @@ public partial class SettingsDialog
 	{
 		this.autoScanCb.Text = desc(nameof(config.AutoScan));
 		this.showImportedStatsCb.Text = desc(nameof(config.ShowImportedStats));
+		this.useWebViewCb.Text = desc(nameof(config.UseWebView));
 		this.importEpisodesCb.Text = desc(nameof(config.ImportEpisodes));
 		this.importPlusTitlesCb.Text = desc(nameof(config.ImportPlusTitles));
 		this.downloadEpisodesCb.Text = desc(nameof(config.DownloadEpisodes));
@@ -15,6 +16,7 @@ public partial class SettingsDialog
 
 		autoScanCb.Checked = config.AutoScan;
 		showImportedStatsCb.Checked = config.ShowImportedStats;
+		useWebViewCb.Checked = config.UseWebView;
 		importEpisodesCb.Checked = config.ImportEpisodes;
 		importPlusTitlesCb.Checked = config.ImportPlusTitles;
 		downloadEpisodesCb.Checked = config.DownloadEpisodes;
@@ -28,5 +30,6 @@ public partial class SettingsDialog
 		config.ImportPlusTitles = importPlusTitlesCb.Checked;
 		config.DownloadEpisodes = downloadEpisodesCb.Checked;
 		config.AutoDownloadEpisodes = autoDownloadEpisodesCb.Checked;
+		config.UseWebView = useWebViewCb.Checked;
 	}
 }

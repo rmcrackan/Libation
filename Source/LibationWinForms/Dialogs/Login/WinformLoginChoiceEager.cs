@@ -1,5 +1,6 @@
 ﻿using AudibleApi;
 using AudibleUtilities;
+using LibationFileManager;
 using LibationWinForms.Dialogs.Login;
 using System;
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ public class WinformLoginChoiceEager : ILoginChoiceEager
 
 	private Task<ChoiceOut?> StartAsyncInternal(ChoiceIn choiceIn)
 	{
-		if (Environment.OSVersion.Version.Major >= 10)
+		if (Configuration.Instance.UseWebView && Environment.OSVersion.Version.Major >= 10)
 		{
 			try
 			{

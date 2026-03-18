@@ -71,6 +71,7 @@
 			autoDownloadEpisodesCb = new System.Windows.Forms.CheckBox();
 			autoScanCb = new System.Windows.Forms.CheckBox();
 			showImportedStatsCb = new System.Windows.Forms.CheckBox();
+			useWebViewCb = new System.Windows.Forms.CheckBox();
 			tab3DownloadDecrypt = new System.Windows.Forms.TabPage();
 			saveMetadataToFileCbox = new System.Windows.Forms.CheckBox();
 			useCoverAsFolderIconCb = new System.Windows.Forms.CheckBox();
@@ -212,20 +213,20 @@
 			// importEpisodesCb
 			// 
 			importEpisodesCb.AutoSize = true;
-			importEpisodesCb.Location = new System.Drawing.Point(6, 56);
+			importEpisodesCb.Location = new System.Drawing.Point(6, 81);
 			importEpisodesCb.Name = "importEpisodesCb";
 			importEpisodesCb.Size = new System.Drawing.Size(146, 19);
-			importEpisodesCb.TabIndex = 3;
+			importEpisodesCb.TabIndex = 4;
 			importEpisodesCb.Text = "[import episodes desc]";
 			importEpisodesCb.UseVisualStyleBackColor = true;
 			// 
 			// downloadEpisodesCb
 			// 
 			downloadEpisodesCb.AutoSize = true;
-			downloadEpisodesCb.Location = new System.Drawing.Point(6, 106);
+			downloadEpisodesCb.Location = new System.Drawing.Point(6, 131);
 			downloadEpisodesCb.Name = "downloadEpisodesCb";
 			downloadEpisodesCb.Size = new System.Drawing.Size(163, 19);
-			downloadEpisodesCb.TabIndex = 5;
+			downloadEpisodesCb.TabIndex = 6;
 			downloadEpisodesCb.Text = "[download episodes desc]";
 			downloadEpisodesCb.UseVisualStyleBackColor = true;
 			// 
@@ -594,6 +595,7 @@
 			tab2ImportLibrary.Controls.Add(autoDownloadEpisodesCb);
 			tab2ImportLibrary.Controls.Add(autoScanCb);
 			tab2ImportLibrary.Controls.Add(showImportedStatsCb);
+			tab2ImportLibrary.Controls.Add(useWebViewCb);
 			tab2ImportLibrary.Controls.Add(importEpisodesCb);
 			tab2ImportLibrary.Controls.Add(downloadEpisodesCb);
 			tab2ImportLibrary.Location = new System.Drawing.Point(4, 24);
@@ -606,20 +608,20 @@
 			// importPlusTitlesCb
 			// 
 			importPlusTitlesCb.AutoSize = true;
-			importPlusTitlesCb.Location = new System.Drawing.Point(6, 81);
+			importPlusTitlesCb.Location = new System.Drawing.Point(6, 106);
 			importPlusTitlesCb.Name = "importPlusTitlesCb";
 			importPlusTitlesCb.Size = new System.Drawing.Size(199, 19);
-			importPlusTitlesCb.TabIndex = 4;
+			importPlusTitlesCb.TabIndex = 5;
 			importPlusTitlesCb.Text = "[import audible plus books desc]";
 			importPlusTitlesCb.UseVisualStyleBackColor = true;
 			// 
 			// autoDownloadEpisodesCb
 			// 
 			autoDownloadEpisodesCb.AutoSize = true;
-			autoDownloadEpisodesCb.Location = new System.Drawing.Point(6, 131);
+			autoDownloadEpisodesCb.Location = new System.Drawing.Point(6, 156);
 			autoDownloadEpisodesCb.Name = "autoDownloadEpisodesCb";
 			autoDownloadEpisodesCb.Size = new System.Drawing.Size(190, 19);
-			autoDownloadEpisodesCb.TabIndex = 6;
+			autoDownloadEpisodesCb.TabIndex = 7;
 			autoDownloadEpisodesCb.Text = "[auto download episodes desc]";
 			autoDownloadEpisodesCb.UseVisualStyleBackColor = true;
 			// 
@@ -642,6 +644,16 @@
 			showImportedStatsCb.TabIndex = 2;
 			showImportedStatsCb.Text = "[show imported stats desc]";
 			showImportedStatsCb.UseVisualStyleBackColor = true;
+			// 
+			// useWebViewCb
+			// 
+			useWebViewCb.AutoSize = true;
+			useWebViewCb.Location = new System.Drawing.Point(6, 56);
+			useWebViewCb.Name = "useWebViewCb";
+			useWebViewCb.Size = new System.Drawing.Size(112, 19);
+			useWebViewCb.TabIndex = 3;
+			useWebViewCb.Text = "[use webview desc]";
+			useWebViewCb.UseVisualStyleBackColor = true;
 			// 
 			// tab3DownloadDecrypt
 			// 
@@ -1583,6 +1595,7 @@
 		private System.Windows.Forms.Label label16;
 		private System.Windows.Forms.CheckBox createCueSheetCbox;
 		private System.Windows.Forms.CheckBox autoScanCb;
+		private System.Windows.Forms.CheckBox useWebViewCb;
 		private System.Windows.Forms.CheckBox downloadCoverArtCbox;
 		private System.Windows.Forms.CheckBox autoDownloadEpisodesCb;
 		private System.Windows.Forms.CheckBox saveEpisodesToSeriesFolderCbox;
