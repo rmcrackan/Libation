@@ -58,9 +58,9 @@ mkdir -p $BUNDLE_MACOS
 
 mv "${BIN_DIR}/"*  $BUNDLE_MACOS
 
-if [ $? -ne 0 ]
- then echo "Error moving ${BIN_DIR} files"
- exit
+if [ $? -ne 0 ]; then
+  echo "Error moving ${BIN_DIR} files"
+  exit 1
 fi
 
 echo "Make fileicon executable..."
@@ -83,10 +83,11 @@ mv $BUNDLE_MACOS/Libation.entitlements ./Libation.entitlements
 
 PLIST_ARCH=$(echo $ARCH | sed 's/x64/x86_64/')
 echo "Set LSArchitecturePriority to $PLIST_ARCH"
-sed -i -e "s/ARCHITECTURE_STRING/$PLIST_ARCH/" $BUNDLE_CONTENTS/Info.plist
+# Portable sed -i (BSD sed on macOS requires backup arg; use .bak then remove)
+sed -i.bak "s/ARCHITECTURE_STRING/$PLIST_ARCH/" $BUNDLE_CONTENTS/Info.plist && rm -f $BUNDLE_CONTENTS/Info.plist.bak
 
 echo "Set CFBundleVersion to $VERSION"
-sed -i -e "s/VERSION_STRING/$VERSION/" $BUNDLE_CONTENTS/Info.plist
+sed -i.bak "s/VERSION_STRING/$VERSION/" $BUNDLE_CONTENTS/Info.plist && rm -f $BUNDLE_CONTENTS/Info.plist.bak
 
 delfiles=('MacOSConfigApp' 'MacOSConfigApp.deps.json' 'MacOSConfigApp.runtimeconfig.json')
 for n in "${delfiles[@]}"
