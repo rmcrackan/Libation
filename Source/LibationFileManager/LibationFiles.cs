@@ -66,19 +66,30 @@ public class LibationFiles
 
 	/// <summary>
 	/// Set the location of the Libation Files directory, updating appsettings.json. 
+	/// Never persists a relative path; always writes an absolute path so resolution is consistent on all platforms.
 	/// </summary>
 	public void SetLibationFiles(LongPath libationFilesDirectory)
 	{
+		var pathToPersist = libationFilesDirectory.Path;
+		if (!string.IsNullOrWhiteSpace(pathToPersist) && !Path.IsPathRooted(pathToPersist))
+		{
+			var basePath = AppsettingsJsonFile is not null ? Path.GetDirectoryName(AppsettingsJsonFile) : null;
+			pathToPersist = Path.GetFullPath(pathToPersist, !string.IsNullOrEmpty(basePath) ? basePath : Configuration.ProcessDirectory);
+		}
+
 		if (AppsettingsJsonFile is null)
 		{
-			Environment.SetEnvironmentVariable(LIBATION_FILES_DIR, libationFilesDirectory);
+			Environment.SetEnvironmentVariable(LIBATION_FILES_DIR, pathToPersist);
+			Location = pathToPersist;
 			return;
 		}
+
+		Location = pathToPersist;
 
 		var startingContents = File.ReadAllText(AppsettingsJsonFile);
 		var jObj = JObject.Parse(startingContents);
 
-		jObj[LIBATION_FILES_KEY] = (string)(Location = libationFilesDirectory);
+		jObj[LIBATION_FILES_KEY] = pathToPersist;
 
 		var endingContents = JsonConvert.SerializeObject(jObj, Formatting.Indented);
 		if (startingContents == endingContents)
@@ -88,11 +99,11 @@ public class LibationFiles
 		{
 			// now it's set in the file again but no settings have moved yet
 			File.WriteAllText(AppsettingsJsonFile, endingContents);
-			Log.Logger.TryLogInformation("Libation files changed {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, libationFilesDirectory });
+			Log.Logger.TryLogInformation("Libation files changed {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, pathToPersist });
 		}
 		catch (Exception ex)
 		{
-			Log.Logger.TryLogError(ex, "Failed to change Libation files location {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, libationFilesDirectory });
+			Log.Logger.TryLogError(ex, "Failed to change Libation files location {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, pathToPersist });
 		}
 	}
 
@@ -122,6 +133,7 @@ public class LibationFiles
 				try
 				{
 					File.WriteAllText(settingsFile, "{}");
+					EssentialFileValidator.ValidateCreatedAndReport(settingsFile);
 				}
 				catch (Exception createEx)
 				{
@@ -210,6 +222,7 @@ public class LibationFiles
 			{
 				Directory.CreateDirectory(dir);
 				File.WriteAllText(appsettingsFile, endingContents);
+				EssentialFileValidator.ValidateCreatedAndReport(appsettingsFile);
 				return appsettingsFile;
 			}
 			catch (Exception ex)
@@ -246,6 +259,17 @@ public class LibationFiles
 			//LIBATION_FILES_KEY path and hope for the best. If Libation can't find
 			//anything at this path it will set LIBATION_FILES_KEY to UserProfile
 			libationFiles = runShellCommand("echo " + libationFiles) ?? libationFiles;
+		}
+
+		// Resolve relative paths to absolute using the appsettings.json directory as base,
+		// so that Location is consistent everywhere (e.g. avoids different resolution when
+		// loading Serilog config vs. checking SettingsAreValid). Fixes Linux crash when
+		// appsettings in process dir contains "./LibationFiles" (e.g. issue #1677).
+		if (!string.IsNullOrWhiteSpace(libationFiles) && !Path.IsPathRooted(libationFiles))
+		{
+			var appSettingsDir = Path.GetDirectoryName(appsettingsPath.Path);
+			var basePath = !string.IsNullOrEmpty(appSettingsDir) ? appSettingsDir : Configuration.ProcessDirectory;
+			libationFiles = Path.GetFullPath(libationFiles, basePath);
 		}
 
 		return libationFiles;

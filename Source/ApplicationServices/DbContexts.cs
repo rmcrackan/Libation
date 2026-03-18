@@ -7,6 +7,8 @@ namespace ApplicationServices;
 
 public static class DbContexts
 {
+	private static bool _sqliteDbValidated;
+
 	/// <summary>Use for fully functional context, incl. SaveChanges(). For query-only, use the other method</summary>
 	public static LibationContext GetContext()
 	{
@@ -14,6 +16,14 @@ public static class DbContexts
 			? LibationContextFactory.CreatePostgres(Configuration.Instance.PostgresqlConnectionString)
 			: LibationContextFactory.CreateSqlite(SqliteStorage.ConnectionString);
 		context.Database.Migrate();
+
+		// Validate SQLite DB file was created and is accessible (once per process; OS may delay availability)
+		if (!_sqliteDbValidated && string.IsNullOrEmpty(Configuration.Instance.PostgresqlConnectionString))
+		{
+			EssentialFileValidator.ValidateCreatedAndReport(SqliteStorage.DatabasePath);
+			_sqliteDbValidated = true;
+		}
+
 		return context;
 	}
 

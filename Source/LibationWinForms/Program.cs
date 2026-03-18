@@ -36,6 +36,9 @@ static class Program
 
 			ApplicationConfiguration.Initialize();
 
+			// When essential file validation fails and the error cannot be written to the log, show the user
+			EssentialFileValidator.ShowUserWhenLogUnavailable = msg => MessageBox.Show(msg, "Libation - Essential File Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
 			//***********************************************//
 			//                                               //
 			//   do not use Configuration before this line   //

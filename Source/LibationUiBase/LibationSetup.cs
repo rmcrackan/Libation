@@ -237,5 +237,7 @@ public class LibationSetup
 		};
 		var contents = JsonConvert.SerializeObject(jObj, Formatting.Indented);
 		File.WriteAllText(settingsFilePath, contents);
+
+		EssentialFileValidator.ValidateCreatedAndReport(settingsFilePath);
 	}
 }
