@@ -41,6 +41,8 @@ public partial class WebLoginDialog : Form
 			//Load init cookies
 			foreach (System.Net.Cookie cookie in choiceIn.SignInCookies ?? [])
 			{
+				if (string.IsNullOrEmpty(cookie.Value))
+					continue;
 				try
 				{
 					webView.CoreWebView2.CookieManager.AddOrUpdateCookie(webView.CoreWebView2.CookieManager.CreateCookieWithSystemNetCookie(cookie));
