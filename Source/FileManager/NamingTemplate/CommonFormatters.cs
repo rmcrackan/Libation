@@ -9,12 +9,29 @@ public static partial class CommonFormatters
 {
 	public const string DefaultDateFormat = "yyyy-MM-dd";
 
-	public delegate string PropertyFormatter<in T>(ITemplateTag templateTag, T? value, string formatString, CultureInfo? culture);
+	public delegate TFormatted? PropertyFormatter<in TProperty, out TFormatted>(ITemplateTag templateTag, TProperty? value, string? formatString, CultureInfo? culture);
 
-	public static string StringFormatter(ITemplateTag _, string? value, string formatString, CultureInfo? culture)
+	public delegate string? PropertyFinalizer<in T>(ITemplateTag templateTag, T? value, CultureInfo? culture);
+
+	public static PropertyFinalizer<TProperty> ToPropertyFormatter<TProperty, TPreFormatted>(PropertyFormatter<TProperty, TPreFormatted> preFormatter,
+		PropertyFinalizer<TPreFormatted> finalizer)
+	{
+		return (templateTag, value, culture) => finalizer(templateTag, preFormatter(templateTag, value, null, culture), culture);
+	}
+
+	public static PropertyFinalizer<TPropertyValue> ToFinalizer<TPropertyValue>(PropertyFormatter<TPropertyValue, string> formatter)
+	{
+		return (templateTag, value, culture) => formatter(templateTag, value, null, culture);
+	}
+
+	public static string? StringFinalizer(ITemplateTag templateTag, string? value, CultureInfo? culture) => value ?? "";
+
+	public static TPropertyValue? IdlePreFormatter<TPropertyValue>(ITemplateTag templateTag, TPropertyValue? value, string? formatString, CultureInfo? culture) => value;
+
+	public static string StringFormatter(ITemplateTag _, string? value, string? formatString, CultureInfo? culture)
 		=> _StringFormatter(value, formatString, culture);
 
-	private static string _StringFormatter(string? value, string formatString, CultureInfo? culture)
+	private static string _StringFormatter(string? value, string? formatString, CultureInfo? culture)
 	{
 		if (string.IsNullOrEmpty(value)) return string.Empty;
 		if (string.IsNullOrEmpty(formatString)) return value;
@@ -47,7 +64,7 @@ public static partial class CommonFormatters
 
 		// is this function is called from toString implementation of the IFormattable interface, we only get a IFormatProvider
 		var culture = provider as CultureInfo ?? (provider?.GetFormat(typeof(CultureInfo)) as CultureInfo);
-		return TagFormatRegex().Replace(templateString, GetValueForMatchingTag);
+		return CollapseSpacesAndTrimRegex().Replace(TagFormatRegex().Replace(templateString, GetValueForMatchingTag), "");
 
 		string GetValueForMatchingTag(Match m)
 		{
@@ -64,6 +81,10 @@ public static partial class CommonFormatters
 		}
 	}
 
+	// Matches runs of spaces followed by a space as well as runs of spaces at the beginning or the end of a string (does NOT touch tabs/newlines).
+	[GeneratedRegex(@"^ +| +(?=$| )")]
+	private static partial Regex CollapseSpacesAndTrimRegex();
+
 	// The templateString is scanned for contained braces with an enclosed tagname.
 	// The tagname may be followed by an optional format specifier separated by a colon.
 	// All other parts of the template string are left untouched as well as the braces where the tagname is unknown.
@@ -71,13 +92,13 @@ public static partial class CommonFormatters
 	[GeneratedRegex(@"\{(?<tag>[[A-Z]+|#)(?::(?<format>.*?))?\}", RegexOptions.IgnoreCase)]
 	private static partial Regex TagFormatRegex();
 
-	public static string FormattableFormatter(ITemplateTag _, IFormattable? value, string formatString, CultureInfo? culture)
+	public static string FormattableFormatter(ITemplateTag _, IFormattable? value, string? formatString, CultureInfo? culture)
 		=> value?.ToString(formatString, culture) ?? "";
 
-	public static string IntegerFormatter(ITemplateTag templateTag, int value, string formatString, CultureInfo? culture)
+	public static string IntegerFormatter(ITemplateTag templateTag, int value, string? formatString, CultureInfo? culture)
 		=> FloatFormatter(templateTag, value, formatString, culture);
 
-	public static string FloatFormatter(ITemplateTag _, float value, string formatString, CultureInfo? culture)
+	public static string FloatFormatter(ITemplateTag _, float value, string? formatString, CultureInfo? culture)
 	{
 		culture ??= CultureInfo.CurrentCulture;
 		if (!int.TryParse(formatString, out var numDigits) || numDigits <= 0) return value.ToString(formatString, culture);
@@ -89,7 +110,7 @@ public static partial class CommonFormatters
 		return new string('0', zeroPad) + strValue;
 	}
 
-	public static string DateTimeFormatter(ITemplateTag _, DateTime value, string formatString, CultureInfo? culture)
+	public static string DateTimeFormatter(ITemplateTag _, DateTime value, string? formatString, CultureInfo? culture)
 	{
 		culture ??= CultureInfo.InvariantCulture;
 		if (string.IsNullOrEmpty(formatString))
@@ -97,7 +118,7 @@ public static partial class CommonFormatters
 		return value.ToString(formatString, culture);
 	}
 
-	public static string LanguageShortFormatter(ITemplateTag templateTag, string? language, string formatString, CultureInfo? culture)
+	public static string LanguageShortFormatter(ITemplateTag templateTag, string? language, string? formatString, CultureInfo? culture)
 	{
 		return StringFormatter(templateTag, language?.Trim(), "3u", culture);
 	}

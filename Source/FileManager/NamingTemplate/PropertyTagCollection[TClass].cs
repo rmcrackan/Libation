@@ -41,9 +41,50 @@ public class PropertyTagCollection<TClass> : TagCollection
 	/// <param name="formatter">Optional formatting function that accepts the <typeparamref name="TProperty"/> property
 	/// and a formatting string and returns the value the formatted string. If <c>null</c>, use the default
 	/// <typeparamref name="TProperty"/> formatter if present, or <see cref="object.ToString"/></param>
-	public void Add<TProperty>(ITemplateTag templateTag, Func<TClass, TProperty?> propertyGetter, PF.PropertyFormatter<TProperty>? formatter = null)
+	public void Add<TProperty>(ITemplateTag templateTag, Func<TClass, TProperty?> propertyGetter, PF.PropertyFormatter<TProperty, string>? formatter = null)
 		where TProperty : struct
 		=> RegisterWithFormatter(templateTag, propertyGetter, formatter);
+
+	/// <summary>
+	/// Register a <typeparamref name="TClass"/> property
+	/// </summary>
+	/// <typeparam name="TProperty">Type of the property from <see cref="TClass"/></typeparam>
+	/// <param name="templateTag"></param>
+	/// <param name="propertyGetter">A Func to get the property value from <see cref="TClass"/></param>
+	/// <param name="formatter">Optional formatting function that accepts the <typeparamref name="TProperty"/> property
+	/// and a formatting string and returns the value formatted to string. If <c>null</c>, use the default
+	/// <typeparamref name="TProperty"/> formatter if present, or <see cref="object.ToString"/></param>
+	public void Add<TProperty>(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, PF.PropertyFormatter<TProperty, string>? formatter = null)
+		=> RegisterWithFormatter(templateTag, propertyGetter, formatter);
+
+	/// <summary>
+	/// Register a nullable value type <typeparamref name="TClass"/> property.
+	/// </summary>
+	/// <typeparam name="TProperty">Type of the property from <see cref="TClass"/></typeparam>
+	/// <typeparam name="TPreFormatted"></typeparam>
+	/// <param name="templateTag"></param>
+	/// <param name="propertyGetter">A Func to get the property value from <see cref="TClass"/></param>
+	/// <param name="preFormatter">A Func used for first filtering and formatting. The result might be a <see cref="string"/></param>
+	/// <param name="finalizer">This Func assures a string result</param>
+	/// <typeparamref name="TProperty"/> formatter if present, or <see cref="object.ToString"/>
+	public void Add<TProperty, TPreFormatted>(ITemplateTag templateTag, Func<TClass, TProperty?> propertyGetter, PF.PropertyFormatter<TProperty, TPreFormatted> preFormatter,
+		PF.PropertyFinalizer<TPreFormatted> finalizer)
+		where TProperty : struct
+		=> RegisterWithPreFormatter(templateTag, propertyGetter, preFormatter, finalizer);
+
+	/// <summary>
+	/// Register a nullable value type <typeparamref name="TClass"/> property.
+	/// </summary>
+	/// <typeparam name="TProperty">Type of the property from <see cref="TClass"/></typeparam>
+	/// <typeparam name="TPreFormatted"></typeparam>
+	/// <param name="templateTag"></param>
+	/// <param name="propertyGetter">A Func to get the property value from <see cref="TClass"/></param>
+	/// <param name="preFormatter">A Func used for first filtering and formatting. The result might be a <see cref="string"/></param>
+	/// <param name="finalizer">This Func assures a string result</param>
+	/// <typeparamref name="TProperty"/> formatter if present, or <see cref="object.ToString"/>
+	public void Add<TProperty, TPreFormatted>(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, PF.PropertyFormatter<TProperty, TPreFormatted> preFormatter,
+		PF.PropertyFinalizer<TPreFormatted> finalizer)
+		=> RegisterWithPreFormatter(templateTag, propertyGetter, preFormatter, finalizer);
 
 	/// <summary>
 	/// Register a nullable value type <typeparamref name="TClass"/> property.
@@ -57,18 +98,6 @@ public class PropertyTagCollection<TClass> : TagCollection
 		=> RegisterWithToString(templateTag, propertyGetter, toString);
 
 	/// <summary>
-	/// Register a <typeparamref name="TClass"/> property
-	/// </summary>
-	/// <typeparam name="TProperty">Type of the property from <see cref="TClass"/></typeparam>
-	/// <param name="templateTag"></param>
-	/// <param name="propertyGetter">A Func to get the property value from <see cref="TClass"/></param>
-	/// <param name="formatter">Optional formatting function that accepts the <typeparamref name="TProperty"/> property
-	/// and a formatting string and returns the value formatted to string. If <c>null</c>, use the default
-	/// <typeparamref name="TProperty"/> formatter if present, or <see cref="object.ToString"/></param>
-	public void Add<TProperty>(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, PF.PropertyFormatter<TProperty>? formatter = null)
-		=> RegisterWithFormatter(templateTag, propertyGetter, formatter);
-
-	/// <summary>
 	/// Register a <typeparamref name="TClass"/> property.
 	/// </summary>
 	/// <typeparam name="TProperty">Type of the property from <see cref="TClass"/></typeparam>
@@ -79,17 +108,33 @@ public class PropertyTagCollection<TClass> : TagCollection
 		=> RegisterWithToString(templateTag, propertyGetter, toString);
 
 	private void RegisterWithFormatter<TProperty, TPropertyValue>
-		(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, PF.PropertyFormatter<TPropertyValue>? formatter)
+		(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, PF.PropertyFormatter<TPropertyValue, string>? formatter)
+	{
+		formatter ??= GetDefaultFormatter<TPropertyValue>();
+
+		if (formatter is null)
+			RegisterWithToString<TProperty, TPropertyValue>(templateTag, propertyGetter, ToStringFunc);
+		else
+			RegisterWithFormatters(templateTag, propertyGetter, formatter, PF.StringFinalizer, PF.ToFinalizer(formatter));
+	}
+
+	private void RegisterWithPreFormatter<TProperty, TPropertyValue, TPreFormatted>
+	(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, PF.PropertyFormatter<TPropertyValue, TPreFormatted> preFormatter,
+		PF.PropertyFinalizer<TPreFormatted> finalizer)
+	{
+		PF.PropertyFinalizer<TPropertyValue> formatter = PF.ToPropertyFormatter(preFormatter, finalizer);
+		RegisterWithFormatters(templateTag, propertyGetter, preFormatter, finalizer, formatter);
+	}
+
+	private void RegisterWithFormatters<TProperty, TPropertyValue, TPreFormatted>
+	(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, PF.PropertyFormatter<TPropertyValue, TPreFormatted> preFormatter,
+		PF.PropertyFinalizer<TPreFormatted> finalizer, PF.PropertyFinalizer<TPropertyValue> formatter)
 	{
 		ArgumentValidator.EnsureNotNull(templateTag, nameof(templateTag));
 		ArgumentValidator.EnsureNotNull(propertyGetter, nameof(propertyGetter));
 
 		var expr = Expression.Call(Expression.Constant(propertyGetter.Target), propertyGetter.Method, Parameter);
-		formatter ??= GetDefaultFormatter<TPropertyValue>();
-
-		AddPropertyTag(formatter is null
-			? new PropertyTag<TPropertyValue>(templateTag, Options, expr, ToStringFunc)
-			: new PropertyTag<TPropertyValue>(templateTag, Options, expr, formatter));
+		AddPropertyTag(new PropertyTag<TPropertyValue, TPreFormatted>(templateTag, Options, expr, preFormatter, finalizer, formatter));
 	}
 
 	private void RegisterWithToString<TProperty, TPropertyValue>
@@ -99,17 +144,17 @@ public class PropertyTagCollection<TClass> : TagCollection
 		ArgumentValidator.EnsureNotNull(propertyGetter, nameof(propertyGetter));
 
 		var expr = Expression.Call(Expression.Constant(propertyGetter.Target), propertyGetter.Method, Parameter);
-		AddPropertyTag(new PropertyTag<TPropertyValue>(templateTag, Options, expr, toString));
+		AddPropertyTag(new PropertyTag<TPropertyValue, string>(templateTag, Options, expr, toString));
 	}
 
 	private static string ToStringFunc<T>(T propertyValue) => propertyValue?.ToString() ?? "";
 
-	private PF.PropertyFormatter<T>? GetDefaultFormatter<T>()
+	private PF.PropertyFormatter<T, string>? GetDefaultFormatter<T>()
 	{
 		try
 		{
 			var del = _defaultFormatters.FirstOrDefault(kvp => kvp.Key == typeof(T)).Value;
-			return del is null ? null : Delegate.CreateDelegate(typeof(PF.PropertyFormatter<T>), del.Target, del.Method) as PF.PropertyFormatter<T>;
+			return del is null ? null : Delegate.CreateDelegate(typeof(PF.PropertyFormatter<T, string>), del.Target, del.Method) as PF.PropertyFormatter<T, string>;
 		}
 		catch { return null; }
 	}
@@ -119,26 +164,29 @@ public class PropertyTagCollection<TClass> : TagCollection
 	/// </summary>
 	/// <param name="tagName">Name of the tag value to get</param>
 	/// <param name="object">The property class from which the tag's value is read</param>
-	/// <param name="value"><paramref name="tagName"/>'s string value if it is in this collection, otherwise null</param>
+	/// <param name="culture"></param>
+	/// <param name="value"><paramref name="tagName"/>'s object value if it is in this collection, otherwise null</param>
 	/// <returns>True if the <paramref name="tagName"/> is in this collection, otherwise false</returns>
-	public bool TryGetValue(string tagName, TClass @object, CultureInfo? culture, [NotNullWhen(true)] out string? value)
+	public bool TryGetObject(string tagName, TClass @object, CultureInfo? culture, out object? value)
 	{
 		value = null;
 
-		if (!StartsWith($"<{tagName}>", out _, out _, out var valueExpression))
+		if (!StartsWith($"<{tagName}>", OutputType.Object, out _, out _, out var valueExpression))
 			return false;
 
-		var func = Expression.Lambda<Func<TClass, CultureInfo?, string>>(valueExpression, Parameter, CultureParameter).Compile();
+		var func = Expression.Lambda<Func<TClass, CultureInfo?, object?>>(valueExpression, Parameter, CultureParameter).Compile();
 		value = func(@object, culture);
 		return true;
 	}
 
-	private class PropertyTag<TPropertyValue> : TagBase
+	private class PropertyTag<TPropertyValue, TPreFormatted> : TagBase
 	{
 		public override Regex NameMatcher { get; }
-		private Func<Expression, string, Expression> CreateToStringExpression { get; }
+		private Func<Expression, string?, Expression> CreateToStringExpression { get; }
+		private Func<Expression, string?, Expression> CreateToObjectExpression { get; }
 
-		public PropertyTag(ITemplateTag templateTag, RegexOptions options, Expression propertyGetter, PF.PropertyFormatter<TPropertyValue> formatter)
+		public PropertyTag(ITemplateTag templateTag, RegexOptions options, Expression propertyGetter, PF.PropertyFormatter<TPropertyValue, TPreFormatted> preFormatter,
+			PF.PropertyFinalizer<TPreFormatted> finalizer, PF.PropertyFinalizer<TPropertyValue> formatter)
 			: base(templateTag, propertyGetter)
 		{
 			NameMatcher = new Regex($"""
@@ -156,20 +204,45 @@ public class PropertyTagCollection<TClass> : TagCollection
 			                         """
 				, options);
 
+			CreateToObjectExpression = (expVal, format) =>
+				format is null
+					? expVal
+					: Expression.Call(
+						preFormatter.Target is null ? null : Expression.Constant(preFormatter.Target),
+						preFormatter.Method,
+						Expression.Constant(templateTag),
+						expVal,
+						Expression.Constant(format),
+						CultureParameter);
+
 			CreateToStringExpression = (expVal, format) =>
-				Expression.Call(
-					formatter.Target is null ? null : Expression.Constant(formatter.Target),
-					formatter.Method,
-					Expression.Constant(templateTag),
-					expVal,
-					Expression.Constant(format),
-					CultureParameter);
+				format is null
+					? Expression.Call(
+						formatter.Target is null ? null : Expression.Constant(formatter.Target),
+						formatter.Method,
+						Expression.Constant(templateTag),
+						expVal,
+						CultureParameter)
+					: Expression.Call(
+						finalizer.Target is null ? null : Expression.Constant(finalizer.Target),
+						finalizer.Method,
+						Expression.Constant(templateTag),
+						Expression.Call(
+							preFormatter.Target is null ? null : Expression.Constant(preFormatter.Target),
+							preFormatter.Method,
+							Expression.Constant(templateTag),
+							expVal,
+							Expression.Constant(format),
+							CultureParameter),
+						CultureParameter);
 		}
 
 		public PropertyTag(ITemplateTag templateTag, RegexOptions options, Expression propertyGetter, Func<TPropertyValue, string> toString)
 			: base(templateTag, propertyGetter)
 		{
 			NameMatcher = new Regex(@$"^<{TagNameForRegex()}>", options);
+			CreateToObjectExpression = (expVal, _) => expVal;
+
 			CreateToStringExpression = (expVal, _) =>
 					Expression.Call(
 						toString.Target is null ? null : Expression.Constant(toString.Target),
@@ -177,24 +250,43 @@ public class PropertyTagCollection<TClass> : TagCollection
 						expVal);
 		}
 
-		protected override Expression GetTagExpression(string exactName, Dictionary<string, Group> matchData)
+		protected override Expression GetTagExpression(string exactName, Dictionary<string, Group> matchData, OutputType outputType)
 		{
-			var formatString = Unescape(matchData.GetValueOrDefault("format")) ?? "";
+			var formatString = Unescape(matchData.GetValueOrDefault("format"));
+			var isReferenceType = !ReturnType.IsValueType;
+			var isNullableValueType = Nullable.GetUnderlyingType(ReturnType) is not null;
 
-			Expression toStringExpression
-				= !ReturnType.IsValueType
-				? Expression.Condition(
-					Expression.Equal(ValueExpression, Expression.Constant(null)),
-					Expression.Constant(""),
-					CreateToStringExpression(ValueExpression, formatString))
-				: Nullable.GetUnderlyingType(ReturnType) is null
-				? CreateToStringExpression(ValueExpression, formatString)
-				: Expression.Condition(
-					Expression.PropertyOrField(ValueExpression, "HasValue"),
-					CreateToStringExpression(Expression.PropertyOrField(ValueExpression, "Value"), formatString),
-					Expression.Constant(""));
+			Expression isNullExpression = isReferenceType
+				? Expression.Equal(ValueExpression, Expression.Constant(null))
+				: isNullableValueType
+					? Expression.Not(Expression.PropertyOrField(ValueExpression, "HasValue"))
+					: Expression.Constant(false);
 
-			return Expression.TryCatch(toStringExpression, Expression.Catch(typeof(Exception), Expression.Constant(exactName)));
+			// formatters are defined for non-nullable items <see cref="int"/>, <see cref="DateTime"/> and not for <see cref="int?"/> ...
+			var formattableValueExpression = isNullableValueType
+				? Expression.PropertyOrField(ValueExpression, "Value")
+				: ValueExpression;
+
+			if (outputType == OutputType.String)
+			{
+				Expression toStringExpression =
+					Expression.Condition(
+						isNullExpression,
+						Expression.Constant(null, typeof(string)),
+						CreateToStringExpression(formattableValueExpression, formatString));
+
+				return Expression.TryCatch(toStringExpression, Expression.Catch(typeof(Exception), Expression.Constant(exactName)));
+			}
+			else
+			{
+				Expression toObjectExpression =
+					Expression.Condition(
+						isNullExpression,
+						Expression.Constant(null, typeof(object)),
+						Expression.Convert(CreateToObjectExpression(formattableValueExpression, formatString), typeof(object)));
+
+				return Expression.TryCatch(toObjectExpression, Expression.Catch(typeof(Exception), Expression.Constant(null, typeof(object))));
+			}
 		}
 	}
 }

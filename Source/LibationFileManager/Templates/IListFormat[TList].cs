@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using FileManager.NamingTemplate;
 
 namespace LibationFileManager.Templates;
 
@@ -20,36 +21,37 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 		}
 	}
 
-	static IEnumerable<string> FormattedList<T>(string formatString, IEnumerable<T> items, CultureInfo? culture) where T : IFormattable
+	static IEnumerable<string> FormattedList<T>(string? formatString, IEnumerable<T> items, CultureInfo? culture) where T : IFormattable
 	{
+		if (formatString is null) return items.Select(n => n.ToString(null, culture));
 		var format = TList.FormatRegex().Match(formatString).ResolveValue("format");
 		var separator = SeparatorRegex().Match(formatString).ResolveValue("separator");
 		var formattedItems = FilteredList(formatString, items).Select(ItemFormatter);
 
-		// ReSharper disable PossibleMultipleEnumeration
-		return separator is null
-			? formattedItems
-			: formattedItems.Any()
-				? [Join(separator, formattedItems)]
-				: [];
-		// ReSharper restore PossibleMultipleEnumeration
+		if (separator is null) return formattedItems;
+		var joined = Join(separator, formattedItems);
+		return joined is null ? [] : [joined];
 
 		string ItemFormatter(T n) => n.ToString(format, culture);
 	}
 
-	static string Join<T>(string formatString, IEnumerable<T> items, CultureInfo? culture) where T : IFormattable
+	static string? Join(IEnumerable<string>? formattedItems, CultureInfo? culture)
 	{
-		return Join(", ", FormattedList(formatString, items, culture));
+		return formattedItems is null ? null : Join(", ", formattedItems);
 	}
 
-	private static string Join(string separator, IEnumerable<string> strings)
+	private static string? Join(string separator, IEnumerable<string> strings)
 	{
-		return CollapseSpacesRegex().Replace(string.Join(separator, strings), " ");
+		// ReSharper disable PossibleMultipleEnumeration
+		return strings.Any()
+			? CollapseSpacesAndTrimRegex().Replace(string.Join(separator, strings), "")
+			: null;
+		// ReSharper restore PossibleMultipleEnumeration
 	}
 
-	// Collapses runs of 2+ spaces into a single space (does NOT touch tabs/newlines).
-	[GeneratedRegex(@" {2,}")]
-	private static partial Regex CollapseSpacesRegex();
+	// Matches runs of spaces followed by a space as well as runs of spaces at the beginning or the end of a string (does NOT touch tabs/newlines).
+	[GeneratedRegex(@"^ +| +(?=$| )")]
+	private static partial Regex CollapseSpacesAndTrimRegex();
 
 	static abstract Regex FormatRegex();
 

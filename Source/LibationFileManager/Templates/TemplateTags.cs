@@ -57,4 +57,5 @@ public sealed class TemplateTags : ITemplateTag
 	public static TemplateTags IfPodcastParent { get; } = new TemplateTags("if podcastparent", "Only include if item is a podcast series parent", "<if podcastparent-><-if podcastparent>", "<if podcastparent->...<-if podcastparent>");
 	public static TemplateTags IfBookseries { get; } = new TemplateTags("if bookseries", "Only include if part of a book series", "<if bookseries-><-if bookseries>", "<if bookseries->...<-if bookseries>");
 	public static TemplateTags Has { get; } = new TemplateTags("has", "Only include if PROPERTY has a value (i.e. not null or empty)", "<has -><-has>", "<has PROPERTY->...<-has>");
+	public static TemplateTags Is { get; } = new TemplateTags("is", "Only include if PROPERTY has a value satisfying the check (i.e. string comparison)", "<is -><-is>", "<is PROPERTY->...<-is>");
 }

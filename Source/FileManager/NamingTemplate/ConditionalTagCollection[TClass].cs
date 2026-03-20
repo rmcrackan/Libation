@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
@@ -23,11 +24,11 @@ internal interface IClosingPropertyTag : IPropertyTag
 	bool StartsWithClosing(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? propertyTag);
 }
 
-public delegate string? ValueProvider<in T>(ITemplateTag templateTag, T value, string condition, CultureInfo? culture);
+public delegate object? ValueProvider<in T>(ITemplateTag templateTag, T value, string condition, CultureInfo? culture);
 
-public delegate bool ConditionEvaluator(string? value, CultureInfo? culture);
+public delegate bool ConditionEvaluator(object? value, CultureInfo? culture);
 
-public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCollection(typeof(TClass), caseSensitive)
+public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCollection(typeof(TClass), caseSensitive)
 {
 	/// <summary>
 	/// Register a conditional tag.
@@ -45,19 +46,29 @@ public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCo
 	/// Register a conditional tag.
 	/// </summary>
 	/// <param name="templateTag"></param>
-	/// <param name="valueProvider">A <see cref="ValueProvider{T}"/> to get the condition's <see cref="bool"/> value</param>
-	/// <param name="conditionEvaluator"></param>
+	/// <param name="valueProvider">A <see cref="ValueProvider{T}"/> to get the condition's value</param>
+	/// <param name="conditionEvaluator">A <see cref="ConditionEvaluator"/> to evaluate the condition's value</param>
 	public void Add(ITemplateTag templateTag, ValueProvider<TClass> valueProvider, ConditionEvaluator conditionEvaluator)
 	{
 		AddPropertyTag(new ConditionalTag(templateTag, Options, Parameter, valueProvider, conditionEvaluator));
 	}
 
-	private class ConditionalTag : TagBase, IClosingPropertyTag
+	/// <summary>
+	/// Register a conditional tag.
+	/// </summary>
+	/// <param name="templateTag"></param>
+	/// <param name="valueProvider">A <see cref="ValueProvider{T}"/> to get the condition's value. The value will be evaluated by a check specified by the tag itself.</param>
+	public void Add(ITemplateTag templateTag, ValueProvider<TClass> valueProvider)
+	{
+		AddPropertyTag(new ConditionalTag(templateTag, Options, Parameter, valueProvider));
+	}
+
+	private partial class ConditionalTag : TagBase, IClosingPropertyTag
 	{
 		public override Regex NameMatcher { get; }
 		public Regex NameCloseMatcher { get; }
 
-		private Func<string?, Expression> CreateConditionExpression { get; }
+		private Func<string?, string?, Expression> CreateConditionExpression { get; }
 
 		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, Expression conditionExpression)
 			: base(templateTag, conditionExpression)
@@ -65,7 +76,8 @@ public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCo
 			var tagNameRe = TagNameForRegex();
 			NameMatcher = new Regex($"^<(?<not>!)?{tagNameRe}->", options);
 			NameCloseMatcher = new Regex($"^<-{tagNameRe}>", options);
-			CreateConditionExpression = _ => conditionExpression;
+
+			CreateConditionExpression = (_, _) => conditionExpression;
 		}
 
 		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, ParameterExpression parameter, ValueProvider<TClass> valueProvider, ConditionEvaluator conditionEvaluator)
@@ -84,8 +96,39 @@ public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCo
 				, options);
 			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options);
 
-			CreateConditionExpression = property
+			CreateConditionExpression = (property, _)
 				=> ConditionEvaluatorCall(templateTag, parameter, valueProvider, property, conditionEvaluator);
+		}
+
+		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, ParameterExpression parameter, ValueProvider<TClass> valueProvider)
+			: base(templateTag, Expression.Constant(false))
+		{
+			// <property> needs to match on at least one character which is not a space
+			// though we will capture check enclosed in [] at the end of the tag the property itself migth also have a [] part for formatting purposes
+			NameMatcher = new Regex($"""
+			                         (?x)                     # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
+			                         ^<(?<not>!)?             # tags start with a '<'. Condtionals allow an optional ! captured in <not> to negate the condition
+			                         {TagNameForRegex()}      # next the tagname needs to be matched with space being made optional. Also escape all '#'
+			                         (?:\s+                   # the following part is optional. If present it starts with some whitespace
+			                             (?<property>.+?      # - capture the <property> non greedy so it won't end on whitespace, '[' or '-' (if match is possible)
+			                                 (?<!\s))         # - don't let <property> end with a whitepace. Otherwise "<tagname  [foobar]->" would be matchable.
+			                             (?:\s*\[\s*          # optional check details enclosed in '[' and ']'. Check shall be trimmed. So match whitespace first
+			                                 (?<check>        # - capture inner part as <check>
+			                                     (?:\\.       # - '\' escapes allways the next character. Especially further '\' and the closing ']'
+			                                     |[^\\\]])*?  # - match any character except '\' and ']' non greedy so the match won't end whith whitespace
+			                                 )\s*             # - the whitespace after the check is optional
+			                             \])?                 # - closing the check part
+			                         )?                       # end of optional property and check part
+			                         \s*->                    # Opening tags end with '->' and closing tags begin with '<-', so both sides visually point toward each other
+			                         """
+				, options);
+			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options);
+
+			CreateConditionExpression = (property, checkString) =>
+			{
+				var conditionEvaluator = GetPredicate(checkString);
+				return ConditionEvaluatorCall(templateTag, parameter, valueProvider, property, conditionEvaluator);
+			};
 		}
 
 		private static MethodCallExpression ConditionEvaluatorCall(ITemplateTag templateTag, ParameterExpression parameter, ValueProvider<TClass> valueProvider, string? property,
@@ -109,6 +152,66 @@ public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCo
 				CultureParameter);
 		}
 
+		private static ConditionEvaluator GetPredicate(string? checkString)
+		{
+			if (checkString == null)
+				return DefaultPredicate;
+
+			var match = CheckRegex().Match(checkString);
+
+			var valStr = match.Groups["val"].Value;
+
+			var checkItem = match.Groups["op"].ValueSpan switch
+			{
+				"=" or "" => (v, culture) => VComparedToStr(v, culture, valStr) == 0,
+				"!=" or "!" => (v, culture) => VComparedToStr(v, culture, valStr) != 0,
+				"~" => GetRegExpCheck(valStr),
+				_ => DefaultPredicate,
+			};
+			return (v, culture) => v switch
+			{
+				null => false,
+				IEnumerable<object> e => e.Any(o => checkItem(o, culture)),
+				_ => checkItem(v, culture)
+			};
+		}
+
+		private static int VComparedToStr(object? v, CultureInfo? culture, string valStr)
+		{
+			culture ??= CultureInfo.CurrentCulture;
+			return culture.CompareInfo.Compare(v?.ToString()?.Trim(), valStr, CompareOptions.IgnoreCase);
+		}
+
+		/// <summary>
+		/// build a regular expression check which take the <see cref="CultureInfo"/> into account.
+		/// </summary>
+		/// <param name="valStr"></param>
+		/// <returns>check function to validate an object</returns>
+		private static ConditionEvaluator GetRegExpCheck(string valStr)
+		{
+			return (v, culture) =>
+			{
+				var old = CultureInfo.CurrentCulture;
+				try
+				{
+					CultureInfo.CurrentCulture = culture ?? CultureInfo.CurrentCulture;
+					return Regex.IsMatch(v?.ToString().Trim() ?? "", valStr, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+				}
+				finally
+				{
+					CultureInfo.CurrentCulture = old;
+				}
+			};
+		}
+
+		// without any special check only the existance of the property is checked. Strings need to be non empty.
+		private static readonly ConditionEvaluator DefaultPredicate = (v, _) => v switch
+		{
+			null => false,
+			IEnumerable<object> e => e.Any(),
+			_ => !string.IsNullOrWhiteSpace(v.ToString())
+		};
+
 		public bool StartsWithClosing(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? propertyTag)
 		{
 			var match = NameCloseMatcher.Match(templateString);
@@ -124,10 +227,24 @@ public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCo
 			return false;
 		}
 
-		protected override Expression GetTagExpression(string exactName, Dictionary<string, Group> matchData)
+		protected override Expression GetTagExpression(string exactName, Dictionary<string, Group> matchData, OutputType outputType)
 		{
-			var getBool = CreateConditionExpression(matchData.GetValueOrDefault("property")?.Value);
+			var getBool = CreateConditionExpression(
+				matchData.GetValueOrDefault("property")?.Value,
+				Unescape(matchData.GetValueOrDefault("check")));
 			return matchData["not"].Success ? Expression.Not(getBool) : getBool;
 		}
+
+		[GeneratedRegex("""
+		                (?x)						                    # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
+		                ^\s*                                            # anchor at start of line trimming leading whitespace
+		                (?<op>                                          # capture operator in <op> and <numop>
+		                	~|!=?|=?                                    # - string comparison operators including ~ for regexp. No operator is like =
+		                ) \s*                                           # ignore space between operator and value
+		                (?<val>                                         # capture value in <val>
+		                	.*?                                         # - string for comparison. May be empty. Non-greedy capture resulting in no whitespace at the end
+		                )\s*$                                           # trimming up to the end
+		                """)]
+		private static partial Regex CheckRegex();
 	}
 }

@@ -272,16 +272,15 @@ namespace TemplatesTests
 		[DataRow("<id> - <date added[MM/dd/yy HH:mm]>", @"/foo/bar", ".m4b", @"/foo/bar/asin - 06∕09∕22 00:00.m4b", PlatformID.Unix)]
 		public void DateFormat_illegal(string template, string dirFullPath, string extension, string expected, PlatformID platformId)
 		{
-			if (Environment.OSVersion.Platform == platformId)
-			{
-				Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			if (Environment.OSVersion.Platform != platformId) Assert.Inconclusive($"Skipped because OS is not {platformId}.");
 
-				fileTemplate.HasWarnings.Should().BeFalse();
-				fileTemplate
-					.GetFilename(GetLibraryBook(), dirFullPath, extension, culture: CultureInfo.InvariantCulture, replacements: Replacements)
-					.PathWithoutPrefix
-					.Should().Be(expected);
-			}
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+
+			fileTemplate.HasWarnings.Should().BeFalse();
+			fileTemplate
+				.GetFilename(GetLibraryBook(), dirFullPath, extension, culture: CultureInfo.InvariantCulture, replacements: Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
 		}
 
 		[TestMethod]
@@ -399,11 +398,29 @@ namespace TemplatesTests
 
 		[TestMethod]
 		[DataRow("<has libation version->empty-string<-has>", "")]
+		[DataRow("<is libation version[=foobar]->empty-string<-has>", "")]
+		[DataRow("<is libation version[=]->empty-string<-has>", "empty-string")]
+		[DataRow("<is libation version[]->empty-string<-has>", "empty-string")]
 		[DataRow("<has file version->null-string<-has>", "")]
+		[DataRow("<has file version[=foobar]->null-string<-has>", "")]
+		[DataRow("<has file version[=]->null-string<-has>", "")]
+		[DataRow("<has file version[]->null-string<-has>", "")]
 		[DataRow("<has year->null-int<-has>", "")]
+		[DataRow("<is year[=]->null-int<-has>", "")]
+		[DataRow("<is year[]->null-int<-has>", "")]
 		[DataRow("<has FAKE->unknown-tag<-has>", "")]
+		[DataRow("<is FAKE[=]->unknown-tag<-has>", "")]
+		[DataRow("<is FAKE[=foobar]->unknown-tag<-has>", "")]
+		[DataRow("<is FAKE[]->unknown-tag<-has>", "")]
 		[DataRow("<has narrator->empty-list<-has>", "")]
-		[DataRow("<has first narrator->no-first<-has>", "")]
+		[DataRow("<is narrator[=foobar]->empty-list<-has>", "")]
+		[DataRow("<is narrator[=]->empty-list<-has>", "")]
+		[DataRow("<is narrator[~.*]->empty-list<-has>", "")]
+		[DataRow("<is narrator[]->empty-list<-has>", "")]
+		[DataRow("<is first narrator->no-first<-has>", "")]
+		[DataRow("<is first narrator[=foobar]->no-first<-has>", "")]
+		[DataRow("<is first narrator[=]->no-first<-has>", "")]
+		[DataRow("<is first narrator[]->no-first<-has>", "")]
 		public void HasValue_on_empty_test(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
@@ -449,6 +466,16 @@ namespace TemplatesTests
 		[DataRow("<has ch title->true<-has>", "true")]
 		[DataRow("<has ch#->true<-has>", "true")]
 		[DataRow("<has ch# 0->true<-has>", "true")]
+		[DataRow("<is title[=A Study in Scarlet: An Audible Original Drama]->true<-has>", "true")]
+		[DataRow("<is title[U][=A STUDY IN SCARLET: AN AUDIBLE ORIGINAL DRAMA]->true<-has>", "true")]
+		[DataRow("<is title[!=foo]->true<-has>", "true")]
+		[DataRow("<is title[~A Study.*]->true<-has>", "true")]
+		[DataRow("<is title[foo]->true<-has>", "")]
+		[DataRow("<is ch count[=2]->true<-has>", "true")]
+		[DataRow("<is author[=Arthur Conan Doyle]->true<-has>", "true")]
+		[DataRow("<is author[format({L})][=Doyle]->true<-has>", "true")]
+		[DataRow("<is author[format({L})separator(:)][=Doyle:Fry]->true<-has>", "true")]
+		[DataRow("<is author[=Sherlock]->true<-has>", "")]
 		public void HasValue_test(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
@@ -529,15 +556,15 @@ namespace TemplatesTests
 		[DataRow(@"/a/b", @"/a/b/foobar.ext", PlatformID.Unix)]
 		public void IfSeries_empty(string directory, string expected, PlatformID platformId)
 		{
-			if (Environment.OSVersion.Platform == platformId)
-			{
-				Templates.TryGetTemplate<Templates.FileTemplate>("foo<if series-><-if series>bar", out var fileTemplate).Should().BeTrue();
+			if (Environment.OSVersion.Platform != platformId)
+				Assert.Inconclusive($"Skipped because OS {platformId}.");
 
-				fileTemplate
-					.GetFilename(GetLibraryBook(), directory, "ext", culture: null, replacements: Replacements)
-					.PathWithoutPrefix
-					.Should().Be(expected);
-			}
+			Templates.TryGetTemplate<Templates.FileTemplate>("foo<if series-><-if series>bar", out var fileTemplate).Should().BeTrue();
+
+			fileTemplate
+				.GetFilename(GetLibraryBook(), directory, "ext", culture: null, replacements: Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
 		}
 
 		[TestMethod]
@@ -545,14 +572,14 @@ namespace TemplatesTests
 		[DataRow(@"/a/b", @"/a/b/foobar.ext", PlatformID.Unix)]
 		public void IfSeries_no_series(string directory, string expected, PlatformID platformId)
 		{
-			if (Environment.OSVersion.Platform == platformId)
-			{
-				Templates.TryGetTemplate<Templates.FileTemplate>("foo<if series->-<series>-<id>-<-if series>bar", out var fileTemplate).Should().BeTrue();
+			if (Environment.OSVersion.Platform != platformId)
+				Assert.Inconclusive($"Skipped because OS is not {platformId}.");
 
-				fileTemplate.GetFilename(GetLibraryBook(null), directory, "ext", culture: null, replacements: Replacements)
+			Templates.TryGetTemplate<Templates.FileTemplate>("foo<if series->-<series>-<id>-<-if series>bar", out var fileTemplate).Should().BeTrue();
+
+			fileTemplate.GetFilename(GetLibraryBook(null), directory, "ext", culture: null, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
-			}
 		}
 
 		[TestMethod]
@@ -560,15 +587,15 @@ namespace TemplatesTests
 		[DataRow(@"/a/b", @"/a/b/foo-Sherlock Holmes-asin-bar.ext", PlatformID.Unix)]
 		public void IfSeries_with_series(string directory, string expected, PlatformID platformId)
 		{
-			if (Environment.OSVersion.Platform == platformId)
-			{
-				Templates.TryGetTemplate<Templates.FileTemplate>("foo<if series->-<series>-<id>-<-if series>bar", out var fileTemplate).Should().BeTrue();
+			if (Environment.OSVersion.Platform != platformId)
+				Assert.Inconclusive($"Skipped because OS is not {platformId}.");
 
-				fileTemplate
-					.GetFilename(GetLibraryBook(), directory, "ext", culture: null, replacements: Replacements)
-					.PathWithoutPrefix
-					.Should().Be(expected);
-			}
+			Templates.TryGetTemplate<Templates.FileTemplate>("foo<if series->-<series>-<id>-<-if series>bar", out var fileTemplate).Should().BeTrue();
+
+			fileTemplate
+				.GetFilename(GetLibraryBook(), directory, "ext", culture: null, replacements: Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
 		}
 
 		[TestMethod]
@@ -611,7 +638,7 @@ namespace Templates_Other
 		public void Test_trim_to_max_path(string dirFullPath, string template, string expected, PlatformID platformId)
 		{
 			if (Environment.OSVersion.Platform != platformId)
-				return;
+				Assert.Inconclusive($"Skipped because OS is not {platformId}.");
 
 			var sb = new System.Text.StringBuilder();
 			sb.Append('0', 300);
@@ -626,7 +653,7 @@ namespace Templates_Other
 		public void Test_windows_relative_path_too_long(string baseDir, string template)
 		{
 			if (Environment.OSVersion.Platform != PlatformID.Win32NT)
-				return;
+				Assert.Inconclusive($"Skipped because OS is not {PlatformID.Win32NT}.");
 
 			var sb = new System.Text.StringBuilder();
 			sb.Append('0', 300);
@@ -652,8 +679,10 @@ namespace Templates_Other
 		[DataRow(@"/foo/bar/my file.txt", @"/foo/bar/my file - 002 - title.txt", PlatformID.Unix)]
 		public void equiv_GetMultipartFileName(string inStr, string outStr, PlatformID platformId)
 		{
-			if (Environment.OSVersion.Platform == platformId)
-				NEW_GetMultipartFileName_FileNamingTemplate(inStr, 2, 100, "title").Should().Be(outStr);
+			if (Environment.OSVersion.Platform != platformId)
+				Assert.Inconclusive($"Skipped because OS is not {platformId}.");
+
+			NEW_GetMultipartFileName_FileNamingTemplate(inStr, 2, 100, "title").Should().Be(outStr);
 		}
 
 		private static string NEW_GetMultipartFileName_FileNamingTemplate(string originalPath, int partsPosition, int partsTotal, string suffix)
@@ -682,18 +711,18 @@ namespace Templates_Other
 		[DataRow(@"/foo/<title>.txt", @"/foo/s\l∕a\s∕h\e∕s.txt", PlatformID.Unix)]
 		public void remove_slashes(string inStr, string outStr, PlatformID platformId)
 		{
-			if (Environment.OSVersion.Platform == platformId)
-			{
-				var lbDto = GetLibraryBook();
-				lbDto.TitleWithSubtitle = @"s\l/a\s/h\e/s";
+			if (Environment.OSVersion.Platform != platformId)
+				Assert.Inconclusive($"Skipped because OS is not {platformId}.");
 
-				var directory = Path.GetDirectoryName(inStr)!;
-				var fileName = Path.GetFileName(inStr);
+			var lbDto = GetLibraryBook();
+			lbDto.TitleWithSubtitle = @"s\l/a\s/h\e/s";
 
-				Templates.TryGetTemplate<Templates.FileTemplate>(fileName, out var fileNamingTemplate).Should().BeTrue();
+			var directory = Path.GetDirectoryName(inStr)!;
+			var fileName = Path.GetFileName(inStr);
 
-				fileNamingTemplate.GetFilename(lbDto, directory, "txt", culture: null, replacements: Replacements).PathWithoutPrefix.Should().Be(outStr);
-			}
+			Templates.TryGetTemplate<Templates.FileTemplate>(fileName, out var fileNamingTemplate).Should().BeTrue();
+
+			fileNamingTemplate.GetFilename(lbDto, directory, "txt", culture: null, replacements: Replacements).PathWithoutPrefix.Should().Be(outStr);
 		}
 	}
 }
@@ -728,13 +757,13 @@ namespace Templates_Folder_Tests
 		[DataRow([@"C:\", new[] { PlatformID.Win32NT }, Templates.ErrorFullPathIsInvalid])]
 		public void Tests(string? template, PlatformID[] platformIds, params string[] expected)
 		{
-			if (platformIds.Contains(Environment.OSVersion.Platform))
-			{
-				Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var folderTemplate);
-				var result = folderTemplate.Errors;
-				result.Should().HaveCount(expected.Length);
-				result.Should().BeEquivalentTo(expected);
-			}
+			if (!platformIds.Contains(Environment.OSVersion.Platform))
+				Assert.Inconclusive($"Skipped because OS is not one of {platformIds}.");
+
+			Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var folderTemplate);
+			var result = folderTemplate.Errors;
+			result.Should().HaveCount(expected.Length);
+			result.Should().BeEquivalentTo(expected);
 		}
 	}
 
@@ -761,11 +790,11 @@ namespace Templates_Folder_Tests
 		[DataRow(@"<id>\<title>", true, new[] { PlatformID.Win32NT, PlatformID.Unix })]
 		public void Tests(string template, bool expected, PlatformID[] platformIds)
 		{
-			if (platformIds.Contains(Environment.OSVersion.Platform))
-			{
-				Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var folderTemplate).Should().BeTrue();
-				folderTemplate.IsValid.Should().Be(expected);
-			}
+			if (!platformIds.Contains(Environment.OSVersion.Platform))
+				Assert.Inconclusive($"Skipped because OS is not one of {platformIds}.");
+
+			Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var folderTemplate).Should().BeTrue();
+			folderTemplate.IsValid.Should().Be(expected);
 		}
 	}
 
@@ -875,13 +904,13 @@ namespace Templates_File_Tests
 
 		private void Tests(string? template, PlatformID platformId, params string[] expected)
 		{
-			if (Environment.OSVersion.Platform == platformId)
-			{
-				Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate);
-				var result = fileTemplate.Errors;
-				result.Should().HaveCount(expected.Length);
-				result.Should().BeEquivalentTo(expected);
-			}
+			if (Environment.OSVersion.Platform != platformId)
+				Assert.Inconclusive($"Skipped because OS is not {platformId}.");
+
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate);
+			var result = fileTemplate.Errors;
+			result.Should().HaveCount(expected.Length);
+			result.Should().BeEquivalentTo(expected);
 		}
 	}
 
@@ -954,21 +983,18 @@ namespace Templates_ChapterFile_Tests
 
 		[TestMethod]
 		[DataRow(@"no tags", null, NamingTemplate.WarningNoTags, Templates.WarningNoChapterNumberTag)]
-		[DataRow(@"<id>\foo\bar", true, Templates.WarningNoChapterNumberTag)]
-		[DataRow(@"<id>/foo/bar", false, Templates.WarningNoChapterNumberTag)]
+		[DataRow(@"<id>\foo\bar", PlatformID.Win32NT, Templates.WarningNoChapterNumberTag)]
+		[DataRow(@"<id>/foo/bar", PlatformID.Unix, Templates.WarningNoChapterNumberTag)]
 		[DataRow("<chapter count> -- chapter tag but not ch# or ch_#", null, NamingTemplate.WarningNoTags, Templates.WarningNoChapterNumberTag)]
-		public void Tests(string? template, bool? windows, params string[] expected)
+		public void Tests(string? template, PlatformID? platformId, params string[] expected)
 		{
-			if (windows is null
-			|| (windows is true && Environment.OSVersion.Platform is PlatformID.Win32NT)
-			|| (windows is false && Environment.OSVersion.Platform is PlatformID.Unix))
-			{
+			if (platformId is not null && Environment.OSVersion.Platform != platformId)
+				Assert.Inconclusive($"Skipped because OS is not {platformId}.");
 
-				Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterFileTemplate);
-				var result = chapterFileTemplate.Warnings;
-				result.Should().HaveCount(expected.Length);
-				result.Should().BeEquivalentTo(expected);
-			}
+			Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterFileTemplate);
+			var result = chapterFileTemplate.Warnings;
+			result.Should().HaveCount(expected.Length);
+			result.Should().BeEquivalentTo(expected);
 		}
 	}
 
@@ -1038,14 +1064,14 @@ namespace Templates_ChapterFile_Tests
 		[DataRow("<ch#>", @"/foo/", "txt", 6, 10, "chap", @"/foo/6.txt", PlatformID.Unix)]
 		public void Tests(string template, string dir, string ext, int pos, int total, string chapter, string expected, PlatformID platformId)
 		{
-			if (Environment.OSVersion.Platform == platformId)
-			{
-				Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterTemplate).Should().BeTrue();
-				chapterTemplate
-					.GetFilename(GetLibraryBook(), new() { OutputFileName = $"xyz.{ext}", PartsPosition = pos, PartsTotal = total, Title = chapter }, dir, ext, culture: null, replacements: Default)
-					.PathWithoutPrefix
-					.Should().Be(expected);
-			}
+			if (Environment.OSVersion.Platform != platformId)
+				Assert.Inconclusive($"Skipped because OS is not {platformId}.");
+
+			Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterTemplate).Should().BeTrue();
+			chapterTemplate
+				.GetFilename(GetLibraryBook(), new() { OutputFileName = $"xyz.{ext}", PartsPosition = pos, PartsTotal = total, Title = chapter }, dir, ext, culture: null, replacements: Default)
+				.PathWithoutPrefix
+				.Should().Be(expected);
 		}
 	}
 }

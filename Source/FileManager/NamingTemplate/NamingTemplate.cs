@@ -65,8 +65,8 @@ public class NamingTemplate
 		var namingTemplate = new NamingTemplate(tagCollections);
 		try
 		{
-			BinaryNode intermediate = namingTemplate.IntermediateParse(template);
-			Expression evalTree = GetExpressionTree(intermediate);
+			var intermediate = namingTemplate.IntermediateParse(template);
+			var evalTree = GetExpressionTree(intermediate);
 
 			namingTemplate._templateToString = Expression.Lambda(evalTree, tagCollections.Select(tc => tc.Parameter).Append(TagCollection.CultureParameter)).Compile();
 		}
@@ -108,11 +108,11 @@ public class NamingTemplate
 
 		BinaryNode topNode = BinaryNode.CreateRoot();
 		BinaryNode? currentNode = topNode;
-		List<char> literalChars = new();
+		List<char> literalChars = [];
 
 		while (templateString.Length > 0)
 		{
-			if (StartsWith(templateString, out var exactPropertyName, out var propertyTag, out var valueExpression))
+			if (StartsWith(templateString, OutputType.String, out var exactPropertyName, out var propertyTag, out var valueExpression))
 			{
 				CheckAndAddLiterals();
 
@@ -183,11 +183,12 @@ public class NamingTemplate
 		}
 	}
 
-	private bool StartsWith(string template, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IPropertyTag? propertyTag, [NotNullWhen(true)] out Expression? valueExpression)
+	private bool StartsWith(string template, OutputType outputType, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IPropertyTag? propertyTag,
+		[NotNullWhen(true)] out Expression? valueExpression)
 	{
 		foreach (var pc in _tagCollections)
 		{
-			if (pc.StartsWith(template, out exactName, out propertyTag, out valueExpression))
+			if (pc.StartsWith(template, outputType, out exactName, out propertyTag, out valueExpression))
 				return true;
 		}
 

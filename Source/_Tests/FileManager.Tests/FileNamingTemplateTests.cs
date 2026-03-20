@@ -98,16 +98,16 @@ public class GetPortionFilename
 		{ new TemplateTag { TagName = "has3" }, TryGetValue, HasValue }
 	};
 
-	private static string? TryGetValue(ITemplateTag templateTag, PropertyClass1 referenceType, string condition, CultureInfo? culture)
-		=> props1.TryGetValue(condition, referenceType, culture, out var value) ? value : null;
+	private static object? TryGetValue(ITemplateTag templateTag, PropertyClass1 referenceType, string condition, CultureInfo? culture)
+		=> props1.TryGetObject(condition, referenceType, culture, out var value) ? value : null;
 
-	private static string? TryGetValue(ITemplateTag templateTag, PropertyClass2 referenceType, string condition, CultureInfo? culture)
-		=> props2.TryGetValue(condition, referenceType, culture, out var value) ? value : null;
+	private static object? TryGetValue(ITemplateTag templateTag, PropertyClass2 referenceType, string condition, CultureInfo? culture)
+		=> props2.TryGetObject(condition, referenceType, culture, out var value) ? value : null;
 
-	private static string? TryGetValue(ITemplateTag templateTag, PropertyClass3 referenceType, string condition, CultureInfo? culture)
-		=> props3.TryGetValue(condition, referenceType, culture, out var value) ? value : null;
+	private static object? TryGetValue(ITemplateTag templateTag, PropertyClass3 referenceType, string condition, CultureInfo? culture)
+		=> props3.TryGetObject(condition, referenceType, culture, out var value) ? value : null;
 
-	private static bool HasValue(string? value, CultureInfo? culture) => !string.IsNullOrWhiteSpace(value);
+	private static bool HasValue(object? value, CultureInfo? culture) => value is not null && !string.IsNullOrWhiteSpace(value.ToString());
 
 	private readonly PropertyClass1 _propertyClass1 = new()
 	{

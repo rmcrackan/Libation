@@ -271,11 +271,11 @@ public abstract class Templates
 		{ TemplateTags.TitleShort, lb => GetTitleShort(lb.Title) },
 		{ TemplateTags.AudibleTitle, lb => lb.Title },
 		{ TemplateTags.AudibleSubtitle, lb => lb.Subtitle },
-		{ TemplateTags.Author, lb => lb.Authors, NameListFormat.Formatter },
+		{ TemplateTags.Author, lb => lb.Authors, NameListFormat.Formatter, NameListFormat.Finalizer },
 		{ TemplateTags.FirstAuthor, lb => lb.FirstAuthor, CommonFormatters.FormattableFormatter },
-		{ TemplateTags.Narrator, lb => lb.Narrators, NameListFormat.Formatter },
+		{ TemplateTags.Narrator, lb => lb.Narrators, NameListFormat.Formatter, NameListFormat.Finalizer },
 		{ TemplateTags.FirstNarrator, lb => lb.FirstNarrator, CommonFormatters.FormattableFormatter },
-		{ TemplateTags.Series, lb => lb.Series, SeriesListFormat.Formatter },
+		{ TemplateTags.Series, lb => lb.Series, SeriesListFormat.Formatter, SeriesListFormat.Finalizer },
 		{ TemplateTags.FirstSeries, lb => lb.FirstSeries, CommonFormatters.FormattableFormatter },
 		{ TemplateTags.SeriesNumber, lb => lb.FirstSeries?.Order, CommonFormatters.FormattableFormatter },
 		{ TemplateTags.Language, lb => lb.Language },
@@ -309,7 +309,7 @@ public abstract class Templates
 			{ TemplateTags.TitleShort, lb => GetTitleShort(lb.Title) },
 			{ TemplateTags.AudibleTitle, lb => lb.Title },
 			{ TemplateTags.AudibleSubtitle, lb => lb.Subtitle },
-			{ TemplateTags.Series, lb => lb.Series, SeriesListFormat.Formatter },
+			{ TemplateTags.Series, lb => lb.Series, SeriesListFormat.Formatter, SeriesListFormat.Finalizer },
 			{ TemplateTags.FirstSeries, lb => lb.FirstSeries, CommonFormatters.FormattableFormatter },
 		},
 		new PropertyTagCollection<MultiConvertFileProperties>(caseSensitive: true, CommonFormatters.StringFormatter, CommonFormatters.IntegerFormatter, CommonFormatters.DateTimeFormatter)
@@ -331,6 +331,7 @@ public abstract class Templates
 
 	private static readonly ConditionalTagCollection<CombinedDto> combinedConditionalTags = new()
 	{
+		{ TemplateTags.Is, TryGetValue },
 		{ TemplateTags.Has, TryGetValue, HasValue }
 	};
 
@@ -342,11 +343,11 @@ public abstract class Templates
 	private static readonly List<TagCollection> allPropertyTags =
 		chapterPropertyTags.Append(filePropertyTags).Append(audioFilePropertyTags).ToList();
 
-	private static string? TryGetValue(ITemplateTag _, CombinedDto dtos, string property, CultureInfo? culture)
+	private static object? TryGetValue(ITemplateTag _, CombinedDto dtos, string property, CultureInfo? culture)
 	{
 		foreach (var c in allPropertyTags.OfType<PropertyTagCollection<LibraryBookDto>>())
 		{
-			if (c.TryGetValue(property, dtos.LibraryBook, culture, out var value))
+			if (c.TryGetObject(property, dtos.LibraryBook, culture, out var value))
 				return value;
 		}
 
@@ -355,16 +356,22 @@ public abstract class Templates
 
 		foreach (var c in allPropertyTags.OfType<PropertyTagCollection<MultiConvertFileProperties>>())
 		{
-			if (c.TryGetValue(property, dtos.MultiConvert, culture, out var value))
+			if (c.TryGetObject(property, dtos.MultiConvert, culture, out var value))
 				return value;
 		}
 
 		return null;
 	}
 
-	private static bool HasValue(string? value, CultureInfo? culture)
+	private static bool HasValue(object? value, CultureInfo? culture)
 	{
-		return !string.IsNullOrWhiteSpace(value);
+		var checkItem = (object o, CultureInfo? _) => !string.IsNullOrWhiteSpace(o.ToString());
+		return value switch
+		{
+			null => false,
+			IEnumerable<object> e => e.Any(o => checkItem(o, culture)),
+			_ => checkItem(value, culture)
+		};
 	}
 
 	#endregion

@@ -33,16 +33,17 @@ public abstract class TagCollection : IEnumerable<ITemplateTag>
 	/// and if it does parse the tag to an <see cref="Expression"/>
 	/// </summary>
 	/// <param name="templateString">Template string</param>
+	/// <param name="outputType">Whether to return a string or object expression</param>
 	/// <param name="exactName">The <paramref name="templateString"/> substring that was matched.</param>
 	/// <param name="propertyTag"></param>
 	/// <param name="propertyValue">The <see cref="Expression"/> that returns the <paramref name="propertyTag"/>'s value</param>
 	/// <returns>True if the <paramref name="templateString"/> starts with a tag registered in this class.</returns>
-	internal bool StartsWith(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IPropertyTag? propertyTag,
+	internal bool StartsWith(string templateString, OutputType outputType, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IPropertyTag? propertyTag,
 		[NotNullWhen(true)] out Expression? propertyValue)
 	{
 		foreach (var p in PropertyTags)
 		{
-			if (p.StartsWith(templateString, out exactName, out propertyValue))
+			if (p.StartsWith(templateString, outputType, out exactName, out propertyValue))
 			{
 				propertyTag = p;
 				return true;

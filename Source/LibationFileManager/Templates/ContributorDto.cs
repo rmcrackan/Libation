@@ -31,7 +31,7 @@ public class ContributorDto(string name, string? audibleContributorId) : IFormat
 		if (string.IsNullOrWhiteSpace(format))
 			return ToString();
 
-		return CommonFormatters.TemplateStringFormatter(this, format, provider, FormatReplacements).Trim();
+		return CommonFormatters.TemplateStringFormatter(this, format, provider, FormatReplacements);
 	}
 
 	private static string RemoveSuffix(string namesString)

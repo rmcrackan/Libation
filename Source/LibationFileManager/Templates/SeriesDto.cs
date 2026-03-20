@@ -22,6 +22,6 @@ public record SeriesDto(string? Name, string? Number, string AudibleSeriesId) : 
 		if (string.IsNullOrWhiteSpace(format))
 			return ToString() ?? string.Empty;
 
-		return CommonFormatters.TemplateStringFormatter(this, format, provider, FormatReplacements).Trim();
+		return CommonFormatters.TemplateStringFormatter(this, format, provider, FormatReplacements);
 	}
 }

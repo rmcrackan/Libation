@@ -56,13 +56,16 @@ To change how these properties are displayed, [read about custom formatters](#ta
 
 Anything between the opening tag (`<tagname->`) and closing tag (`<-tagname>`) will only appear in the name if the condition evaluates to true.
 
-| Tag                                                | Description                                                       | Type        |
-| -------------------------------------------------- | ----------------------------------------------------------------- | ----------- |
-| \<if series-\>...\<-if series\>                    | Only include if part of a book series or podcast                  | Conditional |
-| \<if podcast-\>...\<-if podcast\>                  | Only include if part of a podcast                                 | Conditional |
-| \<if bookseries-\>...\<-if bookseries\>            | Only include if part of a book series                             | Conditional |
-| \<if podcastparent-\>...\<-if podcastparent\>**†** | Only include if item is a podcast series parent                   | Conditional |
-| \<has PROPERTY-\>...\<-has\>                       | Only include if the PROPERTY has a value (i.e. not null or empty) | Conditional |
+| Tag                                                                | Description                                                                                     | Type        |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- | ----------- |
+| \<if series-\>...\<-if series\>                                    | Only include if part of a book series or podcast                                                | Conditional |
+| \<if podcast-\>...\<-if podcast\>                                  | Only include if part of a podcast                                                               | Conditional |
+| \<if bookseries-\>...\<-if bookseries\>                            | Only include if part of a book series                                                           | Conditional |
+| \<if podcastparent-\>...\<-if podcastparent\>**†**                 | Only include if item is a podcast series parent                                                 | Conditional |
+| \<has PROPERTY-\>...\<-has\>                                       | Only include if the PROPERTY has a value (i.e. not null or empty)                               | Conditional |
+| \<is PROPERTY[[CHECK](#checks)]-\>...\<-is\>                       | Only include if the PROPERTY or a single value of a list PROPERTY satisfies the CHECK           | Conditional |
+| \<is PROPERTY[FORMAT][[CHECK](#checks)]-\>...\<-is\>               | Only include if the formatted PROPERTY or a single value of a list PROPERTY satisfies the CHECK | Conditional |
+| \<is PROPERTY[...separator(...)...][[CHECK](#checks)]-\>...\<-is\> | Only include if the joined form of all formatted values of a list PROPERTY satisfies the CHECK  | Conditional |
 
 **†** Only affects the podcast series folder naming if "Save all podcast episodes to the series parent folder" option is checked.
 
@@ -70,13 +73,14 @@ For example, `<if podcast-><series><-if podcast>` will evaluate to the podcast's
 
 You can invert the condition (instead of displaying the text when the condition is true, display the text when it is false) by playing a `!` symbol before the opening tag name.
 
-| Inverted Tag                                        | Description                                                                  | Type        |
-| --------------------------------------------------- | ---------------------------------------------------------------------------- | ----------- |
-| \<!if series-\>...\<-if series\>                    | Only include if _not_ part of a book series or podcast                       | Conditional |
-| \<!if podcast-\>...\<-if podcast\>                  | Only include if _not_ part of a podcast                                      | Conditional |
-| \<!if bookseries-\>...\<-if bookseries\>            | Only include if _not_ part of a book series                                  | Conditional |
-| \<!if podcastparent-\>...\<-if podcastparent\>**†** | Only include if item is _not_ a podcast series parent                        | Conditional |
-| \<!has PROPERTY-\>...\<-has\>                       | Only include if the PROPERTY _does not_ have a value (i.e. is null or empty) | Conditional |
+| Inverted Tag                                        | Description                                                                                      | Type        |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----------- |
+| \<!if series-\>...\<-if series\>                    | Only include if _not_ part of a book series or podcast                                           | Conditional |
+| \<!if podcast-\>...\<-if podcast\>                  | Only include if _not_ part of a podcast                                                          | Conditional |
+| \<!if bookseries-\>...\<-if bookseries\>            | Only include if _not_ part of a book series                                                      | Conditional |
+| \<!if podcastparent-\>...\<-if podcastparent\>**†** | Only include if item is _not_ a podcast series parent                                            | Conditional |
+| \<!has PROPERTY-\>...\<-has\>                       | Only include if the PROPERTY _does not_ have a value (i.e. is null or empty)                     | Conditional |
+| \<!is PROPERTY[[CHECK](#checks)]-\>...\<-is\>       | Only include if neither the whole PROPERTY nor the values of a list PROPERTY satisfies the CHECK | Conditional |
 
 **†** Only affects the podcast series folder naming if "Save all podcast episodes to the series parent folder" option is checked.
 
@@ -173,3 +177,19 @@ You can use custom formatters to construct customized DateTime string. For more 
 |MM|2-digit month|\<file date[MM]\>|02|
 |dd|2-digit day of the month|\<file date[yyyy-MM-dd]\>|2023-02-14|
 |HH<br>mm|The hour, using a 24-hour clock from 00 to 23<br>The minute, from 00 through 59.|\<file date[HH:mm]\>|14:45|
+
+### Checks
+
+| Check-Pattern   | Description                                                                     | Example                                              |
+| --------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| =STRING **†**   | Matches if one item is equal to STRING (case ignored)                           | <has tag[=Tag1]->                                    |
+| !=STRING **†**  | Matches if one item is not equal to STRING (case ignored)                       | <has first author[!=Arthur]->                        |
+| ~STRING **†**   | Matches if one items is matched by the regular expression STRING (case ignored) | <has title[~(\[XYZ\]).*\\1]->                        |
+
+**†** STRING maybe escaped with a backslash. So even square brackets could be used. If a single backslash should be part of the string, it must be doubled.
+
+#### More complex examples
+
+This example will truncate the title to 4 characters and check its (trimmed) value to be "the" in any case:
+
+`<has title[4][=the]>`
