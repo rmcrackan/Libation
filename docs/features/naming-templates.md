@@ -185,8 +185,16 @@ You can use custom formatters to construct customized DateTime string. For more 
 | =STRING **†**   | Matches if one item is equal to STRING (case ignored)                           | <has tag[=Tag1]->                                    |
 | !=STRING **†**  | Matches if one item is not equal to STRING (case ignored)                       | <has first author[!=Arthur]->                        |
 | ~STRING **†**   | Matches if one items is matched by the regular expression STRING (case ignored) | <has title[~(\[XYZ\]).*\\1]->                        |
+| #=NUMBER **‡**  | Matches if the number value is equal to NUMBER                                  | <has channels[#=2]->                                 |
+| #!=NUMBER **‡** | Matches if the number value is not equal to NUMBER                              | <has author[#!=1]->                                  |
+| #>=NUMBER **‡** | Matches if the number value is greater than or equal to NUMBER                  | <has bitrate[#>=128]->                               |
+| #>NUMBER **‡**  | Matches if the number value is greater than NUMBER                              | <has title[#>30]->                                   |
+| #<=NUMBER **‡** | Matches if the number value is less than or equal to NUMBER                     | <has first narrator[format({F})][#<=1]->             |
+| #<NUMBER **‡**  | Matches if the number value is less than NUMBER                                 | <has author[#<3]->                                   |
 
 **†** STRING maybe escaped with a backslash. So even square brackets could be used. If a single backslash should be part of the string, it must be doubled.
+
+**‡** NUMBER checks on lists are checking the size of the list. If the value to check is a string, its length is used.
 
 #### More complex examples
 

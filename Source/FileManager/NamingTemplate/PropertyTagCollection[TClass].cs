@@ -22,7 +22,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 
 			if (formatter.Method.ReturnType != typeof(string)
 			    || parameters.Length != 4
-				|| parameters[0].ParameterType != typeof(ITemplateTag)
+			    || parameters[0].ParameterType != typeof(ITemplateTag)
 			    || parameters[2].ParameterType != typeof(string)
 			    || !typeof(CultureInfo).IsAssignableFrom(parameters[3].ParameterType))
 				throw new ArgumentException(
@@ -183,7 +183,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 	{
 		public override Regex NameMatcher { get; }
 		private Func<Expression, string?, Expression> CreateToStringExpression { get; }
-		private Func<Expression, string?, Expression> CreateToObjectExpression { get; }
+		private Func<Expression, string?, Expression> CreateToObjectExpression { get; } = (expVal, _) => expVal;
 
 		public PropertyTag(ITemplateTag templateTag, RegexOptions options, Expression propertyGetter, PF.PropertyFormatter<TPropertyValue, TPreFormatted> preFormatter,
 			PF.PropertyFinalizer<TPreFormatted> finalizer, PF.PropertyFinalizer<TPropertyValue> formatter)
@@ -204,6 +204,8 @@ public class PropertyTagCollection<TClass> : TagCollection
 			                         """
 				, options);
 
+			// if no format is specified, we can directly use the expVal from the property-getter as object value,
+			// otherwise we need to call the preFormatter with the format string and culture info to get the formatted value as object.
 			CreateToObjectExpression = (expVal, format) =>
 				format is null
 					? expVal
@@ -215,6 +217,9 @@ public class PropertyTagCollection<TClass> : TagCollection
 						Expression.Constant(format),
 						CultureParameter);
 
+			// if no format is specified, we can use the specific formatter to format the value to string directly,
+			// otherwise we need to call the preFormatter with the format string and culture info to get the formatted value as object,
+			// and then call the finalizer to get the final string value.
 			CreateToStringExpression = (expVal, format) =>
 				format is null
 					? Expression.Call(
@@ -241,7 +246,6 @@ public class PropertyTagCollection<TClass> : TagCollection
 			: base(templateTag, propertyGetter)
 		{
 			NameMatcher = new Regex(@$"^<{TagNameForRegex()}>", options);
-			CreateToObjectExpression = (expVal, _) => expVal;
 
 			CreateToStringExpression = (expVal, _) =>
 					Expression.Call(

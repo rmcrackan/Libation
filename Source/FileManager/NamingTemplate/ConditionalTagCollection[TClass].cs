@@ -160,20 +160,38 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			var match = CheckRegex().Match(checkString);
 
 			var valStr = match.Groups["val"].Value;
+			var ival = -1;
+			var isNumop = match.Groups["numop"].Success && int.TryParse(valStr, out ival);
 
 			var checkItem = match.Groups["op"].ValueSpan switch
 			{
 				"=" or "" => (v, culture) => VComparedToStr(v, culture, valStr) == 0,
 				"!=" or "!" => (v, culture) => VComparedToStr(v, culture, valStr) != 0,
 				"~" => GetRegExpCheck(valStr),
+				"#=" => (v, _) => VAsInt(v) == ival,
+				"#!=" => (v, _) => VAsInt(v) != ival,
+				"#>=" or ">=" => (v, _) => VAsInt(v) >= ival,
+				"#>" or ">" => (v, _) => VAsInt(v) > ival,
+				"#<=" or "<=" => (v, _) => VAsInt(v) <= ival,
+				"#<" or "<" => (v, _) => VAsInt(v) < ival,
 				_ => DefaultPredicate,
 			};
-			return (v, culture) => v switch
-			{
-				null => false,
-				IEnumerable<object> e => e.Any(o => checkItem(o, culture)),
-				_ => checkItem(v, culture)
-			};
+			return isNumop
+				? (v, culture) => v switch
+				{
+					null => false,
+					IEnumerable<object> e => checkItem(e.Count(), culture),
+					string s => checkItem(s.Length, culture),
+					_ => checkItem(v, culture)
+				}
+				: (v, culture) => v switch
+				{
+					null => false,
+					IEnumerable<object> e => e.Any(o => checkItem(o, culture)),
+					_ => checkItem(v, culture)
+				};
+
+			int? VAsInt(object v) => v is int iv ? iv : int.TryParse(v.ToString(), out var parsed) ? parsed : null;
 		}
 
 		private static int VComparedToStr(object? v, CultureInfo? culture, string valStr)
@@ -239,10 +257,12 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 		                (?x)						                    # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
 		                ^\s*                                            # anchor at start of line trimming leading whitespace
 		                (?<op>                                          # capture operator in <op> and <numop>
-		                	~|!=?|=?                                    # - string comparison operators including ~ for regexp. No operator is like =
+		                	(?<numop>\#=|\#!=|\#?>=|\#?>|\#?<=|\#?<)    # - numerical operators start with a # and might be omitted if unique
+		                	| ~|!=?|=?                                  # - string comparison operators including ~ for regexp. No operator is like =
 		                ) \s*                                           # ignore space between operator and value
-		                (?<val>                                         # capture value in <val>
-		                	.*?                                         # - string for comparison. May be empty. Non-greedy capture resulting in no whitespace at the end
+		                (?<val>(?(numop)                                # capture value in <val>
+		                	\d+                                         # - numerical operators have to be followed by a number
+		                	| .*? )                                     # - string for comparison. May be empty. Non-greedy capture resulting in no whitespace at the end
 		                )\s*$                                           # trimming up to the end
 		                """)]
 		private static partial Regex CheckRegex();
