@@ -52,7 +52,7 @@ internal partial class NameListFormat : IListFormat<NameListFormat>
 	[GeneratedRegex($@"\G(?<token>{Token})(?<descending>(?-i:(?<=\G\P{{Lu}}+)))?\s*", RegexOptions.IgnoreCase)]
 	private static partial Regex SortTokenizer();
 
-	/// <summary> Format must have at least one of the string {T}, {F}, {M}, {L}, {S}, or {ID} </summary>
+	/// <summary> Format must have at least one of the strings {T}, {F}, {M}, {L}, {S}, or {ID} </summary>
 	[GeneratedRegex($@"[Ff]ormat\((?<format>.*?\{{{Token}(?::.*?)?\}}.*?)\)")]
 	public static partial Regex FormatRegex();
 }

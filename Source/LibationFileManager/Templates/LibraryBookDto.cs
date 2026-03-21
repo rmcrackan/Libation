@@ -22,10 +22,12 @@ public class BookDto
 	public IEnumerable<SeriesDto>? Series { get; set; }
 	public SeriesDto? FirstSeries => Series?.FirstOrDefault();
 
+	public bool IsAbridged { get; set; }
 	public bool IsSeries => Series is not null;
 	public bool IsPodcastParent { get; set; }
 	public bool IsPodcast { get; set; }
 
+	public int LengthInMinutes { get; set; }
 	public int? BitRate { get; set; }
 	public int? SampleRate { get; set; }
 	public int? Channels { get; set; }
@@ -42,4 +44,5 @@ public class LibraryBookDto : BookDto
 	public DateTime? DateAdded { get; set; }
 	public string? Account { get; set; }
 	public string? AccountNickname { get; set; }
+	public IEnumerable<StringDto>? Tags { get; set; }
 }

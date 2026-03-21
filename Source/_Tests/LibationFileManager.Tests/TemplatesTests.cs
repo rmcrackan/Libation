@@ -57,6 +57,9 @@ namespace TemplatesTests
 				Codec = "AAC-LC",
 				FileVersion = null, // explicitly null
 				LibationVersion = "", // explicitly empty string
+				LengthInMinutes = 100,
+				IsAbridged = true,
+				Tags = [new StringDto("Tag1"), new StringDto("Tag2"), new StringDto("Tag3")],
 			};
 	}
 
@@ -183,6 +186,31 @@ namespace TemplatesTests
 		public void EmptyFields(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
+
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate.GetFilename(bookDto, "", "", Replacements).PathWithoutPrefix.Should().Be(expected);
+		}
+
+		[TestMethod]
+		[DataRow("<minutes>", 100, "100")]
+		[DataRow("<minutes[{m}]>", 100, "100")]
+		[DataRow("<minutes[{m:2}]>", 100, "100")]
+		[DataRow("<minutes[{h}-{m}]>", 100, "1-40")]
+		[DataRow("<minutes[{h:2}-{m:2}]>", 100, "01-40")]
+		[DataRow("<minutes[{d}.{h:2}-{m:2}]>", 100, "0.01-40")]
+		[DataRow("<minutes[{d:2}d{h:2}h{m:2}m]>", 100, "00d01h40m")]
+		[DataRow("<minutes[{d} days, {h} hours, {m} minutes]>", 100, "0 days, 1 hours, 40 minutes")]
+		[DataRow("<minutes[{h}-{m}]>", 2000, "33-20")]
+		[DataRow("<minutes[{d:3}-{h:3}-{m:3}]>", 2000, "001-009-020")]
+		[DataRow("<minutes[{d}-{m}]>", 100, "0-100")]
+		[DataRow("<minutes[{d}-{m}]>", 1500, "1-60")]
+		[DataRow("<minutes[{d}-{m}]>", 2000, "1-560")]
+		[DataRow("<minutes[{d}-{m}]>", 2880, "2-0")]
+		[DataRow("<minutes[{d:2}-{m:2}]>", 1500, "01-60")]
+		public void MinutesFormat(string template, int minutes, string expected)
+		{
+			var bookDto = GetLibraryBook();
+			bookDto.LengthInMinutes = minutes;
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate.GetFilename(bookDto, "", "", Replacements).PathWithoutPrefix.Should().Be(expected);
@@ -492,6 +520,7 @@ namespace TemplatesTests
 		[DataRow("<is author[format({L})separator(:)][=Doyle:Fry]->true<-has>", "true")]
 		[DataRow("<is author[>=3]->true<-has>", "")]
 		[DataRow("<is author[=Sherlock]->true<-has>", "")]
+		[DataRow("<is tag[=Tag1]->true<-has>", "true")]
 		public void HasValue_test(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
@@ -615,6 +644,21 @@ namespace TemplatesTests
 		}
 
 		[TestMethod]
+		[DataRow("<if abridged->Abridged<-if abridged>", "Abridged", true)]
+		[DataRow("<if abridged->Abridged<-if abridged>", "", false)]
+		public void IfAbridged_test(string template, string expected, bool isAbridged)
+		{
+			var bookDto = GetLibraryBook();
+			bookDto.IsAbridged = isAbridged;
+
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+
+			fileTemplate
+				.GetName(bookDto, new MultiConvertFileProperties { OutputFileName = string.Empty })
+				.Should().Be(expected);
+		}
+
+		[TestMethod]
 		[DataRow("<audibletitle [u]>", "I", "en-US", "i")]
 		[DataRow("<audibletitle [l]>", "ı", "tr-TR", "I")]
 		[DataRow("<audibletitle [u]>", "İ", "tr-TR", "i")]
@@ -628,6 +672,25 @@ namespace TemplatesTests
 
 			fileTemplate
 				.GetName(bookDto, new MultiConvertFileProperties { OutputFileName = string.Empty }, culture)
+				.Should().Be(expected);
+		}
+
+		[TestMethod]
+		[DataRow("<tag>", "Tag1, Tag2, Tag3")]
+		[DataRow("<tag [separator( - )]>", "Tag1 - Tag2 - Tag3")]
+		[DataRow("<tag [format({S:u})]>", "TAG1, TAG2, TAG3")]
+		[DataRow("<tag [format({S:l})]>", "tag1, tag2, tag3")]
+		[DataRow("<tag [format(Tag: {S})]>", "Tag: Tag1, Tag: Tag2, Tag: Tag3")]
+		[DataRow("<tag [max(1)]>", "Tag1")]
+		[DataRow("<tag [sort(s)]>", "Tag3, Tag2, Tag1")]
+		public void Tag_test(string template, string expected)
+		{
+			var bookDto = Shared.GetLibraryBook();
+
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+
+			fileTemplate
+				.GetName(bookDto, new MultiConvertFileProperties { OutputFileName = string.Empty })
 				.Should().Be(expected);
 		}
 	}

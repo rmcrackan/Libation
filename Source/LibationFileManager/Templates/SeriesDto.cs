@@ -18,10 +18,7 @@ public record SeriesDto(string? Name, string? Number, string AudibleSeriesId) : 
 	public override string? ToString() => Name?.Trim();
 
 	public string ToString(string? format, IFormatProvider? provider)
-	{
-		if (string.IsNullOrWhiteSpace(format))
-			return ToString() ?? string.Empty;
-
-		return CommonFormatters.TemplateStringFormatter(this, format, provider, FormatReplacements);
-	}
+		=> string.IsNullOrWhiteSpace(format)
+			? ToString() ?? string.Empty
+			: CommonFormatters.TemplateStringFormatter(this, format, provider, FormatReplacements);
 }

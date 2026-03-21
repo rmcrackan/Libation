@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using FileManager.NamingTemplate;
 
-namespace LibationFileManager.Templates;
+namespace LibationFileManager.Templates; 
 
 public class ContributorDto(string name, string? audibleContributorId) : IFormattable
 {
@@ -23,16 +23,12 @@ public class ContributorDto(string name, string? audibleContributorId) : IFormat
 		{ "ID", dto => dto.AudibleContributorId },
 	};
 
-	public override string ToString()
-		=> ToString("{T} {F} {M} {L} {S}", null);
+	public override string ToString() => ToString("{T} {F} {M} {L} {S}", null);
 
 	public string ToString(string? format, IFormatProvider? provider)
-	{
-		if (string.IsNullOrWhiteSpace(format))
-			return ToString();
-
-		return CommonFormatters.TemplateStringFormatter(this, format, provider, FormatReplacements);
-	}
+		=> string.IsNullOrWhiteSpace(format)
+			? ToString()
+			: CommonFormatters.TemplateStringFormatter(this, format, provider, FormatReplacements);
 
 	private static string RemoveSuffix(string namesString)
 	{

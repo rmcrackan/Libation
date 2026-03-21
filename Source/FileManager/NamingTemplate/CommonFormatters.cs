@@ -24,7 +24,7 @@ public static partial class CommonFormatters
 		return (templateTag, value, culture) => formatter(templateTag, value, null, culture);
 	}
 
-	public static string? StringFinalizer(ITemplateTag templateTag, string? value, CultureInfo? culture) => value ?? "";
+	public static string? StringFinalizer(ITemplateTag templateTag, string? value, CultureInfo? culture) => value;
 
 	public static TPropertyValue? IdlePreFormatter<TPropertyValue>(ITemplateTag templateTag, TPropertyValue? value, string? formatString, CultureInfo? culture) => value;
 
@@ -110,6 +110,41 @@ public static partial class CommonFormatters
 		return new string('0', zeroPad) + strValue;
 	}
 
+	public static string MinutesFormatter(ITemplateTag templateTag, int value, string? formatString, CultureInfo? culture)
+	{
+		culture ??= CultureInfo.CurrentCulture;
+		if (string.IsNullOrEmpty(formatString))
+			return value.ToString(culture);
+
+		var timeSpan = TimeSpan.FromMinutes(value);
+		var result = formatString;
+
+		// replace all placeholders with formatted values
+		result = RegexMinutesD().Replace(result, m =>
+		{
+			var val = (int)timeSpan.TotalDays;
+			timeSpan = timeSpan.Subtract(TimeSpan.FromDays(val));
+
+			return FloatFormatter(templateTag, val, m.Groups["format"].Value, culture);
+		});
+		result = RegexMinutesH().Replace(result, m =>
+		{
+			var val = (int)timeSpan.TotalHours;
+			timeSpan = timeSpan.Subtract(TimeSpan.FromHours(val));
+
+			return FloatFormatter(templateTag, val, m.Groups["format"].Value, culture);
+		});
+		result = RegexMinutesM().Replace(result, m =>
+		{
+			var val = (int)timeSpan.TotalMinutes;
+			timeSpan = timeSpan.Subtract(TimeSpan.FromMinutes(val));
+
+			return FloatFormatter(templateTag, val, m.Groups["format"].Value, culture);
+		});
+
+		return result;
+	}
+
 	public static string DateTimeFormatter(ITemplateTag _, DateTime value, string? formatString, CultureInfo? culture)
 	{
 		culture ??= CultureInfo.InvariantCulture;
@@ -122,4 +157,14 @@ public static partial class CommonFormatters
 	{
 		return StringFormatter(templateTag, language?.Trim(), "3u", culture);
 	}
+
+	// Regex to find patterns like {D:3}, {h:4}, {m}
+	[GeneratedRegex(@"\{D(?::(?<format>.*?))?\}", RegexOptions.IgnoreCase)]
+	private static partial Regex RegexMinutesD();
+
+	[GeneratedRegex(@"\{H(?::(?<format>.*?))?\}", RegexOptions.IgnoreCase)]
+	private static partial Regex RegexMinutesH();
+
+	[GeneratedRegex(@"\{M(?::(?<format>.*?))?\}", RegexOptions.IgnoreCase)]
+	private static partial Regex RegexMinutesM();
 }

@@ -288,11 +288,13 @@ public abstract class Templates
 		{ TemplateTags.DatePublished, lb => lb.DatePublished },
 		{ TemplateTags.DateAdded, lb => lb.DateAdded },
 		{ TemplateTags.FileDate, lb => lb.FileDate },
+		{ TemplateTags.Tag, lb => lb.Tags, StringListFormat.Formatter, StringListFormat.Finalizer },
 	};
 
 	private static readonly PropertyTagCollection<LibraryBookDto> audioFilePropertyTags =
 		new(caseSensitive: true, CommonFormatters.StringFormatter, CommonFormatters.IntegerFormatter)
 	{
+		{ TemplateTags.Minutes, lb => lb.LengthInMinutes, CommonFormatters.MinutesFormatter },
 		{ TemplateTags.Bitrate, lb => lb.BitRate },
 		{ TemplateTags.SampleRate, lb => lb.SampleRate },
 		{ TemplateTags.Channels, lb => lb.Channels },
@@ -324,6 +326,7 @@ public abstract class Templates
 
 	private static readonly ConditionalTagCollection<LibraryBookDto> conditionalTags = new()
 	{
+		{ TemplateTags.IfAbridged, lb => lb.IsAbridged },
 		{ TemplateTags.IfSeries, lb => lb.IsSeries || lb.IsPodcastParent },
 		{ TemplateTags.IfPodcast, lb => lb.IsPodcast || lb.IsPodcastParent },
 		{ TemplateTags.IfBookseries, lb => lb is { IsSeries: true, IsPodcast: false, IsPodcastParent: false } },
