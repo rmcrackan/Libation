@@ -23,7 +23,7 @@ internal partial class SeriesListFormat : IListFormat<SeriesListFormat>
 		if (pattern is null) return entries;
 
 		IOrderedEnumerable<T>? ordered = null;
-		foreach (Match m in SortTokenizer().Matches(pattern!))
+		foreach (Match m in SortTokenizer().Matches(pattern))
 		{
 			// Dictionary is case-insensitive, no ToUpper needed
 			if (!formatReplacements.TryGetValue(m.Groups["token"].Value, out var selector))

@@ -385,6 +385,12 @@ namespace TemplatesTests
 		[DataRow("<author  [  max(  1  )  ]>", "Jill Conner Browne")]
 		[DataRow("<author[max(2)]>", "Jill Conner Browne, Charles E. Gannon")]
 		[DataRow("<author[max(3)]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf")]
+		[DataRow("<author[slice(3)]>", "Christopher John Fetherolf")]
+		[DataRow("<author[slice(3...5)]>", "Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi")]
+		[DataRow("<author[slice(-2)]>", "Paul Van Doren")]
+		[DataRow("<author[slice(-3..-2)]>", "Jon Bon Jovi, Paul Van Doren")]
+		[DataRow("<author[sort(LF) slice(4..5)]>", "Charles E. Gannon, Emma Gannon")]
+		[DataRow("<author[sort(Lf) slice(4..5)]>", "Emma Gannon, Charles E. Gannon")]
 		[DataRow("<author[format({L}, {F})]>", "Browne, Jill, Gannon, Charles, Fetherolf, Christopher, Montgomery, Lucy, Bon Jovi, Jon, Van Doren, Paul, Gannon, Emma")]
 		[DataRow("<author[format({L}, {F} {ID})]>", "Browne, Jill B1, Gannon, Charles B2, Fetherolf, Christopher B3, Montgomery, Lucy B4, Bon Jovi, Jon B5, Van Doren, Paul B6, Gannon, Emma B7")]
 		[DataRow("<author[format({ID})]>", "B1, B2, B3, B4, B5, B6, B7")]
@@ -519,8 +525,15 @@ namespace TemplatesTests
 		[DataRow("<is author[format({L})][=Doyle]->true<-has>", "true")]
 		[DataRow("<is author[format({L})separator(:)][=Doyle:Fry]->true<-has>", "true")]
 		[DataRow("<is author[>=3]->true<-has>", "")]
+		[DataRow("<is author[slice(99)][~.*]->true<-has>", "")]
+		[DataRow("<is author[slice(99)separator(:)][~.*]->true<-has>", "")]
+		[DataRow("<is author[slice(-9)separator(:)][~.*]->true<-has>", "")]
+		[DataRow("<is author[slice(2..1)separator(:)][~.*]->true<-has>", "")]
+		[DataRow("<is author[slice(-1..1)separator(:)][~.*]->true<-has>", "")]
+		[DataRow("<is author[slice(-1..-2)separator(:)][~.*]->true<-has>", "")]
 		[DataRow("<is author[=Sherlock]->true<-has>", "")]
 		[DataRow("<is tag[=Tag1]->true<-has>", "true")]
+		[DataRow("<is tag[separator(:)slice(-2..)][=Tag2:Tag3]->true<-has>", "true")]
 		public void HasValue_test(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
@@ -542,6 +555,7 @@ namespace TemplatesTests
 		[TestMethod]
 		[DataRow("<series>", "Series A, Series B, Series C, Series D")]
 		[DataRow("<series[]>", "Series A, Series B, Series C, Series D")]
+		[DataRow("<series[slice(2..3)]>", "Series B, Series C")]
 		[DataRow("<series[max(1)]>", "Series A")]
 		[DataRow("<series[max(2)]>", "Series A, Series B")]
 		[DataRow("<series[max(3)]>", "Series A, Series B, Series C")]
@@ -682,6 +696,7 @@ namespace TemplatesTests
 		[DataRow("<tag [format({S:l})]>", "tag1, tag2, tag3")]
 		[DataRow("<tag [format(Tag: {S})]>", "Tag: Tag1, Tag: Tag2, Tag: Tag3")]
 		[DataRow("<tag [max(1)]>", "Tag1")]
+		[DataRow("<tag [slice(2..)]>", "Tag2, Tag3")]
 		[DataRow("<tag [sort(s)]>", "Tag3, Tag2, Tag1")]
 		public void Tag_test(string template, string expected)
 		{

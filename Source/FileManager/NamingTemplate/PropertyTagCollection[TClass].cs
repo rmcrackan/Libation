@@ -1,7 +1,6 @@
 ﻿using Dinah.Core;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -28,7 +27,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 				throw new ArgumentException(
 					$"{nameof(defaultFormatters)} must have a signature of [{nameof(String)} PropertyFormatter<T>({nameof(ITemplateTag)}, T, {nameof(String)}, {nameof(CultureInfo)})]");
 
-			this._defaultFormatters[parameters[1].ParameterType] = formatter;
+			_defaultFormatters[parameters[1].ParameterType] = formatter;
 		}
 	}
 
@@ -122,7 +121,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 	(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, PF.PropertyFormatter<TPropertyValue, TPreFormatted> preFormatter,
 		PF.PropertyFinalizer<TPreFormatted> finalizer)
 	{
-		PF.PropertyFinalizer<TPropertyValue> formatter = PF.ToPropertyFormatter(preFormatter, finalizer);
+		var formatter = PF.ToPropertyFormatter(preFormatter, finalizer);
 		RegisterWithFormatters(templateTag, propertyGetter, preFormatter, finalizer, formatter);
 	}
 
@@ -281,8 +280,6 @@ public class PropertyTagCollection<TClass> : TagCollection
 
 				return Expression.TryCatch(toStringExpression, Expression.Catch(typeof(Exception), Expression.Constant(exactName)));
 			}
-			else
-			{
 				Expression toObjectExpression =
 					Expression.Condition(
 						isNullExpression,
@@ -290,7 +287,6 @@ public class PropertyTagCollection<TClass> : TagCollection
 						Expression.Convert(CreateToObjectExpression(formattableValueExpression, formatString), typeof(object)));
 
 				return Expression.TryCatch(toObjectExpression, Expression.Catch(typeof(Exception), Expression.Constant(null, typeof(object))));
-			}
 		}
 	}
 }

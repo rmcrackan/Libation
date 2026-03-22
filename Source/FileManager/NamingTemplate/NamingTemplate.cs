@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -29,7 +28,6 @@ public class NamingTemplate
 	/// <summary>
 	/// Invoke the <see cref="NamingTemplate"/>
 	/// </summary>
-	/// <param name="culture"></param>
 	/// <param name="propertyClasses">Instances of the TClass used in <see cref="PropertyTagCollection{TClass}"/> and <see cref="ConditionalTagCollection{TClass}"/></param>
 	public TemplatePart Evaluate(params object?[] propertyClasses)
 	{
@@ -41,10 +39,8 @@ public class NamingTemplate
 		var parameters = _templateToString.Method.GetParameters();
 		var delegateArgTypes = parameters.Skip(1).ToList();
 
-		object?[] args = new object?[delegateArgTypes.Count];
-		// args = delegateArgTypes.Join(propertyClasses, dat => dat.ParameterType, pc => pc?.GetType(), (_, i) => i,
-		// 	EqualityComparer<Type?>.Create((datType, pcType) => datType!.IsAssignableFrom(pcType))).ToArray();
-		for (int i = 0; i < delegateArgTypes.Count; i++)
+		var args = new object?[delegateArgTypes.Count];
+		for (var i = 0; i < delegateArgTypes.Count; i++)
 		{
 			var p = delegateArgTypes[i];
 			args[i] = propertyClasses.FirstOrDefault(pc => pc != null && p.ParameterType.IsInstanceOfType(pc));
@@ -87,8 +83,9 @@ public class NamingTemplate
 	{
 		if (node is null) return TemplatePart.Blank;
 		if (node.IsValue) return node.Expression;
-		if (node.IsConditional) return Expression.Condition(node.Expression, ConcatExpression(node), TemplatePart.Blank);
-		return ConcatExpression(node);
+		return node.IsConditional
+			? Expression.Condition(node.Expression, ConcatExpression(node), TemplatePart.Blank)
+			: ConcatExpression(node);
 
 		static Expression ConcatExpression(BinaryNode node)
 			=> TemplatePart.CreateConcatenation(GetExpressionTree(node.LeftChild), GetExpressionTree(node.RightChild));
@@ -106,8 +103,8 @@ public class NamingTemplate
 
 		TemplateText = templateString;
 
-		BinaryNode topNode = BinaryNode.CreateRoot();
-		BinaryNode? currentNode = topNode;
+		var topNode = BinaryNode.CreateRoot();
+		var currentNode = topNode;
 		List<char> literalChars = [];
 
 		while (templateString.Length > 0)
@@ -130,7 +127,7 @@ public class NamingTemplate
 			{
 				CheckAndAddLiterals();
 
-				BinaryNode? lastParenth = currentNode;
+				var lastParenth = currentNode;
 
 				while (lastParenth?.IsConditional is false)
 					lastParenth = lastParenth.Parent;
@@ -263,7 +260,7 @@ public class NamingTemplate
 
 		public BinaryNode AddNewNode(BinaryNode newNode)
 		{
-			BinaryNode currentNode = this;
+			var currentNode = this;
 
 			if (LeftChild is null)
 			{

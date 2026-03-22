@@ -63,7 +63,7 @@ public static partial class CommonFormatters
 		if (string.IsNullOrEmpty(templateString)) return "";
 
 		// is this function is called from toString implementation of the IFormattable interface, we only get a IFormatProvider
-		var culture = provider as CultureInfo ?? (provider?.GetFormat(typeof(CultureInfo)) as CultureInfo);
+		var culture = provider as CultureInfo ?? provider?.GetFormat(typeof(CultureInfo)) as CultureInfo;
 		return CollapseSpacesAndTrimRegex().Replace(TagFormatRegex().Replace(templateString, GetValueForMatchingTag), "");
 
 		string GetValueForMatchingTag(Match m)

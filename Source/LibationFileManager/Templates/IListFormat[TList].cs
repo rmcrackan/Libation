@@ -10,7 +10,33 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 {
 	static IEnumerable<T> FilteredList<T>(string formatString, IEnumerable<T> items)
 	{
-		return Max(formatString, items);
+		return Max(formatString, Slice(formatString, items));
+
+		static IEnumerable<T> Slice(string formatString, IEnumerable<T> items)
+		{
+			var sliceMatch = SliceRegex().Match(formatString);
+			if (!sliceMatch.Success) return items;
+
+			int.TryParse(sliceMatch.Groups["first"].ValueSpan, out var first);
+			int.TryParse(sliceMatch.Groups["last"].ValueSpan, out var last);
+			if (!sliceMatch.Groups["op"].Success) last = first;
+
+			if (last > 0)
+			{
+				// strange constellation which might not work as intended: slice(-2..3) needs at least 4 items to return anything
+				// to get this working, we need to adjust the start-pointer based on the total count of items	
+				if (first < 0)
+					first += items.Count() + 1;
+				items = items.Take(last);
+			}
+
+			if (first > 1) items = items.Skip(first - 1);
+			else if (first < 0) items = items.TakeLast(-first);
+
+			if (last < -1) items = items.SkipLast(-last - 1);
+
+			return items;
+		}
 
 		static IEnumerable<T> Max(string formatString, IEnumerable<T> items)
 		{
@@ -53,6 +79,14 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 	private static partial Regex CollapseSpacesAndTrimRegex();
 
 	static abstract Regex FormatRegex();
+
+	/// <summary>
+	/// Slice can be a single number or a range like "start..end".
+	/// Leaving out one value of a range it will start on the first or end on the last respectively.
+	/// Negative numbers will start counting from the end with "-1" being the last element.
+	/// </summary>
+	[GeneratedRegex(@"[Ss]lice\(\s*(?<first>-?[1-9]\d*)?\s*(?:(?<op>\.\.\.*)\s*(?<last>-?[1-9]\d*)?(?(first)|(?<=\d))\s*)?\)")]
+	private static partial Regex SliceRegex();
 
 	/// <summary> Max must have a 1 or 2-digit number </summary>
 	[GeneratedRegex(@"[Mm]ax\(\s*(?<max>[1-9]\d?)\s*\)")]

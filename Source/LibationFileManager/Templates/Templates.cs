@@ -45,7 +45,7 @@ public abstract class Templates
 	public static bool TryGetTemplate<T>(string? templateText, out T template) where T : Templates, ITemplate, new()
 	{
 		var namingTemplate = NamingTemplate.Parse(templateText, T.TagCollections);
-		template = new() { NamingTemplate = namingTemplate };
+		template = new T() { NamingTemplate = namingTemplate };
 		return !namingTemplate.Errors.Any();
 	}
 
@@ -153,7 +153,7 @@ public abstract class Templates
 
 		//Remove 1 character from the end of the longest filename part until
 		//the total filename is less than max filename length
-		for (int i = 0; i < pathParts.Count; i++)
+		for (var i = 0; i < pathParts.Count; i++)
 		{
 			var part = pathParts[i];
 
@@ -165,7 +165,7 @@ public abstract class Templates
 
 			while (part.Sum(GetFilenameLength) > maxFilenameLength)
 			{
-				int maxLength = part.Max(p => p.Length);
+				var maxLength = part.Max(p => p.Length);
 				var maxEntry = part.First(p => p.Length == maxLength);
 
 				var maxIndex = part.IndexOf(maxEntry);
@@ -190,8 +190,8 @@ public abstract class Templates
 	/// <returns>A List of template directories. Each directory is a list of template part strings</returns>
 	private static List<List<string>> GetPathParts(IEnumerable<string> templateParts)
 	{
-		List<List<string>> directories = new();
-		List<string> dir = new();
+		List<List<string>> directories = [];
+		List<string> dir = [];
 
 		foreach (var part in templateParts)
 		{
@@ -201,7 +201,7 @@ public abstract class Templates
 				dir.Add(part[lastIndex..slashIndex]);
 				RemoveSpaces(dir);
 				directories.Add(dir);
-				dir = new();
+				dir = [];
 
 				lastIndex = slashIndex + 1;
 			}
@@ -232,7 +232,7 @@ public abstract class Templates
 		parts[^1] = parts[^1].TrimEnd();
 
 		//Replace all multispace substrings with single space
-		for (int i = 0; i < parts.Count; i++)
+		for (var i = 0; i < parts.Count; i++)
 		{
 			string original;
 			do
@@ -243,11 +243,11 @@ public abstract class Templates
 		}
 
 		//Remove instances of double spaces at part boundaries
-		for (int i = 1; i < parts.Count; i++)
+		for (var i = 1; i < parts.Count; i++)
 		{
 			if (parts[i - 1].EndsWith(' ') && parts[i].StartsWith(' '))
 			{
-				parts[i] = parts[i].Substring(1);
+				parts[i] = parts[i][1..];
 
 				if (parts[i].Length == 0)
 				{
@@ -368,12 +368,12 @@ public abstract class Templates
 
 	private static bool HasValue(object? value, CultureInfo? culture)
 	{
-		var checkItem = (object o, CultureInfo? _) => !string.IsNullOrWhiteSpace(o.ToString());
+		bool CheckItem(object o, CultureInfo? _) => !string.IsNullOrWhiteSpace(o.ToString());
 		return value switch
 		{
 			null => false,
-			IEnumerable<object> e => e.Any(o => checkItem(o, culture)),
-			_ => checkItem(value, culture)
+			IEnumerable<object> e => e.Any(o => CheckItem(o, culture)),
+			_ => CheckItem(value, culture)
 		};
 	}
 
@@ -382,7 +382,9 @@ public abstract class Templates
 	#region Tag Formatters
 
 	private static string? GetTitleShort(string? title)
-		=> title?.IndexOf(':') > 0 ? title.Substring(0, title.IndexOf(':')) : title;
+		=> title != null && title.IndexOf(':') is var i && i >= 0
+			? title[..i]
+			: title;
 
 	#endregion
 
