@@ -45,7 +45,7 @@ internal partial class StringListFormat : IListFormat<StringListFormat>
 
 	private const string Token = "S";
 
-	/// <summary> Sort must have at least one of the token labels T, F, M, L, S or ID. Use lower case for descending direction and add multiple tokens to sort by multiple fields. Spaces may be used to separate tokens.</summary>
+	/// <summary> Sort must have the token label S. Use lower case for descending direction.</summary>
 	[GeneratedRegex($@"[Ss]ort\(\s*(?i:(?<pattern>(?:{Token}\s*?)+))\s*\)")]
 	private static partial Regex SortRegex();
 

@@ -202,6 +202,7 @@ namespace TemplatesTests
 		[DataRow("<minutes[{d} days, {h} hours, {m} minutes]>", 100, "0 days, 1 hours, 40 minutes")]
 		[DataRow("<minutes[{h}-{m}]>", 2000, "33-20")]
 		[DataRow("<minutes[{d:3}-{h:3}-{m:3}]>", 2000, "001-009-020")]
+		[DataRow("<minutes[{m}-{h}-{d}]>", 2000, "20-9-1")]
 		[DataRow("<minutes[{d}-{m}]>", 100, "0-100")]
 		[DataRow("<minutes[{d}-{m}]>", 1500, "1-60")]
 		[DataRow("<minutes[{d}-{m}]>", 2000, "1-560")]

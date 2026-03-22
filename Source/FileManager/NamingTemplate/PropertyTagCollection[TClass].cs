@@ -280,13 +280,14 @@ public class PropertyTagCollection<TClass> : TagCollection
 
 				return Expression.TryCatch(toStringExpression, Expression.Catch(typeof(Exception), Expression.Constant(exactName)));
 			}
-				Expression toObjectExpression =
-					Expression.Condition(
-						isNullExpression,
-						Expression.Constant(null, typeof(object)),
-						Expression.Convert(CreateToObjectExpression(formattableValueExpression, formatString), typeof(object)));
 
-				return Expression.TryCatch(toObjectExpression, Expression.Catch(typeof(Exception), Expression.Constant(null, typeof(object))));
+			Expression toObjectExpression =
+				Expression.Condition(
+					isNullExpression,
+					Expression.Constant(null, typeof(object)),
+					Expression.Convert(CreateToObjectExpression(formattableValueExpression, formatString), typeof(object)));
+
+			return Expression.TryCatch(toObjectExpression, Expression.Catch(typeof(Exception), Expression.Constant(null, typeof(object))));
 		}
 	}
 }

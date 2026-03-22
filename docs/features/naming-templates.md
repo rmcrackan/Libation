@@ -126,6 +126,7 @@ Text formatting can change length and case of the text. Use <#>, <#><case> or <c
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- | -------------------------------------------- |
 | separator()   | Speficy the text used to join<br>multiple entries.<br><br>Default is ", "                                                                                                | `<tag[separator(_)]>`                        | Tag1_Tag2_Tag3_Tag4_Tag5                     |
 | format(\{S\}) | Formats the entries by placing their values into the specified template.<br>Use {S:[Text_Formatter](#text-formatters)} to place the entry and optionally apply a format. | `<tag[format(Tag={S:l})`<br>`separator(;)]>` | Tag=tag1;Tag=tag2;Tag=tag3;Tag=tag4;Tag=tag5 |
+| sort(S)       | Sorts the elements by their value.<br><br>*Sorting direction:*<br>uppercase = ascending<br>lowercase = descending<br><br>Default is unsorted                             | `<tag[sort(s)`<br>`separator(; )]>`          | Tag5;Tag4;Tag4;Tag2;Tag1                     |
 | max(#)        | Only use the first # of entries                                                                                                                                          | `<tag[max(1)]>`                              | Tag1                                         |
 | slice(#)      | Only use the nth entry of the list                                                                                                                                       | `<tag[slice(2)]>`                            | Tag2                                         |
 | slice(#..)    | Only use entries of the list starting from #                                                                                                                             | `<tag[slice(2..)]>`                          | Tag2, Tag3, Tag4, Tag5                       |
@@ -145,7 +146,7 @@ Text formatting can change length and case of the text. Use <#>, <#><case> or <c
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | separator()              | Speficy the text used to join<br>multiple series names.<br><br>Default is ", "                                                                                                                                                                                                                               | `<series[separator(; )]>`                                                                 | Sherlock Holmes; Some Other Series                                                                                  |
 | format(\{N \| # \| ID\}) | Formats the series properties<br>using the name series tags.<br>See [Series Formatter Usage](#series-formatters) above.                                                                                                                                                                                      | `<series[format({N}, {#})`<br>`separator(; )]>`<hr>`<series[format({ID}-{N}, {#:00.0})]>` | Sherlock Holmes, 1-6; Book Collection, 1<hr>B08376S3R2-Sherlock Holmes, 01.0-06.0, B000000000-Book Collection, 01.0 |
-| sort(\{N \| # \| ID\})   | Sorts the series by name, number or ID.<br><br>These terms define the primary, secondary, tertiary, … sorting order.<br>You may combine multiple terms in sequence to specify multi‑level sorting.<br><br>*Sorting direction:*<br>uppercase = ascending<br>lowercase = descending<br><br>Default is unsorted | `<series[sort(N)`<br>`separator(; )]>`                                                    | Book Collection, 1; Sherlock Holmes, 1-6                                                                            |
+| sort(N \| # \| ID)       | Sorts the series by name, number or ID.<br><br>These terms define the primary, secondary, tertiary, … sorting order.<br>You may combine multiple terms in sequence to specify multi‑level sorting.<br><br>*Sorting direction:*<br>uppercase = ascending<br>lowercase = descending<br><br>Default is unsorted | `<series[sort(N)`<br>`separator(; )]>`                                                    | Book Collection, 1; Sherlock Holmes, 1-6                                                                            |
 | max(#)                   | Only use the first # of series                                                                                                                                                                                                                                                                               | `<series[max(1)]>`                                                                        | Sherlock Holmes                                                                                                     |
 | slice(#..#)              | Only use entries of the series list starting from # and ending at # (inclusive)<br><br>See [Text List Formatter Usage](#Text-List-Formatters) above for details on all the variants of `slice()`                                                                                                             | `<series[slice(..-2)]>`                                                                   | Sherlock Holmes                                                                                                     |
 
@@ -167,9 +168,9 @@ Text formatting can change length and case of the text. Use <#>, <#><case> or <c
 
 ### Minutes Formatters
 
-| Formatter     | Description                                                                                                                                                                                                                                                                                                                                                                   | Example Usage                                                                                                   | Example Result                                 |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| {M \| H \| D} | Format the minutes value in terms of minutes, hours and days.<br>{D:[Number_Formatter](#number-formatter) = Number of full days<br>{H:[Number_Formatter](#number-formatter) = Number of full (remaining) hours<br>{M:[Number_Formatter](#number-formatter) = Number of (remaining) minutes<br><br>These tags only work in the order from day to minute.<br><br>Default is {M} | `<minutes[{M:4}minutes]>`<hr>`<minutes[{D:2}d {M:2}m]>`<hr>`<minutes[{D}-{H}-{M}]>`<hr>`<minutes[{M}-{H}-{D}]>` | 03000minutes<hr>02d 120m<hr>2-2-0<hr> 3000-0-0 |
+| Formatter     | Description                                                                                                                                                                                                                                                                                                      | Example Usage                                                                       | Example Result                    |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------- |
+| {M \| H \| D} | Format the minutes value in terms of minutes, hours and days.<br>{D:[Number_Formatter](#number-formatter) = Number of full days<br>{H:[Number_Formatter](#number-formatter) = Number of full (remaining) hours<br>{M:[Number_Formatter](#number-formatter) = Number of (remaining) minutes<br><br>Default is {M} | `<minutes[{M:4}minutes]>`<hr>`<minutes[{D:2}d {M:2}m]>`<hr>`<minutes[{D}-{H}-{M}]>` | 03000minutes<hr>02d 120m<hr>2-2-0 |
 
 ### Number Formatters
 
@@ -204,17 +205,17 @@ You can use custom formatters to construct customized DateTime string. For more 
 
 ### Checks
 
-| Check-Pattern   | Description                                                                     | Example                                              |
-| --------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| =STRING **†**   | Matches if one item is equal to STRING (case ignored)                           | <has tag[=Tag1]->                                    |
-| !=STRING **†**  | Matches if one item is not equal to STRING (case ignored)                       | <has first author[!=Arthur]->                        |
-| ~STRING **†**   | Matches if one items is matched by the regular expression STRING (case ignored) | <has title[~(\[XYZ\]).*\\1]->                        |
-| #=NUMBER **‡**  | Matches if the number value is equal to NUMBER                                  | <has channels[#=2]->                                 |
-| #!=NUMBER **‡** | Matches if the number value is not equal to NUMBER                              | <has author[#!=1]->                                  |
-| #>=NUMBER **‡** | Matches if the number value is greater than or equal to NUMBER                  | <has bitrate[#>=128]->                               |
-| #>NUMBER **‡**  | Matches if the number value is greater than NUMBER                              | <has title[#>30]->                                   |
-| #<=NUMBER **‡** | Matches if the number value is less than or equal to NUMBER                     | <has first narrator[format({F})][#<=1]->             |
-| #<NUMBER **‡**  | Matches if the number value is less than NUMBER                                 | <has author[#<3]->                                   |
+| Check-Pattern   | Description                                                                     | Example                                 |
+| --------------- | ------------------------------------------------------------------------------- | --------------------------------------- |
+| =STRING **†**   | Matches if one item is equal to STRING (case ignored)                           | <is tag[=Tag1]->                        |
+| !=STRING **†**  | Matches if one item is not equal to STRING (case ignored)                       | <is first author[!=Arthur]->            |
+| ~STRING **†**   | Matches if one items is matched by the regular expression STRING (case ignored) | <is title[~(\[XYZ\]).*\\1]->            |
+| #=NUMBER **‡**  | Matches if the number value is equal to NUMBER                                  | <is channels[#=2]->                     |
+| #!=NUMBER **‡** | Matches if the number value is not equal to NUMBER                              | <is author[#!=1]->                      |
+| #>=NUMBER **‡** | Matches if the number value is greater than or equal to NUMBER                  | <is bitrate[#>=128]->                   |
+| #>NUMBER **‡**  | Matches if the number value is greater than NUMBER                              | <is title[#>30]->                       |
+| #<=NUMBER **‡** | Matches if the number value is less than or equal to NUMBER                     | <is first narrator[format({F})][#<=1]-> |
+| #<NUMBER **‡**  | Matches if the number value is less than NUMBER                                 | <is author[#<3]->                       |
 
 **†** STRING maybe escaped with a backslash. So even square brackets could be used. If a single backslash should be part of the string, it must be doubled.
 
@@ -224,8 +225,8 @@ You can use custom formatters to construct customized DateTime string. For more 
 
 This example will truncate the title to 4 characters and check its (trimmed) value to be "the" in any case:
 
-`<has title[4][=the]>`
+`<is title[4][=the]>`
 
 Here the second to fourth tag is taken and joined with a colon. The result is then checked to be equal to "Tag2:Tag3:Tag4":
 
-`<has tag[separator(:)slice(2..4)][=Tag2:Tag3:Tag4]->`
+`<is tag[separator(:)slice(2..4)][=Tag2:Tag3:Tag4]->`

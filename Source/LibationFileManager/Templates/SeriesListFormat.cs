@@ -45,14 +45,14 @@ internal partial class SeriesListFormat : IListFormat<SeriesListFormat>
 
 	private const string Token = @"(?:[#N]|ID)";
 
-	/// <summary> Sort must have at least one of the token labels T, F, M, L, S or ID. Use lower case for descending direction and add multiple tokens to sort by multiple fields. Spaces may be used to separate tokens.</summary>
+	/// <summary> Sort must have at least one of the token labels N, # or ID. Use lower case for descending direction and add multiple tokens to sort by multiple fields. Spaces may be used to separate tokens.</summary>
 	[GeneratedRegex($@"[Ss]ort\(\s*(?i:(?<pattern>(?:{Token}\s*?)+))\s*\)")]
 	private static partial Regex SortRegex();
 
 	[GeneratedRegex($@"\G(?<token>{Token})(?<descending>(?-i:(?<=\G\P{{Lu}}+)))?\s*", RegexOptions.IgnoreCase)]
 	private static partial Regex SortTokenizer();
 
-	/// <summary> Format must have at least one of the strings {N}, {#}, {ID} </summary>
+	/// <summary> Format must have at least one of the strings {N}, {#}, {ID} (optionally with formatting like {N:u})</summary>
 	[GeneratedRegex($@"[Ff]ormat\((?<format>.*?\{{{Token}(?::.*?)?\}}.*?)\)")]
 	public static partial Regex FormatRegex();
 }
