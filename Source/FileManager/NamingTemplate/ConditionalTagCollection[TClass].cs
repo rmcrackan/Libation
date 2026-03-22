@@ -83,7 +83,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, ParameterExpression parameter, ValueProvider<TClass> valueProvider, ConditionEvaluator conditionEvaluator)
 			: base(templateTag, Expression.Constant(false))
 		{
-			// <property> needs to match on at least one character which is not a space
+			// <property> needs to match on at least one character, which is not a space
 			NameMatcher = new Regex($"""
 			                         (?x)                     # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
 			                         ^<(?<not>!)?             # tags start with a '<'. Condtionals allow an optional ! captured in <not> to negate the condition
@@ -103,8 +103,8 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, ParameterExpression parameter, ValueProvider<TClass> valueProvider)
 			: base(templateTag, Expression.Constant(false))
 		{
-			// <property> needs to match on at least one character which is not a space
-			// though we will capture check enclosed in [] at the end of the tag the property itself migth also have a [] part for formatting purposes
+			// <property> needs to match on at least one character, which is not a space.
+			// though we will capture the group named `check` enclosed in [] at the end of the tag, the property itself might also have a [] part for formatting purposes
 			NameMatcher = new Regex($"""
 			                         (?x)                     # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
 			                         ^<(?<not>!)?             # tags start with a '<'. Condtionals allow an optional ! captured in <not> to negate the condition
@@ -155,28 +155,33 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 		private static ConditionEvaluator GetPredicate(string? checkString)
 		{
 			if (checkString == null)
-				return DefaultPredicate;
+				return (v, _) => v switch
+				{
+					null => false,
+					IEnumerable<object> e => e.Any(),
+					_ => !string.IsNullOrWhiteSpace(v.ToString())
+				};
 
 			var match = CheckRegex().Match(checkString);
 
 			var valStr = match.Groups["val"].Value;
-			var ival = -1;
-			var isNumop = match.Groups["numop"].Success && int.TryParse(valStr, out ival);
+			var iVal = -1;
+			var isNumericalOperator = match.Groups["num_op"].Success && int.TryParse(valStr, out iVal);
 
-			var checkItem = match.Groups["op"].ValueSpan switch
+			Func<object, CultureInfo?, bool> checkItem = match.Groups["op"].ValueSpan switch
 			{
 				"=" or "" => (v, culture) => VComparedToStr(v, culture, valStr) == 0,
 				"!=" or "!" => (v, culture) => VComparedToStr(v, culture, valStr) != 0,
 				"~" => GetRegExpCheck(valStr),
-				"#=" => (v, _) => VAsInt(v) == ival,
-				"#!=" => (v, _) => VAsInt(v) != ival,
-				"#>=" or ">=" => (v, _) => VAsInt(v) >= ival,
-				"#>" or ">" => (v, _) => VAsInt(v) > ival,
-				"#<=" or "<=" => (v, _) => VAsInt(v) <= ival,
-				"#<" or "<" => (v, _) => VAsInt(v) < ival,
-				_ => DefaultPredicate,
+				"#=" => (v, _) => VAsInt(v) == iVal,
+				"#!=" => (v, _) => VAsInt(v) != iVal,
+				"#>=" or ">=" => (v, _) => VAsInt(v) >= iVal,
+				"#>" or ">" => (v, _) => VAsInt(v) > iVal,
+				"#<=" or "<=" => (v, _) => VAsInt(v) <= iVal,
+				"#<" or "<" => (v, _) => VAsInt(v) < iVal,
+				_ => (v, _) => !string.IsNullOrWhiteSpace(v.ToString())
 			};
-			return isNumop
+			return isNumericalOperator
 				? (v, culture) => v switch
 				{
 					null => false,
@@ -201,34 +206,54 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 		}
 
 		/// <summary>
-		/// build a regular expression check which take the <see cref="CultureInfo"/> into account.
+		/// Build a regular expression check. Uses culture-invariant matching for thread-safety and consistency.
+		/// Applies a timeout to prevent regex patterns from causing excessive backtracking and blocking.
 		/// </summary>
-		/// <param name="valStr"></param>
+		/// <param name="valStr">The regex pattern to match</param>
 		/// <returns>check function to validate an object</returns>
-		private static ConditionEvaluator GetRegExpCheck(string valStr)
+		private static Func<object, CultureInfo?, bool> GetRegExpCheck(string valStr)
 		{
-			return (v, culture) =>
+			try
 			{
-				var old = CultureInfo.CurrentCulture;
-				try
+				// Compile regex with timeout to prevent catastrophic backtracking
+				var regex = new Regex(valStr,
+					RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+					TimeSpan.FromMilliseconds(100));
+
+				return (v, _) =>
 				{
-					CultureInfo.CurrentCulture = culture ?? CultureInfo.CurrentCulture;
-					return Regex.IsMatch(v?.ToString().Trim() ?? "", valStr, RegexOptions.IgnoreCase | RegexOptions.Compiled);
-				}
-				finally
-				{
-					CultureInfo.CurrentCulture = old;
-				}
-			};
+					try
+					{
+						// CultureInfo parameter is intentionally ignored (discarded with _).
+						// RegexOptions.CultureInvariant ensures culture-independent matching for predictable behavior.
+						// This is preferred for template conditions because:
+						// 1. Thread-safety: Regex operations are isolated and don't depend on thread-local culture
+						// 2. Consistency: Template matches produce identical results regardless of system locale
+						// 3. Predictability: Rules don't unexpectedly change based on user's OS settings
+						//
+						// Culture-sensitive matching would be problematic in cases like:
+						// - Turkish locale: 'I' has different case folding (I ↔ ı vs. I ↔ i). Pattern "[i-z]" might match Turkish 'ı'.
+						// - German locale: ß might be treated as equivalent to 'ss' during case-insensitive matching.
+						// - Lithuanian locale: 'i' after 'ž' has an accent that affects sorting/matching.
+						// 
+						// For naming templates, culture-invariant is the safer default.
+						return regex.IsMatch(v.ToString()?.Trim() ?? "");
+					}
+					catch (RegexMatchTimeoutException)
+					{
+						// Return false if regex evaluation times out
+						return false;
+					}
+				};
+			}
+			catch
+			{
+				// If regex compilation fails, return a predicate that always returns false
+				return (_, _) => false;
+			}
 		}
 
-		// without any special check only the existance of the property is checked. Strings need to be non empty.
-		private static readonly ConditionEvaluator DefaultPredicate = (v, _) => v switch
-		{
-			null => false,
-			IEnumerable<object> e => e.Any(),
-			_ => !string.IsNullOrWhiteSpace(v.ToString())
-		};
+		// without any special check, only the existence of the property is checked. Strings need to be non-empty.
 
 		public bool StartsWithClosing(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? propertyTag)
 		{
@@ -256,11 +281,11 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 		[GeneratedRegex("""
 		                (?x)						                    # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
 		                ^\s*                                            # anchor at start of line trimming leading whitespace
-		                (?<op>                                          # capture operator in <op> and <numop>
-		                	(?<numop>\#=|\#!=|\#?>=|\#?>|\#?<=|\#?<)    # - numerical operators start with a # and might be omitted if unique
+		                (?<op>                                          # capture operator in <op> and <num_op>
+		                	(?<num_op>\#=|\#!=|\#?>=|\#?>|\#?<=|\#?<)   # - numerical operators start with a # and might be omitted if unique
 		                	| ~|!=?|=?                                  # - string comparison operators including ~ for regexp. No operator is like =
 		                ) \s*                                           # ignore space between operator and value
-		                (?<val>(?(numop)                                # capture value in <val>
+		                (?<val>(?(num_op)                               # capture value in <val>
 		                	\d+                                         # - numerical operators have to be followed by a number
 		                	| .*? )                                     # - string for comparison. May be empty. Non-greedy capture resulting in no whitespace at the end
 		                )\s*$                                           # trimming up to the end
