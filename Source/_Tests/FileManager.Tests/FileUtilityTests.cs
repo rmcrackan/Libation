@@ -1,11 +1,10 @@
-﻿using AssertionHelper;
-using FileManager;
+﻿using System;
+using AssertionHelper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 
 [assembly: Parallelize]
 
-namespace FileUtilityTests;
+namespace FileManager.Tests;
 
 [TestClass]
 public class GetSafePath
@@ -37,8 +36,8 @@ public class GetSafePath
 	[DataRow(@"/a///b/c///d.txt", @"/a/b/c/d.txt", PlatformID.Unix)]
 	[DataRow(@"C:\""foo\<id>", @"C:\“foo\＜id＞", PlatformID.Win32NT)]
 	[DataRow(@"/""foo/<id>", @"/“foo/<id>", PlatformID.Unix)]
-	public void DefaultTests(string inStr, string outStr, PlatformID platformID)
-		=> Test(inStr, outStr, Default, platformID);
+	public void DefaultTests(string inStr, string outStr, PlatformID platformId)
+		=> Test(inStr, outStr, Default, platformId);
 
 	[TestMethod]
 	// non-empty replacement
@@ -60,8 +59,8 @@ public class GetSafePath
 	[DataRow(@"/a///b/c///d.txt", @"/a/b/c/d.txt", PlatformID.Unix)]
 	[DataRow(@"C:\""foo\<id>", @"C:\'foo\{id}", PlatformID.Win32NT)]
 	[DataRow(@"/""foo/<id>", @"/""foo/<id>", PlatformID.Unix)]
-	public void LoFiDefaultTests(string inStr, string outStr, PlatformID platformID)
-		=> Test(inStr, outStr, LoFiDefault, platformID);
+	public void LoFiDefaultTests(string inStr, string outStr, PlatformID platformId)
+		=> Test(inStr, outStr, LoFiDefault, platformId);
 
 	[TestMethod]
 	// empty replacement
@@ -83,12 +82,12 @@ public class GetSafePath
 	[DataRow(@"/a///b/c///d.txt", @"/a/b/c/d.txt", PlatformID.Unix)]
 	[DataRow(@"C:\""foo\<id>", @"C:\_foo\_id_", PlatformID.Win32NT)]
 	[DataRow(@"/""foo/<id>", @"/""foo/<id>", PlatformID.Unix)]
-	public void BarebonesDefaultTests(string inStr, string outStr, PlatformID platformID)
-		=> Test(inStr, outStr, Barebones, platformID);
+	public void BarebonesDefaultTests(string inStr, string outStr, PlatformID platformId)
+		=> Test(inStr, outStr, Barebones, platformId);
 
-	private void Test(string inStr, string outStr, ReplacementCharacters replacements, PlatformID platformID)
+	private void Test(string inStr, string outStr, ReplacementCharacters replacements, PlatformID platformId)
 	{
-		if (Environment.OSVersion.Platform == platformID)
+		if (Environment.OSVersion.Platform == platformId)
 			FileUtility.GetSafePath(inStr, replacements).PathWithoutPrefix.Should().Be(outStr);
 	}
 }
@@ -104,29 +103,29 @@ public class GetSafeFileName
 	[TestMethod]
 	[DataRow("http://test.com/a/b/c", "http_∕∕test.com∕a∕b∕c", PlatformID.Win32NT)]
 	[DataRow("http://test.com/a/b/c", "http:∕∕test.com∕a∕b∕c", PlatformID.Unix)]
-	public void url_null_replacement(string inStr, string outStr, PlatformID platformID) => DefaultReplacementTest(inStr, outStr, platformID);
+	public void url_null_replacement(string inStr, string outStr, PlatformID platformId) => DefaultReplacementTest(inStr, outStr, platformId);
 
 	[TestMethod]
 	// empty replacement
 	[DataRow("http://test.com/a/b/c", "http_∕∕test.com∕a∕b∕c", PlatformID.Win32NT)]
 	[DataRow("http://test.com/a/b/c", "http:∕∕test.com∕a∕b∕c", PlatformID.Unix)]
-	public void DefaultReplacementTest(string inStr, string outStr, PlatformID platformID) => Test(inStr, outStr, Default, platformID);
+	public void DefaultReplacementTest(string inStr, string outStr, PlatformID platformId) => Test(inStr, outStr, Default, platformId);
 
 	[TestMethod]
 	// empty replacement
 	[DataRow("http://test.com/a/b/c", "http-__test.com_a_b_c", PlatformID.Win32NT)]
 	[DataRow("http://test.com/a/b/c", "http:__test.com_a_b_c", PlatformID.Unix)]
-	public void LoFiDefaultReplacementTest(string inStr, string outStr, PlatformID platformID) => Test(inStr, outStr, LoFiDefault, platformID);
+	public void LoFiDefaultReplacementTest(string inStr, string outStr, PlatformID platformId) => Test(inStr, outStr, LoFiDefault, platformId);
 
 	[TestMethod]
 	// empty replacement
 	[DataRow("http://test.com/a/b/c", "http___test.com_a_b_c", PlatformID.Win32NT)]
 	[DataRow("http://test.com/a/b/c", "http:__test.com_a_b_c", PlatformID.Unix)]
-	public void BarebonesDefaultReplacementTest(string inStr, string outStr, PlatformID platformID) => Test(inStr, outStr, Barebones, platformID);
+	public void BarebonesDefaultReplacementTest(string inStr, string outStr, PlatformID platformId) => Test(inStr, outStr, Barebones, platformId);
 
-	private void Test(string inStr, string outStr, ReplacementCharacters replacements, PlatformID platformID)
+	private void Test(string inStr, string outStr, ReplacementCharacters replacements, PlatformID platformId)
 	{
-		if (Environment.OSVersion.Platform == platformID)
+		if (Environment.OSVersion.Platform == platformId)
 			replacements.ReplaceFilenameChars(inStr).Should().Be(outStr);
 	}
 }
@@ -200,7 +199,7 @@ public class GetValidFilename
 	// dot-folders
 	[DataRow(@"C:\a bc\.x y z\f i l e.txt", "txt", PlatformID.Win32NT)]
 	[DataRow(@"/a bc/.x y z/f i l e.txt", "txt", PlatformID.Unix)]
-	public void Valid(string input, string extension, PlatformID platformID) => Tests(input, extension, input, platformID);
+	public void Valid(string input, string extension, PlatformID platformId) => Tests(input, extension, input, platformId);
 
 	[TestMethod]
 	// folder spaces
@@ -215,9 +214,9 @@ public class GetValidFilename
 	// file end dots
 	[DataRow(@"C:\a bc\x y z\f i l e.txt . . .", "txt", @"C:\a bc\x y z\f i l e.txt", PlatformID.Win32NT)]
 	[DataRow(@"/a bc/x y z/f i l e.txt . . .", "txt", @"/a bc/x y z/f i l e.txt", PlatformID.Unix)]
-	public void Tests(string input, string extension, string expected, PlatformID platformID)
+	public void Tests(string input, string extension, string expected, PlatformID platformId)
 	{
-		if (Environment.OSVersion.Platform == platformID)
+		if (Environment.OSVersion.Platform == platformId)
 			FileUtility.GetValidFilename(input, Replacements, extension).PathWithoutPrefix.Should().Be(expected);
 	}
 }
@@ -229,7 +228,7 @@ public class RemoveLastCharacter
 	public void is_null() => Tests(null!, null);
 
 	[TestMethod]
-	public void empty() => Tests("", "");
+	public void Empty() => Tests("", "");
 
 	[TestMethod]
 	public void single_space() => Tests(" ", "");

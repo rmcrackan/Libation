@@ -7,15 +7,15 @@ using System.Text.RegularExpressions;
 
 namespace LibationFileManager.Templates;
 
-internal partial class SeriesListFormat : IListFormat<SeriesListFormat>
+internal partial class StringListFormat : IListFormat<StringListFormat>
 {
-	public static IEnumerable<string> Formatter(ITemplateTag _, IEnumerable<SeriesDto>? series, string? formatString, CultureInfo? culture)
-		=> series is null
+	public static IEnumerable<string> Formatter(ITemplateTag _, IEnumerable<StringDto>? entries, string? formatString, CultureInfo? culture)
+		=> entries is null
 			? []
-			: IListFormat<SeriesListFormat>.FormattedList(formatString, Sort(series, formatString, SeriesDto.FormatReplacements), culture);
+			: IListFormat<StringListFormat>.FormattedList(formatString, Sort(entries, formatString, StringDto.FormatReplacements), culture);
 
-	public static string? Finalizer(ITemplateTag _, IEnumerable<string>? series, CultureInfo? culture)
-		=> IListFormat<NameListFormat>.Join(series, culture);
+	public static string? Finalizer(ITemplateTag _, IEnumerable<string>? entries, CultureInfo? culture)
+		=> IListFormat<StringListFormat>.Join(entries, culture);
 
 	private static IEnumerable<T> Sort<T>(IEnumerable<T> entries, string? formatString, Dictionary<string, Func<T, object?>> formatReplacements)
 	{
@@ -43,16 +43,16 @@ internal partial class SeriesListFormat : IListFormat<SeriesListFormat>
 		return ordered ?? entries;
 	}
 
-	private const string Token = @"(?:[#N]|ID)";
+	private const string Token = "S";
 
-	/// <summary> Sort must have at least one of the token labels N, # or ID. Use lower case for descending direction and add multiple tokens to sort by multiple fields. Spaces may be used to separate tokens.</summary>
+	/// <summary> Sort must have the token label S. Use lower case for descending direction.</summary>
 	[GeneratedRegex($@"[Ss]ort\(\s*(?i:(?<pattern>(?:{Token}\s*?)+))\s*\)")]
 	private static partial Regex SortRegex();
 
 	[GeneratedRegex($@"\G(?<token>{Token})(?<descending>(?-i:(?<=\G\P{{Lu}}+)))?\s*", RegexOptions.IgnoreCase)]
 	private static partial Regex SortTokenizer();
 
-	/// <summary> Format must have at least one of the strings {N}, {#}, {ID} (optionally with formatting like {N:u})</summary>
+	/// <summary> Format must have the string {S} (optionally with formatting like {S:u})</summary>
 	[GeneratedRegex($@"[Ff]ormat\((?<format>.*?\{{{Token}(?::.*?)?\}}.*?)\)")]
 	public static partial Regex FormatRegex();
 }
