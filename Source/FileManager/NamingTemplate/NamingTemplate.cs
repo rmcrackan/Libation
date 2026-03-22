@@ -17,7 +17,7 @@ public class NamingTemplate
 	private Delegate? _templateToString;
 	private readonly List<string> _warnings = [];
 	private readonly List<string> _errors = [];
-	private readonly IEnumerable<TagCollection> _tagCollections;
+	private readonly List<TagCollection> _tagCollections;
 	private readonly List<ITemplateTag> _tagsInUse = [];
 
 	public const string ErrorNullIsInvalid = "Null template is invalid.";
@@ -36,35 +36,48 @@ public class NamingTemplate
 
 		// Match propertyClasses to the arguments required by templateToString.DynamicInvoke(). 
 		// First parameter is "this", so ignore it.
-		var parameters = _templateToString.Method.GetParameters();
-		var delegateArgTypes = parameters.Skip(1).ToList();
+		var delegateArgTypes = _templateToString.Method.GetParameters().Skip(1).Select(p => p.ParameterType).ToList();
+		var delegateArgs = new object?[delegateArgTypes.Count];
 
-		var args = new object?[delegateArgTypes.Count];
+		var availableObjects = propertyClasses.Where(pc => pc is not null).Cast<object>().ToList();
 		for (var i = 0; i < delegateArgTypes.Count; i++)
 		{
 			var p = delegateArgTypes[i];
-			args[i] = propertyClasses.FirstOrDefault(pc => pc != null && p.ParameterType.IsInstanceOfType(pc));
+			var index = availableObjects.FindIndex(pc => p.IsInstanceOfType(pc));
+			if (index < 0)
+			{
+				if (CanBeNull(p))
+					delegateArgs[i] = null;
+				else
+					throw new ArgumentException(
+						$"No matching object found for parameter type {p.Name}. Available objects: {string.Join(", ", availableObjects.Select(o => o.GetType().Name))}");
+			}
+			else
+			{
+				var candidate = availableObjects[index];
+				availableObjects.RemoveAt(index);
+				availableObjects.Add(candidate); // Re-add to the end to allow reuse if needed later
+				delegateArgs[i] = candidate;
+			}
 		}
 
-		if (args.Length != delegateArgTypes.Count)
-			throw new ArgumentException($"This instance of {nameof(NamingTemplate)} requires the following arguments: {string.Join(", ", delegateArgTypes.Select(t => t.Name).Distinct())}");
-
-		return (_templateToString.DynamicInvoke(args) as TemplatePart)!.FirstPart;
+		return (_templateToString.DynamicInvoke(delegateArgs) as TemplatePart)!.FirstPart;
 	}
-
+	
 	/// <summary>Parse a template string to a <see cref="NamingTemplate"/></summary>
 	/// <param name="template">The template string to parse</param>
 	/// <param name="tagCollections">A collection of <see cref="TagCollection"/> with
 	/// properties registered to match to the <paramref name="template"/></param>
 	public static NamingTemplate Parse(string? template, IEnumerable<TagCollection> tagCollections)
 	{
-		var namingTemplate = new NamingTemplate(tagCollections);
+		var listOfTagCollections = tagCollections.ToList();
+		var namingTemplate = new NamingTemplate(listOfTagCollections);
 		try
 		{
 			var intermediate = namingTemplate.IntermediateParse(template);
 			var evalTree = GetExpressionTree(intermediate);
 
-			namingTemplate._templateToString = Expression.Lambda(evalTree, tagCollections.Select(tc => tc.Parameter).Append(TagCollection.CultureParameter)).Compile();
+			namingTemplate._templateToString = Expression.Lambda(evalTree, listOfTagCollections.Select(tc => tc.Parameter).Append(TagCollection.CultureParameter)).Compile();
 		}
 		catch (Exception ex)
 		{
@@ -73,7 +86,7 @@ public class NamingTemplate
 		return namingTemplate;
 	}
 
-	private NamingTemplate(IEnumerable<TagCollection> properties)
+	private NamingTemplate(List<TagCollection> properties)
 	{
 		_tagCollections = properties;
 	}
@@ -127,23 +140,23 @@ public class NamingTemplate
 			{
 				CheckAndAddLiterals();
 
-				var lastParenth = currentNode;
+				var lastParent = currentNode;
 
-				while (lastParenth?.IsConditional is false)
-					lastParenth = lastParenth.Parent;
+				while (lastParent?.IsConditional is false)
+					lastParent = lastParent.Parent;
 
-				if (lastParenth?.Parent is null)
+				if (lastParent?.Parent is null)
 				{
 					_warnings.Add($"Missing <{closingPropertyTag.TemplateTag.TagName}-> open conditional.");
 					break;
 				}
-				else if (lastParenth.Name != closingPropertyTag.TemplateTag.TagName)
+				else if (lastParent.Name != closingPropertyTag.TemplateTag.TagName)
 				{
-					_warnings.Add($"Missing <-{lastParenth.Name}> closing conditional.");
+					_warnings.Add($"Missing <-{lastParent.Name}> closing conditional.");
 					break;
 				}
 
-				currentNode = lastParenth.Parent;
+				currentNode = lastParent.Parent;
 				templateString = templateString[exactPropertyName.Length..];
 			}
 			else
@@ -282,4 +295,6 @@ public class NamingTemplate
 			return newNode.IsConditional ? newNode : currentNode;
 		}
 	}
+
+	private static bool CanBeNull(Type type) => !type.IsValueType || Nullable.GetUnderlyingType(type) != null;
 }
