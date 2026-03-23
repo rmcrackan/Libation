@@ -53,9 +53,14 @@ public class ConditionalTagCollectionTests
 			namingTemplate.Evaluate(testObj);
 			Assert.Fail($"Expected InvalidOperationException for pattern: {pattern}");
 		}
-		catch (Exception ex) when (ex is InvalidOperationException or TargetInvocationException)
+		catch (TargetInvocationException ex)
 		{
-			// Expected behavior - regex is invalid or caused timeout
+			// if evaluation of the template started but the regex is running into a timeout an InvalidOperationException is thrown
+			Assert.IsInstanceOfType<InvalidOperationException>(ex.InnerException);
+		}
+		catch (InvalidOperationException)
+		{
+			// Expected behavior - regex is invalid and parsing should fail
 		}
 	}
 
@@ -66,7 +71,7 @@ public class ConditionalTagCollectionTests
 	public void ConditionalTag_ValidRegexPattern_ParsesSuccessfully()
 	{
 		// Arrange: Valid simple regex pattern with proper closing tag
-		var template = "<testcond [~test.*]->content<-testcond>";
+		var template = "<testcond foobar[~test.*]->content<-testcond>";
 
 		// Act: Parse should succeed without throwing exceptions
 		var namingTemplate = NamingTemplate.NamingTemplate.Parse(template, [_conditionalTags]);
@@ -86,7 +91,7 @@ public class ConditionalTagCollectionTests
 	public void ConditionalTag_ValidComplexRegexPatterns_ParseSuccessfully(string pattern)
 	{
 		// Arrange: Valid complex regex patterns with proper closing tags
-		var template = $"<testcond [~{pattern}]->c<-testcond>";
+		var template = $"<testcond foobar[~{pattern}]->c<-testcond>";
 
 		// Act: Parse should succeed without throwing
 		var namingTemplate = NamingTemplate.NamingTemplate.Parse(template, [_conditionalTags]);

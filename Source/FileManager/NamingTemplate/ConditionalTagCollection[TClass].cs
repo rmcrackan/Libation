@@ -166,11 +166,11 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 
 			var match = CheckRegex().Match(checkString);
 
-			var valStr = match.Groups["val"].Value;
+			var valStr = Unescape(match.Groups["val"]) ?? "";
 			var iVal = -1;
 			var isNumericalOperator = match.Groups["num_op"].Success && int.TryParse(valStr, out iVal);
 
-			var checkItem = match.Groups["op"].ValueSpan switch
+			var checkItem = Unescape(match.Groups["op"]) switch
 			{
 				"=" or "" => (v, culture) => VComparedToStr(v, culture, valStr) == 0,
 				"!=" or "!" => (v, culture) => VComparedToStr(v, culture, valStr) != 0,
@@ -300,21 +300,24 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			var getBool = CreateConditionExpression(
 				exactName,
 				matchData.GetValueOrDefault("property")?.Value,
-				Unescape(matchData.GetValueOrDefault("check")));
+				matchData.GetValueOrDefault("check")?.Value);
+			// Unescape(matchData.GetValueOrDefault("check")));
 			return matchData["not"].Success ? Expression.Not(getBool) : getBool;
 		}
 
 		[GeneratedRegex("""
-		                (?x)						                    # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
-		                ^\s*                                            # anchor at start of line trimming leading whitespace
-		                (?<op>                                          # capture operator in <op> and <num_op>
-		                	(?<num_op>\#=|\#!=|\#?>=|\#?>|\#?<=|\#?<)   # - numerical operators start with a # and might be omitted if unique
-		                	| ~|!=?|=?                                  # - string comparison operators including ~ for regexp. No operator is like =
-		                ) \s*                                           # ignore space between operator and value
-		                (?<val>(?(num_op)                               # capture value in <val>
-		                	\d+                                         # - numerical operators have to be followed by a number
-		                	| .*? )                                     # - string for comparison. May be empty. Non-greedy capture resulting in no whitespace at the end
-		                )\s*$                                           # trimming up to the end
+		                (?x)						          # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
+		                ^\s*                                  # anchor at start of line trimming leading whitespace
+		                (?<op>(?<num_op>                      # capture operator in <op> and <num_op> with every char escapable 
+		                	    \\?\#(?:\\?!)?\\?=            # - numerical operators: #= #!=
+		                	    | \\?\#\\?[<>](?:\\?=)?       # - numerical operators: #>= #<= #> #<
+		                	    |      \\?[<>](?:\\?=)?       # - numerical operators: >= <= > <
+		                    ) | \\?~|\\?!(?:\\?=)?|(?:\\?=)?  # - string comparison operators including ~ for regexp, = and !=. No operator is like =
+		                ) \s*                                 # ignore space between operator and value
+		                (?<val>(?(num_op)                     # capture value in <val>
+		                	(?:\\?\d)+                        # - numerical operators have to be followed by a number
+		                	| (?:\\.|[^\\])* )                # - string for comparison. May be empty. Capturing also all whitespace up to the end as this must have been escaped.
+		                )$                                    # match to the end
 		                """)]
 		private static partial Regex CheckRegex();
 	}

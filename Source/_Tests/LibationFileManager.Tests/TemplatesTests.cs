@@ -556,6 +556,16 @@ namespace TemplatesTests
 		[DataRow("<!is author[!=Sherlock]->false<-has>", "")]
 		[DataRow("<is tag[=Tag1]->true<-has>", "true")]
 		[DataRow("<is tag[separator(:)slice(-2..)][=Tag2:Tag3]->true<-has>", "true")]
+		[DataRow("<is audible subtitle[3][=an]->false<-has>", "")]
+		[DataRow("<is audible subtitle[3][=an ]->false<-has>", "")]
+		[DataRow(@"<is audible subtitle[3][=an\ ]->true<-has>", "true")]
+		[DataRow("<is audible subtitle[3][= an]->false<-has>", "")]
+		[DataRow("<is audible subtitle[3][= an ]->false<-has>", "")]
+		[DataRow(@"<is audible subtitle[3][= an\ ]->true<-has>", "true")]
+		[DataRow(@"<is audible subtitle[3][=\ an\ ]->false<-has>", "")]
+		[DataRow("<is audible subtitle[3][ =an]->false<-has>", "")]
+		[DataRow("<is audible subtitle[3][ =an ]->false<-has>", "")]
+		[DataRow(@"<is audible subtitle[3][ =an\ ]->true<-has>", "true")]
 		public void HasValue_test(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
