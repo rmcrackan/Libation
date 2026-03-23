@@ -65,10 +65,12 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 
 	private partial class ConditionalTag : TagBase, IClosingPropertyTag
 	{
+		private static readonly TimeSpan RegexpCheckTimeout = TimeSpan.FromMilliseconds(100);
+
 		public override Regex NameMatcher { get; }
 		public Regex NameCloseMatcher { get; }
 
-		private Func<string?, string?, Expression> CreateConditionExpression { get; }
+		private Func<string, string?, string?, Expression> CreateConditionExpression { get; }
 
 		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, Expression conditionExpression)
 			: base(templateTag, conditionExpression)
@@ -77,7 +79,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			NameMatcher = new Regex($"^<(?<not>!)?{tagNameRe}->", options);
 			NameCloseMatcher = new Regex($"^<-{tagNameRe}>", options);
 
-			CreateConditionExpression = (_, _) => conditionExpression;
+			CreateConditionExpression = (_, _, _) => conditionExpression;
 		}
 
 		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, ParameterExpression parameter, ValueProvider<TClass> valueProvider, ConditionEvaluator conditionEvaluator)
@@ -96,7 +98,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 				, options);
 			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options);
 
-			CreateConditionExpression = (property, _)
+			CreateConditionExpression = (_, property, _)
 				=> ConditionEvaluatorCall(templateTag, parameter, valueProvider, property, conditionEvaluator);
 		}
 
@@ -124,9 +126,9 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 				, options);
 			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options);
 
-			CreateConditionExpression = (property, checkString) =>
+			CreateConditionExpression = (exactName, property, checkString) =>
 			{
-				var conditionEvaluator = GetPredicate(checkString);
+				var conditionEvaluator = GetPredicate(exactName, checkString);
 				return ConditionEvaluatorCall(templateTag, parameter, valueProvider, property, conditionEvaluator);
 			};
 		}
@@ -152,7 +154,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 				CultureParameter);
 		}
 
-		private static ConditionEvaluator GetPredicate(string? checkString)
+		private static ConditionEvaluator GetPredicate(string exactName, string? checkString)
 		{
 			if (checkString == null)
 				return (v, _) => v switch
@@ -168,11 +170,11 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			var iVal = -1;
 			var isNumericalOperator = match.Groups["num_op"].Success && int.TryParse(valStr, out iVal);
 
-			Func<object, CultureInfo?, bool> checkItem = match.Groups["op"].ValueSpan switch
+			var checkItem = match.Groups["op"].ValueSpan switch
 			{
 				"=" or "" => (v, culture) => VComparedToStr(v, culture, valStr) == 0,
 				"!=" or "!" => (v, culture) => VComparedToStr(v, culture, valStr) != 0,
-				"~" => GetRegExpCheck(valStr),
+				"~" => GetRegExpCheck(exactName, valStr),
 				"#=" => (v, _) => VAsInt(v) == iVal,
 				"#!=" => (v, _) => VAsInt(v) != iVal,
 				"#>=" or ">=" => (v, _) => VAsInt(v) >= iVal,
@@ -202,55 +204,78 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 		private static int VComparedToStr(object? v, CultureInfo? culture, string valStr)
 		{
 			culture ??= CultureInfo.CurrentCulture;
-			return culture.CompareInfo.Compare(v?.ToString()?.Trim(), valStr, CompareOptions.IgnoreCase);
+			return culture.CompareInfo.Compare(v?.ToString(), valStr, CompareOptions.IgnoreCase);
 		}
 
 		/// <summary>
 		/// Build a regular expression check. Uses culture-invariant matching for thread-safety and consistency.
 		/// Applies a timeout to prevent regex patterns from causing excessive backtracking and blocking.
+		/// Throws InvalidOperationException if the regex pattern is invalid or evaluation times out.
 		/// </summary>
-		/// <param name="valStr">The regex pattern to match</param>
+		/// <param name="exactName">The full tag string for context in error messages</param>
+		/// <param name="pattern">The regex pattern to match</param>
 		/// <returns>check function to validate an object</returns>
-		private static Func<object, CultureInfo?, bool> GetRegExpCheck(string valStr)
+		/// <exception cref="InvalidOperationException">Thrown when regex parsing fails or when regex matching times out, indicating faulty user input</exception>
+		private static Func<object, CultureInfo?, bool> GetRegExpCheck(string exactName, string pattern)
 		{
+			Regex regex;
 			try
 			{
 				// Compile regex with timeout to prevent catastrophic backtracking
-				var regex = new Regex(valStr,
+				regex = new Regex(pattern,
 					RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
-					TimeSpan.FromMilliseconds(100));
-
-				return (v, _) =>
-				{
-					try
-					{
-						// CultureInfo parameter is intentionally ignored (discarded with _).
-						// RegexOptions.CultureInvariant ensures culture-independent matching for predictable behavior.
-						// This is preferred for template conditions because:
-						// 1. Thread-safety: Regex operations are isolated and don't depend on thread-local culture
-						// 2. Consistency: Template matches produce identical results regardless of system locale
-						// 3. Predictability: Rules don't unexpectedly change based on user's OS settings
-						//
-						// Culture-sensitive matching would be problematic in cases like:
-						// - Turkish locale: 'I' has different case folding (I ↔ ı vs. I ↔ i). Pattern "[i-z]" might match Turkish 'ı'.
-						// - German locale: ß might be treated as equivalent to 'ss' during case-insensitive matching.
-						// - Lithuanian locale: 'i' after 'ž' has an accent that affects sorting/matching.
-						// 
-						// For naming templates, culture-invariant is the safer default.
-						return regex.IsMatch(v.ToString()?.Trim() ?? "");
-					}
-					catch (RegexMatchTimeoutException)
-					{
-						// Return false if regex evaluation times out
-						return false;
-					}
-				};
+					RegexpCheckTimeout);
 			}
-			catch
+			catch (ArgumentException ex)
 			{
-				// If regex compilation fails, return a predicate that always returns false
-				return (_, _) => false;
+				// If regex compilation fails, throw as faulty user input
+				var errorMessage = BuildErrorMessage(exactName, pattern, "Invalid regular expression pattern. Correct the pattern and escaping or remove that condition");
+				throw new InvalidOperationException(errorMessage, ex);
 			}
+
+			return (v, _) =>
+			{
+				try
+				{
+					// CultureInfo parameter is intentionally ignored (discarded with _).
+					// RegexOptions.CultureInvariant ensures culture-independent matching for predictable behavior.
+					// This is preferred for template conditions because:
+					// 1. Thread-safety: Regex operations are isolated and don't depend on thread-local culture
+					// 2. Consistency: Template matches produce identical results regardless of system locale
+					// 3. Predictability: Rules don't unexpectedly change based on user's OS settings
+					//
+					// Culture-sensitive matching would be problematic in cases like:
+					// - Turkish locale: 'I' has different case folding (I ↔ ı vs. I ↔ i). Pattern "[i-z]" might match Turkish 'ı'.
+					// - German locale: ß might be treated as equivalent to 'ss' during case-insensitive matching.
+					// - Lithuanian locale: 'i' after 'ž' has an accent that affects sorting/matching.
+					// 
+					// For naming templates, culture-invariant is the safer default.
+					return regex.IsMatch(v.ToString()?.Trim() ?? "");
+				}
+				catch (RegexMatchTimeoutException ex)
+				{
+					// Throw if regex evaluation times out, indicating faulty user input (e.g., catastrophic backtracking)
+					var errorMessage = BuildErrorMessage(exactName, pattern, "Regular expression pattern evaluation timed out. Use a simpler pattern or remove that condition");
+					throw new InvalidOperationException(errorMessage, ex);
+				}
+			};
+		}
+
+		private static string BuildErrorMessage(string exactName, string pattern, string errorType)
+		{
+			const int maxMessageLen = 200;
+
+			// Build full message with pattern
+			var fullMsg = $"{errorType}: {exactName} -> Pattern: {pattern}";
+
+			// Return full message if it's within the character limit
+			if (fullMsg.Length <= maxMessageLen) return fullMsg;
+
+			// Keep the error type and as much pattern as possible
+			var maxPatternLen = maxMessageLen - errorType.Length - 23; // Account for ". Pattern starts with: "
+			var trimmedPattern = pattern.Length > maxPatternLen ? pattern[..(maxPatternLen - 3)] + "..." : pattern;
+			return $"{errorType}. Pattern starts with: {trimmedPattern}";
+
 		}
 
 		// without any special check, only the existence of the property is checked. Strings need to be non-empty.
@@ -273,6 +298,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 		protected override Expression GetTagExpression(string exactName, Dictionary<string, Group> matchData, OutputType outputType)
 		{
 			var getBool = CreateConditionExpression(
+				exactName,
 				matchData.GetValueOrDefault("property")?.Value,
 				Unescape(matchData.GetValueOrDefault("check")));
 			return matchData["not"].Success ? Expression.Not(getBool) : getBool;

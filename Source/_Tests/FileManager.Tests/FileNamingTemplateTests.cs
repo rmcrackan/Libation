@@ -273,14 +273,14 @@ public class GetPortionFilename
 
 		templateText.Should().Be(outStr);
 
-		string FormatInt(ITemplateTag templateTag, int value, string format, CultureInfo? culture)
+		string FormatInt(ITemplateTag templateTag, int value, string? format, CultureInfo? culture)
 		{
 			if (int.TryParse(format, out var numDecs))
 				return value.ToString($"D{numDecs}", culture);
 			return value.ToString(culture);
 		}
 
-		string FormatString(ITemplateTag templateTag, string? value, string format, CultureInfo? culture)
+		string FormatString(ITemplateTag templateTag, string? value, string? format, CultureInfo? culture)
 		{
 			return CommonFormatters.StringFormatter(templateTag, value, format, culture);
 		}
