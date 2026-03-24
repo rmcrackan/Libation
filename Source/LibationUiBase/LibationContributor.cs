@@ -35,6 +35,7 @@ public class LibationContributor
 			GitHubUser("CharlieRussel"),
 			GitHubUser("cbordeman"),
 			GitHubUser("jwillikers"),
+			GitHubUser("Jo-Be-Co"),
 			GitHubUser("Shuvashish76"),
 			GitHubUser("RokeJulianLockhart"),
 			GitHubUser("maaximal"),
@@ -58,5 +59,5 @@ public class LibationContributor
 	}
 
 	private static LibationContributor GitHubUser(string name, LibationContributorType type = LibationContributorType.Contributor)
-		=> new LibationContributor(name, type, new Uri($"ht" + $"tps://github.com/{name.Replace('.', '-')}"));
+		=> new(name, type, new Uri($"ht" + $"tps://github.com/{name.Replace('.', '-')}"));
 }
