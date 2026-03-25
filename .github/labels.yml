@@ -1,0 +1,10 @@
+# Labels required by exempt-creators.yml and stale.yml. Sync with sync-labels workflow.
+# (Other repo labels are left unchanged when prune: false.)
+---
+- name: stale
+  color: 'eeeeee'
+  description: 'No activity for an extended period'
+
+- name: exempt
+  color: '0e8a16'
+  description: 'Excluded from automatic stale closure (e.g. maintainer-opened)'

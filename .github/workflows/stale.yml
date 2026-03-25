@@ -1,0 +1,66 @@
+# Marks inactive issues/PRs stale and closes them after a further quiet period.
+# Exempt labels include `enhancement`, `exempt` (from exempt-creators.yml), and others below.
+# Pattern: https://github.com/Asperguide/asper-header/blob/main/.github/workflows/stale.yml
+---
+name: Close stale issues and PRs
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v10
+        with:
+          days-before-stale: 30
+          days-before-close: 14
+          operations-per-run: 100
+
+          stale-issue-message: |
+            This issue has been automatically marked as stale because it has not had any activity for 30 days.
+
+            It will be closed in 14 days if no further activity occurs.
+
+            If this issue is still relevant, please leave a comment to keep it open.
+            Thank you for your contributions to Libation.
+
+          close-issue-message: |
+            This issue has been automatically closed due to inactivity.
+
+            If you believe this issue is still relevant, please reopen it or create a new issue with updated information.
+            Thank you for your understanding.
+
+          stale-issue-label: stale
+
+          stale-pr-message: |
+            This pull request has been automatically marked as stale because it has not had any activity for 30 days.
+
+            It will be closed in 14 days if no further activity occurs.
+
+            If you're still working on this PR, please leave a comment to keep it open.
+            Thank you for your contribution.
+
+          close-pr-message: |
+            This pull request has been automatically closed due to inactivity.
+
+            If you'd like to continue working on this, please reopen the PR or submit a new one.
+            Thank you for your contribution.
+
+          stale-pr-label: stale
+
+          exempt-issue-labels: 'priority: critical,priority: high,security,help wanted,good first issue,needs-discussion,enhancement,exempt'
+          exempt-pr-labels: 'priority: critical,priority: high,security,enhancement,exempt'
+
+          exempt-all-milestones: true
+          exempt-all-assignees: false
+          exempt-draft-pr: true
+          ascending: true
+          remove-stale-when-updated: true
+          debug-only: false

@@ -1,0 +1,67 @@
+# One-time or occasional backfill: add `exempt` to open issues/PRs opened by
+# rmcrackan or Mbucari that predate exempt-creators.yml. Run from Actions →
+# "Exempt creators backfill" → Run workflow.
+---
+name: Exempt creators backfill
+
+on:
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const exemptLabel = 'exempt';
+            const creators = new Set(['rmcrackan', 'mbucari']);
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const items = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100,
+            });
+
+            let labeled = 0;
+            let notCreator = 0;
+            let alreadyExempt = 0;
+
+            for (const item of items) {
+              const login = item.user && item.user.login;
+              if (!login || !creators.has(login.toLowerCase())) {
+                notCreator++;
+                continue;
+              }
+
+              const names = item.labels.map((l) => l.name);
+              if (names.some((n) => n.toLowerCase() === exemptLabel)) {
+                alreadyExempt++;
+                continue;
+              }
+
+              try {
+                await github.rest.issues.addLabels({
+                  owner,
+                  repo,
+                  issue_number: item.number,
+                  labels: [exemptLabel],
+                });
+                labeled++;
+              } catch (e) {
+                core.warning(`#${item.number}: ${e.message}`);
+              }
+            }
+
+            core.info(
+              `Backfill done: added exempt to ${labeled} item(s); ` +
+                `${alreadyExempt} already had exempt; ${notCreator} not from rmcrackan/Mbucari.`
+            );
