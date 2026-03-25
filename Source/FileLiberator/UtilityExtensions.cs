@@ -72,7 +72,7 @@ public static class UtilityExtensions
 			IsPodcast = libraryBook.Book.IsEpisodeChild() || libraryBook.Book.IsEpisodeParent(),
 
 			LengthInMinutes = libraryBook.Book.LengthInMinutes,
-			Language = libraryBook.Book.Language,
+			Language = libraryBook.Book.Language?.Trim(),
 			Codec = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.CodecString,
 			BitRate = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.BitRate,
 			SampleRate = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.SampleRate,

@@ -34,7 +34,7 @@ public static partial class CommonFormatters
 	private static string _StringFormatter(string? value, string? formatString, CultureInfo? culture)
 	{
 		if (string.IsNullOrEmpty(value)) return string.Empty;
-		if (string.IsNullOrEmpty(formatString)) return value;
+		if (string.IsNullOrWhiteSpace(formatString)) return value;
 
 		var match = StringFormatRegex().Match(formatString);
 		if (!match.Success) return value;
@@ -60,7 +60,7 @@ public static partial class CommonFormatters
 
 	public static string TemplateStringFormatter<T>(T toFormat, string? templateString, IFormatProvider? provider, Dictionary<string, Func<T, object?>> replacements)
 	{
-		if (string.IsNullOrEmpty(templateString)) return "";
+		if (string.IsNullOrWhiteSpace(templateString)) return "";
 
 		// is this function is called from toString implementation of the IFormattable interface, we only get a IFormatProvider
 		var culture = provider as CultureInfo ?? provider?.GetFormat(typeof(CultureInfo)) as CultureInfo;
@@ -89,7 +89,7 @@ public static partial class CommonFormatters
 	// The tagname may be followed by an optional format specifier separated by a colon.
 	// All other parts of the template string are left untouched as well as the braces where the tagname is unknown.
 	// TemplateStringFormatter will use a dictionary to lookup the tagname and the corresponding value getter.
-	[GeneratedRegex(@"\{(?<tag>[[A-Z]+|#)(?::(?<format>.*?))?\}", RegexOptions.IgnoreCase)]
+	[GeneratedRegex("""\{(?<tag>[A-Z]+|#)(?::(?<format>(?:\\.|'(?:[^']|'')*'|"(?:[^"]|"")*"|.)*?))?\}""", RegexOptions.IgnoreCase)]
 	private static partial Regex TagFormatRegex();
 
 	public static string FormattableFormatter(ITemplateTag _, IFormattable? value, string? formatString, CultureInfo? culture)
@@ -113,7 +113,7 @@ public static partial class CommonFormatters
 	public static string MinutesFormatter(ITemplateTag templateTag, int value, string? formatString, CultureInfo? culture)
 	{
 		culture ??= CultureInfo.CurrentCulture;
-		if (string.IsNullOrEmpty(formatString))
+		if (string.IsNullOrWhiteSpace(formatString))
 			return value.ToString(culture);
 
 		var timeSpan = TimeSpan.FromMinutes(value);
@@ -148,23 +148,23 @@ public static partial class CommonFormatters
 	public static string DateTimeFormatter(ITemplateTag _, DateTime value, string? formatString, CultureInfo? culture)
 	{
 		culture ??= CultureInfo.InvariantCulture;
-		if (string.IsNullOrEmpty(formatString))
+		if (string.IsNullOrWhiteSpace(formatString))
 			formatString = DefaultDateFormat;
 		return value.ToString(formatString, culture);
 	}
 
 	public static string LanguageShortFormatter(ITemplateTag templateTag, string? language, string? formatString, CultureInfo? culture)
 	{
-		return StringFormatter(templateTag, language?.Trim(), "3u", culture);
+		return StringFormatter(templateTag, language, "3u", culture);
 	}
 
 	// Regex to find patterns like {D:3}, {h:4}, {m}
-	[GeneratedRegex(@"\{D(?::(?<format>.*?))?\}", RegexOptions.IgnoreCase)]
+	[GeneratedRegex("""\{D(?::(?<format>(?:\\.|'(?:[^']|'')*'|"(?:[^"]|"")*"|.)*?))?\}""", RegexOptions.IgnoreCase)]
 	private static partial Regex RegexMinutesD();
 
-	[GeneratedRegex(@"\{H(?::(?<format>.*?))?\}", RegexOptions.IgnoreCase)]
+	[GeneratedRegex("""\{H(?::(?<format>(?:\\.|'(?:[^']|'')*'|"(?:[^"]|"")*"|.)*?))?\}""", RegexOptions.IgnoreCase)]
 	private static partial Regex RegexMinutesH();
 
-	[GeneratedRegex(@"\{M(?::(?<format>.*?))?\}", RegexOptions.IgnoreCase)]
+	[GeneratedRegex("""\{M(?::(?<format>(?:\\.|'(?:[^']|'')*'|"(?:[^"]|"")*"|.)*?))?\}""", RegexOptions.IgnoreCase)]
 	private static partial Regex RegexMinutesM();
 }

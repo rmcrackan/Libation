@@ -167,6 +167,7 @@ namespace TemplatesTests
 		[DataRow("<bitrate[2]>Kbps <titleshort[u]>", "128Kbps A STUDY IN SCARLET")]
 		[DataRow("<bitrate[3]>Kbps <titleshort[t]>", "128Kbps A Study In Scarlet")]
 		[DataRow("<bitrate[4]>Kbps <titleshort[l]>", "0128Kbps a study in scarlet")]
+		[DataRow(@"<bitrate[00'['0\\#0']']>Kbps <titleshort[T]>", "01[2#8]Kbps A Study In Scarlet")]
 		[DataRow("<codec[7t]> <samplerate[6]>Hz", "Aac[Lc] 044100Hz")]
 		[DataRow("<codec[3T]> <titleshort[ 5 U ]>", "AAC A STU")]
 		[DataRow("<bitrate  [ 4 ]  >Kbps <samplerate   [  6  ]   >Hz", "0128Kbps 044100Hz")]
@@ -208,6 +209,7 @@ namespace TemplatesTests
 		[DataRow("<minutes[{d}-{m}]>", 2000, "1-560")]
 		[DataRow("<minutes[{d}-{m}]>", 2880, "2-0")]
 		[DataRow("<minutes[{d:2}-{m:2}]>", 1500, "01-60")]
+		[DataRow(@"<minutes[{d:0}-{m:000'{'00\}}]>", 2000, "1-005{60}")]
 		public void MinutesFormat(string template, int minutes, string expected)
 		{
 			var bookDto = GetLibraryBook();
@@ -557,14 +559,14 @@ namespace TemplatesTests
 		[DataRow("<is tag[=Tag1]->true<-has>", "true")]
 		[DataRow("<is tag[separator(:)slice(-2..)][=Tag2:Tag3]->true<-has>", "true")]
 		[DataRow("<is audible subtitle[3][=an]->false<-has>", "")]
-		[DataRow("<is audible subtitle[3][=an ]->false<-has>", "")]
+		[DataRow("<is audible subtitle[3][=an ]->true<-has>", "true")]
 		[DataRow(@"<is audible subtitle[3][=an\ ]->true<-has>", "true")]
 		[DataRow("<is audible subtitle[3][= an]->false<-has>", "")]
 		[DataRow("<is audible subtitle[3][= an ]->false<-has>", "")]
-		[DataRow(@"<is audible subtitle[3][= an\ ]->true<-has>", "true")]
+		[DataRow(@"<is audible subtitle[3][= an\ ]->false<-has>", "")]
 		[DataRow(@"<is audible subtitle[3][=\ an\ ]->false<-has>", "")]
 		[DataRow("<is audible subtitle[3][ =an]->false<-has>", "")]
-		[DataRow("<is audible subtitle[3][ =an ]->false<-has>", "")]
+		[DataRow("<is audible subtitle[3][ =an ]->true<-has>", "true")]
 		[DataRow(@"<is audible subtitle[3][ =an\ ]->true<-has>", "true")]
 		public void HasValue_test(string template, string expected)
 		{
@@ -598,7 +600,7 @@ namespace TemplatesTests
 		[DataRow("<first series>", "Series A")]
 		[DataRow("<first series[]>", "Series A")]
 		[DataRow("<first series[{N}, {#}, {ID}]>", "Series A, 1, B1")]
-		[DataRow("<first series[{N}, {#:00.0}]>", "Series A, 01.0")]
+		[DataRow("<first series[{N}, {#:0'{}'0.0}]>", "Series A, 0{}1.0")]
 		public void SeriesFormat_formatters(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();

@@ -114,11 +114,10 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			                         (?:\s+                   # the following part is optional. If present it starts with some whitespace
 			                             (?<property>.+?      # - capture the <property> non greedy so it won't end on whitespace, '[' or '-' (if match is possible)
 			                                 (?<!\s))         # - don't let <property> end with a whitepace. Otherwise "<tagname  [foobar]->" would be matchable.
-			                             (?:\s*\[\s*          # optional check details enclosed in '[' and ']'. Check shall be trimmed. So match whitespace first
+			                             (?:\s*\[\s*          # optional check details enclosed in '[' and ']'. Check shall start with an operator. So match whitespace first
 			                                 (?<check>        # - capture inner part as <check>
 			                                     (?:\\.       # - '\' escapes allways the next character. Especially further '\' and the closing ']'
-			                                     |[^\\\]])*?  # - match any character except '\' and ']' non greedy so the match won't end whith whitespace
-			                                 )\s*             # - the whitespace after the check is optional
+			                                     |[^\\\]])* ) # - match any character except '\' and ']'. Check may end in whitespace!
 			                             \])?                 # - closing the check part
 			                         )?                       # end of optional property and check part
 			                         \s*->                    # Opening tags end with '->' and closing tags begin with '<-', so both sides visually point toward each other
@@ -250,7 +249,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 					// - Lithuanian locale: 'i' after 'ž' has an accent that affects sorting/matching.
 					// 
 					// For naming templates, culture-invariant is the safer default.
-					return regex.IsMatch(v.ToString()?.Trim() ?? "");
+					return regex.IsMatch(v.ToString() ?? "");
 				}
 				catch (RegexMatchTimeoutException ex)
 				{
@@ -307,13 +306,12 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 
 		[GeneratedRegex("""
 		                (?x)						          # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
-		                ^\s*                                  # anchor at start of line trimming leading whitespace
-		                (?<op>(?<num_op>                      # capture operator in <op> and <num_op> with every char escapable 
+		                ^(?<op>(?<num_op>                     # anchor at start of linecapture operator in <op> and <num_op> with every char escapable
 		                	    \\?\#(?:\\?!)?\\?=            # - numerical operators: #= #!=
 		                	    | \\?\#\\?[<>](?:\\?=)?       # - numerical operators: #>= #<= #> #<
 		                	    |      \\?[<>](?:\\?=)?       # - numerical operators: >= <= > <
 		                    ) | \\?~|\\?!(?:\\?=)?|(?:\\?=)?  # - string comparison operators including ~ for regexp, = and !=. No operator is like =
-		                ) \s*                                 # ignore space between operator and value
+		                ) \s*?                                # ignore space between operator and value
 		                (?<val>(?(num_op)                     # capture value in <val>
 		                	(?:\\?\d)+                        # - numerical operators have to be followed by a number
 		                	| (?:\\.|[^\\])* )                # - string for comparison. May be empty. Capturing also all whitespace up to the end as this must have been escaped.
