@@ -1,0 +1,39 @@
+# Assigns the `exempt` label to issues and PRs opened by maintainer accounts so
+# stale.yml does not mark them stale. See issue #1532.
+# For issues/PRs opened before this existed, run workflow "Exempt creators backfill".
+# Pattern: https://github.com/Asperguide/asper-header/blob/main/.github/workflows/exempt-creators.yml
+---
+name: Exempt specific creators
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  exempt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add exempt label
+        if: >-
+          (github.event_name == 'issues' &&
+          contains(fromJSON('["rmcrackan","Mbucari"]'), github.event.issue.user.login)) ||
+          (github.event_name == 'pull_request' &&
+          contains(fromJSON('["rmcrackan","Mbucari"]'), github.event.pull_request.user.login))
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const number = context.issue?.number || context.payload.pull_request?.number;
+            const repo = context.repo;
+            if (number) {
+              await github.rest.issues.addLabels({
+                ...repo,
+                issue_number: number,
+                labels: ['exempt'],
+              });
+            }
