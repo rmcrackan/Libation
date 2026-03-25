@@ -299,8 +299,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			var getBool = CreateConditionExpression(
 				exactName,
 				matchData.GetValueOrDefault("property")?.Value,
-				matchData.GetValueOrDefault("check")?.Value);
-			// Unescape(matchData.GetValueOrDefault("check")));
+				matchData.GetValueOrDefault("check")?.ValueOrNull());
 			return matchData["not"].Success ? Expression.Not(getBool) : getBool;
 		}
 

@@ -255,7 +255,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 
 		protected override Expression GetTagExpression(string exactName, Dictionary<string, Group> matchData, OutputType outputType)
 		{
-			var formatString = Unescape(matchData.GetValueOrDefault("format"));
+			var formatString = matchData.GetValueOrDefault("format")?.ValueOrNull();
 			var isReferenceType = !ReturnType.IsValueType;
 			var isNullableValueType = Nullable.GetUnderlyingType(ReturnType) is not null;
 

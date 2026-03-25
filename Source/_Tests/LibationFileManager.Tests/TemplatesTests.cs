@@ -167,7 +167,7 @@ namespace TemplatesTests
 		[DataRow("<bitrate[2]>Kbps <titleshort[u]>", "128Kbps A STUDY IN SCARLET")]
 		[DataRow("<bitrate[3]>Kbps <titleshort[t]>", "128Kbps A Study In Scarlet")]
 		[DataRow("<bitrate[4]>Kbps <titleshort[l]>", "0128Kbps a study in scarlet")]
-		[DataRow(@"<bitrate[00'['0\\#0']']>Kbps <titleshort[T]>", "01[2#8]Kbps A Study In Scarlet")]
+		[DataRow(@"<bitrate[00'['0\#0']']>Kbps <titleshort[T]>", "01[2#8]Kbps A Study In Scarlet")]
 		[DataRow("<codec[7t]> <samplerate[6]>Hz", "Aac[Lc] 044100Hz")]
 		[DataRow("<codec[3T]> <titleshort[ 5 U ]>", "AAC A STU")]
 		[DataRow("<bitrate  [ 4 ]  >Kbps <samplerate   [  6  ]   >Hz", "0128Kbps 044100Hz")]

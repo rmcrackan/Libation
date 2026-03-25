@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using static FileManager.NamingTemplate.RegExpExtensions;
 
 namespace LibationFileManager.Templates;
 
@@ -14,8 +15,7 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 
 		static IEnumerable<T> Slice(string formatString, IEnumerable<T> items)
 		{
-			var sliceMatch = SliceRegex().Match(formatString);
-			if (!sliceMatch.Success) return items;
+			if (!SliceRegex().TryMatch(formatString, out var sliceMatch)) return items;
 
 			int.TryParse(sliceMatch.Groups["first"].ValueSpan, out var first);
 			int.TryParse(sliceMatch.Groups["last"].ValueSpan, out var last);
@@ -23,11 +23,14 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 
 			if (last > 0)
 			{
+				// ReSharper disable PossibleMultipleEnumeration
+
 				// strange constellation which might not work as intended: slice(-2..3) needs at least 4 items to return anything
 				// to get this working, we need to adjust the start-pointer based on the total count of items	
 				if (first < 0)
 					first += items.Count() + 1;
 				items = items.Take(last);
+				// ReSharper restore PossibleMultipleEnumeration
 			}
 
 			if (first > 1) items = items.Skip(first - 1);
@@ -95,32 +98,4 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 	/// <summary> Separator can be anything </summary>
 	[GeneratedRegex(@"[Ss]eparator\((?<separator>.*?)\)")]
 	private static partial Regex SeparatorRegex();
-}
-
-static class RegExpExtensions
-{
-	extension(Group group)
-	{
-		public string? ValueOrNull() => group.Success ? group.Value : null;
-		public ReadOnlySpan<char> ValueSpanOrNull() => group.Success ? group.ValueSpan : null;
-	}
-
-	extension(Match match)
-	{
-		public Group Resolve(string? groupName = null)
-		{
-			if (groupName is not null && match.Groups.TryGetValue(groupName, out var group))
-				return group;
-			return match.Groups.Count > 1 ? match.Groups[1] : match.Groups[0];
-		}
-
-		public string? ResolveValue(string? groupName = null) => match.Resolve(groupName).ValueOrNull();
-
-		public bool TryParseInt(string? groupName, out int value)
-		{
-			var span = match.Resolve(groupName).ValueSpanOrNull();
-
-			return int.TryParse(span, out value);
-		}
-	}
 }
