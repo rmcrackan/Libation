@@ -440,7 +440,7 @@ namespace TemplatesTests
 		[DataRow("<has libation version->empty-string<-has>", "")]
 		[DataRow("<!has libation version->empty-string<-has>", "empty-string")]
 		[DataRow("<is libation version[=foobar]->empty-string<-is>", "")]
-		[DataRow("<!is libation version[=foobar]->empty-string<-has>", "empty-string")]
+		[DataRow("<!is libation version[=foobar]->empty-string<-is>", "empty-string")]
 		[DataRow("<is libation version[=]->empty-string<-is>", "empty-string")]
 		[DataRow("<is libation version[#=0]->empty-string<-is>", "empty-string")]
 		[DataRow("<is libation version[]->empty-string<-is>", "empty-string")]
@@ -448,26 +448,26 @@ namespace TemplatesTests
 		[DataRow("<!has file version->null-string<-has>", "null-string")]
 		[DataRow("<is file version[=foobar]->null-string<-is>", "")]
 		[DataRow("<is file version[=]->null-string<-is>", "")]
-		[DataRow("<!is file version[=]->null-string<-has>", "null-string")]
+		[DataRow("<!is file version[=]->null-string<-is>", "null-string")]
 		[DataRow("<is file version[#=0]->null-string<-is>", "")]
 		[DataRow("<is file version[]->null-string<-is>", "")]
 		[DataRow("<has year->null-int<-has>", "")]
 		[DataRow("<is year[=]->null-int<-is>", "")]
 		[DataRow("<is year[#=0]->null-int<-is>", "")]
 		[DataRow("<is year[0]->null-int<-is>", "")]
-		[DataRow("<!is year[0]->null-int<-has>", "null-int")]
+		[DataRow("<!is year[0]->null-int<-is>", "null-int")]
 		[DataRow("<is year[]->null-int<-is>", "")]
 		[DataRow("<has FAKE->unknown-tag<-has>", "")]
 		[DataRow("<is FAKE[=]->unknown-tag<-is>", "")]
-		[DataRow("<!is FAKE[=]->unknown-tag<-has>", "unknown-tag")]
+		[DataRow("<!is FAKE[=]->unknown-tag<-is>", "unknown-tag")]
 		[DataRow("<is FAKE[=foobar]->unknown-tag<-is>", "")]
 		[DataRow("<is FAKE[#=0]->unknown-tag<-is>", "")]
 		[DataRow("<is FAKE[]->unknown-tag<-is>", "")]
 		[DataRow("<has narrator->empty-list<-has>", "")]
 		[DataRow("<is narrator[=foobar]->empty-list<-is>", "")]
-		[DataRow("<!is narrator[=foobar]->empty-list<-has>", "empty-list")]
+		[DataRow("<!is narrator[=foobar]->empty-list<-is>", "empty-list")]
 		[DataRow("<is narrator[!=foobar]->empty-list<-is>", "")]
-		[DataRow("<!is narrator[!=foobar]->empty-list<-has>", "empty-list")]
+		[DataRow("<!is narrator[!=foobar]->empty-list<-is>", "empty-list")]
 		[DataRow("<is narrator[=]->empty-list<-is>", "")]
 		[DataRow("<is narrator[~.*]->empty-list<-is>", "")]
 		[DataRow("<is narrator[<1]->empty-list<-is>", "empty-list")]
@@ -494,6 +494,8 @@ namespace TemplatesTests
 				.GetFilename(bookDto, multiDto, "", "", culture: null, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
+			fileTemplate.Errors.Should().HaveCount(0);
+			fileTemplate.Warnings.Should().HaveCount(1); // "Should use tags. Eg: <title>"
 		}
 
 		[TestMethod]
@@ -513,8 +515,8 @@ namespace TemplatesTests
 		[DataRow("<has samplerate->true<-has>", "true")]
 		[DataRow("<has channels->true<-has>", "true")]
 		[DataRow("<has codec->true<-has>", "true")]
-		[DataRow(@"<is codec[=aac\[lc\]\\mp3]->true<-has>", "true")]
-		[DataRow(@"<is codec[=aac\[lc\]\\mp4]->true<-has>", "")]
+		[DataRow(@"<is codec[=aac\[lc\]\\mp3]->true<-is>", "true")]
+		[DataRow(@"<is codec[=aac\[lc\]\\mp4]->true<-is>", "")]
 		[DataRow("<has account->true<-has>", "true")]
 		[DataRow("<has account nickname->true<-has>", "true")]
 		[DataRow("<has locale->true<-has>", "true")]
@@ -588,6 +590,8 @@ namespace TemplatesTests
 				.GetFilename(bookDto, multiDto, "", "", culture: null, replacements: Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
+			fileTemplate.Errors.Should().HaveCount(0);
+			fileTemplate.Warnings.Should().HaveCount(1); // "Should use tags. Eg: <title>"
 		}
 
 		[TestMethod]
