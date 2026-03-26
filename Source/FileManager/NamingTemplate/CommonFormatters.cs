@@ -34,10 +34,7 @@ public static partial class CommonFormatters
 	private static string _StringFormatter(string? value, string? formatString, CultureInfo? culture)
 	{
 		if (string.IsNullOrEmpty(value)) return string.Empty;
-		if (string.IsNullOrWhiteSpace(formatString)) return value;
-
-		var match = StringFormatRegex().Match(formatString);
-		if (!match.Success) return value;
+		if (string.IsNullOrWhiteSpace(formatString) || !StringFormatRegex().TryMatch(formatString, out var match)) return value;
 
 		// first shorten the string if a number is specified in the format string
 		if (int.TryParse(match.Groups["left"].ValueSpan, out var length) && length < value.Length)
@@ -72,7 +69,7 @@ public static partial class CommonFormatters
 			if (!replacements.TryGetValue(tag, out var getter)) return m.Value;
 
 			var value = getter(toFormat);
-			var format = m.Groups["format"].Value;
+			var format = m.Groups["format"].ValueOrNull();
 			return value switch
 			{
 				IFormattable formattable => formattable.ToString(format, provider),

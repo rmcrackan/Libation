@@ -85,7 +85,7 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 
 	/// <summary>
 	/// Slice can be a single number or a range like "start..end".
-	/// Leaving out one value of a range it will start on the first or end on the last respectively.
+	/// Leaving out one value of a range, it will start on the first or end on the last respectively.
 	/// Negative numbers will start counting from the end with "-1" being the last element.
 	/// </summary>
 	[GeneratedRegex(@"[Ss]lice\(\s*(?<first>-?[1-9]\d*)?\s*(?:(?<op>\.\.\.*)\s*(?<last>-?[1-9]\d*)?(?(first)|(?<=\d))\s*)?\)")]

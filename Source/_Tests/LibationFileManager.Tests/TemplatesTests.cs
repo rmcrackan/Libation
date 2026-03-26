@@ -436,45 +436,45 @@ namespace TemplatesTests
 		[TestMethod]
 		[DataRow("<has libation version->empty-string<-has>", "")]
 		[DataRow("<!has libation version->empty-string<-has>", "empty-string")]
-		[DataRow("<is libation version[=foobar]->empty-string<-has>", "")]
+		[DataRow("<is libation version[=foobar]->empty-string<-is>", "")]
 		[DataRow("<!is libation version[=foobar]->empty-string<-has>", "empty-string")]
-		[DataRow("<is libation version[=]->empty-string<-has>", "empty-string")]
-		[DataRow("<is libation version[#=0]->empty-string<-has>", "empty-string")]
-		[DataRow("<is libation version[]->empty-string<-has>", "empty-string")]
+		[DataRow("<is libation version[=]->empty-string<-is>", "empty-string")]
+		[DataRow("<is libation version[#=0]->empty-string<-is>", "empty-string")]
+		[DataRow("<is libation version[]->empty-string<-is>", "empty-string")]
 		[DataRow("<has file version->null-string<-has>", "")]
 		[DataRow("<!has file version->null-string<-has>", "null-string")]
-		[DataRow("<is file version[=foobar]->null-string<-has>", "")]
-		[DataRow("<is file version[=]->null-string<-has>", "")]
+		[DataRow("<is file version[=foobar]->null-string<-is>", "")]
+		[DataRow("<is file version[=]->null-string<-is>", "")]
 		[DataRow("<!is file version[=]->null-string<-has>", "null-string")]
-		[DataRow("<is file version[#=0]->null-string<-has>", "")]
-		[DataRow("<is file version[]->null-string<-has>", "")]
+		[DataRow("<is file version[#=0]->null-string<-is>", "")]
+		[DataRow("<is file version[]->null-string<-is>", "")]
 		[DataRow("<has year->null-int<-has>", "")]
-		[DataRow("<is year[=]->null-int<-has>", "")]
-		[DataRow("<is year[#=0]->null-int<-has>", "")]
-		[DataRow("<is year[0]->null-int<-has>", "")]
+		[DataRow("<is year[=]->null-int<-is>", "")]
+		[DataRow("<is year[#=0]->null-int<-is>", "")]
+		[DataRow("<is year[0]->null-int<-is>", "")]
 		[DataRow("<!is year[0]->null-int<-has>", "null-int")]
-		[DataRow("<is year[]->null-int<-has>", "")]
+		[DataRow("<is year[]->null-int<-is>", "")]
 		[DataRow("<has FAKE->unknown-tag<-has>", "")]
-		[DataRow("<is FAKE[=]->unknown-tag<-has>", "")]
+		[DataRow("<is FAKE[=]->unknown-tag<-is>", "")]
 		[DataRow("<!is FAKE[=]->unknown-tag<-has>", "unknown-tag")]
-		[DataRow("<is FAKE[=foobar]->unknown-tag<-has>", "")]
-		[DataRow("<is FAKE[#=0]->unknown-tag<-has>", "")]
-		[DataRow("<is FAKE[]->unknown-tag<-has>", "")]
+		[DataRow("<is FAKE[=foobar]->unknown-tag<-is>", "")]
+		[DataRow("<is FAKE[#=0]->unknown-tag<-is>", "")]
+		[DataRow("<is FAKE[]->unknown-tag<-is>", "")]
 		[DataRow("<has narrator->empty-list<-has>", "")]
-		[DataRow("<is narrator[=foobar]->empty-list<-has>", "")]
+		[DataRow("<is narrator[=foobar]->empty-list<-is>", "")]
 		[DataRow("<!is narrator[=foobar]->empty-list<-has>", "empty-list")]
-		[DataRow("<is narrator[!=foobar]->empty-list<-has>", "")]
+		[DataRow("<is narrator[!=foobar]->empty-list<-is>", "")]
 		[DataRow("<!is narrator[!=foobar]->empty-list<-has>", "empty-list")]
-		[DataRow("<is narrator[=]->empty-list<-has>", "")]
-		[DataRow("<is narrator[~.*]->empty-list<-has>", "")]
-		[DataRow("<is narrator[<1]->empty-list<-has>", "empty-list")]
-		[DataRow("<is narrator[#=0]->empty-list<-has>", "empty-list")]
-		[DataRow("<is narrator[]->empty-list<-has>", "")]
-		[DataRow("<is first narrator->no-first<-has>", "")]
-		[DataRow("<is first narrator[=foobar]->no-first<-has>", "")]
-		[DataRow("<is first narrator[=]->no-first<-has>", "")]
-		[DataRow("<is first narrator[#=0]->no-first<-has>", "")]
-		[DataRow("<is first narrator[]->no-first<-has>", "")]
+		[DataRow("<is narrator[=]->empty-list<-is>", "")]
+		[DataRow("<is narrator[~.*]->empty-list<-is>", "")]
+		[DataRow("<is narrator[<1]->empty-list<-is>", "empty-list")]
+		[DataRow("<is narrator[#=0]->empty-list<-is>", "empty-list")]
+		[DataRow("<is narrator[]->empty-list<-is>", "")]
+		[DataRow("<is first narrator->no-first<-is>", "")]
+		[DataRow("<is first narrator[=foobar]->no-first<-is>", "")]
+		[DataRow("<is first narrator[=]->no-first<-is>", "")]
+		[DataRow("<is first narrator[#=0]->no-first<-is>", "")]
+		[DataRow("<is first narrator[]->no-first<-is>", "")]
 		public void HasValue_on_empty_test(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
@@ -524,50 +524,51 @@ namespace TemplatesTests
 		[DataRow("<has ch title->true<-has>", "true")]
 		[DataRow("<has ch#->true<-has>", "true")]
 		[DataRow("<has ch# 0->true<-has>", "true")]
-		[DataRow("<is title[=A Study in Scarlet: An Audible Original Drama]->true<-has>", "true")]
-		[DataRow("<!is title[=A Study in Scarlet: An Audible Original Drama]->false<-has>", "")]
-		[DataRow("<is title[U][=A STUDY IN SCARLET: AN AUDIBLE ORIGINAL DRAMA]->true<-has>", "true")]
-		[DataRow("<is title[#=45]->true<-has>", "true")]
-		[DataRow("<is title[!=foo]->true<-has>", "true")]
-		[DataRow("<!is title[!=foo]->false<-has>", "")]
-		[DataRow("<is title[~A Study.*]->true<-has>", "true")]
-		[DataRow("<is title[foo]->true<-has>", "")]
-		[DataRow("<is ch count[>=1]->true<-has>", "true")]
-		[DataRow("<is ch count[>1]->true<-has>", "true")]
-		[DataRow("<is ch count[<=100]->true<-has>", "true")]
-		[DataRow("<is ch count[<100]->true<-has>", "true")]
-		[DataRow("<is ch count[=2]->true<-has>", "true")]
-		[DataRow("<is author[>=2]->true<-has>", "true")]
-		[DataRow("<is author[#=2]->true<-has>", "true")]
-		[DataRow("<is author[=Arthur Conan Doyle]->true<-has>", "true")]
-		[DataRow("<is author[format({L})][=Doyle]->true<-has>", "true")]
-		[DataRow("<!is author[format({L})][=Doyle]->false<-has>", "")]
-		[DataRow("<is author[format({L})][!=Doyle]->true<-has>", "true")]
-		[DataRow("<!is author[format({L})][!=Doyle]->false<-has>", "")]
-		[DataRow("<is author[format({L})separator(:)][=Doyle:Fry]->true<-has>", "true")]
-		[DataRow("<is author[>=3]->true<-has>", "")]
-		[DataRow(@"<is author[slice(99)][~.\*]->true<-has>", "")]
-		[DataRow("<is author[slice(99)separator(:)][~.*]->true<-has>", "")]
-		[DataRow("<is author[slice(-9)separator(:)][~.*]->true<-has>", "")]
-		[DataRow("<is author[slice(2..1)separator(:)][~.*]->true<-has>", "")]
-		[DataRow("<is author[slice(-1..1)separator(:)][~.*]->true<-has>", "")]
-		[DataRow("<is author[slice(-1..-2)separator(:)][~.*]->true<-has>", "")]
-		[DataRow("<is author[=Sherlock]->true<-has>", "")]
-		[DataRow("<!is author[=Sherlock]->false<-has>", "false")]
-		[DataRow("<is author[!=Sherlock]->true<-has>", "true")]
-		[DataRow("<!is author[!=Sherlock]->false<-has>", "")]
-		[DataRow("<is tag[=Tag1]->true<-has>", "true")]
-		[DataRow("<is tag[separator(:)slice(-2..)][=Tag2:Tag3]->true<-has>", "true")]
-		[DataRow("<is audible subtitle[3][=an]->false<-has>", "")]
-		[DataRow("<is audible subtitle[3][=an ]->true<-has>", "true")]
-		[DataRow(@"<is audible subtitle[3][=an\ ]->true<-has>", "true")]
-		[DataRow("<is audible subtitle[3][= an]->false<-has>", "")]
-		[DataRow("<is audible subtitle[3][= an ]->false<-has>", "")]
-		[DataRow(@"<is audible subtitle[3][= an\ ]->false<-has>", "")]
-		[DataRow(@"<is audible subtitle[3][=\ an\ ]->false<-has>", "")]
-		[DataRow("<is audible subtitle[3][ =an]->false<-has>", "")]
-		[DataRow("<is audible subtitle[3][ =an ]->true<-has>", "true")]
-		[DataRow(@"<is audible subtitle[3][ =an\ ]->true<-has>", "true")]
+		[DataRow("<is title[=A Study in Scarlet: An Audible Original Drama]->true<-is>", "true")]
+		[DataRow("<!is title[=A Study in Scarlet: An Audible Original Drama]->false<-is>", "")]
+		[DataRow("<is title[U][=A STUDY IN SCARLET: AN AUDIBLE ORIGINAL DRAMA]->true<-is>", "true")]
+		[DataRow("<is title[#=45]->true<-is>", "true")]
+		[DataRow("<is title[!=foo]->true<-is>", "true")]
+		[DataRow("<!is title[!=foo]->false<-is>", "")]
+		[DataRow("<is title[~A Study.*]->true<-is>", "true")]
+		[DataRow("<is title[foo]->true<-is>", "")]
+		[DataRow("<is ch count[>=1]->true<-is>", "true")]
+		[DataRow("<is ch count[>1]->true<-is>", "true")]
+		[DataRow("<is ch count[<=100]->true<-is>", "true")]
+		[DataRow("<is ch count[<100]->true<-is>", "true")]
+		[DataRow("<is ch count[=2]->true<-is>", "true")]
+		[DataRow("<is author[>=2]->true<-is>", "true")]
+		[DataRow("<is author[#=2]->true<-is>", "true")]
+		[DataRow("<is author[=Arthur Conan Doyle]->true<-is>", "true")]
+		[DataRow("<is author[format({L})][=Doyle]->true<-is>", "true")]
+		[DataRow("<!is author[format({L})][=Doyle]->false<-is>", "")]
+		[DataRow("<is author[format({L})][!=Doyle]->true<-is>", "true")]
+		[DataRow("<!is author[format({L})][!=Doyle]->false<-is>", "")]
+		[DataRow("<is author[format({L})separator(:)][=Doyle:Fry]->true<-is>", "true")]
+		[DataRow("<is author[>=3]->true<-is>", "")]
+		[DataRow(@"<is author[slice(99)][~.\*]->true<-is>", "")]
+		[DataRow("<is author[slice(99)separator(:)][~.*]->true<-is>", "")]
+		[DataRow("<is author[slice(-9)separator(:)][~.*]->true<-is>", "")]
+		[DataRow("<is author[slice(2..1)separator(:)][~.*]->true<-is>", "")]
+		[DataRow("<is author[slice(-1..1)separator(:)][~.*]->true<-is>", "")]
+		[DataRow("<is author[slice(-1..-2)separator(:)][~.*]->true<-is>", "")]
+		[DataRow("<is author[=Sherlock]->true<-is>", "")]
+		[DataRow("<!is author[=Sherlock]->false<-is>", "false")]
+		[DataRow("<is author[!=Sherlock]->true<-is>", "true")]
+		[DataRow("<!is author[!=Sherlock]->false<-is>", "")]
+		[DataRow("<is tag[=Tag1]->true<-is>", "true")]
+		[DataRow("<is tag[separator(:)slice(-2..)][=Tag2:Tag3]->true<-is>", "true")]
+		[DataRow("<is audible subtitle[3][=an]->false<-is>", "")]
+		[DataRow("<is audible subtitle[3][=an ]->true<-is>", "true")]
+		[DataRow(@"<is audible subtitle[3][=an\ ]->true<-is>", "true")]
+		[DataRow("<is audible subtitle[3][= an]->false<-is>", "")]
+		[DataRow("<is audible subtitle[3][= an ]->false<-is>", "")]
+		[DataRow(@"<is audible subtitle[3][= an\ ]->false<-is>", "")]
+		[DataRow(@"<is audible subtitle[3][=\ an\ ]->false<-is>", "")]
+		[DataRow("<is audible subtitle[3][ =an]->false<-is>", "")]
+		[DataRow("<is audible subtitle[3][ =an ]->true<-is>", "true")]
+		[DataRow(@"<is audible subtitle[3][ =an\ ]->true<-is>", "true")]
+		[DataRow(@"<is minutes[>42]->true<-is>", "true")]
 		public void HasValue_test(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
@@ -714,7 +715,7 @@ namespace TemplatesTests
 		{
 			var bookDto = Shared.GetLibraryBook();
 			bookDto.Title = title;
-			var culture = new System.Globalization.CultureInfo(cultureName);
+			var culture = new CultureInfo(cultureName);
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 
@@ -889,7 +890,7 @@ namespace Templates_Folder_Tests
 				Assert.Inconclusive($"Skipped because OS is not one of {platformIds}.");
 
 			Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var folderTemplate);
-			var result = folderTemplate.Errors;
+			var result = folderTemplate.Errors.ToList();
 			result.Should().HaveCount(expected.Length);
 			result.Should().BeEquivalentTo(expected);
 		}
@@ -948,7 +949,7 @@ namespace Templates_Folder_Tests
 		public void Tests(string? template, params string[] expected)
 		{
 			Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var folderTemplate);
-			var result = folderTemplate.Warnings;
+			var result = folderTemplate.Warnings.ToList();
 			result.Should().HaveCount(expected.Length);
 			result.Should().BeEquivalentTo(expected);
 		}
@@ -1036,7 +1037,7 @@ namespace Templates_File_Tests
 				Assert.Inconclusive($"Skipped because OS is not {platformId}.");
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate);
-			var result = fileTemplate.Errors;
+			var result = fileTemplate.Errors.ToList();
 			result.Should().HaveCount(expected.Length);
 			result.Should().BeEquivalentTo(expected);
 		}
@@ -1120,7 +1121,7 @@ namespace Templates_ChapterFile_Tests
 				Assert.Inconclusive($"Skipped because OS is not {platformId}.");
 
 			Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterFileTemplate);
-			var result = chapterFileTemplate.Warnings;
+			var result = chapterFileTemplate.Warnings.ToList();
 			result.Should().HaveCount(expected.Length);
 			result.Should().BeEquivalentTo(expected);
 		}
