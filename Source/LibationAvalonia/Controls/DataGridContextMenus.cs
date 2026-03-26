@@ -4,11 +4,22 @@ using Avalonia.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace LibationAvalonia.Controls;
 
 public class DataGridCellContextMenu<TContext> where TContext : class
 {
+	private static readonly PropertyInfo? DataGridCellOwningColumnProperty =
+		typeof(DataGridCell).GetProperty("OwningColumn", BindingFlags.Instance | BindingFlags.NonPublic);
+
+	private static DataGridColumn? GetDataGridColumn(DataGridCell cell)
+	{
+		if (cell.Tag is DataGridColumn columnFromTag)
+			return columnFromTag;
+		return DataGridCellOwningColumnProperty?.GetValue(cell) as DataGridColumn;
+	}
+
 	public static DataGridCellContextMenu<TContext>? Create(ContextMenu? contextMenu)
 	{
 		DataGrid? grid = null;
@@ -22,7 +33,11 @@ public class DataGridCellContextMenu<TContext> where TContext : class
 			parent = parent.Parent;
 		}
 
-		if (grid is null || cell is null || cell.Tag is not DataGridColumn column || contextMenu!.DataContext is not TContext clickedEntry)
+		if (grid is null || cell is null || contextMenu!.DataContext is not TContext clickedEntry)
+			return null;
+
+		var column = GetDataGridColumn(cell);
+		if (column is null)
 			return null;
 
 		var allSelected = grid.SelectedItems.OfType<TContext>().ToArray();

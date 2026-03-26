@@ -1,6 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Input.Platform;
+using Avalonia.Interactivity;
+using Avalonia.VisualTree;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using DataLayer;
@@ -105,6 +108,46 @@ public partial class ProductsDisplay : UserControl
 		{
 			column.CustomSortComparer = new RowComparer(column);
 		}
+
+		// macOS: control-click may be delivered as left+control or as a secondary click; the default
+		// ContextMenu route can fail on DataGrid cells. Open explicitly after children handle the event.
+		if (Configuration.IsMacOs)
+		{
+			productsGrid.AddHandler(InputElement.PointerPressedEvent, ProductsGrid_PointerPressedMacContextMenu, RoutingStrategies.Bubble, handledEventsToo: true);
+		}
+	}
+
+	private void ProductsGrid_PointerPressedMacContextMenu(object? sender, PointerPressedEventArgs e)
+	{
+		if (DisableContextMenu)
+			return;
+
+		var point = e.GetCurrentPoint(productsGrid);
+		var props = point.Properties;
+		bool isContextGesture = props.IsRightButtonPressed
+			|| (props.IsLeftButtonPressed && e.KeyModifiers.HasFlag(KeyModifiers.Control));
+
+		if (!isContextGesture)
+			return;
+
+		if (e.Source is not Visual visual)
+			return;
+
+		DataGridCell? cell = null;
+		for (Visual? v = visual; v is not null; v = v.GetVisualParent())
+		{
+			if (v is DataGridCell c)
+			{
+				cell = c;
+				break;
+			}
+		}
+
+		if (cell?.ContextMenu is not { } contextMenu)
+			return;
+
+		contextMenu.Open(cell);
+		e.Handled = true;
 	}
 
 	protected override void OnApplyTemplate(Avalonia.Controls.Primitives.TemplateAppliedEventArgs e)
