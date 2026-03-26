@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
@@ -125,6 +126,29 @@ public partial class ProductsDisplay : UserControl
 			e.Row.DynamicResource(DataGridRow.BackgroundProperty, "SeriesEntryGridBackgroundBrush");
 		else
 			e.Row.DynamicResource(DataGridRow.BackgroundProperty, "SystemRegionColor");
+	}
+
+	private void ProductsGrid_PointerPressed(object? sender, PointerPressedEventArgs e)
+	{
+		if (!Configuration.IsMacOs || e.Handled)
+			return;
+
+		var point = e.GetCurrentPoint(this);
+		if (!point.Properties.IsLeftButtonPressed || !e.KeyModifiers.HasFlag(KeyModifiers.Control))
+			return;
+
+		if (e.Source is not StyledElement source)
+			return;
+
+		for (StyledElement? current = source; current is not null; current = current.Parent)
+		{
+			if (current is DataGridCell cell && cell.ContextMenu is { } contextMenu)
+			{
+				contextMenu.Open(cell);
+				e.Handled = true;
+				return;
+			}
+		}
 	}
 
 	private void RemoveColumn_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)

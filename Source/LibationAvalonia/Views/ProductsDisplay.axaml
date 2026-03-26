@@ -21,6 +21,7 @@
 			CanUserSortColumns="True" BorderThickness="3"
 			CanUserResizeColumns="True"
 			LoadingRow="ProductsDisplay_LoadingRow"
+			PointerPressed="ProductsGrid_PointerPressed"
 			CanUserReorderColumns="True">
 
 			<DataGrid.Styles>
