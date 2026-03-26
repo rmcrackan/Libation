@@ -57,7 +57,7 @@ namespace TemplatesTests
 				Codec = @"AAC[LC]\MP3", // special chars added
 				FileVersion = null, // explicitly null
 				LibationVersion = "", // explicitly empty string
-				LengthInMinutes = 100,
+				LengthInMinutes = TimeSpan.FromMinutes(100),
 				IsAbridged = true,
 				Tags = [new StringDto("Tag1"), new StringDto("Tag2"), new StringDto("Tag3")],
 			};
@@ -194,26 +194,29 @@ namespace TemplatesTests
 
 		[TestMethod]
 		[DataRow("<minutes>", 100, "100")]
-		[DataRow("<minutes[{m}]>", 100, "100")]
-		[DataRow("<minutes[{m:2}]>", 100, "100")]
-		[DataRow("<minutes[{h}-{m}]>", 100, "1-40")]
-		[DataRow("<minutes[{h:2}-{m:2}]>", 100, "01-40")]
-		[DataRow("<minutes[{d}.{h:2}-{m:2}]>", 100, "0.01-40")]
-		[DataRow("<minutes[{d:2}d{h:2}h{m:2}m]>", 100, "00d01h40m")]
-		[DataRow("<minutes[{d} days, {h} hours, {m} minutes]>", 100, "0 days, 1 hours, 40 minutes")]
-		[DataRow("<minutes[{h}-{m}]>", 2000, "33-20")]
-		[DataRow("<minutes[{d:3}-{h:3}-{m:3}]>", 2000, "001-009-020")]
-		[DataRow("<minutes[{m}-{h}-{d}]>", 2000, "20-9-1")]
-		[DataRow("<minutes[{d}-{m}]>", 100, "0-100")]
-		[DataRow("<minutes[{d}-{m}]>", 1500, "1-60")]
-		[DataRow("<minutes[{d}-{m}]>", 2000, "1-560")]
-		[DataRow("<minutes[{d}-{m}]>", 2880, "2-0")]
-		[DataRow("<minutes[{d:2}-{m:2}]>", 1500, "01-60")]
-		[DataRow(@"<minutes[{d:0}-{m:000'{'00\}}]>", 2000, "1-005{60}")]
+		[DataRow("<minutes[M]>", 100, "100")]
+		[DataRow("<minutes[MM]>", 100, "100")]
+		[DataRow(@"<minutes[H\-m]>", 100, "1-40")]
+		[DataRow(@"<minutes[hh\-MM]>", 100, "01-100")]
+		[DataRow(@"<minutes[%m\ m\ mm]>", 100, "40 40 40")]
+		[DataRow(@"<minutes[\%M\ M\ MM]>", 100, "%0 1 00")]
+		[DataRow(@"<minutes[D\.hh\-MM]>", 100, "0.01-100")]
+		[DataRow(@"<minutes[dd\dhh\hmm\m]>", 100, "00d01h40m")]
+		[DataRow("""<minutes[d'[days], 'h"(hours), "m'{minutes}']>""", 100, "0[days], 1(hours), 40{minutes}")]
+		[DataRow(@"<minutes[H\-M]>", 2000, "33-20")]
+		[DataRow(@"<minutes[DDD\-HHH\-MMM]>", 2000, "001-009-020")]
+		[DataRow(@"<minutes[M\-H\-D]>", 2000, "20-9-1")]
+		[DataRow(@"<minutes[D\-M]>", 100, "0-100")]
+		[DataRow(@"<minutes[D\-M]>", 1500, "1-60")]
+		[DataRow(@"<minutes[D\-M]>", 2000, "1-560")]
+		[DataRow(@"<minutes[D\-M]>", 2880, "2-0")]
+		[DataRow(@"<minutes[DD\-MM]>", 1500, "01-60")]
+		[DataRow(@"<minutes[D\-MMM'{'MM\}]>", 2000, "1-005{60}")]
+		[DataRow(@"<minutes[D,DDD.DDE-0\-H,HHH.HH\-#,##M.##]>", 123456789, "8.573,30E1-0.021,00-9")]
 		public void MinutesFormat(string template, int minutes, string expected)
 		{
 			var bookDto = GetLibraryBook();
-			bookDto.LengthInMinutes = minutes;
+			bookDto.LengthInMinutes = TimeSpan.FromMinutes(minutes);
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate.GetFilename(bookDto, "", "", Replacements).PathWithoutPrefix.Should().Be(expected);

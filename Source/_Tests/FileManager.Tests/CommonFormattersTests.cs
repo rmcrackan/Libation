@@ -34,8 +34,8 @@ public class CommonFormattersTests
 	{
 		// GIVEN
 		var templateTag = new TemplateTag { TagName = "MINUTES" };
-		var value = 0;
-		var format = "{H}:{M}";
+		var value = TimeSpan.FromMinutes(0);
+		var format = @"h\:m";
 
 		// WHEN
 		var result = CommonFormatters.MinutesFormatter(templateTag, value, format, CultureInfo.InvariantCulture);
@@ -49,8 +49,8 @@ public class CommonFormattersTests
 	{
 		// GIVEN
 		var templateTag = new TemplateTag { TagName = "MINUTES" };
-		var value = 1440; // 24 hours
-		var format = "{D}d {H}h {M}m";
+		var value = TimeSpan.FromHours(24);
+		var format = @"d'd 'h'h 'm\m";
 
 		// WHEN
 		var result = CommonFormatters.MinutesFormatter(templateTag, value, format, CultureInfo.InvariantCulture);
@@ -64,8 +64,8 @@ public class CommonFormattersTests
 	{
 		// GIVEN
 		var templateTag = new TemplateTag { TagName = "MINUTES" };
-		var value = 3000; // 50 hours
-		var format = "{D}d {H}h {M}m";
+		var value = TimeSpan.FromHours(50); // 50 hours
+		var format = @"d'd 'h'h 'm\m";
 
 		// WHEN
 		var result = CommonFormatters.MinutesFormatter(templateTag, value, format, CultureInfo.InvariantCulture);

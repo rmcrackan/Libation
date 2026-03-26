@@ -27,7 +27,7 @@ public class BookDto
 	public bool IsPodcastParent { get; set; }
 	public bool IsPodcast { get; set; }
 
-	public int LengthInMinutes { get; set; }
+	public TimeSpan LengthInMinutes { get; set; }
 	public int? BitRate { get; set; }
 	public int? SampleRate { get; set; }
 	public int? Channels { get; set; }

@@ -188,6 +188,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 					null => false,
 					IEnumerable<object> e => checkItem(e.Count(), culture),
 					string s => checkItem(s.Length, culture),
+					TimeSpan ts => checkItem(ts.TotalMinutes, culture),
 					_ => checkItem(v, culture)
 				}
 				: (v, culture) => v switch
