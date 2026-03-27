@@ -66,21 +66,24 @@ public static class UtilityExtensions
 			Authors = libraryBook.Book.Authors.Select(c => new ContributorDto(c.Name, c.AudibleContributorId)).ToList(),
 			Narrators = libraryBook.Book.Narrators.Select(c => new ContributorDto(c.Name, c.AudibleContributorId)).ToList(),
 
-			Series = getSeries(libraryBook.Book.SeriesLink),
+			IsAbridged = libraryBook.Book.IsAbridged,
+			Series = GetSeries(libraryBook.Book.SeriesLink),
 			IsPodcastParent = libraryBook.Book.IsEpisodeParent(),
 			IsPodcast = libraryBook.Book.IsEpisodeChild() || libraryBook.Book.IsEpisodeParent(),
 
-			Language = libraryBook.Book.Language,
+			LengthInMinutes = TimeSpan.FromMinutes(libraryBook.Book.LengthInMinutes),
+			Language = libraryBook.Book.Language?.Trim(),
 			Codec = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.CodecString,
 			BitRate = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.BitRate,
 			SampleRate = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.SampleRate,
 			Channels = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.ChannelCount,
 			LibationVersion = libraryBook.Book.UserDefinedItem.LastDownloadedVersion.ToVersionString(),
-			FileVersion = libraryBook.Book.UserDefinedItem.LastDownloadedFileVersion
+			FileVersion = libraryBook.Book.UserDefinedItem.LastDownloadedFileVersion,
+			Tags = libraryBook.Book.UserDefinedItem.TagsEnumerated.Select(s => new StringDto(s)).ToList(),
 		};
 	}
 
-	private static List<SeriesDto>? getSeries(IEnumerable<SeriesBook> seriesBooks)
+	private static List<SeriesDto>? GetSeries(IEnumerable<SeriesBook> seriesBooks)
 	{
 		if (!seriesBooks.Any())
 			return null;

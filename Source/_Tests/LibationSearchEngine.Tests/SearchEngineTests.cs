@@ -1,3 +1,4 @@
+using System.Globalization;
 using AssertionHelper;
 using LibationSearchEngine;
 using Lucene.Net.Analysis.Standard;
@@ -72,6 +73,8 @@ public class FormatSearchQuery
 
 	public void FormattingTest(string input, string output)
 	{
+		CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+			
 		using var analyzer = new StandardAnalyzer(SearchEngine.Version);
 
 		QuerySanitizer.Sanitize(input, analyzer).Should().Be(output);

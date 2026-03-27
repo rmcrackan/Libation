@@ -1,9 +1,10 @@
-﻿using AssertionHelper;
+﻿using System.Globalization;
+using System.Linq;
+using AssertionHelper;
 using FileManager.NamingTemplate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 
-namespace NamingTemplateTests;
+namespace FileManager.Tests;
 
 class TemplateTag : ITemplateTag
 {
@@ -40,7 +41,8 @@ class PropertyClass3
 	public int? Int2 { get; set; }
 	public bool Condition { get; set; }
 }
-class ReferenceType
+
+internal abstract class ReferenceType
 {
 	public override string ToString()
 	{
@@ -77,30 +79,37 @@ public class GetPortionFilename
 		{ new TemplateTag { TagName = "null_3" }, i => i.NullItem },
 		{ new TemplateTag { TagName = "reftype" }, i => i.RefType },
 	};
-	readonly ConditionalTagCollection<PropertyClass1> conditional1 = new()
+
+	private readonly ConditionalTagCollection<PropertyClass1> _conditional1 = new()
 	{
 		{ new TemplateTag { TagName = "ifc1" }, i => i.Condition },
-		{ new TemplateTag { TagName = "has1" }, HasValue }
+		{ new TemplateTag { TagName = "has1" }, TryGetValue, HasValue }
 	};
-	readonly ConditionalTagCollection<PropertyClass2> conditional2 = new()
+
+	private readonly ConditionalTagCollection<PropertyClass2> _conditional2 = new()
 	{
 		{ new TemplateTag { TagName = "ifc2" }, i => i.Condition },
-		{ new TemplateTag { TagName = "has2" }, HasValue }
+		{ new TemplateTag { TagName = "has2" }, TryGetValue, HasValue }
 	};
-	readonly ConditionalTagCollection<PropertyClass3> conditional3 = new()
+
+	private readonly ConditionalTagCollection<PropertyClass3> _conditional3 = new()
 	{
 		{ new TemplateTag { TagName = "ifc3" }, i => i.Condition },
-		{ new TemplateTag { TagName = "has3" }, HasValue }
+		{ new TemplateTag { TagName = "has3" }, TryGetValue, HasValue }
 	};
 
-	private static bool HasValue(ITemplateTag templateTag, PropertyClass1 referenceType, string condition)
-		=> props1.TryGetValue(condition, referenceType, out var value) && !string.IsNullOrEmpty(value);
-	private static bool HasValue(ITemplateTag templateTag, PropertyClass2 referenceType, string condition)
-		=> props2.TryGetValue(condition, referenceType, out var value) && !string.IsNullOrEmpty(value);
-	private static bool HasValue(ITemplateTag templateTag, PropertyClass3 referenceType, string condition)
-		=> props3.TryGetValue(condition, referenceType, out var value) && !string.IsNullOrEmpty(value);
+	private static object? TryGetValue(ITemplateTag templateTag, PropertyClass1 referenceType, string condition, CultureInfo? culture)
+		=> props1.TryGetObject(condition, referenceType, culture, out var value) ? value : null;
 
-	readonly PropertyClass1 propertyClass1 = new()
+	private static object? TryGetValue(ITemplateTag templateTag, PropertyClass2 referenceType, string condition, CultureInfo? culture)
+		=> props2.TryGetObject(condition, referenceType, culture, out var value) ? value : null;
+
+	private static object? TryGetValue(ITemplateTag templateTag, PropertyClass3 referenceType, string condition, CultureInfo? culture)
+		=> props3.TryGetObject(condition, referenceType, culture, out var value) ? value : null;
+
+	private static bool HasValue(object? value, CultureInfo? culture) => value is not null && !string.IsNullOrWhiteSpace(value.ToString());
+
+	private readonly PropertyClass1 _propertyClass1 = new()
 	{
 		Item1 = "prop1_item1",
 		Item2 = "prop1_item2",
@@ -109,7 +118,7 @@ public class GetPortionFilename
 		Condition = true,
 	};
 
-	readonly PropertyClass2 propertyClass2 = new()
+	private readonly PropertyClass2 _propertyClass2 = new()
 	{
 		Item1 = "prop2_item1",
 		Item3 = "prop2_item3",
@@ -117,7 +126,7 @@ public class GetPortionFilename
 		Condition = false
 	};
 
-	readonly PropertyClass3 propertyClass3 = new()
+	private readonly PropertyClass3 _propertyClass3 = new()
 	{
 		Item1 = "prop3_item1",
 		Item2 = "prop3_item2",
@@ -141,15 +150,15 @@ public class GetPortionFilename
 	[DataRow("<!ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1><-ifc2>", "prop1_item1prop2_item4prop3_item2", 3)]
 	[DataRow("<!has1 null_1-><has2 item1-><has3 item3_2-><item1><item4><item3_2><-has3><-has2><-has1>", "prop1_item1prop2_item4prop3_item2", 3)]
 	[DataRow("<!has1 null_1->null_1 is null, <-has1><has2 item1-><item1><-has2><has3 item3_2-><item3_2><-has3>", "null_1 is null, prop1_item1prop3_item2", 2)]
-	public void test(string inStr, string outStr, int numTags)
+	public void Test(string inStr, string outStr, int numTags)
 	{
-		var template = NamingTemplate.Parse(inStr, new TagCollection[] { props1, props2, props3, conditional1, conditional2, conditional3 });
+		var template = NamingTemplate.NamingTemplate.Parse(inStr, [props1, props2, props3, _conditional1, _conditional2, _conditional3]);
 
 		template.TagsInUse.Should().HaveCount(numTags);
 		template.Warnings.Should().HaveCount(numTags > 0 ? 0 : 1);
 		template.Errors.Should().HaveCount(0);
 
-		var templateText = string.Concat(template.Evaluate(propertyClass3, propertyClass2, propertyClass1).Select(v => v.Value));
+		var templateText = string.Concat(template.Evaluate(null, _propertyClass3, _propertyClass2, _propertyClass1).Select(v => v.Value));
 
 		templateText.Should().Be(outStr);
 	}
@@ -174,12 +183,12 @@ public class GetPortionFilename
 	[DataRow("<has3    item3_1  ->true<-has3>", "true")]
 	public void Has_test(string inStr, string outStr)
 	{
-		var template = NamingTemplate.Parse(inStr, [props1, props2, props3, conditional1, conditional2, conditional3]);
+		var template = NamingTemplate.NamingTemplate.Parse(inStr, [props1, props2, props3, _conditional1, _conditional2, _conditional3]);
 
 		template.Warnings.Should().HaveCount(1);
 		template.Errors.Should().HaveCount(0);
 
-		var templateText = string.Concat(template.Evaluate(propertyClass3, propertyClass2, propertyClass1).Select(v => v.Value));
+		var templateText = string.Concat(template.Evaluate(null, _propertyClass3, _propertyClass2, _propertyClass1).Select(v => v.Value));
 
 		templateText.Should().Be(outStr);
 	}
@@ -198,35 +207,36 @@ public class GetPortionFilename
 	[DataRow("<has3 item3_1->true< -has3>", "true< -has3>")]
 	public void Has_invalid(string inStr, string outStr)
 	{
-		var template = NamingTemplate.Parse(inStr, [props1, props2, props3, conditional1, conditional2, conditional3]);
+		var template = NamingTemplate.NamingTemplate.Parse(inStr, [props1, props2, props3, _conditional1, _conditional2, _conditional3]);
 
 		template.Warnings.Should().HaveCount(2);
 		template.Errors.Should().HaveCount(0);
 
-		var templateText = string.Concat(template.Evaluate(propertyClass3, propertyClass2, propertyClass1).Select(v => v.Value));
+		var templateText = string.Concat(template.Evaluate(null, _propertyClass3, _propertyClass2, _propertyClass1).Select(v => v.Value));
 
 		templateText.Should().Be(outStr);
 	}
 
 	[TestMethod]
-	[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1><ifc2->", new string[] { "Missing <-ifc2> closing conditional.", "Missing <-ifc2> closing conditional." })]
-	[DataRow("<has2-><has1-><has3-><item1><item4><item3_2><-has3><-has1><has2->", new string[] { "Missing <-has2> closing conditional.", "Missing <-has2> closing conditional." })]
-	[DataRow("<ifc2-><ifc1-><ifc3-><-ifc3><-ifc1><-ifc2>", new string[] { "Should use tags. Eg: <title>" })]
-	[DataRow("<ifc1-><ifc3-><item1><-ifc3><-ifc1><-ifc2>", new string[] { "Missing <ifc2-> open conditional." })]
-	[DataRow("<ifc1-><ifc3-><-ifc3><-ifc1><-ifc2>", new string[] { "Missing <ifc2-> open conditional.", "Should use tags. Eg: <title>" })]
-	[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1>", new string[] { "Missing <-ifc2> closing conditional." })]
-	[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3>", new string[] { "Missing <-ifc1> closing conditional.", "Missing <-ifc2> closing conditional." })]
-	[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4>", new string[] { "Missing <-ifc3> closing conditional.", "Missing <-ifc1> closing conditional.", "Missing <-ifc2> closing conditional." })]
-	[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc1><-ifc2>", new string[] { "Missing <-ifc3> closing conditional.", "Missing <-ifc3> closing conditional.", "Missing <-ifc1> closing conditional.", "Missing <-ifc2> closing conditional." })]
+	[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1><ifc2->", new[] { "Missing <-ifc2> closing conditional.", "Missing <-ifc2> closing conditional." })]
+	[DataRow("<has2-><has1-><has3-><item1><item4><item3_2><-has3><-has1><has2->", new[] { "Missing <-has2> closing conditional.", "Missing <-has2> closing conditional." })]
+	[DataRow("<ifc2-><ifc1-><ifc3-><-ifc3><-ifc1><-ifc2>", new[] { "Should use tags. Eg: <title>" })]
+	[DataRow("<ifc1-><ifc3-><item1><-ifc3><-ifc1><-ifc2>", new[] { "Missing <ifc2-> open conditional." })]
+	[DataRow("<ifc1-><ifc3-><-ifc3><-ifc1><-ifc2>", new[] { "Missing <ifc2-> open conditional.", "Should use tags. Eg: <title>" })]
+	[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1>", new[] { "Missing <-ifc2> closing conditional." })]
+	[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3>", new[] { "Missing <-ifc1> closing conditional.", "Missing <-ifc2> closing conditional." })]
+	[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4>", new[] { "Missing <-ifc3> closing conditional.", "Missing <-ifc1> closing conditional.", "Missing <-ifc2> closing conditional." })]
+	[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc1><-ifc2>",
+		new[] { "Missing <-ifc3> closing conditional.", "Missing <-ifc3> closing conditional.", "Missing <-ifc1> closing conditional.", "Missing <-ifc2> closing conditional." })]
 	public void condition_error(string inStr, string[] warnings)
 	{
-		var template = NamingTemplate.Parse(inStr, new TagCollection[] { props1, props2, props3, conditional1, conditional2, conditional3 });
+		var template = NamingTemplate.NamingTemplate.Parse(inStr, [props1, props2, props3, _conditional1, _conditional2, _conditional3]);
 
 		template.Errors.Should().HaveCount(0);
 		template.Warnings.Should().BeEquivalentTo(warnings);
 	}
 
-	static string GetVal(ITemplateTag templateTag, ReferenceType referenceType, string format)
+	static string GetVal(ITemplateTag templateTag, ReferenceType referenceType, string format, CultureInfo? culture)
 	{
 		return "";
 	}
@@ -247,35 +257,32 @@ public class GetPortionFilename
 	[DataRow("<item2_2_null[]>", "")]
 	[DataRow("<item2_2_null[l]>", "")]
 	[DataRow("<reftype[l]>", "")]
-	public void formatting(string inStr, string outStr)
+	public void Formatting(string inStr, string outStr)
 	{
-		props1.Add(new TemplateTag { TagName = "int1" }, i => i.Int1, formatInt);
-		props3.Add(new TemplateTag { TagName = "int2" }, i => i.Int2, formatInt);
-		props3.Add(new TemplateTag { TagName = "item3_format" }, i => i.Item3, formatString);
-		props2.Add(new TemplateTag { TagName = "item2_2_null" }, i => i.Item2, formatString);
+		props1.Add(new TemplateTag { TagName = "int1" }, i => i.Int1, FormatInt);
+		props3.Add(new TemplateTag { TagName = "int2" }, i => i.Int2, FormatInt);
+		props3.Add(new TemplateTag { TagName = "item3_format" }, i => i.Item3, FormatString);
+		props2.Add(new TemplateTag { TagName = "item2_2_null" }, i => i.Item2, FormatString);
 
-		var template = NamingTemplate.Parse(inStr, new TagCollection[] { props1, props2, props3, conditional1, conditional2, conditional3 });
+		var template = NamingTemplate.NamingTemplate.Parse(inStr, [props1, props2, props3, _conditional1, _conditional2, _conditional3]);
 
 		template.Warnings.Should().HaveCount(0);
 		template.Errors.Should().HaveCount(0);
 
-		var templateText = string.Concat(template.Evaluate(propertyClass3, propertyClass2, propertyClass1).Select(v => v.Value));
+		var templateText = string.Concat(template.Evaluate(null, _propertyClass3, _propertyClass2, _propertyClass1).Select(v => v.Value));
 
 		templateText.Should().Be(outStr);
 
-		string formatInt(ITemplateTag templateTag, int value, string format)
+		string FormatInt(ITemplateTag templateTag, int value, string? format, CultureInfo? culture)
 		{
 			if (int.TryParse(format, out var numDecs))
-				return value.ToString($"D{numDecs}");
-			return value.ToString();
+				return value.ToString($"D{numDecs}", culture);
+			return value.ToString(culture);
 		}
 
-		string formatString(ITemplateTag templateTag, string? value, string formatString)
+		string FormatString(ITemplateTag templateTag, string? value, string? format, CultureInfo? culture)
 		{
-			if (value is null) return string.Empty;
-			else if (string.Compare(formatString, "u", ignoreCase: true) == 0) return value.ToUpper();
-			else if (string.Compare(formatString, "l", ignoreCase: true) == 0) return value.ToLower();
-			else return value;
+			return CommonFormatters.StringFormatter(templateTag, value, format, culture);
 		}
 	}
 }
