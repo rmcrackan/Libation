@@ -212,7 +212,6 @@ namespace TemplatesTests
 		[DataRow(@"<minutes[D\-M]>", 2880, "2-0")]
 		[DataRow(@"<minutes[DD\-MM]>", 1500, "01-60")]
 		[DataRow(@"<minutes[D\-MMM'{'MM\}]>", 2000, "1-005{60}")]
-		[DataRow(@"<minutes[D,DDD.DDE-0\-H,HHH.HH\-#,##M.##]>", 123456789, "8.573,30E1-0.021,00-9")]
 		public void MinutesFormat(string template, int minutes, string expected)
 		{
 			var bookDto = GetLibraryBook();
@@ -718,10 +717,16 @@ namespace TemplatesTests
 		[DataRow("<audibletitle [u]>", "I", "en-US", "i")]
 		[DataRow("<audibletitle [l]>", "ı", "tr-TR", "I")]
 		[DataRow("<audibletitle [u]>", "İ", "tr-TR", "i")]
+		[DataRow(@"<minutes[D,DDD.DDE-0\-H,HHH.HH\-#,##M.##]>", "8.573,30E1-0.021,00-9", "es-ES", "any")]
+		[DataRow(@"<minutes[D,DDD.DDE-0\-H,HHH.HH\-#,##M.##]>", "8,573.30E1-0,021.00-9", "en-AU", "any")]
+		[DataRow(@"<samplerate[#,##0'Hz ']>", "44,100Hz ", "en-CA", "any")]
+		[DataRow(@"<samplerate[#,##0'Hz ']>", "44’100Hz ", "de-CH", "any")]
+		[DataRow(@"<samplerate[#,##0'Hz ']>", "44\u00A0100Hz ", "fr-CA", "any")] // non-breaking-space
 		public void Tag_culture_test(string template, string expected, string cultureName, string title)
 		{
 			var bookDto = Shared.GetLibraryBook();
 			bookDto.Title = title;
+			bookDto.LengthInMinutes = TimeSpan.FromMinutes(123456789);
 			var culture = new CultureInfo(cultureName);
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
