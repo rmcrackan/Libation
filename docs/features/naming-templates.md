@@ -91,7 +91,7 @@ As an example, this folder template will place all Liberated podcasts into a "Po
 
 `<if podcast->Podcasts<-if podcast><!if podcast->Books<-if podcast>\<title>`
 
-This example will add a number if the `<series#\>` tag has a value:
+This example will add a number if the `\<series#\>` tag has a value:
 
 `<has series#><series#><-has>`
 
