@@ -5,6 +5,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using Dinah.Core;
 using LibationFileManager;
+using LibationUiBase;
 using LibationUiBase.Forms;
 using System;
 using System.Threading.Tasks;
@@ -29,8 +30,22 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 	{
 		try
 		{
-			if (Configuration.Instance.UseWebView && await BrowserLoginAsync(choiceIn) is ChoiceOut external)
-				return external;
+			if (Configuration.Instance.UseWebView)
+			{
+				try
+				{
+					if (await BrowserLoginAsync(choiceIn) is ChoiceOut external)
+						return external;
+				}
+				catch (Exception ex) when (WebView2LoginErrorMessage.IsWebView2SignInInfrastructureFailure(ex))
+				{
+					await MessageBox.ShowAdminAlert(
+						App.MainWindow,
+						WebView2LoginErrorMessage.ExplainerBody,
+						WebView2LoginErrorMessage.Caption,
+						ex);
+				}
+			}
 		}
 		catch (Exception ex)
 		{
@@ -44,19 +59,6 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 	}
 
 	private async Task<ChoiceOut?> BrowserLoginAsync(ChoiceIn shoiceIn)
-	{
-		try
-		{
-			return await BrowserLoginAsyncCore(shoiceIn);
-		}
-		catch (Exception ex)
-		{
-			Serilog.Log.Logger.Warning(ex, "In-app browser failed; falling back to external browser");
-			return null;
-		}
-	}
-
-	private async Task<ChoiceOut?> BrowserLoginAsyncCore(ChoiceIn shoiceIn)
 	{
 		TaskCompletionSource<ChoiceOut?> tcs = new();
 

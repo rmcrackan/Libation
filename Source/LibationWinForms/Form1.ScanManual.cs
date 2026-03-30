@@ -1,6 +1,7 @@
 ﻿using ApplicationServices;
 using AudibleUtilities;
 using LibationFileManager;
+using LibationUiBase;
 using LibationWinForms.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -87,11 +88,22 @@ public partial class Form1
 		}
 		catch (Exception ex)
 		{
-			MessageBoxLib.ShowAdminAlert(
-				this,
-				"Error importing library. Please try again. If this still happens after 2 or 3 tries, stop and contact administrator",
-				"Error importing library",
-				ex);
+			if (WebView2LoginErrorMessage.TryFindInTree(ex, out var webViewEx) && webViewEx is not null)
+			{
+				MessageBoxLib.ShowAdminAlert(
+					this,
+					WebView2LoginErrorMessage.ExplainerBody,
+					WebView2LoginErrorMessage.Caption,
+					webViewEx);
+			}
+			else
+			{
+				MessageBoxLib.ShowAdminAlert(
+					this,
+					"Error importing library. Please try again. If this still happens after 2 or 3 tries, stop and contact administrator",
+					"Error importing library",
+					ex);
+			}
 		}
 	}
 
