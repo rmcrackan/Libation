@@ -6,6 +6,7 @@ using Avalonia.Threading;
 using DataLayer;
 using Dinah.Core.Collections.Generic;
 using LibationFileManager;
+using LibationUiBase;
 using LibationUiBase.Forms;
 using LibationUiBase.GridView;
 using ReactiveUI;
@@ -434,11 +435,22 @@ public class ProductsDisplayViewModel : ViewModelBase
 		}
 		catch (Exception ex)
 		{
-			await MessageBox.ShowAdminAlert(
-				null,
-				"Error scanning library. You may still manually select books to remove from Libation's library.",
-				"Error scanning library",
-				ex);
+			if (WebView2LoginErrorMessage.TryFindInTree(ex, out var webViewEx) && webViewEx is not null)
+			{
+				await MessageBox.ShowAdminAlert(
+					null,
+					WebView2LoginErrorMessage.ExplainerBody,
+					WebView2LoginErrorMessage.Caption,
+					webViewEx);
+			}
+			else
+			{
+				await MessageBox.ShowAdminAlert(
+					null,
+					"Error scanning library. You may still manually select books to remove from Libation's library.",
+					"Error scanning library",
+					ex);
+			}
 		}
 	}
 

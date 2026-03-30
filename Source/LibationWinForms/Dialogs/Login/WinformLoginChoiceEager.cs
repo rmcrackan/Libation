@@ -1,6 +1,7 @@
 ﻿using AudibleApi;
 using AudibleUtilities;
 using LibationFileManager;
+using LibationUiBase;
 using LibationWinForms.Dialogs.Login;
 using System;
 using System.Threading.Tasks;
@@ -36,6 +37,8 @@ public class WinformLoginChoiceEager : ILoginChoiceEager
 			catch (Exception ex)
 			{
 				Serilog.Log.Logger.Error(ex, $"Failed to run {nameof(WebLoginDialog)}");
+				if (WebView2LoginErrorMessage.IsWebView2SignInInfrastructureFailure(ex))
+					MessageBoxLib.ShowAdminAlert(Owner, WebView2LoginErrorMessage.ExplainerBody, WebView2LoginErrorMessage.Caption, ex);
 			}
 		}
 

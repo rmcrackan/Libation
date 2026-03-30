@@ -3,6 +3,7 @@ using AudibleUtilities;
 using Avalonia.Controls;
 using Avalonia.Input;
 using LibationFileManager;
+using LibationUiBase;
 using LibationUiBase.Forms;
 using ReactiveUI;
 using System;
@@ -221,11 +222,22 @@ public partial class MainVM
 		}
 		catch (Exception ex)
 		{
-			await MessageBox.ShowAdminAlert(
-				MainWindow,
-				"Error importing library. Please try again. If this still happens after 2 or 3 tries, stop and contact administrator",
-				"Error importing library",
-				ex);
+			if (WebView2LoginErrorMessage.TryFindInTree(ex, out var webViewEx) && webViewEx is not null)
+			{
+				await MessageBox.ShowAdminAlert(
+					MainWindow,
+					WebView2LoginErrorMessage.ExplainerBody,
+					WebView2LoginErrorMessage.Caption,
+					webViewEx);
+			}
+			else
+			{
+				await MessageBox.ShowAdminAlert(
+					MainWindow,
+					"Error importing library. Please try again. If this still happens after 2 or 3 tries, stop and contact administrator",
+					"Error importing library",
+					ex);
+			}
 		}
 	}
 
