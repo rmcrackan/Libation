@@ -2,6 +2,7 @@
 using DataLayer;
 using LibationFileManager;
 using LibationUiBase.Forms;
+using LibationUiBase;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -274,7 +275,7 @@ public class ProcessQueueViewModel : ReactiveObject
 			RunningTime = string.Empty;
 			ProgressBarVisible = true;
 			var startingTime = DateTime.Now;
-			bool shownServiceOutageMessage = false;
+			bool shownLicenseGuidanceMessage = false;
 
 			using var counterTimer = new System.Threading.Timer(_ => RunningTime = timeToStr(DateTime.Now - startingTime), null, 0, 500);
 
@@ -299,17 +300,19 @@ public class ProcessQueueViewModel : ReactiveObject
 					Queue.ClearQueue();
 				else if (result == ProcessBookResult.FailedSkip)
 					await nextBook.LibraryBook.UpdateBookStatusAsync(LiberatedStatus.Error);
-				else if (result == ProcessBookResult.LicenseDeniedPossibleOutage && !shownServiceOutageMessage)
+				else if (!shownLicenseGuidanceMessage
+					&& (result == ProcessBookResult.LicenseDeniedPossibleOutage
+						|| (result == ProcessBookResult.LicenseDenied && nextBook.LibraryBook.IsAudiblePlus)))
 				{
-					await MessageBoxBase.Show($"""
-					You were denied a content license for {nextBook.LibraryBook.Book.TitleWithSubtitle}
-
-					This error appears to be caused by a temporary interruption of service that sometimes affects Libation's users. This type of error usually resolves itself in 1 to 2 days, and in the meantime you should still be able to access your books through Audible's website or app.
-					""",
-					"Possible Interruption of Service",
-					MessageBoxButtons.OK,
-					MessageBoxIcon.Asterisk);
-					shownServiceOutageMessage = true;
+					var body = result == ProcessBookResult.LicenseDeniedPossibleOutage
+						? ContentLicenseDeniedUserMessage.BuildDialogBodyForPossibleOutage(nextBook.LibraryBook.Book.TitleWithSubtitle)
+						: ContentLicenseDeniedUserMessage.BuildDialogBodyForPlusCatalog(nextBook.LibraryBook.Book.TitleWithSubtitle);
+					await MessageBoxBase.Show(
+						body,
+						ContentLicenseDeniedUserMessage.DialogCaption,
+						MessageBoxButtons.OK,
+						MessageBoxIcon.Asterisk);
+					shownLicenseGuidanceMessage = true;
 				}
 				ProcessEnd?.Invoke(this, nextBook);
 			}

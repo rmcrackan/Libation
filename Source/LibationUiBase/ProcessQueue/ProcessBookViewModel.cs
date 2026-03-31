@@ -58,16 +58,17 @@ public class ProcessBookViewModel : ReactiveObject
 	public bool IsDownloading => Status is ProcessBookStatus.Working;
 	public bool Queued => Status is ProcessBookStatus.Queued;
 
-	public string StatusText => Result switch
+	public string StatusText => (Result, LibraryBook.IsAudiblePlus) switch
 	{
-		ProcessBookResult.Success => "Finished",
-		ProcessBookResult.Cancelled => "Cancelled",
-		ProcessBookResult.ValidationFail => "Validation fail",
-		ProcessBookResult.FailedRetry => "Error, will retry later",
-		ProcessBookResult.FailedSkip => "Error, Skipping",
-		ProcessBookResult.FailedAbort => "Error, Abort",
-		ProcessBookResult.LicenseDenied => "License Denied",
-		ProcessBookResult.LicenseDeniedPossibleOutage => "Possible Service Interruption",
+		(ProcessBookResult.Success, _) => "Finished",
+		(ProcessBookResult.Cancelled, _) => "Cancelled",
+		(ProcessBookResult.ValidationFail, _) => "Validation fail",
+		(ProcessBookResult.FailedRetry, _) => "Error, will retry later",
+		(ProcessBookResult.FailedSkip, _) => "Error, Skipping",
+		(ProcessBookResult.FailedAbort, _) => "Error, Abort",
+		(ProcessBookResult.LicenseDenied, true) => "License denied (Plus; often temporary)",
+		(ProcessBookResult.LicenseDenied, false) => "License Denied",
+		(ProcessBookResult.LicenseDeniedPossibleOutage, _) => "Possible Service Interruption",
 		_ => Status.ToString(),
 	};
 
@@ -160,6 +161,11 @@ public class ProcessBookViewModel : ReactiveObject
 			{
 				LogInfo($"{procName}:  Content license was denied, but this error appears to be caused by a temporary interruption of service. - {LibraryBook.Book}");
 				result = ProcessBookResult.LicenseDeniedPossibleOutage;
+			}
+			else if (LibraryBook.IsAudiblePlus)
+			{
+				LogInfo($"{procName}:  Content license denied for this Audible Plus catalog title. Audible often throttles license requests after heavy Plus use; try again in 1 to 2 days. If you should not have access, check the Audible app. - {LibraryBook.Book}");
+				result = ProcessBookResult.LicenseDenied;
 			}
 			else
 			{
