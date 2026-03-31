@@ -11,6 +11,7 @@ public partial class SettingsDialog
 		this.useWebViewCb.Text = desc(nameof(config.UseWebView));
 		this.importEpisodesCb.Text = desc(nameof(config.ImportEpisodes));
 		this.importPlusTitlesCb.Text = desc(nameof(config.ImportPlusTitles));
+		toolTip.SetToolTip(importPlusTitlesCb, Configuration.ImportPlusTitlesToolTip);
 		this.downloadEpisodesCb.Text = desc(nameof(config.DownloadEpisodes));
 		this.autoDownloadEpisodesCb.Text = desc(nameof(config.AutoDownloadEpisodes));
 

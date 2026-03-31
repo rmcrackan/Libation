@@ -140,8 +140,16 @@ public partial class Configuration
 			For an audio file to be identified, Libation must have that library book in its database. If you're on a fresh installation of Libation, be sure to add and scan all of your Audible accounts before running this action.
 
 			This may take a while, depending on the number of audio files in the folder and the speed of your storage device.
+			""" },
+		{nameof(ImportPlusTitles), """
+			When enabled, books from the Audible Plus catalog (titles you stream or borrow under your membership, not purchased) are imported into Libation.
+
+			Downloading or liberating many Plus titles in a short time can cause Audible to temporarily deny content licenses ("license denied") for a day or two. That limit is enforced by Audible, not Libation — waiting and retrying usually fixes it. If problems persist after several days, report on Libation's GitHub with logs.
 			""" }
 	}.AsReadOnly();
+
+	/// <summary>Tooltip for the Import Audible Plus books checkbox. Use from WinForms and Avalonia import settings so both stay aligned.</summary>
+	public static string ImportPlusTitlesToolTip => GetHelpText(nameof(ImportPlusTitles));
 
 	public static string GetHelpText(string? settingName)
 		=> settingName != null && HelpText.TryGetValue(settingName, out var value) ? value : "";

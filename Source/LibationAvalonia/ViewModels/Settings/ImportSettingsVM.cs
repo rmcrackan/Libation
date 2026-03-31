@@ -28,6 +28,7 @@ public class ImportSettingsVM
 	public string ShowImportedStatsText { get; } = Configuration.GetDescription(nameof(Configuration.ShowImportedStats));
 	public string ImportEpisodesText { get; } = Configuration.GetDescription(nameof(Configuration.ImportEpisodes));
 	public string ImportPlusTitlesText { get; } = Configuration.GetDescription(nameof(Configuration.ImportPlusTitles));
+	public string ImportPlusTitlesTip => Configuration.ImportPlusTitlesToolTip;
 	public string DownloadEpisodesText { get; } = Configuration.GetDescription(nameof(Configuration.DownloadEpisodes));
 	public string AutoDownloadEpisodesText { get; } = Configuration.GetDescription(nameof(Configuration.AutoDownloadEpisodes));
 
