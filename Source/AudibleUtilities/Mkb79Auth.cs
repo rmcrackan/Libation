@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace AudibleUtilities;
@@ -53,7 +54,9 @@ public partial class Mkb79Auth : IIdentityMaintainer
 	public Dictionary<string, string?>? WebsiteCookies
 	{
 		get => _websiteCookies?.ToObject<Dictionary<string, string?>>();
-		private set => _websiteCookies = JObject.Parse(JsonConvert.SerializeObject(value, Converter.Settings));
+		private set => _websiteCookies = value is null || value.Count == 0
+			? null
+			: JObject.Parse(JsonConvert.SerializeObject(value, Converter.Settings));
 	}
 
 	[JsonIgnore]
@@ -123,7 +126,75 @@ public partial class Mkb79Auth
 		=> JsonConvert.DeserializeObject<Mkb79Auth>(json, Converter.Settings);
 
 	public string ToJson()
-		=> JObject.Parse(JsonConvert.SerializeObject(this, Converter.Settings)).ToString(Formatting.Indented);
+	{
+		var jo = JObject.Parse(JsonConvert.SerializeObject(this, Converter.Settings));
+		ApplyAudibleCliExportConventions(jo);
+		return jo.ToString(Formatting.Indented);
+	}
+
+	/// <summary>
+	/// audible-cli expects <c>website_cookies</c> as JSON null when empty (not <c>{}</c>) and a PEM
+	/// <c>device_private_key</c> with standard 64-character base64 lines and newline separators.
+	/// </summary>
+	internal static void ApplyAudibleCliExportConventions(JObject jo)
+	{
+		if (jo["website_cookies"] is JObject wc && !wc.Properties().Any())
+			jo["website_cookies"] = JValue.CreateNull();
+
+		if (jo["device_private_key"]?.Type == JTokenType.String)
+		{
+			var s = jo["device_private_key"]!.Value<string>();
+			var formatted = FormatDevicePrivateKeyForAudibleCliExport(s);
+			if (formatted is not null)
+				jo["device_private_key"] = formatted;
+		}
+	}
+
+	private static string? FormatDevicePrivateKeyForAudibleCliExport(string? value)
+	{
+		if (string.IsNullOrWhiteSpace(value))
+			return value;
+
+		var trimmed = value.Trim();
+		string payload;
+		if (trimmed.StartsWith(PrivateKey.REQUIRED_BEGINNING, StringComparison.Ordinal))
+		{
+			var endIdx = trimmed.LastIndexOf(PrivateKey.REQUIRED_ENDING, StringComparison.Ordinal);
+			if (endIdx < PrivateKey.REQUIRED_BEGINNING.Length)
+				return value;
+
+			payload = trimmed
+				.Substring(PrivateKey.REQUIRED_BEGINNING.Length, endIdx - PrivateKey.REQUIRED_BEGINNING.Length)
+				.Replace("\r", "")
+				.Replace("\n", "")
+				.Replace("\\n", "", StringComparison.Ordinal)
+				.Trim();
+		}
+		else
+			payload = trimmed;
+
+		if (payload.Length == 0)
+			return value;
+
+		try
+		{
+			Convert.FromBase64String(payload);
+		}
+		catch (FormatException)
+		{
+			return value;
+		}
+
+		var sb = new StringBuilder();
+		sb.Append(PrivateKey.REQUIRED_BEGINNING).Append('\n');
+		for (var i = 0; i < payload.Length; i += 64)
+		{
+			var len = Math.Min(64, payload.Length - i);
+			sb.Append(payload, i, len).Append('\n');
+		}
+		sb.Append(PrivateKey.REQUIRED_ENDING).Append('\n');
+		return sb.ToString();
+	}
 
 	public async Task<Account> ToAccountAsync()
 	{
@@ -196,8 +267,7 @@ public partial class Mkb79Auth
 
 public static class Serialize
 {
-	public static string ToJson(this Mkb79Auth self)
-		=> JObject.Parse(JsonConvert.SerializeObject(self, Converter.Settings)).ToString(Formatting.Indented);
+	public static string ToJson(this Mkb79Auth self) => self.ToJson();
 }
 
 internal static class Converter
