@@ -44,6 +44,7 @@ public sealed class TemplateTags : ITemplateTag
 	public static TemplateTags Account { get; } = new("account", "Audible account of this book");
 	public static TemplateTags AccountNickname { get; } = new("account nickname", "Audible account nickname of this book");
 	public static TemplateTags Tag { get; } = new("tag", "Tag(s)");
+	public static TemplateTags FirstTag { get; } = new("first tag", "First tag");
 	public static TemplateTags Locale { get; } = new("locale", "Region/country");
 	public static TemplateTags YearPublished { get; } = new("year", "Year published");
 	public static TemplateTags Language { get; } = new("language", "Book's language");

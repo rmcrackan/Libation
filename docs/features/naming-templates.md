@@ -36,6 +36,7 @@ These tags will be replaced in the template with the audiobook's values.
 | \<account\>              | Audible account of this book                                   | [Text](#text-formatters)               |
 | \<account nickname\>     | Audible account nickname of this book                          | [Text](#text-formatters)               |
 | \<tag\>                  | Tag(s)                                                         | [Text List](#text-list-formatters)     |
+| \<first tag\>            | First tag                                                      | [Text](#text-formatters)               |
 | \<locale\>               | Region/country                                                 | [Text](#text-formatters)               |
 | \<year\>                 | Year published                                                 | [Number](#number-formatters)           |
 | \<language\>             | Book's language                                                | [Text](#text-formatters)               |
@@ -178,7 +179,7 @@ For more custom formatters and examples, [see this guide from Microsoft](https:/
 | \\        | The escape character.                                                                                                                                                                                                                                                                                                                                                                                                                                  | \<minutes[d\\d h\\h m\\m]\> | 2d 14h 42m     |
 
 These formatters have been enhanced to allow the display of days, hours or months beyond their usual limits. For example, the total number of hours, even if it exceeds 23.
-Here, a number format is inserted for the desired part in accordance with [Microsoft’s instructions](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-numeric-format-strings). Im Unterschied zu den originären Zahlenformaten werden aber anstelle der Nullen die Buchstaben D, H oder M (Großbuchstaben) verwendet.
+Here, a number format is inserted for the desired part in accordance with [Microsoft’s instructions](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-numeric-format-strings). Unlike standard number formats, however, the letters D, H or M (uppercase) are used instead of zeros.
 
 | Formatter | Description                                                                                                                                         | Example Usage                  | Example Result    |
 |-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------|-------------------|
