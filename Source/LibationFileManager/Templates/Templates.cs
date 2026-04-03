@@ -289,6 +289,7 @@ public abstract class Templates
 		{ TemplateTags.DateAdded, lb => lb.DateAdded },
 		{ TemplateTags.FileDate, lb => lb.FileDate },
 		{ TemplateTags.Tag, lb => lb.Tags, StringListFormat.Formatter, StringListFormat.Finalizer },
+		{ TemplateTags.FirstTag, lb => lb.FirstTag },
 	};
 
 	private static readonly PropertyTagCollection<LibraryBookDto> audioFilePropertyTags =

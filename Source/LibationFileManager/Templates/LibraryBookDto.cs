@@ -45,4 +45,5 @@ public class LibraryBookDto : BookDto
 	public string? Account { get; set; }
 	public string? AccountNickname { get; set; }
 	public IEnumerable<StringDto>? Tags { get; set; }
+	public string? FirstTag => Tags?.FirstOrDefault()?.Value;
 }

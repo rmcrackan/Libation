@@ -524,6 +524,9 @@ namespace TemplatesTests
 		[DataRow("<has file date->true<-has>", "true")]
 		[DataRow("<has pub date->true<-has>", "true")]
 		[DataRow("<has date added->true<-has>", "true")]
+		[DataRow("<has tag->true<-has>", "true")]
+		[DataRow("<has first tag->true<-has>", "true")]
+		[DataRow("<!has first tag->false<-has>", "")]
 		[DataRow("<has ch count->true<-has>", "true")]
 		[DataRow("<has ch title->true<-has>", "true")]
 		[DataRow("<has ch#->true<-has>", "true")]
@@ -719,9 +722,9 @@ namespace TemplatesTests
 		[DataRow("<audibletitle [u]>", "İ", "tr-TR", "i")]
 		[DataRow(@"<minutes[D,DDD.DDE-0\-H,HHH.HH\-#,##M.##]>", "8.573,30E1-0.021,00-9", "es-ES", "any")]
 		[DataRow(@"<minutes[D,DDD.DDE-0\-H,HHH.HH\-#,##M.##]>", "8,573.30E1-0,021.00-9", "en-AU", "any")]
-		[DataRow(@"<samplerate[#,##0'Hz ']>", "44,100Hz ", "en-CA", "any")]
-		[DataRow(@"<samplerate[#,##0'Hz ']>", "44’100Hz ", "de-CH", "any")]
-		[DataRow(@"<samplerate[#,##0'Hz ']>", "44\u00A0100Hz ", "fr-CA", "any")] // non-breaking-space
+		[DataRow("<samplerate[#,##0'Hz ']>", "44,100Hz ", "en-CA", "any")]
+		[DataRow("<samplerate[#,##0'Hz ']>", "44’100Hz ", "de-CH", "any")]
+		[DataRow("<samplerate[#,##0'Hz ']>", "44\u00A0100Hz ", "fr-CA", "any")] // non-breaking-space
 		public void Tag_culture_test(string template, string expected, string cultureName, string title)
 		{
 			var bookDto = Shared.GetLibraryBook();
@@ -740,11 +743,14 @@ namespace TemplatesTests
 		[DataRow("<tag>", "Tag1, Tag2, Tag3")]
 		[DataRow("<tag [separator( - )]>", "Tag1 - Tag2 - Tag3")]
 		[DataRow("<tag [format({S:u})]>", "TAG1, TAG2, TAG3")]
-		[DataRow("<tag [format({S:l})]>", "tag1, tag2, tag3")]
-		[DataRow("<tag [format(Tag: {S})]>", "Tag: Tag1, Tag: Tag2, Tag: Tag3")]
+		[DataRow("<tag[format({S:l})]>", "tag1, tag2, tag3")]
+		[DataRow("<tag[format(Tag: {S})]>", "Tag: Tag1, Tag: Tag2, Tag: Tag3")]
 		[DataRow("<tag [max(1)]>", "Tag1")]
 		[DataRow("<tag [slice(2..)]>", "Tag2, Tag3")]
-		[DataRow("<tag [sort(s)]>", "Tag3, Tag2, Tag1")]
+		[DataRow("<tag[sort(s)]>", "Tag3, Tag2, Tag1")]
+		[DataRow("<first tag>", "Tag1")]
+		[DataRow("<first tag[]>", "Tag1")]
+		[DataRow("<first tag[l]>", "tag1")]
 		public void Tag_test(string template, string expected)
 		{
 			var bookDto = Shared.GetLibraryBook();
