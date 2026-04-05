@@ -120,15 +120,35 @@ public abstract class Processable
 	{
 		if (!fileInfo.Exists) return;
 
-		fileInfo.CreationTimeUtc = getTimeValue(Configuration.CreationTime) ?? fileInfo.CreationTimeUtc;
-		fileInfo.LastWriteTimeUtc = getTimeValue(Configuration.LastWriteTime) ?? fileInfo.LastWriteTimeUtc;
-
 		DateTime? getTimeValue(Configuration.DateTimeSource source) => source switch
 		{
 			Configuration.DateTimeSource.Added => libraryBook.DateAdded,
 			Configuration.DateTimeSource.Published => libraryBook.Book.DatePublished,
 			_ => null,
 		};
-	}
 
+		if (getTimeValue(Configuration.CreationTime) is { } creationUtc)
+		{
+			try
+			{
+				fileInfo.CreationTimeUtc = creationUtc;
+			}
+			catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
+			{
+				Serilog.Log.Logger.Debug(ex, "Could not set creation time for {Path}; filesystem may not support it.", fileInfo.FullName);
+			}
+		}
+
+		if (getTimeValue(Configuration.LastWriteTime) is { } lastWriteUtc)
+		{
+			try
+			{
+				fileInfo.LastWriteTimeUtc = lastWriteUtc;
+			}
+			catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
+			{
+				Serilog.Log.Logger.Debug(ex, "Could not set last write time for {Path}; filesystem may not support it.", fileInfo.FullName);
+			}
+		}
+	}
 }
