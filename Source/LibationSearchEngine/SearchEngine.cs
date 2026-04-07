@@ -110,12 +110,57 @@ public class SearchEngine
 		}
 	}
 
+    /// <summary>
+    /// Lucene 3 parses <c>segments_*</c> filenames in the index directory. Cloud sync (e.g. OneDrive) can leave debris
+    /// or conflict copies whose names break that parser, throwing <see cref="ArgumentException"/> with this message shape.
+    /// Actual error is likely to be something like: Invalid or unsupported character in number, hence this string check.
+    /// </summary>
+    public static bool IsRecoverableCorruptIndexException(ArgumentException ex)
+		=> ex.Message.Contains("character in number", StringComparison.OrdinalIgnoreCase);
+
+	private static void deleteAllSearchIndexFiles(string searchEngineDirectory)
+	{
+		if (!System.IO.Directory.Exists(searchEngineDirectory))
+			return;
+
+		foreach (var file in System.IO.Directory.GetFiles(searchEngineDirectory, "*", SearchOption.AllDirectories))
+			FileUtility.SaferDelete(file);
+
+		foreach (var dir in System.IO.Directory.GetDirectories(searchEngineDirectory, "*", SearchOption.AllDirectories).OrderByDescending(d => d.Length))
+		{
+			try
+			{
+				System.IO.Directory.Delete(dir);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Warning(ex, "Could not remove search index subdirectory {Dir}", dir);
+			}
+		}
+	}
+
 	private void createNewIndexCore(List<LibraryBook> library, bool overwrite)
 	{
+		bool indexExists;
+		using (var indexProbe = getIndex())
+		{
+			try
+			{
+				indexExists = IndexReader.IndexExists(indexProbe);
+			}
+			catch (ArgumentException ex) when (IsRecoverableCorruptIndexException(ex))
+			{
+				Serilog.Log.Logger.Warning(ex, "Lucene search index at {Path} is unreadable (often cloud-sync debris or a partial write). Clearing it for rebuild.", SearchEngineDirectory);
+				indexExists = false;
+			}
+		}
+
+		if (!indexExists)
+			deleteAllSearchIndexFiles(SearchEngineDirectory);
+
 		// location of index/create the index
 		using var index = getIndex();
-		var exists = IndexReader.IndexExists(index);
-		var createNewIndex = overwrite || !exists;
+		var createNewIndex = overwrite || !indexExists;
 
 		// analyzer for tokenizing text. same analyzer should be used for indexing and searching
 		using var analyzer = new StandardAnalyzer(Version);
@@ -129,8 +174,7 @@ public class SearchEngine
 
 	public SearchEngine(string? directory = null)
 	{
-		SearchEngineDirectory = directory
-			?? new System.IO.DirectoryInfo(Configuration.Instance.LibationFiles.Location).CreateSubdirectoryEx("SearchEngine").FullName;
+		SearchEngineDirectory = directory ?? new DirectoryInfo(Configuration.Instance.LibationFiles.Location).CreateSubdirectoryEx("SearchEngine").FullName;
 	}
 
 	/// <summary>Long running. Use await Task.Run(() => UpdateBook(productId))</summary>
