@@ -1,5 +1,6 @@
 ﻿using DataLayer;
 using LibationSearchEngine;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,6 +29,12 @@ public static class SearchEngineCommands
 			}
 			catch (FileNotFoundException)
 			{
+				fullReIndex(engine);
+				return func(engine);
+			}
+			catch (ArgumentException ex) when (SearchEngine.IsRecoverableCorruptIndexException(ex))
+			{
+				Log.Warning(ex, "Search index unreadable; rebuilding and retrying query.");
 				fullReIndex(engine);
 				return func(engine);
 			}
@@ -73,6 +80,12 @@ public static class SearchEngineCommands
 		}
 		catch (FileNotFoundException)
 		{
+			fullReIndex(new SearchEngine());
+			update(action);
+		}
+		catch (ArgumentException ex) when (SearchEngine.IsRecoverableCorruptIndexException(ex))
+		{
+			Log.Warning(ex, "Search index unreadable; rebuilding and retrying.");
 			fullReIndex(new SearchEngine());
 			update(action);
 		}

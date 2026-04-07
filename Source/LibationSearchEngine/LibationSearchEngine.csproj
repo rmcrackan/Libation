@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
+    <ProjectReference Include="..\FileManager\FileManager.csproj" />
     <ProjectReference Include="..\LibationFileManager\LibationFileManager.csproj" />
   </ItemGroup>
 	
