@@ -32,12 +32,12 @@ public class CopyDbOptions : OptionsBase
 		using var source = LibationContextFactory.CreateSqlite(srcConnectionString);
 		using var destination = LibationContextFactory.CreatePostgres(destConnectionString);
 
-		await source.Database.MigrateAsync();
+		await LibationContextFactory.ApplyMigrationsAsync(source, SqliteStorage.DatabasePath);
 
 		try
 		{
 			Console.WriteLine("Creating destination database...");
-			await destination.Database.MigrateAsync();
+			await LibationContextFactory.ApplyMigrationsAsync(destination, null);
 			Console.WriteLine("Destination database recreated.");
 			Console.WriteLine();
 		}

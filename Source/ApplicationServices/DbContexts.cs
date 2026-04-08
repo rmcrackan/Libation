@@ -1,6 +1,5 @@
 ﻿using DataLayer;
 using LibationFileManager;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 
 namespace ApplicationServices;
@@ -15,7 +14,9 @@ public static class DbContexts
 		var context = !string.IsNullOrEmpty(Configuration.Instance.PostgresqlConnectionString)
 			? LibationContextFactory.CreatePostgres(Configuration.Instance.PostgresqlConnectionString)
 			: LibationContextFactory.CreateSqlite(SqliteStorage.ConnectionString);
-		context.Database.Migrate();
+		LibationContextFactory.ApplyMigrations(
+			context,
+			string.IsNullOrEmpty(Configuration.Instance.PostgresqlConnectionString) ? SqliteStorage.DatabasePath : null);
 
 		// Validate SQLite DB file was created and is accessible (once per process; OS may delay availability)
 		if (!_sqliteDbValidated && string.IsNullOrEmpty(Configuration.Instance.PostgresqlConnectionString))
