@@ -1,6 +1,8 @@
 ﻿using DataLayer;
 using LibationFileManager;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 
 namespace ApplicationServices;
@@ -15,7 +17,29 @@ public static class DbContexts
 		var context = !string.IsNullOrEmpty(Configuration.Instance.PostgresqlConnectionString)
 			? LibationContextFactory.CreatePostgres(Configuration.Instance.PostgresqlConnectionString)
 			: LibationContextFactory.CreateSqlite(SqliteStorage.ConnectionString);
-		context.Database.Migrate();
+		try
+		{
+			context.Database.Migrate();
+		}
+		// SQLITE_READONLY == 8 (https://www.sqlite.org/rescode.html)
+		catch (SqliteException ex) when (ex.SqliteErrorCode == 8)
+		{
+			var dbPath = SqliteStorage.DatabasePath;
+			throw new InvalidOperationException(
+				$"""
+				Libation cannot write its SQLite database (migrations need write access).
+
+				Database path:
+				{dbPath}
+
+				This usually means the folder or the database file is not writable by your user (wrong owner or permissions), or the location is on a read-only or restricted filesystem.
+
+				On Linux: check ownership and permissions on that folder (for example chmod/chown). Snap installs often store data under ~/snap/libation/<revision>/.local/share/Libation — that entire tree must be writable.
+
+				If the problem continues, try moving the Libation Files location (Settings) to a folder you know is writable, or use the non-Snap build if Snap confinement is blocking writes.
+				""",
+				ex);
+		}
 
 		// Validate SQLite DB file was created and is accessible (once per process; OS may delay availability)
 		if (!_sqliteDbValidated && string.IsNullOrEmpty(Configuration.Instance.PostgresqlConnectionString))
