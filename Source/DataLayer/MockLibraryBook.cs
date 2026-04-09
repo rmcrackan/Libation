@@ -73,7 +73,7 @@ public class MockLibraryBook : LibraryBook
 
 	public static MockLibraryBook CreateBook(
 		string account = "someone@email.co",
-		bool absetFromLastScan = false,
+		bool absentFromLastScan = false,
 		DateTime? dateAdded = null,
 		DateTime? datePublished = null,
 		DateTime? includedUntil = null,
@@ -120,7 +120,7 @@ public class MockLibraryBook : LibraryBook
 			includedUntil,
 			isAudiblePlus)
 		{
-			AbsentFromLastScan = absetFromLastScan
+			AbsentFromLastScan = absentFromLastScan
 		};
 	}
 

@@ -59,7 +59,7 @@ public static class UtilityExtensions
 			Title = libraryBook.Book.Title,
 			Subtitle = libraryBook.Book.Subtitle,
 			TitleWithSubtitle = libraryBook.Book.TitleWithSubtitle,
-			Locale = libraryBook.Book.Locale,
+			Locale = new RegionInfoDto(libraryBook.Book.Locale),
 			YearPublished = libraryBook.Book.DatePublished?.Year,
 			DatePublished = libraryBook.Book.DatePublished,
 
@@ -72,7 +72,7 @@ public static class UtilityExtensions
 			IsPodcast = libraryBook.Book.IsEpisodeChild() || libraryBook.Book.IsEpisodeParent(),
 
 			LengthInMinutes = TimeSpan.FromMinutes(libraryBook.Book.LengthInMinutes),
-			Language = libraryBook.Book.Language?.Trim(),
+			Language = libraryBook.Book.Language is null ? null : new CultureInfoDto(libraryBook.Book.Language),
 			Codec = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.CodecString,
 			BitRate = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.BitRate,
 			SampleRate = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.SampleRate,

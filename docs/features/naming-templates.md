@@ -37,9 +37,9 @@ These tags will be replaced in the template with the audiobook's values.
 | \<account nickname\>     | Audible account nickname of this book                          | [Text](#text-formatters)               |
 | \<tag\>                  | Tag(s)                                                         | [Text List](#text-list-formatters)     |
 | \<first tag\>            | First tag                                                      | [Text](#text-formatters)               |
-| \<locale\>               | Region/country                                                 | [Text](#text-formatters)               |
+| \<locale\>               | Region/country                                                 | [Region](#region-formatters)           |
 | \<year\>                 | Year published                                                 | [Number](#number-formatters)           |
-| \<language\>             | Book's language                                                | [Text](#text-formatters)               |
+| \<language\>             | Book's language                                                | [Language](#language-formatters)       |
 | \<language short\> **†** | Book's language abbreviated. Eg: ENG                           | Text                                   |
 | \<file date\>            | File creation date/time.                                       | [DateTime](#date-formatters)           |
 | \<pub date\>             | Audiobook publication date                                     | [DateTime](#date-formatters)           |
@@ -185,7 +185,7 @@ Here, a number format is inserted for the desired part in accordance with [Micro
 |-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------|-------------------|
 | D         | A number format with "D" instead of "0". Using this will output the total number of days and reduce the amount of minutes avalable for "H" and "M". | \<minutes[DD]\>                  | 02                |
 | H         | A number format with "H" instead of "0". Using this will output the total number of hours and reduce the amount of minutes available for "M".       | \<minutes[HH]\>                  | 62                |
-| M         | A number format with "H" instead of "0". Using this will output the total number of minutes.                                                        | \<minutes[#,#MM]\>               | 3,762             |
+| M         | A number format with "M" instead of "0". Using this will output the total number of minutes.                                                        | \<minutes[#,#MM]\>               | 3,762             |
 | D H M     | A combination of the above.                                                                                                                         | \<minutes[D'days 'MM'minutes']\> | 02days 882minutes |
 
 ### Number Formatters
