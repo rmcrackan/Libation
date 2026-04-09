@@ -256,7 +256,7 @@ public class Book
 		IsAbridged |= isAbridged;
 		IsSpatial = isSpatial ?? IsSpatial;
 		DatePublished = datePublished ?? DatePublished;
-		Language = language?.FirstCharToUpper() ?? Language;
+		Language = language?.Trim().FirstCharToUpper() ?? Language;
 	}
 
 	public override string ToString() => $"[{AudibleProductId}] {TitleWithSubtitle}";
