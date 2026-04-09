@@ -225,6 +225,7 @@ public static class LibationScaffolding
 	private static void configureLogging(Configuration config)
 	{
 		config.ConfigureLogging();
+		DbContexts.TryEmitPendingInitialDatabaseStatistics();
 
 		// capture most Console.WriteLine() and write to serilog. See below tests for details.
 		// Some dependencies print helpful info via Console.WriteLine. We'd like to log it.

@@ -16,6 +16,10 @@ public static class BookQueries
 			.AsNoTrackingWithIdentityResolution()
 			.GetBook(productId);
 
+	/// <summary>Total rows in <see cref="LibationContext.Books"/> (no related entities loaded).</summary>
+	public static int GetBookCount(this LibationContext context)
+		=> context.Books.AsNoTracking().Count();
+
 	public static Book? GetBook(this IQueryable<Book> books, string productId)
 		=> books
 			.GetBooks()
