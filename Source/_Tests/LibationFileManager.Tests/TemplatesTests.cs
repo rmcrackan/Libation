@@ -813,8 +813,10 @@ namespace TemplatesTests
 			"ID:US, 2:US, 3:USA, W:USA, D:Estados Unidos, E:United States, N:United States, O:us")]
 		[DataRow("uk", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, N:{N}, O:{O}]>",
 			"ID:GB, 2:GB, 3:GBR, W:GBR, D:Reino Unido, E:United Kingdom, N:United Kingdom, O:uk")]
-		[DataRow("canada", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, N:{N}, O:{O}]>",
-			"ID:CA, 2:CA, 3:CAN, W:CAN, D:Canadá, E:Canada, N:Canada, O:canada")]
+		// Skip NativeName: on Linux/ICU the native name for Canada is returned as the Inuktitut form 'ᑲᓇᑕ', while Windows returns 'Canada'.
+		// Because this value depends on the OS/globalization provider, it cannot be used for stable cross-platform tests.
+		[DataRow("canada", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, N:---, O:{O}]>",
+			"ID:CA, 2:CA, 3:CAN, W:CAN, D:Canadá, E:Canada, N:---, O:canada")]
 		[DataRow("germany", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, N:{N}, O:{O}]>",
 			"ID:DE, 2:DE, 3:DEU, W:DEU, D:Alemania, E:Germany, N:Deutschland, O:germany")]
 		[DataRow("france", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, N:{N}, O:{O}]>",
@@ -843,7 +845,9 @@ namespace TemplatesTests
 		[DataRow("ie", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:IE, E:Ireland, O:ie")]
 		[DataRow("sg", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:SG, E:Singapore, O:sg")]
 		[DataRow("za", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:ZA, E:South Africa, O:za")]
-		[DataRow("tr", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:TR, E:Turkey, O:tr")]
+		// Skip EnglishName: the official English name of Turkey changed to 'Türkiye', and the returned value now depends on
+		// the OS/globalization provider (Windows-NLS vs. ICU). Tests would not be stable.
+		[DataRow("tr", "<locale[ID:{ID}, E:---, O:{O}]>", "ID:TR, E:---, O:tr")]
 		[DataRow("ae", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:AE, E:United Arab Emirates, O:ae")]
 		[DataRow("sa", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:SA, E:Saudi Arabia, O:sa")]
 		[DataRow("eg", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:EG, E:Egypt, O:eg")]
