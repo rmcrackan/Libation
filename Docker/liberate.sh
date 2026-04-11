@@ -72,43 +72,65 @@ create_db() {
 }
 
 setup_db() {
-  DBPATH=$1
-  dbpattern="*.db"
+  local DBPATH=$1
+  local dbpattern="*.db"
+  local FILE LINK LINK_ORIGIN files
 
   debug "using database directory ${DBPATH}"
 
   # Figure out the right databse file
   if [[ -z "${LIBATION_DB_FILE}" ]];
   then
-    dbCount=$(find "${DBPATH}" -maxdepth 1 -type f -name "${dbpattern}" | wc -l)
-    if [ "${dbCount}" -gt 1 ];
-    then
-      error "too many database files found, set LIBATION_DB_FILE to the filename you wish to use"
-      exit 1
-    elif [ "${dbCount}" -eq 1 ];
-    then
-      files=( ${DBPATH}/${dbpattern} )
-      FILE=${files[0]}
-    else
-      FILE="${DBPATH}/LibationContext.db"
-    fi
+    shopt -s nullglob     # files shall be empty if no match is found
+    files=( "${DBPATH}"/${dbpattern} )
+    shopt -u nullglob
+
+    case ${#files[@]} in
+      0)
+        FILE="${DBPATH}/LibationContext.db"
+        ;;
+      1)
+        FILE="${files[0]}"
+        ;;
+      *)
+        debug "found ${#files[@]} database files matching '${dbpattern}'"
+        error "too many database files found, set LIBATION_DB_FILE to the filename you wish to use"
+        exit 1
+        ;;
+    esac
   else
     FILE="${DBPATH}/${LIBATION_DB_FILE}"
   fi
 
-  debug "planning to use database ${FILE}"
+  debug "planning to use database '${FILE}'"
 
   if [ -f "${FILE}" ]; then
     info "database found at ${FILE}"
-  elif [ ${LIBATION_CREATE_DB} = "true" ];
+  elif [ "${LIBATION_CREATE_DB}" = "true" ];
   then
     warn "database not found, creating one at ${FILE}"
-    create_db ${FILE}
+    create_db "${FILE}"
   else
     error "database not found and creation is disabled"
     exit 1
   fi
-  ln -s "${FILE}" "${LIBATION_CONFIG_INTERNAL}/LibationContext.db"
+
+  LINK="${LIBATION_CONFIG_INTERNAL}/LibationContext.db"
+  if [ -L "$LINK" ]; then
+    # check if the link is correct
+    LINK_ORIGIN=$(readlink -sfn "$LINK")
+    if [ "$LINK_ORIGIN" = "$(readlink -sfn "$FILE")" ]; then
+      warn "symlink '${LINK_ORIGIN}' to '${LINK}' already established"
+      return 0
+    fi
+    warn "removing existing symlink '${LINK_ORIGIN}' to '${LINK}'"
+    rm -f "$LINK"
+  elif [ -e "$LINK" ]; then
+    error "found blocking file at '${LINK}' - can't create symlink"
+    exit 1
+  fi
+
+  ln -s "${FILE}" "${LINK}"
 }
 
 run() {
