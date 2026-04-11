@@ -116,7 +116,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			                                 (?<!\s))         # - don't let <property> end with a whitepace. Otherwise "<tagname  [foobar]->" would be matchable.
 			                             (?:\s*\[\s*          # optional check details enclosed in '[' and ']'. Check shall start with an operator. So match whitespace first
 			                                 (?<check>        # - capture inner part as <check>
-			                                     (?:\\.       # - '\' escapes allways the next character. Especially further '\' and the closing ']'
+			                                     (?:\\.       # - '\' escapes always the next character. Especially further '\' and the closing ']'
 			                                     |[^\\\]])* ) # - match any character except '\' and ']'. Check may end in whitespace!
 			                             \])?                 # - closing the check part
 			                         )?                       # end of optional property and check part

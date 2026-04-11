@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using static TemplatesTests.Shared;
 
 [assembly: Parallelize]
@@ -43,7 +44,7 @@ namespace TemplatesTests
 				FileDate = new DateTime(2023, 1, 28, 0, 0, 0),
 				AudibleProductId = "asin",
 				Title = "A Study in Scarlet: A Sherlock Holmes Novel",
-				Locale = "us",
+				Locale = new RegionInfoDto("us"),
 				YearPublished = null, // explicitly null
 				Authors = [new("Arthur Conan Doyle", "B000AQ43GQ"), new("Stephen Fry - introductions", "B000APAGVS")],
 				Narrators = [], // explicitly empty list
@@ -51,7 +52,7 @@ namespace TemplatesTests
 				BitRate = 128,
 				SampleRate = 44100,
 				Channels = 2,
-				Language = "English",
+				Language = new CultureInfoDto("English"),
 				Subtitle = "An Audible Original Drama",
 				TitleWithSubtitle = "A Study in Scarlet: An Audible Original Drama",
 				Codec = @"AAC[LC]\MP3", // special chars added
@@ -760,6 +761,130 @@ namespace TemplatesTests
 			fileTemplate
 				.GetName(bookDto, new MultiConvertFileProperties { OutputFileName = string.Empty })
 				.Should().Be(expected);
+		}
+
+		[TestMethod]
+		[DataRow("English", "<language>", "English")]
+		[DataRow("English", "<language[4u]>", "ENGL")]
+		[DataRow("English", "<language short>", "ENG")]
+		[DataRow("English", "<language short[1l]>", "ENG")]
+		[DataRow("English", "<language[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, N:{N}, O:{O}]>", "ID:en, 2:en, 3:eng, W:ENU, D:inglés, E:English, N:English, O:English")]
+		[DataRow("en", "<language[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, N:{N}, O:{O}]>", "ID:en, 2:en, 3:eng, W:ENU, D:inglés, E:English, N:English, O:en")]
+		[DataRow("fr", "<language[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, N:{N}, O:{O}]>", "ID:fr, 2:fr, 3:fra, W:FRA, D:francés, E:French, N:français, O:fr")]
+		[DataRow("fr-ca", "<language[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, N:{N}, O:{O}]>",
+			"ID:fr-CA, 2:fr, 3:fra, W:FRC, D:francés (Canadá), E:French (Canada), N:français (Canada), O:fr-ca")]
+		[DataRow("Any", "<ui[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, N:{N}, O:{O}]>",
+			"ID:es-ES, 2:es, 3:spa, W:ESN, D:español (España), E:Spanish (Spain), N:español (España), O:es-ES")]
+		[DataRow("Any", "<os[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, N:{N}, O:{O}]>",
+			"ID:sv-SE, 2:sv, 3:swe, W:SVE, D:sueco (Suecia), E:Swedish (Sweden), N:svenska (Sverige), O:sv-SE")]
+		// different localizations
+		[DataRow("fr", "<language[D:{D@de-DE}, E:{E@de-DE}, N:{N@de-DE}, O:{O@de-DE}]>", "D:Französisch, E:French, N:français, O:fr")]
+		[DataRow("fr", "<language[D:{D@pl}]>", "D:francuski")]
+		[DataRow("fr", "<language[D:{D@it}]>", "D:francese")]
+		public void Language_test(string language, string template, string expected)
+		{
+			var bookDto = Shared.GetLibraryBook();
+			bookDto.Language = new CultureInfoDto(language);
+
+			var result = "";
+
+			var old = Thread.CurrentThread.CurrentCulture;
+			var oldUi = Thread.CurrentThread.CurrentUICulture;
+			try
+			{
+				Thread.CurrentThread.CurrentCulture = new CultureInfo("sv-SE");
+				Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-ES");
+				Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+				result = fileTemplate
+					.GetName(bookDto, new MultiConvertFileProperties { OutputFileName = string.Empty });
+			}
+			finally
+			{
+				Thread.CurrentThread.CurrentCulture = old;
+				Thread.CurrentThread.CurrentUICulture = oldUi;
+			}
+
+			result.Should().Be(expected);
+		}
+
+		[TestMethod]
+		// Audible does not provide a consistent or authoritative region code for its storefronts.
+		// In most cases, the storefront region can be inferred from the EnglishName of a matching RegionInfo entry. However,
+		// the US and UK storefronts do not follow this pattern, and the three historical “pre‑Amazon” storefront identifiers require
+		// separate interpretation to remain globally usable for all users.
+		// To ensure robustness, the tests attempt to cover all known Audible storefronts explicitly.
+
+		// Skipping of NativeName: its output is influenced by external standards bodies and evolving globalization data (NLS vs. ICU),
+		// not solely by the OSPlatform.
+		// Because .NET provides no stability guarantees for NativeName across platforms or ICU/NLS versions, we do not include
+		// platform-specific tests here—unlike path-related differences, which are defined and testable.
+
+		// test known locales
+		[DataRow("us", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, N:{N}, O:{O}]>",
+			"ID:US, 2:US, 3:USA, W:USA, D:Estados Unidos, E:United States, N:United States, O:us")]
+		[DataRow("uk", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, N:{N}, O:{O}]>",
+			"ID:GB, 2:GB, 3:GBR, W:GBR, D:Reino Unido, E:United Kingdom, N:United Kingdom, O:uk")]
+		[DataRow("germany", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, N:{N}, O:{O}]>",
+			"ID:DE, 2:DE, 3:DEU, W:DEU, D:Alemania, E:Germany, N:Deutschland, O:germany")]
+		// Skip NativeName (see above)
+		[DataRow("france", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, O:{O}]>", "ID:FR, 2:FR, 3:FRA, W:FRA, D:Francia, E:France, O:france")]
+		[DataRow("australia", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, O:{O}]>", "ID:AU, 2:AU, 3:AUS, W:AUS, D:Australia, E:Australia, O:australia")]
+		[DataRow("india", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, O:{O}]>", "ID:IN, 2:IN, 3:IND, W:IND, D:India, E:India, O:india")]
+		[DataRow("spain", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, O:{O}]>", "ID:ES, 2:ES, 3:ESP, W:ESP, D:España, E:Spain, O:spain")]
+		[DataRow("italy", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, O:{O}]>", "ID:IT, 2:IT, 3:ITA, W:ITA, D:Italia, E:Italy, O:italy")]
+		[DataRow("canada", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, O:{O}]>", "ID:CA, 2:CA, 3:CAN, W:CAN, D:Canadá, E:Canada, O:canada")]
+		[DataRow("japan", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, O:{O}]>", "ID:JP, 2:JP, 3:JPN, W:JPN, D:Japón, E:Japan, O:japan")]
+		[DataRow("brazil", "<locale[ID:{ID}, 2:{I}, 3:{I3}, W:{W}, D:{D}, E:{E}, O:{O}]>", "ID:BR, 2:BR, 3:BRA, W:BRA, D:Brasil, E:Brazil, O:brazil")]
+
+		// test historical locales
+		[DataRow("pre-amazon - us", "<locale[ID:{ID}, O:{O}]>", "ID:US, O:pre-amazon - us")]
+		[DataRow("pre-amazon - uk", "<locale[ID:{ID}, O:{O}]>", "ID:GB, O:pre-amazon - uk")]
+		[DataRow("pre-amazon - germany", "<locale[ID:{ID}, O:{O}]>", "ID:DE, O:pre-amazon - germany")]
+
+		// test upcoming locales
+		[DataRow("be", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:BE, E:Belgium, O:be")]
+		[DataRow("nl", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:NL, E:Netherlands, O:nl")]
+		[DataRow("se", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:SE, E:Sweden, O:se")]
+		[DataRow("pl", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:PL, E:Poland, O:pl")]
+		[DataRow("ie", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:IE, E:Ireland, O:ie")]
+		[DataRow("sg", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:SG, E:Singapore, O:sg")]
+		[DataRow("za", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:ZA, E:South Africa, O:za")]
+		[DataRow("ae", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:AE, E:United Arab Emirates, O:ae")]
+		[DataRow("sa", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:SA, E:Saudi Arabia, O:sa")]
+		[DataRow("eg", "<locale[ID:{ID}, E:{E}, O:{O}]>", "ID:EG, E:Egypt, O:eg")]
+		// Skip EnglishName: the official English name of Turkey changed to 'Türkiye', and the returned value now depends on
+		// the OS/globalization provider (Windows-NLS vs. ICU). Tests would not be stable.
+		// A future lookup may still need to account for whichever English name Audible chooses to use.
+		[DataRow("tr", "<locale[ID:{ID}, E:---, O:{O}]>", "ID:TR, E:---, O:tr")]
+
+		// test some different localizations - should change only D(isplayNames)
+		[DataRow("fr", "<locale[D:{D@de-DE}, E:{E@de-DE}, N:{N@de-DE}, O:{O@de-DE}]>", "D:Frankreich, E:France, N:France, O:fr")]
+		[DataRow("fr", "<locale[D:{D@pl}]>", "D:Francja")]
+		[DataRow("fr", "<locale[D:{D@it}]>", "D:Francia")]
+		public void Region_test(string country, string template, string expected)
+		{
+			var bookDto = Shared.GetLibraryBook();
+			bookDto.Locale = new RegionInfoDto(country);
+
+			var result = "";
+
+			var old = Thread.CurrentThread.CurrentCulture;
+			var oldUi = Thread.CurrentThread.CurrentUICulture;
+			try
+			{
+				Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
+				Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-ES");
+				Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+				result = fileTemplate
+					.GetName(bookDto, new MultiConvertFileProperties { OutputFileName = string.Empty });
+			}
+			finally
+			{
+				Thread.CurrentThread.CurrentCulture = old;
+				Thread.CurrentThread.CurrentUICulture = oldUi;
+			}
+
+			result.Should().Be(expected);
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace FileManager.NamingTemplate;
 
@@ -32,6 +33,9 @@ public static partial class CommonFormatters
 	public static string StringFormatter(ITemplateTag _, string? value, string? formatString, CultureInfo? culture)
 		=> _StringFormatter(value, formatString, culture);
 
+	public static string _StringFormatter(string? value, string? formatString, IFormatProvider? provider)
+		=> _StringFormatter(value, formatString, GetCultureInfo(provider));
+
 	private static string _StringFormatter(string? value, string? formatString, CultureInfo? culture)
 	{
 		if (string.IsNullOrEmpty(value)) return string.Empty;
@@ -61,22 +65,34 @@ public static partial class CommonFormatters
 		if (string.IsNullOrWhiteSpace(templateString)) return "";
 
 		// is this function is called from toString implementation of the IFormattable interface, we only get a IFormatProvider
-		var culture = provider as CultureInfo ?? provider?.GetFormat(typeof(CultureInfo)) as CultureInfo;
-		return CollapseSpacesAndTrimRegex().Replace(TagFormatRegex().Replace(templateString, GetValueForMatchingTag), "");
+		var culture = GetCultureInfo(provider);
+		var oldUiCulture = Thread.CurrentThread.CurrentUICulture;
+		var result = CollapseSpacesAndTrimRegex().Replace(TagFormatRegex().Replace(templateString, GetValueForMatchingTag), "");
+		Thread.CurrentThread.CurrentUICulture = oldUiCulture;
+		return result;
 
 		string GetValueForMatchingTag(Match m)
 		{
 			var tag = m.Groups["tag"].Value;
 			if (!replacements.TryGetValue(tag, out var getter)) return m.Value;
 
+			var lang = m.Groups["lang"].ValueOrNull();
+			var cultureToUse = lang is null ? culture : CultureInfo.GetCultureInfo(lang);
+			Thread.CurrentThread.CurrentUICulture = cultureToUse ?? oldUiCulture;
+			
 			var value = getter(toFormat);
 			var format = m.Groups["format"].ValueOrNull();
 			return value switch
 			{
-				IFormattable formattable => formattable.ToString(format, provider),
-				_ => _StringFormatter(value?.ToString(), format, culture),
+				IFormattable formattable => formattable.ToString(format, cultureToUse),
+				_ => _StringFormatter(value?.ToString(), format, cultureToUse),
 			};
 		}
+	}
+
+	private static CultureInfo? GetCultureInfo(IFormatProvider? provider)
+	{
+		return provider as CultureInfo ?? provider?.GetFormat(typeof(CultureInfo)) as CultureInfo;
 	}
 
 	// Matches runs of spaces followed by a space as well as runs of spaces at the beginning or the end of a string (does NOT touch tabs/newlines).
@@ -87,8 +103,8 @@ public static partial class CommonFormatters
 	// The tagname may be followed by an optional format specifier separated by a colon.
 	// All other parts of the template string are left untouched as well as the braces where the tagname is unknown.
 	// TemplateStringFormatter will use a dictionary to lookup the tagname and the corresponding value getter.
-	[GeneratedRegex("""\{(?<tag>[A-Z]+|#)(?::(?<format>(?:\\.|'(?:[^']|'')*'|"(?:[^"]|"")*"|.)*?))?\}""", RegexOptions.IgnoreCase)]
-	private static partial Regex TagFormatRegex();
+	[GeneratedRegex("""\{(?<tag>[A-Z0-9]+|#)(?:@(?<lang>[a-z-]+))?(?::(?<format>(?:\\.|'(?:[^']|'')*'|"(?:[^"]|"")*"|.)*?))?\}""", RegexOptions.IgnoreCase)]
+	public static partial Regex TagFormatRegex();
 
 	public static string FormattableFormatter(ITemplateTag _, IFormattable? value, string? formatString, CultureInfo? culture)
 		=> value?.ToString(formatString, culture) ?? "";
@@ -100,12 +116,10 @@ public static partial class CommonFormatters
 	{
 		culture ??= CultureInfo.CurrentCulture;
 		if (!int.TryParse(formatString, out var numDigits) || numDigits <= 0) return value.ToString(formatString, culture);
-		//Zero-pad the integer part
-		var strValue = value.ToString(culture);
-		var decIndex = culture.CompareInfo.IndexOf(strValue, culture.NumberFormat.NumberDecimalSeparator);
-		var zeroPad = decIndex == -1 ? int.Max(0, numDigits - strValue.Length) : int.Max(0, numDigits - decIndex);
 
-		return new string('0', zeroPad) + strValue;
+		//Zero-pad the integer part
+		formatString = new string('0', numDigits) + ".################";
+		return value.ToString(formatString, culture);
 	}
 
 	public static string MinutesFormatter(ITemplateTag templateTag, TimeSpan value, string? formatString, CultureInfo? culture)
@@ -163,7 +177,7 @@ public static partial class CommonFormatters
 	[GeneratedRegex("""
 	                (?x)                          # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
 	                (?<=\G(?:                     # We lookbehind up to the start or the end of the last match for a number format.
-	                    \\.                       # - '\' escapes allways the next character. Especially further '\' and the closing ']'
+	                    \\.                       # - '\' escapes always the next character. Especially further '\' and the closing ']'
 	                    | '(?:[^']|'')*'          # - allow 'string' to be included in the format, with '' being an escaped ' character
 	                    | "(?:[^"]|"")*"          # - allow "string" to be included in the format, with "" being an escaped " character
 	                    | .                       # - match any character. This will not catch the number format at first. Because ...
@@ -172,7 +186,7 @@ public static partial class CommonFormatters
 	                    (?:\#[\#,.]*)?            # - For grouping a number format may start with `#` and grouping hints `,` or even a decimal point `.`.
 	                    D                         # - At least one unescaped, unquoted uppercase D must be included in the format to indicate that this is a total days format.
 	                    (?:(?:                    # - Before further D's, there may be any combination of escaped characters and quoted strings.
-	                            \\.               # - '\' escapes allways the next character. Especially further '\' and the closing ']' 
+	                            \\.               # - '\' escapes always the next character. Especially further '\' and the closing ']' 
 	                            | '(?:[^']|'')*'  # - allow 'string' to be included in the format, with '' being an escaped ' character 
 	                            | "(?:[^"]|"")*"  # - allow "string" to be included in the format, with "" being an escaped " character 
 	                        )* [\#,.%‰D]+         # After escaped characters and quoted strings, there needs to be at least one more real number format character (which may be D as well).
