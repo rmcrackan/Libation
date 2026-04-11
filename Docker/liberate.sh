@@ -74,12 +74,13 @@ create_db() {
 setup_db() {
   local DBPATH=$1
   local dbpattern="*.db"
-  local FILE LINK LINK_ORIGIN files
+  local FILE LINK LINK_ORIGIN
+  local -a files
 
   debug "using database directory ${DBPATH}"
 
   # Figure out the right databse file
-  if [[ -z "${LIBATION_DB_FILE}" ]];
+  if [[ -z $LIBATION_DB_FILE ]]
   then
     shopt -s nullglob     # files shall be empty if no match is found
     files=( "${DBPATH}"/${dbpattern} )
@@ -104,9 +105,10 @@ setup_db() {
 
   debug "planning to use database '${FILE}'"
 
-  if [ -f "${FILE}" ]; then
+  if [[ -f $FILE ]]
+  then
     info "database found at ${FILE}"
-  elif [ "${LIBATION_CREATE_DB}" = "true" ];
+  elif [[ $LIBATION_CREATE_DB == "true" ]]
   then
     warn "database not found, creating one at ${FILE}"
     create_db "${FILE}"
@@ -116,16 +118,19 @@ setup_db() {
   fi
 
   LINK="${LIBATION_CONFIG_INTERNAL}/LibationContext.db"
-  if [ -L "$LINK" ]; then
+  if [[ -L $LINK ]]
+  then
     # check if the link is correct
-    LINK_ORIGIN=$(readlink -sfn "$LINK")
-    if [ "$LINK_ORIGIN" = "$(readlink -sfn "$FILE")" ]; then
+    LINK_ORIGIN=$(readlink -fn "$LINK")
+    if [[ $LINK_ORIGIN == $(readlink -fn "$FILE") ]]
+    then
       warn "symlink '${LINK_ORIGIN}' to '${LINK}' already established"
       return 0
     fi
     warn "removing existing symlink '${LINK_ORIGIN}' to '${LINK}'"
     rm -f "$LINK"
-  elif [ -e "$LINK" ]; then
+  elif [[ -e $LINK ]]
+  then
     error "found blocking file at '${LINK}' - can't create symlink"
     exit 1
   fi
