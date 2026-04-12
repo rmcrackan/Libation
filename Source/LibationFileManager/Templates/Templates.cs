@@ -367,7 +367,7 @@ public abstract class Templates
 		return null;
 	}
 
-	private static bool HasValue(object? value, CultureInfo? culture)
+	private static bool HasValue(object? value, object? _, CultureInfo? culture)
 	{
 		bool CheckItem(object o, CultureInfo? _) => !string.IsNullOrWhiteSpace(o.ToString());
 		return value switch
