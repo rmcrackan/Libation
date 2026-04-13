@@ -62,6 +62,13 @@ public static class LibraryBookQueries
 			.Where(lb => lb.IsDeleted || lb.Book.ContentType == ContentType.Parent)
 			.getLibrary()
 			.ToList();
+
+		/// <summary>Counts <see cref="LibraryBook"/> rows by <see cref="LibraryBook.IsDeleted"/> (no related entities loaded).</summary>
+		public (int NotInTrash, int InTrash) GetLibraryBookCountsByTrashFlag()
+		{
+			var q = context.LibraryBooks.AsNoTracking();
+			return (q.Count(lb => !lb.IsDeleted), q.Count(lb => lb.IsDeleted));
+		}
 	}
 
 	extension(IQueryable<LibraryBook> library)

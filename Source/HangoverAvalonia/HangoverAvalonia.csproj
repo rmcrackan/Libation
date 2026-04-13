@@ -75,6 +75,7 @@
 		<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.11" />
 		<PackageReference Include="ReactiveUI.Avalonia" Version="11.3.8" />
 		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11" />
+		<PackageReference Include="Tmds.DBus.Protocol" Version="0.21.3" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\HangoverBase\HangoverBase.csproj" />
