@@ -227,10 +227,10 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 				Func<int, int, CultureInfo?, bool> checkInt = match.Groups["op"].ValueSpan switch
 				{
 					"#=" => (v1, v2, _) => v1 == v2,
-					"#!=" => (v1, v2, _) => v1 != v2,
-					"#>=" or ">=" => (v1, v2, _) => v1 >= v2,
+					"#!=" or "≠" or "≠" => (v1, v2, _) => v1 != v2,
+					"#>=" or ">=" or "≥" => (v1, v2, _) => v1 >= v2,
 					"#>" or ">" => (v1, v2, _) => v1 > v2,
-					"#<=" or "<=" => (v1, v2, _) => v1 <= v2,
+					"#<=" or "<=" or "≤" => (v1, v2, _) => v1 <= v2,
 					"#<" or "<" => (v1, v2, _) => v1 < v2,
 					_ => throw new ArgumentOutOfRangeException() // this should never happen because the regex only allows these values
 				};
@@ -244,17 +244,17 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 				var stringEqCheck = GetStringEqCheck();
 				Func<IEnumerable<string>, IEnumerable<string>, CultureInfo?, bool> checklist = match.Groups["op"].ValueSpan switch
 				{
-					">>" or ":contains:" => Swap<IEnumerable<string>>(IsSubset),
-					">=>" or ":superset:" => Swap<IEnumerable<string>>(IsSubset),
-					">->" or ":proper_superset:" => Swap<IEnumerable<string>>(IsProperSubset),
-					"!>>" or ":not_contains:" => Invert(Swap<IEnumerable<string>>(IsSubset)),
-					"<<" or ":in:" => IsSubset,
-					"<=<" or ":subset:" => IsSubset,
-					"<-<" or ":proper_subset:" => IsProperSubset,
-					"!<<" or ":not_in:" => Invert<IEnumerable<string>>(IsSubset),
-					"&&" or ":overlaps:" => Overlaps,
-					"&&!" or ":disjoint:" => Invert<IEnumerable<string>>(Overlaps),
-					"==" or ":equals:" => (e1, e2, culture) =>
+					"∋" or ">>" or ":contains:" => Swap<IEnumerable<string>>(IsSubset),
+					"⊇" or ">=>" or ":superset:" => Swap<IEnumerable<string>>(IsSubset),
+					"⊃" or ">->" or ":proper_superset:" => Swap<IEnumerable<string>>(IsProperSubset),
+					"∌" or "!>>" or "∌" or ":not_contains:" => Invert(Swap<IEnumerable<string>>(IsSubset)),
+					"∈" or "<<" or ":in:" => IsSubset,
+					"⊆" or "<=<" or ":subset:" => IsSubset,
+					"⊂" or "<-<" or ":proper_subset:" => IsProperSubset,
+					"∉" or "!<<" or "∉" or ":not_in:" => Invert<IEnumerable<string>>(IsSubset),
+					"⋂" or "&&" or ":overlaps:" => Overlaps,
+					"⋂̸" or "&&!" or "⋂!" or ":disjoint:" => Invert<IEnumerable<string>>(Overlaps),
+					"≡" or "==" or ":equals:" => (e1, e2, culture) =>
 					{
 						var cmp = GetStringComparer(culture);
 						return e1.OrderBy(e => e, cmp).SequenceEqual(e2.OrderBy(e => e, cmp), cmp);
@@ -439,21 +439,21 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 		[GeneratedRegex("""
 		                (?x)                       # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
 		                ^(?<op>(?<list_op>         # anchor at start of line. capture operator in <op>, <list_op> and <num_op> with every char escapable
-		                           == |      :equals:           # - list operators: ≡ for checking if two lists contain the same items regardless of order
-		                        | !>> |      :not_contains:     # - list operators: ∌ for checking if the first list does not contain any item of the second list
-		                        |  >> |      :contains:         # - list operators: ∋ for checking if the first list contains all items of the second list
-		                        | !<< |      :not_in:           # -	list operators: ∉ for checking if the first list is not contained in the second list
-		                        |  << |      :in:               # - list operators: ∈ for checking if the first list is contained in the second list
-		                        | &&! |      :disjoint:         # - list operators: ⋂̸ for checking if the two lists are disjoint
-		                        | &&  |      :overlaps:         # - list operators: ⋂ for checking if the two lists overlap in at least one item
-		                        | <=< |      :subset:           # - list operators: ⊆ for checking if the first list is a subset of the second list (may be equal)
-		                        | >=> |      :superset:         # - list operators: ⊇ for checking if the first list is a superset of the second list (may be equal)
-		                        | <-< |      :proper_subset:    # - list operators: ⊂ for checking if the first list is a proper subset of the second list (not equal)
-		                        | >-> |      :proper_superset:  # -	list operators: ⊃ for checking if the first list is a proper superset of the second list (not equal)
+		                          ≡ |  == |      :equals:           # - list operators: ≡ for checking if two lists contain the same items regardless of order
+		                        | ∌ | !>> | ∌  | :not_contains:     # - list operators: ∌ for checking if the first list does not contain any item of the second list
+		                        | ∋ |  >> |      :contains:         # - list operators: ∋ for checking if the first list contains all items of the second list
+		                        | ∉ | !<< | ∉  | :not_in:           # -	list operators: ∉ for checking if the first list is not contained in the second list
+		                        | ∈ |  << |      :in:               # - list operators: ∈ for checking if the first list is contained in the second list
+		                        | ⋂̸ | &&! | ⋂! | :disjoint:         # - list operators: ⋂̸ for checking if the two lists are disjoint
+		                        | ⋂ | &&  |      :overlaps:         # - list operators: ⋂ for checking if the two lists overlap in at least one item
+		                        | ⊆ | <=< |      :subset:           # - list operators: ⊆ for checking if the first list is a subset of the second list (may be equal)
+		                        | ⊇ | >=> |      :superset:         # - list operators: ⊇ for checking if the first list is a superset of the second list (may be equal)
+		                        | ⊂ | <-< |      :proper_subset:    # - list operators: ⊂ for checking if the first list is a proper subset of the second list (not equal)
+		                        | ⊃ | >-> |      :proper_superset:  # -	list operators: ⊃ for checking if the first list is a proper superset of the second list (not equal)
 		                    ) | (?<num_op>
-		                	      \#!?=            # - numerical operators: #= #!=
+		                	      \#!?=    | ≠ | ≠ # - numerical operators: #= #!= ≠
 		                	    | \#[<>]=?         # - numerical operators: #<= #>= #< #>
-		                	    |   [<>]=?         # - numerical operators: <= >= < >
+		                	    |   [<>]=? | ≤ | ≥ # - numerical operators: <= >= < > ≤ ≥
 		                    ) | [=!]?~ | !=? | =?  # - string comparison operators including ~ for regexp, = and !=. No operator is like =
 		                ) \s*?                     # ignore space between operator and value
 		                (?<val>(?(num_op)          # capture value in <val>
