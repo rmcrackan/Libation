@@ -601,6 +601,72 @@ namespace TemplatesTests
 		}
 
 		[TestMethod]
+		[DataRow(@"<cmp codec = 'aac[lc]\mp3'->true<-cmp>", "true")]
+		[DataRow(@"<cmp codec = 'aac[lc]\mp4'->true<-cmp>", "")]
+		[DataRow("<cmp title = 'A Study in Scarlet: An Audible Original Drama'->true<-cmp>", "true")]
+		[DataRow("<!cmp title = 'A Study in Scarlet: An Audible Original Drama'->false<-cmp>", "")]
+		[DataRow("<cmp title[U] = 'A STUDY IN SCARLET: AN AUDIBLE ORIGINAL DRAMA'->true<-cmp>", "true")]
+		[DataRow("<cmp title #= '45'->true<-cmp>", "")]
+		[DataRow("<cmp title #= 45->true<-cmp>", "true")]
+		[DataRow("<cmp title != 'foo'->true<-cmp>", "true")]
+		[DataRow("<!cmp title != 'foo'->false<-cmp>", "")]
+		[DataRow("<cmp title ~ 'A Study.*'->true<-cmp>", "true")]
+		[DataRow("<cmp title = 'foo'->true<-cmp>", "")]
+		[DataRow("<cmp ch count >= '99'->true<-cmp>", "true")]
+		[DataRow("<cmp ch count >= 1->true<-cmp>", "true")]
+		[DataRow("<cmp ch count > 1->true<-cmp>", "true")]
+		[DataRow("<cmp ch count <= 100->true<-cmp>", "true")]
+		[DataRow("<cmp ch count < 100->true<-cmp>", "true")]
+		[DataRow("<cmp ch count = 2->true<-cmp>", "true")]
+		[DataRow("<cmp author >= '3'->true<-cmp>", "true")]
+		[DataRow("<cmp author >= 3->true<-cmp>", "")]
+		[DataRow("<cmp author >= 2->true<-cmp>", "true")]
+		[DataRow("<cmp author #= 2->true<-cmp>", "true")]
+		[DataRow("<cmp author = 'Arthur Conan Doyle'->true<-cmp>", "true")]
+		[DataRow("<cmp author[format({L})] = 'Doyle'->true<-cmp>", "true")]
+		[DataRow("<!cmp author[format({L})] = 'Doyle'->false<-cmp>", "")]
+		[DataRow("<cmp author[format({L})] != 'Doyle'->true<-cmp>", "true")]
+		[DataRow("<!cmp author[format({L})] != 'Doyle'->false<-cmp>", "")]
+		[DataRow("<cmp author[format({L})separator(:)] = 'Doyle:Fry'->true<-cmp>", "true")]
+		[DataRow(@"<cmp author[slice(99)] =~ '.\*'->true<-cmp>", "")]
+		[DataRow("<cmp author[slice(99)separator(:)] =~ '.*'->true<-cmp>", "")]
+		[DataRow("<cmp author[slice(-9)separator(:)] =~ '.*'->true<-cmp>", "")]
+		[DataRow("<cmp author[slice(2..1)separator(:)] ~ '.*'->true<-cmp>", "")]
+		[DataRow("<cmp author[slice(-1..1)separator(:)] ~ '.*'->true<-cmp>", "")]
+		[DataRow("<cmp author[slice(-1..-2)separator(:)] ~ '.*'->true<-cmp>", "")]
+		[DataRow("<cmp author = 'Sherlock'->true<-cmp>", "")]
+		[DataRow("<!cmp author = 'Sherlock'->false<-cmp>", "false")]
+		[DataRow("<cmp author != 'Sherlock'->true<-cmp>", "true")]
+		[DataRow("<!cmp author != 'Sherlock'->false<-cmp>", "")]
+		[DataRow("<cmp tag = 'Tag1'->true<-cmp>", "true")]
+		[DataRow("<cmp tag[separator(:)slice(-2..)] = 'Tag2:Tag3'->true<-cmp>", "true")]
+		[DataRow("<cmp audible subtitle[3] = 'an'->true<-cmp>", "")]
+		[DataRow("<cmp audible subtitle[3] = 'an '->true<-cmp>", "true")]
+		[DataRow("<cmp audible subtitle[3] = ' an'->true<-cmp>", "")]
+		[DataRow("<cmp audible subtitle[3] = ' an '->true<-cmp>", "")]
+		[DataRow("<cmp minutes > '42'->true<-cmp>", "true")]
+		[DataRow("<cmp minutes > 42->true<-cmp>", "true")]
+		public void Cmp_test(string template, string expected)
+		{
+			var bookDto = GetLibraryBook();
+			var multiDto = new MultiConvertFileProperties
+			{
+				PartsPosition = 1,
+				PartsTotal = 2,
+				Title = bookDto.Title,
+				OutputFileName = "outputfile.m4b"
+			};
+
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate
+				.GetFilename(bookDto, multiDto, "", "", culture: null, replacements: Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+			fileTemplate.Errors.Should().HaveCount(0);
+			fileTemplate.Warnings.Should().HaveCount(1); // "Should use tags. Eg: <title>"
+		}
+
+		[TestMethod]
 		[DataRow("<series>", "Series A, Series B, Series C, Series D")]
 		[DataRow("<series[]>", "Series A, Series B, Series C, Series D")]
 		[DataRow("<series[slice(2..3)]>", "Series B, Series C")]

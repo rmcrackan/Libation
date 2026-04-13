@@ -66,4 +66,7 @@ public sealed class TemplateTags : ITemplateTag
 	public static TemplateTags IfAbridged { get; } = new("if abridged", "Only include if abridged", "<if abridged-><-if abridged>", "<if abridged->...<-if abridged>");
 	public static TemplateTags Has { get; } = new("has", "Only include if PROPERTY has a value (i.e. not null or empty)", "<has -><-has>", "<has PROPERTY->...<-has>");
 	public static TemplateTags Is { get; } = new("is", "Only include if PROPERTY has a value satisfying the check (i.e. string comparison)", "<is -><-is>", "<is PROPERTY->...<-is>");
+
+	public static TemplateTags Cmp { get; } = new("cmp", "Only include if first PROPERTY has a value satisfying the check (i.e. string comparison) against the second PROPERTY", "<cmp -><-cmp>",
+		"<cmp PROPERTY OP PROPERTY->...<-cmp>");
 }

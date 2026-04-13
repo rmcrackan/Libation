@@ -63,6 +63,17 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 		AddPropertyTag(new ConditionalTag(templateTag, Options, Parameter, valueProvider));
 	}
 
+	/// <summary>
+	/// Register a conditional tag.
+	/// </summary>
+	/// <param name="templateTag"></param>
+	/// <param name="valueProvider1">A <see cref="ValueProvider{T}"/> to get the first condition's value. The values will be evaluated by a check specified by the tag itself.</param>
+	/// <param name="valueProvider2">A <see cref="ValueProvider{T}"/> to get the second condition's value. The values will be evaluated by a check specified by the tag itself.</param>
+	public void Add(ITemplateTag templateTag, ValueProvider<TClass> valueProvider1, ValueProvider<TClass> valueProvider2)
+	{
+		AddPropertyTag(new ConditionalTag(templateTag, Options, Parameter, valueProvider1, valueProvider2));
+	}
+
 	private partial class ConditionalTag : TagBase, IClosingPropertyTag
 	{
 		private static readonly TimeSpan RegexpCheckTimeout = TimeSpan.FromMilliseconds(100);
@@ -70,7 +81,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 		public override Regex NameMatcher { get; }
 		public Regex NameCloseMatcher { get; }
 
-		private Func<string, string?, string?, Expression> CreateConditionExpression { get; }
+		private Func<string, string?, string?, string?, Expression> CreateConditionExpression { get; }
 
 		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, Expression conditionExpression)
 			: base(templateTag, conditionExpression)
@@ -79,7 +90,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			NameMatcher = new Regex($"^<(?<not>!)?{tagNameRe}->", options);
 			NameCloseMatcher = new Regex($"^<-{tagNameRe}>", options);
 
-			CreateConditionExpression = (_, _, _) => conditionExpression;
+			CreateConditionExpression = (_, _, _, _) => conditionExpression;
 		}
 
 		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, ParameterExpression parameter, ValueProvider<TClass> valueProvider, ConditionEvaluator conditionEvaluator)
@@ -98,7 +109,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 				, options);
 			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options);
 
-			CreateConditionExpression = (_, property, _)
+			CreateConditionExpression = (_, property, _, _)
 				=> ConditionEvaluatorCall(conditionEvaluator,
 					ValueProviderCall(templateTag, parameter, valueProvider, property),
 					Expression.Constant(null));
@@ -128,12 +139,46 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 				, options);
 			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options);
 
-			CreateConditionExpression = (exactName, property, checkString) =>
+			CreateConditionExpression = (exactName, property, checkString, _) =>
 			{
 				var (value, conditionEvaluator) = GetPredicate(exactName, checkString);
 				return ConditionEvaluatorCall(conditionEvaluator,
 					ValueProviderCall(templateTag, parameter, valueProvider, property),
 					BuildArgument(value, conditionEvaluator.Method.GetParameters()[1].ParameterType));
+			};
+		}
+
+		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, ParameterExpression parameter, ValueProvider<TClass> valueProvider1, ValueProvider<TClass> valueProvider2)
+			: base(templateTag, Expression.Constant(false))
+		{
+			NameMatcher = new Regex($"""
+			                         (?x)                     # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
+			                         ^<(?<not>!)?             # tags start with a '<'. Condtionals allow an optional ! captured in <not> to negate the condition
+			                         {TagNameForRegex()}      # next the tagname needs to be matched with space being made optional. Also escape all '#'
+			                         \s+                      # Separate the following with whitespace
+			                         (?<property>(?:          # capture the <property>
+			                               '(?:[^']|'')*'     # - allow 'string' to be included in the format, with '' being an escaped ' character
+			                             | "(?:[^"]|"")*"     # - allow "string" to be included in the format, with "" being an escaped " character
+			                             | [^:\#!≡=≠~<>≤≥&∉∌∈∌⋂⊆⊇⊂⊃-]  # - match any character with some exclusions that should only be used in operands
+			                         ) +? (?<!\s))            # - don't let <property> end with a whitepace. Otherwise "<tagname  = tag2->" would be matchable.
+			                         \s+                      # Separate the following operand with whitespace
+			                         (?<check_or_op>          # capture operator in <op> and <num_op> with every char escapable
+			                             [\#!≡=≠~<>≤≥&∉∌∈∌⋂⊆⊇⊂⊃-]+  # allow a wide range of operators, all non alphanumeric
+			                             | :[a-z_]+:          # allow :named: operators for readability, e.g. :contains:
+			                         ) \s+                    # ignore space between operator and second property
+			                         (?<second_property>.+?   # - capture the <second_property> non greedy so it won't end on whitespace
+			                             (?<!\s))             # - don't let <second_property> end with a whitepace. Otherwise "<tagname tag1 =  ->" would be matchable.
+			                         \s*->                    # Opening tags end with '->' and closing tags begin with '<-', so both sides visually point toward each other
+			                         """
+				, options);
+			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options);
+
+			CreateConditionExpression = (exactName, property1, checkString, property2) =>
+			{
+				var (_, conditionEvaluator) = GetPredicate(exactName, checkString);
+				return ConditionEvaluatorCall(conditionEvaluator,
+					ValueProviderCall(templateTag, parameter, valueProvider1, property1),
+					ValueProviderCall(templateTag, parameter, valueProvider2, property2));
 			};
 		}
 
@@ -166,7 +211,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 
 		private static (Object, ConditionEvaluator) GetPredicate(string exactName, string? checkString)
 		{
-			if (checkString == null)
+			if (checkString is null)
 				return ("", (v1, v2, _) => v1 switch
 				{
 					null => false,
@@ -189,11 +234,12 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 					"#<" or "<" => (v1, v2, _) => v1 < v2,
 					_ => throw new ArgumentOutOfRangeException() // this should never happen because the regex only allows these values
 				};
-				return (Convert.ToInt32(valStr),
+				int.TryParse(valStr, out var valInt);
+				return (valInt,
 					(v1, v2, culture) => v1 is not null && v2 is not null && checkInt(ToIntObject(v1), ToIntObject(v2), culture));
 			}
 
-			Func<object, object, CultureInfo?, bool> checkItem = Unescape(match.Groups["op"]) switch
+			Func<object, object, CultureInfo?, bool> checkItem = match.Groups["op"].Value switch
 				{
 					"=" or "" => GetStringEqCheck(),
 					"!=" or "!" => Invert(GetStringEqCheck()),
@@ -205,7 +251,9 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 				(v1, v2, culture) => (v1, v2) switch
 				{
 					(null, _) => false,
+					(_, null) => false,
 					(IEnumerable<object> e1, _) => e1.Any(l => checkItem(l, v2, culture)),
+					(_, IEnumerable<object> e2) => e2.Any(r => checkItem(v1, r, culture)),
 					_ => checkItem(v1, v2, culture)
 				});
 		}
@@ -222,13 +270,18 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			};
 		}
 
-		private static Func<object, object, CultureInfo?, bool> Invert(Func<object, object, CultureInfo?, bool> condition) => (v1, v2, culture) => !condition(v1, v2, culture);
+		private static Func<T, T, CultureInfo?, bool> Invert<T>(Func<T, T, CultureInfo?, bool> condition) => (v1, v2, culture) => !condition(v1, v2, culture);
 
 		private static Func<object, object, CultureInfo?, bool> GetStringEqCheck()
 		{
-			return (v1, v2, culture) => (culture ?? CultureInfo.CurrentCulture).CompareInfo.Compare(v1?.ToString(), v2.ToString(), CompareOptions.IgnoreCase) == 0;
+			return (v1, v2, culture) => GetStringComparer(culture).Equals(v1?.ToString(), v2.ToString());
 		}
 
+		private static StringComparer GetStringComparer(CultureInfo? culture)
+		{
+			return StringComparer.Create(culture ?? CultureInfo.CurrentCulture, ignoreCase: true);
+		}
+		
 		/// <summary>
 		/// Build a regular expression check. Uses culture-invariant matching for thread-safety and consistency.
 		/// Applies a timeout to prevent regex patterns from causing excessive backtracking and blocking.
@@ -322,7 +375,8 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			var getBool = CreateConditionExpression(
 				exactName,
 				matchData.GetValueOrDefault("property")?.Value,
-				matchData.GetValueOrDefault("check_or_op")?.ValueOrNull());
+				matchData.GetValueOrDefault("check_or_op")?.ValueOrNull(),
+				matchData.GetValueOrDefault("second_property")?.ValueOrNull());
 			return matchData["not"].Success ? Expression.Not(getBool) : getBool;
 		}
 
@@ -330,8 +384,8 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 		                (?x)                       # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
 		                ^(?<op>(?<num_op>          # anchor at start of linecapture operator in <op> and <num_op> with every char escapable
 		                	      \#!?=            # - numerical operators: #= #!=
-		                	    | \#[<>]=?         # - numerical operators: #>= #<= #> #<
-		                	    |   [<>]=?         # - numerical operators: >= <= > <
+		                	    | \#[<>]=?         # - numerical operators: #<= #>= #< #>
+		                	    |   [<>]=?         # - numerical operators: <= >= < >
 		                    ) | [=!]?~ | !=? | =?  # - string comparison operators including ~ for regexp, = and !=. No operator is like =
 		                ) \s*?                     # ignore space between operator and value
 		                (?<val>(?(num_op)          # capture value in <val>
