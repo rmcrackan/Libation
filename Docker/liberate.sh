@@ -108,7 +108,7 @@ setup_db() {
     error "database not found and creation is disabled"
     exit 1
   fi
-  ln -s "${FILE}" "${LIBATION_CONFIG_INTERNAL}/LibationContext.db"
+  ln -sf "${FILE}" "${LIBATION_CONFIG_INTERNAL}/LibationContext.db"
 }
 
 run() {
