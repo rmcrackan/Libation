@@ -646,6 +646,12 @@ namespace TemplatesTests
 		[DataRow("<cmp audible subtitle[3] = ' an '->true<-cmp>", "")]
 		[DataRow("<cmp minutes > '42'->true<-cmp>", "true")]
 		[DataRow("<cmp minutes > 42->true<-cmp>", "true")]
+		[DataRow("<cmp tag = 'Tag2'->true<-cmp>", "true")]
+		[DataRow("<cmp tag >> 'Tag2'->true<-cmp>", "true")]
+		[DataRow("<cmp tag :contains: 'Tag2'->true<-cmp>", "true")]
+		[DataRow("<cmp tag && tag->true<-cmp>", "true")]
+		[DataRow("<cmp tag >=> tag->true<-cmp>", "true")]
+		[DataRow("<cmp tag >-> tag->true<-cmp>", "")]
 		public void Cmp_test(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
