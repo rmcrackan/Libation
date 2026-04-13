@@ -22,12 +22,12 @@ public partial record RegionInfoDto : IFormattable
 	{
 	}
 
-	public RegionInfoDto(RegionInfo value, string hint, string defaultFormat)
+	public RegionInfoDto(RegionInfo? value, string hint, string defaultFormat)
 	{
 		Original = hint;
 		DefaultFormat = defaultFormat;
 		Value = value;
-		Culture = GetCultureInfo(value);
+		Culture = value is null ? null : GetCultureInfo(value);
 	}
 
 	private static RegionInfo? GetRegion(string input)
@@ -60,11 +60,11 @@ public partial record RegionInfoDto : IFormattable
 	[GeneratedRegex(@"\((?<displayName>.+)\)")]
 	private static partial Regex ExtractRegionName();
 
-	private static CultureInfo GetCultureInfo(RegionInfo region)
+	private static CultureInfo? GetCultureInfo(RegionInfo region)
 	{
 		// find culture for region
 		return CultureInfo.GetCultures(CultureTypes.SpecificCultures)
-			.First(c => Equals(new RegionInfo(c.Name), region));
+			.FirstOrDefault(c => Equals(new RegionInfo(c.Name), region));
 	}
 
 

@@ -30,7 +30,7 @@ public record CultureInfoDto : IFormattable
 	{
 	}
 
-	public CultureInfoDto(CultureInfo value, string hint, string defaultFormat)
+	public CultureInfoDto(CultureInfo? value, string hint, string defaultFormat)
 	{
 		Original = hint;
 		DefaultFormat = defaultFormat;
