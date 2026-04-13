@@ -49,7 +49,7 @@ jobs:
 
       - name: Release
         id: release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: Libation ${{ needs.prerelease.outputs.version }}
           body: "<Put a body here>"
