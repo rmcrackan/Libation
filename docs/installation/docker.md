@@ -71,6 +71,10 @@ sudo docker run -d \
 
 If the user it's running as is correct, and it still cannot write, be sure to check whether the files and/or folders might be owned by the wrong user. You can use the `chown` command to change the owner of the file to the correct user and group number, for example: `chown -R 1001:1001 /mnt/audiobooks /mnt/libation-config`
 
+## Troubleshooting
+
+- **Library scan appears to hang in Docker:** Try setting `ImportEpisodes` to `false` in `Settings.json` on your config volume and run again. That turns off the extra episode/podcast catalog requests during import and helps narrow down whether the stall is in that path versus auth or the network.
+
 ## Advanced Database Options
 
 The docker image supports an optional database mount location defined by `LIBATION_DB_DIR`. This allows the database to be mounted as read/write, while allowing the rest of the configuration files to be mounted as read only. This is specifically useful if running in Kubernetes where you can use Configmaps and Secrets to define the configuration. If the `LIBATION_DB_DIR` is mounted, it will be used, otherwise it will look for the database in `LIBATION_CONFIG_DIR`. If it does not find the database in the expected location, it will attempt to make an empty database there.
