@@ -3,47 +3,74 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using AudibleApi;
 using FileManager.NamingTemplate;
 
 namespace LibationFileManager.Templates;
 
-public partial record RegionInfoDto : IFormattable
+public partial record LocaleDto : IFormattable
 {
+	public string Original { get; }
+	public Locale Locale { get; set; }
 	private RegionInfo? Value { get; }
 	private CultureInfo? Culture { get; }
 	private string DefaultFormat { get; }
-	public string Original { get; }
 
-	public RegionInfoDto(string hint) : this(hint, "{O}")
+
+	public LocaleDto(string hint) : this(hint, "{O}")
 	{
 	}
 
-	public RegionInfoDto(string hint, string defaultFormat) : this(GetRegion(hint), hint, defaultFormat)
+	public LocaleDto(string hint, string defaultFormat) : this(Localization.Get(hint), hint, defaultFormat)
 	{
 	}
 
-	public RegionInfoDto(RegionInfo? value, string hint, string defaultFormat)
+	public LocaleDto(Locale locale, string hint, string defaultFormat)
 	{
+		var (regionInfo, cultureInfo) = GetRegion(locale.Language, locale.CountryCode, hint);
+
 		Original = hint;
+		Locale = locale;
+		Value = regionInfo;
+		Culture = cultureInfo ?? (regionInfo is null ? null : GetCultureInfo(regionInfo));
 		DefaultFormat = defaultFormat;
-		Value = value;
-		Culture = value is null ? null : GetCultureInfo(value);
 	}
 
-	private static RegionInfo? GetRegion(string input)
+	private static (RegionInfo?, CultureInfo?) GetRegion(string language, string countrcode, string input)
 	{
-		if (input.StartsWith("pre-amazon - ", StringComparison.OrdinalIgnoreCase)) input = input.Substring(13);
-		if (string.Equals(input, "uk", StringComparison.OrdinalIgnoreCase)) return new RegionInfo("GB");
+		CultureInfo? culture = null;
+		if (language != string.Empty)
+			try
+			{
+				culture = CultureInfo.GetCultureInfo(language.Length == 2 ? $"{language}-{countrcode}" : language);
+			}
+			catch
+			{
+				// ignored
+			}
+
 		try
 		{
-			return new RegionInfo(input.ToUpperInvariant());
+			return (new RegionInfo(countrcode), culture);
+		}
+		catch
+		{
+			// ignored
+		}
+
+		if (culture is not null)
+			return (new RegionInfo(culture.Name), culture);
+
+		try
+		{
+			return (new RegionInfo(input), culture);
 		}
 		catch
 		{
 			return CultureInfo.GetCultures(CultureTypes.SpecificCultures)
-				.Select(c => new RegionInfo(c.Name))
-				.FirstOrDefault(r =>
-					string.Equals(r.EnglishName, input, StringComparison.OrdinalIgnoreCase));
+				.Select(c => (new RegionInfo(c.Name), c))
+				.FirstOrDefault(rAndC =>
+					string.Equals(rAndC.Item1.EnglishName, input, StringComparison.OrdinalIgnoreCase));
 		}
 	}
 
@@ -68,9 +95,9 @@ public partial record RegionInfoDto : IFormattable
 	}
 
 
-	private static readonly Dictionary<string, Func<RegionInfoDto, object?>> FormatReplacements = new(StringComparer.OrdinalIgnoreCase)
+	private static readonly Dictionary<string, Func<LocaleDto, object?>> FormatReplacements = new(StringComparer.OrdinalIgnoreCase)
 	{
-		{ "ID", dto => dto.Value?.Name },
+		{ "ID", dto => dto.Locale?.MarketPlaceId },
 		{ "I", dto => dto.Value?.TwoLetterISORegionName },
 		{ "I2", dto => dto.Value?.TwoLetterISORegionName },
 		{ "I3", dto => dto.Value?.ThreeLetterISORegionName },
@@ -78,6 +105,8 @@ public partial record RegionInfoDto : IFormattable
 		{ "E", dto => dto.Value?.EnglishName },
 		{ "N", dto => dto.Value?.NativeName },
 		{ "O", dto => dto.Original },
+		{ "T", dto => dto.Locale.TopDomain },
+		{ "L", dto => dto.Culture?.Name },
 		{ "D", dto => dto.GetLocalizedRegionName() }, // localized
 	};
 

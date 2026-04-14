@@ -59,7 +59,7 @@ public static class UtilityExtensions
 			Title = libraryBook.Book.Title,
 			Subtitle = libraryBook.Book.Subtitle,
 			TitleWithSubtitle = libraryBook.Book.TitleWithSubtitle,
-			Locale = new RegionInfoDto(libraryBook.Book.Locale),
+			Locale = new LocaleDto(libraryBook.Book.Locale),
 			YearPublished = libraryBook.Book.DatePublished?.Year,
 			DatePublished = libraryBook.Book.DatePublished,
 

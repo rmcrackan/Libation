@@ -10,7 +10,7 @@ public class BookDto
 	public string? Title { get; set; }
 	public string? Subtitle { get; set; }
 	public string? TitleWithSubtitle { get; set; }
-	public RegionInfoDto? Locale { get; set; }
+	public LocaleDto? Locale { get; set; }
 	public int? YearPublished { get; set; }
 
 	public IEnumerable<ContributorDto>? Authors { get; set; }
