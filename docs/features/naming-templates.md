@@ -13,7 +13,7 @@ These are the naming template tags currently supported by Libation.
 These tags will be replaced in the template with the audiobook's values.
 
 | Tag                      | Description                                                    | Type                                   |
-| ------------------------ | -------------------------------------------------------------- | -------------------------------------- |
+|--------------------------|----------------------------------------------------------------| -------------------------------------- |
 | \<id\> **†**             | Audible book ID (ASIN)                                         | Text                                   |
 | \<title\>                | Full title with subtitle                                       | [Text](#text-formatters)               |
 | \<title short\>          | Title. Stop at first colon                                     | [Text](#text-formatters)               |
@@ -41,6 +41,8 @@ These tags will be replaced in the template with the audiobook's values.
 | \<year\>                 | Year published                                                 | [Number](#number-formatters)           |
 | \<language\>             | Book's language                                                | [Language](#language-formatters)       |
 | \<language short\> **†** | Book's language abbreviated. Eg: ENG                           | Text                                   |
+| \<os\>                   | Language currently set in the operating system                 | [Language](#language-formatters)       |
+| \<ui\>                   | User interface language                                        | [Language](#language-formatters)       |
 | \<file date\>            | File creation date/time.                                       | [DateTime](#date-formatters)           |
 | \<pub date\>             | Audiobook publication date                                     | [DateTime](#date-formatters)           |
 | \<date added\>           | Date the book added to your Audible account                    | [DateTime](#date-formatters)           |
