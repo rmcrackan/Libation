@@ -156,11 +156,14 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			                         ^<(?<not>!)?             # tags start with a '<'. Condtionals allow an optional ! captured in <not> to negate the condition
 			                         {TagNameForRegex()}      # next the tagname needs to be matched with space being made optional. Also escape all '#'
 			                         \s+                      # Separate the following with whitespace
-			                         (?<property>(?:          # capture the <property>
+			                         (?<property>             # capture the <property>
 			                               '(?:[^']|'')*'     # - allow 'string' to be included in the format, with '' being an escaped ' character
 			                             | "(?:[^"]|"")*"     # - allow "string" to be included in the format, with "" being an escaped " character
-			                             | [^:\#!≡=≠~<>≤≥&∉∌∈∌⋂⊆⊇⊂⊃-]  # - match any character with some exclusions that should only be used in operands
-			                         ) +? (?<!\s))            # - don't let <property> end with a whitepace. Otherwise "<tagname  = tag2->" would be matchable.
+			                             | (?: \[ (?: \\.     # - properties may have optional formatting details enclosed in '[' and ']'. '\' escapes allways the next character
+			                                       | [^\\\]]  #   unescaped characters except ']' and '\' are allowed in the formatting details
+			                                       )* \]      #   closing the formatting details part
+			                                   | . )+?        # - match any character to form the property name. Capture non greedy so it won't match the operator part.
+			                            (?<!\s))              # - don't let <property> end with a whitepace. Otherwise "<tagname  = tag2->" would be matchable.
 			                         \s+                      # Separate the following operand with whitespace
 			                         (?<check_or_op>          # capture operator in <op> and <num_op> with every char escapable
 			                             [\#!≡=≠~<>≤≥&∉∌∈∌⋂⊆⊇⊂⊃-]+  # allow a wide range of operators, all non alphanumeric

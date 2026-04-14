@@ -639,7 +639,7 @@ namespace TemplatesTests
 		[DataRow("<cmp author != 'Sherlock'->true<-cmp>", "true")]
 		[DataRow("<!cmp author != 'Sherlock'->false<-cmp>", "")]
 		[DataRow("<cmp tag = 'Tag1'->true<-cmp>", "true")]
-		[DataRow("<cmp tag[separator(:)slice(-2..)] = 'Tag2:Tag3'->true<-cmp>", "true")]
+		[DataRow("<cmp tag[separator( : )slice(-2..)] = 'Tag2 : Tag3'->true<-cmp>", "true")]
 		[DataRow("<cmp audible subtitle[3] = 'an'->true<-cmp>", "")]
 		[DataRow("<cmp audible subtitle[3] = 'an '->true<-cmp>", "true")]
 		[DataRow("<cmp audible subtitle[3] = ' an'->true<-cmp>", "")]
