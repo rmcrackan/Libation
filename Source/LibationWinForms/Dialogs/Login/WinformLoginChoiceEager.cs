@@ -30,9 +30,13 @@ public class WinformLoginChoiceEager : ILoginChoiceEager
 		{
 			try
 			{
-				using var weblogin = new WebLoginDialog(_account.AccountId, choiceIn);
-				if (ShowDialog(weblogin))
-					return Task.FromResult(ChoiceOut.External(weblogin.ResponseUrl));
+				// Time-of-use: user may turn off embedded browser before this runs — do not construct WebView2.
+				if (Configuration.Instance.UseWebView)
+				{
+					using var weblogin = new WebLoginDialog(_account.AccountId, choiceIn);
+					if (ShowDialog(weblogin))
+						return Task.FromResult(ChoiceOut.External(weblogin.ResponseUrl));
+				}
 			}
 			catch (Exception ex)
 			{

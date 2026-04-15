@@ -30,6 +30,7 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 	{
 		try
 		{
+			// Embedded browser is optional; honor UseWebView (getter also forces false under Linux Snap).
 			if (Configuration.Instance.UseWebView)
 			{
 				try
@@ -70,6 +71,10 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 
 	private async Task<ChoiceOut?> BrowserLoginAsync(ChoiceIn shoiceIn)
 	{
+		// Time-of-use: setting can change before Show (e.g. settings saved) — never open NativeWebView when disabled.
+		if (!Configuration.Instance.UseWebView)
+			return null;
+
 		TaskCompletionSource<ChoiceOut?> tcs = new();
 
 		NativeWebDialog dialog = new()
@@ -110,6 +115,19 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 			dialog.Source = new Uri(shoiceIn.LoginUrl);
 		};
 
+		if (!Configuration.Instance.UseWebView)
+		{
+			try
+			{
+				dialog.Close();
+			}
+			catch
+			{
+				/* not shown */
+			}
+			return null;
+		}
+
 		// NativeWebDialog can fault on a posted dispatcher job (e.g. missing libwebkit2gtk on Linux), which bypasses a try/catch around Show().
 		void onUnhandledException(object? sender, DispatcherUnhandledExceptionEventArgs e)
 		{
@@ -130,6 +148,19 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 		Dispatcher.UIThread.UnhandledException += onUnhandledException;
 		try
 		{
+			if (!Configuration.Instance.UseWebView)
+			{
+				try
+				{
+					dialog.Close();
+				}
+				catch
+				{
+					/* not shown */
+				}
+				return null;
+			}
+
 			try
 			{
 				if (!Configuration.IsLinux && App.MainWindow is TopLevel topLevel)
