@@ -39,11 +39,21 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 				}
 				catch (Exception ex) when (WebView2LoginErrorMessage.IsWebView2SignInInfrastructureFailure(ex))
 				{
-					await MessageBox.ShowAdminAlert(
-						App.MainWindow,
-						WebView2LoginErrorMessage.ExplainerBody,
-						WebView2LoginErrorMessage.Caption,
-						ex);
+					// Linux (e.g. missing WebKit2GTK): go straight to external browser — same outcome as turning off embedded sign-in.
+					if (OperatingSystem.IsLinux())
+					{
+						Serilog.Log.Logger.Information(
+							ex,
+							"Embedded sign-in browser is not available; continuing with external browser sign-in.");
+					}
+					else
+					{
+						await MessageBox.ShowAdminAlert(
+							App.MainWindow,
+							WebView2LoginErrorMessage.ExplainerBody,
+							WebView2LoginErrorMessage.Caption,
+							ex);
+					}
 				}
 			}
 		}
