@@ -32,9 +32,9 @@ public static class SearchEngineCommands
 				fullReIndex(engine);
 				return func(engine);
 			}
-			catch (ArgumentException ex) when (SearchEngine.IsRecoverableCorruptIndexException(ex))
+			catch (Exception ex) when (SearchEngine.IsRecoverableCorruptIndexException(ex))
 			{
-				Log.Warning(ex, "Search index unreadable; rebuilding and retrying query.");
+				Log.Warning(ex, "Search index unreadable or corrupt; rebuilding and retrying query.");
 				fullReIndex(engine);
 				return func(engine);
 			}
@@ -83,9 +83,9 @@ public static class SearchEngineCommands
 			fullReIndex(new SearchEngine());
 			update(action);
 		}
-		catch (ArgumentException ex) when (SearchEngine.IsRecoverableCorruptIndexException(ex))
+		catch (Exception ex) when (SearchEngine.IsRecoverableCorruptIndexException(ex))
 		{
-			Log.Warning(ex, "Search index unreadable; rebuilding and retrying.");
+			Log.Warning(ex, "Search index unreadable or corrupt; rebuilding and retrying.");
 			fullReIndex(new SearchEngine());
 			update(action);
 		}
