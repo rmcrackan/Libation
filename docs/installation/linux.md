@@ -6,6 +6,16 @@
 
 New Libation releases are automatically packed into `.deb` and `.rpm` package and are available from the [Libation repository's releases page](https://github.com/rmcrackan/Libation/releases).
 
+## Runtime dependencies (Audible sign-in)
+
+The Chardonnay desktop build can log into Audible inside the app when the setting to use Libation's built-in web browser for sign-in is enabled (Import / library settings). On Linux that embedded flow uses WebKit2GTK; the native library is usually exposed as `libwebkit2gtk` (exact package names vary by distro). It is required for in-app OAuth when adding an account or signing in again through that path.
+
+If WebKit2GTK is not installed, use external browser sign-in instead (turn off the built-in browser option in the same settings area), or install your distribution's WebKit2GTK packages, for example:
+
+- Arch Linux: `webkit2gtk` or `webkit2gtk-4.1`
+- Debian / Ubuntu: WebKit2GTK 4.x packages such as `libwebkit2gtk-4.1-0` (names can differ by release)
+- Fedora / RHEL: the `webkit2gtk4` / WebKit2GTK packages provided for your release
+
 Run these commands in your terminal to download and install Libation. **Make sure you replace** `X.X.X` with the latest Libation version and `ARCH` with your CPU's architechture (either `amd64` or `arm64`).
 
 ### Debian

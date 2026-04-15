@@ -30,6 +30,7 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 	{
 		try
 		{
+			// Embedded browser is optional; honor UseWebView (getter also forces false under Linux Snap).
 			if (Configuration.Instance.UseWebView)
 			{
 				try
@@ -39,11 +40,21 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 				}
 				catch (Exception ex) when (WebView2LoginErrorMessage.IsWebView2SignInInfrastructureFailure(ex))
 				{
-					await MessageBox.ShowAdminAlert(
-						App.MainWindow,
-						WebView2LoginErrorMessage.ExplainerBody,
-						WebView2LoginErrorMessage.Caption,
-						ex);
+					// Linux (e.g. missing WebKit2GTK): go straight to external browser — same outcome as turning off embedded sign-in.
+					if (OperatingSystem.IsLinux())
+					{
+						Serilog.Log.Logger.Information(
+							ex,
+							"Embedded sign-in browser is not available; continuing with external browser sign-in.");
+					}
+					else
+					{
+						await MessageBox.ShowAdminAlert(
+							App.MainWindow,
+							WebView2LoginErrorMessage.ExplainerBody,
+							WebView2LoginErrorMessage.Caption,
+							ex);
+					}
 				}
 			}
 		}
@@ -60,6 +71,10 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 
 	private async Task<ChoiceOut?> BrowserLoginAsync(ChoiceIn shoiceIn)
 	{
+		// Time-of-use: setting can change before Show (e.g. settings saved) — never open NativeWebView when disabled.
+		if (!Configuration.Instance.UseWebView)
+			return null;
+
 		TaskCompletionSource<ChoiceOut?> tcs = new();
 
 		NativeWebDialog dialog = new()
@@ -100,12 +115,70 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 			dialog.Source = new Uri(shoiceIn.LoginUrl);
 		};
 
-		if (!Configuration.IsLinux && App.MainWindow is TopLevel topLevel)
-			dialog.Show(topLevel);
-		else
-			dialog.Show();
+		if (!Configuration.Instance.UseWebView)
+		{
+			try
+			{
+				dialog.Close();
+			}
+			catch
+			{
+				/* not shown */
+			}
+			return null;
+		}
 
-		return await tcs.Task;
+		// NativeWebDialog can fault on a posted dispatcher job (e.g. missing libwebkit2gtk on Linux), which bypasses a try/catch around Show().
+		void onUnhandledException(object? sender, DispatcherUnhandledExceptionEventArgs e)
+		{
+			if (!WebView2LoginErrorMessage.IsWebView2SignInInfrastructureFailure(e.Exception))
+				return;
+			e.Handled = true;
+			try
+			{
+				dialog.Close();
+			}
+			catch
+			{
+				/* ignore */
+			}
+			tcs.TrySetException(e.Exception);
+		}
+
+		Dispatcher.UIThread.UnhandledException += onUnhandledException;
+		try
+		{
+			if (!Configuration.Instance.UseWebView)
+			{
+				try
+				{
+					dialog.Close();
+				}
+				catch
+				{
+					/* not shown */
+				}
+				return null;
+			}
+
+			try
+			{
+				if (!Configuration.IsLinux && App.MainWindow is TopLevel topLevel)
+					dialog.Show(topLevel);
+				else
+					dialog.Show();
+			}
+			catch (Exception ex) when (WebView2LoginErrorMessage.IsWebView2SignInInfrastructureFailure(ex))
+			{
+				tcs.TrySetException(ex);
+			}
+
+			return await tcs.Task;
+		}
+		finally
+		{
+			Dispatcher.UIThread.UnhandledException -= onUnhandledException;
+		}
 
 		void Dialog_EnvironmentRequested(object? sender, WebViewEnvironmentRequestedEventArgs e)
 		{
