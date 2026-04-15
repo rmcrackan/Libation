@@ -100,12 +100,44 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 			dialog.Source = new Uri(shoiceIn.LoginUrl);
 		};
 
-		if (!Configuration.IsLinux && App.MainWindow is TopLevel topLevel)
-			dialog.Show(topLevel);
-		else
-			dialog.Show();
+		// NativeWebDialog can fault on a posted dispatcher job (e.g. missing libwebkit2gtk on Linux), which bypasses a try/catch around Show().
+		void onUnhandledException(object? sender, DispatcherUnhandledExceptionEventArgs e)
+		{
+			if (!WebView2LoginErrorMessage.IsWebView2SignInInfrastructureFailure(e.Exception))
+				return;
+			e.Handled = true;
+			try
+			{
+				dialog.Close();
+			}
+			catch
+			{
+				/* ignore */
+			}
+			tcs.TrySetException(e.Exception);
+		}
 
-		return await tcs.Task;
+		Dispatcher.UIThread.UnhandledException += onUnhandledException;
+		try
+		{
+			try
+			{
+				if (!Configuration.IsLinux && App.MainWindow is TopLevel topLevel)
+					dialog.Show(topLevel);
+				else
+					dialog.Show();
+			}
+			catch (Exception ex) when (WebView2LoginErrorMessage.IsWebView2SignInInfrastructureFailure(ex))
+			{
+				tcs.TrySetException(ex);
+			}
+
+			return await tcs.Task;
+		}
+		finally
+		{
+			Dispatcher.UIThread.UnhandledException -= onUnhandledException;
+		}
 
 		void Dialog_EnvironmentRequested(object? sender, WebViewEnvironmentRequestedEventArgs e)
 		{
