@@ -10,7 +10,7 @@ public class BookDto
 	public string? Title { get; set; }
 	public string? Subtitle { get; set; }
 	public string? TitleWithSubtitle { get; set; }
-	public string? Locale { get; set; }
+	public LocaleDto? Locale { get; set; }
 	public int? YearPublished { get; set; }
 
 	public IEnumerable<ContributorDto>? Authors { get; set; }
@@ -34,7 +34,7 @@ public class BookDto
 	public string? Codec { get; set; }
 	public DateTime FileDate { get; set; } = DateTime.Now;
 	public DateTime? DatePublished { get; set; }
-	public string? Language { get; set; }
+	public CultureInfoDto? Language { get; set; }
 	public string? LibationVersion { get; set; }
 	public string? FileVersion { get; set; }
 }

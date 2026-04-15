@@ -194,7 +194,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 			                         {TagNameForRegex()}          # next the tagname needs to be matched with space being made optional. Also escape all '#'
 			                         (?:\s*                       # optional whitespace
 			                             \[  (?<format>           # optional format details enclosed in '[' and ']'. Capture inner part as <format>.
-			                                     (?:\\.           # - '\' escapes allways the next character. Especially further '\' and the closing ']'
+			                                     (?:\\.           # - '\' escapes always the next character. Especially further '\' and the closing ']'
 			                                     |'(?:[^']|'')*'  # - allow 'string' to be included in the format, with '' being an escaped ' character
 			                                     |"(?:[^"]|"")*"  # - allow "string" to be included in the format, with "" being an escaped " character
 			                                     |[^\\\]])* )     # - match any character except '\' and ']'. Format may end in whitespace!

@@ -53,7 +53,7 @@ public partial class ThemePreviewControl : UserControl
 	{
 		yield return MockLibraryBook.CreateBook(title: "Some Book 1", subtitle: "The Theming", dateAdded: System.DateTime.Now.AddDays(4)).WithBookStatus(LiberatedStatus.Liberated);
 		yield return MockLibraryBook.CreateBook(title: "Some Book 2", dateAdded: System.DateTime.Now.AddDays(3)).WithBookStatus(LiberatedStatus.PartialDownload);
-		yield return MockLibraryBook.CreateBook(title: "Some Book 3", dateAdded: System.DateTime.Now.AddDays(2), absetFromLastScan: true).WithPdfStatus(LiberatedStatus.NotLiberated);
+		yield return MockLibraryBook.CreateBook(title: "Some Book 3", dateAdded: System.DateTime.Now.AddDays(2), absentFromLastScan: true).WithPdfStatus(LiberatedStatus.NotLiberated);
 		yield return MockLibraryBook.CreateBook(title: "Some Book 4", dateAdded: System.DateTime.Now.AddDays(1)).WithBookStatus(LiberatedStatus.Error);
 		yield return MockLibraryBook.CreateBook(title: "Some Series", subtitle: "", contentType: ContentType.Parent).AddSeries("Some Series", 0);
 		yield return MockLibraryBook.CreateBook(title: "Some Episode", subtitle: "Episode 1", contentType: ContentType.Episode).AddSeries("Some Series", 1);
