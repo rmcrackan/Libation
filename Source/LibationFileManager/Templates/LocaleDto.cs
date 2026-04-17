@@ -17,17 +17,13 @@ public partial record LocaleDto : IFormattable
 	private string DefaultFormat { get; }
 
 
-	public LocaleDto(string hint) : this(hint, "{O}")
+	public LocaleDto(string hint, string defaultFormat = "{O}") : this(Localization.Get(hint), hint, defaultFormat)
 	{
 	}
 
-	public LocaleDto(string hint, string defaultFormat) : this(Localization.Get(hint), hint, defaultFormat)
+	private LocaleDto(Locale locale, string hint, string defaultFormat)
 	{
-	}
-
-	public LocaleDto(Locale locale, string hint, string defaultFormat)
-	{
-		var (regionInfo, cultureInfo) = GetRegion(locale.Language, locale.CountryCode, hint);
+		var (regionInfo, cultureInfo) = GetRegion(locale.Language, hint);
 
 		Original = hint;
 		Locale = locale;
@@ -36,34 +32,14 @@ public partial record LocaleDto : IFormattable
 		DefaultFormat = defaultFormat;
 	}
 
-	private static (RegionInfo?, CultureInfo?) GetRegion(string language, string countrcode, string input)
+	private static (RegionInfo?, CultureInfo?) GetRegion(string languageFromLocale, string input)
 	{
-		CultureInfo? culture = null;
-		if (language != string.Empty)
-			try
-			{
-				culture = CultureInfo.GetCultureInfo(language.Length == 2 ? $"{language}-{countrcode}" : language);
-			}
-			catch
-			{
-				// ignored
-			}
-
 		try
 		{
-			return (new RegionInfo(countrcode), culture);
-		}
-		catch
-		{
-			// ignored
-		}
+			if (languageFromLocale == string.Empty) return (new RegionInfo(input), null);
 
-		if (culture is not null)
+			var culture = CultureInfo.GetCultureInfo(languageFromLocale);
 			return (new RegionInfo(culture.Name), culture);
-
-		try
-		{
-			return (new RegionInfo(input), culture);
 		}
 		catch
 		{
