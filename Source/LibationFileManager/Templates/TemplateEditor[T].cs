@@ -63,7 +63,7 @@ public class TemplateEditor<T> : ITemplateEditor where T : Templates, ITemplate,
 			Title = "A Study in Scarlet",
 			TitleWithSubtitle = "A Study in Scarlet: A Sherlock Holmes Novel",
 			Subtitle = "A Sherlock Holmes Novel",
-			Locale = "us",
+			Locale = new LocaleDto("us"),
 			YearPublished = 2017,
 			Authors = [new("Arthur Conan Doyle", "B000AQ43GQ"), new("Stephen Fry - introductions", "B000APAGVS")],
 			Narrators = [new("Stephen Fry", null)],
@@ -74,7 +74,7 @@ public class TemplateEditor<T> : ITemplateEditor where T : Templates, ITemplate,
 			BitRate = 128,
 			SampleRate = 44100,
 			Channels = 2,
-			Language = "English"
+			Language = new CultureInfoDto("English"),
 		};
 
 	private static readonly MultiConvertFileProperties DefaultMultipartProperties

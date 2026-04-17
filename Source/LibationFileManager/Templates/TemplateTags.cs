@@ -49,6 +49,8 @@ public sealed class TemplateTags : ITemplateTag
 	public static TemplateTags YearPublished { get; } = new("year", "Year published");
 	public static TemplateTags Language { get; } = new("language", "Book's language");
 	public static TemplateTags LanguageShort { get; } = new("language short", "Book's language abbreviated. Eg: ENG");
+	public static TemplateTags UI { get; } = new("ui", "UI language");
+	public static TemplateTags OS { get; } = new("os", "OS language");
 
 	public static TemplateTags FileDate { get; } = new("file date", "File date/time. e.g. yyyy-MM-dd HH-mm", $"<file date [{CommonFormatters.DefaultDateFormat}]>", "<file date [...]>");
 	public static TemplateTags DatePublished { get; } = new("pub date", "Publication date. e.g. yyyy-MM-dd", $"<pub date [{CommonFormatters.DefaultDateFormat}]>", "<pub date [...]>");

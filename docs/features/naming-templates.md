@@ -13,7 +13,7 @@ These are the naming template tags currently supported by Libation.
 These tags will be replaced in the template with the audiobook's values.
 
 | Tag                      | Description                                                    | Type                                   |
-| ------------------------ | -------------------------------------------------------------- | -------------------------------------- |
+|--------------------------|----------------------------------------------------------------| -------------------------------------- |
 | \<id\> **†**             | Audible book ID (ASIN)                                         | Text                                   |
 | \<title\>                | Full title with subtitle                                       | [Text](#text-formatters)               |
 | \<title short\>          | Title. Stop at first colon                                     | [Text](#text-formatters)               |
@@ -37,10 +37,12 @@ These tags will be replaced in the template with the audiobook's values.
 | \<account nickname\>     | Audible account nickname of this book                          | [Text](#text-formatters)               |
 | \<tag\>                  | Tag(s)                                                         | [Text List](#text-list-formatters)     |
 | \<first tag\>            | First tag                                                      | [Text](#text-formatters)               |
-| \<locale\>               | Region/country                                                 | [Text](#text-formatters)               |
+| \<locale\>               | Region/country                                                 | [Region](#region-formatters)           |
 | \<year\>                 | Year published                                                 | [Number](#number-formatters)           |
-| \<language\>             | Book's language                                                | [Text](#text-formatters)               |
+| \<language\>             | Book's language                                                | [Language](#language-formatters)       |
 | \<language short\> **†** | Book's language abbreviated. Eg: ENG                           | Text                                   |
+| \<os\>                   | Language currently set in the operating system                 | [Language](#language-formatters)       |
+| \<ui\>                   | User interface language                                        | [Language](#language-formatters)       |
 | \<file date\>            | File creation date/time.                                       | [DateTime](#date-formatters)           |
 | \<pub date\>             | Audiobook publication date                                     | [DateTime](#date-formatters)           |
 | \<date added\>           | Date the book added to your Audible account                    | [DateTime](#date-formatters)           |
@@ -106,7 +108,7 @@ And this example will customize the title based on whether the book has a subtit
 
 ## Tag Formatters
 
-**Text**, **Name List**, **Number**, and **DateTime** tags can be optionally formatted using format text in square brackets after the tag name. Below is a list of supported formatters for each tag type.
+**Text**, **Name**, **Series**, **Number**, **TimeSpan**, **DateTime**, **Region**, **Language** and their **List** tags can be optionally formatted using format text in square brackets after the tag name. Below is a list of supported formatters for each tag type.
 
 ### Text Formatters
 
@@ -185,7 +187,7 @@ Here, a number format is inserted for the desired part in accordance with [Micro
 |-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------|-------------------|
 | D         | A number format with "D" instead of "0". Using this will output the total number of days and reduce the amount of minutes avalable for "H" and "M". | \<minutes[DD]\>                  | 02                |
 | H         | A number format with "H" instead of "0". Using this will output the total number of hours and reduce the amount of minutes available for "M".       | \<minutes[HH]\>                  | 62                |
-| M         | A number format with "H" instead of "0". Using this will output the total number of minutes.                                                        | \<minutes[#,#MM]\>               | 3,762             |
+| M         | A number format with "M" instead of "0". Using this will output the total number of minutes.                                                        | \<minutes[#,#MM]\>               | 3,762             |
 | D H M     | A combination of the above.                                                                                                                         | \<minutes[D'days 'MM'minutes']\> | 02days 882minutes |
 
 ### Number Formatters
@@ -220,15 +222,35 @@ You can use custom formatters to construct customized DateTime string. For more 
 |dd|2-digit day of the month|\<file date[yyyy-MM-dd]\>|2023-02-14|
 |HH<br>mm|The hour, using a 24-hour clock from 00 to 23<br>The minute, from 00 through 59.|\<file date[HH:mm]\>|14:45|
 
+### Region Formatters
+
+You can specify which part of a region you are interested in.
+
+| Formatter                                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Example Usage                                        | Example Result                        |
+|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------|---------------------------------------|
+| \{O \| I \| I2 \| I3 \| E \| N \| W \| L \| T \| ID\} | Formats the region using<br>the region part tags.<br>\{O:[Text_Formatter](#text-formatters)\} = Region as used in Libation<br>\{I:[Text_Formatter](#text-formatters)\} = Two letter ISO code<br>\{I2:[Text_Formatter](#text-formatters)\} = Two letter ISO code<br>\{I3:[Text_Formatter](#text-formatters)\} = Three letter ISO code<br>\{E:[Text_Formatter](#text-formatters)\} = English name<br>\{N:[Text_Formatter](#text-formatters)\} = Native name - OS dependent<br>\{W:[Text_Formatter](#number-formatters)\} = Unique Windows code<br>\{L:[Text_Formatter](#text-formatters)\} = Lang code used for this region/store<br>\{T:[Text_Formatter](#number-formatters)\} = TLD under which the audible store is hosted<br>\{ID:[Text_Formatter](#text-formatters)\} = Region code<br> <br><br>Formatter parts are optional and introduced by the colon. If specified the string will be used to format the part using the corresponding formatter.<br><br>Default is \{O\} | `<locale[{I} ({E})]>`<hr>`www.audible.<locale[{T}]>` | US (United States)<hr>www.audible.com |
+| \{D\}  **†**                                          | Display name interpreted by the current language settings.<br>To ensure output in a specific language the lang-code to use might be specified with a leading '@'.<br>Formatter part is also optional and introduced by the colon.<br>\{D@LANG:[Text_Formatter](#text-formatters)\}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `<locale[{D@es:u}]>`                                 | ESTADOS UNIDOS                        |
+
+**†** LANG may be any code from the [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) standard like `es` for Spanish, `en` for English, `de` for German, etc. or even a [IETF language tag](https://en.wikipedia.org/wiki/IETF_language_tag) like 'fr-CA'.
+
+### Language Formatters
+
+You can specify which part of a language you are interested in.
+
+| Formatter                                   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Example Usage              | Example Result |
+|---------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|----------------|
+| \{O \| I \| I2 \| I3 \| E \| N \| W \| ID\} | Formats the language using<br>the language part tags.<br>\{O:[Text_Formatter](#text-formatters)\} = Language as provided by audible<br>\{I:[Text_Formatter](#text-formatters)\} = Two letter ISO code<br>\{I2:[Text_Formatter](#text-formatters)\} = Two letter ISO code<br>\{I3:[Text_Formatter](#text-formatters)\} = Three letter ISO code<br>\{E:[Text_Formatter](#text-formatters)\} = English name<br>\{N:[Text_Formatter](#text-formatters)\} = Native name - OS dependent<br>\{W:[Text_Formatter](#number-formatters)\} = Unique Windows code<br>\{ID:[Text_Formatter](#text-formatters)\} = Lang code<br><br>Formatter parts are optional and introduced by the colon. If specified the string will be used to format the part using the corresponding formatter.<br><br>Default is \{O\} | `<language[{I3:l} ({E})]>` | fra (French)   |
+| \{D\}                                       | Display name interpreted by the current language settings.<br>To ensure output in a specific language the lang-code to use might be specified with a leading '@'.<br>Formatter part is also optional and introduced by the colon.<br>\{D@LANG:[Text_Formatter](#text-formatters)\}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `<language[{D@es}]>`       | francés        |
+
 ### Checks
 
-| Check-Pattern   | Description                                                                     | Example                                 |
-| --------------- | ------------------------------------------------------------------------------- | --------------------------------------- |
-| =STRING **†**   | Matches if one item is equal to STRING (case ignored)                           | \<is tag[=Tag1]-\>                        |
-| !=STRING **†**  | Matches if one item is not equal to STRING (case ignored)                       | \<is first author[!=Arthur]-\>            |
-| ~STRING **†**   | Matches if one items is matched by the regular expression STRING (case ignored) | \<is title[~(\[XYZ\]).*\\1]-\>            |
-| #=NUMBER **‡**  | Matches if the number value is equal to NUMBER                                  | \<is channels[#=2]-\>                     |
-| #!=NUMBER **‡** | Matches if the number value is not equal to NUMBER                              | \<is author[#!=1]-\>                      |
+| Check-Pattern    | Description                                                                     | Example                                    |
+| ---------------- | ------------------------------------------------------------------------------- | ------------------------------------------ |
+| =STRING **†**    | Matches if one item is equal to STRING (case ignored)                           | \<is tag[=Tag1]-\>                         |
+| !=STRING **†**   | Matches if one item is not equal to STRING (case ignored)                       | \<is first author[!=Arthur]-\>             |
+| ~STRING **†**    | Matches if one items is matched by the regular expression STRING (case ignored) | \<is title[~(\[XYZ\]).*\\1]-\>             |
+| #=NUMBER **‡**   | Matches if the number value is equal to NUMBER                                  | \<is channels[#=2]-\>                      |
+| #!=NUMBER **‡**  | Matches if the number value is not equal to NUMBER                              | \<is author[#!=1]-\>                       |
 | #\>=NUMBER **‡** | Matches if the number value is greater than or equal to NUMBER                  | \<is bitrate[#\>=128]-\>                   |
 | #\>NUMBER **‡**  | Matches if the number value is greater than NUMBER                              | \<is title[#\>30]-\>                       |
 | #\<=NUMBER **‡** | Matches if the number value is less than or equal to NUMBER                     | \<is first narrator[format({F})][#\<=1]-\> |

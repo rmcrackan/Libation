@@ -83,6 +83,8 @@ public class SearchEngine
 		const int maxRetries = 5;
 		const int baseDelayMs = 400;
 		var libraryList = library.ToList();
+		// Corruption (e.g. checksum mismatch in segments) is not fixed by waiting; clear and rebuild immediately.
+		var corruptRebuildAttemptsRemaining = 2;
 
         // Exponential backoff retry: 400 ms, 800 ms, 1600 ms, etc
 		// Total wait time before giving up: 12.4 sec
@@ -93,7 +95,13 @@ public class SearchEngine
 				createNewIndexCore(libraryList, overwrite);
 				return;
 			}
-			catch (IOException ex) when (attempt < maxRetries - 1)
+			catch (CorruptIndexException ex) when (corruptRebuildAttemptsRemaining-- > 0)
+			{
+				Serilog.Log.Logger.Warning(ex, "Lucene search index corrupt at {Path}. Clearing for rebuild.", SearchEngineDirectory);
+				deleteAllSearchIndexFiles(SearchEngineDirectory);
+				attempt--;
+			}
+			catch (IOException ex) when (attempt < maxRetries - 1 && ex is not CorruptIndexException)
 			{
 				var delayMs = baseDelayMs * (1 << attempt);
 				// write.lock can be held by another process (e.g. second Libation instance, antivirus) or a prior writer that did not release. Retry after delay.
@@ -114,9 +122,11 @@ public class SearchEngine
     /// Lucene 3 parses <c>segments_*</c> filenames in the index directory. Cloud sync (e.g. OneDrive) can leave debris
     /// or conflict copies whose names break that parser, throwing <see cref="ArgumentException"/> with this message shape.
     /// Actual error is likely to be something like: Invalid or unsupported character in number, hence this string check.
+    /// <see cref="CorruptIndexException"/> (e.g. checksum mismatch in segments) is also recoverable by deleting the index and rebuilding.
     /// </summary>
-    public static bool IsRecoverableCorruptIndexException(ArgumentException ex)
-		=> ex.Message.Contains("character in number", StringComparison.OrdinalIgnoreCase);
+    public static bool IsRecoverableCorruptIndexException(Exception ex)
+		=> ex is CorruptIndexException
+		|| (ex is ArgumentException aex && aex.Message.Contains("character in number", StringComparison.OrdinalIgnoreCase));
 
 	private static void deleteAllSearchIndexFiles(string searchEngineDirectory)
 	{
@@ -148,9 +158,9 @@ public class SearchEngine
 			{
 				indexExists = IndexReader.IndexExists(indexProbe);
 			}
-			catch (ArgumentException ex) when (IsRecoverableCorruptIndexException(ex))
+			catch (Exception ex) when (IsRecoverableCorruptIndexException(ex))
 			{
-				Serilog.Log.Logger.Warning(ex, "Lucene search index at {Path} is unreadable (often cloud-sync debris or a partial write). Clearing it for rebuild.", SearchEngineDirectory);
+				Serilog.Log.Logger.Warning(ex, "Lucene search index at {Path} is unreadable or corrupt (often cloud-sync debris or a partial write). Clearing it for rebuild.", SearchEngineDirectory);
 				indexExists = false;
 			}
 		}
