@@ -18,9 +18,16 @@ public static class WindowsDirectory
 				return;
 			}
 
-			// get path of cover art in Images dir. Download first if not exists
-			var coverArtPath = PictureStorage.GetPicturePathSynchronously(new(pictureId, PictureSize._300x300), cancellationToken);
-			InteropFactory.Create().SetFolderIcon(image: coverArtPath, directory: directory);
+			// Load JPEG bytes from Images cache (or download). Prefer bytes → ICO so we never depend on a
+			// path that might not exist when Amazon omits Content-Length or another downloader left a stale cache entry.
+			var jpegBytes = PictureStorage.GetPictureSynchronously(new(pictureId, PictureSize._300x300), cancellationToken);
+			if (jpegBytes.Length == 0)
+			{
+				Serilog.Log.Logger.Warning("Cover art unavailable for folder icon (empty image). {@DebugInfo}", new { directory, pictureId });
+				return;
+			}
+
+			InteropFactory.Create().SetFolderIcon(imageJpegBytes: jpegBytes, directory: directory);
 		}
 		catch (Exception ex)
 		{

@@ -13,7 +13,15 @@ internal class WinInterop : IInteropFunctions
 	public WinInterop(params object[] values) { }
 	public void SetFolderIcon(string image, string directory)
 	{
-		var icon = Image.Load(image).ToIcon();
+		using var img = Image.Load(image);
+		var icon = img.ToIcon();
+		new DirectoryInfo(directory)?.SetIcon(icon, "Music");
+	}
+
+	public void SetFolderIcon(byte[] imageJpegBytes, string directory)
+	{
+		using var img = Image.Load(new MemoryStream(imageJpegBytes, writable: false));
+		var icon = img.ToIcon();
 		new DirectoryInfo(directory)?.SetIcon(icon, "Music");
 	}
 

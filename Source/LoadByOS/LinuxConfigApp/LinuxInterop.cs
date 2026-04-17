@@ -22,6 +22,7 @@ internal class LinuxInterop : IInteropFunctions
 	public LinuxInterop(params object[] values) { }
 
 	public void SetFolderIcon(string image, string directory) => throw new PlatformNotSupportedException();
+	public void SetFolderIcon(byte[] imageJpegBytes, string directory) => throw new PlatformNotSupportedException();
 	public void DeleteFolderIcon(string directory) => throw new PlatformNotSupportedException();
 
 	public string ReleaseIdString => LibationScaffolding.ReleaseIdentifier.ToString() + (File.Exists("/bin/apt") ? "_DEB" : "_RPM");
