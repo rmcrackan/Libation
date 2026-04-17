@@ -36,7 +36,8 @@ public partial record LocaleDto : IFormattable
 	{
 		try
 		{
-			if (languageFromLocale == string.Empty) return (new RegionInfo(input), null);
+			if (languageFromLocale == string.Empty)
+				return (new RegionInfo(input), null);
 
 			var culture = CultureInfo.GetCultureInfo(languageFromLocale);
 			return (new RegionInfo(culture.Name), culture);
