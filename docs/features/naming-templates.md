@@ -62,7 +62,7 @@ To change how these properties are displayed, [read about custom formatters](#ta
 Anything between the opening tag (`<tagname->`) and closing tag (`<-tagname>`) will only appear in the name if the condition evaluates to true.
 
 | Tag                                                                | Description                                                                                     | Type        |
-| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- | ----------- |
+|--------------------------------------------------------------------|-------------------------------------------------------------------------------------------------| ----------- |
 | \<if series-\>...\<-if series\>                                    | Only include if part of a book series or podcast                                                | Conditional |
 | \<if podcast-\>...\<-if podcast\>                                  | Only include if part of a podcast                                                               | Conditional |
 | \<if bookseries-\>...\<-if bookseries\>                            | Only include if part of a book series                                                           | Conditional |
@@ -72,6 +72,7 @@ Anything between the opening tag (`<tagname->`) and closing tag (`<-tagname>`) w
 | \<is PROPERTY[[CHECK](#checks)]-\>...\<-is\>                       | Only include if the PROPERTY or a single value of a list PROPERTY satisfies the CHECK           | Conditional |
 | \<is PROPERTY[FORMAT][[CHECK](#checks)]-\>...\<-is\>               | Only include if the formatted PROPERTY or a single value of a list PROPERTY satisfies the CHECK | Conditional |
 | \<is PROPERTY[...separator(...)...][[CHECK](#checks)]-\>...\<-is\> | Only include if the joined form of all formatted values of a list PROPERTY satisfies the CHECK  | Conditional |
+| \<cmp 1st-PROPERTY [[CHECK](#checks)] 2nd-PROPERTY-\>...\<-cmp\>              | Only include if two given PROPERTIES satisfy the CHECK                                          | Conditional |
 
 **†** Only affects the podcast series folder naming if "Save all podcast episodes to the series parent folder" option is checked.
 
@@ -79,14 +80,15 @@ For example, `<if podcast-><series><-if podcast>` will evaluate to the podcast's
 
 You can invert the condition (instead of displaying the text when the condition is true, display the text when it is false) by playing a `!` symbol before the opening tag name.
 
-| Inverted Tag                                        | Description                                                                                      | Type        |
-| --------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----------- |
-| \<!if series-\>...\<-if series\>                    | Only include if _not_ part of a book series or podcast                                           | Conditional |
-| \<!if podcast-\>...\<-if podcast\>                  | Only include if _not_ part of a podcast                                                          | Conditional |
-| \<!if bookseries-\>...\<-if bookseries\>            | Only include if _not_ part of a book series                                                      | Conditional |
-| \<!if podcastparent-\>...\<-if podcastparent\>**†** | Only include if item is _not_ a podcast series parent                                            | Conditional |
-| \<!has PROPERTY-\>...\<-has\>                       | Only include if the PROPERTY _does not_ have a value (i.e. is null or empty)                     | Conditional |
-| \<!is PROPERTY[[CHECK](#checks)]-\>...\<-is\>       | Only include if neither the whole PROPERTY nor the values of a list PROPERTY satisfies the CHECK | Conditional |
+| Inverted Tag                                           | Description                                                                                      | Type        |
+|--------------------------------------------------------|--------------------------------------------------------------------------------------------------| ----------- |
+| \<!if series-\>...\<-if series\>                       | Only include if _not_ part of a book series or podcast                                           | Conditional |
+| \<!if podcast-\>...\<-if podcast\>                     | Only include if _not_ part of a podcast                                                          | Conditional |
+| \<!if bookseries-\>...\<-if bookseries\>               | Only include if _not_ part of a book series                                                      | Conditional |
+| \<!if podcastparent-\>...\<-if podcastparent\>**†**    | Only include if item is _not_ a podcast series parent                                            | Conditional |
+| \<!has PROPERTY-\>...\<-has\>                          | Only include if the PROPERTY _does not_ have a value (i.e. is null or empty)                     | Conditional |
+| \<!is PROPERTY[[CHECK](#checks)]-\>...\<-is\>          | Only include if neither the whole PROPERTY nor the values of a list PROPERTY satisfies the CHECK | Conditional |
+| \<!cmp 1st-PROPERTY [CHECK] 2nd-PROPERTY-\>...\<-cmp\> | Only include if two given PROPERTIES _do not_ satisfy the CHECK                                  | Conditional |
 
 **†** Only affects the podcast series folder naming if "Save all podcast episodes to the series parent folder" option is checked.
 
@@ -244,28 +246,58 @@ You can specify which part of a language you are interested in.
 
 ### Checks
 
-| Check-Pattern    | Description                                                                     | Example                                    |
-| ---------------- | ------------------------------------------------------------------------------- | ------------------------------------------ |
-| =STRING **†**    | Matches if one item is equal to STRING (case ignored)                           | \<is tag[=Tag1]-\>                         |
-| !=STRING **†**   | Matches if one item is not equal to STRING (case ignored)                       | \<is first author[!=Arthur]-\>             |
-| ~STRING **†**    | Matches if one items is matched by the regular expression STRING (case ignored) | \<is title[~(\[XYZ\]).*\\1]-\>             |
-| #=NUMBER **‡**   | Matches if the number value is equal to NUMBER                                  | \<is channels[#=2]-\>                      |
-| #!=NUMBER **‡**  | Matches if the number value is not equal to NUMBER                              | \<is author[#!=1]-\>                       |
-| #\>=NUMBER **‡** | Matches if the number value is greater than or equal to NUMBER                  | \<is bitrate[#\>=128]-\>                   |
-| #\>NUMBER **‡**  | Matches if the number value is greater than NUMBER                              | \<is title[#\>30]-\>                       |
-| #\<=NUMBER **‡** | Matches if the number value is less than or equal to NUMBER                     | \<is first narrator[format({F})][#\<=1]-\> |
-| #\<NUMBER **‡**  | Matches if the number value is less than NUMBER                                 | \<is author[#\<3]-\>                       |
+There are two formats for checks, with slightly different syntax for specifying parameters:
 
-**†** STRING maybe escaped with a backslash. So even square brackets could be used. If a single backslash should be part of the string, it must be doubled.
+`<is PROPERTY[CHECK-with-value]-\>...\<-is\>`
 
-**‡** NUMBER checks on lists are checking the size of the list. If the value to check is a string, its length is used.
+`<cmp 1st-PROPERTY CHECK 2nd-PROPERTY-\>...\<-cmp\>`
 
-#### More complex examples
+For `CHECK-with-value`, the value (2nd parameter) is specified directly after the check operator (e.g., `=`). This may
+be a number or a string with escaped characters like `\]`. Single backslashes must be doubled if they are part of the
+string.
 
-This example will truncate the title to 4 characters and check its (trimmed) value to be "the" in any case:
+`1st-PROPERTY` and `2nd-PROPERTY` may be any of the properties listed in the [Properties](#properties) section, or they
+may be string or number literals. Use digits only for numbers. To specify a string literal, enclose it in single or
+double quotes. If the string contains a single or double quote, escape it by doubling it. For example, to specify the
+string literal `O'Reilly`, you can use either `'O''Reilly'` or `"O'Reilly"`.
+
+| String Checks | Unicode Operator | Description                                                                                                        | Examples                                                  |
+|---------------|------------------|--------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| =             |                  | Matches if values are equal (case-insensitive)                                                                     | \<is tag[=Tag1]-\>                                        |
+| !=            |                  | Matches if values are not equal (case-insensitive)                                                                 | \<is first author[!=Arthur]-\><br>\<cmp "foo" != 'bar'-\> |
+| ~             |                  | Matches if the first parameter matches the regular expression specified by the second parameter (case-insensitive) | \<is title[~(\[XYZ\]).*\\1]-\>                            |
+
+| Number Checks | Unicode Operator | Description                                                    | Examples                                                  |
+|---------------|------------------|----------------------------------------------------------------|-----------------------------------------------------------|
+| #= **†**      |                  | Matches if the number value equals NUMBER                      | \<is channels[#=2]-\><br>\<cmp channels #= 1-\>           |
+| #!= **†**     | ≠                | Matches if the number value does not equal NUMBER              | \<is author[#!=1]-\>                                      |
+| #\>= **†**    | ≥                | Matches if the number value is greater than or equal to NUMBER | \<is bitrate[#\>=128]-\><br>\<cmp 44100 #>= samplerate-\> |
+| #\> **†**     |                  | Matches if the number value is greater than NUMBER             | \<is title[#\>30]-\><br>\<cmp minutes #\> 60-\>           |
+| #\<= **†**    | ≤                | Matches if the number value is less than or equal to NUMBER    | \<is first narrator[format({F})][#\<=1]-\>                |
+| #\< **†**     |                  | Matches if the number value is less than NUMBER                | \<is author[#\<3]-\>                                      |
+
+| List Checks              | Unicode Operator | Description                                                                                                                | Examples                                               |
+|--------------------------|------------------|----------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------|
+| ==  \| :equals:          | ≡                | Matches if both values contain the same elements                                                                           | \<cmp author[slice(-2..-1)] == narrator[slice(..2)]-\> |
+| \>> \| :contains:        | ∋                | Matches if the first parameter contains the second parameter                                                               | \<is author[format({L})][∋King]-\>                     |
+| !>> \| :not_contains:    | ∌                | Matches if the first parameter does not contain the second parameter                                                       | \<cmp series :not_contains: 'Harry Potter'-\>          |
+| <<  \| :in:              | ∈                | Matches if the first parameter is contained in the second parameter                                                        | \<cmp first author << author[slice(2..)]-\>            |
+| !<< \| :not_in:          | ∉                | Matches if the first parameter is not contained in the second parameter                                                    | \<cmp author[slice(1)] ∉ narrator-\>                   |
+| &&  \| :overlaps:        | ⋂                | Matches if both values share at least one element                                                                          | \<cmp author && narrator-\>                            |
+| &&! \| :disjoint:        | ⋂̸               | Matches if both values share no elements                                                                                   | \<cmp tag :disjoint: series-\>                         |
+| <=< \| :subset:          | ⊆                | Matches if all elements from the first parameter are found in the second parameter                                         | \<cmp author[slice(-3..)] <=< author[slice(..-4)]-\>   |
+| >=> \| :superset:        | ⊇                | Matches if the first parameter contains all elements from the second parameter                                             | \<cmp author ⊇ narrator-\>                             |
+| <-< \| :proper_subset:   | ⊂                | Matches if all elements from the first parameter are found in the second parameter, and the second has additional elements | \<cmp author[slice(..2)] :proper_subset: author-\>     |
+| >-> \| :proper_superset: | ⊃                | Matches if the first parameter contains all elements from the second parameter plus at least one additional element        | \<cmp author ⊃ narrator-\>                             |
+
+**†** NUMBER checks on lists check the size of the list. For string values, the string length is used.
+
+#### More Complex Examples
+
+This example truncates the title to 4 characters and checks if its (trimmed) value equals "the" (case-insensitive):
 
 `<is title[4][=the]>`
 
-Here the second to fourth tag is taken and joined with a colon. The result is then checked to be equal to "Tag2:Tag3:Tag4":
+This example takes tags 2 through 4, joins them with a colon, and checks if the result equals "Tag2:Tag3:Tag4":
 
 `<is tag[separator(:)slice(2..4)][=Tag2:Tag3:Tag4]->`
