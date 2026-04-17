@@ -130,7 +130,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			                             ) +? (?<!\s))        # - don't let <property> end with a whitepace. Otherwise "<tagname  = tag2->" would be matchable.
 			                             (?:\s*\[\s*          # optional check details enclosed in '[' and ']'. Check shall start with an operator. So match whitespace first
 			                                 (?<check_or_op>  # - capture inner part as <check_or_op>
-			                                     (?:\\.       # - '\' escapes allways the next character. Especially further '\' and the closing ']'
+			                                     (?:\\.       # - '\' escapes always the next character. Especially further '\' and the closing ']'
 			                                     |[^\\\]])* ) # - match any character except '\' and ']'. check_or_op may end in whitespace!
 			                             \])?                 # - closing the check_or_op part
 			                         )?                       # end of optional property and check_or_op part
@@ -159,7 +159,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			                         (?<property>             # capture the <property>
 			                               '(?:[^']|'')*'     # - allow 'string' to be included in the format, with '' being an escaped ' character
 			                             | "(?:[^"]|"")*"     # - allow "string" to be included in the format, with "" being an escaped " character
-			                             | (?: \[ (?: \\.     # - properties may have optional formatting details enclosed in '[' and ']'. '\' escapes allways the next character
+			                             | (?: \[ (?: \\.     # - properties may have optional formatting details enclosed in '[' and ']'. '\' escapes always the next character
 			                                       | [^\\\]]  #   unescaped characters except ']' and '\' are allowed in the formatting details
 			                                       )* \]      #   closing the formatting details part
 			                                   | . )+?        # - match any character to form the property name. Capture non greedy so it won't match the operator part.
