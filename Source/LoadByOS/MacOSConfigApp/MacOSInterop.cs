@@ -1,6 +1,7 @@
 ﻿using Dinah.Core;
 using LibationFileManager;
 using System.Diagnostics;
+using System.IO;
 
 namespace MacOSConfigApp;
 
@@ -13,6 +14,25 @@ internal class MacOSInterop : IInteropFunctions
 	public void SetFolderIcon(string image, string directory)
 	{
 		Process.Start("fileicon", $"set {directory.SurroundWithQuotes()} {image.SurroundWithQuotes()}").WaitForExit();
+	}
+
+	public void SetFolderIcon(byte[] imageJpegBytes, string directory)
+	{
+		var tempPath = Path.Combine(Path.GetTempPath(), $"LibationFolderIcon-{Guid.NewGuid():N}.jpg");
+		try
+		{
+			File.WriteAllBytes(tempPath, imageJpegBytes);
+			SetFolderIcon(tempPath, directory);
+		}
+		finally
+		{
+			try
+			{
+				if (File.Exists(tempPath))
+					File.Delete(tempPath);
+			}
+			catch { /* best effort */ }
+		}
 	}
 	public void DeleteFolderIcon(string directory)
 	{
