@@ -35,7 +35,7 @@ nix-shell
 
 This will drop you into the shell environment defined in `shell.nix`. Note that this is not flake-native method and does not use the locked nixpkgs in `flake.lock` so exact versions of the dependancies is not guaranteed.
 
-## What’s Inside the Dev Shell?
+## What's Inside the Dev Shell?
 
 - The environment variables and packages configured in `shell.nix` will be available.
 - The package set (`pkgs`) used aligns with the versions locked in `flake.lock` to ensure reproducibility.

@@ -14,6 +14,20 @@ The docker image is provided as-is. We hope it can be useful to you but it is no
 
 Configuration in Libation is handled by two files, `AccountsSettings.json` and `Settings.json`. These files can usually be found in the Libation folder in your user's home directory. The easiest way to configure these is to run the desktop version of Libation and then copy them into a folder, such as `/opt/libation/config`, that you'll volume mount into the image. `Settings.json` is technically optional, and, if not provided, Libation will run using the default settings. Additionally, the `Books` and `InProgress` settings in `Settings.json` will be ignored and the image will instead substitute it's own values.
 
+### Adding Audible accounts without the GUI
+
+If you run Libation on a server or in Docker and do not want to copy `AccountsSettings.json` from a desktop install, you can create or update accounts with LibationCli (same binary as in the image under `/libation/LibationCli`):
+
+- `import-account` — Import an account from a JSON file exported by [mkb79's audible-cli](https://github.com/mkb79/audible-cli) (or Libation's own compatible export). Example:  
+  `LibationCli import-account /path/to/account.json`
+- `login-external` — Browser-based sign-in: the CLI prints an Audible login URL; you open it in a normal browser, sign in, then paste the final URL from the address bar back into the terminal. Example:  
+  `LibationCli login-external --account you@example.com --locale us`  
+  If standard input is not a TTY (for example in some automation), pass the final URL with `--response-url "https://..."` instead of pasting interactively.
+
+For full syntax, overrides, and the `--libationFiles` option (or the `LIBATION_FILES_DIR` environment variable) when your Libation data directory is not the default, see [Command Line Interface](/docs/advanced/command-line-interface).
+
+Docker tip: The entrypoint script copies your mounted config into an internal path before running LibationCli. The most reliable way to run account commands inside the same layout the container uses is to `docker exec` into an already running Libation container (so `AccountsSettings.json` and `appsettings.json` are already in place), then run `/libation/LibationCli import-account ...` or `/libation/LibationCli login-external ...`. Alternatively, run LibationCli on any host where you can point `--libationFiles` (or `LIBATION_FILES_DIR`) at the folder that you later mount as `/config` on the server.
+
 ## Running
 
 Once the configuration files are copied, the docker image can be run with the following command.
