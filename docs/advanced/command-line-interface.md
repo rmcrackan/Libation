@@ -10,9 +10,9 @@ Warnings about relying solely on on the CLI:
 
 ## Progress Bar
 
-The **liberate** and **convert** commands show a progress bar in the terminal while downloading or converting (e.g. `[##########----------]  2.5 min remaining`). The progress bar is only shown when the CLI is run interactively with output not redirected.
+The `liberate` and `convert` commands show a progress bar in the terminal while downloading or converting (e.g. `[##########----------]  2.5 min remaining`). The progress bar is only shown when the CLI is run interactively with output not redirected.
 
-To **turn off the progress bar** (for scripting, logging, or cleaner output), redirect standard output and/or standard error. The progress bar is automatically disabled when either stream is redirected.
+To turn off the progress bar (for scripting, logging, or cleaner output), redirect standard output and/or standard error. The progress bar is automatically disabled when either stream is redirected.
 
 ```console
 libationcli liberate > log.txt 2>&1
@@ -32,6 +32,52 @@ libationcli --help
 ```console
 libationcli scan --help
 ```
+
+## Libation files location
+
+All verbs use the same Libation data directory as the GUI (where `AccountsSettings.json` and `Settings.json` live). To point the CLI elsewhere:
+
+```console
+libationcli --libationFiles "D:\path\to\LibationFiles" scan
+```
+
+You can also set the environment variable `LIBATION_FILES_DIR` to that directory instead of passing `--libationFiles` every time.
+
+## Import an account (mkb79 / audible-cli JSON)
+
+Imports a single account from a JSON file in the format produced by [mkb79's audible-cli](https://github.com/mkb79/audible-cli) export (Libation's GUI export to the same format is compatible). The file is validated, tokens are refreshed, and the account is appended to `AccountsSettings.json` unless the same account id and locale already exist.
+
+```console
+libationcli import-account "C:\path\to\account.json"
+libationcli import-account /home/me/Audible/account.json
+```
+
+Use `libationcli import-account --help` for the exact options on your build.
+
+## Log in with an external browser (`login-external`)
+
+For headless servers or when you prefer not to use the GUI, this verb performs the same external browser OAuth flow as Libation's alternate login: the CLI prints a sign-in URL, you complete login in your own browser, then supply the full URL shown in the browser after Audible redirects you (it is normal if that page looks broken or says the page does not exist).
+
+Required flags:
+
+- `--account` / `-a` — Your Audible login id (email).
+- `--locale` / `-l` — Marketplace code, same as in the GUI (for example `us`, `uk`, `de`).
+
+Interactive use (terminal attached to a keyboard):
+
+```console
+libationcli login-external --account you@example.com --locale us
+```
+
+Non-interactive use (stdin redirected, Docker without `-t`, scripts): pass the post-login URL explicitly:
+
+```console
+libationcli login-external -a you@example.com -l us --response-url "https://www.amazon.com/ap/maplanding?..."
+```
+
+If the account row already has valid saved tokens, the CLI reports that no browser login is needed and exits without opening the flow.
+
+Use `libationcli login-external --help` for the exact options on your build.
 
 ## Scan All Libraries
 

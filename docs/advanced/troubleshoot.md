@@ -22,7 +22,7 @@ Hangover is located inside the app bundle. Either:
 
 The installer creates shortcuts for `libation`, `libationcli`, and `hangover`. From a terminal, run `hangover`.
 
-### Linux: in-app Audible login or “add account” fails
+### Linux: in-app Audible login or "add account" fails
 
 Embedded sign-in uses WebKit2GTK (`libwebkit2gtk`). If that native stack is missing, install the packages for your distro or use 'external browser' sign-in in Libation's import/library settings. Details: [Install on Linux](/docs/installation/linux) (section: Runtime dependencies (Audible sign-in)).
 
