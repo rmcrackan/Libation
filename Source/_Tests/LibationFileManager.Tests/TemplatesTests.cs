@@ -622,6 +622,8 @@ namespace TemplatesTests
 		[DataRow("<cmp ch count >= '99'->true<-cmp>", "true")]
 		[DataRow("<cmp author >= '3'->true<-cmp>", "true")]
 		[DataRow("<cmp author = 'Arthur Conan Doyle'->true<-cmp>", "true")]
+		[DataRow("<cmp tag[separator(:)slice(-2..)] :contains: 'Tag2:Tag3'->true<-cmp>", "true")]
+		[DataRow("<cmp tag[separator( : )slice(-2..)] = 'Tag2 : Tag3'->true<-cmp>", "true")]
 		//
 		[DataRow("<cmp tag =  tag ->true<-cmp>", "")]
 		[DataRow("<cmp tag ≡ tag ->true<-cmp>", "true")]
