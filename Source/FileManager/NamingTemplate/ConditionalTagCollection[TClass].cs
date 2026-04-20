@@ -165,11 +165,11 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 
 			var match = CheckRegex().Match(checkString);
 
-			var valStr = Unescape(match.Groups["val"]) ?? "";
+			var valStr = match.UnescapeValue("val");
 			var iVal = -1;
 			var isNumericalOperator = match.Groups["num_op"].Success && int.TryParse(valStr, out iVal);
 
-			var checkItem = Unescape(match.Groups["op"]) switch
+			var checkItem = match.UnescapeValue("op") switch
 			{
 				"=" or "" => (v, culture) => VComparedToStr(v, culture, valStr) == 0,
 				"!=" or "!" => (v, culture) => VComparedToStr(v, culture, valStr) != 0,
@@ -306,7 +306,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 
 		[GeneratedRegex("""
 		                (?x)						          # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
-		                ^(?<op>(?<num_op>                     # anchor at start of linecapture operator in <op> and <num_op> with every char escapable
+		                ^(?<op>(?<num_op>                     # anchor at start of line. Capture operator in <op> and <num_op> with every char escapable
 		                	    \\?\#(?:\\?!)?\\?=            # - numerical operators: #= #!=
 		                	    | \\?\#\\?[<>](?:\\?=)?       # - numerical operators: #>= #<= #> #<
 		                	    |      \\?[<>](?:\\?=)?       # - numerical operators: >= <= > <
