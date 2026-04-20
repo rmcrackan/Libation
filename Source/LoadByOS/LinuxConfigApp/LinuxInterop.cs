@@ -1,6 +1,8 @@
 ﻿using AppScaffolding;
 using LibationFileManager;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LinuxConfigApp;
 
@@ -25,21 +27,89 @@ internal class LinuxInterop : IInteropFunctions
 	public void SetFolderIcon(byte[] imageJpegBytes, string directory) => throw new PlatformNotSupportedException();
 	public void DeleteFolderIcon(string directory) => throw new PlatformNotSupportedException();
 
-	public string ReleaseIdString => LibationScaffolding.ReleaseIdentifier.ToString() + (File.Exists("/bin/apt") ? "_DEB" : "_RPM");
+	public string ReleaseIdString => LibationScaffolding.ReleaseIdentifier.ToString() + (File.Exists("/usr/bin/apt") || File.Exists("/bin/apt") ? "_DEB" : "_RPM");
 
 	//only run the auto upgrader if the current app was installed from the
 	//.deb or .rpm package. Try to detect this by checking if the symlink exists.
-	public bool CanUpgrade => File.Exists("/bin/libation");
-	public void InstallUpgrade(string upgradeBundle)
+	public bool CanUpgrade => File.Exists("/usr/bin/libation") || File.Exists("/bin/libation");
+
+	public async Task InstallUpgradeAsync(string upgradeBundle)
 	{
-		if (File.Exists("/bin/dnf5"))
-			RunAsRoot("dnf5", $"install -y '{upgradeBundle}'");
-		else if (File.Exists("/bin/dnf"))
-			RunAsRoot("dnf", $"install -y '{upgradeBundle}'");
-		else if (File.Exists("/bin/yum"))
-			RunAsRoot("yum", $"install -y '{upgradeBundle}'");
-		else
-			RunAsRoot("apt", $"install '{upgradeBundle}'");
+		if (string.IsNullOrWhiteSpace(upgradeBundle) || !File.Exists(upgradeBundle))
+			throw new FileNotFoundException("Upgrade bundle not found.", upgradeBundle);
+
+		if (!TryResolvePackageManager(upgradeBundle, out var pkgExe, out var pkgArgs))
+			throw new PlatformNotSupportedException("Could not find apt, dnf, yum, or dnf5 to install the upgrade.");
+
+		if (FindPkexec(out var pkexec))
+		{
+			var psi = new ProcessStartInfo
+			{
+				FileName = pkexec,
+				UseShellExecute = false,
+			};
+			// pkexec requires an absolute path to the program on modern polkit.
+			foreach (var a in new[] { pkgExe }.Concat(pkgArgs))
+				psi.ArgumentList.Add(a);
+
+			if (string.Equals(Path.GetFileName(pkgExe), "apt", StringComparison.OrdinalIgnoreCase))
+				psi.Environment["DEBIAN_FRONTEND"] = "noninteractive";
+
+			var proc = Process.Start(psi);
+			if (proc is null)
+				throw new InvalidOperationException("Failed to start pkexec.");
+
+			await proc.WaitForExitAsync();
+			if (proc.ExitCode != 0)
+				throw new InvalidOperationException($"Package manager exited with code {proc.ExitCode}.");
+			return;
+		}
+
+		// Terminal + runasroot.sh: completion cannot be tracked reliably; user must watch the window.
+		var legacyArgs = string.Join(" ", pkgArgs);
+		Serilog.Log.Logger.Warning("pkexec not found; launching install in a terminal. Completion cannot be verified automatically.");
+		RunAsRoot(pkgExe, legacyArgs);
+	}
+
+	private static bool TryResolvePackageManager(string upgradeBundle, out string pkgExe, out string[] pkgArgs)
+	{
+		if (TryFirstExisting(out pkgExe, "/usr/bin/dnf5", "/bin/dnf5"))
+		{
+			pkgArgs = new[] { "install", "-y", upgradeBundle };
+			return true;
+		}
+		if (TryFirstExisting(out pkgExe, "/usr/bin/dnf", "/bin/dnf"))
+		{
+			pkgArgs = new[] { "install", "-y", upgradeBundle };
+			return true;
+		}
+		if (TryFirstExisting(out pkgExe, "/usr/bin/yum", "/bin/yum"))
+		{
+			pkgArgs = new[] { "install", "-y", upgradeBundle };
+			return true;
+		}
+		if (TryFirstExisting(out pkgExe, "/usr/bin/apt", "/bin/apt"))
+		{
+			pkgArgs = new[] { "install", "-y", "-o", "Dpkg::Options::=--force-confdef", "-o", "Dpkg::Options::=--force-confold", upgradeBundle };
+			return true;
+		}
+		pkgExe = "";
+		pkgArgs = Array.Empty<string>();
+		return false;
+	}
+
+	private static bool TryFirstExisting(out string path, params string[] candidates)
+	{
+		foreach (var c in candidates)
+		{
+			if (File.Exists(c))
+			{
+				path = c;
+				return true;
+			}
+		}
+		path = "";
+		return false;
 	}
 
 	private bool FindPkexec(out string? exePath)
@@ -49,7 +119,7 @@ internal class LinuxInterop : IInteropFunctions
 			exePath = "/usr/bin/pkexec";
 			return true;
 		}
-		else if (File.Exists("/bin/pkexec"))
+		if (File.Exists("/bin/pkexec"))
 		{
 			exePath = "/bin/pkexec";
 			return true;
@@ -60,24 +130,6 @@ internal class LinuxInterop : IInteropFunctions
 
 	public Process? RunAsRoot(string exe, string args)
 	{
-		//try to use polkit directly
-		if (FindPkexec(out var pkexec))
-		{
-			ProcessStartInfo psi = new()
-			{
-				FileName = pkexec,
-				Arguments = $"\"{exe}\" {args}",
-				UseShellExecute = false,
-				RedirectStandardOutput = true,
-				RedirectStandardError = true
-			};
-			try
-			{
-				return Process.Start(psi);
-			}
-			catch {/* fall back to old, script-based method */}
-		}
-
 		//cribbed this script from VirtualBox's guest additions installer.
 		//It's designed to launch the system's gui superuser password
 		//prompt across multiple distributions and desktop environments.

@@ -215,10 +215,17 @@ public abstract class UpgraderBase
 			{
 				DownloadCompleted?.Invoke(this, true);
 
-				//Install the upgrade
 				Serilog.Log.Logger.Information($"Begin running auto-upgrader");
-				interop.InstallUpgrade(upgradeBundle);
-				Serilog.Log.Logger.Information($"Completed running auto-upgrader");
+				try
+				{
+					await interop.InstallUpgradeAsync(upgradeBundle);
+					Serilog.Log.Logger.Information($"Completed running auto-upgrader");
+				}
+				catch (Exception ex)
+				{
+					Serilog.Log.Logger.Error(ex, "Auto-upgrader did not complete successfully");
+					OnUpgradeFailed("The upgrade installer did not complete successfully. You can install the downloaded package manually from your temp folder.", ex);
+				}
 			}
 
 			return result;
