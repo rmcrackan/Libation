@@ -304,6 +304,25 @@ public class CommonFormattersTests
 		Assert.AreEqual("DE", result); // Uppercase, no trim needed
 	}
 
+	[TestMethod]
+	[DataRow("""es\caped chara\cters: \'\"\"\'""", """escaped characters: '""'""")]
+	[DataRow("""e"sca'p'ed" "\st""ri""ng" """, """esca'p'ed \st"ri"ng """)]
+	[DataRow("""e'sca"p"ed' '\st''ri''ng'""", """esca"p"ed \st'ri'ng""")]
+	[DataRow("""open 'esc"a"pe""", """open esc"a"pe""")]
+	[DataRow("""open 'esc"a"pe''""", """open esc"a"pe'""")]
+	[DataRow("""open "esc'a'pe""", "open esc'a'pe")]
+	public void Unescape_Test(string input, string expected)
+	{
+		// GIVEN
+
+		// WHEN
+		var unescaped = CommonFormatters.Unescape(input);
+
+		// THEN
+		Assert.AreEqual(expected, unescaped);
+	}
+	
+
 	private class TestClass
 	{
 		public string? Author { get; set; }

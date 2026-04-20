@@ -210,9 +210,10 @@ namespace TemplatesTests
 		[DataRow(@"<minutes[D\-M]>", 100, "0-100")]
 		[DataRow(@"<minutes[D\-M]>", 1500, "1-60")]
 		[DataRow(@"<minutes[D\-M]>", 2000, "1-560")]
-		[DataRow(@"<minutes[D\-M]>", 2880, "2-0")]
+		[DataRow(@"<minutes[D'-'M]>", 2880, "2-0")]
 		[DataRow(@"<minutes[DD\-MM]>", 1500, "01-60")]
-		[DataRow(@"<minutes[D\-MMM'{'MM\}]>", 2000, "1-005{60}")]
+		[DataRow("""""<minutes[D\-MMM'{'''MM""""\}]>""""", 2000, "1-005{60}")]
+		[DataRow("""<minutes['no '\D' or H'" and no M "m]>""", 2000, "no D or H and no M 20")]
 		public void MinutesFormat(string template, int minutes, string expected)
 		{
 			var bookDto = GetLibraryBook();
@@ -412,9 +413,13 @@ namespace TemplatesTests
 		//Jon Bon Jovi and Paul Van Doren don't have middle names, so they are sorted to the top.
 		//Since only the middle names of the first 2 names are to be displayed, the name string is empty.
 		[DataRow("<author[sort(M) max(2) separator(; ) format({M})]>", ";")]
+		[DataRow("<author[max(1) format(foo)]>", "Jill Conner Browne")]
+		[DataRow("<author[max(1) format('{M}')]>", "Jill Conner Browne")]
+		[DataRow(@"(<author[separator(\)() format(')['{M}\]\()]>)", "()[Conner]()()[E.]()()[John]()()[Maud]()()[]()()[]()()[]()")]
 		[DataRow("<first author>", "Jill Conner Browne")]
 		[DataRow("<first author[]>", "Jill Conner Browne")]
 		[DataRow("<first author[{L}, {F}]>", "Browne, Jill")]
+		[DataRow("""<first author[\{L}:{L}, '{F}:'{F}, "{M}:"{M}]>""", "{L}:Browne, {F}:Jill, {M}:Conner")]
 		public void NameFormat_formatters(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
@@ -431,8 +436,7 @@ namespace TemplatesTests
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate
-				.GetFilename(bookDto, "", "", culture: null, replacements: Replacements)
-				.PathWithoutPrefix
+				.GetName(bookDto, new MultiConvertFileProperties { OutputFileName = string.Empty })
 				.Should().Be(expected);
 		}
 

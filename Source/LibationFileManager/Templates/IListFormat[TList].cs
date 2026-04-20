@@ -53,7 +53,7 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 	{
 		if (formatString is null) return items.Select(n => n.ToString(null, culture));
 		var format = TList.FormatRegex().Match(formatString).ResolveValue("format");
-		var separator = SeparatorRegex().Match(formatString).ResolveValue("separator");
+		var separator = SeparatorRegex().Match(formatString).UnescapeValueOrNull("separator");
 		var formattedItems = FilteredList(formatString, items).Select(ItemFormatter);
 
 		if (separator is null) return formattedItems;
@@ -96,6 +96,6 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 	private static partial Regex MaxRegex();
 
 	/// <summary> Separator can be anything </summary>
-	[GeneratedRegex(@"[Ss]eparator\((?<separator>.*?)\)")]
+	[GeneratedRegex("""[Ss]eparator\((?<separator>(?:\\.|'[^']*'|"[^"]*"|[^\\'"])*?)\)""")]
 	private static partial Regex SeparatorRegex();
 }
