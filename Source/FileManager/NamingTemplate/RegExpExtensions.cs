@@ -33,8 +33,13 @@ public static class RegExpExtensions
 
 	extension(Regex regex)
 	{
-		public bool TryMatch(string input, [NotNullWhen(true)] out Match? match)
+		public bool TryMatch(string? input, [NotNullWhen(true)] out Match? match)
 		{
+			if (input is null)
+			{
+				match = null;
+				return false;
+			}
 			var m = regex.Match(input);
 			match = m.Success ? m : null;
 			return m.Success;

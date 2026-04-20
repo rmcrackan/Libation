@@ -107,7 +107,7 @@ public class GetPortionFilename
 	private static object? TryGetValue(ITemplateTag templateTag, PropertyClass3 referenceType, string condition, CultureInfo? culture)
 		=> props3.TryGetObject(condition, referenceType, culture, out var value) ? value : null;
 
-	private static bool HasValue(object? value, CultureInfo? culture) => value is not null && !string.IsNullOrWhiteSpace(value.ToString());
+	private static bool HasValue(object? value, object? value2, CultureInfo? culture) => value is not null && !string.IsNullOrWhiteSpace(value.ToString());
 
 	private readonly PropertyClass1 _propertyClass1 = new()
 	{

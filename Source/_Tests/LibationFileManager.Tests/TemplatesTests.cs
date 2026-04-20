@@ -545,15 +545,19 @@ namespace TemplatesTests
 		[DataRow("<is ch count[<=100]->true<-is>", "true")]
 		[DataRow("<is ch count[<100]->true<-is>", "true")]
 		[DataRow("<is ch count[=2]->true<-is>", "true")]
+		[DataRow("<is author[>=3]->true<-is>", "")]
 		[DataRow("<is author[>=2]->true<-is>", "true")]
 		[DataRow("<is author[#=2]->true<-is>", "true")]
 		[DataRow("<is author[=Arthur Conan Doyle]->true<-is>", "true")]
 		[DataRow("<is author[format({L})][=Doyle]->true<-is>", "true")]
+		[DataRow("<is author[format({L})][=]->true<-is>", "")]
+		[DataRow("<is author[format({L})][>>]->true<-is>", "")]
+		[DataRow("<is author[format({M})][=]->true<-is>", "true")]
+		[DataRow("<is author[format({M})][>>]->true<-is>", "true")]
 		[DataRow("<!is author[format({L})][=Doyle]->false<-is>", "")]
 		[DataRow("<is author[format({L})][!=Doyle]->true<-is>", "true")]
 		[DataRow("<!is author[format({L})][!=Doyle]->false<-is>", "")]
 		[DataRow("<is author[format({L})separator(:)][=Doyle:Fry]->true<-is>", "true")]
-		[DataRow("<is author[>=3]->true<-is>", "")]
 		[DataRow(@"<is author[slice(99)][~.\*]->true<-is>", "")]
 		[DataRow("<is author[slice(99)separator(:)][~.*]->true<-is>", "")]
 		[DataRow("<is author[slice(-9)separator(:)][~.*]->true<-is>", "")]
@@ -561,23 +565,118 @@ namespace TemplatesTests
 		[DataRow("<is author[slice(-1..1)separator(:)][~.*]->true<-is>", "")]
 		[DataRow("<is author[slice(-1..-2)separator(:)][~.*]->true<-is>", "")]
 		[DataRow("<is author[=Sherlock]->true<-is>", "")]
+		[DataRow("<is author[=~Sherlock]->true<-is>", "")]
 		[DataRow("<!is author[=Sherlock]->false<-is>", "false")]
+		[DataRow("<!is author[=~Sherlock]->false<-is>", "false")]
 		[DataRow("<is author[!=Sherlock]->true<-is>", "true")]
+		[DataRow("<is author[!~Sherlock]->true<-is>", "true")]
 		[DataRow("<!is author[!=Sherlock]->false<-is>", "")]
+		[DataRow("<!is author[!~Sherlock]->false<-is>", "")]
 		[DataRow("<is tag[=Tag1]->true<-is>", "true")]
 		[DataRow("<is tag[separator(:)slice(-2..)][=Tag2:Tag3]->true<-is>", "true")]
-		[DataRow("<is audible subtitle[3][=an]->false<-is>", "")]
+		[DataRow("<is audible subtitle[3][=an]->true<-is>", "")]
 		[DataRow("<is audible subtitle[3][=an ]->true<-is>", "true")]
 		[DataRow(@"<is audible subtitle[3][=an\ ]->true<-is>", "true")]
-		[DataRow("<is audible subtitle[3][= an]->false<-is>", "")]
-		[DataRow("<is audible subtitle[3][= an ]->false<-is>", "")]
-		[DataRow(@"<is audible subtitle[3][= an\ ]->false<-is>", "")]
-		[DataRow(@"<is audible subtitle[3][=\ an\ ]->false<-is>", "")]
-		[DataRow("<is audible subtitle[3][ =an]->false<-is>", "")]
+		[DataRow("<is audible subtitle[3][= an]->true<-is>", "")]
+		[DataRow("<is audible subtitle[3][= an ]->true<-is>", "")]
+		[DataRow(@"<is audible subtitle[3][= an\ ]->true<-is>", "")]
+		[DataRow(@"<is audible subtitle[3][=\ an\ ]->true<-is>", "")]
+		[DataRow("<is audible subtitle[3][ =an]->true<-is>", "")]
 		[DataRow("<is audible subtitle[3][ =an ]->true<-is>", "true")]
 		[DataRow(@"<is audible subtitle[3][ =an\ ]->true<-is>", "true")]
-		[DataRow(@"<is minutes[>42]->true<-is>", "true")]
+		[DataRow("<is minutes[>42]->true<-is>", "true")]
+		[DataRow("<is dateadded[>9000]->true<-is>", "true")]
+		[DataRow("<is dateadded[>90000]->true<-is>", "")]
+		[DataRow("<is locale[>42]->true<-is>", "")]
+		[DataRow("<is language[>42]->true<-is>", "")]
 		public void HasValue_test(string template, string expected)
+		{
+			var bookDto = GetLibraryBook();
+			var multiDto = new MultiConvertFileProperties
+			{
+				PartsPosition = 1,
+				PartsTotal = 2,
+				Title = bookDto.Title,
+				OutputFileName = "outputfile.m4b"
+			};
+
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate
+				.GetFilename(bookDto, multiDto, "", "", culture: null, replacements: Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+			fileTemplate.Errors.Should().HaveCount(0);
+			fileTemplate.Warnings.Should().HaveCount(1); // "Should use tags. Eg: <title>"
+		}
+
+		[TestMethod]
+		[DataRow("<cmp title = 'A Study in Scarlet: An Audible Original Drama'->true<-cmp>", "true")]
+		[DataRow("<!cmp title = 'A Study in Scarlet: An Audible Original Drama'->false<-cmp>", "")]
+		[DataRow("<cmp title #= 45->true<-cmp>", "true")]
+		[DataRow("<cmp 45 #= title->true<-cmp>", "true")]
+		[DataRow("<cmp title != 'foo'->true<-cmp>", "true")]
+		[DataRow("<cmp 'foo' != title->true<-cmp>", "true")]
+		[DataRow("<cmp 'foo' != 'bar''->true<-cmp>", "true")]
+		[DataRow("<!cmp title != 'foo'->false<-cmp>", "")]
+		[DataRow("<cmp title ~ 'A Study.*'->true<-cmp>", "true")]
+		[DataRow("<cmp ch count >= '99'->true<-cmp>", "true")]
+		[DataRow("<cmp author >= '3'->true<-cmp>", "true")]
+		[DataRow("<cmp author = 'Arthur Conan Doyle'->true<-cmp>", "true")]
+		[DataRow("<cmp tag[separator(:)slice(-2..)] :contains: 'Tag2:Tag3'->true<-cmp>", "true")]
+		[DataRow("<cmp tag[separator( : )slice(-2..)] = 'Tag2 : Tag3'->true<-cmp>", "true")]
+		//
+		[DataRow("<cmp tag =  tag ->true<-cmp>", "")]
+		[DataRow("<cmp tag ≡ tag ->true<-cmp>", "true")]
+		[DataRow("<cmp tag == tag ->true<-cmp>", "true")]
+		[DataRow("<cmp tag :equals: tag ->true<-cmp>", "true")]
+		//
+		[DataRow("<cmp tag[slice(1..2)] ∌ tag[slice(3)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(1..2)] !>> tag[slice(3)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(1..2)] ∌ tag[slice(3)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(1..2)] :not_contains: tag[slice(3)] ->true<-cmp>", "true")]
+		//
+		[DataRow("<cmp tag ∋ tag[slice(2)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag >> tag[slice(2)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag :contains: tag[slice(2)] ->true<-cmp>", "true")]
+		//
+		[DataRow("<cmp tag[slice(3)] ∉ tag[slice(1..2)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(3)] !<< tag[slice(1..2)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(3)] ∉ tag[slice(1..2)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(3)] :not_in: tag[slice(1..2)] ->true<-cmp>", "true")]
+		//
+		[DataRow("<cmp tag[slice(2)] ∈ tag ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(2)] << tag ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(2)] :in: tag ->true<-cmp>", "true")]
+		//
+		[DataRow("<cmp tag[slice(1..2)] ⋂̸ tag[slice(3..4)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(1..2)] &&! tag[slice(3..4)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(1..2)] ⋂! tag[slice(3..4)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(1..2)] :disjoint: tag[slice(3..4)] ->true<-cmp>", "true")]
+		//
+		[DataRow("<cmp tag[slice(1..2)] ⋂ tag[slice(2..4)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(1..2)] && tag[slice(2..4)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(1..2)] :overlaps: tag[slice(2..4)] ->true<-cmp>", "true")]
+		//
+		[DataRow("<cmp tag[slice(1..2)] ⊆ tag[slice(1..2)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(1..2)] ⊆ tag ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(1..2)] <=< tag ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(1..2)] :subset: tag ->true<-cmp>", "true")]
+		//
+		[DataRow("<cmp tag[slice(1..2)] ⊇ tag[slice(1..2)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag ⊇ tag[slice(1..2)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag >=> tag[slice(1..2)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag :superset: tag[slice(1..2)] ->true<-cmp>", "true")]
+		//
+		[DataRow("<cmp tag[slice(1..2)] ⊂ tag[slice(1..2)] ->true<-cmp>", "")]
+		[DataRow("<cmp tag[slice(1..2)] ⊂ tag ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(1..2)] <-< tag ->true<-cmp>", "true")]
+		[DataRow("<cmp tag[slice(1..2)] :proper_subset: tag ->true<-cmp>", "true")]
+		//
+		[DataRow("<cmp tag[slice(1..2)] ⊃ tag[slice(1..2)] ->true<-cmp>", "")]
+		[DataRow("<cmp tag ⊃ tag[slice(1..2)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag >-> tag[slice(1..2)] ->true<-cmp>", "true")]
+		[DataRow("<cmp tag :proper_superset: tag[slice(1..2)] ->true<-cmp>", "true")]
+		public void Cmp_test(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
 			var multiDto = new MultiConvertFileProperties
@@ -786,7 +885,7 @@ namespace TemplatesTests
 			var bookDto = Shared.GetLibraryBook();
 			bookDto.Language = new CultureInfoDto(language);
 
-			var result = "";
+			string result;
 
 			var old = Thread.CurrentThread.CurrentCulture;
 			var oldUi = Thread.CurrentThread.CurrentUICulture;
@@ -867,7 +966,7 @@ namespace TemplatesTests
 			var bookDto = Shared.GetLibraryBook();
 			bookDto.Locale = new LocaleDto(country);
 
-			var result = "";
+			string result;
 
 			var old = Thread.CurrentThread.CurrentCulture;
 			var oldUi = Thread.CurrentThread.CurrentUICulture;
