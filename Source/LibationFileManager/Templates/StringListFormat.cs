@@ -53,6 +53,6 @@ internal partial class StringListFormat : IListFormat<StringListFormat>
 	private static partial Regex SortTokenizer();
 
 	/// <summary> Format must have the string {S} (optionally with formatting like {S:u})</summary>
-	[GeneratedRegex($@"[Ff]ormat\((?<format>.*?\{{{Token}(?::.*?)?\}}.*?)\)")]
+	[GeneratedRegex($$"""[Ff]ormat\((?<format>(?:\\.|'[^']*'|"[^"]*"|[^\\'"])*?\{{{Token}}(?::.*?)?\}(?:\\.|'[^']*'|"[^"]*"|[^\\'"])*?)\)""")]
 	public static partial Regex FormatRegex();
 }

@@ -53,6 +53,6 @@ internal partial class SeriesListFormat : IListFormat<SeriesListFormat>
 	private static partial Regex SortTokenizer();
 
 	/// <summary> Format must have at least one of the strings {N}, {#}, {ID} (optionally with formatting like {N:u})</summary>
-	[GeneratedRegex($@"[Ff]ormat\((?<format>.*?\{{{Token}(?::.*?)?\}}.*?)\)")]
+	[GeneratedRegex($$"""[Ff]ormat\((?<format>(?:\\.|'[^']*'|""[^""]*""|[^\\'""])*?\{{{Token}}(?::.*?)?\}(?:\\.|'[^']*'|""[^""]*""|[^\\'""])*?)\)""")]
 	public static partial Regex FormatRegex();
 }

@@ -219,7 +219,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 				});
 
 			var match = GetMatch(exactName, checkString);
-			var valStr = Unescape(match.Groups["val"]);
+			var valStr = match.UnescapeValue("val");
 			var (evaluator, opGroup) = GetPredicate(exactName, match);
 
 			return (opGroup.Name switch
