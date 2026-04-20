@@ -2,6 +2,7 @@
 using LibationFileManager;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace MacOSConfigApp;
 
@@ -45,12 +46,12 @@ internal class MacOSInterop : IInteropFunctions
 
 	public string ReleaseIdString => AppScaffolding.LibationScaffolding.ReleaseIdentifier.ToString();
 
-	public void InstallUpgrade(string upgradeBundle)
+	public Task InstallUpgradeAsync(string upgradeBundle)
 	{
 		Serilog.Log.Information($"Extracting upgrade bundle to {AppPath}");
 
 		//Upgrade bundle is a DMG
-		Process.Start("open", upgradeBundle.SurroundWithQuotes())?.WaitForExit();
+		return Task.Run(() => Process.Start("open", upgradeBundle.SurroundWithQuotes())?.WaitForExit());
 	}
 
 	//Using osascript -e '[script]' works from the terminal, but I haven't figured

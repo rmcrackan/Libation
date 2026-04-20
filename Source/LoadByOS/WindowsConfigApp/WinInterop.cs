@@ -4,6 +4,7 @@ using SixLabors.ImageSharp;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace WindowsConfigApp;
 
@@ -32,7 +33,7 @@ internal class WinInterop : IInteropFunctions
 
 	public string ReleaseIdString => AppScaffolding.LibationScaffolding.ReleaseIdentifier.ToString();
 
-	public void InstallUpgrade(string upgradeBundle)
+	public async Task InstallUpgradeAsync(string upgradeBundle)
 	{
 		const string ExtractorExeName = "ZipExtractor.exe";
 		var thisExe = Environment.ProcessPath;
@@ -44,10 +45,15 @@ internal class WinInterop : IInteropFunctions
 
 		File.Copy(Path.Combine(thisDir, ExtractorExeName), zipExtractor, overwrite: true);
 
-		RunAsRoot(zipExtractor,
+		var proc = RunAsRoot(zipExtractor,
 				$"--input {upgradeBundle.SurroundWithQuotes()} " +
 				$"--output {thisDir.SurroundWithQuotes()} " +
 				$"--executable {thisExe.SurroundWithQuotes()}");
+		if (proc is null)
+			throw new InvalidOperationException("Could not start the elevated upgrade process.");
+		await proc.WaitForExitAsync();
+		if (proc.ExitCode != 0)
+			throw new InvalidOperationException($"ZipExtractor exited with code {proc.ExitCode}.");
 	}
 
 	public Process? RunAsRoot(string exe, string args)
