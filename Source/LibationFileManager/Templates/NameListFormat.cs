@@ -53,6 +53,6 @@ internal partial class NameListFormat : IListFormat<NameListFormat>
 	private static partial Regex SortTokenizer();
 
 	/// <summary> Format must have at least one of the strings {T}, {F}, {M}, {L}, {S}, or {ID} (optionally with formatting like {L:u})</summary>
-	[GeneratedRegex($@"[Ff]ormat\((?<format>.*?\{{{Token}(?::.*?)?\}}.*?)\)")]
+	[GeneratedRegex($$"""[Ff]ormat\((?<format>(?:\\.|'[^']*'|"[^"]*"|[^\\'"])*?\{{{Token}}(?::.*?)?\}(?:\\.|'[^']*'|"[^"]*"|[^\\'"])*?)\)""")]
 	public static partial Regex FormatRegex();
 }

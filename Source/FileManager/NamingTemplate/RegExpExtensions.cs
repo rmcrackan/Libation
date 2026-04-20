@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace FileManager.NamingTemplate;
@@ -9,6 +10,8 @@ public static class RegExpExtensions
 	extension(Group group)
 	{
 		public string? ValueOrNull() => group.Success ? group.Value : null;
+		public string? UnescapeValueOrNull() => group.Success ? CommonFormatters.Unescape(group.ValueSpan, []) : null;
+		public string UnescapeValue() => group.Success ? CommonFormatters.Unescape(group.ValueSpan, []) : string.Empty;
 		public ReadOnlySpan<char> ValueSpanOrNull() => group.Success ? group.ValueSpan : null;
 	}
 
@@ -29,6 +32,9 @@ public static class RegExpExtensions
 
 			return int.TryParse(span, out value);
 		}
+
+		public string UnescapeValue(string? groupName = null) => match.Resolve(groupName).UnescapeValue();
+		public string? UnescapeValueOrNull(string? groupName = null) => match.Resolve(groupName).UnescapeValueOrNull();
 	}
 
 	extension(Regex regex)
@@ -43,6 +49,30 @@ public static class RegExpExtensions
 			var m = regex.Match(input);
 			match = m.Success ? m : null;
 			return m.Success;
+		}
+
+		public string ReplaceWithGaps(string input, MatchEvaluator matchEvaluator, Func<string, string> gapEvaluator)
+		{
+			var sb = new StringBuilder(input.Length);
+			var pos = 0;
+
+			foreach (Match m in regex.Matches(input))
+			{
+				// part before match
+				if (m.Index > pos)
+					sb.Append(gapEvaluator(input[pos .. m.Index]));
+
+				// the match itself
+				sb.Append(matchEvaluator(m));
+
+				pos = m.Index + m.Length;
+			}
+
+			// part after last match
+			if (pos < input.Length)
+				sb.Append(gapEvaluator(input[pos..]));
+
+			return sb.ToString();
 		}
 	}
 }

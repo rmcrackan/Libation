@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -67,7 +68,7 @@ public static partial class CommonFormatters
 		// is this function is called from toString implementation of the IFormattable interface, we only get a IFormatProvider
 		var culture = GetCultureInfo(provider);
 		var oldUiCulture = Thread.CurrentThread.CurrentUICulture;
-		var result = CollapseSpacesAndTrimRegex().Replace(TagFormatRegex().Replace(templateString, GetValueForMatchingTag), "");
+		var result = CollapseSpacesAndTrimRegex().Replace(TagFormatRegex().ReplaceWithGaps(templateString, GetValueForMatchingTag, Unescape), "");
 		Thread.CurrentThread.CurrentUICulture = oldUiCulture;
 		return result;
 
@@ -103,7 +104,24 @@ public static partial class CommonFormatters
 	// The tagname may be followed by an optional format specifier separated by a colon.
 	// All other parts of the template string are left untouched as well as the braces where the tagname is unknown.
 	// TemplateStringFormatter will use a dictionary to lookup the tagname and the corresponding value getter.
-	[GeneratedRegex("""\{(?<tag>[A-Z0-9]+|#)(?:@(?<lang>[a-z-]+))?(?::(?<format>(?:\\.|'(?:[^']|'')*'|"(?:[^"]|"")*"|.)*?))?\}""", RegexOptions.IgnoreCase)]
+	[GeneratedRegex("""
+	                (?x)                          # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
+	                (?<=\G(?:                     # We lookbehind up to the start or the end of the last match for a tag format.
+	                    \\.                       # - '\' escapes always the next character. Especially further '\' and the opening '{'
+	                    | '[^']*'                 # - allow 'string' to be included in the format, with '' being an escaped ' character
+	                    | "[^"]*"                 # - allow "string" to be included in the format, with "" being an escaped " character
+	                    | [^\\'"]                 # - match any other character. This will not catch the tag format at first. Because ...
+	                ) *? )                        # With *? the pattern above tries not to consume the tag format.
+	                \{ (?<tag> [A-Z0-9]+ | \#)    # Capture the tags name as '<tag>'. It is always enclosed in '{' and '}'. It may only contain letters and numbers or be a single '#'.
+	                    (?:@(?<lang>[a-z-]+))?    # Introduced by '@' the tag name may optionally be followed by a language specifier captured in a group called '<lang>'.
+	                    (?::(?<format>(?:
+	                        \\.                   # - '\' escapes always the next character. Especially further '\' and the closing '}'
+	                        | '[^']*'             # - allow 'string' to be included in the format
+	                        | "[^"]*"             # - allow "string" to be included in the format
+	                        | .
+	                    ) *? ))?
+	                \}
+	                """, RegexOptions.IgnoreCase)]
 	public static partial Regex TagFormatRegex();
 
 	public static string FormattableFormatter(ITemplateTag _, IFormattable? value, string? formatString, CultureInfo? culture)
@@ -171,38 +189,98 @@ public static partial class CommonFormatters
 		return StringFormatter(templateTag, language, "3u", culture);
 	}
 
+	public static string Unescape(string valueSpan)
+	{
+		return Unescape(valueSpan, ['\'', '"']);
+	}
+
+	public static string Unescape(ReadOnlySpan<char> valueSpan, ReadOnlySpan<char> quoteChars, bool unquoteBackslash = true, bool unescapeDoubleQuotesInsideQuotes = true)
+	{
+		if (valueSpan.IsEmpty) return "";
+		
+		Span<char> search = stackalloc char[quoteChars.Length + 1];
+		search[0] = '\\';
+		quoteChars.CopyTo(search[1..]);
+
+		var first = valueSpan.IndexOfAny(search);
+		if (first < 0)
+			return valueSpan.ToString();
+
+		var sb = new StringBuilder(valueSpan.Length);
+		sb.Append(valueSpan[..first]);
+		for (var i = first; i < valueSpan.Length; i++)
+		{
+			var c = valueSpan[i];
+
+			// scan quotation
+			if (quoteChars.Contains(c))
+			{
+				i++; // skip quote
+
+				while (i < valueSpan.Length)
+				{
+					var inner = valueSpan[i];
+
+					// closing quote?
+					if (inner == c)
+					{
+						i++; // skip
+						if (!unescapeDoubleQuotesInsideQuotes ||
+						    i >= valueSpan.Length ||
+						    valueSpan[i] != c)
+							// end block if no 2nd quote follows or doubled quotes don't have special meaning 
+							break;
+					}
+
+					sb.Append(inner);
+					i++;
+				}
+
+				i--; // skipped one too much as outer loop advances as well
+				continue;
+			}
+
+			if (c == '\\' && unquoteBackslash && i + 1 < valueSpan.Length)
+				i++; // skip backslash and take the next char
+
+			sb.Append(valueSpan[i]);
+		}
+
+		return sb.ToString();
+	}
+
 	// These search for number formats with all notions of escaping and quoting, but all zeros replaced with D, H, or M to indicate that they should be replaced with the total number of
 	// days hours or minutes in the timespan (not just the minutes part). Only one of them is written commented. The others are identical except for the letter D, H or M.
 	// I most cases this regex will only find a straight bunch of D's, H's or M's, but it also allows for more complex formats.
 	[GeneratedRegex("""
-	                (?x)                          # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
-	                (?<=\G(?:                     # We lookbehind up to the start or the end of the last match for a number format.
-	                    \\.                       # - '\' escapes always the next character. Especially further '\' and the closing ']'
-	                    | '(?:[^']|'')*'          # - allow 'string' to be included in the format, with '' being an escaped ' character
-	                    | "(?:[^"]|"")*"          # - allow "string" to be included in the format, with "" being an escaped " character
-	                    | .                       # - match any character. This will not catch the number format at first. Because ...
-	                ) *? )                        # With *? the pattern above tries not to consume the number format.
-	                (?<format>                    # We capture the whole number format in a group called '<format>'.
-	                    (?:\#[\#,.]*)?            # - For grouping a number format may start with `#` and grouping hints `,` or even a decimal point `.`.
-	                    D                         # - At least one unescaped, unquoted uppercase D must be included in the format to indicate that this is a total days format.
-	                    (?:(?:                    # - Before further D's, there may be any combination of escaped characters and quoted strings.
-	                            \\.               # - '\' escapes always the next character. Especially further '\' and the closing ']' 
-	                            | '(?:[^']|'')*'  # - allow 'string' to be included in the format, with '' being an escaped ' character 
-	                            | "(?:[^"]|"")*"  # - allow "string" to be included in the format, with "" being an escaped " character 
-	                        )* [\#,.%‰D]+         # After escaped characters and quoted strings, there needs to be at least one more real number format character (which may be D as well).
-	                    )*                        # This may extend the format several times, for example in `D\:DD` or `D' days 'D\-D`.
-	                    (?:[Ee][+-]?0+)?          # The original number format may end with an optional scientific notation part. This is also optional.
-	                )                             # end of capture group '<format>'
+	                (?x)                   # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
+	                (?<=\G(?:              # We lookbehind up to the start or the end of the last match for a number format.
+	                    \\.                # - '\' escapes always the next character. Especially further '\'
+	                    | '[^']*'          # - allow 'string' to be included in the format
+	                    | "[^"]*"          # - allow "string" to be included in the format
+	                    | [^\\'"]          # - match any other character. This will not catch the number format at first. Because ...
+	                ) *? )                 # With *? the pattern above tries not to consume the number format.
+	                (?<format>             # We capture the whole number format in a group called '<format>'.
+	                    (?:\#[\#,.]*)?     # - For grouping a number format may start with `#` and grouping hints `,` or even a decimal point `.`.
+	                    D                  # - At least one unescaped, unquoted uppercase D must be included in the format to indicate that this is a total days format.
+	                    (?:(?:             # - Before further D's, there may be any combination of escaped characters and quoted strings.
+	                            \\.        # - '\' escapes always the next character. Especially further '\' and the closing ']' 
+	                            | '[^']*'  # - allow 'string' to be included in the format 
+	                            | "[^"]*"  # - allow "string" to be included in the format 
+	                        )* [D%‰\#,.]+  # After escaped characters and quoted strings, there needs to be at least one more real number format character (which may be D as well).
+	                    )*                 # This may extend the format several times, for example in `D\:DD` or `D' days 'D\-D`.
+	                    (?:[Ee][+-]?0+)?   # The original number format may end with an optional scientific notation part. This is also optional.
+	                )                      # end of capture group '<format>'
 	                """)]
 	private static partial Regex RegexMinutesTotalD();
 
-	[GeneratedRegex("""(?<=\G(?:\\.|'(?:[^']|'')*'|"(?:[^"]|"")*"|.)*?)(?<format>(?:#[#,.]*)?H(?:(?:\\.|'(?:[^']|'')*'|"(?:[^"]|"")*")*[H%‰#,.]+)*(?:[Ee][+-]?0+)?)""")]
+	[GeneratedRegex("""(?<=\G(?:\\.|'[^']*'|"[^"]*"|[^\\'"])*?)(?<format>(?:#[#,.]*)?H(?:(?:\\.|'[^']*'|"[^"]*")*[H%‰#,.]+)*(?:[Ee][+-]?0+)?)""")]
 	private static partial Regex RegexMinutesTotalH();
 
-	[GeneratedRegex("""(?<=\G(?:\\.|'(?:[^']|'')*'|"(?:[^"]|"")*"|.)*?)(?<format>(?:#[#,.]*)?M(?:(?:\\.|'(?:[^']|'')*'|"(?:[^"]|"")*")*[M%‰#,.]+)*(?:[Ee][+-]?0+)?)""")]
+	[GeneratedRegex("""(?<=\G(?:\\.|'[^']*'|"[^"]*"|[^\\'"])*?)(?<format>(?:#[#,.]*)?M(?:(?:\\.|'[^']*'|"[^"]*")*[M%‰#,.]+)*(?:[Ee][+-]?0+)?)""")]
 	private static partial Regex RegexMinutesTotalM();
 
 	// Capture all D H or M characters in the number format, so that they can be replaced with zeros.
-	[GeneratedRegex("""(?<=\G(?:\\.|'(?:[^']|'')*'|"(?:[^"]|"")*"|.)*?)[DHM]""")]
+	[GeneratedRegex("""(?<=\G(?:\\.|'[^']*'|"[^"]*"|.)*?)[DHM]""")]
 	private static partial Regex RegexTimeStampToNumberPattern();
 }

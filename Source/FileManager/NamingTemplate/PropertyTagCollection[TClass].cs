@@ -189,17 +189,18 @@ public class PropertyTagCollection<TClass> : TagCollection
 			: base(templateTag, propertyGetter)
 		{
 			NameMatcher = new Regex($"""
-			                         (?x)                         # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
-			                         ^<                           # tags start with a '<'
-			                         {TagNameForRegex()}          # next the tagname needs to be matched with space being made optional. Also escape all '#'
-			                         (?:\s*                       # optional whitespace
-			                             \[  (?<format>           # optional format details enclosed in '[' and ']'. Capture inner part as <format>.
-			                                     (?:\\.           # - '\' escapes always the next character. Especially further '\' and the closing ']'
-			                                     |'(?:[^']|'')*'  # - allow 'string' to be included in the format, with '' being an escaped ' character
-			                                     |"(?:[^"]|"")*"  # - allow "string" to be included in the format, with "" being an escaped " character
-			                                     |[^\\\]])* )     # - match any character except '\' and ']'. Format may end in whitespace!
-			                             \]                       # - closing the format part
-			                         )?\s*>                       # Tags end with '>'
+			                         (?x)                      # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
+			                         ^<                        # tags start with a '<'
+			                         {TagNameForRegex()}       # next the tagname needs to be matched with space being made optional. Also escape all '#'
+			                         (?:\s*                    # optional whitespace
+			                             \[  (?<format> (?:    # optional format details enclosed in '[' and ']'. Capture inner part as <format>.
+			                                     \\.           # - '\' escapes always the next character. Especially further '\' and the closing ']'
+			                                     | '[^']*'     # - allow 'string' to be included in the format
+			                                     | "[^"]*"     # - allow "string" to be included in the format
+			                                     | [^'"\\\]]   # - match any character except '\' and ']'. Format may end in whitespace!
+			                                 ) * )             # extend up to the next ']'
+			                             \]                    # - closing the format part
+			                         )?\s*>                    # Tags end with '>'
 			                         """
 				, options);
 
