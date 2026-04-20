@@ -44,7 +44,7 @@ namespace LibationWinForms.Dialogs.Login
             // submitBtn
             // 
             this.submitBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.submitBtn.Location = new System.Drawing.Point(665, 458);
+            this.submitBtn.Location = new System.Drawing.Point(665, 575);
             this.submitBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.submitBtn.Name = "submitBtn";
             this.submitBtn.Size = new System.Drawing.Size(88, 27);
@@ -76,7 +76,7 @@ namespace LibationWinForms.Dialogs.Login
             // loginUrlLbl
             // 
             this.loginUrlLbl.AutoSize = true;
-            this.loginUrlLbl.Location = new System.Drawing.Point(14, 61);
+            this.loginUrlLbl.Location = new System.Drawing.Point(14, 55);
             this.loginUrlLbl.Name = "loginUrlLbl";
             this.loginUrlLbl.Size = new System.Drawing.Size(180, 15);
             this.loginUrlLbl.TabIndex = 2;
@@ -84,21 +84,20 @@ namespace LibationWinForms.Dialogs.Login
             // 
             // loginUrlTb
             // 
-            this.loginUrlTb.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.loginUrlTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.loginUrlTb.Location = new System.Drawing.Point(14, 79);
+            this.loginUrlTb.Location = new System.Drawing.Point(14, 73);
             this.loginUrlTb.Multiline = true;
             this.loginUrlTb.Name = "loginUrlTb";
             this.loginUrlTb.ReadOnly = true;
             this.loginUrlTb.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.loginUrlTb.Size = new System.Drawing.Size(739, 117);
+            this.loginUrlTb.Size = new System.Drawing.Size(739, 200);
             this.loginUrlTb.TabIndex = 3;
             // 
             // copyBtn
             // 
-            this.copyBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.copyBtn.Location = new System.Drawing.Point(14, 202);
+            this.copyBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
+            this.copyBtn.Location = new System.Drawing.Point(14, 281);
             this.copyBtn.Name = "copyBtn";
             this.copyBtn.Size = new System.Drawing.Size(165, 23);
             this.copyBtn.TabIndex = 4;
@@ -108,8 +107,8 @@ namespace LibationWinForms.Dialogs.Login
             // 
             // launchBrowserBtn
             // 
-            this.launchBrowserBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.launchBrowserBtn.Location = new System.Drawing.Point(589, 202);
+            this.launchBrowserBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.launchBrowserBtn.Location = new System.Drawing.Point(589, 281);
             this.launchBrowserBtn.Name = "launchBrowserBtn";
             this.launchBrowserBtn.Size = new System.Drawing.Size(165, 23);
             this.launchBrowserBtn.TabIndex = 5;
@@ -119,9 +118,9 @@ namespace LibationWinForms.Dialogs.Login
             // 
             // instructionsLbl
             // 
-            this.instructionsLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.instructionsLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.instructionsLbl.AutoSize = true;
-            this.instructionsLbl.Location = new System.Drawing.Point(14, 261);
+            this.instructionsLbl.Location = new System.Drawing.Point(14, 338);
             this.instructionsLbl.Name = "instructionsLbl";
             this.instructionsLbl.Size = new System.Drawing.Size(436, 90);
             this.instructionsLbl.TabIndex = 7;
@@ -129,20 +128,21 @@ namespace LibationWinForms.Dialogs.Login
             // 
             // responseUrlTb
             // 
-            this.responseUrlTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.responseUrlTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.responseUrlTb.Location = new System.Drawing.Point(14, 354);
+            this.responseUrlTb.Location = new System.Drawing.Point(14, 450);
             this.responseUrlTb.Multiline = true;
             this.responseUrlTb.Name = "responseUrlTb";
             this.responseUrlTb.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.responseUrlTb.Size = new System.Drawing.Size(739, 98);
+            this.responseUrlTb.Size = new System.Drawing.Size(739, 120);
             this.responseUrlTb.TabIndex = 8;
             // 
             // tldrLbl
             // 
+            this.tldrLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.tldrLbl.AutoSize = true;
             this.tldrLbl.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.tldrLbl.Location = new System.Drawing.Point(14, 237);
+            this.tldrLbl.Location = new System.Drawing.Point(14, 315);
             this.tldrLbl.Name = "tldrLbl";
             this.tldrLbl.Size = new System.Drawing.Size(421, 15);
             this.tldrLbl.TabIndex = 6;
@@ -153,7 +153,7 @@ namespace LibationWinForms.Dialogs.Login
             this.AcceptButton = this.submitBtn;
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(766, 498);
+            this.ClientSize = new System.Drawing.Size(766, 620);
             this.Controls.Add(this.tldrLbl);
             this.Controls.Add(this.responseUrlTb);
             this.Controls.Add(this.instructionsLbl);
@@ -164,9 +164,10 @@ namespace LibationWinForms.Dialogs.Login
             this.Controls.Add(this.usernameLbl);
             this.Controls.Add(this.localeLbl);
             this.Controls.Add(this.submitBtn);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.MaximizeBox = false;
+            this.MaximizeBox = true;
+            this.MinimumSize = new System.Drawing.Size(640, 520);
             this.MinimizeBox = false;
             this.Name = "LoginExternalDialog";
             this.ShowIcon = false;
