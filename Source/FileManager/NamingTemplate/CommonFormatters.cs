@@ -236,7 +236,7 @@ public static partial class CommonFormatters
 					i++;
 				}
 
-				i--; // skipped one to much as outer loop advances as well
+				i--; // skipped one too much as outer loop advances as well
 				continue;
 			}
 
