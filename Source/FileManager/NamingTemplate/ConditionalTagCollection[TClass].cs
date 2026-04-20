@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
 
 namespace FileManager.NamingTemplate;
@@ -127,9 +125,8 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			                         ^<(?<not>!)?             # tags start with a '<'. Conditionals allow an optional ! captured in <not> to negate the condition
 			                         {TagNameForRegex()}      # next the tagname needs to be matched with space being made optional. Also escape all '#'
 			                         (?:\s+                   # the following part is optional. If present it starts with some whitespace
-			                             (?<property>(?:      # capture the <property>
-			                                   [^<=~>!]       # - match any character with some exclusions that should only be used in operands
-			                             ) +? (?<!\s))        # - don't let <property> end with a whitepace. Otherwise "<tagname  = tag2->" would be matchable.
+			                             (?<property>.+?      # - capture the <property> non greedy so it won't end on whitespace, '[' or '-' (if match is possible)
+			                                 (?<!\s))         # - don't let <property> end with a whitepace. Otherwise "<tagname  [foobar]->" would be matchable.
 			                             (?:\s*\[\s*          # optional check details enclosed in '[' and ']'. Check shall start with an operator. So match whitespace first
 			                                 (?<check_or_op>  # - capture inner part as <check_or_op>
 			                                     (?:\\.       # - '\' escapes always the next character. Especially further '\' and the closing ']'
@@ -211,7 +208,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			return constant.Type == targetType ? constant : Expression.Convert(constant, targetType);
 		}
 
-		private static (object?, ConditionEvaluator) GetPredicateAndValue(string exactName, string? checkString)
+		private static (object, ConditionEvaluator) GetPredicateAndValue(string exactName, string? checkString)
 		{
 			if (checkString is null)
 				return (string.Empty, (v1, _, _) => v1 switch
@@ -227,7 +224,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 
 			return (opGroup.Name switch
 			{
-				"num_op" => valStr is null ? null : int.Parse(valStr),
+				"num_op" => int.Parse(valStr!), // at this stage <val> should have matched digits in CheckRegex
 				"list_op" => new[] { valStr ?? string.Empty },
 				_ => valStr ?? string.Empty
 			}, evaluator);
@@ -263,7 +260,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			return (GetPredicateForStringOp(exactName, group.ValueSpan), group);
 		}
 
-		private static ConditionEvaluator GetPredicateForNumOp(string exactName, ReadOnlySpan<char> opString)
+		private static ConditionEvaluator GetPredicateForNumOp(string _, ReadOnlySpan<char> opString)
 		{
 			Func<int?, int?, CultureInfo?, bool> checkInt = opString switch
 			{
@@ -275,7 +272,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 				"#<" or "<" => (v1, v2, _) => v1 < v2,
 				_ => throw new ArgumentOutOfRangeException() // this should never happen because the regex only allows these values
 			};
-			return (v1, v2, culture) => ToIntObject(v1) is { } i1 && ToIntObject(v2) is { } i2 && checkInt(i1, i2, culture);;
+			return (v1, v2, culture) => ToIntObject(v1) is { } i1 && ToIntObject(v2) is { } i2 && checkInt(i1, i2, culture);
 		}
 
 		private static int? ToIntObject(object? value)
@@ -292,7 +289,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			};
 		}
 
-		private static ConditionEvaluator GetPredicateForListOp(string exactName, ReadOnlySpan<char> opString)
+		private static ConditionEvaluator GetPredicateForListOp(string _, ReadOnlySpan<char> opString)
 		{
 			var checklist = opString switch
 			{
