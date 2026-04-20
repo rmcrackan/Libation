@@ -550,6 +550,10 @@ namespace TemplatesTests
 		[DataRow("<is author[#=2]->true<-is>", "true")]
 		[DataRow("<is author[=Arthur Conan Doyle]->true<-is>", "true")]
 		[DataRow("<is author[format({L})][=Doyle]->true<-is>", "true")]
+		[DataRow("<is author[format({L})][=]->true<-is>", "")]
+		[DataRow("<is author[format({L})][>>]->true<-is>", "")]
+		[DataRow("<is author[format({M})][=]->true<-is>", "true")]
+		[DataRow("<is author[format({M})][>>]->true<-is>", "true")]
 		[DataRow("<!is author[format({L})][=Doyle]->false<-is>", "")]
 		[DataRow("<is author[format({L})][!=Doyle]->true<-is>", "true")]
 		[DataRow("<!is author[format({L})][!=Doyle]->false<-is>", "")]
@@ -581,6 +585,10 @@ namespace TemplatesTests
 		[DataRow("<is audible subtitle[3][ =an ]->true<-is>", "true")]
 		[DataRow(@"<is audible subtitle[3][ =an\ ]->true<-is>", "true")]
 		[DataRow("<is minutes[>42]->true<-is>", "true")]
+		[DataRow("<is dateadded[>9000]->true<-is>", "true")]
+		[DataRow("<is dateadded[>90000]->true<-is>", "")]
+		[DataRow("<is locale[>42]->true<-is>", "")]
+		[DataRow("<is language[>42]->true<-is>", "")]
 		public void HasValue_test(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
@@ -875,7 +883,7 @@ namespace TemplatesTests
 			var bookDto = Shared.GetLibraryBook();
 			bookDto.Language = new CultureInfoDto(language);
 
-			var result = "";
+			string result;
 
 			var old = Thread.CurrentThread.CurrentCulture;
 			var oldUi = Thread.CurrentThread.CurrentUICulture;
@@ -956,7 +964,7 @@ namespace TemplatesTests
 			var bookDto = Shared.GetLibraryBook();
 			bookDto.Locale = new LocaleDto(country);
 
-			var result = "";
+			string result;
 
 			var old = Thread.CurrentThread.CurrentCulture;
 			var oldUi = Thread.CurrentThread.CurrentUICulture;

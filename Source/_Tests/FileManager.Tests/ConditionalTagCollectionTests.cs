@@ -32,6 +32,33 @@ public class ConditionalTagCollectionTests
 	/// Tests include malformed patterns and catastrophic backtracking scenarios.
 	/// </summary>
 	[TestMethod]
+	[DataRow("#=foo", DisplayName = "NumericalCheck_on_string")]
+	[DataRow("#=", DisplayName = "NumericalCheck_without_number")]
+	public void ConditionalTag_InvalidOperator_ThrowsInvalidOperationException(string check)
+	{
+		// Arrange: Invalid check that should throw InvalidOperationException during evaluation
+		var template = $"<testcond foobar[{check}]->content<-testcond>";
+		var namingTemplate = NamingTemplate.NamingTemplate.Parse(template, [_conditionalTags]);
+
+		var testObj = new TestObject { Value = "testValue" };
+
+		// Act & Assert: Evaluate template with invalid check, should throw InvalidOperationException
+		try
+		{
+			namingTemplate.Evaluate(testObj);
+			Assert.Fail($"Expected InvalidOperationException for check: {check}");
+		}
+		catch (InvalidOperationException)
+		{
+			// Expected behavior - regex is invalid and parsing should fail
+		}
+	}
+
+	/// <summary>
+	/// Test that invalid regex patterns throw InvalidOperationException during evaluation.
+	/// Tests include malformed patterns and catastrophic backtracking scenarios.
+	/// </summary>
+	[TestMethod]
 	[DataRow("[abc", "test_value", DisplayName = "InvalidRegexPattern_UnmatchedBracket")]
 	[DataRow("(?'name)abc", "test_value", DisplayName = "InvalidRegexPattern_InvalidGroup")]
 	[DataRow("(a+)+b", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", DisplayName = "CatastrophicBacktracking_NestedQuantifiers")]
