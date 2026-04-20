@@ -16,6 +16,7 @@ public partial class LoginExternalDialog : DialogWindow
 	public LoginExternalDialog() : base(saveAndRestorePosition: false)
 	{
 		InitializeComponent();
+		CanResize = true;
 
 		if (Design.IsDesignMode)
 		{
