@@ -130,7 +130,7 @@ Text formatting can change length and case of the text. Use \<#\>, \<#\>\<case\>
 | Formatter            | Description                                                                                                                                                              | Example Usage                                | Example Result                               |
 |----------------------| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |--------------------------------------------- | ---------------------------------------------|
 | separator()          | Specify the text used to join<br>multiple entries.<br><br>Default is ", "                                                                                                | `<tag[separator(_)]>`                        | Tag1_Tag2_Tag3_Tag4_Tag5                     |
-| format(\{S\}) **†**  | Formats the entries by placing their values into the specified template.<br>Use {S:[Text_Formatter](#text-formatters)} to place the entry and optionally apply a format. | `<tag[format(Tag={S:l})`<br>`separator(;)]>` | Tag=tag1;Tag=tag2;Tag=tag3;Tag=tag4;Tag=tag5 |
+| format(\{S\}) **†**  | Formats the entries by placing their values into the specified template.<br>Use \{S:[Text_Formatter](#text-formatters)\} to place the entry and optionally apply a format. | `<tag[format(Tag={S:l})`<br>`separator(;)]>` | Tag=tag1;Tag=tag2;Tag=tag3;Tag=tag4;Tag=tag5 |
 | sort(S)              | Sorts the elements by their value.<br><br>*Sorting direction:*<br>uppercase = ascending<br>lowercase = descending<br><br>Default is unsorted                             | `<tag[sort(s)`<br>`separator(;)]>`           | Tag5;Tag4;Tag3;Tag2;Tag1                     |
 | max(#)               | Only use the first # of entries                                                                                                                                          | `<tag[max(1)]>`                              | Tag1                                         |
 | slice(#)             | Only use the nth entry of the list                                                                                                                                       | `<tag[slice(2)]>`                            | Tag2                                         |
@@ -139,7 +139,7 @@ Text formatting can change length and case of the text. Use \<#\>, \<#\>\<case\>
 | slice(#..#)          | Only use entries of the list starting from # and ending at # (inclusive)                                                                                                 | `<tag[slice(2..4)]>`                         | Tag2, Tag3, Tag4                             |
 | slice(-#..-#)        | Numbers may be specified negative. In that case positions ar counted from the end with -1 pointing at the last member                                                    | `<tag[slice(-3..-2)]>`                       | Tag3, Tag4                                   |
 
-**†** For further information on format templates, please refer to the [Format_Templates](#format-templates) section.
+**†** For further information on format templates, please refer to the [Format templates](#format-templates) section.
 
 ### Series Formatters
 
@@ -147,7 +147,7 @@ Text formatting can change length and case of the text. Use \<#\>, \<#\>\<case\>
 |-------------------------| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | \{N \| # \| ID\} **†**  | Formats the series using<br>the series part tags.<br>\{N:[Text_Formatter](#text-formatters)\} = Series Name<br>\{#:[Number_Formatter](#number-formatters)\} = Number order in series<br>\{ID:[Text_Formatter](#text-formatters)\} = Audible Series ID<br><br>Formatter parts are optional and introduced by the colon. If specified the string will be used to format the part using the corresponding formatter.<br><br>Default is \{N\} | `<first series>`\<hr\>`<first series[{N:l}]>`\<hr\>`<first series[{N}, {#}, {ID}]>`\<hr\>`<first series[{N:10U}, {ID}, {#:00.0}]>` | Sherlock Holmes\<hr\>sherlock holmes\<hr\>Sherlock Holmes, 1-6, B08376S3R2\<hr\>SHERLOCK H, B08376S3R2, 01.0-06.0 |
 
-**†** For further information on format templates, please refer to the [Format_Templates](#format-templates) section.
+**†** For further information on format templates, please refer to the [Format templates](#format-templates) section.
 
 ### Series List Formatters
 
@@ -159,7 +159,7 @@ Text formatting can change length and case of the text. Use \<#\>, \<#\>\<case\>
 | max(#)                          | Only use the first # of series                                                                                                                                                                                                                                                                               | `<series[max(1)]>`                                                                        | Sherlock Holmes                                                                                                     |
 | slice(#..#)                     | Only use entries of the series list starting from # and ending at # (inclusive)<br><br>See [Text List Formatter Usage](#Text-List-Formatters) above for details on all the variants of `slice()`                                                                                                             | `<series[slice(..-2)]>`                                                                   | Sherlock Holmes                                                                                                     |
 
-**†** For further information on format templates, please refer to the [Format_Templates](#format-templates) section.
+**†** For further information on format templates, please refer to the [Format templates](#format-templates) section.
 
 ### Name Formatters
 
@@ -167,7 +167,7 @@ Text formatting can change length and case of the text. Use \<#\>, \<#\>\<case\>
 |----------------------------------------| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | --------------------------------------- |
 | \{T \| F \| M \| L \| S \| ID\} **†**  | Formats the human name using<br>the name part tags.<br>\{T:[Text_Formatter](#text-formatters)\} = Title (e.g. "Dr.")<br>\{F:[Text_Formatter](#Text-Formatters)\} = First name<br>\{M:[Text_Formatter](#text-formatters)\} = Middle name<br>\{L:[Text_Formatter](#text-formatters)\} = Last Name<br>\{S:[Text_Formatter](#text-formatters)\} = Suffix (e.g. "PhD")<br>\{ID:[Text_Formatter](#text-formatters)\} = Audible Contributor ID<br><br>Formatter parts are optional and introduced by the colon. If specified the string will be used to format the part using the correspoing formatter.<br><br>Default is \{T\} \{F\} \{M\} \{L\} \{S\} | `<first narrator[{L}, {F:1}.]>`\<hr\>`<first author[{L:u}, {F} _{ID}_]>` | Fry, S.\<hr\>DOYLE, Arthur \_B000AQ43GQ\_ |
 
-**†** For further information on format templates, please refer to the [Format_Templates](#format-templates) section.
+**†** For further information on format templates, please refer to the [Format templates](#format-templates) section.
 
 ### Name List Formatters
 
@@ -179,7 +179,7 @@ Text formatting can change length and case of the text. Use \<#\>, \<#\>\<case\>
 | max(#)                                         | Only use the first # of names<br><br>Default is all names                                                                                                                                                                                                                                                                                                           | `<author[max(1)]>`                                                                                             | Arthur Conan Doyle                                                                                                                                       |
 | slice(#..#)                                    | Only use entries of the names list starting from # and ending at # (inclusive)<br><br>See [Text List Formatter Usage](#Text-List-Formatters) above for details on all the variants of `slice()`                                                                                                                                                                     | `<author[slice(..-2)]>`                                                                                        | Arthur Conan Doyle                                                                                                                                       |
 
-**†** For further information on format templates, please refer to the [Format_Templates](#format-templates) section.
+**†** For further information on format templates, please refer to the [Format templates](#format-templates) section.
 
 ### TimeSpan Formatters
 For more custom formatters and examples, [see this guide from Microsoft](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-timespan-format-strings).
@@ -243,7 +243,7 @@ You can specify which part of a region you are interested in.
 | \{O \| I \| I2 \| I3 \| E \| N \| W \| L \| T \| ID\} **†** | Formats the region using<br>the region part tags.<br>\{O:[Text_Formatter](#text-formatters)\} = Region as used in Libation<br>\{I:[Text_Formatter](#text-formatters)\} = Two letter ISO code<br>\{I2:[Text_Formatter](#text-formatters)\} = Two letter ISO code<br>\{I3:[Text_Formatter](#text-formatters)\} = Three letter ISO code<br>\{E:[Text_Formatter](#text-formatters)\} = English name<br>\{N:[Text_Formatter](#text-formatters)\} = Native name - OS dependent<br>\{W:[Text_Formatter](#number-formatters)\} = Unique Windows code<br>\{L:[Text_Formatter](#text-formatters)\} = Lang code used for this region/store<br>\{T:[Text_Formatter](#number-formatters)\} = TLD under which the audible store is hosted<br>\{ID:[Text_Formatter](#text-formatters)\} = Region code<br> <br><br>Formatter parts are optional and introduced by the colon. If specified the string will be used to format the part using the corresponding formatter.<br><br>Default is \{O\} | `<locale[{I} ({E})]>`<hr>`www.audible.<locale[{T}]>` | US (United States)<hr>www.audible.com |
 | \{D\}  **†**,**‡**                                          | Display name interpreted by the current language settings.<br>To ensure output in a specific language the lang-code to use might be specified with a leading '@'.<br>Formatter part is also optional and introduced by the colon.<br>\{D@LANG:[Text_Formatter](#text-formatters)\}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `<locale[{D@es:u}]>`                                 | ESTADOS UNIDOS                        |
 
-**†** For further information on format templates, please refer to the [Format_Templates](#format-templates) section.
+**†** For further information on format templates, please refer to the [Format templates](#format-templates) section.
 
 **‡** LANG may be any code from the [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) standard like `es` for Spanish, `en` for English, `de` for German, etc. or even a [IETF language tag](https://en.wikipedia.org/wiki/IETF_language_tag) like 'fr-CA'.
 
@@ -256,27 +256,36 @@ You can specify which part of a language you are interested in.
 | \{O \| I \| I2 \| I3 \| E \| N \| W \| ID\} **†** | Formats the language using<br>the language part tags.<br>\{O:[Text_Formatter](#text-formatters)\} = Language as provided by audible<br>\{I:[Text_Formatter](#text-formatters)\} = Two letter ISO code<br>\{I2:[Text_Formatter](#text-formatters)\} = Two letter ISO code<br>\{I3:[Text_Formatter](#text-formatters)\} = Three letter ISO code<br>\{E:[Text_Formatter](#text-formatters)\} = English name<br>\{N:[Text_Formatter](#text-formatters)\} = Native name - OS dependent<br>\{W:[Text_Formatter](#number-formatters)\} = Unique Windows code<br>\{ID:[Text_Formatter](#text-formatters)\} = Lang code<br><br>Formatter parts are optional and introduced by the colon. If specified the string will be used to format the part using the corresponding formatter.<br><br>Default is \{O\} | `<language[{I3:l} ({E})]>` | fra (French)   |
 | \{D\} **†**,**‡**                                 | Display name interpreted by the current language settings.<br>To ensure output in a specific language the lang-code to use might be specified with a leading '@'.<br>Formatter part is also optional and introduced by the colon.<br>\{D@LANG:[Text_Formatter](#text-formatters)\}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `<language[{D@es}]>`       | francés        |
 
-**†** For further information on format templates, please refer to the [Format_Templates](#format-templates) section.
+**†** For further information on format templates, please refer to the [Format templates](#format-templates) section.
 
 **‡** LANG may be any code from the [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) standard like `es` for Spanish, `en` for English, `de` for German, etc. or even a [IETF language tag](https://en.wikipedia.org/wiki/IETF_language_tag) like 'fr-CA'.
 
 ### Format Templates
 
-Depending on which property is to be displayed, one or more placeholders can be used in a format template. The placeholders are defined in the form `{A}`:
+Depending on which property is to be displayed, one or more placeholders can be used in a format template. The placeholders are defined in the form &#123;A&#125; (a single-letter placeholder). For example:
 
-`<first author[{F} {U}]>`
+```text
+<first author[{F} {U}]>
+```
 
 The format template must sometimes be enclosed in square brackets and sometimes in round brackets. In addition to placeholders, the format template may also contain arbitrary text. To prevent this text from being mistaken for a bracket at the end of the template or a placeholder, escapes can be used within the text:
-* `\x` - Escapes the next character.
-* `\\` - Escapes a backslash.
-* `"text"` - encloses text that may contain special characters. To include a double quote in the text, escape it by doubling it: `"She said ""Hello"""` will output `She said "Hello"`.
-* `'text'`- encloses text that may contain special characters. To include a single quote in the text, escape it by doubling it: `'It''s a test'` will output `It's a test`.
 
-`<series[separator(,) format('{Series:' {N}\})]>`
+* `\x` — Escapes the next character.
+* `\\` — Escapes a backslash.
+* `"text"` — encloses text that may contain special characters. To include a double quote in the text, escape it by doubling it: `` `"She said ""Hello"""` `` will output `` `She said "Hello"` ``.
+* `'text'` — encloses text that may contain special characters. To include a single quote in the text, escape it by doubling it: `` `'It''s a test'` `` will output `` `It's a test` ``.
+
+```text
+<series[separator(,) format('{Series:' {N}\})]>
+```
 
 Not all elements of a property are always present or have content. In this case, format templates would contain gaps after substitution. Groups of spaces are automatically merged. Other characters, however, remain unchanged. By doubling the curly brackets, you can specify text fragments before and after the placeholder, which are only used if the placeholder is replaced with content.
 
-`<narrator[format({{F} }{\({M}') '}{L})]>` → `Neil Gaiman, Christopher (Evan) Welch`
+```text
+<narrator[format({{F} }{\({M}') '}{L})]>
+```
+
+→ `Neil Gaiman, Christopher (Evan) Welch`
 
 ### Checks
 
