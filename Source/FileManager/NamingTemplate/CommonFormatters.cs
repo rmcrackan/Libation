@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Dinah.Core;
 
 namespace FileManager.NamingTemplate;
 
@@ -43,7 +44,7 @@ public static partial class CommonFormatters
 		if (string.IsNullOrWhiteSpace(formatString) || !StringFormatRegex().TryMatch(formatString, out var match)) return value;
 
 		// first shorten the string if a number is specified in the format string
-		if (int.TryParse(match.Groups["left"].ValueSpan, out var length) && length < value.Length)
+		if (match.TryParseInt("left", out var length) && length < value.Length)
 			value = value[..length];
 
 		culture ??= CultureInfo.CurrentCulture;
@@ -68,7 +69,7 @@ public static partial class CommonFormatters
 		// is this function is called from toString implementation of the IFormattable interface, we only get a IFormatProvider
 		var culture = GetCultureInfo(provider);
 		var oldUiCulture = Thread.CurrentThread.CurrentUICulture;
-		var result = CollapseSpacesAndTrimRegex().Replace(TagFormatRegex().ReplaceWithGaps(templateString, GetValueForMatchingTag, Unescape), "");
+		var result = CollapseSpacesAndTrimRegex().Replace(TagFormatRegex().ReplaceWithGaps(templateString, GetValueForMatchingTag, Unescape), string.Empty);
 		Thread.CurrentThread.CurrentUICulture = oldUiCulture;
 		return result;
 
@@ -77,17 +78,19 @@ public static partial class CommonFormatters
 			var tag = m.Groups["tag"].Value;
 			if (!replacements.TryGetValue(tag, out var getter)) return m.Value;
 
-			var lang = m.Groups["lang"].ValueOrNull();
+			var lang = m.ResolveValue("lang");
 			var cultureToUse = lang is null ? culture : CultureInfo.GetCultureInfo(lang);
 			Thread.CurrentThread.CurrentUICulture = cultureToUse ?? oldUiCulture;
-			
+
 			var value = getter(toFormat);
-			var format = m.Groups["format"].ValueOrNull();
-			return value switch
+			var format = m.ResolveValue("format");
+
+			var formatted = value switch
 			{
 				IFormattable formattable => formattable.ToString(format, cultureToUse),
 				_ => _StringFormatter(value?.ToString(), format, cultureToUse),
 			};
+			return formatted.IsNullOrEmpty() ? string.Empty : m.UnescapeValue("pre") + formatted + m.UnescapeValue("post");
 		}
 	}
 
@@ -112,6 +115,12 @@ public static partial class CommonFormatters
 	                    | "[^"]*"                 # - allow "string" to be included in the format, with "" being an escaped " character
 	                    | [^\\'"]                 # - match any other character. This will not catch the tag format at first. Because ...
 	                ) *? )                        # With *? the pattern above tries not to consume the tag format.
+	                (?: \{ (?<pre> (?:            # With an optional extra '{' surroundings of the tag format might be specified in a group called '<pre>'.
+	                    \\.                       # - '\' escapes always the next character. Especially further '\' and the opening '{'
+	                    | '[^']*'                 # - allow 'string' to be included in the format
+	                    | "[^"]*"                 # - allow "string" to be included in the format
+	                    | [^\\'"{}]               # - match any other character. We also don't want further unescaped '{' or '}' in the format.
+	                ) * ) )?                      # Capture all up to the next unescaped '{' to get the optional '<pre>' group.
 	                \{ (?<tag> [A-Z0-9]+ | \#)    # Capture the tags name as '<tag>'. It is always enclosed in '{' and '}'. It may only contain letters and numbers or be a single '#'.
 	                    (?:@(?<lang>[a-z-]+))?    # Introduced by '@' the tag name may optionally be followed by a language specifier captured in a group called '<lang>'.
 	                    (?::(?<format>(?:
@@ -121,7 +130,17 @@ public static partial class CommonFormatters
 	                        | .
 	                    ) *? ))?
 	                \}
-	                """, RegexOptions.IgnoreCase)]
+	                (?(pre)
+	                    (?<post>(?:
+	                        \\.
+	                        | '[^']*'
+	                        | "[^"]*"
+	                        | [^\\'"{}]
+	                    ) * ) \}
+	                    |
+	                )
+	                """,
+		RegexOptions.IgnoreCase)]
 	public static partial Regex TagFormatRegex();
 
 	public static string FormattableFormatter(ITemplateTag _, IFormattable? value, string? formatString, CultureInfo? culture)

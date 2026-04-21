@@ -10,8 +10,8 @@ public static class RegExpExtensions
 	extension(Group group)
 	{
 		public string? ValueOrNull() => group.Success ? group.Value : null;
-		public string? UnescapeValueOrNull() => group.Success ? CommonFormatters.Unescape(group.ValueSpan, []) : null;
-		public string UnescapeValue() => group.Success ? CommonFormatters.Unescape(group.ValueSpan, []) : string.Empty;
+		public string? UnescapeValueOrNull() => group.Success ? CommonFormatters.Unescape(group.ValueSpan, ['\'', '"']) : null;
+		public string UnescapeValue() => group.Success ? CommonFormatters.Unescape(group.ValueSpan, ['\'', '"']) : string.Empty;
 		public ReadOnlySpan<char> ValueSpanOrNull() => group.Success ? group.ValueSpan : null;
 	}
 
