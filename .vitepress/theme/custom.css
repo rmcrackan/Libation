@@ -1,5 +1,14 @@
 /* Custom styles for Libation documentation */
 
+/* Naming Templates page: monospace in the doc column + outline only.
+   pageClass is applied to .Layout in VitePress; limit scope to #VPContent
+   so the top nav, sidebar, and site footer keep the default font. */
+.Layout.naming-templates-mono #VPContent,
+.Layout.naming-templates-mono #VPContent * {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+}
+
 /* Hide certain nav items on tablet devices to prevent horizontal scroll */
 @media (min-width: 640px) and (max-width: 959px) {
   /* Target specific nav items by their position */
