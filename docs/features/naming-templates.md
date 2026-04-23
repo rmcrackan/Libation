@@ -281,7 +281,7 @@ The format template must sometimes be enclosed in square brackets and sometimes 
 Not all elements of a property are always present or have content. In this case, format templates would contain gaps after substitution. Groups of spaces are automatically merged. Other characters, however, remain unchanged. By doubling the curly brackets, you can specify text fragments before and after the placeholder, which are only used if the placeholder is replaced with content.
 
 <!-- VitePress compiles each .md as a Vue SFC: a literal `{{` inside normal backtick `code` is treated as Vue interpolation and breaks the build. Elsewhere this doc uses backticks for inline examples; this line is HTML `code` with `v-pre` so `{{` can be written literally and still render like the other snippets, without additional hacks such as obscure invisible characters (like &#200B : 0-width space). -->
-<code v-pre>&lt;narrator[format({{F} }{\({M}'\) '}{L})]&gt;</code> ? <code>Neil Gaiman, Christopher (Evan) Welch</code>
+<code v-pre>&lt;narrator[format({{F} }{\({M}'\) '}{L})]&gt;</code> -> <code>Neil Gaiman, Christopher (Evan) Welch</code>
 
 ### Checks
 
