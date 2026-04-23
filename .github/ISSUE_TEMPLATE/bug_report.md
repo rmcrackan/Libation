@@ -40,4 +40,6 @@ Attach your Libation log file here. If your user folder contains the file "Libat
 |macOS|`~/Library/Application Support/Libation`|
 |Linux|`~/.local/share/Libation`|
 
+**macOS:** If that folder does not exist because Libation never starts, try launching from Terminal and say whether it works: `/Applications/Libation.app/Contents/MacOS/Libation` (see [Troubleshooting for macOS](https://github.com/rmcrackan/Libation/blob/main/docs/advanced/troubleshoot.md#macos)).
+
 Alternative, you may open the log file folder from within Libation. Open Libation's settings, and on the first tab in Settings you can click the button 'Open log folder'. 

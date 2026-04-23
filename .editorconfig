@@ -1,0 +1,5 @@
+# https://editorconfig.org
+root = true
+
+[*.md]
+charset = utf-8
