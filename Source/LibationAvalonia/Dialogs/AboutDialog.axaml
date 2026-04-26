@@ -15,7 +15,7 @@
 
 		<controls:LinkLabel Grid.Row="1" FontSize="14" VerticalAlignment="Center" Text="https://getlibation.com" Tapped="Link_getlibation"/>
 		
-		<Button Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,10,0,0"  IsEnabled="{Binding CanCheckForUpgrade}" Content="{Binding UpgradeButtonText}" Click="CheckForUpgrade_Click" />
+		<Button Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,10,0,0"  IsEnabled="{Binding UpdateChecker.CanCheckForUpgrade}" Content="{Binding UpdateChecker.UpgradeButtonText}" Click="CheckForUpgrade_Click" />
 
 		<Canvas Grid.Row="3" Margin="0,30,0,20" Width="280" Height="220">
 			<Path Stretch="None" Fill="{DynamicResource IconFill}" Data="{DynamicResource LibationCheersIcon}">
