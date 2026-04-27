@@ -64,6 +64,7 @@ public class CategoryImporter : ItemsImporterBase
 					category = addCategory(id, name);
 				}
 
+				category.Name = name; // update name if changed
 				categories.Add(category);
 			}
 

@@ -139,6 +139,10 @@ namespace DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("CategoryId");
 
                     b.HasIndex("AudibleCategoryId");

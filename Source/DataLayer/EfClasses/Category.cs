@@ -20,7 +20,7 @@ public class Category
 	internal int CategoryId { get; private set; }
 	public string AudibleCategoryId { get; }
 
-	public string Name { get; }
+	public string Name { get; internal set; }
 
 	internal List<CategoryLadder> _categoryLadders = new();
 	private ReadOnlyCollection<CategoryLadder>? _categoryLaddersReadOnly;

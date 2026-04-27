@@ -3,32 +3,30 @@ using System;
 using DataLayer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace DataLayer.Postgres.Migrations
+namespace DataLayer.Migrations
 {
     [DbContext(typeof(LibationContext))]
-    partial class LibationContextModelSnapshot : ModelSnapshot
+    [Migration("20260427201829_ReAddCategoryName2")]
+    partial class ReAddCategoryName2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.2")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
-
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
 
             modelBuilder.Entity("CategoryCategoryLadder", b =>
                 {
                     b.Property<int>("_categoriesCategoryId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("_categoryLaddersCategoryLadderId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("_categoriesCategoryId", "_categoryLaddersCategoryLadderId");
 
@@ -41,53 +39,51 @@ namespace DataLayer.Postgres.Migrations
                 {
                     b.Property<int>("BookId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BookId"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("AudibleProductId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("ContentType")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("DatePublished")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsAbridged")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsSpatial")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Language")
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("LengthInMinutes")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Locale")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PictureId")
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PictureLarge")
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Subtitle")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("BookId");
 
@@ -99,10 +95,10 @@ namespace DataLayer.Postgres.Migrations
             modelBuilder.Entity("DataLayer.BookCategory", b =>
                 {
                     b.Property<int>("BookId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("CategoryLadderId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("BookId", "CategoryLadderId");
 
@@ -116,16 +112,16 @@ namespace DataLayer.Postgres.Migrations
             modelBuilder.Entity("DataLayer.BookContributor", b =>
                 {
                     b.Property<int>("BookId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("ContributorId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Role")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<byte>("Order")
-                        .HasColumnType("smallint");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("BookId", "ContributorId", "Role");
 
@@ -140,17 +136,15 @@ namespace DataLayer.Postgres.Migrations
                 {
                     b.Property<int>("CategoryId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("AudibleCategoryId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("CategoryId");
 
@@ -163,9 +157,7 @@ namespace DataLayer.Postgres.Migrations
                 {
                     b.Property<int>("CategoryLadderId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryLadderId"));
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("CategoryLadderId");
 
@@ -176,16 +168,14 @@ namespace DataLayer.Postgres.Migrations
                 {
                     b.Property<int>("ContributorId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ContributorId"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("AudibleContributorId")
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("ContributorId");
 
@@ -204,26 +194,26 @@ namespace DataLayer.Postgres.Migrations
             modelBuilder.Entity("DataLayer.LibraryBook", b =>
                 {
                     b.Property<int>("BookId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("AbsentFromLastScan")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Account")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateAdded")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("IncludedUntil")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsAudiblePlus")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("BookId");
 
@@ -234,16 +224,14 @@ namespace DataLayer.Postgres.Migrations
                 {
                     b.Property<int>("SeriesId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SeriesId"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("AudibleSeriesId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("SeriesId");
 
@@ -255,13 +243,13 @@ namespace DataLayer.Postgres.Migrations
             modelBuilder.Entity("DataLayer.SeriesBook", b =>
                 {
                     b.Property<int>("SeriesId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("BookId")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Order")
-                        .HasColumnType("text");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("SeriesId", "BookId");
 
@@ -292,16 +280,16 @@ namespace DataLayer.Postgres.Migrations
                     b.OwnsOne("DataLayer.Rating", "Rating", b1 =>
                         {
                             b1.Property<int>("BookId")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<float>("OverallRating")
-                                .HasColumnType("real");
+                                .HasColumnType("REAL");
 
                             b1.Property<float>("PerformanceRating")
-                                .HasColumnType("real");
+                                .HasColumnType("REAL");
 
                             b1.Property<float>("StoryRating")
-                                .HasColumnType("real");
+                                .HasColumnType("REAL");
 
                             b1.HasKey("BookId");
 
@@ -315,16 +303,14 @@ namespace DataLayer.Postgres.Migrations
                         {
                             b1.Property<int>("SupplementId")
                                 .ValueGeneratedOnAdd()
-                                .HasColumnType("integer");
-
-                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("SupplementId"));
+                                .HasColumnType("INTEGER");
 
                             b1.Property<int>("BookId")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("Url")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.HasKey("SupplementId");
 
@@ -341,32 +327,32 @@ namespace DataLayer.Postgres.Migrations
                     b.OwnsOne("DataLayer.UserDefinedItem", "UserDefinedItem", b1 =>
                         {
                             b1.Property<int>("BookId")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<int>("BookStatus")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<bool>("IsFinished")
-                                .HasColumnType("boolean");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<DateTime?>("LastDownloaded")
-                                .HasColumnType("timestamp without time zone");
+                                .HasColumnType("TEXT");
 
                             b1.Property<string>("LastDownloadedFileVersion")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<long?>("LastDownloadedFormat")
-                                .HasColumnType("bigint");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("LastDownloadedVersion")
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.Property<int?>("PdfStatus")
-                                .HasColumnType("integer");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("Tags")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("TEXT");
 
                             b1.HasKey("BookId");
 
@@ -378,16 +364,16 @@ namespace DataLayer.Postgres.Migrations
                             b1.OwnsOne("DataLayer.Rating", "Rating", b2 =>
                                 {
                                     b2.Property<int>("UserDefinedItemBookId")
-                                        .HasColumnType("integer");
+                                        .HasColumnType("INTEGER");
 
                                     b2.Property<float>("OverallRating")
-                                        .HasColumnType("real");
+                                        .HasColumnType("REAL");
 
                                     b2.Property<float>("PerformanceRating")
-                                        .HasColumnType("real");
+                                        .HasColumnType("REAL");
 
                                     b2.Property<float>("StoryRating")
-                                        .HasColumnType("real");
+                                        .HasColumnType("REAL");
 
                                     b2.HasKey("UserDefinedItemBookId");
 
