@@ -79,7 +79,8 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 			//Verbose logging inside getDestinationDirectory
 			var finalStorageDir = getDestinationDirectory(libraryBook);
 
-			//post-download tasks done in parallel.
+			// Post-download tasks (parallel). Folder icon runs afterward so it does not race cover/metadata work
+			// or a still-warming Amazon image cache for the 300x300 asset.
 			Serilog.Log.Verbose("Starting post-liberation finalization tasks");
 			var moveFilesTask = Task.Run(() => MoveFilesToBooksDir(libraryBook, finalStorageDir, result.ResultFiles, cancellationToken));
 			Task[] finalTasks =
@@ -88,7 +89,6 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 				Task.Run(() => DownloadCoverArt(finalStorageDir, downloadOptions, cancellationToken)),
 				Task.Run(() => DownloadRecordsAsync(api, finalStorageDir, downloadOptions, cancellationToken)),
 				Task.Run(() => DownloadMetadataAsync(api, finalStorageDir, downloadOptions, cancellationToken)),
-				Task.Run(() => WindowsDirectory.SetCoverAsFolderIcon(libraryBook.Book.PictureId, finalStorageDir, cancellationToken))
 			];
 
 			try
@@ -99,25 +99,25 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 			catch (Exception ex)
 			{
 				Serilog.Log.Verbose(ex, "An error occurred in the post-liberation finalization tasks");
-				//Swallow DownloadCoverArt, DownloadRecordsAsync, DownloadMetadataAsync, and SetCoverAsFolderIcon exceptions.
+				//Swallow DownloadCoverArt, DownloadRecordsAsync, and DownloadMetadataAsync exceptions.
 				//Only fail if the downloaded audio files failed to move to Books directory
 				if (moveFilesTask.IsFaulted)
 					throw;
 			}
-			finally
+
+			if (moveFilesTask.IsCompletedSuccessfully && !cancellationToken.IsCancellationRequested)
 			{
-				if (moveFilesTask.IsCompletedSuccessfully && !cancellationToken.IsCancellationRequested)
+				await Task.Run(() => WindowsDirectory.SetCoverAsFolderIcon(libraryBook.Book.PictureId, finalStorageDir, cancellationToken), cancellationToken);
+
+				Serilog.Log.Verbose("Updating liberated status for {@Book}", libraryBook.LogFriendly());
+				await libraryBook.UpdateBookStatusAsync(LiberatedStatus.Liberated, Configuration.LibationVersion, audioFormat, audioVersion);
+				Serilog.Log.Verbose("Setting directory time for {@Book}", libraryBook.LogFriendly());
+				SetDirectoryTime(libraryBook, finalStorageDir);
+				Serilog.Log.Verbose("Deleting cache files for {@Book}", libraryBook.LogFriendly());
+				foreach (var cacheFile in result.CacheFiles.Where(f => File.Exists(f.FilePath)))
 				{
-					Serilog.Log.Verbose("Updating liberated status for {@Book}", libraryBook.LogFriendly());
-					await libraryBook.UpdateBookStatusAsync(LiberatedStatus.Liberated, Configuration.LibationVersion, audioFormat, audioVersion);
-					Serilog.Log.Verbose("Setting directory time for {@Book}", libraryBook.LogFriendly());
-					SetDirectoryTime(libraryBook, finalStorageDir);
-					Serilog.Log.Verbose("Deleting cache files for {@Book}", libraryBook.LogFriendly());
-					foreach (var cacheFile in result.CacheFiles.Where(f => File.Exists(f.FilePath)))
-					{
-						//Delete cache files only after the download/decrypt operation completes successfully.
-						FileUtility.SaferDelete(cacheFile.FilePath);
-					}
+					//Delete cache files only after the download/decrypt operation completes successfully.
+					FileUtility.SaferDelete(cacheFile.FilePath);
 				}
 			}
 
