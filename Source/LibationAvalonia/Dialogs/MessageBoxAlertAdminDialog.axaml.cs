@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Dinah.Core;
 using FileManager;
+using LibationUiBase;
 using LibationUiBase.Forms;
 using System;
 
@@ -24,7 +25,7 @@ public partial class MessageBoxAlertAdminDialog : DialogWindow
 	{
 		ErrorDescription = text;
 		this.Title = caption;
-		ExceptionMessage = $"{exception.Message}\r\n\r\n{exception.StackTrace}";
+		ExceptionMessage = ExceptionDisplay.FormatMessageAndStackTrace(exception);
 		DataContext = this;
 	}
 
