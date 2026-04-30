@@ -76,11 +76,8 @@ public class LibationContextFactory
 	{
 		// Match LibationFileManager.Configuration.IsLinux (OperatingSystem.IsLinux); avoid referencing that project from DataLayer.
 		var linuxSection = OperatingSystem.IsLinux()
-			? "\n\nOn Linux: check ownership and permissions on that folder (for example chmod/chown). Snap installs often store data under ~/snap/libation/<revision>/.local/share/Libation — that entire tree must be writable."
-			: "";
-		var snapHint = OperatingSystem.IsLinux()
-			? ", or use the non-Snap build if Snap confinement is blocking writes"
-			: "";
+			? "\n\nOn Linux: check ownership and permissions on that folder (chmod/chown). Include LibationContext.db-wal and LibationContext.db-shm if they exist. Snap data is often under ~/snap/libation/<revision>/.local/share/Libation — that entire tree must be writable.\n\nIf Libation will not start, set environment variable LIBATION_FILES_DIR to an existing writable directory you own, then launch again. After Libation starts, you can also change the Libation Files folder in Settings.\n\nIf this persists on Snap and permissions look correct, try the non-Snap build to rule out confinement blocking writes."
+			: "\n\nAfter Libation starts, you can change the Libation Files folder in Settings. If Libation will not start, set environment variable LIBATION_FILES_DIR to an existing writable directory you own, then launch again.";
 
 		return new InvalidOperationException(
 			$"""
@@ -89,9 +86,9 @@ public class LibationContextFactory
 			Database path:
 			{sqliteDatabaseFilePath}
 
-			This usually means the folder or the database file is not writable by your user (wrong owner or permissions), or the location is on a read-only or restricted filesystem.{linuxSection}
+			This path is the library database (metadata and local settings), not your audiobook storage folder.
 
-			If the problem continues, try moving the Libation Files location (Settings) to a folder you know is writable{snapHint}.
+			This usually means the folder or database file is not writable by your user (wrong owner or permissions), or the location is on a read-only or restricted filesystem.{linuxSection}
 			""",
 			ex);
 	}

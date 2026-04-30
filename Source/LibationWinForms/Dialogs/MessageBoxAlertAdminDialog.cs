@@ -1,5 +1,6 @@
 ﻿using Dinah.Core;
 using FileManager;
+using LibationUiBase;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -20,7 +21,7 @@ public partial class MessageBoxAlertAdminDialog : Form
 	{
 		this.descriptionLbl.Text = text;
 		this.Text = caption;
-		this.exceptionTb.Text = $"{exception.Message}\r\n\r\n{exception.StackTrace}";
+		this.exceptionTb.Text = ExceptionDisplay.FormatMessageAndStackTrace(exception);
 	}
 
 	private void MessageBoxAlertAdminDialog_Load(object sender, EventArgs e)
