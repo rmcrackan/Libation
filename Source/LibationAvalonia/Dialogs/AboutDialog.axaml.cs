@@ -14,42 +14,22 @@ namespace LibationAvalonia.Dialogs;
 public partial class AboutDialog : DialogWindow
 {
 	private readonly AboutVM _viewModel;
-	public AboutDialog() : base(saveAndRestorePosition: false)
+
+	/// <summary>
+	/// Accepts an optional shared update checker so the About dialog can reflect the same in-flight state
+	/// and outcome text as the native macOS "Check for Updates…" menu item.
+	/// </summary>
+	public AboutDialog(UpdateCheckViewModel? updateChecker = null) : base(saveAndRestorePosition: false)
 	{
 		InitializeComponent();
 
-		DataContext = _viewModel = new AboutVM();
+		DataContext = _viewModel = new AboutVM(updateChecker);
 	}
 
 	private async void CheckForUpgrade_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{
 		var mainWindow = Owner as Views.MainWindow;
-
-		var upgrader = new Upgrader();
-		upgrader.DownloadProgress += async (_, e) => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => mainWindow?.ViewModel?.DownloadProgress = e.ProgressPercentage);
-		upgrader.DownloadCompleted += async (_, _) => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => mainWindow?.ViewModel?.DownloadProgress = null);
-
-		_viewModel.CanCheckForUpgrade = false;
-		Version? latestVersion = null;
-		var result = await upgrader.CheckForUpgradeAsync(OnUpgradeAvailable);
-
-		_viewModel.CanCheckForUpgrade = true;
-		_viewModel.UpgradeButtonText = result.Outcome switch
-		{
-			VersionCheckOutcome.UpToDate => "Libation is up to date. Check Again.",
-			VersionCheckOutcome.UnableToDetermine => "Unable to check for updates. Try again later.",
-			VersionCheckOutcome.UpdateAvailable when result.UpgradeProperties is { } p => $"Version {p.LatestRelease:3} is available",
-			_ => "Check for Upgrade"
-		};
-
-		async Task OnUpgradeAvailable(UpgradeEventArgs e)
-		{
-			var notificationResult = await new UpgradeNotificationDialog(e.UpgradeProperties, e.CapUpgrade).ShowDialogAsync(this);
-
-			e.Ignore = notificationResult == DialogResult.Ignore;
-			e.InstallUpgrade = notificationResult == DialogResult.OK;
-			latestVersion = e.UpgradeProperties.LatestRelease;
-		}
+		await _viewModel.UpdateChecker.CheckForUpgradeAsync(this, mainWindow);
 	}
 
 	private void ContributorLink_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
@@ -69,14 +49,18 @@ public partial class AboutDialog : DialogWindow
 public class AboutVM : ViewModelBase
 {
 	public string Version { get; }
-	public bool CanCheckForUpgrade { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = true;
-	public string UpgradeButtonText { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = "Check for Upgrade";
+
+	/// <summary>
+	/// Shared manual update-check state used by the About button and, on macOS, the app-menu entry.
+	/// </summary>
+	public UpdateCheckViewModel UpdateChecker { get; }
 
 	public IEnumerable<LibationContributor> PrimaryContributors => LibationContributor.PrimaryContributors;
 	public IEnumerable<LibationContributor> AdditionalContributors => LibationContributor.AdditionalContributors;
 
-	public AboutVM()
+	public AboutVM(UpdateCheckViewModel? updateChecker = null)
 	{
+		UpdateChecker = updateChecker ?? new UpdateCheckViewModel();
 		Version = $"Libation {AppScaffolding.LibationScaffolding.Variety} v{AppScaffolding.LibationScaffolding.BuildVersion}";
 	}
 }

@@ -14,6 +14,7 @@ public partial class MainVM : ViewModelBase
 	public Task? BindToGridTask { get; set; }
 	public ProcessQueueViewModel ProcessQueue { get; } = new ProcessQueueViewModel();
 	public ProductsDisplayViewModel ProductsDisplay { get; } = new() { SearchEngine = MainSearchEngine.Instance };
+	public UpdateCheckViewModel UpdateChecker { get; } = new();
 
 	public double? DownloadProgress { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 
