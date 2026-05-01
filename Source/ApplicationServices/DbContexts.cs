@@ -3,6 +3,7 @@ using LibationFileManager;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 
 namespace ApplicationServices;
@@ -35,9 +36,22 @@ public static class DbContexts
 		var context = !string.IsNullOrEmpty(Configuration.Instance.PostgresqlConnectionString)
 			? LibationContextFactory.CreatePostgres(Configuration.Instance.PostgresqlConnectionString)
 			: LibationContextFactory.CreateSqlite(SqliteStorage.ConnectionString);
-		LibationContextFactory.ApplyMigrations(
-			context,
-			string.IsNullOrEmpty(Configuration.Instance.PostgresqlConnectionString) ? SqliteStorage.DatabasePath : null);
+		try
+		{
+			LibationContextFactory.ApplyMigrations(
+				context,
+				string.IsNullOrEmpty(Configuration.Instance.PostgresqlConnectionString) ? SqliteStorage.DatabasePath : null);
+		}
+		catch (InvalidOperationException ex) when (ex.Message.Contains("Libation cannot write its SQLite database", StringComparison.Ordinal))
+		{
+			Log.Error(
+				ex,
+				"SQLite migrations failed (read-only or blocked). LibationFiles={LibationFiles} DatabasePath={DatabasePath} AppsettingsJson={AppsettingsJson}",
+				Configuration.Instance.LibationFiles.Location,
+				SqliteStorage.DatabasePath,
+				Configuration.Instance.LibationFiles.AppsettingsJsonFile ?? "(null, LIBATION_FILES_DIR may be set)");
+			throw;
+		}
 
 		// Validate SQLite DB file was created and is accessible (once per process; OS may delay availability)
 		if (!_sqliteDbValidated && string.IsNullOrEmpty(Configuration.Instance.PostgresqlConnectionString))

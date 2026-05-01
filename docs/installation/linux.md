@@ -6,6 +6,16 @@
 
 New Libation releases are automatically packed into `.deb` and `.rpm` package and are available from the [Libation repository's releases page](https://github.com/rmcrackan/Libation/releases).
 
+## Snap
+
+If you install Libation from [Snapcraft](https://snapcraft.io/) (or another Snap channel), data lives under your home directory in versioned folders, for example `~/snap/libation/177/.local/share/Libation/`. Snap keeps a `current` symlink that points at the active revision. Each refresh can add a new numeric folder while copying config into it.
+
+`appsettings.json` in that tree contains a `LibationFiles` string. It must point at the **same** revision directory as the `appsettings.json` file you are editing. If it still says an older path (for example `.../snap/libation/174/...` while you run from `177`), Libation may try to open the database on the old path and fail with a read-only or migration error even when file permissions look correct.
+
+**What to do:** open `appsettings.json` next to the running install (under `~/snap/libation/current/...` or the new revision folder), set `LibationFiles` to the Libation data directory **inside that same revision**, save, and start Libation again. Alternatively set the `LIBATION_FILES_DIR` environment variable to a directory you control (see advanced docs). A user-written walkthrough of this situation is in [GitHub issue #1776](https://github.com/rmcrackan/Libation/issues/1776).
+
+For removable drives and Snap interfaces, your distro's Snap docs apply. Libation also documents common Linux problems in [Troubleshooting](/docs/advanced/troubleshoot).
+
 ## Runtime dependencies (Audible sign-in)
 
 The Chardonnay desktop build can log into Audible inside the app when the setting to use Libation's built-in web browser for sign-in is enabled (Import / library settings). On Linux that embedded flow uses WebKit2GTK; the native library is usually exposed as `libwebkit2gtk` (exact package names vary by distro). It is required for in-app OAuth when adding an account or signing in again through that path.
