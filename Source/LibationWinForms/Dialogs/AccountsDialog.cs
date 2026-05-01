@@ -279,21 +279,22 @@ public partial class AccountsDialog : Form
 		try
 		{
 			var jsonText = File.ReadAllText(ofd.FileName);
-			var mkbAuth = Mkb79Auth.FromJson(jsonText) ?? throw new Exception("File did not contain valid mkb79/audible-cli account data.");
-			var account = await mkbAuth.ToAccountAsync();
+			var importResult = await Mkb79AuthImporter.ImportFromJsonTextAsync(jsonText);
 
-			// without transaction, accounts persister will write ANY EDIT immediately to file
-			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-
-			if (persister.AccountsSettings.Accounts.Any(a => a.AccountId == account.AccountId && a.IdentityTokens?.Locale.Name == account.Locale?.Name))
+			if (importResult.Outcome is Mkb79ImportOutcome.InvalidFile)
 			{
-				MessageBox.Show(this, $"An account with that account id and country already exists.\r\n\r\nAccount ID: {account.AccountId}\r\nCountry: {account.Locale?.Name}", "Cannot Add Duplicate Account");
+				MessageBox.Show(this, importResult.Message ?? "Invalid import file.", "Error Importing Account", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
 
-			persister.AccountsSettings.Add(account);
+			if (importResult.Outcome is Mkb79ImportOutcome.DuplicateAccount && importResult.Account is { } dup)
+			{
+				MessageBox.Show(this, $"An account with that account id and country already exists.\r\n\r\nAccount ID: {dup.AccountId}\r\nCountry: {dup.Locale?.Name}", "Cannot Add Duplicate Account");
+				return;
+			}
 
-			AddAccountToGrid(account);
+			if (importResult.Account is { } account)
+				AddAccountToGrid(account);
 		}
 		catch (Exception ex)
 		{
