@@ -37,11 +37,7 @@ public static class WindowsDirectory
 						continue;
 					}
 
-					Serilog.Log.Logger.Warning(
-						"Could not set Explorer folder icon after {MaxAttempts} attempts: the 300x300 cover image never became available (empty or missing). The audiobook download itself is unaffected. Check your network to Amazon images, disk space under Libation's Images folder, or try liberating again. {@DebugInfo}",
-						FolderIconMaxAttempts, new { directory, pictureId });
-					TryDeleteFolderIcon(directory);
-					return;
+					break;
 				}
 
 				InteropFactory.Create().SetFolderIcon(imageJpegBytes: jpegBytes, directory: directory);
@@ -56,12 +52,52 @@ public static class WindowsDirectory
 					continue;
 				}
 
+				if (TrySetFolderIconUsingPictureSize(pictureId, directory, PictureSize.Native, cancellationToken))
+				{
+					Serilog.Log.Logger.Information(
+						"Set Explorer folder icon using full-size cover after 300x300 failed (decode, ICO conversion, or writing desktop.ini/Icon.ico). {@DebugInfo}",
+						new { directory, pictureId });
+					return;
+				}
+
 				Serilog.Log.Logger.Error(ex,
 					"Could not set Explorer folder icon after {MaxAttempts} attempts (decode, ICO conversion, or writing desktop.ini/Icon.ico failed). The audiobook download itself should still be fine; try liberating again, or check folder permissions if the library is on removable media. {@DebugInfo}",
 					FolderIconMaxAttempts, new { directory, pictureId });
 				TryDeleteFolderIcon(directory);
 				return;
 			}
+		}
+
+		// 300x300 never returned usable bytes — Native is a separate CDN URL and is often already cached by DownloadCoverArt in the same session.
+		if (TrySetFolderIconUsingPictureSize(pictureId, directory, PictureSize.Native, cancellationToken))
+		{
+			Serilog.Log.Logger.Information(
+				"Set Explorer folder icon using full-size cover after 300x300 was empty or missing. {@DebugInfo}",
+				new { directory, pictureId });
+			return;
+		}
+
+		Serilog.Log.Logger.Warning(
+			"Could not set Explorer folder icon: neither 300x300 nor full-size cover became available. The audiobook download itself is unaffected. Check your network to Amazon images, disk space under Libation's Images folder, or try liberating again. {@DebugInfo}",
+			new { directory, pictureId });
+		TryDeleteFolderIcon(directory);
+	}
+
+	static bool TrySetFolderIconUsingPictureSize(string pictureId, string directory, PictureSize size, CancellationToken cancellationToken)
+	{
+		cancellationToken.ThrowIfCancellationRequested();
+		try
+		{
+			var jpegBytes = PictureStorage.GetPictureSynchronously(new(pictureId, size), cancellationToken);
+			if (jpegBytes.Length == 0)
+				return false;
+			InteropFactory.Create().SetFolderIcon(imageJpegBytes: jpegBytes, directory: directory);
+			return true;
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Debug(ex, "Folder icon: could not set using {PictureSize}. {@DebugInfo}", size, new { directory, pictureId });
+			return false;
 		}
 	}
 

@@ -107,7 +107,9 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 
 			if (moveFilesTask.IsCompletedSuccessfully && !cancellationToken.IsCancellationRequested)
 			{
-				await Task.Run(() => WindowsDirectory.SetCoverAsFolderIcon(libraryBook.Book.PictureId, finalStorageDir, cancellationToken), cancellationToken);
+				// Same picture key as DownloadCoverArt so we hit the same Amazon asset (and Images cache) the parallel task likely just populated.
+				var folderIconPictureId = libraryBook.Book.PictureLarge ?? libraryBook.Book.PictureId;
+				await Task.Run(() => WindowsDirectory.SetCoverAsFolderIcon(folderIconPictureId, finalStorageDir, cancellationToken), cancellationToken);
 
 				Serilog.Log.Verbose("Updating liberated status for {@Book}", libraryBook.LogFriendly());
 				await libraryBook.UpdateBookStatusAsync(LiberatedStatus.Liberated, Configuration.LibationVersion, audioFormat, audioVersion);
