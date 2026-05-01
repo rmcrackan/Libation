@@ -53,3 +53,15 @@ There are two possible causes of this error.
 2. The database's journaling mode is incompatible with your environment. Change the journaling mode to `DELETE` by one of two methods.
    1. [Run hangover](#how-to-run-the-hangover-app) and execute the following command in the "Database" tab: `PRAGMA journal_mode=DELETE`
    2. run this command in your terminal: `sqlite3 "path/to/libation/files/LibationContext.db" "PRAGMA journal_mode=DELETE;"`
+
+## Linux Snap and SQLite write failures
+
+Symptoms include a crash on startup that mentions `LibationContext.db` under a path like `~/snap/libation/<number>/.local/share/Libation/`.
+
+1. **Permissions** - The whole Libation data directory must be writable by your user, including `LibationContext.db`, `LibationContext.db-wal`, and `LibationContext.db-shm` when they exist. Fix ownership with `chown` if needed.
+
+2. **Stale `LibationFiles` after a Snap refresh** - Snap may install a new revision folder (new `<number>`) while `appsettings.json` inside the **new** folder still points `LibationFiles` at the **previous** revision path. Libation then targets the old path while the app runs from the new revision, which often surfaces as a read-only or migration failure even when permissions on both trees look fine.
+
+   **Fix:** edit `appsettings.json` in the active revision (for example under `~/snap/libation/current/...`) so the `LibationFiles` value uses the **same** `.../snap/libation/<number>/...` as that file, or use `LIBATION_FILES_DIR`. Step-by-step context: [Install on Linux - Snap](/docs/installation/linux#snap) and [issue #1776](https://github.com/rmcrackan/Libation/issues/1776).
+
+3. **Non-Snap build** - If you still suspect Snap confinement after the above, try a `.deb` / `.rpm` / AppImage build from [Releases](https://github.com/rmcrackan/Libation/releases) to compare behavior.

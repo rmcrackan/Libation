@@ -38,7 +38,7 @@ public class LibationFiles
 	/// <summary>
 	/// Found Location of appsettings.json. This file must exist or be able to be created for Libation to start.
 	/// </summary>
-	internal string? AppsettingsJsonFile { get; }
+	public string? AppsettingsJsonFile { get; }
 	/// <summary>
 	/// File path to Settings.json inside <see cref="Location"/>
 	/// </summary>

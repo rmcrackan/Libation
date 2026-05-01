@@ -43,6 +43,12 @@ Spatial audiobooks are delivered in two formats: [E-AC-3](./features/audio-file-
 
 For reasons known only to Jeff Bezos and God, amazon and audible brazil handle logins slightly differently. The external browser login option is not possible for Brazil. [See this ticket for more details.](https://github.com/rmcrackan/Libation/issues/1103)
 
+## Snap refreshed and Libation crashes on the database - what should I check?
+
+Snap keeps per-version folders under `~/snap/libation/<revision>/`. After an update, `appsettings.json` in the **new** folder may still list `"LibationFiles"` with an **old** revision path. Libation then opens the wrong directory and you can see errors about SQLite or migrations even when permissions look fine.
+
+Open `appsettings.json` next to your running install (often under `~/snap/libation/current/...`), set `LibationFiles` to the Libation data path **inside that same revision**, save, and launch again. Details: [Linux install - Snap](/docs/installation/linux#snap), [Troubleshooting - Snap](/docs/advanced/troubleshoot#linux-snap-and-sqlite-write-failures), and [issue #1776](https://github.com/rmcrackan/Libation/issues/1776).
+
 ## How Do I Use Libation With a South Africa Account?
 
 Like many countries, amazon gives South Africa it's own amazon site. [Unlike many other regions](https://www.audible.com/ep/country-selector) there is not South Africa specific audible site. Use `US` for your region -- ie: audible.com.

@@ -11,7 +11,7 @@ Welcome to the Libation documentation! Here you'll find everything you need to g
 
 Platform-specific installation guides:
 
-- **[Linux Installation](/docs/installation/linux)** - Install Libation on Linux
+- **[Linux Installation](/docs/installation/linux)** - Install Libation on Linux (includes [Snap](/docs/installation/linux#snap) notes)
 - **[Mac Installation](/docs/installation/mac)** - Install Libation on macOS
 - **[Docker Installation](/docs/installation/docker)** - Run Libation in a Docker container
 
