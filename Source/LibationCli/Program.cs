@@ -7,6 +7,20 @@ using System.Threading.Tasks;
 
 namespace LibationCli;
 
+file static class GlobalCliHelp
+{
+	internal static bool IsGlobalHelpToken(string token)
+	{
+		if (string.IsNullOrWhiteSpace(token))
+			return false;
+		return token.Equals("--help", StringComparison.OrdinalIgnoreCase)
+			|| token.Equals("-h", StringComparison.OrdinalIgnoreCase)
+			|| token.Equals("/?", StringComparison.OrdinalIgnoreCase)
+			|| token.Equals("/h", StringComparison.OrdinalIgnoreCase)
+			|| token.Equals("/help", StringComparison.OrdinalIgnoreCase);
+	}
+}
+
 public enum ExitCode
 {
 	ProcessCompletedSuccessfully = 0,
@@ -42,6 +56,11 @@ class Program
 		var setBreakPointHere = args;
 #endif
 
+		if (TryPrintGlobalHelpOnly(args))
+			return;
+
+		args = NormalizeVerbShortHelpAliases(args);
+
 		var result = new Parser(ConfigureParser).ParseArguments(args, VerbTypes);
 
 		if (result.Value is HelpVerb helper)
@@ -67,9 +86,25 @@ class Program
 	private static void HandleErrors(ParserResult<object> result)
 	{
 		var errorsList = result.Errors.ToList();
-		if (errorsList.Any(e => e.Tag.In(ErrorType.HelpRequestedError, ErrorType.VersionRequestedError, ErrorType.HelpVerbRequestedError)))
+
+		if (errorsList.Any(e => e.Tag == ErrorType.HelpRequestedError))
 		{
-			Environment.ExitCode = (int)ExitCode.NonRunNonError;
+			Environment.ExitCode = (int)ExitCode.ProcessCompletedSuccessfully;
+			WriteVerbOptionsHelp(result);
+			return;
+		}
+
+		if (errorsList.OfType<HelpVerbRequestedError>().FirstOrDefault() is { } helpVerbErr)
+		{
+			Environment.ExitCode = (int)ExitCode.ProcessCompletedSuccessfully;
+			WriteHelpForVerbRequestedError(helpVerbErr);
+			return;
+		}
+
+		if (errorsList.Any(e => e.Tag == ErrorType.VersionRequestedError))
+		{
+			Environment.ExitCode = (int)ExitCode.ProcessCompletedSuccessfully;
+			Console.Error.WriteLine(HelpVerb.CreateHelpText().Heading);
 			return;
 		}
 
@@ -100,10 +135,77 @@ class Program
 		Console.Error.WriteLine(helpText);
 	}
 
+	/// <summary>
+	/// Multi-verb parsing treats the first token as a verb name, so bare <c>--help</c> / <c>-h</c> must be handled here.
+	/// </summary>
+	private static bool TryPrintGlobalHelpOnly(string[] args)
+	{
+		if (args is not { Length: 1 } || !GlobalCliHelp.IsGlobalHelpToken(args[0]))
+			return false;
+
+		WriteGlobalVerbListHelp();
+		Environment.ExitCode = (int)ExitCode.ProcessCompletedSuccessfully;
+		return true;
+	}
+
+	/// <summary>
+	/// CommandLineParser's implicit help is <c>--help</c> only; map the first <c>-h</c> after the verb (case-insensitive, so <c>-H</c> too) to <c>--help</c>.
+	/// </summary>
+	private static string[] NormalizeVerbShortHelpAliases(string[] args)
+	{
+		if (args.Length < 2)
+			return args;
+
+		var copy = (string[])args.Clone();
+		for (var i = 1; i < copy.Length; i++)
+		{
+			if (copy[i].Equals("-h", StringComparison.OrdinalIgnoreCase))
+			{
+				copy[i] = "--help";
+				break;
+			}
+		}
+
+		return copy;
+	}
+
+	private static void WriteGlobalVerbListHelp(string? preOptionsLine = null)
+	{
+		var helpText = HelpVerb.CreateHelpText();
+		if (preOptionsLine is not null)
+			helpText.AddPreOptionsLine(preOptionsLine);
+		helpText.AddVerbs(VerbTypes);
+		Console.Error.WriteLine(helpText);
+	}
+
+	private static void WriteVerbOptionsHelp(ParserResult<object> result)
+	{
+		var helpText = HelpVerb.CreateHelpText();
+		helpText.AddDashesToOption = true;
+		helpText.AutoHelp = true;
+		helpText.AddOptions(result);
+		Console.Error.WriteLine(helpText);
+	}
+
+	private static void WriteHelpForVerbRequestedError(HelpVerbRequestedError helpVerbErr)
+	{
+		if (!helpVerbErr.Matched || helpVerbErr.Type is null || string.IsNullOrWhiteSpace(helpVerbErr.Verb))
+		{
+			WriteGlobalVerbListHelp();
+			return;
+		}
+
+		var subResult = new Parser(ConfigureParser).ParseArguments(new[] { helpVerbErr.Verb }, VerbTypes);
+		if (subResult.TypeInfo.Current != typeof(NullInstance))
+			WriteVerbOptionsHelp(subResult);
+		else
+			WriteGlobalVerbListHelp();
+	}
+
 	private static void ConfigureParser(ParserSettings settings)
 	{
 		settings.AllowMultiInstance = true;
 		settings.AutoVersion = false;
-		settings.AutoHelp = false;
+		settings.AutoHelp = true;
 	}
 }
