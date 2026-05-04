@@ -2,7 +2,7 @@
 
 Libationcli.exe allows limited access to Libation's functionalities as a CLI.
 
-Warnings about relying solely on on the CLI:
+Warnings about relying solely on the CLI:
 
 - CLI will not perform any upgrades.
 - It will show that there is an upgrade, but that will likely scroll by too fast to notice.
@@ -23,15 +23,27 @@ Redirecting also avoids progress-bar control characters in log files.
 
 ## Help
 
+LibationCli uses a **verb-first** layout: the first argument is always a command name (for example `scan`, `liberate`).
+
+**Global help** — list every verb and its short description (use this when you are not sure which verb to run):
+
 ```console
 libationcli --help
+libationcli -h
 ```
 
-## Verb-Specific Help
+On Windows, `/?`, `/h`, and `/help` are also accepted when they are the only argument.
+
+**Verb-specific help** — options for a single command:
 
 ```console
 libationcli scan --help
+libationcli scan -h
 ```
+
+The `help` verb is equivalent for many cases: `libationcli help scan`.
+
+Help-only invocations exit with status code **0** (success), so scripts can treat them as non-errors.
 
 ## Libation files location
 
@@ -78,6 +90,19 @@ libationcli login-external -a you@example.com -l us --response-url "https://www.
 If the account row already has valid saved tokens, the CLI reports that no browser login is needed and exits without opening the flow.
 
 Use `libationcli login-external --help` for the exact options on your build.
+
+## List configured accounts (`list-accounts`)
+
+Prints each row from `AccountsSettings.json`: Audible login id, optional nickname, marketplace (`us`, `uk`, …), whether **Scan library** is enabled for that account, and whether stored identity tokens are currently **valid** (the same check `login-external` uses before starting a browser flow). Use this on headless setups to see which accounts still need `login-external` or `import-account`.
+
+```console
+libationcli list-accounts
+libationcli list-accounts --bare
+```
+
+`--bare` (`-b`) prints tab-separated values with no table: account id, name, locale, scan library (`yes` / `no`), authenticated (`yes` / `no`), for scripts and `cut` / `awk`.
+
+If no accounts exist yet, the CLI prints `No accounts configured.` and exits successfully.
 
 ## Scan All Libraries
 
