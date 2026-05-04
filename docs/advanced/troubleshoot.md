@@ -46,6 +46,12 @@ The installer creates shortcuts for `libation`, `libationcli`, and `hangover`. F
 
 Embedded sign-in uses WebKit2GTK (`libwebkit2gtk`). If that native stack is missing, install the packages for your distro or use 'external browser' sign-in in Libation's import/library settings. Details: [Install on Linux](/docs/installation/linux) (section: Runtime dependencies (Audible sign-in)).
 
+## Linux: very long paths or encrypted home directory
+
+On some Linux setups the home directory or default temp area sits on a stacked or encrypted filesystem. That often means a shorter usable path length than a plain `ext4` mount. Together with a deep Books folder or long paths from naming templates, Libation can fail during or after decryption when moving finished files into the library.
+
+**What to try:** In **Settings -> Download/Decrypt**, set **Books** and the **in-progress / temporary** location (the folder used while files are downloaded and decrypted) to **shorter paths** on a normal, unencrypted volume if you can—for example an external drive mounted without an extra encryption layer. A user on Mint described this approach in [GitHub issue #1199](https://github.com/rmcrackan/Libation/issues/1199) (that thread also mentions `MissingMethodException`, which usually indicates a mismatched or partial install rather than path length alone).
+
 ## SQLite Error 10: 'disk I/O error'.
 
 There are two possible causes of this error.
