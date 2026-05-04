@@ -23,6 +23,8 @@ If you run Libation on a server or in Docker and do not want to copy `AccountsSe
 - `login-external` — Browser-based sign-in: the CLI prints an Audible login URL; you open it in a normal browser, sign in, then paste the final URL from the address bar back into the terminal. Example:  
   `LibationCli login-external --account you@example.com --locale us`  
   If standard input is not a TTY (for example in some automation), pass the final URL with `--response-url "https://..."` instead of pasting interactively.
+- `list-accounts` — List configured accounts and whether each has valid stored credentials (and scan-on/off). Example:  
+  `LibationCli list-accounts` or `LibationCli list-accounts --bare` for tab-separated output.
 
 For full syntax, overrides, and the `--libationFiles` option (or the `LIBATION_FILES_DIR` environment variable) when your Libation data directory is not the default, see [Command Line Interface](/docs/advanced/command-line-interface).
 
