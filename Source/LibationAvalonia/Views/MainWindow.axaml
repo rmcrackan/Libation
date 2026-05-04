@@ -192,7 +192,30 @@
 				<Button IsVisible="{CompiledBinding RemoveButtonsVisible}" Command="{CompiledBinding DoneRemovingBtn}" Content="Done Removing Books"/>
 			</StackPanel>
 				
-			<TextBox Grid.Column="1" Margin="10,0,0,0" Name="filterSearchTb" IsVisible="{CompiledBinding !RemoveButtonsVisible}" Text="{CompiledBinding SelectedNamedFilter.Filter, Mode=OneWay}" KeyDown="filterSearchTb_KeyPress" />
+			<Grid
+				Grid.Column="1"
+				Margin="10,0,0,0"
+				ColumnDefinitions="*,Auto"
+				IsVisible="{CompiledBinding !RemoveButtonsVisible}">
+				<TextBox
+					Grid.Column="0"
+					Name="filterSearchTb"
+					VerticalAlignment="Stretch"
+					InnerRightContent="{x:Null}"
+					ScrollViewer.HorizontalScrollBarVisibility="Auto"
+					ScrollViewer.VerticalScrollBarVisibility="Disabled"
+					Text="{CompiledBinding SelectedNamedFilter.Filter, Mode=OneWay}"
+					KeyDown="filterSearchTb_KeyPress" />
+				<Button
+					Grid.Column="1"
+					Margin="6,0,0,0"
+					Padding="10,4"
+					VerticalAlignment="Stretch"
+					VerticalContentAlignment="Center"
+					Click="ClearFilterButton_Click"
+					Content="×"
+					ToolTip.Tip="Clear filter" />
+			</Grid>
 
 			<StackPanel Grid.Column="2" Height="30" Orientation="Horizontal">
 				<Button Name="filterBtn" Command="{CompiledBinding FilterBtn}" CommandParameter="{CompiledBinding #filterSearchTb.Text}" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Filter"/>
