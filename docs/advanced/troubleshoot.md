@@ -1,15 +1,29 @@
 # Troubleshooting Common Libation Errors
 
+## SQLite Error 10: 'disk I/O error'.
+
+There are two possible causes of this error.
+1. Your hard disk is full. Check that you have space on the storage device containing your Libation Files (where the LibationContext.db and log files are). If that device still has available space, move on to #2 below.
+2. The database's journaling mode is incompatible with your environment. Change the journaling mode to `DELETE` by one of two methods.
+   1. [Run hangover](#how-to-run-the-hangover-app) and execute the following command in the "Database" tab: `PRAGMA journal_mode=DELETE`
+   2. run this command in your terminal: `sqlite3 "path/to/libation/files/LibationContext.db" "PRAGMA journal_mode=DELETE;"`
+
 ## How to run the Hangover App
 
 When troubleshooting, you may be asked to run 'Hangover'. Hangover is a debugging app to help diagnose and solve some problems with Libation.
 It is located alongside the Libation app (though not included in the docker container).
 
-### Windows
+Platform-specific steps: [Windows](#hangover-windows) · [macOS](#hangover-macos) · [Linux](#hangover-linux)
+
+## Windows
+
+### Hangover (Windows)
 
 Hangover.exe is located in the folder containing Libation.exe. Double-click it to run it.
 
-### macOS
+## macOS
+
+### Hangover (macOS)
 
 **Hangover** is located inside the app bundle. Either:
 1. From a terminal, run this command: `open /Applications/Libation.app --args hangover`
@@ -17,6 +31,8 @@ Hangover.exe is located in the folder containing Libation.exe. Double-click it t
    1. In finder, right-click the Libation app bundle and "Show Package Contents"
    2. Open folders "Contents" > "MacOS"
    3. Find the file named "Hangover" and double-click it to run it.
+
+### App won't start
 
 **App won't start** (for example the Dock icon appears and bounces but no window opens, or **`~/Library/Application Support/Libation` is never created**): macOS may be blocking or mishandling launch of the app bundle. That can happen with strict security settings, quarantine flags on the download, or **unsupported macOS setups** (for example hardware past Apple's support window with tools such as OpenCore Legacy Patcher). Symptoms can include double-clicking Libation doing nothing useful, Activity Monitor showing almost no CPU use, no logs yet, and **`open /Applications/Libation.app --args hangover`** failing with error **-128** (`_LSOpenURLsWithCompletionHandler`). Libation is intended for **Apple-supported macOS releases** in [Install on MacOS](/docs/installation/mac); unofficial upgrades are **not supported**, and the steps below are community-tested workarounds.
 
@@ -38,29 +54,27 @@ Try the following in order:
 4. Confirm you installed the **correct architecture** ([Install on MacOS](/docs/installation/mac)): **arm64** for Apple Silicon, **x64** for Intel.
 5. **Crash logs**: open **Console** (Applications, then Utilities), or check **~/Library/Logs/DiagnosticReports** for recent **Libation** crash reports if the process exits abruptly.
 
-### Linux (either the .deb or .rpm installers)
+## Linux
+
+### Hangover (Linux)
 
 The installer creates shortcuts for `libation`, `libationcli`, and `hangover`. From a terminal, run `hangover`.
 
-### Linux: in-app Audible login or "add account" fails
+### UI too small
+
+If the Linux UI is tiny, try `AVALONIA_GLOBAL_SCALE_FACTOR=2 libation` (tune the number); see [#634](https://github.com/rmcrackan/Libation/issues/634).
+
+### In-app Audible login or "add account" fails
 
 Embedded sign-in uses WebKit2GTK (`libwebkit2gtk`). If that native stack is missing, install the packages for your distro or use 'external browser' sign-in in Libation's import/library settings. Details: [Install on Linux](/docs/installation/linux) (section: Runtime dependencies (Audible sign-in)).
 
-## Linux: very long paths or encrypted home directory
+### Very long paths or encrypted home directory
 
 On some Linux setups the home directory or default temp area sits on a stacked or encrypted filesystem. That often means a shorter usable path length than a plain `ext4` mount. Together with a deep Books folder or long paths from naming templates, Libation can fail during or after decryption when moving finished files into the library.
 
 **What to try:** In **Settings -> Download/Decrypt**, set **Books** and the **in-progress / temporary** location (the folder used while files are downloaded and decrypted) to **shorter paths** on a normal, unencrypted volume if you can—for example an external drive mounted without an extra encryption layer. A user on Mint described this approach in [GitHub issue #1199](https://github.com/rmcrackan/Libation/issues/1199) (that thread also mentions `MissingMethodException`, which usually indicates a mismatched or partial install rather than path length alone).
 
-## SQLite Error 10: 'disk I/O error'.
-
-There are two possible causes of this error.
-1. Your hard disk is full. Check that you have space on the storage device containing your Libation Files (where the LibationContext.db and log files are). If that device still has available space, move on to #2 below.
-2. The database's journaling mode is incompatible with your environment. Change the journaling mode to `DELETE` by one of two methods.
-   1. [Run hangover](#how-to-run-the-hangover-app) and execute the following command in the "Database" tab: `PRAGMA journal_mode=DELETE`
-   2. run this command in your terminal: `sqlite3 "path/to/libation/files/LibationContext.db" "PRAGMA journal_mode=DELETE;"`
-
-## Linux Snap and SQLite write failures
+### Linux Snap and SQLite write failures {#linux-snap-and-sqlite-write-failures}
 
 Symptoms include a crash on startup that mentions `LibationContext.db` under a path like `~/snap/libation/<number>/.local/share/Libation/`.
 
