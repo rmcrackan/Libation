@@ -205,6 +205,16 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 		}
 	}
 
+	private async void ClearFilterButton_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+	{
+		if (ViewModel is null)
+			return;
+		await ViewModel.FilterBtn(string.Empty);
+		// Typed text lives only in the TextBox (OneWay binding). If the VM filter was already empty,
+		// PerformFilter does not refresh the binding, so clear the control explicitly (WinForms sets Text in performFilter).
+		filterSearchTb.Text = string.Empty;
+	}
+
 	private void Configure_Upgrade()
 	{
 		setProgressVisible(false);
