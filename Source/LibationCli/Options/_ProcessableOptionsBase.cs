@@ -1,4 +1,5 @@
 ﻿using ApplicationServices;
+using AudibleApi;
 using CommandLine;
 using DataLayer;
 using FileLiberator;
@@ -120,6 +121,12 @@ public abstract class ProcessableOptionsBase : OptionsBase
 				Console.Error.WriteLine(errorMessage);
 				Serilog.Log.Logger.Error(errorMessage);
 			}
+		}
+		catch (ContentLicenseDeniedException clEx)
+		{
+			foreach (var line in ContentLicenseDeniedCliSummary.Lines(clEx))
+				Console.Error.WriteLine(line);
+			Serilog.Log.Logger.Error(clEx, "Content license denied {@DebugInfo}", new { Book = libraryBook.LogFriendly() });
 		}
 		catch (Exception ex)
 		{

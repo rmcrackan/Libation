@@ -217,7 +217,8 @@ public partial class Mkb79Auth
 		{
 			DecryptKey = ActivationBytes,
 			AccountName = $"{email} - {Locale.Name}",
-			IdentityTokens = new Identity(Locale)
+			IdentityTokens = new Identity(Locale),
+			LibraryScan = true,
 		};
 
 		account.IdentityTokens.Update(

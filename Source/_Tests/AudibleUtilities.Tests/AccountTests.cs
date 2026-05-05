@@ -425,6 +425,7 @@ public class upsert : AccountsTestBase
 		var acct = accountsSettings.GetAccount("cng", "us");
 		acct.BeNotNull();
 		acct.AccountId.Should().Be("cng");
+		acct.LibraryScan.Should().BeTrue();
 	}
 
 	[TestMethod]
