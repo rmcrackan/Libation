@@ -102,6 +102,8 @@ libationcli list-accounts --bare
 
 `--bare` (`-b`) prints tab-separated values with no table: account id, name, locale, scan library (`yes` / `no`), authenticated (`yes` / `no`), for scripts and `cut` / `awk`.
 
+**Scan library** (`yes` / `no`) is the same checkbox as "Include in library scan?" in Accounts: it controls whether the main Libation app includes that account in automatic scans (startup / periodic scan behavior). It does **not** restrict `libationcli scan` with no arguments, which still imports from every configured account unless you pass specific account nicknames or ids.
+
 If no accounts exist yet, the CLI prints `No accounts configured.` and exits successfully.
 
 ## Scan All Libraries

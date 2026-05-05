@@ -88,7 +88,8 @@ public class AccountsSettings : IUpdatable
 		var l = Localization.Get(locale);
 		var id = new Identity(l);
 
-		var account = new Account(accountId) { IdentityTokens = id };
+		// Match GUI default for new rows (WinForms/Avalonia): include account in library scans.
+		var account = new Account(accountId) { IdentityTokens = id, LibraryScan = true };
 		Add(account);
 		return account;
 	}

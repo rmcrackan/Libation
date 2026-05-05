@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LibationCli;
 
-[Verb("list-accounts", HelpText = "List configured Audible accounts, locale, scan flag, and whether stored credentials are valid.")]
+[Verb("list-accounts", HelpText = "List configured Audible accounts: locale, whether the account is included in automatic GUI scans ('Scan library'), and whether stored credentials are valid.")]
 internal class ListAccountsOptions : OptionsBase
 {
 	[Option('b', "bare", HelpText = "Print tab-separated values without table borders (account id, name, locale, scan library, authenticated).")]

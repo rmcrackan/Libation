@@ -1,5 +1,6 @@
 ﻿using ApplicationServices;
 using DataLayer;
+using FileLiberator;
 using LibationFileManager;
 using LibationUiBase.Forms;
 using LibationUiBase;
@@ -137,21 +138,43 @@ public class ProcessQueueViewModel : ReactiveObject
 			var item = libraryBooks[0];
 
 			if (item.AbsentFromLastScan)
+			{
+				Serilog.Log.Logger.Warning("Download not queued: {libraryBook} is absent from the last library scan.", item.LogFriendly());
+				MessageBoxBase.Show(
+					"This title is marked absent from your last library scan.\n\nRun Scan (or `libationcli scan`) so Libation can refresh your library, then try again.",
+					"Library scan required",
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Information);
 				return false;
-			else if (item.NeedsBookDownload)
+			}
+			if (item.NeedsBookDownload)
 			{
 				RemoveCompleted(item);
 				Serilog.Log.Logger.Information("Begin single library book backup of {libraryBook}", item);
 				AddDownloadDecrypt([item], config);
 				return true;
 			}
-			else if (item.NeedsPdfDownload)
+			if (item.NeedsPdfDownload)
 			{
 				RemoveCompleted(item);
 				Serilog.Log.Logger.Information("Begin single pdf backup of {libraryBook}", item);
 				AddDownloadPdf([item], config);
 				return true;
 			}
+
+			Serilog.Log.Logger.Warning(
+				"Download not queued: single-item backup not applicable for {libraryBook} (book status or type does not request download).",
+				item.LogFriendly());
+			if (!item.Book.AudioExists)
+			{
+				MessageBoxBase.Show(
+					"Libation could not queue a download for this title.\n\n"
+					+ "If it should be downloadable: confirm it is not already liberated, try \"Set download status\" to Not downloaded, or check whether a library scan is required.",
+					"Download not queued",
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Information);
+			}
+			return false;
 		}
 		else
 		{
