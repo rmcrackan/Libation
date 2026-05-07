@@ -241,7 +241,7 @@ public class ReplacementCharacters
 
 			if (CharIsPathInvalid(c)
 				|| invalidSlashes.Contains(c)
-				|| Replacements.Any(r => r.CharacterToReplace == c) /* Replace any other legal characters that they user wants. */ )
+				|| Replacements.Any(r => r.CharacterToReplace == c) /* Replace any other legal characters that the user wants. */)
 			{
 				char preceding = i > 0 ? fileName[i - 1] : default;
 				char succeeding = i < fileName.Length - 1 ? fileName[i + 1] : default;

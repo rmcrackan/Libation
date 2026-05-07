@@ -10,6 +10,8 @@ public class ContributorDto(string name, string? audibleContributorId) : IFormat
 	private HumanName HumanName { get; } = new(RemoveSuffix(name), Prefer.FirstOverPrefix);
 	private string? AudibleContributorId { get; } = audibleContributorId;
 
+	private const string DefaultFormat = "{T} {F} {M} {L} {S}";
+
 	public static readonly Dictionary<string, Func<ContributorDto, object?>> FormatReplacements = new(StringComparer.OrdinalIgnoreCase)
 	{
 		// Single-word names parse as first names. Use it as last name.
@@ -23,12 +25,10 @@ public class ContributorDto(string name, string? audibleContributorId) : IFormat
 		{ "ID", dto => dto.AudibleContributorId },
 	};
 
-	public override string ToString() => ToString("{T} {F} {M} {L} {S}", null);
+	public override string ToString() => ToString(null, null);
 
 	public string ToString(string? format, IFormatProvider? provider)
-		=> string.IsNullOrWhiteSpace(format)
-			? ToString()
-			: CommonFormatters.TemplateStringFormatter(this, format, provider, FormatReplacements);
+		=> CommonFormatters.TemplateStringFormatter(this, string.IsNullOrWhiteSpace(format) ? DefaultFormat : format, provider, FormatReplacements);
 
 	private static string RemoveSuffix(string namesString)
 	{
