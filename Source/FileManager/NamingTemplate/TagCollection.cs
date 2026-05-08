@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -13,8 +12,6 @@ namespace FileManager.NamingTemplate;
 /// <summary>A collection of <see cref="IPropertyTag"/>s registered to a single <see cref="Type"/>.</summary>
 public abstract class TagCollection : IEnumerable<ITemplateTag>
 {
-	protected static readonly ConcurrentDictionary<string, Regex> RegexCache = new();
-
 	/// <summary>The <see cref="ITemplateTag"/>s registered with this <see cref="TagCollection"/> </summary>
 	public IEnumerator<ITemplateTag> GetEnumerator() => PropertyTags.Select(p => p.TemplateTag).GetEnumerator();
 
