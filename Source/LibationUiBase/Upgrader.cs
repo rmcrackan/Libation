@@ -62,8 +62,9 @@ public class Upgrader : UpgraderBase
 		}
 
 		//Silently download the upgrade in the background, save it to a temp file.
-
-		var zipFile = Path.Combine(Path.GetTempPath(), Path.GetFileName(upgradeProperties.ZipUrl));
+		var zipFile = GetUpgradeDownloadPath(upgradeProperties.ZipUrl);
+		if (zipFile is null)
+			return null;
 
 		Serilog.Log.Logger.Information($"Downloading {zipFile}");
 
@@ -98,6 +99,29 @@ public class Upgrader : UpgraderBase
 		catch (Exception ex)
 		{
 			var message = $"Failed to download the upgrade: {upgradeProperties.ZipUrl}";
+			Serilog.Log.Logger.Error(ex, message);
+			OnUpgradeFailed(message, ex);
+			return null;
+		}
+	}
+
+	/// <summary>
+	/// Allocate a fresh per-run temp directory for the upgrade zip and return the full path
+	/// the zip should be downloaded to. Uses a random subdirectory name (and 0700 perms on
+	/// Unix) so we never extract or execute from a predictable, shared-temp location.
+	/// </summary>
+	/// <returns>Destination path for the upgrade zip, or <c>null</c> if the temp directory
+	/// could not be created (in which case the upgrade-failed event has already been raised).</returns>
+	private string? GetUpgradeDownloadPath(string zipUrl)
+	{
+		try
+		{
+			var stagingDir = Directory.CreateTempSubdirectory("Libation-upgrade-").FullName;
+			return Path.Combine(stagingDir, Path.GetFileName(zipUrl));
+		}
+		catch (Exception ex)
+		{
+			var message = "Failed to create a temp directory for the upgrade download.";
 			Serilog.Log.Logger.Error(ex, message);
 			OnUpgradeFailed(message, ex);
 			return null;
