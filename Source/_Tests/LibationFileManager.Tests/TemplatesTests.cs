@@ -427,7 +427,7 @@ namespace TemplatesTests
 		[DataRow("<first author>", "Jill Conner Browne")]
 		[DataRow("<first author[]>", "Jill Conner Browne")]
 		[DataRow("<first author[{L}, {F}]>", "Browne, Jill")]
-		[DataRow("""<first author[\{L}:{L}, '{F}:'{F}, "{M}:"{M}]>""", "{L}_Browne, {F}_Jill, {M}_Conner")]
+		[DataRow("""<first author[\{L}_{L}, '{F}_'{F}, "{M}_"{M}]>""", "{L}_Browne, {F}_Jill, {M}_Conner")]
 		public void NameFormat_formatters(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
