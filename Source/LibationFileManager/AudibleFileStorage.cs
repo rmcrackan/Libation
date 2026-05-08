@@ -31,14 +31,39 @@ public abstract class AudibleFileStorage
 	{
 		try
 		{
-			return (DateTime.UtcNow - lastInProgressFail) < RetryInProgressInterval ? null
-				: new DirectoryInfo(Configuration.Instance.InProgress).CreateSubdirectoryEx(subDirectory);
+			if ((DateTime.UtcNow - lastInProgressFail) < RetryInProgressInterval)
+				return null;
+
+			var parent = new DirectoryInfo(Configuration.Instance.InProgress);
+			var dir = parent.CreateSubdirectoryEx(subDirectory);
+
+			// On Unix, lock down the parent and the subdir to the current user (0700).
+			// Prevents other local users from reading partial downloads / decrypted artifacts
+			// when InProgress lives on a world-traversable filesystem like /tmp.
+			TrySetOwnerOnlyMode(parent.FullName);
+			TrySetOwnerOnlyMode(dir.FullName);
+
+			return dir;
 		}
 		catch (Exception ex)
 		{
 			Serilog.Log.Error(ex, "Error creating subdirectory in {InProgress}", Configuration.Instance.InProgress);
 			lastInProgressFail = DateTime.UtcNow;
 			return null;
+		}
+	}
+
+	private static void TrySetOwnerOnlyMode(string path)
+	{
+		if (OperatingSystem.IsWindows())
+			return;
+		try
+		{
+			File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+		}
+		catch
+		{
+			// best-effort. user may have intentionally set their own perms, or the FS may not support it.
 		}
 	}
 

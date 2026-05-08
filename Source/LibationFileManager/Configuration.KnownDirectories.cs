@@ -13,7 +13,10 @@ public partial class Configuration
 	public static string AppDir_Absolute => Path.GetFullPath(Path.Combine(ProcessDirectory, LibationFiles.LIBATION_FILES_KEY));
 	public static string MyDocs => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Libation"));
 	public static string MyMusic => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "Libation"));
-	public static string WinTemp => Path.GetFullPath(Path.Combine(Path.GetTempPath(), "Libation"));
+	// Use a per-user subdir so we don't collide with -- or get blocked by -- another local
+	// user's leftover dir on shared-/tmp systems (Linux). On Windows and macOS, GetTempPath
+	// already returns a per-user location, so this is just a harmless extra path segment.
+	public static string WinTemp => Path.GetFullPath(Path.Combine(Path.GetTempPath(), $"Libation-{Environment.UserName}"));
 	public static string UserProfile => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Libation"));
 	public static string LocalAppData => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Libation"));
 
