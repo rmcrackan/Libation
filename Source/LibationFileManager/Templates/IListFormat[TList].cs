@@ -3,22 +3,34 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using static FileManager.NamingTemplate.RegExpExtensions;
+using FileManager.NamingTemplate;
 
 namespace LibationFileManager.Templates;
 
 internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 {
-	static IEnumerable<T> FilteredList<T>(string formatString, IEnumerable<T> items)
+	static IEnumerable<T> FilteredList<T>(string formatString, IEnumerable<T> items, CultureInfo? culture) where T : IFormattable
 	{
-		return Max(formatString, Slice(formatString, items));
+		return Max(formatString, Slice(formatString, Unique(formatString, items, culture)));
+
+		static StringComparer GetStringComparer(CultureInfo? culture)
+		{
+			return StringComparer.Create(culture ?? CultureInfo.CurrentCulture, ignoreCase: true);
+		}
+
+		static IEnumerable<T> Unique(string formatString, IEnumerable<T> items, CultureInfo? culture)
+		{
+			return UniqueRegex().TryMatch(formatString, out var uniqueMatch)
+				? items.DistinctBy(n => n.ToString(uniqueMatch.ResolveValue("format"), culture), GetStringComparer(culture))
+				: items;
+		}
 
 		static IEnumerable<T> Slice(string formatString, IEnumerable<T> items)
 		{
 			if (!SliceRegex().TryMatch(formatString, out var sliceMatch)) return items;
 
-			int.TryParse(sliceMatch.Groups["first"].ValueSpan, out var first);
-			int.TryParse(sliceMatch.Groups["last"].ValueSpan, out var last);
+			sliceMatch.TryParseInt("first", out var first);
+			sliceMatch.TryParseInt("last", out var last);
 			if (!sliceMatch.Groups["op"].Success) last = first;
 
 			if (last > 0)
@@ -52,11 +64,20 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 	static IEnumerable<string> FormattedList<T>(string? formatString, IEnumerable<T> items, CultureInfo? culture) where T : IFormattable
 	{
 		if (formatString is null) return items.Select(n => n.ToString(null, culture));
-		var format = TList.FormatRegex().Match(formatString).ResolveValue("format");
-		var separator = SeparatorRegex().Match(formatString).UnescapeValueOrNull("separator");
-		var formattedItems = FilteredList(formatString, items).Select(ItemFormatter);
+		var filteredList = FilteredList(formatString, items, culture);
 
-		if (separator is null) return formattedItems;
+		if (CountRegex().TryMatch(formatString, out var countMatch))
+		{
+			var count = filteredList.Count();
+			return count == 0 ? [] : [CommonFormatters._FloatFormatter(count, countMatch.ResolveValue("format"), culture)];
+		}
+		
+		var format = TList.FormatRegex().Match(formatString).ResolveValue("format");
+		var formattedItems = filteredList.Select(ItemFormatter);
+		var separator = SeparatorRegex().Match(formatString).UnescapeValueOrNull("separator");
+		if (separator is null)
+			return formattedItems;
+
 		var joined = Join(separator, formattedItems);
 		return joined is null ? [] : [joined];
 
@@ -98,4 +119,12 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 	/// <summary> Separator can be anything </summary>
 	[GeneratedRegex("""[Ss]eparator\((?<separator>(?:\\.|'[^']*'|"[^"]*"|[^\\'"])*?)\)""")]
 	private static partial Regex SeparatorRegex();
+
+	/// <summary> Count will substitute all list members with a single number equal to there count </summary>
+	[GeneratedRegex("""[Cc]ount\((?<format>(?:\\.|'[^']*'|"[^"]*"|[^\\'"])*?)\)""")]
+	private static partial Regex CountRegex();
+
+	/// <summary> Unique will shrink the list to unique members after applying format to them </summary>
+	[GeneratedRegex("""[Uu]nique\((?<format>(?:\\.|'[^']*'|"[^"]*"|[^\\'"])*?)\)""")]
+	private static partial Regex UniqueRegex();
 }

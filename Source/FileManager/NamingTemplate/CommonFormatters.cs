@@ -146,10 +146,13 @@ public static partial class CommonFormatters
 	public static string FormattableFormatter(ITemplateTag _, IFormattable? value, string? formatString, CultureInfo? culture)
 		=> value?.ToString(formatString, culture) ?? "";
 
-	public static string IntegerFormatter(ITemplateTag templateTag, int value, string? formatString, CultureInfo? culture)
-		=> FloatFormatter(templateTag, value, formatString, culture);
+	public static string IntegerFormatter(ITemplateTag _, int value, string? formatString, CultureInfo? culture)
+		=> _FloatFormatter(value, formatString, culture);
 
 	public static string FloatFormatter(ITemplateTag _, float value, string? formatString, CultureInfo? culture)
+		=> _FloatFormatter(value, formatString, culture);
+
+	public static string _FloatFormatter(float value, string? formatString, CultureInfo? culture)
 	{
 		culture ??= CultureInfo.CurrentCulture;
 		if (!int.TryParse(formatString, out var numDigits) || numDigits <= 0) return value.ToString(formatString, culture);
