@@ -265,7 +265,7 @@ public class ReplacementCharacters
 			if (
 				(
 					CharIsPathInvalid(c)
-					|| (    // Replace any other legal characters that they user wants.
+					|| (    // Replace any other legal characters that the user wants.
 							c != Path.DirectorySeparatorChar
 							&& c != Path.AltDirectorySeparatorChar
 							&& Replacements.Any(r => r.CharacterToReplace == c)
