@@ -842,6 +842,8 @@ namespace TemplatesTests
 		[DataRow("<audibletitle [u]>", "I", "en-US", "i")]
 		[DataRow("<audibletitle [l]>", "ı", "tr-TR", "I")]
 		[DataRow("<audibletitle [u]>", "İ", "tr-TR", "i")]
+		[DataRow("<author>", "Isaac Asimov", "tr-TR", "any")]
+		[DataRow("<author[format({F:L} {L:U})]>", "ısaac ASİMOV", "tr-TR", "any")]
 		[DataRow(@"<minutes[D,DDD.DDE-0\-H,HHH.HH\-#,##M.##]>", "8.573,30E1-0.021,00-9", "es-ES", "any")]
 		[DataRow(@"<minutes[D,DDD.DDE-0\-H,HHH.HH\-#,##M.##]>", "8,573.30E1-0,021.00-9", "en-AU", "any")]
 		[DataRow("<samplerate[#,##0'Hz ']>", "44,100Hz ", "en-CA", "any")]
@@ -852,6 +854,7 @@ namespace TemplatesTests
 			var bookDto = Shared.GetLibraryBook();
 			bookDto.Title = title;
 			bookDto.LengthInMinutes = TimeSpan.FromMinutes(123456789);
+			bookDto.Authors = [new("Isaac Asimov", "B00IA42MOV")];
 			var culture = new CultureInfo(cultureName);
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
