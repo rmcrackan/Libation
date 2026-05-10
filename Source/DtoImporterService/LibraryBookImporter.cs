@@ -44,25 +44,20 @@ public class LibraryBookImporter : ItemsImporterBase
 
 		//When Books are upserted during the BookImporter run, they are linked to their LibraryBook in the DbContext
 		//instance. If a LibraryBook has a null book here, that means it's Book was not imported during by BookImporter.
-		//There should never be duplicates, but this is defensive.
-		var existingEntries = DbContext.LibraryBooks.AsEnumerable().Where(l => l.Book is not null).ToDictionarySafe(l => l.Book.AudibleProductId);
+		//Key by (AudibleProductId, Account) so that two accounts owning the same book each get their own entry.
+		var existingEntries = DbContext.LibraryBooks.AsEnumerable().Where(l => l.Book is not null).ToDictionarySafe(l => (l.Book.AudibleProductId, l.Account));
 
-		//If importItems are contains duplicates by asin, keep the Item that's "available"
-		var uniqueImportItems = ToDictionarySafe(importItems, dto => dto.DtoItem.ProductId ?? string.Empty, tieBreak);
+		//If importItems contain duplicates for the same (asin, account) pair, keep the Item that's "available".
+		//Keying by (ProductId, AccountId) preserves separate entries when different accounts own the same book.
+		var uniqueImportItems = ToDictionarySafe(importItems, dto => (dto.DtoItem.ProductId ?? string.Empty, dto.AccountId), tieBreak);
 
 		int qtyNew = 0;
 		foreach (var item in uniqueImportItems.Values)
 		{
 			if (item.DtoItem.ProductId is null)
 				continue;
-			if (existingEntries.TryGetValue(item.DtoItem.ProductId, out LibraryBook? existing))
+			if (existingEntries.TryGetValue((item.DtoItem.ProductId, item.AccountId), out LibraryBook? existing))
 			{
-				if (existing.Account != item.AccountId)
-				{
-					//Book is absent from the existing LibraryBook's account. Use the alternate account.
-					existing.SetAccount(item.AccountId);
-				}
-
 				existing.AbsentFromLastScan = isUnavailable(item);
 			}
 			else
@@ -100,7 +95,7 @@ public class LibraryBookImporter : ItemsImporterBase
 			//Books table. In this case, the Books property will still be null we should also mark those
 			//LibraryBooks as absent.
 			//Find LibraryBooks which have a Book but weren't found in the import, and mark them as absent.
-			foreach (var absentBook in allInScannedAccounts.Where(lb => lb.Book?.AudibleProductId is not string asin || !uniqueImportItems.ContainsKey(asin)))
+			foreach (var absentBook in allInScannedAccounts.Where(lb => lb.Book?.AudibleProductId is not string asin || !uniqueImportItems.ContainsKey((asin, lb.Account))))
 				absentBook.AbsentFromLastScan = true;
 		}
 		else
