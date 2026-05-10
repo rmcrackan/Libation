@@ -181,6 +181,7 @@ namespace TemplatesTests
 		[TestMethod]
 		[DataRow("<narrator>", "")]
 		[DataRow("<narrator[format({L})]>", "")]
+		[DataRow("<narrator[count()]>", "")]
 		[DataRow("<first narrator>", "")]
 		[DataRow("<file version>", "")]
 		[DataRow("<libation version>", "")]
@@ -398,6 +399,16 @@ namespace TemplatesTests
 		[DataRow("<author[slice(-3..-2)]>", "Jon Bon Jovi, Paul Van Doren")]
 		[DataRow("<author[sort(LF) slice(4..5)]>", "Charles E. Gannon, Emma Gannon")]
 		[DataRow("<author[sort(Lf) slice(4..5)]>", "Emma Gannon, Charles E. Gannon")]
+		[DataRow("<author[unique({L:1}) format({L})]>", "Browne, Gannon, Fetherolf, Montgomery, Van Doren")]
+		[DataRow("<author[count()]>", "7")]
+		[DataRow("<author[max(42) count()]>", "7")]
+		[DataRow("<author[max(2) count()]>", "2")]
+		[DataRow("<author[count(000)]>", "007")]
+		[DataRow("<author[sort(Lf) count(000)]>", "007")]
+		[DataRow("<author[separator(:) count(000)]>", "007")]
+		[DataRow("<author[format({L}) count(000)]>", "007")]
+		[DataRow("<author[format({L}) slice(1..2)]> <author[slice(3..) count(' and '0' more')]>", "Browne, Gannon and 5 more")]
+		[DataRow("<author[format({L}) slice(1..7)]> <author[slice(8..) count(' and '0' more')]>", "Browne, Gannon, Fetherolf, Montgomery, Bon Jovi, Van Doren, Gannon ")]
 		[DataRow("<author[format({L}, {F})]>", "Browne, Jill, Gannon, Charles, Fetherolf, Christopher, Montgomery, Lucy, Bon Jovi, Jon, Van Doren, Paul, Gannon, Emma")]
 		[DataRow("<author[format({L}, {F} {ID})]>", "Browne, Jill B1, Gannon, Charles B2, Fetherolf, Christopher B3, Montgomery, Lucy B4, Bon Jovi, Jon B5, Van Doren, Paul B6, Gannon, Emma B7")]
 		[DataRow("<author[format({ID})]>", "B1, B2, B3, B4, B5, B6, B7")]
@@ -708,6 +719,9 @@ namespace TemplatesTests
 		[DataRow("<series>", "Series A, Series B, Series C, Series D")]
 		[DataRow("<series[]>", "Series A, Series B, Series C, Series D")]
 		[DataRow("<series[slice(2..3)]>", "Series B, Series C")]
+		[DataRow("<series[count(00)]>", "04")]
+		[DataRow("<series[unique({N:6}) sort(n)]>", "Series D")]
+		[DataRow("<series[unique({N:6}) count()]>", "1")]
 		[DataRow("<series[max(1)]>", "Series A")]
 		[DataRow("<series[max(2)]>", "Series A, Series B")]
 		[DataRow("<series[max(3)]>", "Series A, Series B, Series C")]
@@ -828,6 +842,8 @@ namespace TemplatesTests
 		[DataRow("<audibletitle [u]>", "I", "en-US", "i")]
 		[DataRow("<audibletitle [l]>", "ı", "tr-TR", "I")]
 		[DataRow("<audibletitle [u]>", "İ", "tr-TR", "i")]
+		[DataRow("<author>", "Isaac Asimov", "tr-TR", "any")]
+		[DataRow("<author[format({F:L} {L:U})]>", "ısaac ASİMOV", "tr-TR", "any")]
 		[DataRow(@"<minutes[D,DDD.DDE-0\-H,HHH.HH\-#,##M.##]>", "8.573,30E1-0.021,00-9", "es-ES", "any")]
 		[DataRow(@"<minutes[D,DDD.DDE-0\-H,HHH.HH\-#,##M.##]>", "8,573.30E1-0,021.00-9", "en-AU", "any")]
 		[DataRow("<samplerate[#,##0'Hz ']>", "44,100Hz ", "en-CA", "any")]
@@ -838,6 +854,7 @@ namespace TemplatesTests
 			var bookDto = Shared.GetLibraryBook();
 			bookDto.Title = title;
 			bookDto.LengthInMinutes = TimeSpan.FromMinutes(123456789);
+			bookDto.Authors = [new("Isaac Asimov", "B00IA42MOV")];
 			var culture = new CultureInfo(cultureName);
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
@@ -853,6 +870,9 @@ namespace TemplatesTests
 		[DataRow("<tag [format({S:u})]>", "TAG1, TAG2, TAG3")]
 		[DataRow("<tag[format({S:l})]>", "tag1, tag2, tag3")]
 		[DataRow("<tag[format(Tag: {S})]>", "Tag: Tag1, Tag: Tag2, Tag: Tag3")]
+		[DataRow("<tag[count(00)]>", "03")]
+		[DataRow("<tag[unique({S:3}) sort(s)]>", "Tag3")]
+		[DataRow("<tag[unique({S:3}) count()]>", "1")]
 		[DataRow("<tag [max(1)]>", "Tag1")]
 		[DataRow("<tag [slice(2..)]>", "Tag2, Tag3")]
 		[DataRow("<tag[sort(s)]>", "Tag3, Tag2, Tag1")]
