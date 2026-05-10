@@ -29,17 +29,12 @@ public class LibraryBookImporter : ItemsImporterBase
 
 	private int upsertLibraryBooks(IEnumerable<ImportItem> importItems)
 	{
-		// technically, we should be able to have duplicate books from separate accounts.
-		// this would violate the current pk and would be difficult to deal with elsewhere:
-		// - what to show in the grid
-		// - which to consider liberated
-		//
-		// sqlite cannot alter pk. the work around is an extensive headache
-		// - update: now possible in .net5/efcore5
-		//
-		// currently, inserting LibraryBook will throw error if the same book is in multiple accounts for the same region.
-		//
-		// CURRENT SOLUTION: don't re-insert
+		// The same book can be owned by more than one account.
+		// Both dictionaries below are keyed by (AudibleProductId, Account) so that
+		// each (book, account) pair gets its own slot. Using only AudibleProductId as
+		// the key would cause a collision: one account's LibraryBook would silently
+		// overwrite the other's, and the account of the surviving record would be
+		// incorrectly reassigned to the second account.
 
 
 		//When Books are upserted during the BookImporter run, they are linked to their LibraryBook in the DbContext
@@ -109,7 +104,7 @@ public class LibraryBookImporter : ItemsImporterBase
 		return qtyNew;
 	}
 
-	private static Dictionary<TKey, TSource> ToDictionarySafe<TKey, TSource>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TSource, TSource> tieBreaker)
+	internal static Dictionary<TKey, TSource> ToDictionarySafe<TKey, TSource>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TSource, TSource> tieBreaker)
 		where TKey : notnull
 	{
 		var dictionary = new Dictionary<TKey, TSource>();
