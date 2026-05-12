@@ -28,20 +28,65 @@ public partial class AccountsDialog : DialogWindow
 			{
 				this.RaiseAndSetIfChanged(ref field, value);
 				this.RaisePropertyChanged(nameof(IsDefault));
+				RefreshCanExport();
 			}
 		}
 
-		public Locale? SelectedLocale { get; set; }
+		public Locale? SelectedLocale
+		{
+			get => field;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref field, value);
+				RefreshCanExport();
+			}
+		}
+
 		public string? AccountName { get; set; }
 		public bool IsDefault => string.IsNullOrEmpty(AccountId);
 
-		public AccountDto() { }
+		public bool CanExport
+		{
+			get => field;
+			private set => this.RaiseAndSetIfChanged(ref field, value);
+		}
+
+		public string ExportButtonToolTip =>
+			CanExport
+				? "Export account authorization to audible-cli"
+				: "Authenticate this account (e.g. library scan) before exporting to audible-cli.";
+
+		public AccountDto() => RefreshCanExport();
+
 		public AccountDto(Account account)
 		{
 			LibraryScan = account.LibraryScan;
 			AccountId = account.AccountId;
 			SelectedLocale = Locales.Single(l => l.Name == account.Locale?.Name);
 			AccountName = account.AccountName;
+			RefreshCanExportFromAccount(account);
+		}
+
+		private void RefreshCanExportFromAccount(Account account)
+		{
+			CanExport = account.IdentityTokens?.IsValid == true;
+			this.RaisePropertyChanged(nameof(ExportButtonToolTip));
+		}
+
+		private void RefreshCanExport()
+		{
+			if (string.IsNullOrEmpty(AccountId) || SelectedLocale is null)
+			{
+				CanExport = false;
+				this.RaisePropertyChanged(nameof(ExportButtonToolTip));
+				return;
+			}
+
+			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+			var account = persister.AccountsSettings.Accounts.FirstOrDefault(a =>
+				a.AccountId == AccountId && a.Locale?.Name == SelectedLocale.Name);
+			CanExport = account?.IdentityTokens?.IsValid == true;
+			this.RaisePropertyChanged(nameof(ExportButtonToolTip));
 		}
 	}
 

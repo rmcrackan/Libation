@@ -2,9 +2,11 @@
 using AudibleUtilities;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 
 namespace LibationWinForms.Dialogs;
 
@@ -22,6 +24,9 @@ public partial class AccountsDialog : Form
 		InitializeComponent();
 		dataGridView1.EnableHeadersVisualStyles = !Application.IsDarkModeEnabled;
 		dataGridView1.Columns[COL_AccountName]?.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+
+		dataGridView1.CellValueChanged += DataGridView1_CellValueChanged;
+		dataGridView1.CurrentCellDirtyStateChanged += DataGridView1_CurrentCellDirtyStateChanged;
 
 		populateDropDown();
 
@@ -60,12 +65,55 @@ public partial class AccountsDialog : Form
 			account.AccountName ?? "");
 
 		dataGridView1[COL_Export, row].ToolTipText = "Export account authorization to audible-cli";
+		UpdateExportCellState(dataGridView1.Rows[row]);
 	}
 
 	private void dataGridView1_DefaultValuesNeeded(object sender, DataGridViewRowEventArgs e)
 	{
 		e.Row.Cells[COL_Delete].Value = "X";
 		e.Row.Cells[COL_LibraryScan].Value = true;
+		e.Row.Cells[COL_Export].ReadOnly = true;
+	}
+
+	private void DataGridView1_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
+	{
+		if (e.RowIndex < 0 || e.ColumnIndex < 0)
+			return;
+		var colName = dataGridView1.Columns[e.ColumnIndex].Name;
+		if (colName is COL_AccountId or COL_Locale)
+			UpdateExportCellState(dataGridView1.Rows[e.RowIndex]);
+	}
+
+	private void DataGridView1_CurrentCellDirtyStateChanged(object? sender, EventArgs e)
+	{
+		if (!dataGridView1.IsCurrentCellDirty || dataGridView1.CurrentCell is null)
+			return;
+		var colName = dataGridView1.Columns[dataGridView1.CurrentCell.ColumnIndex].Name;
+		if (colName == COL_Locale)
+			dataGridView1.CommitEdit(DataGridViewDataErrorContexts.Commit);
+	}
+
+	private static bool AccountRowCanExport(string? accountId, string? localeName)
+	{
+		if (string.IsNullOrWhiteSpace(accountId) || string.IsNullOrWhiteSpace(localeName))
+			return false;
+
+		using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+		var account = persister.AccountsSettings.Accounts.FirstOrDefault(a =>
+			a.AccountId == accountId && a.Locale?.Name == localeName);
+		return account?.IdentityTokens?.IsValid == true;
+	}
+
+	private void UpdateExportCellState(DataGridViewRow row)
+	{
+		if (row.IsNewRow || !dataGridView1.Columns.Contains(COL_Export))
+			return;
+
+		var canExport = AccountRowCanExport(GetAccountId(row), GetLocale(row));
+		row.Cells[COL_Export].ReadOnly = !canExport;
+		row.Cells[COL_Export].ToolTipText = canExport
+			? "Export account authorization to audible-cli"
+			: "Authenticate this account (e.g. library scan) before exporting to audible-cli.";
 	}
 
 	private void DataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -85,7 +133,9 @@ public partial class AccountsDialog : Form
 					break;
 				case COL_Export:
 					// if final/edit row: do nothing
-					if (e.RowIndex < dgv.RowCount - 1 && RowToAccountDto(row) is AccountDto accountDto)
+					if (e.RowIndex < dgv.RowCount - 1
+						&& !row.Cells[COL_Export].ReadOnly
+						&& RowToAccountDto(row) is AccountDto accountDto)
 						Export(accountDto);
 					break;
 					//case COL_MoveUp:
@@ -352,6 +402,18 @@ public partial class AccountsDialog : Form
 		public ExportColumnCell() : base("Export account to mkb79/audible-cli format")
 		{
 			ToolTipText = AccessibilityName;
+		}
+
+		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object? value, object? formattedValue, string? errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
+		{
+			if (ReadOnly)
+			{
+				base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts ^ (DataGridViewPaintParts.ContentBackground | DataGridViewPaintParts.ContentForeground | DataGridViewPaintParts.SelectionBackground));
+				var caption = formattedValue?.ToString() ?? Convert.ToString(value) ?? "";
+				ButtonRenderer.DrawButton(graphics, cellBounds, caption, cellStyle.Font, focused: false, PushButtonState.Disabled);
+			}
+			else
+				base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, value, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
 		}
 	}
 	#endregion

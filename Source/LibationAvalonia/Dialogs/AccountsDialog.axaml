@@ -47,8 +47,8 @@
 								VerticalAlignment="Stretch"
 								HorizontalAlignment="Stretch"
 								HorizontalContentAlignment="Center"
-								IsEnabled="{Binding !IsDefault}"
-								ToolTip.Tip="Export account authorization to audible-cli"
+								IsEnabled="{Binding CanExport}"
+								ToolTip.Tip="{Binding ExportButtonToolTip}"
 								Click="ExportButton_Clicked" />
 
 						</DataTemplate>
