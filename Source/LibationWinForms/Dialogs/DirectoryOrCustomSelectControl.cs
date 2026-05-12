@@ -1,6 +1,8 @@
-﻿using LibationFileManager;
+﻿using FileManager;
+using LibationFileManager;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace LibationWinForms.Dialogs;
@@ -81,9 +83,21 @@ public partial class DirectoryOrCustomSelectControl : UserControl
 		using var dialog = new FolderBrowserDialog
 		{
 			Description = string.IsNullOrWhiteSpace(dirSearchTitle) ? "Search" : $"Search for {dirSearchTitle}",
-			SelectedPath = this.customTb.Text
 		};
-		dialog.ShowDialog();
+		var initial = FolderPickerInitialPath.GetExistingDirectoryOrNull(this.customTb.Text);
+		if (initial is not null)
+			dialog.SelectedPath = initial;
+
+		try
+		{
+			dialog.ShowDialog();
+		}
+		catch (Win32Exception)
+		{
+			dialog.SelectedPath = string.Empty;
+			dialog.ShowDialog();
+		}
+
 		if (!string.IsNullOrWhiteSpace(dialog.SelectedPath))
 			this.customTb.Text = dialog.SelectedPath;
 	}
