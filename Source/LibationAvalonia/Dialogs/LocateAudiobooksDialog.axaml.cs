@@ -3,9 +3,11 @@ using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using DataLayer;
 using Dinah.Core;
+using FileManager;
 using LibationFileManager;
 using LibationUiBase;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -53,10 +55,28 @@ public partial class LocateAudiobooksDialog : DialogWindow
 		{
 			Title = "Select the folder to search for audiobooks",
 			AllowMultiple = false,
-			SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books?.PathWithoutPrefix ?? "")
 		};
 
-		var selectedFolder = (await StorageProvider.OpenFolderPickerAsync(folderPicker))?.SingleOrDefault()?.TryGetLocalPath();
+		var start = FolderPickerInitialPath.GetExistingDirectoryOrNull(Configuration.Instance.Books?.Path ?? "");
+		if (start is not null)
+		{
+			var loc = await StorageProvider.TryGetFolderFromPathAsync(start);
+			if (loc is not null)
+				folderPicker.SuggestedStartLocation = loc;
+		}
+
+		IReadOnlyList<IStorageFolder> picked;
+		try
+		{
+			picked = await StorageProvider.OpenFolderPickerAsync(folderPicker);
+		}
+		catch
+		{
+			folderPicker.SuggestedStartLocation = null;
+			picked = await StorageProvider.OpenFolderPickerAsync(folderPicker);
+		}
+
+		var selectedFolder = picked?.SingleOrDefault()?.TryGetLocalPath();
 
 		if (selectedFolder is null || !Directory.Exists(selectedFolder))
 		{

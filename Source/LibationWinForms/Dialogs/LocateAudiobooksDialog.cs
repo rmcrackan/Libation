@@ -1,8 +1,10 @@
 ﻿using DataLayer;
 using Dinah.Core;
+using FileManager;
 using LibationFileManager;
 using LibationUiBase;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
@@ -44,10 +46,21 @@ public partial class LocateAudiobooksDialog : Form
 		{
 			Description = "Select the folder to search for audiobooks",
 			UseDescriptionForTitle = true,
-			InitialDirectory = Configuration.Instance.Books?.Path ?? string.Empty
 		};
+		var initial = FolderPickerInitialPath.GetExistingDirectoryOrNull(Configuration.Instance.Books?.Path ?? "");
+		if (initial is not null)
+			fbd.InitialDirectory = initial;
 
-		var result = fbd.ShowDialog(this);
+		DialogResult result;
+		try
+		{
+			result = fbd.ShowDialog(this);
+		}
+		catch (Win32Exception)
+		{
+			fbd.InitialDirectory = string.Empty;
+			result = fbd.ShowDialog(this);
+		}
 		if (result != DialogResult.OK || !Directory.Exists(fbd.SelectedPath))
 		{
 			DialogResult = result;

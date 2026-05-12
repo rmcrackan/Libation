@@ -3,6 +3,7 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Dinah.Core;
+using FileManager;
 using LibationFileManager;
 using ReactiveUI;
 using System.Collections.Generic;
@@ -124,12 +125,34 @@ public partial class DirectoryOrCustomSelectControl : UserControl
 
 	public async void Browse_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{
+		var window = this.GetParentWindow();
+		if (window is null)
+			return;
+
 		var options = new FolderPickerOpenOptions
 		{
 			AllowMultiple = false
 		};
 
-		var selectedFolders = await this.GetParentWindow().StorageProvider.OpenFolderPickerAsync(options);
+		var start = FolderPickerInitialPath.GetExistingDirectoryOrNull(tboxCustomDirPath.Text);
+		if (start is not null)
+		{
+			var loc = await window.StorageProvider.TryGetFolderFromPathAsync(start);
+			if (loc is not null)
+				options.SuggestedStartLocation = loc;
+		}
+
+		IReadOnlyList<IStorageFolder> selectedFolders;
+		try
+		{
+			selectedFolders = await window.StorageProvider.OpenFolderPickerAsync(options);
+		}
+		catch
+		{
+			options.SuggestedStartLocation = null;
+			selectedFolders = await window.StorageProvider.OpenFolderPickerAsync(options);
+		}
+
 		Directory = selectedFolders.SingleOrDefault()?.TryGetLocalPath() ?? Directory;
 	}
 }
