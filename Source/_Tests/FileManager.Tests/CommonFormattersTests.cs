@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using AssertionHelper;
 using FileManager.NamingTemplate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -322,10 +321,33 @@ public class CommonFormattersTests
 		Assert.AreEqual(expected, unescaped);
 	}
 
+	[TestMethod]
+	[DataRow(null, false, null, "null")]
+	[DataRow("", false, null, "emptystring")]
+	[DataRow("42", true, 42, "number")]
+	[DataRow("\"only\" at start", false, null, "partly quoted")]
+	[DataRow("\"mismatched'", false, null, "wrong pair of quotes")]
+	[DataRow("\"simple string\"", true, "simple string", "simple quoted with double quotes")]
+	[DataRow("'simple string'", true, "simple string", "simple quoted with single quotes")]
+	[DataRow("\"string with \"\"escaped\"\" quotes\"", true, "string with \"escaped\" quotes", "quoted with embedded doubled quotes")]
+	[DataRow("'string with ''escaped'' quotes'", true, "string with 'escaped' quotes", "quoted with embedded doubled single quotes")]
+	[DataRow("\"string with 'single' quotes\"", true, "string with 'single' quotes", "quoted with embedded other quote type")]
+	[DataRow("\"string with ''doubled single'' and \\\"escaped double\\\" quotes\"", true, "string with ''doubled single'' and \\\"escaped double\\\" quotes", "quoted with embedded doubling")]
+	[DataRow("  \"string with whitespace\"  ", true, "string with whitespace", "quoted with whitespace")]
+	[DataRow("\"\"", true, "", "empty quoted string")]
+	public void TryQuotedString_Various(string? value, bool expectedSuccess, object? expectedValue, string testDescription)
+	{
+		// WHEN
+		var result = CommonFormatters.TryGetLiteral(value, out var unQuotedValue);
+
+		// THEN
+		Assert.AreEqual(expectedSuccess, result, $"Failed for: {testDescription}");
+		Assert.AreEqual(expectedValue, unQuotedValue, $"Failed for: {testDescription}");
+	}
 
 	private class TestClass
 	{
-		public string? Author { get; set; }
-		public string? Title { get; set; }
+		public string? Author { get; init; }
+		public string? Title { get; init; }
 	}
 }

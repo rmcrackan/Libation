@@ -11,11 +11,29 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 {
 	static IEnumerable<T> FilteredList<T>(string formatString, IEnumerable<T> items, CultureInfo? culture) where T : IFormattable
 	{
-		return Max(formatString, Slice(formatString, Unique(formatString, items, culture)));
+		return Max(formatString, Slice(formatString, Unique(formatString, Filter(formatString, items, culture), culture)));
 
 		static StringComparer GetStringComparer(CultureInfo? culture)
 		{
 			return StringComparer.Create(culture ?? CultureInfo.CurrentCulture, ignoreCase: true);
+		}
+
+		static IEnumerable<T> Filter(string formatString, IEnumerable<T> items, CultureInfo? culture)
+		{
+			if (!FilterRegex().TryMatch(formatString, out var filterMatch))
+				return items;
+
+			// read the format to apply on each item
+			var format = filterMatch.ResolveValue("format");
+			// use the operator to get a predicate function that compares the formatted item to the value specified in the filter
+			var predicate = CompareCondition.GetPredicate(filterMatch.Value, filterMatch.ResolveValue("op"));
+			// the value to compare the formatted item to. Might be a number or a quoted string.
+			CommonFormatters.TryGetLiteral(filterMatch.ResolveValue("value"), out var value);
+
+			// return only the items that match the predicate
+			return items.Where(FilterPredicate);
+
+			bool FilterPredicate(T n) => predicate(n.ToString(format, culture), value, culture);
 		}
 
 		static IEnumerable<T> Unique(string formatString, IEnumerable<T> items, CultureInfo? culture)
@@ -120,11 +138,36 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 	[GeneratedRegex("""[Ss]eparator\((?<separator>(?:\\.|'[^']*'|"[^"]*"|[^\\'"])*?)\)""")]
 	private static partial Regex SeparatorRegex();
 
-	/// <summary> Count will substitute all list members with a single number equal to there count </summary>
+	/// <summary> Count will substitute all list members with a single number equal to their count </summary>
 	[GeneratedRegex("""[Cc]ount\((?<format>(?:\\.|'[^']*'|"[^"]*"|[^\\'"])*?)\)""")]
 	private static partial Regex CountRegex();
 
 	/// <summary> Unique will shrink the list to unique members after applying format to them </summary>
 	[GeneratedRegex("""[Uu]nique\((?<format>(?:\\.|'[^']*'|"[^"]*"|[^\\'"])*?)\)""")]
 	private static partial Regex UniqueRegex();
+
+	/// <summary> The filter will reduce the list, keeping only the items that match the specified criteria. </summary>
+	[GeneratedRegex("""
+	                (?x)                         # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
+	                [Ff]ilter                    # name of the command 'filter' or 'Filter'
+	                \(                           # details are enclosed in brackets
+	                    (?<format>(?:            # the first part captured as <format> specifies how to format items before comparison
+	                        \\.                  # - '\' escapes always the next character.
+	                        | '[^']*'            # - allow 'string' to be included in the format, with '' being an escaped ' character
+	                        | "[^"]*"            # - allow "string" to be included in the format, with "" being an escaped " character
+	                        | [^\\'"]            # - match any other character. This will not catch the operator at first. Because ...
+	                    ) *? )                   # With *? the pattern above tries not to consume the operator.
+	                    \s*                      # Separate the following operator with whitespace
+	                    (?<op>                   # capture operator in <op>
+	                        [\#!≡=≠~<>≤≥&∉∌∈∌⋂⊆⊇⊂⊃-]+  # allow a wide range of operators, all non alphanumeric so that no operator is confused as value
+	                        | :[a-z_]+:          # allow :named: operators for readability, e.g. :contains:
+	                    ) \s*                    # ignore space between operator and second property
+	                    (?<value>                # the second operand is captured as <value> and is a quoted string encapsulated in either single or double quotes
+	                          '(?:[^']|'')*'     # - allow 'string' to be included in the format, with '' being an escaped ' character
+	                        | "(?:[^"]|"")*"     # - allow "string" to be included in the format, with "" being an escaped " character
+	                        | \d+                # - allow a number
+	                    )                        #
+	                \s* \)                       # end the filter details with optional whitespace and a closing bracket
+	                """)]
+	private static partial Regex FilterRegex();
 }
