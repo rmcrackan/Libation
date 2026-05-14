@@ -222,6 +222,38 @@ public class GetValidFilename
 }
 
 [TestClass]
+public class UmlautReplacements
+{
+	static readonly ReplacementCharacters Default = ReplacementCharacters.Default(true);
+	static readonly ReplacementCharacters LoFi = ReplacementCharacters.LoFiDefault(true);
+	static readonly ReplacementCharacters Barebones = ReplacementCharacters.Barebones(true);
+
+	[TestMethod]
+	[DataRow("Märchen", "Maerchen")]
+	[DataRow("Über den Wolken", "Ueber den Wolken")]
+	[DataRow("schön", "schoen")]
+	[DataRow("grün", "gruen")]
+	[DataRow("Straße", "Strasse")]
+	[DataRow("ÄRGER", "AErger")]
+	[DataRow("ÖKONOM", "OEkonom")]
+	[DataRow("ÜBEL", "UEbel")]
+	public void DefaultPreset_ReplacesUmlauts(string input, string expected)
+		=> Default.ReplaceFilenameChars(input).Should().Be(expected);
+
+	[TestMethod]
+	[DataRow("Märchen", "Maerchen")]
+	[DataRow("Straße", "Strasse")]
+	public void LoFiPreset_ReplacesUmlauts(string input, string expected)
+		=> LoFi.ReplaceFilenameChars(input).Should().Be(expected);
+
+	[TestMethod]
+	[DataRow("Märchen", "Maerchen")]
+	[DataRow("Straße", "Strasse")]
+	public void BarebonesPreset_ReplacesUmlauts(string input, string expected)
+		=> Barebones.ReplaceFilenameChars(input).Should().Be(expected);
+}
+
+[TestClass]
 public class RemoveLastCharacter
 {
 	[TestMethod]

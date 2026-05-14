@@ -53,6 +53,13 @@ public record Replacement
 	public static Replacement OpenAngleBracket(string replacement) => new('<', replacement, "Open Angle Bracket");
 	public static Replacement CloseAngleBracket(string replacement) => new('>', replacement, "Close Angle Bracket");
 	public static Replacement Pipe(string replacement) => new('|', replacement, "Vertical Line");
+	public static Replacement a_umlaut(string replacement = "ae") => new('ä', replacement, "a umlaut (ä)");
+	public static Replacement o_umlaut(string replacement = "oe") => new('ö', replacement, "o umlaut (ö)");
+	public static Replacement u_umlaut(string replacement = "ue") => new('ü', replacement, "u umlaut (ü)");
+	public static Replacement A_umlaut(string replacement = "Ae") => new('Ä', replacement, "A umlaut (Ä)");
+	public static Replacement O_umlaut(string replacement = "Oe") => new('Ö', replacement, "O umlaut (Ö)");
+	public static Replacement U_umlaut(string replacement = "Ue") => new('Ü', replacement, "U umlaut (Ü)");
+	public static Replacement Eszett(string replacement = "ss") => new('ß', replacement, "Eszett (ß)");
 
 }
 
@@ -81,76 +88,118 @@ public class ReplacementCharacters
 	private static readonly ReplacementCharacters HiFi_NTFS = new()
 	{
 		Replacements = [
-				Replacement.OtherInvalid("_"),
-				Replacement.FilenameForwardSlash("∕"),
-				Replacement.FilenameBackSlash(""),
-				Replacement.OpenQuote("“"),
-				Replacement.CloseQuote("”"),
-				Replacement.OtherQuote("＂"),
-				Replacement.OpenAngleBracket("＜"),
-				Replacement.CloseAngleBracket("＞"),
-				Replacement.Colon("_"),
-				Replacement.Asterisk("✱"),
-				Replacement.QuestionMark("？"),
-				Replacement.Pipe("⏐")]
+				Replacement.OtherInvalid(“_”),
+				Replacement.FilenameForwardSlash(“∕”),
+				Replacement.FilenameBackSlash(“”),
+				Replacement.OpenQuote(“””),
+				Replacement.CloseQuote(“””),
+				Replacement.OtherQuote(“＂”),
+				Replacement.OpenAngleBracket(“＜”),
+				Replacement.CloseAngleBracket(“＞”),
+				Replacement.Colon(“_”),
+				Replacement.Asterisk(“✱”),
+				Replacement.QuestionMark(“？”),
+				Replacement.Pipe(“⏐”),
+				Replacement.a_umlaut(),
+				Replacement.o_umlaut(),
+				Replacement.u_umlaut(),
+				Replacement.A_umlaut(),
+				Replacement.O_umlaut(),
+				Replacement.U_umlaut(),
+				Replacement.Eszett()]
 	};
 
 	private static readonly ReplacementCharacters HiFi_Other = new()
 	{
 		Replacements = [
-				Replacement.OtherInvalid("_"),
-				Replacement.FilenameForwardSlash("∕"),
-				Replacement.FilenameBackSlash("\\"),
-				Replacement.OpenQuote("“"),
-				Replacement.CloseQuote("”"),
-				Replacement.OtherQuote("\"")]
+				Replacement.OtherInvalid(“_”),
+				Replacement.FilenameForwardSlash(“∕”),
+				Replacement.FilenameBackSlash(“\\”),
+				Replacement.OpenQuote(“””),
+				Replacement.CloseQuote(“””),
+				Replacement.OtherQuote(“\””),
+				Replacement.a_umlaut(),
+				Replacement.o_umlaut(),
+				Replacement.u_umlaut(),
+				Replacement.A_umlaut(),
+				Replacement.O_umlaut(),
+				Replacement.U_umlaut(),
+				Replacement.Eszett()]
 	};
 
 	private static readonly ReplacementCharacters LoFi_NTFS = new()
 	{
 		Replacements = [
-				Replacement.OtherInvalid("_"),
-				Replacement.FilenameForwardSlash("_"),
-				Replacement.FilenameBackSlash("_"),
-				Replacement.OpenQuote("'"),
-				Replacement.CloseQuote("'"),
-				Replacement.OtherQuote("'"),
-				Replacement.OpenAngleBracket("{"),
-				Replacement.CloseAngleBracket("}"),
-				Replacement.Colon("-")]
+				Replacement.OtherInvalid(“_”),
+				Replacement.FilenameForwardSlash(“_”),
+				Replacement.FilenameBackSlash(“_”),
+				Replacement.OpenQuote(“'”),
+				Replacement.CloseQuote(“'”),
+				Replacement.OtherQuote(“'”),
+				Replacement.OpenAngleBracket(“{“),
+				Replacement.CloseAngleBracket(“}”),
+				Replacement.Colon(“-”),
+				Replacement.a_umlaut(),
+				Replacement.o_umlaut(),
+				Replacement.u_umlaut(),
+				Replacement.A_umlaut(),
+				Replacement.O_umlaut(),
+				Replacement.U_umlaut(),
+				Replacement.Eszett()]
 	};
 
 	private static readonly ReplacementCharacters LoFi_Other = new()
 	{
 		Replacements = [
-				Replacement.OtherInvalid("_"),
-				Replacement.FilenameForwardSlash("_"),
-				Replacement.FilenameBackSlash("\\"),
-				Replacement.OpenQuote("\""),
-				Replacement.CloseQuote("\""),
-				Replacement.OtherQuote("\"")]
+				Replacement.OtherInvalid(“_”),
+				Replacement.FilenameForwardSlash(“_”),
+				Replacement.FilenameBackSlash(“\\”),
+				Replacement.OpenQuote(“\””),
+				Replacement.CloseQuote(“\””),
+				Replacement.OtherQuote(“\””),
+				Replacement.a_umlaut(),
+				Replacement.o_umlaut(),
+				Replacement.u_umlaut(),
+				Replacement.A_umlaut(),
+				Replacement.O_umlaut(),
+				Replacement.U_umlaut(),
+				Replacement.Eszett()]
 	};
 
 	private static readonly ReplacementCharacters BareBones_NTFS = new()
 	{
 		Replacements = [
-				Replacement.OtherInvalid("_"),
-				Replacement.FilenameForwardSlash("_"),
-				Replacement.FilenameBackSlash("_"),
-				Replacement.OpenQuote("_"),
-				Replacement.CloseQuote("_"),
-				Replacement.OtherQuote("_")]
+				Replacement.OtherInvalid(“_”),
+				Replacement.FilenameForwardSlash(“_”),
+				Replacement.FilenameBackSlash(“_”),
+				Replacement.OpenQuote(“_”),
+				Replacement.CloseQuote(“_”),
+				Replacement.OtherQuote(“_”),
+				Replacement.a_umlaut(),
+				Replacement.o_umlaut(),
+				Replacement.u_umlaut(),
+				Replacement.A_umlaut(),
+				Replacement.O_umlaut(),
+				Replacement.U_umlaut(),
+				Replacement.Eszett()]
 	};
 
 	private static readonly ReplacementCharacters BareBones_Other = new()
 	{
 		Replacements = [
-				Replacement.OtherInvalid("_"),
-				Replacement.FilenameForwardSlash("_"),
-				Replacement.FilenameBackSlash("\\"),
-				Replacement.OpenQuote("\""),
-				Replacement.CloseQuote("\""),
-				Replacement.OtherQuote("\"")]
+				Replacement.OtherInvalid(“_”),
+				Replacement.FilenameForwardSlash(“_”),
+				Replacement.FilenameBackSlash(“\\”),
+				Replacement.OpenQuote(“\””),
+				Replacement.CloseQuote(“\””),
+				Replacement.OtherQuote(“\””),
+				Replacement.a_umlaut(),
+				Replacement.o_umlaut(),
+				Replacement.u_umlaut(),
+				Replacement.A_umlaut(),
+				Replacement.O_umlaut(),
+				Replacement.U_umlaut(),
+				Replacement.Eszett()]
 	};
 	#endregion
 	/// <summary>
