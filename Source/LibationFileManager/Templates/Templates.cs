@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using AaxDecrypter;
 using Dinah.Core;
 using FileManager;
@@ -20,7 +19,7 @@ public interface ITemplate
 	static abstract IEnumerable<TagCollection> TagCollections { get; }
 }
 
-public abstract partial class Templates
+public abstract class Templates
 {
 	public const string ErrorFullPathIsInvalid = @"No colons or full paths allowed. Eg: should not start with C:\";
 	public const string WarningNoChapterNumberTag = "Should include chapter number tag in template used for naming files which are split by chapter. Ie: <ch#> or <ch# 0>";
@@ -353,20 +352,10 @@ public abstract partial class Templates
 
 	private static object? TryGetValue(ITemplateTag _, CombinedDto dtos, string property, CultureInfo? culture)
 	{
-		// check for string literal first
-		if (StringValueRegex().TryMatch(property, out var stringValue))
+		// check for literal (string or int)
+		if (CommonFormatters.TryGetLiteral(property, out var stringValue))
 		{
-			// inside the quotes, doubled quotes are used to represent literal quotes. So replace them back to single quotes if there are any.
-			// this match helps to determine which quote type is being used so that the correct one can be replaced.
-			var doubleQuote = stringValue.Groups["double"];
-			return doubleQuote.Success
-				? stringValue.Groups["value"].Value.Replace(doubleQuote.Value, stringValue.Groups["quote"].Value)
-				: stringValue.Groups["value"].Value;
-		}
-		// then check for int literal
-		if (int.TryParse(property, out var intVal))
-		{
-			return intVal;
+			return stringValue;
 		}
 
 		// then check for property tags and retrieve their value
@@ -388,17 +377,14 @@ public abstract partial class Templates
 		return null;
 	}
 
-	[GeneratedRegex(@"^\s*(?<quote>['""])(?<value>(?:(?<double>\k<quote>{2})|.)*)\k<quote>\s*$")]
-	private static partial Regex StringValueRegex();
-
 	private static bool HasValue(object? value, object? _, CultureInfo? culture)
 	{
-		bool CheckItem(object o, CultureInfo? _) => !string.IsNullOrWhiteSpace(o.ToString());
+		bool CheckItem(object o) => !string.IsNullOrWhiteSpace(o.ToString());
 		return value switch
 		{
 			null => false,
-			IEnumerable<object> e => e.Any(o => CheckItem(o, culture)),
-			_ => CheckItem(value, culture)
+			IEnumerable<object> e => e.Any(CheckItem),
+			_ => CheckItem(value)
 		};
 	}
 

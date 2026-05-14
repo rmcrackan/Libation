@@ -264,7 +264,7 @@ public static partial class CompareCondition
 
 	[GeneratedRegex("""
 	                (?x)                       # option x: ignore all unescaped whitespace in pattern and allow comments starting with #
-	                ^(?>(?<op>(?<list_op>      # anchor at start of line. Capture operator in <op>, <list_op> and <num_op> with every char escapable
+	                ^(?>(?<op>(?<list_op>      # anchor at start of line. Capture operator in <op>, <list_op> and <num_op>
 	                          ≡ |  == |      :equals:           # - list operators: ≡ for checking if two lists contain the same items regardless of order
 	                        | ∌ | !>> | ∌  | :not_contains:     # - list operators: ∌ for checking if the first list does not contain any item of the second list
 	                        | ∋ |  >> |      :contains:         # - list operators: ∋ for checking if the first list contains all items of the second list

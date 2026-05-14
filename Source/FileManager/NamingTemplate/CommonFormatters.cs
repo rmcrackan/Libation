@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -66,7 +67,7 @@ public static partial class CommonFormatters
 	{
 		if (string.IsNullOrWhiteSpace(templateString)) return "";
 
-		// is this function is called from toString implementation of the IFormattable interface, we only get a IFormatProvider
+		// if this function is called from toString implementation of the IFormattable interface, we only get a IFormatProvider
 		var culture = GetCultureInfo(provider);
 		var oldUiCulture = Thread.CurrentThread.CurrentUICulture;
 		var result = CollapseSpacesAndTrimRegex().Replace(TagFormatRegex().ReplaceWithGaps(templateString, GetValueForMatchingTag, Unescape), string.Empty);
@@ -211,6 +212,33 @@ public static partial class CommonFormatters
 		return StringFormatter(templateTag, language, "3u", culture);
 	}
 
+	public static bool TryGetLiteral(string? value, [NotNullWhen(true)] out object? literal)
+	{
+		// check if value is quoted
+		if (StringValueRegex().TryMatch(value, out var stringValue))
+		{
+			// inside the quotes, doubled quotes are used to represent literal quotes. So replace them back to single quotes if there are any.
+			// this match helps to determine which quote type is being used so that the correct one can be replaced.
+			var doubleQuote = stringValue.Groups["double"];
+			literal = doubleQuote.Success
+				? stringValue.Groups["value"].Value.Replace(doubleQuote.Value, stringValue.Groups["quote"].Value)
+				: stringValue.Groups["value"].Value;
+			return true;
+		}
+
+		if (int.TryParse(value, out var intValue))
+		{
+			literal = intValue;
+			return true;
+		}
+
+		literal = null;
+		return false;
+	}
+
+	[GeneratedRegex("""^\s*(?<quote>['"])(?<value>(?:(?<double>\k<quote>{2})|.)*)\k<quote>\s*$""")]
+	private static partial Regex StringValueRegex();
+	
 	public static string Unescape(string valueSpan)
 	{
 		return Unescape(valueSpan, ['\'', '"']);

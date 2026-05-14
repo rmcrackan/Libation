@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
@@ -28,7 +27,7 @@ public delegate object? ValueProvider<in T>(ITemplateTag templateTag, T value, s
 
 public delegate bool ConditionEvaluator(object? value1, object? value2, CultureInfo? culture);
 
-public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCollection(typeof(TClass), caseSensitive)
+public class ConditionalTagCollection<TClass>(bool caseSensitive = true) : TagCollection(typeof(TClass), caseSensitive)
 {
 	/// <summary>
 	/// Register a conditional tag.
@@ -74,7 +73,7 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 		AddPropertyTag(new ConditionalTag(templateTag, Options, Parameter, valueProvider1, valueProvider2));
 	}
 
-	private partial class ConditionalTag : TagBase, IClosingPropertyTag
+	private class ConditionalTag : TagBase, IClosingPropertyTag
 	{
 		public override Regex NameMatcher { get; }
 		public Regex NameCloseMatcher { get; }
@@ -162,8 +161,8 @@ public partial class ConditionalTagCollection<TClass>(bool caseSensitive = true)
 			                                   | . )+?        # - match any character to form the property name. Capture non greedy so it won't match the operator part.
 			                            (?<!\s))              # - don't let <property> end with a whitepace. Otherwise "<tagname  = tag2->" would be matchable.
 			                         \s+                      # Separate the following operand with whitespace
-			                         (?<check_or_op>          # capture operator in <op> and <num_op> with every char escapable
-			                             [\#!≡=≠~<>≤≥&∉∌∈∌⋂⊆⊇⊂⊃-]+  # allow a wide range of operators, all non alphanumeric
+			                         (?<check_or_op>          # capture operator in <check_or_op>
+			                             [\#!≡=≠~<>≤≥&∉∌∈∌⋂⊆⊇⊂⊃-]+  # allow a wide range of operators, all non alphanumeric so that no operator is confused as property
 			                             | :[a-z_]+:          # allow :named: operators for readability, e.g. :contains:
 			                         ) \s+                    # ignore space between operator and second property
 			                         (?<second_property>.+?   # - capture the <second_property> non greedy so it won't end on whitespace

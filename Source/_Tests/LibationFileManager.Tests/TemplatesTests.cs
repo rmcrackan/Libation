@@ -400,6 +400,12 @@ namespace TemplatesTests
 		[DataRow("<author[sort(LF) slice(4..5)]>", "Charles E. Gannon, Emma Gannon")]
 		[DataRow("<author[sort(Lf) slice(4..5)]>", "Emma Gannon, Charles E. Gannon")]
 		[DataRow("<author[unique({L:1}) format({L})]>", "Browne, Gannon, Fetherolf, Montgomery, Van Doren")]
+		[DataRow("<author[filter({L:1} = 'B') count()]>", "2")]
+		[DataRow("<author[filter({F:1}~{L}~'J~B') format({L})]>", "Browne, Bon Jovi")] // match correct position of operator
+		[DataRow(@"<author[filter({F:1}\'{L:1} = 'J''B') format({L})]>", "Browne, Bon Jovi")] // allow quoted quotes
+		[DataRow("<author[filter(<'99') count()]>", "")] // strings with numerical operators are substituted by their length
+		[DataRow("<author[filter(<26) count()]>", "6")]
+		[DataRow("<author[filter({L:1} != 'B') format({L}) slice(2..3)]>", "Fetherolf, Montgomery")]
 		[DataRow("<author[count()]>", "7")]
 		[DataRow("<author[max(42) count()]>", "7")]
 		[DataRow("<author[max(2) count()]>", "2")]
@@ -873,6 +879,7 @@ namespace TemplatesTests
 		[DataRow("<tag[count(00)]>", "03")]
 		[DataRow("<tag[unique({S:3}) sort(s)]>", "Tag3")]
 		[DataRow("<tag[unique({S:3}) count()]>", "1")]
+		[DataRow("<tag[filter(~ '[2-5]')]>", "Tag2, Tag3")]
 		[DataRow("<tag [max(1)]>", "Tag1")]
 		[DataRow("<tag [slice(2..)]>", "Tag2, Tag3")]
 		[DataRow("<tag[sort(s)]>", "Tag3, Tag2, Tag1")]
