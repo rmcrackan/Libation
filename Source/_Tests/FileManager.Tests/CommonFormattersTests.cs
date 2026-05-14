@@ -335,7 +335,7 @@ public class CommonFormattersTests
 	[DataRow("\"string with ''doubled single'' and \\\"escaped double\\\" quotes\"", true, "string with ''doubled single'' and \\\"escaped double\\\" quotes", "quoted with embedded doubling")]
 	[DataRow("  \"string with whitespace\"  ", true, "string with whitespace", "quoted with whitespace")]
 	[DataRow("\"\"", true, "", "empty quoted string")]
-	public void TryQuotedString_Various(string? value, bool expectedSuccess, object? expectedValue, string testDescription)
+	public void TryGetLiteral_Various(string? value, bool expectedSuccess, object? expectedValue, string testDescription)
 	{
 		// WHEN
 		var result = CommonFormatters.TryGetLiteral(value, out var unQuotedValue);
