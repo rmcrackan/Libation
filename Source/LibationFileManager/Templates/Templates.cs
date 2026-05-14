@@ -379,12 +379,12 @@ public abstract class Templates
 
 	private static bool HasValue(object? value, object? _, CultureInfo? culture)
 	{
-		bool CheckItem(object o, CultureInfo? _) => !string.IsNullOrWhiteSpace(o.ToString());
+		bool CheckItem(object o) => !string.IsNullOrWhiteSpace(o.ToString());
 		return value switch
 		{
 			null => false,
-			IEnumerable<object> e => e.Any(o => CheckItem(o, culture)),
-			_ => CheckItem(value, culture)
+			IEnumerable<object> e => e.Any(CheckItem),
+			_ => CheckItem(value)
 		};
 	}
 

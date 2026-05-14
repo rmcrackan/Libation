@@ -76,7 +76,7 @@ Anything between the opening tag (`<tagname->`) and closing tag (`<-tagname>`) w
 | \<is PROPERTY[[CHECK](#checks)]-\>...\<-is\>                       | Only include if the PROPERTY or a single value of a list PROPERTY satisfies the CHECK           | Conditional |
 | \<is PROPERTY[FORMAT][[CHECK](#checks)]-\>...\<-is\>               | Only include if the formatted PROPERTY or a single value of a list PROPERTY satisfies the CHECK | Conditional |
 | \<is PROPERTY[...separator(...)...][[CHECK](#checks)]-\>...\<-is\> | Only include if the joined form of all formatted values of a list PROPERTY satisfies the CHECK  | Conditional |
-| \<cmp 1st-PROPERTY [[CHECK](#checks)] 2nd-PROPERTY-\>...\<-cmp\>   | Only include if two given PROPERTIES satisfy the CHECK                                          | Conditional |
+| \<cmp 1st-PROPERTY [CHECK](#checks) 2nd-PROPERTY-\>...\<-cmp\>     | Only include if two given PROPERTIES satisfy the CHECK                                          | Conditional |
 
 **†** Only affects the podcast series folder naming if "Save all podcast episodes to the series parent folder" option is checked.
 
@@ -84,15 +84,15 @@ For example, `<if podcast-><series><-if podcast>` will evaluate to the podcast's
 
 You can invert the condition (instead of displaying the text when the condition is true, display the text when it is false) by playing a `!` symbol before the opening tag name.
 
-| Inverted Tag                                           | Description                                                                                      | Type        |
-|--------------------------------------------------------|--------------------------------------------------------------------------------------------------| ----------- |
-| \<!if series-\>...\<-if series\>                       | Only include if _not_ part of a book series or podcast                                           | Conditional |
-| \<!if podcast-\>...\<-if podcast\>                     | Only include if _not_ part of a podcast                                                          | Conditional |
-| \<!if bookseries-\>...\<-if bookseries\>               | Only include if _not_ part of a book series                                                      | Conditional |
-| \<!if podcastparent-\>...\<-if podcastparent\> **†**   | Only include if item is _not_ a podcast series parent                                            | Conditional |
-| \<!has PROPERTY-\>...\<-has\>                          | Only include if the PROPERTY _does not_ have a value (i.e. is null or empty)                     | Conditional |
-| \<!is PROPERTY[[CHECK](#checks)]-\>...\<-is\>          | Only include if neither the whole PROPERTY nor the values of a list PROPERTY satisfies the CHECK | Conditional |
-| \<!cmp 1st-PROPERTY [CHECK] 2nd-PROPERTY-\>...\<-cmp\> | Only include if two given PROPERTIES _do not_ satisfy the CHECK                                  | Conditional |
+| Inverted Tag                                                    | Description                                                                                      | Type        |
+|-----------------------------------------------------------------|--------------------------------------------------------------------------------------------------| ----------- |
+| \<!if series-\>...\<-if series\>                                | Only include if _not_ part of a book series or podcast                                           | Conditional |
+| \<!if podcast-\>...\<-if podcast\>                              | Only include if _not_ part of a podcast                                                          | Conditional |
+| \<!if bookseries-\>...\<-if bookseries\>                        | Only include if _not_ part of a book series                                                      | Conditional |
+| \<!if podcastparent-\>...\<-if podcastparent\> **†**            | Only include if item is _not_ a podcast series parent                                            | Conditional |
+| \<!has PROPERTY-\>...\<-has\>                                   | Only include if the PROPERTY _does not_ have a value (i.e. is null or empty)                     | Conditional |
+| \<!is PROPERTY[[CHECK](#checks)]-\>...\<-is\>                   | Only include if neither the whole PROPERTY nor the values of a list PROPERTY satisfies the CHECK | Conditional |
+| \<!cmp 1st-PROPERTY [CHECK](#checks) 2nd-PROPERTY-\>...\<-cmp\> | Only include if two given PROPERTIES _do not_ satisfy the CHECK                                  | Conditional |
 
 **†** Only affects the podcast series folder naming if "Save all podcast episodes to the series parent folder" option is checked.
 
