@@ -88,6 +88,13 @@ public partial class Configuration
 			chapter. Merged chapter titles will be joined with
 			a space between them.
 			""" },
+		{nameof(MaximumFileDuration), """
+			The maximum duration (in minutes) for a chapter to
+			be split into its own file. Chapters longer than
+			this duration will be divided into equal-length
+			parts. Part titles are suffixed with "(Part N of M)".
+			Set to 0 to disable.
+			""" },
 		{nameof(SpatialAudioCodec), """
 			The Dolby Digital Plus (E-AC-3) codec is more widely
 			supported than the AC-4 codec, but E-AC-3 files are

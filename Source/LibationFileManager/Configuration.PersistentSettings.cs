@@ -173,6 +173,9 @@ public partial class Configuration
 	[Description("Minimum file duration (seconds)")]
 	public int MinimumFileDuration { get => Math.Max(0, GetNonString(defaultValue: 3)); set => SetNonString(value); }
 
+	[Description("Maximum file duration (seconds)")]
+	public int MaximumFileDuration { get => Math.Max(0, GetNonString(defaultValue: 0)); set => SetNonString(value); }
+
 	[Description("Merge Opening/End Credits into the following/preceding chapters")]
 	public bool MergeOpeningAndEndCredits { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
