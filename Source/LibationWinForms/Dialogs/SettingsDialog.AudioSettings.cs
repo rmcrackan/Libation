@@ -20,6 +20,7 @@ partial class SettingsDialog
 		this.combineNestedChapterTitlesCbox.Text = desc(nameof(config.CombineNestedChapterTitles));
 		this.splitFilesByChapterCbox.Text = desc(nameof(config.SplitFilesByChapter));
 		this.minFileDurationLbl.Text = desc(nameof(config.MinimumFileDuration));
+		this.maxFileDurationLbl.Text = desc(nameof(config.MaximumFileDuration));
 		this.mergeOpeningEndCreditsCbox.Text = desc(nameof(config.MergeOpeningAndEndCredits));
 		this.stripAudibleBrandingCbox.Text = desc(nameof(config.StripAudibleBrandAudio));
 		this.stripUnabridgedCbox.Text = desc(nameof(config.StripUnabridged));
@@ -80,6 +81,7 @@ partial class SettingsDialog
 		combineNestedChapterTitlesCbox.Checked = config.CombineNestedChapterTitles;
 		splitFilesByChapterCbox.Checked = config.SplitFilesByChapter;
 		minFileDurationNud.Value = config.MinimumFileDuration;
+		maxFileDurationNud.Value = config.MaximumFileDuration;
 		mergeOpeningEndCreditsCbox.Checked = config.MergeOpeningAndEndCredits;
 		stripUnabridgedCbox.Checked = config.StripUnabridged;
 		stripAudibleBrandingCbox.Checked = config.StripAudibleBrandAudio;
@@ -124,6 +126,7 @@ partial class SettingsDialog
 		config.CombineNestedChapterTitles = combineNestedChapterTitlesCbox.Checked;
 		config.SplitFilesByChapter = splitFilesByChapterCbox.Checked;
 		config.MinimumFileDuration = (int)minFileDurationNud.Value;
+		config.MaximumFileDuration = (int)maxFileDurationNud.Value;
 		config.MergeOpeningAndEndCredits = mergeOpeningEndCreditsCbox.Checked;
 		config.StripUnabridged = stripUnabridgedCbox.Checked;
 		config.StripAudibleBrandAudio = stripAudibleBrandingCbox.Checked;
@@ -159,7 +162,7 @@ partial class SettingsDialog
 
 	private void splitFilesByChapterCbox_CheckedChanged(object sender, EventArgs e)
 	{
-		chapterTitleTemplateGb.Enabled = minFileDurationNud.Enabled = minFileDurationLbl.Enabled = splitFilesByChapterCbox.Checked;
+		chapterTitleTemplateGb.Enabled = minFileDurationNud.Enabled = minFileDurationLbl.Enabled = maxFileDurationNud.Enabled = maxFileDurationLbl.Enabled = splitFilesByChapterCbox.Checked;
 	}
 
 	private void chapterTitleTemplateBtn_Click(object sender, EventArgs e)
