@@ -269,6 +269,8 @@ public abstract class Templates
 		{ TemplateTags.Id, lb => lb.AudibleProductId, v => v },
 		{ TemplateTags.Title, lb => lb.TitleWithSubtitle },
 		{ TemplateTags.TitleShort, lb => GetTitleShort(lb.Title) },
+		{ TemplateTags.TitleSort, lb => StripLeadingArticle(lb.TitleWithSubtitle) },
+		{ TemplateTags.TitleShortSort, lb => StripLeadingArticle(GetTitleShort(lb.Title)) },
 		{ TemplateTags.AudibleTitle, lb => lb.Title },
 		{ TemplateTags.AudibleSubtitle, lb => lb.Subtitle },
 		{ TemplateTags.Author, lb => lb.Authors, NameListFormat.Formatter, NameListFormat.Finalizer },
@@ -277,6 +279,7 @@ public abstract class Templates
 		{ TemplateTags.FirstNarrator, lb => lb.FirstNarrator, CommonFormatters.FormattableFormatter },
 		{ TemplateTags.Series, lb => lb.Series, SeriesListFormat.Formatter, SeriesListFormat.Finalizer },
 		{ TemplateTags.FirstSeries, lb => lb.FirstSeries, CommonFormatters.FormattableFormatter },
+		{ TemplateTags.FirstSeriesSort, lb => StripLeadingArticle(lb.FirstSeries?.ToString()) },
 		{ TemplateTags.SeriesNumber, lb => lb.FirstSeries?.Order, CommonFormatters.FormattableFormatter },
 		{ TemplateTags.Language, lb => lb.Language, CommonFormatters.FormattableFormatter },
 		//Don't allow formatting of LanguageShort
@@ -312,10 +315,13 @@ public abstract class Templates
 		{
 			{ TemplateTags.Title, lb => lb.TitleWithSubtitle },
 			{ TemplateTags.TitleShort, lb => GetTitleShort(lb.Title) },
+			{ TemplateTags.TitleSort, lb => StripLeadingArticle(lb.TitleWithSubtitle) },
+			{ TemplateTags.TitleShortSort, lb => StripLeadingArticle(GetTitleShort(lb.Title)) },
 			{ TemplateTags.AudibleTitle, lb => lb.Title },
 			{ TemplateTags.AudibleSubtitle, lb => lb.Subtitle },
 			{ TemplateTags.Series, lb => lb.Series, SeriesListFormat.Formatter, SeriesListFormat.Finalizer },
 			{ TemplateTags.FirstSeries, lb => lb.FirstSeries, CommonFormatters.FormattableFormatter },
+			{ TemplateTags.FirstSeriesSort, lb => StripLeadingArticle(lb.FirstSeries?.ToString()) },
 		},
 		new PropertyTagCollection<MultiConvertFileProperties>(caseSensitive: true, CommonFormatters.StringFormatter, CommonFormatters.IntegerFormatter, CommonFormatters.DateTimeFormatter)
 		{
@@ -396,6 +402,17 @@ public abstract class Templates
 		=> title != null && title.IndexOf(':') is var i && i >= 0
 			? title[..i]
 			: title;
+
+	private static readonly string[] _sortArticles = ["The ", "A ", "An "];
+
+	private static string? StripLeadingArticle(string? value)
+	{
+		if (value is null) return null;
+		foreach (var article in _sortArticles)
+			if (value.StartsWith(article, StringComparison.OrdinalIgnoreCase))
+				return value[article.Length..];
+		return value;
+	}
 
 	#endregion
 
