@@ -25,6 +25,8 @@ public sealed class TemplateTags : ITemplateTag
 	public static TemplateTags Id { get; } = new("id", "Audible ID");
 	public static TemplateTags Title { get; } = new("title", "Full title with subtitle");
 	public static TemplateTags TitleShort { get; } = new("title short", "Title. Stop at first colon");
+	public static TemplateTags TitleSort { get; } = new("title sort", "Full title with subtitle, leading article (A/An/The) removed");
+	public static TemplateTags TitleShortSort { get; } = new("title short sort", "Title without subtitle, leading article (A/An/The) removed");
 	public static TemplateTags AudibleTitle { get; } = new("audible title", "Audible's title (does not include subtitle)");
 	public static TemplateTags AudibleSubtitle { get; } = new("audible subtitle", "Audible's subtitle");
 	public static TemplateTags Author { get; } = new("author", "Author(s)");
@@ -33,6 +35,7 @@ public sealed class TemplateTags : ITemplateTag
 	public static TemplateTags FirstNarrator { get; } = new("first narrator", "First narrator");
 	public static TemplateTags Series { get; } = new("series", "All series to which the book belongs (if any)");
 	public static TemplateTags FirstSeries { get; } = new("first series", "First series");
+	public static TemplateTags FirstSeriesSort { get; } = new("first series sort", "First series name, leading article (A/An/The) removed");
 	public static TemplateTags SeriesNumber { get; } = new("series#", "Number order in series (alias for <first series[{#}]>");
 	public static TemplateTags Minutes { get; } = new("minutes", "Length in minutes");
 	public static TemplateTags Bitrate { get; } = new("bitrate", "Bitrate (kbps) of the last downloaded audiobook");
