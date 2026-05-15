@@ -55,6 +55,8 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v7
         with:
+          # Avoid default git context refs/pull/*/merge (breaks after PR merge or on some re-runs).
+          context: .
           platforms: linux/amd64,linux/arm64
           push: ${{ steps.metadata.outputs.tags != ''}}
           cache-from: type=gha
