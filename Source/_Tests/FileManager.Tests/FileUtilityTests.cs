@@ -251,6 +251,16 @@ public class UmlautReplacements
 	[DataRow("Straße", "Strasse")]
 	public void BarebonesPreset_ReplacesUmlauts(string input, string expected)
 		=> Barebones.ReplaceFilenameChars(input).Should().Be(expected);
+
+	// Regression guard: the Defaults block once had its ASCII string delimiters
+	// auto-formatted into curly quotes (U+201C/U+201D), which broke compilation.
+	// Pin the actual Unicode replacement codepoints so a future re-corruption
+	// is caught here even if the file still compiles.
+	[TestMethod]
+	[DataRow("\"foo\"", "“foo”")] // ASCII " between non-letters → OpenQuote U+201C / CloseQuote U+201D
+	[DataRow("\"a\"b\"", "“a＂b”")] // ASCII " surrounded by letters on both sides → OtherQuote U+FF02
+	public void DefaultPreset_UsesUnicodeCurlyQuotesForOpenAndClose(string input, string expected)
+		=> Default.ReplaceFilenameChars(input).Should().Be(expected);
 }
 
 [TestClass]
