@@ -2,6 +2,7 @@ using ApplicationServices;
 using AudibleUtilities;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Threading;
 using LibationFileManager;
 using LibationUiBase;
 using LibationUiBase.Forms;
@@ -71,8 +72,8 @@ public partial class MainVM
 		AutoScanChecked = Configuration.Instance.AutoScan;
 
 		setyNumScanningAccounts(0);
-		LibraryCommands.ScanBegin += (_, accountsLength) => setyNumScanningAccounts(accountsLength);
-		LibraryCommands.ScanEnd += (_, newCount) => setyNumScanningAccounts(0);
+		LibraryCommands.ScanBegin += (_, accountsLength) => Dispatcher.UIThread.Post(() => setyNumScanningAccounts(accountsLength));
+		LibraryCommands.ScanEnd += (_, _) => Dispatcher.UIThread.Post(() => setyNumScanningAccounts(0));
 
 		if (!Design.IsDesignMode)
 			RemoveButtonsVisible = false;
