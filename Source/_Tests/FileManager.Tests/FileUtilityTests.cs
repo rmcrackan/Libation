@@ -234,9 +234,9 @@ public class UmlautReplacements
 	[DataRow("schön", "schoen")]
 	[DataRow("grün", "gruen")]
 	[DataRow("Straße", "Strasse")]
-	[DataRow("ÄRGER", "AErger")]
-	[DataRow("ÖKONOM", "OEkonom")]
-	[DataRow("ÜBEL", "UEbel")]
+	[DataRow("Ärger", "Aerger")]
+	[DataRow("Ökonom", "Oekonom")]
+	[DataRow("Übel", "Uebel")]
 	public void DefaultPreset_ReplacesUmlauts(string input, string expected)
 		=> Default.ReplaceFilenameChars(input).Should().Be(expected);
 
