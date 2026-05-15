@@ -1480,7 +1480,7 @@ namespace Templates_ChapterFile_Tests
 	{
 		static LibraryBookDto Book(string titleWithSubtitle, string title, string? seriesName = null)
 		{
-			var dto = Shared.GetLibraryBook(seriesName is null ? null : [new SeriesDto(seriesName, "1", "sid")]);
+			var dto = GetLibraryBook(seriesName is null ? null : [new SeriesDto(seriesName, "1", "sid")]);
 			dto.Title = title;
 			dto.TitleWithSubtitle = titleWithSubtitle;
 			return dto;
@@ -1524,7 +1524,7 @@ namespace Templates_ChapterFile_Tests
 		public void TitleSort_available_in_chapter_template()
 		{
 			Templates.TryGetTemplate<Templates.ChapterFileTemplate>("<title sort>", out var t).Should().BeTrue();
-			var dto = Shared.GetLibraryBook();
+			var dto = GetLibraryBook();
 			dto.TitleWithSubtitle = "The Silmarillion";
 			t.GetName(dto, new MultiConvertFileProperties { OutputFileName = string.Empty })
 				.Should().Be("Silmarillion");
