@@ -13,6 +13,13 @@ public partial class Form1
 
 	private void LibraryCommands_ScanBegin(object? sender, int accountsLength)
 	{
+		// ImportAccountAsync (incl. auto-scan) runs on a worker thread; ToolStrip must be touched on the UI thread.
+		if (InvokeRequired)
+		{
+			BeginInvoke(LibraryCommands_ScanBegin, sender, accountsLength);
+			return;
+		}
+
 		removeLibraryBooksToolStripMenuItem.Enabled = false;
 		removeAllAccountsToolStripMenuItem.Enabled = false;
 		removeSomeAccountsToolStripMenuItem.Enabled = false;
@@ -30,6 +37,12 @@ public partial class Form1
 
 	private void LibraryCommands_ScanEnd(object? sender, int newCount)
 	{
+		if (InvokeRequired)
+		{
+			BeginInvoke(LibraryCommands_ScanEnd, sender, newCount);
+			return;
+		}
+
 		removeLibraryBooksToolStripMenuItem.Enabled = true;
 		removeAllAccountsToolStripMenuItem.Enabled = true;
 		removeSomeAccountsToolStripMenuItem.Enabled = true;
