@@ -855,6 +855,8 @@ namespace TemplatesTests
 		[DataRow("<samplerate[#,##0'Hz ']>", "44,100Hz ", "en-CA", "any")]
 		[DataRow("<samplerate[#,##0'Hz ']>", "44’100Hz ", "de-CH", "any")]
 		[DataRow("<samplerate[#,##0'Hz ']>", "44\u00A0100Hz ", "fr-CA", "any")] // non-breaking-space
+		[DataRow("<samplerate[#,##0'Hz ']>", "44.100Hz ", "de-DE", "any")] // period thousands separator
+		[DataRow("<samplerate[#,##0'Hz ']>", "44,100Hz ", "ja-JP", "any")] // comma thousands separator
 		public void Tag_culture_test(string template, string expected, string cultureName, string title)
 		{
 			var bookDto = Shared.GetLibraryBook();
@@ -863,11 +865,39 @@ namespace TemplatesTests
 			bookDto.Authors = [new("Isaac Asimov", "B00IA42MOV")];
 			var culture = new CultureInfo(cultureName);
 
+			// U+2019 in DataRow expectations is a placeholder for whatever the
+			// platform's current ICU/CLDR data says the culture's NumberGroupSeparator
+			// is. de-CH in particular returns U+2019 on some hosts and U+0027 on
+			// others; resolve to whatever the runtime says to keep the test stable.
+			expected = expected.Replace("’", culture.NumberFormat.NumberGroupSeparator);
+
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 
 			fileTemplate
 				.GetName(bookDto, new MultiConvertFileProperties { OutputFileName = string.Empty }, culture)
 				.Should().Be(expected);
+		}
+
+		[TestMethod]
+		[DataRow("en-CA")]
+		[DataRow("en-US")]
+		[DataRow("de-CH")]
+		[DataRow("de-DE")]
+		[DataRow("fr-CA")]
+		[DataRow("ja-JP")]
+		public void Samplerate_template_uses_culture_NumberGroupSeparator(string cultureName)
+		{
+			// Regression guard for the de-CH / ICU mismatch (issue #1813): the engine
+			// must always use the runtime culture's NumberGroupSeparator, not a
+			// hard-coded codepoint, so the test stays stable across .NET hosts.
+			var culture = new CultureInfo(cultureName);
+			var bookDto = Shared.GetLibraryBook();
+			bookDto.LengthInMinutes = TimeSpan.FromMinutes(123456789);
+
+			Templates.TryGetTemplate<Templates.FileTemplate>("<samplerate[#,##0]>", out var fileTemplate).Should().BeTrue();
+			var actual = fileTemplate.GetName(bookDto, new MultiConvertFileProperties { OutputFileName = string.Empty }, culture);
+
+			actual.Should().Be($"44{culture.NumberFormat.NumberGroupSeparator}100");
 		}
 
 		[TestMethod]
