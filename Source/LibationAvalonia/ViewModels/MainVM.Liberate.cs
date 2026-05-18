@@ -18,20 +18,17 @@ partial class MainVM
 	public async Task BackupAllBooks()
 	{
 		var books = await Task.Run(DbContexts.GetUnliberated_Flat_NoTracking);
-		BackupAllBooks(books);
+		await BackupAllBooksAsync(books);
 	}
 
-	private void BackupAllBooks(IEnumerable<LibraryBook> books)
+	private async Task BackupAllBooksAsync(IEnumerable<LibraryBook> books)
 	{
 		try
 		{
 			var unliberated = books.UnLiberated().ToArray();
 
-			Dispatcher.UIThread.Invoke(() =>
-			{
-				if (ProcessQueue.QueueDownloadDecrypt(unliberated))
-					setQueueCollapseState(false);
-			});
+			if (await ProcessQueue.QueueDownloadDecryptAsync(unliberated))
+				setQueueCollapseState(false);
 		}
 		catch (Exception ex)
 		{

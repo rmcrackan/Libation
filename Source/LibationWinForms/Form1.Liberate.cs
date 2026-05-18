@@ -19,16 +19,13 @@ public partial class Form1
 		BackupAllBooks(library);
 	}
 
-	private void BackupAllBooks(IEnumerable<LibraryBook> books)
+	private async void BackupAllBooks(IEnumerable<LibraryBook> books)
 	{
 		try
 		{
 			var unliberated = books.UnLiberated().ToArray();
-			Invoke(() =>
-			{
-				if (processBookQueue1.ViewModel.QueueDownloadDecrypt(unliberated))
-					SetQueueCollapseState(false);
-			});
+			if (await processBookQueue1.ViewModel.QueueDownloadDecryptAsync(unliberated))
+				SetQueueCollapseState(false);
 		}
 		catch (Exception ex)
 		{

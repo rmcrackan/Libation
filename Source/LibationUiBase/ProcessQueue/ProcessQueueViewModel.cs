@@ -73,8 +73,13 @@ public class ProcessQueueViewModel : ReactiveObject
 
 	private void Queue_CompletedCountChanged(object? sender, int e)
 	{
-		int errCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.FailedAbort or ProcessBookResult.FailedSkip or ProcessBookResult.FailedRetry or ProcessBookResult.ValidationFail);
-		int completeCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.Success);
+		var errCount = Queue.Completed.Count(p => p.Result
+			is ProcessBookResult.FailedAbort
+			or ProcessBookResult.FailedSkip
+			or ProcessBookResult.FailedRetry
+			or ProcessBookResult.ValidationFail
+			or ProcessBookResult.DiskFull);
+		var completeCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.Success);
 
 		ErrorCount = errCount;
 		CompletedCount = completeCount;
@@ -127,7 +132,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		return false;
 	}
 
-	public bool QueueDownloadDecrypt(IList<LibraryBook> libraryBooks, Configuration? config = null)
+	public async Task<bool> QueueDownloadDecryptAsync(IList<LibraryBook> libraryBooks, Configuration? config = null)
 	{
 		config ??= Configuration.Instance;
 		if (!IsBooksDirectoryValid(config))
@@ -182,6 +187,10 @@ public class ProcessQueueViewModel : ReactiveObject
 
 			if (toLiberate.Length > 0)
 			{
+				// May no-op when free space is unknown (common on UNC); see DiskSpaceBackupPreflight.
+				if (!await DiskSpaceBackupPreflight.ConfirmBulkBackupAsync(toLiberate.Length, config))
+					return false;
+
 				Serilog.Log.Logger.Information("Begin backup of {count} library books", toLiberate.Length);
 				AddDownloadDecrypt(toLiberate, config);
 				return true;
@@ -299,6 +308,7 @@ public class ProcessQueueViewModel : ReactiveObject
 			ProgressBarVisible = true;
 			var startingTime = DateTime.Now;
 			bool shownLicenseGuidanceMessage = false;
+			bool shownDiskFullMessage = false;
 
 			using var counterTimer = new System.Threading.Timer(_ => RunningTime = timeToStr(DateTime.Now - startingTime), null, 0, 500);
 
@@ -321,6 +331,20 @@ public class ProcessQueueViewModel : ReactiveObject
 					Queue.ClearCurrent();
 				else if (result == ProcessBookResult.FailedAbort)
 					Queue.ClearQueue();
+				// Stop the whole queue on first real disk-full write (local or network); do not retry hundreds of titles.
+				else if (result == ProcessBookResult.DiskFull)
+				{
+					if (!shownDiskFullMessage)
+					{
+						await MessageBoxBase.Show(
+							DiskFullUserMessage.BuildQueueStoppedBody(),
+							DiskFullUserMessage.DialogCaption,
+							MessageBoxButtons.OK,
+							MessageBoxIcon.Warning);
+						shownDiskFullMessage = true;
+					}
+					Queue.ClearQueue();
+				}
 				else if (result == ProcessBookResult.FailedSkip)
 					await nextBook.LibraryBook.UpdateBookStatusAsync(LiberatedStatus.Error);
 				else if (!shownLicenseGuidanceMessage

@@ -68,11 +68,11 @@ partial class MainVM
 		=> await setLiberatedVisibleMenuItemAsync();
 
 
-	public void LiberateVisible()
+	public async void LiberateVisible()
 	{
 		try
 		{
-			if (ProcessQueue.QueueDownloadDecrypt(ProductsDisplay.GetVisibleBookEntries().UnLiberated().ToArray()))
+			if (await ProcessQueue.QueueDownloadDecryptAsync(ProductsDisplay.GetVisibleBookEntries().UnLiberated().ToArray()))
 				setQueueCollapseState(false);
 		}
 		catch (Exception ex)

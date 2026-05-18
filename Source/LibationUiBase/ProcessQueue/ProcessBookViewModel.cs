@@ -24,7 +24,9 @@ public enum ProcessBookResult
 	FailedSkip,
 	FailedAbort,
 	LicenseDenied,
-	LicenseDeniedPossibleOutage
+	LicenseDeniedPossibleOutage,
+	/// <summary>Volume full on write; queue should stop (see ProcessQueueViewModel queue loop).</summary>
+	DiskFull
 }
 
 public enum ProcessBookStatus
@@ -69,6 +71,7 @@ public class ProcessBookViewModel : ReactiveObject
 		(ProcessBookResult.LicenseDenied, true) => "License denied (Plus; often temporary)",
 		(ProcessBookResult.LicenseDenied, false) => "License Denied",
 		(ProcessBookResult.LicenseDeniedPossibleOutage, _) => "Possible Service Interruption",
+		(ProcessBookResult.DiskFull, _) => "Disk full, queue stopped",
 		_ => Status.ToString(),
 	};
 
@@ -152,6 +155,13 @@ public class ProcessBookViewModel : ReactiveObject
 			{
 				foreach (var errorMessage in statusHandler.Errors)
 					LogError($"{procName}:  {errorMessage}");
+
+				// Prefer disk-full detection over generic retry; avoids treating truncated .aaxc as a normal failure.
+				if (statusHandler.Errors.Any(DiskSpaceHelper.ErrorMessageIndicatesDiskFull))
+				{
+					LogInfo($"{procName}:  Disk is full. Free space or change Books / In progress in Settings. - {LibraryBook.Book}");
+					result = ProcessBookResult.DiskFull;
+				}
 			}
 		}
 		catch (ContentLicenseDeniedException ldex)
@@ -173,6 +183,13 @@ public class ProcessBookViewModel : ReactiveObject
 				result = ProcessBookResult.LicenseDenied;
 			}
 		}
+		// HRESULT 0x80070070 / known messages from the OS when a volume is full (including many SMB shares).
+		catch (Exception ex) when (DiskSpaceHelper.IsDiskFullException(ex))
+		{
+			Serilog.Log.Logger.Error(ex, "Disk full during {ProcName} for {{@Book}}", procName, LibraryBook.LogFriendly());
+			LogInfo($"{procName}:  Disk is full. Free space or change Books / In progress in Settings. - {LibraryBook.Book}");
+			result = ProcessBookResult.DiskFull;
+		}
 		catch (Exception ex)
 		{
 			Serilog.Log.Logger.Error(ex, $"Unhandled exception in {procName} for {{@Book}}", LibraryBook.LogFriendly());
@@ -180,6 +197,7 @@ public class ProcessBookViewModel : ReactiveObject
 		}
 		finally
 		{
+			// DiskFull skips the per-book Abort/Retry/Ignore dialog; the queue shows one disk-full message instead.
 			if (result == ProcessBookResult.None)
 				result = await GetFailureActionAsync(LibraryBook);
 
@@ -345,6 +363,9 @@ public class ProcessBookViewModel : ReactiveObject
 		{
 			foreach (var errorMessage in result.Errors.Where(e => e != "Validation failed"))
 				LogError(errorMessage);
+
+			if (result.Errors.Any(DiskSpaceHelper.ErrorMessageIndicatesDiskFull))
+				LogInfo("Disk is full. Free space or change Books / In progress in Settings.");
 		}
 	}
 

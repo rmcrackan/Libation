@@ -172,7 +172,9 @@ public static class FilePathCache
 				catch (IOException ex)
 				{
 					Serilog.Log.Logger.Error(ex, $"Error saving {FILENAME_V2}");
-					throw;
+					// Keep in-memory cache; rethrow other I/O errors (permissions, network drop). Disk full must not take down the UI.
+					if (!DiskSpaceHelper.IsDiskFullException(ex))
+						throw;
 				}
 			}
 		}

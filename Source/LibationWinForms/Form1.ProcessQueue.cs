@@ -23,11 +23,11 @@ public partial class Form1
 		this.Width = width;
 	}
 
-	private void ProductsDisplay_LiberateClicked(object sender, System.Collections.Generic.IList<LibraryBook> libraryBooks, Configuration config)
+	private async void ProductsDisplay_LiberateClicked(object sender, System.Collections.Generic.IList<LibraryBook> libraryBooks, Configuration config)
 	{
 		try
 		{
-			if (processBookQueue1.ViewModel.QueueDownloadDecrypt(libraryBooks, config))
+			if (await processBookQueue1.ViewModel.QueueDownloadDecryptAsync(libraryBooks, config))
 				SetQueueCollapseState(false);
 			else if (libraryBooks.Count == 1 && libraryBooks[0].Book.AudioExists)
 			{
@@ -46,13 +46,13 @@ public partial class Form1
 		}
 	}
 
-	private void ProductsDisplay_LiberateSeriesClicked(object sender, SeriesEntry series)
+	private async void ProductsDisplay_LiberateSeriesClicked(object sender, SeriesEntry series)
 	{
 		try
 		{
 			Serilog.Log.Logger.Information("Begin backing up all {series} episodes", series.LibraryBook);
 
-			if (processBookQueue1.ViewModel.QueueDownloadDecrypt(series.Children.Select(c => c.LibraryBook).UnLiberated().ToArray()))
+			if (await processBookQueue1.ViewModel.QueueDownloadDecryptAsync(series.Children.Select(c => c.LibraryBook).UnLiberated().ToArray()))
 				SetQueueCollapseState(false);
 		}
 		catch (Exception ex)
