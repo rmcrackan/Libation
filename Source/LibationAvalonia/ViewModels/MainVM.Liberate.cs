@@ -16,16 +16,18 @@ partial class MainVM
 
 	/// <summary> This gets called by the "Begin Book and PDF Backups" menu item. </summary>
 	public async Task BackupAllBooks()
-		=> await BackupAllBooksAsync(await Task.Run(DbContexts.GetUnliberated_Flat_NoTracking));
+	{
+		var books = await Task.Run(DbContexts.GetUnliberated_Flat_NoTracking);
+		BackupAllBooks(books);
+	}
 
-	/// <summary> Queues backup for the given library subset (menu, auto-download after scan, etc.). </summary>
-	private async Task BackupAllBooksAsync(IEnumerable<LibraryBook> books)
+	private void BackupAllBooks(IEnumerable<LibraryBook> books)
 	{
 		try
 		{
 			var unliberated = books.UnLiberated().ToArray();
 
-			await Dispatcher.UIThread.InvokeAsync(() =>
+			Dispatcher.UIThread.Invoke(() =>
 			{
 				if (ProcessQueue.QueueDownloadDecrypt(unliberated))
 					setQueueCollapseState(false);

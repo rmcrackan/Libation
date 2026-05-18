@@ -77,6 +77,6 @@ partial class MainVM
 
 		if (Configuration.Instance.AutoDownloadEpisodes
 			&& stats.PendingBooks + stats.pdfsNotDownloaded > 0)
-			_ = BackupAllBooksAsync(stats.LibraryBooks);
+			BackupAllBooks(stats.LibraryBooks);
 	}
 }
