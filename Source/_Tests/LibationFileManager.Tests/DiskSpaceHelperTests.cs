@@ -27,6 +27,8 @@ public class DiskSpaceHelperTests
 	public void ErrorMessageIndicatesDiskFull_matches_common_phrases()
 	{
 		Assert.IsTrue(DiskSpaceHelper.ErrorMessageIndicatesDiskFull("There is not enough space on the disk. : 'C:\\temp\\x.aaxc'."));
+		Assert.IsTrue(DiskSpaceHelper.ErrorMessageIndicatesDiskFull("Write failed: disk quota has been exceeded."));
+		Assert.IsTrue(DiskSpaceHelper.ErrorMessageIndicatesDiskFull("No space left on device"));
 		Assert.IsFalse(DiskSpaceHelper.ErrorMessageIndicatesDiskFull("Unable to read beyond the end of the stream."));
 	}
 }

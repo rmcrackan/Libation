@@ -35,8 +35,7 @@ public static class DiskSpaceHelper
 	}
 
 	/// <summary>
-	/// Matches Windows-style disk-full text from logs and StatusHandler errors.
-	/// Does not cover quota-specific wording from some NAS/cloud providers; those fall through to normal retry UI.
+	/// Matches disk-full and common quota-exceeded text from logs and StatusHandler errors.
 	/// </summary>
 	public static bool ErrorMessageIndicatesDiskFull(string? message)
 	{
@@ -45,7 +44,11 @@ public static class DiskSpaceHelper
 
 		return message.Contains("not enough space on the disk", StringComparison.OrdinalIgnoreCase)
 			|| message.Contains("disk was full", StringComparison.OrdinalIgnoreCase)
-			|| message.Contains("there is not enough space on the disk", StringComparison.OrdinalIgnoreCase);
+			|| message.Contains("there is not enough space on the disk", StringComparison.OrdinalIgnoreCase)
+			|| message.Contains("no space left on device", StringComparison.OrdinalIgnoreCase)
+			|| message.Contains("disk quota", StringComparison.OrdinalIgnoreCase)
+			|| message.Contains("quota exceeded", StringComparison.OrdinalIgnoreCase)
+			|| message.Contains("storage quota", StringComparison.OrdinalIgnoreCase);
 	}
 
 	/// <summary>
