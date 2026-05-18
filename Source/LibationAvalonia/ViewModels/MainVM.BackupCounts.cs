@@ -46,7 +46,7 @@ partial class MainVM
 			=> await SetBackupCountsAsync(null);
 
 		updateCountsBw.DoWork += UpdateCountsBw_DoWork;
-		updateCountsBw.RunWorkerCompleted += UpdateCountsBw_Completed; ;
+		updateCountsBw.RunWorkerCompleted += UpdateCountsBw_CompletedAsync;
 	}
 
 
@@ -69,7 +69,7 @@ partial class MainVM
 		}
 	}
 
-	private void UpdateCountsBw_Completed(object? sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+	private async void UpdateCountsBw_CompletedAsync(object? sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
 	{
 		if (e.Result is not LibraryCommands.LibraryStats stats)
 			return;
@@ -77,6 +77,6 @@ partial class MainVM
 
 		if (Configuration.Instance.AutoDownloadEpisodes
 			&& stats.PendingBooks + stats.pdfsNotDownloaded > 0)
-			BackupAllBooks(stats.LibraryBooks);
+			await BackupAllBooksAsync(stats.LibraryBooks);
 	}
 }

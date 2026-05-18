@@ -26,13 +26,13 @@ public partial class Form1
 
 		// wire-up event to automatically download after scan.
 		// winforms only. this should NOT be allowed in cli
-		updateCountsBw.RunWorkerCompleted += (object? sender, System.ComponentModel.RunWorkerCompletedEventArgs e) =>
+		updateCountsBw.RunWorkerCompleted += async (object? sender, System.ComponentModel.RunWorkerCompletedEventArgs e) =>
 		{
 			if (!Configuration.Instance.AutoDownloadEpisodes || e.Result is not LibraryCommands.LibraryStats libraryStats)
 				return;
 
 			if ((libraryStats.PendingBooks + libraryStats.pdfsNotDownloaded) > 0)
-				BackupAllBooks(libraryStats.LibraryBooks);
+				await BackupAllBooksAsync(libraryStats.LibraryBooks);
 		};
 	}
 

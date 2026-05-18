@@ -73,8 +73,13 @@ public class ProcessQueueViewModel : ReactiveObject
 
 	private void Queue_CompletedCountChanged(object? sender, int e)
 	{
-		int errCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.FailedAbort or ProcessBookResult.FailedSkip or ProcessBookResult.FailedRetry or ProcessBookResult.ValidationFail);
-		int completeCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.Success);
+		var errCount = Queue.Completed.Count(p => p.Result
+			is ProcessBookResult.FailedAbort
+			or ProcessBookResult.FailedSkip
+			or ProcessBookResult.FailedRetry
+			or ProcessBookResult.ValidationFail
+			or ProcessBookResult.DiskFull);
+		var completeCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.Success);
 
 		ErrorCount = errCount;
 		CompletedCount = completeCount;
@@ -92,10 +97,10 @@ public class ProcessQueueViewModel : ReactiveObject
 
 	#region Add Books to Queue
 
-	public bool QueueDownloadPdf(IList<LibraryBook> libraryBooks, Configuration? config = null)
+	public async Task<bool> QueueDownloadPdfAsync(IList<LibraryBook> libraryBooks, Configuration? config = null)
 	{
 		config ??= Configuration.Instance;
-		if (!IsBooksDirectoryValid(config))
+		if (!await IsBooksDirectoryValidAsync(config))
 			return false;
 
 		var needsPdf = libraryBooks.Where(lb => lb.NeedsPdfDownload).ToArray();
@@ -108,10 +113,10 @@ public class ProcessQueueViewModel : ReactiveObject
 		return false;
 	}
 
-	public bool QueueConvertToMp3(IList<LibraryBook> libraryBooks, Configuration? config = null)
+	public async Task<bool> QueueConvertToMp3Async(IList<LibraryBook> libraryBooks, Configuration? config = null)
 	{
 		config ??= Configuration.Instance;
-		if (!IsBooksDirectoryValid(config))
+		if (!await IsBooksDirectoryValidAsync(config))
 			return false;
 
 		//Only Queue Liberated books for conversion.  This isn't a perfect filter, but it's better than nothing.
@@ -127,10 +132,10 @@ public class ProcessQueueViewModel : ReactiveObject
 		return false;
 	}
 
-	public bool QueueDownloadDecrypt(IList<LibraryBook> libraryBooks, Configuration? config = null)
+	public async Task<bool> QueueDownloadDecryptAsync(IList<LibraryBook> libraryBooks, Configuration? config = null)
 	{
 		config ??= Configuration.Instance;
-		if (!IsBooksDirectoryValid(config))
+		if (!await IsBooksDirectoryValidAsync(config))
 			return false;
 
 		if (libraryBooks.Count == 1)
@@ -140,7 +145,7 @@ public class ProcessQueueViewModel : ReactiveObject
 			if (item.AbsentFromLastScan)
 			{
 				Serilog.Log.Logger.Warning("Download not queued: {libraryBook} is absent from the last library scan.", item.LogFriendly());
-				MessageBoxBase.Show(
+				await MessageBoxBase.Show(
 					"This title is marked absent from your last library scan.\n\nRun Scan (or `libationcli scan`) so Libation can refresh your library, then try again.",
 					"Library scan required",
 					MessageBoxButtons.OK,
@@ -167,7 +172,7 @@ public class ProcessQueueViewModel : ReactiveObject
 				item.LogFriendly());
 			if (!item.Book.AudioExists)
 			{
-				MessageBoxBase.Show(
+				await MessageBoxBase.Show(
 					"Libation could not queue a download for this title.\n\n"
 					+ "If it should be downloadable: confirm it is not already liberated, try \"Set download status\" to Not downloaded, or check whether a library scan is required.",
 					"Download not queued",
@@ -182,6 +187,10 @@ public class ProcessQueueViewModel : ReactiveObject
 
 			if (toLiberate.Length > 0)
 			{
+				// May no-op when free space is unknown (common on UNC); see DiskSpaceBackupPreflight.
+				if (!await DiskSpaceBackupPreflight.ConfirmBulkBackupAsync(toLiberate.Length, config))
+					return false;
+
 				Serilog.Log.Logger.Information("Begin backup of {count} library books", toLiberate.Length);
 				AddDownloadDecrypt(toLiberate, config);
 				return true;
@@ -190,12 +199,12 @@ public class ProcessQueueViewModel : ReactiveObject
 		return false;
 	}
 
-	private bool IsBooksDirectoryValid(Configuration config)
+	private async Task<bool> IsBooksDirectoryValidAsync(Configuration config)
 	{
 		if (string.IsNullOrWhiteSpace(config.Books?.Path))
 		{
 			Serilog.Log.Logger.Error("Books location is not set in configuration.");
-			MessageBoxBase.Show(
+			await MessageBoxBase.Show(
 				"Please choose a \"Books location\" folder in the Settings menu.",
 				"Books Directory Not Set",
 				MessageBoxButtons.OK,
@@ -205,7 +214,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		else if (AudibleFileStorage.BooksDirectory is null)
 		{
 			Serilog.Log.Logger.Error("Failed to create books directory: {booksDir}", config.Books?.Path);
-			MessageBoxBase.Show(
+			await MessageBoxBase.Show(
 				$"Libation was unable to create the \"Books location\" folder at:\n{config.Books}\n\nPlease change the Books location in the settings menu.",
 				"Failed to Create Books Directory",
 				MessageBoxButtons.OK,
@@ -215,7 +224,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		else if (AudibleFileStorage.DownloadsInProgressDirectory is null)
 		{
 			Serilog.Log.Logger.Error("Failed to create DownloadsInProgressDirectory in {InProgress}", config.InProgress);
-			MessageBoxBase.Show(
+			await MessageBoxBase.Show(
 				$"Libation was unable to create the \"Downloads In Progress\" folder in:\n{config.InProgress}\n\nPlease change the In Progress location in the settings menu.",
 				"Failed to Create Downloads In Progress Directory",
 				MessageBoxButtons.OK,
@@ -225,7 +234,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		else if (AudibleFileStorage.DecryptInProgressDirectory is null)
 		{
 			Serilog.Log.Logger.Error("Failed to create DecryptInProgressDirectory in {InProgress}", config.InProgress);
-			MessageBoxBase.Show(
+			await MessageBoxBase.Show(
 				$"Libation was unable to create the \"Decrypt In Progress\" folder in:\n{config.InProgress}\n\nPlease change the In Progress location in the settings menu.",
 				"Failed to Create Decrypt In Progress Directory",
 				MessageBoxButtons.OK,
@@ -299,6 +308,7 @@ public class ProcessQueueViewModel : ReactiveObject
 			ProgressBarVisible = true;
 			var startingTime = DateTime.Now;
 			bool shownLicenseGuidanceMessage = false;
+			bool shownDiskFullMessage = false;
 
 			using var counterTimer = new System.Threading.Timer(_ => RunningTime = timeToStr(DateTime.Now - startingTime), null, 0, 500);
 
@@ -321,6 +331,20 @@ public class ProcessQueueViewModel : ReactiveObject
 					Queue.ClearCurrent();
 				else if (result == ProcessBookResult.FailedAbort)
 					Queue.ClearQueue();
+				// Stop the whole queue on first real disk-full write (local or network); do not retry hundreds of titles.
+				else if (result == ProcessBookResult.DiskFull)
+				{
+					if (!shownDiskFullMessage)
+					{
+						await MessageBoxBase.Show(
+							DiskFullUserMessage.BuildQueueStoppedBody(),
+							DiskFullUserMessage.DialogCaption,
+							MessageBoxButtons.OK,
+							MessageBoxIcon.Warning);
+						shownDiskFullMessage = true;
+					}
+					Queue.ClearQueue();
+				}
 				else if (result == ProcessBookResult.FailedSkip)
 					await nextBook.LibraryBook.UpdateBookStatusAsync(LiberatedStatus.Error);
 				else if (!shownLicenseGuidanceMessage

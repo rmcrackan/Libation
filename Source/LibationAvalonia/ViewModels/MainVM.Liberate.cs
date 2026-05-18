@@ -18,20 +18,17 @@ partial class MainVM
 	public async Task BackupAllBooks()
 	{
 		var books = await Task.Run(DbContexts.GetUnliberated_Flat_NoTracking);
-		BackupAllBooks(books);
+		await BackupAllBooksAsync(books);
 	}
 
-	private void BackupAllBooks(IEnumerable<LibraryBook> books)
+	private async Task BackupAllBooksAsync(IEnumerable<LibraryBook> books)
 	{
 		try
 		{
 			var unliberated = books.UnLiberated().ToArray();
 
-			Dispatcher.UIThread.Invoke(() =>
-			{
-				if (ProcessQueue.QueueDownloadDecrypt(unliberated))
-					setQueueCollapseState(false);
-			});
+			if (await ProcessQueue.QueueDownloadDecryptAsync(unliberated))
+				setQueueCollapseState(false);
 		}
 		catch (Exception ex)
 		{
@@ -43,7 +40,7 @@ partial class MainVM
 	public async Task BackupAllPdfs()
 	{
 		var books = await Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking());
-		if (ProcessQueue.QueueDownloadPdf(books))
+		if (await ProcessQueue.QueueDownloadPdfAsync(books))
 			setQueueCollapseState(false);
 	}
 
@@ -57,7 +54,7 @@ partial class MainVM
 			"Convert all M4b => Mp3?",
 			MessageBoxButtons.YesNo,
 			MessageBoxIcon.Warning);
-		if (result == DialogResult.Yes && ProcessQueue.QueueConvertToMp3(await Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking())))
+		if (result == DialogResult.Yes && await ProcessQueue.QueueConvertToMp3Async(await Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking())))
 			setQueueCollapseState(false);
 	}
 

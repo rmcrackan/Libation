@@ -24,7 +24,9 @@ public enum ProcessBookResult
 	FailedSkip,
 	FailedAbort,
 	LicenseDenied,
-	LicenseDeniedPossibleOutage
+	LicenseDeniedPossibleOutage,
+	/// <summary>Volume full on write; queue should stop (see ProcessQueueViewModel queue loop).</summary>
+	DiskFull
 }
 
 public enum ProcessBookStatus
@@ -69,6 +71,7 @@ public class ProcessBookViewModel : ReactiveObject
 		(ProcessBookResult.LicenseDenied, true) => "License denied (Plus; often temporary)",
 		(ProcessBookResult.LicenseDenied, false) => "License Denied",
 		(ProcessBookResult.LicenseDeniedPossibleOutage, _) => "Possible Service Interruption",
+		(ProcessBookResult.DiskFull, _) => "Disk full, queue stopped",
 		_ => Status.ToString(),
 	};
 
@@ -128,13 +131,51 @@ public class ProcessBookViewModel : ReactiveObject
 
 	public async Task<ProcessBookResult> ProcessOneAsync()
 	{
-		string procName = CurrentProcessable.Name;
 		ProcessBookResult result = ProcessBookResult.None;
 		try
 		{
-			LinkProcessable(CurrentProcessable);
+			// Run every queued step (decrypt, PDF, MP3, ...) in order so disk-full and other failures
+			// from later steps are returned to the queue loop. Do not chain via Processable.Completed.
+			while (Processes.Count > 0)
+			{
+				var processable = CurrentProcessable;
+				result = await ExecuteProcessableAsync(processable);
+				UnlinkProcessable(processable);
+				NextProcessable();
 
-			var statusHandler = await CurrentProcessable.ProcessSingleAsync(LibraryBook, validate: true);
+				if (result is not ProcessBookResult.Success)
+					break;
+			}
+		}
+		finally
+		{
+			// DiskFull skips the per-book Abort/Retry/Ignore dialog; the queue shows one disk-full message instead.
+			if (result == ProcessBookResult.None)
+				result = await GetFailureActionAsync(LibraryBook);
+
+			var status = result switch
+			{
+				ProcessBookResult.Success => ProcessBookStatus.Completed,
+				ProcessBookResult.Cancelled => ProcessBookStatus.Cancelled,
+				_ => ProcessBookStatus.Failed,
+			};
+
+			Status = status;
+		}
+
+		Result = result;
+		return result;
+	}
+
+	private async Task<ProcessBookResult> ExecuteProcessableAsync(Processable processable)
+	{
+		string procName = processable.Name;
+		ProcessBookResult result = ProcessBookResult.None;
+		try
+		{
+			LinkProcessable(processable);
+
+			var statusHandler = await processable.ProcessSingleAsync(LibraryBook, validate: true);
 
 			if (statusHandler.IsSuccess)
 				result = ProcessBookResult.Success;
@@ -152,6 +193,13 @@ public class ProcessBookViewModel : ReactiveObject
 			{
 				foreach (var errorMessage in statusHandler.Errors)
 					LogError($"{procName}:  {errorMessage}");
+
+				// Prefer disk-full detection over generic retry; avoids treating truncated .aaxc as a normal failure.
+				if (statusHandler.Errors.Any(DiskSpaceHelper.ErrorMessageIndicatesDiskFull))
+				{
+					LogInfo($"{procName}:  Disk is full. Free space or change Books / In progress in Settings. - {LibraryBook.Book}");
+					result = ProcessBookResult.DiskFull;
+				}
 			}
 		}
 		catch (ContentLicenseDeniedException ldex)
@@ -173,27 +221,19 @@ public class ProcessBookViewModel : ReactiveObject
 				result = ProcessBookResult.LicenseDenied;
 			}
 		}
+		// HRESULT 0x80070070 / known messages from the OS when a volume is full (including many SMB shares).
+		catch (Exception ex) when (DiskSpaceHelper.IsDiskFullException(ex))
+		{
+			Serilog.Log.Logger.Error(ex, "Disk full during {ProcName} for {{@Book}}", procName, LibraryBook.LogFriendly());
+			LogInfo($"{procName}:  Disk is full. Free space or change Books / In progress in Settings. - {LibraryBook.Book}");
+			result = ProcessBookResult.DiskFull;
+		}
 		catch (Exception ex)
 		{
 			Serilog.Log.Logger.Error(ex, $"Unhandled exception in {procName} for {{@Book}}", LibraryBook.LogFriendly());
 			LogError(procName, ex);
 		}
-		finally
-		{
-			if (result == ProcessBookResult.None)
-				result = await GetFailureActionAsync(LibraryBook);
 
-			var status = result switch
-			{
-				ProcessBookResult.Success => ProcessBookStatus.Completed,
-				ProcessBookResult.Cancelled => ProcessBookStatus.Cancelled,
-				_ => ProcessBookStatus.Failed,
-			};
-
-			Status = status;
-		}
-
-		Result = result;
 		return result;
 	}
 
@@ -314,38 +354,10 @@ public class ProcessBookViewModel : ReactiveObject
 		Narrator = libraryBook.Book.NarratorNames;
 	}
 
-	private async void Processable_Completed(object? sender, LibraryBook libraryBook)
+	private void Processable_Completed(object? sender, LibraryBook libraryBook)
 	{
 		if (sender is Processable processable)
-		{
 			LogInfo($"{processable.Name} Step, Completed: {libraryBook.Book}");
-			UnlinkProcessable(processable);
-		}
-
-		if (Processes.Count == 0)
-			return;
-
-		NextProcessable();
-		LinkProcessable(CurrentProcessable);
-
-		StatusHandler result;
-		try
-		{
-			result = await CurrentProcessable.ProcessSingleAsync(libraryBook, validate: true);
-		}
-		catch (Exception ex)
-		{
-			Serilog.Log.Logger.Error(ex, $"{nameof(Processable_Completed)} error");
-
-			result = new StatusHandler();
-			result.AddError($"{nameof(Processable_Completed)} error. See log for details. Error summary: {ex.Message}");
-		}
-
-		if (result.HasErrors)
-		{
-			foreach (var errorMessage in result.Errors.Where(e => e != "Validation failed"))
-				LogError(errorMessage);
-		}
 	}
 
 	#endregion

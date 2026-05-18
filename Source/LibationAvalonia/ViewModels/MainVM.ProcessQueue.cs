@@ -34,7 +34,7 @@ partial class MainVM
 	{
 		try
 		{
-			if (ProcessQueue.QueueDownloadDecrypt(libraryBooks, config))
+			if (await ProcessQueue.QueueDownloadDecryptAsync(libraryBooks, config))
 				setQueueCollapseState(false);
 			else if (libraryBooks.Count == 1 && libraryBooks[0].Book.AudioExists)
 			{
@@ -53,13 +53,13 @@ partial class MainVM
 		}
 	}
 
-	public void LiberateSeriesClicked(SeriesEntry series)
+	public async void LiberateSeriesClicked(SeriesEntry series)
 	{
 		try
 		{
 			Serilog.Log.Logger.Information("Begin backing up all {series} episodes", series.LibraryBook);
 
-			if (ProcessQueue.QueueDownloadDecrypt(series.Children.Select(c => c.LibraryBook).UnLiberated().ToArray()))
+			if (await ProcessQueue.QueueDownloadDecryptAsync(series.Children.Select(c => c.LibraryBook).UnLiberated().ToArray()))
 				setQueueCollapseState(false);
 		}
 		catch (Exception ex)
@@ -68,11 +68,11 @@ partial class MainVM
 		}
 	}
 
-	public void ConvertToMp3Clicked(LibraryBook[] libraryBooks)
+	public async void ConvertToMp3Clicked(LibraryBook[] libraryBooks)
 	{
 		try
 		{
-			if (ProcessQueue.QueueConvertToMp3(libraryBooks))
+			if (await ProcessQueue.QueueConvertToMp3Async(libraryBooks))
 				setQueueCollapseState(false);
 		}
 		catch (Exception ex)

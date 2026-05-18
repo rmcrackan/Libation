@@ -54,11 +54,11 @@ public partial class Form1
 		});
 	}
 
-	private void liberateVisible(object sender, EventArgs e)
+	private async void liberateVisible(object sender, EventArgs e)
 	{
 		try
 		{
-			if (processBookQueue1.ViewModel.QueueDownloadDecrypt(productsDisplay.GetVisible().UnLiberated().ToArray()))
+			if (await processBookQueue1.ViewModel.QueueDownloadDecryptAsync(productsDisplay.GetVisible().UnLiberated().ToArray()))
 				SetQueueCollapseState(false);
 		}
 		catch (Exception ex)
