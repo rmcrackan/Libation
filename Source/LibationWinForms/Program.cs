@@ -4,6 +4,7 @@ using DataLayer;
 using LibationFileManager;
 using LibationUiBase;
 using LibationWinForms.Dialogs;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,26 +59,31 @@ static class Program
 			// migrations which require Forms or are long-running
 			RunWindowsOnlyMigrations(config);
 
-			//*******************************************************************//
-			//                                                                   //
-			//  Start loading the library as soon as possible                    //
-			//                                                                   //
-			//  Before calling anything else, including subscribing to events,   //
-			//  to ensure database exists. If we wait and let it happen lazily,  //
-			//  race conditions and errors are likely during new installs        //
-			//                                                                   //
-			//*******************************************************************//
-			libraryLoadTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
-
 			MessageBoxLib.VerboseLoggingWarning_ShowIfTrue();
 
-			// logging is init'd here
+			// logging is init'd here (also initializes InteropFactory via logStartupState)
 			LibationScaffolding.RunPostMigrationScaffolding(Variety.Classic, config);
+
+			//*******************************************************************//
+			//                                                                   //
+			//  Start loading the library as soon as possible after logging    //
+			//  and InteropFactory assembly resolution are ready.                //
+			//                                                                   //
+			//*******************************************************************//
+			StartupAssemblyBootstrap.PrepareForBackgroundDataAccess();
+			libraryLoadTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 		}
 		catch (Exception ex)
 		{
-			var title = "Fatal error, pre-logging";
-			var body = "An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.";
+			if (Configuration.Instance.SerilogInitialized)
+				Log.Error(ex, "Fatal error during startup");
+
+			var (title, body) = StartupAssemblyBootstrap.IsMissingDependencyAssembly(ex)
+				? ("Library load failed", StartupAssemblyBootstrap.GetLibraryLoadFailureMessage())
+				: (
+					"Fatal error, pre-logging",
+					"An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.");
+
 			try
 			{
 				MessageBoxLib.ShowAdminAlert(null, body, title, ex);
@@ -93,7 +99,7 @@ static class Program
 		postLoggingGlobalExceptionHandling();
 
 		form1 = new Form1();
-		form1.Load += async (_, _) => await form1.InitLibraryAsync(await libraryLoadTask);
+		form1.Load += async (_, _) => await LoadLibraryIntoFormAsync(form1, libraryLoadTask);
 		Application.Run(form1);
 	}
 
@@ -178,6 +184,24 @@ static class Program
 				config.RemoveProperty(form.Name);
 
 			config.SetNonString(true, hasMigratedKey);
+		}
+	}
+
+	private static async Task LoadLibraryIntoFormAsync(Form1 form, Task<List<LibraryBook>> libraryLoadTask)
+	{
+		try
+		{
+			await form.InitLibraryAsync(await libraryLoadTask);
+		}
+		catch (Exception ex) when (StartupAssemblyBootstrap.IsMissingDependencyAssembly(ex))
+		{
+			Log.Error(ex, "Failed to load library at startup");
+			MessageBoxLib.ShowAdminAlert(
+				form,
+				StartupAssemblyBootstrap.GetLibraryLoadFailureMessage(),
+				"Library load failed",
+				ex);
+			await form.InitLibraryAsync([]);
 		}
 	}
 

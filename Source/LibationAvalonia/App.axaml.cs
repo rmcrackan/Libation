@@ -73,6 +73,7 @@ public class App : Application
 		{
 			// setup succeeded or wasn't needed and LibationFiles are valid
 			RunMigrations(config);
+			StartupAssemblyBootstrap.PrepareForBackgroundDataAccess();
 			LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 			ShowMainWindow(desktop);
 		}
@@ -142,8 +143,22 @@ public class App : Application
 	{
 		if (LibraryTask is not null && MainWindow is not null)
 		{
-			List<DataLayer.LibraryBook> library = await LibraryTask;
-			await Dispatcher.UIThread.InvokeAsync(() => MainWindow.OnLibraryLoadedAsync(library));
+			try
+			{
+				List<DataLayer.LibraryBook> library = await LibraryTask;
+				await Dispatcher.UIThread.InvokeAsync(() => MainWindow.OnLibraryLoadedAsync(library));
+			}
+			catch (Exception ex) when (StartupAssemblyBootstrap.IsMissingDependencyAssembly(ex))
+			{
+				Serilog.Log.Logger.Error(ex, "Failed to load library at startup");
+				await MessageBox.Show(
+					MainWindow,
+					StartupAssemblyBootstrap.GetLibraryLoadFailureMessage(),
+					"Library load failed",
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Error);
+				await Dispatcher.UIThread.InvokeAsync(() => MainWindow.OnLibraryLoadedAsync([]));
+			}
 		}
 	}
 }
