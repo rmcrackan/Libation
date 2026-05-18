@@ -1,5 +1,11 @@
 # Troubleshooting Common Libation Errors
 
+## Invalid filenames or mangled paths (NTFS / Windows)
+
+NTFS filesystems (Windows, and NTFS-formatted external drives on Linux or Mac) do not allow colons (`:`) in filenames. Libation chooses filename replacement rules from the **OS it is running on**, not from the filesystem where books are saved. On Linux or in Docker, that often means colons are left in names even when `LIBATION_BOOKS_DIR` points at an NTFS volume, which can produce invalid paths, failed moves, or mangled folder names.
+
+**Fix:** Add or edit `ReplacementCharacters` in `Settings.json` on your config volume (or Libation files directory) so colons are replaced before download. The `HiFi_NTFS` example includes a colon replacement. See [Command Line Interface - Set custom replacement characters](/docs/advanced/command-line-interface#set-custom-replacement-characters).
+
 ## SQLite Error 10: 'disk I/O error'.
 
 There are two possible causes of this error.
