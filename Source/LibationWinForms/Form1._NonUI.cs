@@ -32,7 +32,7 @@ public partial class Form1
 				return;
 
 			if ((libraryStats.PendingBooks + libraryStats.pdfsNotDownloaded) > 0)
-				BackupAllBooks(libraryStats.LibraryBooks);
+				_ = BackupAllBooksAsync(libraryStats.LibraryBooks);
 		};
 	}
 

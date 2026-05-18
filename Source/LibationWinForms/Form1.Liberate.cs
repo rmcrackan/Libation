@@ -16,24 +16,31 @@ public partial class Form1
 	private async void beginBookBackupsToolStripMenuItem_Click(object? _ = null, EventArgs? __ = null)
 	{
 		var library = await Task.Run(DbContexts.GetUnliberated_Flat_NoTracking);
-		BackupAllBooks(library);
+		await BackupAllBooksAsync(library);
 	}
 
-	private void BackupAllBooks(IEnumerable<LibraryBook> books)
+	private Task BackupAllBooksAsync(IEnumerable<LibraryBook> books)
 	{
 		try
 		{
 			var unliberated = books.UnLiberated().ToArray();
-			Invoke(() =>
+			void queue()
 			{
 				if (processBookQueue1.ViewModel.QueueDownloadDecrypt(unliberated))
 					SetQueueCollapseState(false);
-			});
+			}
+
+			if (InvokeRequired)
+				Invoke(queue);
+			else
+				queue();
 		}
 		catch (Exception ex)
 		{
 			Serilog.Log.Logger.Error(ex, "An error occurred while backing up all library books");
 		}
+
+		return Task.CompletedTask;
 	}
 
 	private async void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)
