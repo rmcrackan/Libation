@@ -12,6 +12,12 @@ The docker image is provided as-is. We hope it can be useful to you but it is no
 
 ## Configuration
 
+> [!WARNING] NTFS filesystem limitations
+>
+> NTFS filesystems (Windows, and NTFS-formatted external drives on Linux/Mac) do not support colons (`:`) in filenames. Since many audiobook titles contain colons (e.g., "Title: A Subtitle"), downloads may produce invalid filenames.
+>
+> **Solution:** Configure custom replacement characters in `Settings.json` to replace colons with compatible characters. See [Command Line Interface - Set custom replacement characters](/docs/advanced/command-line-interface#set-custom-replacement-characters) for configuration examples.
+
 Configuration in Libation is handled by two files, `AccountsSettings.json` and `Settings.json`. These files can usually be found in the Libation folder in your user's home directory. The easiest way to configure these is to run the desktop version of Libation and then copy them into a folder, such as `/opt/libation/config`, that you'll volume mount into the image. `Settings.json` is technically optional, and, if not provided, Libation will run using the default settings. Additionally, the `Books` and `InProgress` settings in `Settings.json` will be ignored and the image will instead substitute it's own values.
 
 ### Adding Audible accounts without the GUI

@@ -8,6 +8,12 @@ Warnings about relying solely on the CLI:
 - It will show that there is an upgrade, but that will likely scroll by too fast to notice.
 - It will not perform all post-upgrade migrations. Some migrations are only be possible by launching GUI.
 
+> [!WARNING] NTFS filesystem limitations
+>
+> NTFS filesystems (Windows, and NTFS-formatted external drives on Linux/Mac) do not support colons (`:`) in filenames. Since many audiobook titles contain colons (e.g., "Title: A Subtitle"), downloads may produce invalid filenames.
+>
+> **Solution:** Configure custom replacement characters in `Settings.json` to replace colons with compatible characters. See [Set custom replacement characters](#set-custom-replacement-characters) below for configuration examples.
+
 ## Progress Bar
 
 The `liberate` and `convert` commands show a progress bar in the terminal while downloading or converting (e.g. `[##########----------]  2.5 min remaining`). The progress bar is only shown when the CLI is run interactively with output not redirected.
