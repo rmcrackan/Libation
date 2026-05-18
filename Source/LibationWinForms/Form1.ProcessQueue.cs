@@ -61,11 +61,11 @@ public partial class Form1
 		}
 	}
 
-	private void ProductsDisplay_ConvertToMp3Clicked(object sender, LibraryBook[] libraryBooks)
+	private async void ProductsDisplay_ConvertToMp3Clicked(object sender, LibraryBook[] libraryBooks)
 	{
 		try
 		{
-			if (processBookQueue1.ViewModel.QueueConvertToMp3(libraryBooks))
+			if (await processBookQueue1.ViewModel.QueueConvertToMp3Async(libraryBooks))
 				SetQueueCollapseState(false);
 		}
 		catch (Exception ex)

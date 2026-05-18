@@ -68,11 +68,11 @@ partial class MainVM
 		}
 	}
 
-	public void ConvertToMp3Clicked(LibraryBook[] libraryBooks)
+	public async void ConvertToMp3Clicked(LibraryBook[] libraryBooks)
 	{
 		try
 		{
-			if (ProcessQueue.QueueConvertToMp3(libraryBooks))
+			if (await ProcessQueue.QueueConvertToMp3Async(libraryBooks))
 				setQueueCollapseState(false);
 		}
 		catch (Exception ex)

@@ -16,10 +16,10 @@ public partial class Form1
 	private async void beginBookBackupsToolStripMenuItem_Click(object? _ = null, EventArgs? __ = null)
 	{
 		var library = await Task.Run(DbContexts.GetUnliberated_Flat_NoTracking);
-		BackupAllBooks(library);
+		await BackupAllBooksAsync(library);
 	}
 
-	private async void BackupAllBooks(IEnumerable<LibraryBook> books)
+	private async Task BackupAllBooksAsync(IEnumerable<LibraryBook> books)
 	{
 		try
 		{
@@ -35,7 +35,7 @@ public partial class Form1
 
 	private async void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)
 	{
-		if (processBookQueue1.ViewModel.QueueDownloadPdf(await Task.Run(() => ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking())))
+		if (await processBookQueue1.ViewModel.QueueDownloadPdfAsync(await Task.Run(() => ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking())))
 			SetQueueCollapseState(false);
 	}
 
@@ -49,7 +49,7 @@ public partial class Form1
 			"Convert all M4b => Mp3?",
 			MessageBoxButtons.YesNo,
 			MessageBoxIcon.Warning);
-		if (result == DialogResult.Yes && processBookQueue1.ViewModel.QueueConvertToMp3(await Task.Run(() => ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking())))
+		if (result == DialogResult.Yes && await processBookQueue1.ViewModel.QueueConvertToMp3Async(await Task.Run(() => ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking())))
 			SetQueueCollapseState(false);
 	}
 }
