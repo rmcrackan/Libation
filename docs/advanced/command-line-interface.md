@@ -143,7 +143,18 @@ libationcli liberate --pdf
 libationcli liberate -p
 ```
 
-## Force Book(s) to Re-Liberate
+## Re-Liberate a Single Book
+
+After Audible updates a title (or to replace a bad file), re-download just that book. Naming an ASIN always re-downloads it, even if it is already liberated:
+
+```console
+libationcli liberate B017V4IM1G
+libationcli liberate --id B017V4IM1G
+```
+
+`--id` / `-i` may be repeated for several titles.
+
+## Re-Liberate the Entire Library
 
 ```console
 libationcli liberate --force
@@ -169,7 +180,7 @@ libationcli get-setting FileDownloadQuality
 
 ```console
 libationcli liberate B017V4IM1G -override FileDownloadQuality=Normal
-libationcli liberate B017V4IM1G -o FileDownloadQuality=normal -o UseWidevine=true Request_xHE_AAC=true -f
+libationcli liberate B017V4IM1G -o FileDownloadQuality=normal -o UseWidevine=true Request_xHE_AAC=true
 ```
 
 ## Copy the Local SQLite Database to Postgres

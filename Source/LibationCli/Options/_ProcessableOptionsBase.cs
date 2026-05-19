@@ -14,8 +14,16 @@ namespace LibationCli;
 public abstract class ProcessableOptionsBase : OptionsBase
 {
 
-	[Value(0, MetaName = "[asins]", HelpText = "Optional product IDs of books to process.")]
+	[Value(0, MetaName = "[asins]", HelpText = "Optional product IDs (ASINs) of books to process.")]
 	public IEnumerable<string>? Asins { get; set; }
+
+	[Option('i', "id", Required = false, HelpText = "Product ID (ASIN) of a book to process. Repeatable. Same as positional [asins].")]
+	public IEnumerable<string>? Ids { get; set; }
+
+	protected IEnumerable<string> GetProductIds()
+		=> (Asins ?? []).Concat(Ids ?? []).Select(NormalizeProductId).Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.OrdinalIgnoreCase);
+
+	private static string NormalizeProductId(string id) => id.Trim().TrimStart('[').TrimEnd(']');
 
 	protected static TProcessable CreateProcessable<TProcessable>(EventHandler<LibraryBook>? completedAction = null)
 		where TProcessable : Processable, IProcessable<TProcessable>
@@ -75,9 +83,10 @@ public abstract class ProcessableOptionsBase : OptionsBase
 
 	protected async Task RunAsync(Processable Processable, Action<LibraryBook>? config = null)
 	{
-		if (Asins?.Any() is true)
+		var productIds = GetProductIds().ToArray();
+		if (productIds.Length > 0)
 		{
-			foreach (var asin in Asins.Select(a => a.TrimStart('[').TrimEnd(']')))
+			foreach (var asin in productIds)
 			{
 				if (DbContexts.GetLibraryBook_Flat_NoTracking(asin, caseSensative: false) is LibraryBook lb)
 				{
