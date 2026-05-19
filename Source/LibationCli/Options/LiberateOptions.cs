@@ -8,12 +8,13 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace LibationCli;
 
 [Verb("liberate", HelpText = "Liberate: book and pdf backups. Default: download and decrypt all un-liberated titles and download pdfs.\n"
-	+ "Optional: specify asin(s) of book(s) to liberate.\n"
+	+ "Optional: specify product id(s) via --id or positional ASIN(s) to liberate those book(s), including re-download if already liberated.\n"
 	+ "Optional: reads a license file from standard input.")]
 public class LiberateOptions : ProcessableOptionsBase
 {
@@ -41,7 +42,8 @@ public class LiberateOptions : ProcessableOptionsBase
 		}
 		else
 		{
-			await RunAsync(GetProcessable(), SetDownloadedStatus);
+			var isTargetedRun = GetProductIds().Any();
+			await RunAsync(GetProcessable(), lb => PrepareBookForLiberate(lb, isTargetedRun));
 		}
 	}
 
@@ -65,7 +67,7 @@ public class LiberateOptions : ProcessableOptionsBase
 			return;
 		}
 
-		SetDownloadedStatus(libraryBook);
+		PrepareBookForLiberate(libraryBook, isTargetedRun: true);
 		await ProcessOneAsync(GetProcessable(licenseInfo), libraryBook, true);
 	}
 
@@ -129,9 +131,10 @@ public class LiberateOptions : ProcessableOptionsBase
 	private Processable GetProcessable(DownloadOptions.LicenseInfo? licenseInfo = null)
 		=> PdfOnly ? CreateProcessable<DownloadPdf>() : CreateBackupBook(licenseInfo);
 
-	private void SetDownloadedStatus(LibraryBook lb)
+	private void PrepareBookForLiberate(LibraryBook lb, bool isTargetedRun)
 	{
-		if (Force)
+		// Targeted runs (explicit ASIN/id) always re-download. --force is for re-downloading the whole library.
+		if (Force || isTargetedRun)
 		{
 			lb.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
 			lb.Book.UserDefinedItem.SetPdfStatus(LiberatedStatus.NotLiberated);
