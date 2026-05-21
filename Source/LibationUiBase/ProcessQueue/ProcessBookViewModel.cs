@@ -173,6 +173,11 @@ public class ProcessBookViewModel : ReactiveObject
 		ProcessBookResult result = ProcessBookResult.None;
 		try
 		{
+			// Optional steps (e.g. PDF when the book has no supplement) use Validate() to mean "does not apply".
+			// Skip them instead of treating ProcessSingleAsync's "Validation failed" as a queue failure.
+			if (!processable.Validate(LibraryBook))
+				return ProcessBookResult.Success;
+
 			LinkProcessable(processable);
 
 			var statusHandler = await processable.ProcessSingleAsync(LibraryBook, validate: true);
