@@ -2,7 +2,23 @@
 
 ## Where Can I Get Help For My Specific Problem?
 
-You can open an issue here for bug reports, feature requests, or specialized help.
+You can open an issue here for bug reports, feature requests, or specialized help. For bug reports, attach your log file (see [Where Can I Find the Log File?](#where-can-i-find-the-log-file) below). Reports with limited information or no log may get limited or delayed help.
+
+## Where Can I Find the Log File?
+
+Libation keeps its log files in your Libation files folder. When reporting a bug, attach the Libation log file from that folder. If the folder contains **LibationCrash.log**, attach that too.
+
+**Default log folder locations**
+
+| Platform | Folder |
+| - | - |
+| Windows | `%userprofile%\Libation` |
+| macOS | `~/Library/Application Support/Libation` |
+| Linux | `~/.local/share/Libation` |
+
+**macOS:** If that folder does not exist because Libation never starts, try launching from Terminal and note whether it works: `/Applications/Libation.app/Contents/MacOS/Libation` (see [Troubleshooting for macOS](/docs/advanced/troubleshoot#app-wont-start)).
+
+Alternatively, open the log folder from within Libation: open **Settings**, and on the first tab click **Open log folder**.
 
 ## What's the Difference Between 'Classic' and 'Chardonnay'?
 
