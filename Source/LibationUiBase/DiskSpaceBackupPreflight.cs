@@ -1,6 +1,5 @@
 using LibationFileManager;
 using LibationUiBase.Forms;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace LibationUiBase;
@@ -13,18 +12,29 @@ public static class DiskSpaceBackupPreflight
 {
 	private const int BulkBackupBookThreshold = 2;
 
-	public static async Task<bool> ConfirmBulkBackupAsync(int bookCount, Configuration config)
+	private static bool bulkPreflightConfirmedForQueueRun;
+
+	/// <summary>Clears the per-queue-run preflight flag when the backup queue finishes.</summary>
+	public static void ResetBulkPreflightForQueueRun() => bulkPreflightConfirmedForQueueRun = false;
+
+	public static async Task<bool> ConfirmBulkBackupAsync(
+		int bookCount,
+		Configuration config,
+		bool backupQueueAlreadyRunning = false)
 	{
-		if (bookCount < BulkBackupBookThreshold)
+		if (bookCount < BulkBackupBookThreshold
+			|| backupQueueAlreadyRunning
+			|| bulkPreflightConfirmedForQueueRun)
 			return true;
 
 		var drives = DiskSpaceHelper.GetBackupDriveSpaces(config, bookCount);
 
-		// All roots unknown, or all have enough reported space: queue without prompting.
 		if (DiskSpaceHelper.HasSufficientSpaceForBulkBackup(drives))
+		{
+			bulkPreflightConfirmedForQueueRun = true;
 			return true;
+		}
 
-		// Known space below CriticalFreeBytes: do not offer Continue (avoids starting a huge queue on a full local disk).
 		if (DiskSpaceHelper.AnyDriveCriticallyLow(drives))
 		{
 			await MessageBoxBase.Show(
@@ -35,13 +45,15 @@ public static class DiskSpaceBackupPreflight
 			return false;
 		}
 
-		// At least one root reported space below estimate but above critical (or mixed known/unknown with a shortfall).
 		var result = await MessageBoxBase.Show(
 			DiskFullUserMessage.BuildPreflightWarningBody(drives, bookCount),
 			DiskFullUserMessage.DialogCaption,
 			MessageBoxButtons.YesNo,
 			MessageBoxIcon.Warning,
 			MessageBoxDefaultButton.Button2);
+
+		if (result == DialogResult.Yes)
+			bulkPreflightConfirmedForQueueRun = true;
 
 		return result == DialogResult.Yes;
 	}

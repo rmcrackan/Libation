@@ -15,10 +15,21 @@ public static class DiskSpaceHelper
 	/// <summary>Conservative per-title estimate (download + decrypt temp + final file) for bulk preflight.</summary>
 	public const long EstimatedBytesPerAudiobookBackup = 400_000_000L;
 
-	/// <summary>Below this free space on a relevant drive, bulk backup is blocked (no Continue).</summary>
+	/// <summary>Below this free space on a Books drive, bulk backup is blocked (no Continue).</summary>
 	public const long CriticalFreeBytes = 100_000_000L;
 
+	/// <summary>Extra headroom required on the In progress drive beyond one active title.</summary>
+	public const long InProgressPreflightMarginBytes = 50_000_000L;
+
 	private const int HResultDiskFull = unchecked((int)0x80070070);
+	private const string WinLongPathPrefix = @"\\?\";
+
+	[Flags]
+	public enum BackupDriveUsage
+	{
+		InProgress = 1,
+		Books = 2,
+	}
 
 	public static bool IsDiskFullException(Exception? ex)
 	{
@@ -52,39 +63,93 @@ public static class DiskSpaceHelper
 	}
 
 	/// <summary>
-	/// Returns free bytes for the volume containing <paramref name="path"/>, or null if unknown.
-	/// Null means preflight cannot warn/block on that root (writable shares with no capacity API, offline drive, bad path).
-	/// On Windows, <see cref="Path.GetPathRoot"/> yields drive letters (C:\) or UNC roots (\\server\share\).
+	/// Strips the Win32 extended-length prefix so <see cref="DriveInfo"/> and path APIs see a normal root.
+	/// No-op on non-Windows platforms (Libation only uses the prefix there).
 	/// </summary>
-	public static long? TryGetAvailableFreeBytes(string? path)
+	public static string NormalizePathForDriveQuery(string path)
+	{
+		if (!OperatingSystem.IsWindows() || !path.StartsWith(WinLongPathPrefix, StringComparison.Ordinal))
+			return path;
+
+		var stripped = path[WinLongPathPrefix.Length..];
+		if (stripped.StartsWith(@"UNC\", StringComparison.OrdinalIgnoreCase))
+			return @"\\" + stripped[4..];
+
+		return stripped;
+	}
+
+	/// <summary>
+	/// Returns the volume root used for free-space queries (e.g. C:\ or \\server\share\), or null if unknown.
+	/// </summary>
+	public static string? GetPathRootForDiskSpaceCheck(string? path)
 	{
 		if (string.IsNullOrWhiteSpace(path))
 			return null;
 
 		try
 		{
-			var fullPath = Path.GetFullPath(path);
+			var normalized = NormalizePathForDriveQuery(path);
+			var fullPath = Path.GetFullPath(normalized);
 			var root = Path.GetPathRoot(fullPath);
-			if (string.IsNullOrWhiteSpace(root))
-				return null;
-
-			var drive = new DriveInfo(root);
-			// IsReady is false for disconnected network drives; AvailableFreeSpace may be wrong on some NAS reporting.
-			return drive.IsReady ? drive.AvailableFreeSpace : null;
+			return string.IsNullOrWhiteSpace(root) ? null : root;
 		}
 		catch
 		{
-			// DriveInfo can throw for invalid roots; treat as unknown rather than failing backup setup.
 			return null;
 		}
 	}
 
+	/// <summary>
+	/// Returns free bytes for the volume containing <paramref name="path"/>, or null if unknown.
+	/// Null means preflight cannot warn/block on that root (writable shares with no capacity API, offline drive, bad path).
+	/// </summary>
+	public static long? TryGetAvailableFreeBytes(string? path)
+	{
+		var root = GetPathRootForDiskSpaceCheck(path);
+		if (root is null)
+			return null;
+
+		try
+		{
+			var drive = new DriveInfo(root);
+			return drive.IsReady ? drive.AvailableFreeSpace : null;
+		}
+		catch
+		{
+			return null;
+		}
+	}
+
+	public static long GetRequiredBytesForDriveUsage(BackupDriveUsage usage, int bookCount)
+	{
+		var hasBooks = usage.HasFlag(BackupDriveUsage.Books);
+		var hasInProgress = usage.HasFlag(BackupDriveUsage.InProgress);
+
+		if (hasBooks)
+			return Math.Max(0, bookCount) * EstimatedBytesPerAudiobookBackup;
+
+		if (hasInProgress)
+			return EstimatedBytesPerAudiobookBackup;
+
+		return 0;
+	}
+
+	public static long GetCriticalFreeBytesForDriveUsage(BackupDriveUsage usage)
+	{
+		if (usage.HasFlag(BackupDriveUsage.Books))
+			return CriticalFreeBytes;
+
+		if (usage.HasFlag(BackupDriveUsage.InProgress))
+			return EstimatedBytesPerAudiobookBackup + InProgressPreflightMarginBytes;
+
+		return CriticalFreeBytes;
+	}
+
 	public static IReadOnlyList<BackupDriveSpace> GetBackupDriveSpaces(Configuration config, int bookCount)
 	{
-		var requiredBytes = Math.Max(0, bookCount) * EstimatedBytesPerAudiobookBackup;
-		var pathsByRoot = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		var pathsByRoot = new Dictionary<string, (List<string> paths, BackupDriveUsage usage)>(StringComparer.OrdinalIgnoreCase);
 
-		void addPath(string? path)
+		void addPath(string? path, BackupDriveUsage usageFlag)
 		{
 			if (string.IsNullOrWhiteSpace(path))
 				return;
@@ -92,7 +157,7 @@ public static class DiskSpaceHelper
 			string fullPath;
 			try
 			{
-				fullPath = Path.GetFullPath(path);
+				fullPath = Path.GetFullPath(NormalizePathForDriveQuery(path));
 			}
 			catch
 			{
@@ -103,31 +168,37 @@ public static class DiskSpaceHelper
 			if (string.IsNullOrWhiteSpace(root))
 				return;
 
-			// Same physical share via Z: vs \\server\share appears as two roots; each gets the full estimate (conservative).
-			if (!pathsByRoot.TryGetValue(root, out var list))
-			{
-				list = [];
-				pathsByRoot[root] = list;
-			}
+			if (!pathsByRoot.TryGetValue(root, out var entry))
+				entry = ([], usageFlag);
+			else
+				entry.usage |= usageFlag;
 
-			if (!list.Contains(fullPath, StringComparer.OrdinalIgnoreCase))
-				list.Add(fullPath);
+			if (!entry.paths.Contains(fullPath, StringComparer.OrdinalIgnoreCase))
+				entry.paths.Add(fullPath);
+
+			pathsByRoot[root] = entry;
 		}
 
-		addPath(config.Books?.Path);
-		addPath(config.InProgress);
+		addPath(config.Books?.Path, BackupDriveUsage.Books);
+		addPath(config.InProgress, BackupDriveUsage.InProgress);
 
 		return pathsByRoot
-			.Select(kvp => new BackupDriveSpace(
-				kvp.Key,
-				kvp.Value,
-				TryGetAvailableFreeBytes(kvp.Key),
-				requiredBytes))
+			.Select(kvp =>
+			{
+				var usage = kvp.Value.usage;
+				var required = GetRequiredBytesForDriveUsage(usage, bookCount);
+				return new BackupDriveSpace(
+					kvp.Key,
+					kvp.Value.paths,
+					TryGetAvailableFreeBytes(kvp.Key),
+					required,
+					usage);
+			})
 			.ToList();
 	}
 
 	/// <summary>
-	/// True when every root is unknown or has enough reported space. All-unknown => no preflight dialog.
+	/// True when every root is unknown or has enough reported space for its role. All-unknown => no preflight dialog.
 	/// </summary>
 	public static bool HasSufficientSpaceForBulkBackup(IReadOnlyList<BackupDriveSpace> drives)
 		=> drives.All(d => d.AvailableBytes is null || d.AvailableBytes >= d.RequiredBytes);
@@ -136,13 +207,14 @@ public static class DiskSpaceHelper
 	/// Only applies when free space was read successfully; unknown (null) never hard-blocks.
 	/// </summary>
 	public static bool AnyDriveCriticallyLow(IReadOnlyList<BackupDriveSpace> drives)
-		=> drives.Any(d => d.AvailableBytes is not null && d.AvailableBytes < CriticalFreeBytes);
+		=> drives.Any(d => d.AvailableBytes is not null && d.AvailableBytes < GetCriticalFreeBytesForDriveUsage(d.Usage));
 
 	public readonly record struct BackupDriveSpace(
-		/// <summary>Path root from <see cref="Path.GetPathRoot"/> (e.g. C:\ or \\nas\library\).</summary>
+		/// <summary>Volume root used for free-space display (e.g. C:\ or \\nas\library\).</summary>
 		string DriveRoot,
 		IReadOnlyList<string> Paths,
 		/// <summary>Null when <see cref="TryGetAvailableFreeBytes"/> could not query this root.</summary>
 		long? AvailableBytes,
-		long RequiredBytes);
+		long RequiredBytes,
+		BackupDriveUsage Usage);
 }

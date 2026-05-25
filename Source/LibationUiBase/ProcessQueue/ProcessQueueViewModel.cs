@@ -188,7 +188,7 @@ public class ProcessQueueViewModel : ReactiveObject
 			if (toLiberate.Length > 0)
 			{
 				// May no-op when free space is unknown (common on UNC); see DiskSpaceBackupPreflight.
-				if (!await DiskSpaceBackupPreflight.ConfirmBulkBackupAsync(toLiberate.Length, config))
+				if (!await DiskSpaceBackupPreflight.ConfirmBulkBackupAsync(toLiberate.Length, config, backupQueueAlreadyRunning: Running))
 					return false;
 
 				Serilog.Log.Logger.Information("Begin backup of {count} library books", toLiberate.Length);
@@ -371,6 +371,10 @@ public class ProcessQueueViewModel : ReactiveObject
 		catch (Exception ex)
 		{
 			Serilog.Log.Logger.Error(ex, "An error was encountered while processing queued items");
+		}
+		finally
+		{
+			DiskSpaceBackupPreflight.ResetBulkPreflightForQueueRun();
 		}
 
 		string timeToStr(TimeSpan time)

@@ -954,8 +954,12 @@ namespace TemplatesTests
 
 			var old = Thread.CurrentThread.CurrentCulture;
 			var oldUi = Thread.CurrentThread.CurrentUICulture;
+			var oldDefault = CultureInfo.DefaultThreadCurrentCulture;
+			var oldDefaultUi = CultureInfo.DefaultThreadCurrentUICulture;
 			try
 			{
+				CultureInfo.DefaultThreadCurrentCulture = null;
+				CultureInfo.DefaultThreadCurrentUICulture = null;
 				Thread.CurrentThread.CurrentCulture = new CultureInfo("sv-SE");
 				Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-ES");
 				Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
@@ -966,6 +970,8 @@ namespace TemplatesTests
 			{
 				Thread.CurrentThread.CurrentCulture = old;
 				Thread.CurrentThread.CurrentUICulture = oldUi;
+				CultureInfo.DefaultThreadCurrentCulture = oldDefault;
+				CultureInfo.DefaultThreadCurrentUICulture = oldDefaultUi;
 			}
 
 			result.Should().Be(expected);
