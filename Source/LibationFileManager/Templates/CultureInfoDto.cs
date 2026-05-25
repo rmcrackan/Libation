@@ -14,12 +14,14 @@ public record CultureInfoDto : IFormattable
 
 	public static CultureInfoDto OfCurrentUi()
 	{
-		return new CultureInfoDto(CultureInfo.DefaultThreadCurrentUICulture ?? CultureInfo.CurrentUICulture, CultureInfo.CurrentUICulture.Name, "{N}");
+		var culture = CultureInfo.CurrentUICulture;
+		return new CultureInfoDto(culture, culture.Name, "{N}");
 	}
 
 	public static CultureInfoDto OfCurrentOs()
 	{
-		return new CultureInfoDto(CultureInfo.DefaultThreadCurrentCulture ?? CultureInfo.CurrentCulture, CultureInfo.CurrentCulture.Name, "{N}");
+		var culture = CultureInfo.CurrentCulture;
+		return new CultureInfoDto(culture, culture.Name, "{N}");
 	}
 
 	public CultureInfoDto(string hint) : this(hint, "{O}")
