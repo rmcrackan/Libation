@@ -63,7 +63,8 @@ public class ConditionalTagCollectionTests
 	[DataRow("(?'name)abc", "test_value", DisplayName = "InvalidRegexPattern_InvalidGroup")]
 	[DataRow("(a+)+b", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", DisplayName = "CatastrophicBacktracking_NestedQuantifiers")]
 	[DataRow("(a|aa|aaa|aaaa)*?b", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", DisplayName = "CatastrophicBacktracking_AlternationOverlap")]
-	[DataRow("(a+a+)+b", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", DisplayName = "CatastrophicBacktracking_RepeatedConcatenation")]
+	// (a+a+)+b needs a longer input than other evil-regex cases to exceed the 100ms match timeout on .NET
+	[DataRow("(a+a+)+b", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", DisplayName = "CatastrophicBacktracking_RepeatedConcatenation")]
 	[DataRow("^(a+)+$", "aaaaaaaaaaaaaaaaaaaaaab", DisplayName = "CatastrophicBacktracking_AnchoredRepeated")]
 	[DataRow("(a*)*b", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", DisplayName = "CatastrophicBacktracking_StarStar")]
 	public void ConditionalTag_InvalidRegexPattern_ThrowsInvalidOperationException(string pattern, string testValue)
