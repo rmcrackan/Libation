@@ -33,16 +33,27 @@ public class DiskSpaceHelperTests
 	}
 
 	[TestMethod]
-	public void NormalizePathForDriveQuery_strips_extended_prefix()
+    [OSCondition(OperatingSystems.Windows)]
+    public void Windows_NormalizePathForDriveQuery_strips_extended_prefix()
 	{
 		Assert.AreEqual(@"C:\Audiobooks\Books", DiskSpaceHelper.NormalizePathForDriveQuery(@"\\?\C:\Audiobooks\Books"));
 		Assert.AreEqual(@"\\server\share\Books", DiskSpaceHelper.NormalizePathForDriveQuery(@"\\?\UNC\server\share\Books"));
 	}
 
 	[TestMethod]
-	public void GetPathRootForDiskSpaceCheck_strips_extended_prefix()
+    [OSCondition(OperatingSystems.Windows)]
+    public void Windows_GetPathRootForDiskSpaceCheck_strips_extended_prefix()
 	{
 		Assert.AreEqual(@"C:\", DiskSpaceHelper.GetPathRootForDiskSpaceCheck(@"\\?\C:\Audiobooks\Books"));
+	}
+
+	[TestMethod]
+	public void GetPathRootForDiskSpaceCheck_unix_absolute_path()
+	{
+		if (OperatingSystem.IsWindows())
+			Assert.Inconclusive("Skipped because OS is Windows.");
+
+		Assert.AreEqual("/", DiskSpaceHelper.GetPathRootForDiskSpaceCheck("/home/user/Libation/Books"));
 	}
 
 	[TestMethod]

@@ -64,10 +64,11 @@ public static class DiskSpaceHelper
 
 	/// <summary>
 	/// Strips the Win32 extended-length prefix so <see cref="DriveInfo"/> and path APIs see a normal root.
+	/// No-op on non-Windows platforms (Libation only uses the prefix there).
 	/// </summary>
 	public static string NormalizePathForDriveQuery(string path)
 	{
-		if (!path.StartsWith(WinLongPathPrefix, StringComparison.Ordinal))
+		if (!OperatingSystem.IsWindows() || !path.StartsWith(WinLongPathPrefix, StringComparison.Ordinal))
 			return path;
 
 		var stripped = path[WinLongPathPrefix.Length..];
