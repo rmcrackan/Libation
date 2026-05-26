@@ -2,10 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="165"
-		MinHeight="165" MaxHeight="165"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="195"
+		MinHeight="195" MaxHeight="195"
 		MinWidth="800" MaxWidth="800"
-		Width="800" Height="165"
+		Width="800" Height="195"
         x:Class="LibationAvalonia.Dialogs.LibationFilesDialog"
         xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
@@ -14,17 +14,26 @@
         Title="Book Details">
 	
 	<Grid
-		RowDefinitions="Auto,Auto">
+		RowDefinitions="Auto,Auto,Auto">
+
+		<TextBlock
+			Grid.Row="0"
+			Margin="5,5,5,0"
+			IsVisible="{Binding ShowFlatpakMessage}"
+			TextWrapping="Wrap"
+			FontStyle="Italic"
+			Opacity="0.8"
+			Text="{Binding FlatpakMessage}" />
 
 		<controls:DirectoryOrCustomSelectControl
-			Grid.Row="0"
+			Grid.Row="1"
 			Margin="5"
 			Directory="{Binding Directory, Mode=TwoWay}"
 			SubDirectory=""
 			KnownDirectories="{Binding KnownDirectories}" />
 		
 		<Button
-			Grid.Row="1"
+			Grid.Row="2"
 			HorizontalAlignment="Right"
 			Margin="5"
 			Classes="SaveButton"

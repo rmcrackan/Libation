@@ -21,16 +21,19 @@ public partial class LibationFilesDialog : Form, ILibationInstallLocation
 		libationFilesDescLbl.Text = Configuration.GetDescription(nameof(config.LibationFiles));
 
 		libationFilesSelectControl.SetSearchTitle("Libation Files");
-		libationFilesSelectControl.SetDirectoryItems(new()
-		{
+		var knownDirectories = Configuration.FilterKnownDirectories(
+		[
 			Configuration.KnownDirectories.UserProfile,
 			Configuration.KnownDirectories.AppDir,
 			Configuration.KnownDirectories.MyDocs
-		}, Configuration.KnownDirectories.UserProfile);
+		], Configuration.KnownDirectoryUsage.LibationFilesLocation);
+		libationFilesSelectControl.SetDirectoryItems(
+			knownDirectories,
+			knownDirectories.Count > 0 ? knownDirectories[0] : null);
 
 		var selectedDir = System.IO.Directory.Exists(Configuration.Instance.LibationFiles.Location.PathWithoutPrefix)
 			? Configuration.Instance.LibationFiles.Location.PathWithoutPrefix
-			: Configuration.GetKnownDirectoryPath(Configuration.KnownDirectories.UserProfile);
+			: LibationFiles.DefaultLibationFilesDirectory;
 
 		libationFilesSelectControl.SelectDirectory(selectedDir);
 	}

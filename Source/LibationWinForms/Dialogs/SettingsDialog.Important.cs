@@ -51,15 +51,19 @@ public partial class SettingsDialog
 		themeCb.SelectedItem = themes.SingleOrDefault(v => v.Value == themeVariant) ?? themes[0];
 
 		booksSelectControl.SetSearchTitle("books location");
-		booksSelectControl.SetDirectoryItems(
-			new()
-			{
-				Configuration.KnownDirectories.UserProfile,
-				Configuration.KnownDirectories.AppDir,
-				Configuration.KnownDirectories.MyDocs,
-				Configuration.KnownDirectories.MyMusic,
-			},
+		var booksKnownDirectories = Configuration.FilterKnownDirectories(
+		[
+			Configuration.KnownDirectories.LibationFiles,
 			Configuration.KnownDirectories.UserProfile,
+			Configuration.KnownDirectories.AppDir,
+			Configuration.KnownDirectories.MyDocs,
+			Configuration.KnownDirectories.MyMusic,
+		], Configuration.KnownDirectoryUsage.BooksLocation);
+		booksSelectControl.SetDirectoryItems(
+			booksKnownDirectories,
+			booksKnownDirectories.Contains(Configuration.KnownDirectories.LibationFiles)
+				? Configuration.KnownDirectories.LibationFiles
+				: Configuration.KnownDirectories.UserProfile,
 			"Books");
 		booksSelectControl.SelectDirectory(config.Books?.PathWithoutPrefix ?? "");
 

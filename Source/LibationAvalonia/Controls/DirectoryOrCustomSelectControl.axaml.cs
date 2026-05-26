@@ -41,14 +41,17 @@ public partial class DirectoryOrCustomSelectControl : UserControl
 		set => SetValue(SubDirectoryProperty, value);
 	}
 
-	public static IList<Configuration.KnownDirectories> DefaultKnownDirectories => [
-		Configuration.KnownDirectories.WinTemp,
-		Configuration.KnownDirectories.UserProfile,
-		Configuration.KnownDirectories.ApplicationData,
-		Configuration.KnownDirectories.AppDir,
-		Configuration.KnownDirectories.MyMusic,
-		Configuration.KnownDirectories.MyDocs,
-		Configuration.KnownDirectories.LibationFiles];
+	public static IList<Configuration.KnownDirectories> DefaultKnownDirectories { get; }
+		= Configuration.FilterKnownDirectories(
+		[
+			Configuration.KnownDirectories.WinTemp,
+			Configuration.KnownDirectories.UserProfile,
+			Configuration.KnownDirectories.ApplicationData,
+			Configuration.KnownDirectories.AppDir,
+			Configuration.KnownDirectories.MyMusic,
+			Configuration.KnownDirectories.MyDocs,
+			Configuration.KnownDirectories.LibationFiles
+		], Configuration.KnownDirectoryUsage.General);
 
 	private readonly AvaloniaList<KnownDirectoryItem> _knownDirNames;
 	public DirectoryOrCustomSelectControl()

@@ -75,4 +75,48 @@ public partial class Configuration
 		var dirFunc = directoryOptionsPaths.FirstOrDefault(dirFunc => dirFunc.getPathFunc() == directory);
 		return dirFunc == default ? KnownDirectories.None : dirFunc.directory;
 	}
+
+	/// <summary>How a known-directory list is used; affects Flatpak filtering.</summary>
+	public enum KnownDirectoryUsage
+	{
+		/// <summary>Temp paths, decrypt scratch, etc.</summary>
+		General,
+		/// <summary>Audiobook library location. Under Flatpak, host presets are hidden in favor of portal browse.</summary>
+		BooksLocation,
+		/// <summary>Libation Files (settings) location. Same Flatpak preset rules as <see cref="BooksLocation"/>.</summary>
+		LibationFilesLocation,
+	}
+
+	public static List<KnownDirectories> FilterKnownDirectories(IEnumerable<KnownDirectories> source, KnownDirectoryUsage usage)
+		=> FilterKnownDirectories(source, usage, IsRunningUnderFlatpak);
+
+	internal static List<KnownDirectories> FilterKnownDirectories(IEnumerable<KnownDirectories> source, KnownDirectoryUsage usage, bool isFlatpak)
+	{
+		var list = new List<KnownDirectories>();
+		foreach (var directory in source)
+		{
+			if (directory == KnownDirectories.None)
+				continue;
+			if (isFlatpak && ShouldExcludeKnownDirectoryUnderFlatpak(directory, usage))
+				continue;
+			list.Add(directory);
+		}
+		return list;
+	}
+
+	internal static bool ShouldExcludeKnownDirectoryUnderFlatpak(KnownDirectories directory, KnownDirectoryUsage usage)
+	{
+		if (directory == KnownDirectories.AppDir)
+			return true;
+
+		if (usage is not (KnownDirectoryUsage.BooksLocation or KnownDirectoryUsage.LibationFilesLocation))
+			return false;
+
+		// Host home/documents/music presets resolve inside the Flatpak sandbox unless the user
+		// grants filesystem access. Prefer LibationFiles (existing settings) or Browse (portal).
+		return directory is KnownDirectories.UserProfile
+			or KnownDirectories.MyDocs
+			or KnownDirectories.MyMusic
+			or KnownDirectories.ApplicationData;
+	}
 }

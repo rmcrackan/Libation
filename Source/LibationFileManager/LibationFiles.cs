@@ -20,6 +20,10 @@ namespace LibationFileManager;
 public class LibationFiles
 {
 	internal static string? s_DefaultLibationFilesDirectory;
+	/// <summary>
+	/// Default Libation Files directory when none is configured.
+	/// On Linux (including Flatpak) this is XDG local data, which persists across Flatpak updates.
+	/// </summary>
 	public static string DefaultLibationFilesDirectory => s_DefaultLibationFilesDirectory ??= Configuration.IsWindows ? Configuration.UserProfile : Configuration.LocalAppData;
 
 	public const string LIBATION_FILES_KEY = "LibationFiles";
@@ -54,15 +58,27 @@ public class LibationFiles
 		else
 		{
 			AppsettingsJsonFile = GetOrCreateAppsettingsFile();
-			Location = GetLibationFilesFromAppsettings(AppsettingsJsonFile);
+			Location = ResolveAndPersistLibationFilesLocation(AppsettingsJsonFile);
 		}
 	}
 
 	internal LibationFiles(string appSettingsFile)
 	{
 		AppsettingsJsonFile = appSettingsFile;
-		Location = GetLibationFilesFromAppsettings(AppsettingsJsonFile);
+		Location = ResolveAndPersistLibationFilesLocation(AppsettingsJsonFile);
 	}
+
+	private string ResolveAndPersistLibationFilesLocation(string appsettingsJsonFile)
+	{
+		var resolved = ResolveLibationFilesPathFromAppsettings(appsettingsJsonFile);
+		var location = Configuration.NormalizeFlatpakLibationFilesPath(resolved);
+		if (Configuration.IsMisleadingFlatpakPresetPath(resolved))
+			SetLibationFiles(location);
+		return location;
+	}
+
+	private static string ResolveLibationFilesPathFromAppsettings(string appsettingsJsonFile)
+		=> ResolveLibationFilesPathFromAppsettings((LongPath)appsettingsJsonFile);
 
 	/// <summary>
 	/// Set the location of the Libation Files directory, updating appsettings.json. 
@@ -70,7 +86,7 @@ public class LibationFiles
 	/// </summary>
 	public void SetLibationFiles(LongPath libationFilesDirectory)
 	{
-		var pathToPersist = libationFilesDirectory.Path;
+		var pathToPersist = Configuration.NormalizeFlatpakLibationFilesPath(libationFilesDirectory.Path);
 		if (!string.IsNullOrWhiteSpace(pathToPersist) && !Path.IsPathRooted(pathToPersist))
 		{
 			var basePath = AppsettingsJsonFile is not null ? Path.GetDirectoryName(AppsettingsJsonFile) : null;
@@ -241,6 +257,9 @@ public class LibationFiles
 	/// <returns></returns>
 	/// <exception cref="InvalidDataException">The appsettings.json file does not contain a "LibationFiles" key</exception>
 	private static string GetLibationFilesFromAppsettings(LongPath appsettingsPath)
+		=> Configuration.NormalizeFlatpakLibationFilesPath(ResolveLibationFilesPathFromAppsettings(appsettingsPath));
+
+	private static string ResolveLibationFilesPathFromAppsettings(LongPath appsettingsPath)
 	{
 		// do not check whether directory exists. special/meta directory (eg: AppDir) is valid
 		// verify from live file. no try/catch. want failures to be visible

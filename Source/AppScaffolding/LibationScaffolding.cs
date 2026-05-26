@@ -102,6 +102,7 @@ public static class LibationScaffolding
 		Migrations.migrate_to_v11_5_0(config);
 		Migrations.migrate_to_v11_6_5(config);
 		Migrations.migrate_to_v12_0_1(config);
+		Migrations.migrate_flatpak_preset_paths(config);
 	}
 
 	/// <summary>
@@ -580,6 +581,20 @@ internal static class Migrations
 			config.MaxSampleRate = AAXClean.SampleRate.Hz_8000;
 		else if (config.MaxSampleRate > AAXClean.SampleRate.Hz_48000)
 			config.MaxSampleRate = AAXClean.SampleRate.Hz_48000;
+	}
+
+	public static void migrate_flatpak_preset_paths(Configuration config)
+	{
+		if (!Configuration.IsRunningUnderFlatpak)
+			return;
+
+		var booksPath = config.Books?.PathWithoutPrefix;
+		if (string.IsNullOrWhiteSpace(booksPath) || !Configuration.IsMisleadingFlatpakPresetPath(booksPath))
+			return;
+
+		var normalizedBooks = Configuration.NormalizeFlatpakBooksPath(booksPath, config.LibationFiles.Location.PathWithoutPrefix);
+		Log.Logger.Information("Flatpak: migrating Books from misleading preset {Old} to {New}", booksPath, normalizedBooks);
+		config.Books = normalizedBooks;
 	}
 
 	public static void migrate_to_v11_5_0(Configuration config)

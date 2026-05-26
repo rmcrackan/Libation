@@ -43,7 +43,12 @@ public class ImportantSettingsVM : ViewModelBase
 	}
 
 	public LongPath GetBooksDirectory()
-		=> Configuration.GetKnownDirectory(BooksDirectory) is Configuration.KnownDirectories.None ? BooksDirectory : System.IO.Path.Combine(BooksDirectory, "Books");
+	{
+		var path = Configuration.GetKnownDirectory(BooksDirectory) is Configuration.KnownDirectories.None
+			? BooksDirectory
+			: System.IO.Path.Combine(BooksDirectory, "Books");
+		return Configuration.NormalizeFlatpakBooksPath(path, config.LibationFiles.Location.PathWithoutPrefix);
+	}
 
 	private static float scaleFactorToLinearRange(float scaleFactor)
 		=> float.Round(100 * MathF.Log2(scaleFactor));
@@ -63,14 +68,14 @@ public class ImportantSettingsVM : ViewModelBase
 			Go.To.Folder(Configuration.Instance.LibationFiles.Location.ShortPathName);
 	}
 
-	public List<Configuration.KnownDirectories> KnownDirectories { get; } = new()
-	{
+	public List<Configuration.KnownDirectories> KnownDirectories { get; } = Configuration.FilterKnownDirectories(
+	[
 		Configuration.KnownDirectories.LibationFiles,
 		Configuration.KnownDirectories.MyMusic,
 		Configuration.KnownDirectories.MyDocs,
 		Configuration.KnownDirectories.AppDir,
 		Configuration.KnownDirectories.UserProfile
-	};
+	], Configuration.KnownDirectoryUsage.BooksLocation);
 
 	public string BooksText { get; } = Configuration.GetDescription(nameof(Configuration.Books));
 	public string SavePodcastsToParentFolderText { get; } = Configuration.GetDescription(nameof(Configuration.SavePodcastsToParentFolder));
@@ -83,9 +88,17 @@ public class ImportantSettingsVM : ViewModelBase
 		.ToArray();
 
 	public string UseWebViewText { get; } = Configuration.GetDescription(nameof(Configuration.UseWebView));
-	/// <summary>When true, the Use WebView setting is disabled (e.g. when running in Linux Snap to avoid portal/sandbox crashes).</summary>
-	public bool UseWebViewSettingDisabled => Configuration.IsRunningUnderSnap;
-	public string UseWebViewSnapMessage { get; } = Configuration.IsRunningUnderSnap ? "Disabled when running in Linux Snap (avoids login crash). Use external browser instead." : "";
+	/// <summary>When true, the Use WebView setting is disabled (Linux Snap/Flatpak sandbox).</summary>
+	public bool UseWebViewSettingDisabled => Configuration.IsRunningInLinuxSandbox;
+	public string UseWebViewSandboxMessage { get; } = Configuration.IsRunningUnderSnap
+		? "Disabled when running in Linux Snap (avoids login crash). Use external browser instead."
+		: Configuration.IsRunningUnderFlatpak
+			? "Disabled when running as a Flatpak (avoids login crash). Use external browser instead."
+			: "";
+	public bool ShowBooksLocationFlatpakMessage => Configuration.IsRunningUnderFlatpak;
+	public string BooksLocationFlatpakMessage { get; } = Configuration.IsRunningUnderFlatpak
+		? "Use Browse to choose a folder on your computer. Preset locations may point inside the Flatpak sandbox."
+		: "";
 	public Serilog.Events.LogEventLevel[] LoggingLevels { get; } = Enum.GetValues<Serilog.Events.LogEventLevel>();
 	public string GridScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridScaleFactor));
 	public string GridFontScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridFontScaleFactor));

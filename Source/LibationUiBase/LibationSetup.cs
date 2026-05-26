@@ -230,7 +230,10 @@ public class LibationSetup
 
 	private void WriteDefaultSettingsFile(string settingsFilePath)
 	{
-		var booksParent = Configuration.IsWindows ? Files.Location.Path : Configuration.MyMusic;
+		// Under Flatpak, keep Books under Libation Files (persisted XDG data) instead of sandbox "Music".
+		var booksParent = Configuration.IsWindows || Configuration.IsRunningUnderFlatpak
+			? Files.Location.Path
+			: Configuration.MyMusic;
 		var jObj = new JObject
 		{
 			{ nameof(Configuration.Books), Path.Combine(booksParent, nameof(Configuration.Books)) }

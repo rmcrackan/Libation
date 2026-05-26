@@ -10,12 +10,17 @@ public partial class LibationFilesDialog : DialogWindow, ILibationInstallLocatio
 {
 	public class DirSelectOptions
 	{
-		public List<Configuration.KnownDirectories> KnownDirectories { get; } = new()
-		{
+		public List<Configuration.KnownDirectories> KnownDirectories { get; } = Configuration.FilterKnownDirectories(
+		[
 			Configuration.KnownDirectories.UserProfile,
 			Configuration.KnownDirectories.AppDir,
 			Configuration.KnownDirectories.MyDocs
-		};
+		], Configuration.KnownDirectoryUsage.LibationFilesLocation);
+
+		public bool ShowFlatpakMessage => Configuration.IsRunningUnderFlatpak;
+		public string FlatpakMessage { get; } = Configuration.IsRunningUnderFlatpak
+			? "Use Browse to choose a folder on your computer. Preset locations may point inside the Flatpak sandbox."
+			: "";
 
 		public string? Directory { get; set; }
 	}
@@ -33,7 +38,9 @@ public partial class LibationFilesDialog : DialogWindow, ILibationInstallLocatio
 	public LibationFilesDialog(string initialDir)
 	{
 		dirSelectOptions = new();
-		dirSelectOptions.Directory = Directory.Exists(initialDir) ? initialDir : Configuration.GetKnownDirectoryPath(Configuration.KnownDirectories.UserProfile);
+		dirSelectOptions.Directory = Directory.Exists(initialDir)
+			? initialDir
+			: LibationFiles.DefaultLibationFilesDirectory;
 		InitializeComponent();
 
 		DataContext = dirSelectOptions;

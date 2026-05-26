@@ -17,6 +17,7 @@ public partial class SettingsDialog
 
 		autoScanCb.Checked = config.AutoScan;
 		showImportedStatsCb.Checked = config.ShowImportedStats;
+		useWebViewCb.Enabled = !Configuration.IsRunningInLinuxSandbox;
 		useWebViewCb.Checked = config.UseWebView;
 		importEpisodesCb.Checked = config.ImportEpisodes;
 		importPlusTitlesCb.Checked = config.ImportPlusTitles;

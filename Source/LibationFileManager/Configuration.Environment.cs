@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 
 namespace LibationFileManager;
 
@@ -28,6 +29,12 @@ public partial class Configuration
 	/// <summary>True when running inside a (Linux) Snap sandbox (e.g. snap run libation). WebView login is disabled in this environment to avoid portal/sandbox crashes.</summary>
 	public static bool IsRunningUnderSnap { get; } = IsLinux && !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SNAP"));
 
+	/// <summary>True when running inside a Flatpak sandbox (e.g. com.getlibation.Libation from Flathub).</summary>
+	public static bool IsRunningUnderFlatpak { get; } = IsLinux && DetectFlatpak();
+
+	/// <summary>Linux Snap or Flatpak. Embedded WebView login is disabled in these environments.</summary>
+	public static bool IsRunningInLinuxSandbox { get; } = IsRunningUnderSnap || IsRunningUnderFlatpak;
+
 	public static Version? LibationVersion { get; private set; }
 	public static void SetLibationVersion(Version? version) => LibationVersion = version;
 
@@ -36,4 +43,19 @@ public partial class Configuration
 		: IsMacOs ? OS.MacOS
 		: IsWindows ? OS.Windows
 		: OS.Unknown;
+
+	private static bool DetectFlatpak()
+	{
+		if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FLATPAK_ID")))
+			return true;
+
+		try
+		{
+			return File.Exists("/.flatpak-info");
+		}
+		catch
+		{
+			return false;
+		}
+	}
 }

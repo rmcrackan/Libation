@@ -30,7 +30,7 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 	{
 		try
 		{
-			// Embedded browser is optional; honor UseWebView (getter also forces false under Linux Snap).
+			// Embedded browser is optional; honor UseWebView (getter also forces false under Linux Snap/Flatpak).
 			if (Configuration.Instance.UseWebView)
 			{
 				try

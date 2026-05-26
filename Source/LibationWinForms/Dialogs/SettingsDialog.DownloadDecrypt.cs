@@ -35,15 +35,17 @@ public partial class SettingsDialog
 		useCoverAsFolderIconCb.Text = desc(nameof(config.UseCoverAsFolderIcon));
 		saveMetadataToFileCbox.Text = desc(nameof(config.SaveMetadataToFile));
 
-		inProgressSelectControl.SetDirectoryItems(new()
-		{
-			Configuration.KnownDirectories.WinTemp,
-			Configuration.KnownDirectories.ApplicationData,
-			Configuration.KnownDirectories.UserProfile,
-			Configuration.KnownDirectories.AppDir,
-			Configuration.KnownDirectories.MyDocs,
-			Configuration.KnownDirectories.LibationFiles
-		}, Configuration.KnownDirectories.WinTemp);
+		inProgressSelectControl.SetDirectoryItems(
+			Configuration.FilterKnownDirectories(
+			[
+				Configuration.KnownDirectories.WinTemp,
+				Configuration.KnownDirectories.ApplicationData,
+				Configuration.KnownDirectories.UserProfile,
+				Configuration.KnownDirectories.AppDir,
+				Configuration.KnownDirectories.MyDocs,
+				Configuration.KnownDirectories.LibationFiles
+			], Configuration.KnownDirectoryUsage.General),
+			Configuration.KnownDirectories.WinTemp);
 		inProgressSelectControl.SelectDirectory(config.InProgress);
 
 		var rb = config.BadBook switch

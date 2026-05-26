@@ -27,15 +27,15 @@ public class DownloadDecryptSettingsVM : ViewModelBase
 		SaveMetadataToFile = config.SaveMetadataToFile;
 	}
 
-	public List<Configuration.KnownDirectories> KnownDirectories { get; } = new()
-	{
+	public List<Configuration.KnownDirectories> KnownDirectories { get; } = Configuration.FilterKnownDirectories(
+	[
 		Configuration.KnownDirectories.WinTemp,
 		Configuration.KnownDirectories.ApplicationData,
 		Configuration.KnownDirectories.UserProfile,
 		Configuration.KnownDirectories.AppDir,
 		Configuration.KnownDirectories.MyDocs,
 		Configuration.KnownDirectories.LibationFiles
-	};
+	], Configuration.KnownDirectoryUsage.General);
 
 	public void SaveSettings(Configuration config)
 	{

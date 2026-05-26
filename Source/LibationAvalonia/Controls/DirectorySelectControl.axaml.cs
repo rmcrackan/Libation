@@ -47,8 +47,8 @@ public class KnownDirectoryPath : IMultiValueConverter
 public partial class DirectorySelectControl : UserControl
 {
 	public static List<Configuration.KnownDirectories> DefaultKnownDirectories { get; }
-		= new()
-		{
+		= Configuration.FilterKnownDirectories(
+		[
 			Configuration.KnownDirectories.WinTemp,
 			Configuration.KnownDirectories.UserProfile,
 			Configuration.KnownDirectories.ApplicationData,
@@ -56,7 +56,7 @@ public partial class DirectorySelectControl : UserControl
 			Configuration.KnownDirectories.MyMusic,
 			Configuration.KnownDirectories.MyDocs,
 			Configuration.KnownDirectories.LibationFiles
-		};
+		], Configuration.KnownDirectoryUsage.General);
 
 	public static readonly StyledProperty<Configuration.KnownDirectories?> SelectedDirectoryProperty =
 	AvaloniaProperty.Register<DirectorySelectControl, Configuration.KnownDirectories?>(nameof(SelectedDirectory));
