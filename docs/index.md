@@ -23,6 +23,7 @@ Learn about Libation's powerful features:
 - **[Naming Templates](/docs/features/naming-templates)** - Customize how your audiobook files are named
 - **[Searching & Filtering](/docs/features/searching-and-filtering)** - Find and organize your audiobooks
 - **[Easy guide to searching](/docs/features/lucene)** - Tutorial for search queries
+- **[Spatial Audio & DRM](/docs/features/spatial-audio)** - Dolby Atmos download status, Widevine L1/L3, and what still works
 
 ## Advanced
 

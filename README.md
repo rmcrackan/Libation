@@ -32,6 +32,7 @@ Comprehensive documentation is available in the `docs` directory and on our [Doc
 
 - [Getting Started](https://getlibation.com/docs/getting-started)
 - [FAQ](https://getlibation.com/docs/frequently-asked-questions)
+- [Spatial Audio & DRM](https://getlibation.com/docs/features/spatial-audio)
 
 ## Development & Contributing
 

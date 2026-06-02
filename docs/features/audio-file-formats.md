@@ -18,21 +18,13 @@ Audiobooks can be requested from Audible as "Normal" quality or "High" quality, 
 ### Use Widevine DRM
 
 When this setting is disabled, all audiobooks will be downloaded using Audible's in-house DRM (AAX(C)) in the [AAC-LC](#aac-lc) format.
-When this setting is enabled, Libation will request audio files protected by Google's Widevine Digital Rights Managements scheme, and two additional settings will be unlocked: [Request xHE-AAC Codec](#request-xhe-aac-codec) and [Request Spatial Audio](#request-spatial-audio) (explained further below).
+When this setting is enabled, Libation will request audio files protected by Google's Widevine DRM scheme. This unlocks [Request xHE-AAC Codec](#request-xhe-aac-codec) for higher-quality stereo downloads on titles where Audible delivers them via Widevine L3.
 
-If you don't enable either of those additional options, then enabling 'Use Widevine DRM' will have no pratcical effect in nearly all circumstances. Audiobooks will be downloaded in the same [AAC-LC](#aac-lc) format with the same bitrate and the same number of audio channels. On rare occasions, enabling 'Use Widevine DRM' without the other two options will result in audio files with a different bitrate.
+If you don't enable **Request xHE-AAC Codec**, then enabling **Use Widevine DRM** will have no practical effect in nearly all circumstances. Audiobooks will be downloaded in the same [AAC-LC](#aac-lc) format with the same bitrate and the same number of audio channels. On rare occasions, enabling **Use Widevine DRM** without xHE-AAC will result in audio files with a different bitrate.
 
 ### Request xHE-AAC Codec
 
 Enable this setting to request audiobooks in the [xHE-AAC](#xhe-aac) format. This codec is generally better quality than the [AAC-LC](#aac-lc) codec at the same bitrate, but it isn't as commonly supported by media players, so you may have some difficulty playing these audiobooks. The highest bitrate version of some audiobooks is only available as [xHE-AAC](#xhe-aac).
-
-### Request Spatial Audio
-
-Enable this setting to request audiobooks in a "spatial" ([Dolby Atmos](#dolby-atmos)) audio format. If an audiobook is not available in a spatial format, it will instead be downloaded in the [xHE-AAC codec](#xhe-aac).
-
-### Spatial Audio Codec
-
-Choose whether spatial audiobooks are downloaded in the [E-AC-3](#e-ac-3) or [AC-4](#ac-4) format.
 
 ### Download My Books in the Original Audio Format (Lossless)
 
@@ -77,28 +69,6 @@ Note that the xHE-AAC files authored by Audible have some USAC conformance error
 - Disagreement between stts and UsacFrame usacIndependencyFlag value.
 - Stts indicating a frame is an immediate play-out frame, but USAC AudioPreRoll is absent.
 
-### Dolby Atmos
-
-Atmos is a surround sound technology that expands on existing surround sound systems by adding height channels as well as free-moving sound objects. Audible delivers Dolby Atmos in two formats: E-AC-3 and AC-4.
-
-Your device's ability to play audio from these formats does not necessarily mean that the audio you are hearing is Atmos (spatial). For instance, downloading the AC-4 codec for Windows ([links in the [Supported media Players](#supported-media-players) section) will enable you to play AC-4 audiobooks, but you'll still need to download [Dolby Access](https://apps.microsoft.com/detail/9n0866fs04w8?hl=en-US&gl=US) and pay $15 to enable _Dolby Atmos For Headphones_. Please refer to [this comment](https://github.com/rmcrackan/Libation/pull/1331#discussion_r2268660524) for additional context.
-
-#### E-AC-3
-
-**Full Name:** Dolby Digital Plus (a.k.a Enhanced AC-3, DDP, DD+, and EC-3)
-
-**Description:**
-
-A proprietary digital audio compression scheme developed by Dolby Digital for the transport and storage of multichannel audio. This format can be extended to add support for Atmos, making the codec _Dolby Digital Plus Atmos_. _Dolby Digital Plus Atmos_ is backwards compatible with Dolby Digital Plus, so any media player capable of playing Dolby Digital Plus can play _Dolby Digital Plus Atmos_. Audible spatial audiobooks downloaded in the E-AC-3 format are _Dolby Digital Plus Atmos_. If they are played by a media player that supports Atmos, they will play as Atmos audio. If they are played by a media player that does not support Atmos, they will be played as traditional 5.1 surround audio.
-
-#### AC-4
-
-**Full Name:** Dolby AC-4
-
-**Description:**
-
-A proprietary audio compression technology developed by Dolby Digital for the transport and storage of audio channels and/or audio objects. Audible spatial audiobooks downloaded in the AC-4 format are 2-channel AC-4 Immersive Stereo (AC4-IMS) audio, intended for playback in headphones or earbuds (though apparently [not supported on Apple devices](https://github.com/rmcrackan/Libation/issues/996#issuecomment-3169574514)).
-
 ## Supported Media Players
 
 Below is an incomplete matrix of codec support across various media players and platforms.
@@ -115,9 +85,34 @@ Below is an incomplete matrix of codec support across various media players and 
 
 1. Windows 11 22H2 and later
 2. On Windows [prior to Windows 11, version 24H2](https://support.microsoft.com/en-us/windows/codecs-in-media-player-d5c2cdcd-83a2-4805-abb0-c6888138e456). You can still get the codec by running the following command from a Windows PowerShell console: `winget install --id 9nvjqjbdkn97`
-3. As mentioned in the [Dolby Atmos](#dolby-atmos) section, just because a media player can play a file does not mean it's rendering Atmos. _Dolby Digital Plus Atmos_ is backwards compatible with _Dolby Digital Plus_, so media players which only support _Dolby Digital Plus_ will play E-AC-3 audio files as regular 5.1 surround without rendering the Atmos spatial qualities. Additional software or hardware support may be required for Dolby Atmos playback.
+3. As mentioned in [Spatial Audio and Dolby Atmos](#spatial-audio-and-dolby-atmos), just because a media player can play a file does not mean it's rendering Atmos. _Dolby Digital Plus Atmos_ is backwards compatible with _Dolby Digital Plus_, so media players which only support _Dolby Digital Plus_ will play E-AC-3 audio files as regular 5.1 surround without rendering the Atmos spatial qualities. Additional software or hardware support may be required for Dolby Atmos playback.
 4. You can download the AC-4 codec for Windows from 3rd party sites like [Major Geeks](https://www.majorgeeks.com/files/details/dolby_ac_3ac_4_installer.html) and [Free-Codecs](https://www.free-codecs.com/dolby-ac-4-decoder_download.htm). Once you install the codec bundle from one of those sources, the Windows store app will keep it updated. Read more about the process [in this comment](https://github.com/rmcrackan/Libation/pull/1331#discussion_r2268660524).
 5. All Android devices will support AAC-LC and xHE-AAC. Some manufactures (such as Samsung) will include Dolby codecs for playing E-AC-3 and AC-4 audio.
 6. requires FFmpeg to be [built with fdk-aac](https://trac.ffmpeg.org/wiki/Encode/AAC#fdk_aac). You will almost certainly not find pre-build binaries in the wild due to licensing restrictions.
 7. Requires the [fdk-aac plugin](https://www.foobar2000.org/components/view/foo_pd_aac) (Windows only)
 8. Requires audio file extensions to be `.m4a` or `.mp4`. Libation sets the file extensions to `.m4b`, so you must manually change it to `.m4a` by renaming the audio file.
+
+## Spatial Audio and Dolby Atmos
+
+> [!IMPORTANT]
+> **Download status (2026):** The **Request Spatial Audio** and **Spatial Audio Codec** settings were removed in Libation 13.1.3. Audible now requires Widevine L1 (hardware-backed DRM) for many spatial titles, which Libation cannot use. Libation does not currently download new spatial/Atmos content. The sections below describe E-AC-3 and AC-4 for **playback** of files downloaded before the change. See **[Spatial Audio, Dolby Atmos, and Widevine DRM](./spatial-audio.md)** for full details and [issue #1553](https://github.com/rmcrackan/Libation/issues/1553).
+
+Atmos is a surround sound technology that expands on existing surround sound systems by adding height channels as well as free-moving sound objects. Audible delivers Dolby Atmos in two formats: E-AC-3 and AC-4.
+
+Your device's ability to play audio from these formats does not necessarily mean that the audio you are hearing is Atmos (spatial). For instance, downloading the AC-4 codec for Windows ([links in the [Supported media Players](#supported-media-players) section) will enable you to play AC-4 audiobooks, but you'll still need to download [Dolby Access](https://apps.microsoft.com/detail/9n0866fs04w8?hl=en-US&gl=US) and pay $15 to enable _Dolby Atmos For Headphones_. Please refer to [this comment](https://github.com/rmcrackan/Libation/pull/1331#discussion_r2268660524) for additional context.
+
+### E-AC-3
+
+**Full Name:** Dolby Digital Plus (a.k.a Enhanced AC-3, DDP, DD+, and EC-3)
+
+**Description:**
+
+A proprietary digital audio compression scheme developed by Dolby Digital for the transport and storage of multichannel audio. This format can be extended to add support for Atmos, making the codec _Dolby Digital Plus Atmos_. _Dolby Digital Plus Atmos_ is backwards compatible with Dolby Digital Plus, so any media player capable of playing Dolby Digital Plus can play _Dolby Digital Plus Atmos_. Audible spatial audiobooks downloaded in the E-AC-3 format are _Dolby Digital Plus Atmos_. If they are played by a media player that supports Atmos, they will play as Atmos audio. If they are played by a media player that does not support Atmos, they will be played as traditional 5.1 surround audio.
+
+### AC-4
+
+**Full Name:** Dolby AC-4
+
+**Description:**
+
+A proprietary audio compression technology developed by Dolby Digital for the transport and storage of audio channels and/or audio objects. Audible spatial audiobooks downloaded in the AC-4 format are 2-channel AC-4 Immersive Stereo (AC4-IMS) audio, intended for playback in headphones or earbuds (though apparently [not supported on Apple devices](https://github.com/rmcrackan/Libation/issues/996#issuecomment-3169574514)).

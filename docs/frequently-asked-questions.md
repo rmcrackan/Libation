@@ -51,10 +51,6 @@ If you enabled the [Request xHE-AAC Codec](./features/audio-file-formats.md#requ
 1. Use a media player which supports the xHE-AAC codec. [See an incomplete list of media players which support xHE-AAC](./features/audio-file-formats.md#supported-media-players).
 2. Disable the [Request xHE-AAC Codec](./features/audio-file-formats.md#request-xhe-aac-codec) option in settings and re-download the audiobook. This will cause Libation to download audiobooks in the [AAC-LC codec](./features/audio-file-formats.md#aac-lc), which enjoys near-universal media player support.
 
-## I'm Having Trouble Playing My Book with 4D, Spatial Audio, or Dolby Atmos, How Can I Fix This?
-
-Spatial audiobooks are delivered in two formats: [E-AC-3](./features/audio-file-formats.md#e-ac-3) and [AC-4](./features/audio-file-formats.md#ac-4). [See an incomplete list of media players which support those codecs](./features/audio-file-formats.md#supported-media-players).
-
 ## I'm Having Trouble Logging Into My Brazil Account
 
 For reasons known only to Jeff Bezos and God, amazon and audible brazil handle logins slightly differently. The external browser login option is not possible for Brazil. [See this ticket for more details.](https://github.com/rmcrackan/Libation/issues/1103)
@@ -71,3 +67,19 @@ Like many countries, amazon gives South Africa it's own amazon site. [Unlike man
 
 > [!NOTE]
 > (Not exactly a _frequently_ asked question but it's come up more than once)
+
+## Why Was "Request Spatial Audio" Removed? Can I Still Download Dolby Atmos?
+
+Libation removed the **Request Spatial Audio** option in version 13.1.3 (January 2026). Most Dolby Atmos / spatial titles can no longer be downloaded. For many titles, **Use Widevine DRM** + **Request xHE-AAC** still gets the highest **stereo** quality available -- not the Atmos mix.
+
+See **[Spatial Audio, Dolby Atmos, and Widevine DRM](./features/spatial-audio.md)** for what changed on Audible's side, what still works, and what to do instead.
+
+## Does "Use Widevine DRM" Still Download Spatial Audio?
+
+No. **Use Widevine DRM** unlocks **Request xHE-AAC Codec** for higher-bitrate stereo. It does not re-enable spatial/Atmos download. See **[Spatial Audio, Dolby Atmos, and Widevine DRM](./features/spatial-audio.md#does-use-widevine-drm-download-spatial-audio)**.
+
+## I'm Having Trouble Playing My Book with 4D, Spatial Audio, or Dolby Atmos, How Can I Fix This?
+
+Libation no longer requests spatial/Atmos from Audible (see [Spatial Audio, Dolby Atmos, and Widevine DRM](./features/spatial-audio.md)). Books you liberated **before** 13.1.3 may be E-AC-3 or AC-4; newer downloads are stereo unless you kept older files.
+
+For spatial files you already have, see **[Playing spatial files you already have](./features/spatial-audio.md#playing-spatial-files-you-already-have)** and [Supported Media Players](./features/audio-file-formats.md#supported-media-players).
