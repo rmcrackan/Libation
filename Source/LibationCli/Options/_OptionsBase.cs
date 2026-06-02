@@ -1,6 +1,7 @@
 ﻿using CommandLine;
 using Dinah.Core;
 using FileManager;
+using AudibleUtilities;
 using LibationFileManager;
 using System;
 using System.Collections.Generic;
@@ -44,6 +45,15 @@ public abstract class OptionsBase
 		catch (Exception ex)
 		{
 			Environment.ExitCode = (int)ExitCode.RunTimeError;
+
+			if (NonJsonResponseExceptionExtensions.TryFindInTree(ex, out var htmlEx) && htmlEx is not null)
+			{
+				foreach (var line in htmlEx.GetExplainerLines())
+					Console.Error.WriteLine(line);
+				Serilog.Log.Logger.Error(htmlEx, "Audible returned HTML instead of JSON");
+				return;
+			}
+
 			PrintVerbUsage(
 				"ERROR",
 				"=====",

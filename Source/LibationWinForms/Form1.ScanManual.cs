@@ -96,6 +96,14 @@ public partial class Form1
 					WebView2LoginErrorMessage.Caption,
 					webViewEx);
 			}
+			else if (NonJsonResponseExceptionExtensions.TryFindInTree(ex, out var htmlEx) && htmlEx is not null)
+			{
+				MessageBoxLib.ShowAdminAlert(
+					this,
+					htmlEx.GetExplainerBody(),
+					NonJsonResponseExceptionExtensions.LibraryScanFailedCaption,
+					htmlEx);
+			}
 			else
 			{
 				MessageBoxLib.ShowAdminAlert(
