@@ -166,7 +166,8 @@ internal class AaxcFileStorage : AudibleFileStorage
 	//Cache the results for a short time to avoid excessive file system hits.
 	private DateTime lastDlInProgressEnumeration;
 	private static readonly TimeSpan dlInProgressCacheTime = TimeSpan.FromSeconds(10);
-	private IEnumerable<LongPath>? dlInProgressFilesCache;
+	private LongPath[]? dlInProgressFilesCache;
+	private Lock dlInProgressLocker { get; } = new();
 
 	protected override List<LongPath> GetFilePathsCustom(string productId)
 	{
@@ -175,22 +176,26 @@ internal class AaxcFileStorage : AudibleFileStorage
 
 		var regex = GetBookSearchRegex(productId);
 
-		if (DateTime.UtcNow - lastDlInProgressEnumeration > dlInProgressCacheTime)
+		LongPath[] files;
+		lock (dlInProgressLocker)
 		{
-			dlInProgressFilesCache = null;
+			if (DateTime.UtcNow - lastDlInProgressEnumeration > dlInProgressCacheTime)
+				dlInProgressFilesCache = null;
+
+			if (dlInProgressFilesCache is null)
+			{
+				dlInProgressFilesCache
+					= FileUtility
+					.SaferEnumerateFiles(dlFolder, "*.*", SearchOption.AllDirectories)
+					.ToArray();
+
+				lastDlInProgressEnumeration = DateTime.UtcNow;
+			}
+
+			files = dlInProgressFilesCache;
 		}
 
-		if (dlInProgressFilesCache is null)
-		{
-			dlInProgressFilesCache
-				= FileUtility
-				.SaferEnumerateFiles(dlFolder, "*.*", SearchOption.AllDirectories)
-				.ToArray();
-
-			lastDlInProgressEnumeration = DateTime.UtcNow;
-		}
-
-		return dlInProgressFilesCache.Where(s => regex.IsMatch(s)).ToList();
+		return files.Where(s => regex.IsMatch(s)).ToList();
 	}
 
 	public bool Exists(string productId) => GetFilePath(productId) is not null;
