@@ -76,6 +76,10 @@ export default defineConfig({
             text: "Easy guide to searching",
             link: "/docs/features/lucene",
           },
+          {
+            text: "Spatial Audio & DRM",
+            link: "/docs/features/spatial-audio",
+          },
         ],
       },
       {

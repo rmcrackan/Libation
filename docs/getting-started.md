@@ -139,3 +139,8 @@ Export your library to Excel, CSV, or JSON
 ## I Still Need Help
 
 [You can open an issue here](https://github.com/rmcrackan/Libation/issues) for bug reports, feature requests, or specialized help.
+
+## Dolby Atmos / spatial audio
+
+> [!NOTE]
+> Libation no longer downloads spatial (Atmos) audiobooks as of version 13.1.3. For highest **stereo** quality, see [Spatial Audio & DRM](./features/spatial-audio.md).
