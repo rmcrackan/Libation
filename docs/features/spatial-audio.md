@@ -4,10 +4,21 @@ This page explains why Libation **no longer downloads Dolby Atmos / spatial audi
 
 ## Short answer
 
-- **Highest stereo quality:** For many titles, enable **Use Widevine DRM** and **Request xHE-AAC Codec** in Settings.
-- **Download failures:** Check logs and [Troubleshooting](/docs/advanced/troubleshoot). Some titles need Widevine; others are Audible-side throttling.
+**Libation cannot download Dolby Atmos or spatial audio from Audible.** Not in 13.1.3+, and not by enabling **Use Widevine DRM** or **Request xHE-AAC Codec**. Those settings only affect **stereo** formats (AAC-LC or xHE-AAC). They do not restore the Atmos mix.
 
-See [What you can do today](#what-you-can-do-today) below. For Dolby Atmos / spatial specifically, see [Dolby Atmos and spatial playback](#dolby-atmos-and-spatial-playback) at the bottom of this page.
+The **Request Spatial Audio** option was removed in [Libation 13.1.3](https://github.com/rmcrackan/Libation/releases/tag/v13.1.3). Audible now requires hardware-backed Widevine (L1) for many spatial titles, which Libation cannot satisfy on a desktop PC.
+
+**What is still possible with Libation**
+
+- Download and decrypt most titles in **stereo** (AAC-LC, or xHE-AAC with Widevine enabled).
+- Play spatial files you **already downloaded before January 2026**, if your media player supports E-AC-3 or AC-4.
+
+**What is not possible with Libation**
+
+- Download new Dolby Atmos / spatial (E-AC-3 or AC-4) content from Audible.
+- Get the Atmos mix by toggling Widevine or xHE-AAC settings.
+
+For true spatial playback of current catalog titles, use the **Audible app** on a supported device. See [Dolby Atmos and spatial playback](#dolby-atmos-and-spatial-playback) at the bottom of this page, and [What you can do today](#what-you-can-do-today) for stereo download steps.
 
 ## What changed
 
