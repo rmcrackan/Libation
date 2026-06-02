@@ -14,6 +14,15 @@ There are two possible causes of this error.
    1. [Run hangover](#how-to-run-the-hangover-app) and execute the following command in the "Database" tab: `PRAGMA journal_mode=DELETE`
    2. run this command in your terminal: `sqlite3 "path/to/libation/files/LibationContext.db" "PRAGMA journal_mode=DELETE;"`
 
+## Library scan fails ("Unexpected character" or "HTML instead of JSON")
+
+Audible returned an HTML page instead of JSON. Common causes: transient outage, expired login, VPN/proxy, or rate limiting. What to try:
+
+1. Scan again after a few minutes.
+2. Sign in to Audible in a browser on the same network.
+3. Disable VPN/proxy and scan again.
+4. Remove and re-add the account in Libation.
+
 ## How to run the Hangover App
 
 When troubleshooting, you may be asked to run 'Hangover'. Hangover is a debugging app to help diagnose and solve some problems with Libation.

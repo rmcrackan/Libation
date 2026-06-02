@@ -443,6 +443,14 @@ public class ProductsDisplayViewModel : ViewModelBase
 					WebView2LoginErrorMessage.Caption,
 					webViewEx);
 			}
+			else if (NonJsonResponseExceptionExtensions.TryFindInTree(ex, out var htmlEx) && htmlEx is not null)
+			{
+				await MessageBox.ShowAdminAlert(
+					null,
+					htmlEx.GetExplainerBody(),
+					NonJsonResponseExceptionExtensions.LibraryScanFailedCaption,
+					htmlEx);
+			}
 			else
 			{
 				await MessageBox.ShowAdminAlert(

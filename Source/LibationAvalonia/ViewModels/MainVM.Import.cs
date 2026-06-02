@@ -231,6 +231,14 @@ public partial class MainVM
 					WebView2LoginErrorMessage.Caption,
 					webViewEx);
 			}
+			else if (NonJsonResponseExceptionExtensions.TryFindInTree(ex, out var htmlEx) && htmlEx is not null)
+			{
+				await MessageBox.ShowAdminAlert(
+					MainWindow,
+					htmlEx.GetExplainerBody(),
+					NonJsonResponseExceptionExtensions.LibraryScanFailedCaption,
+					htmlEx);
+			}
 			else
 			{
 				await MessageBox.ShowAdminAlert(
