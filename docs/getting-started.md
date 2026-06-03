@@ -143,4 +143,4 @@ Export your library to Excel, CSV, or JSON
 ## Dolby Atmos / spatial audio
 
 > [!NOTE]
-> Libation no longer downloads spatial (Atmos) audiobooks as of version 13.1.3. For highest **stereo** quality, see [Spatial Audio & DRM](./features/spatial-audio.md).
+> Libation no longer downloads spatial (Atmos) audiobooks as of version 13.1.3. For highest **stereo** quality, see [Spatial Audio & DRM](./advanced/spatial-audio.md).
