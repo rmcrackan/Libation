@@ -76,10 +76,6 @@ export default defineConfig({
             text: "Easy guide to searching",
             link: "/docs/features/lucene",
           },
-          {
-            text: "Spatial Audio & DRM",
-            link: "/docs/features/spatial-audio",
-          },
         ],
       },
       {
@@ -88,7 +84,8 @@ export default defineConfig({
         items: [
           { text: "Advanced Topics", link: "/docs/advanced/advanced" },
           { text: "Command Line Interface", link: "/docs/advanced/command-line-interface" },
-          { text: "Troubleshooting", link: "/docs/advanced/troubleshoot" }
+          { text: "Troubleshooting", link: "/docs/advanced/troubleshoot" },
+          { text: "Spatial Audio & DRM", link: "/docs/advanced/spatial-audio" },
         ],
       },
       {

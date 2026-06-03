@@ -77,11 +77,11 @@ Learn about Libation's powerful features:
 - **[Audio File Formats](/docs/features/audio-file-formats)** - Supported audio formats and conversion options
 - **[Naming Templates](/docs/features/naming-templates)** - Customize how your audiobook files are named
 - **[Searching & Filtering](/docs/features/searching-and-filtering)** - Find and organize your audiobooks
-- **[Spatial Audio & DRM](/docs/features/spatial-audio)** - Dolby Atmos download status, Widevine L1/L3, and what still works
 
 ### Advanced
 
 - **[Advanced Topics](/docs/advanced/advanced)** - Deep dives and configuration details
+- **[Spatial Audio & DRM](/docs/advanced/spatial-audio)** - Why Dolby Atmos download is not available and what still works
 
 ### Development
 

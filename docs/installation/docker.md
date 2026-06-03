@@ -75,7 +75,7 @@ sudo docker run -d \
 
 ## User
 
-This docker image runs as user `1001`. In order for the image to function properly, user `1001` must be able to read and write the volumes that are mounted in. If they are not, you will see errors, including [sqlite error](#1060), [Microsoft.Data.Sqlite.SqliteException](#1110), [unable to open database file](#1113), [Microsoft.EntityFrameworkCore.DbUpdateException](#1049)
+This docker image runs as user `1001`. In order for the image to function properly, user `1001` must be able to read and write the volumes that are mounted in. If they are not, you will see errors, including [sqlite error](https://github.com/rmcrackan/Libation/issues/1060), [Microsoft.Data.Sqlite.SqliteException](https://github.com/rmcrackan/Libation/issues/1110), [unable to open database file](https://github.com/rmcrackan/Libation/issues/1113), [Microsoft.EntityFrameworkCore.DbUpdateException](https://github.com/rmcrackan/Libation/issues/1049)
 
 If you're not sure what your user number is, check the output of the `id` command. Docker should normally run with the number of the user who configured and ran it.
 

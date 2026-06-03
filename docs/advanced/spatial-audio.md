@@ -1,16 +1,16 @@
 # Spatial Audio, Dolby Atmos, and Widevine DRM
 
-This page explains why Libation **no longer downloads Dolby Atmos / spatial audiobooks**, what changed on Audible's side, and what you can still do with Libation today.
+
+> [!IMPORTANT]
+> tl;dr: Libation **cannot** download Dolby Atmos or spatial audio from Audible and it will **never** be able to do so in the future.
 
 ## Short answer
 
-**Libation cannot download Dolby Atmos or spatial audio from Audible.** Not in 13.1.3+, and not by enabling **Use Widevine DRM** or **Request xHE-AAC Codec**. Those settings only affect **stereo** formats (AAC-LC or xHE-AAC). They do not restore the Atmos mix.
-
-The **Request Spatial Audio** option was removed in [Libation 13.1.3](https://github.com/rmcrackan/Libation/releases/tag/v13.1.3). Audible now requires hardware-backed Widevine (L1) for many spatial titles, which Libation cannot satisfy on a desktop PC.
+Cryptography is always a game of cat and mouse, so it's *possible* someone will release a hack tomorrow. However this is extremely unlikely. The cryptography discussed below is hardware-based DRM which has been used for years by huge companies including Netflix, Amazon Prime, and Disney+. A small army of hackers has been going at this since 2014 -- [no general reproducible hack has been shown](https://www.forasoft.com/learn/video-streaming/articles-streaming/widevine-l1-l2-l3). I'd love to be proven wrong but I'm not holding my breath.
 
 **What is still possible with Libation**
 
-- Download and decrypt most titles in **stereo** (AAC-LC, or xHE-AAC with Widevine enabled).
+- Download and decrypt most titles in **stereo** (AAC-LC, or xHE-AAC with Widevine enabled). (The Libation settings **Use Widevine DRM** or **Request xHE-AAC Codec** only affect **stereo** formats (AAC-LC or xHE-AAC). They do not restore the Atmos mix.)
 - Play spatial files you **already downloaded before January 2026**, if your media player supports E-AC-3 or AC-4.
 
 **What is not possible with Libation**
@@ -65,11 +65,11 @@ Download and decrypt titles while Libation still supports the format Audible del
 3. Re-add your account if Libation prompts you (Widevine requires an Android-style device registration).
 4. Re-download the title.
 
-See [Audio File Formats](./audio-file-formats.md) for codec details and [Supported Media Players](./audio-file-formats.md#supported-media-players) if you have trouble playing xHE-AAC.
+See [Audio File Formats](../features/audio-file-formats.md) for codec details and [Supported Media Players](../features/audio-file-formats.md#supported-media-players) if you have trouble playing xHE-AAC.
 
 ### 3. If downloads fail even with spatial disabled
 
-Check your log file ([FAQ: Where Can I Find the Log File?](/docs/frequently-asked-questions#where-can-i-find-the-log-file)) and search [open issues](https://github.com/rmcrackan/Libation/issues). Some failures are Audible-side (Plus throttling, temporary outages) rather than spatial-related. See also [Troubleshooting](/docs/advanced/troubleshoot).
+Check your log file ([FAQ: Where Can I Find the Log File?](/docs/frequently-asked-questions#where-can-i-find-the-log-file)) and search [open issues](https://github.com/rmcrackan/Libation/issues). Some failures are Audible-side (Plus throttling, temporary outages) rather than spatial-related. See also [Troubleshooting](./troubleshoot.md).
 
 ## Will spatial download come back?
 
@@ -100,17 +100,17 @@ If you liberated spatial titles before January 2026, your files may be **E-AC-3*
 
 Spatial audiobooks from Audible use:
 
-- [E-AC-3 (Dolby Digital Plus Atmos)](./audio-file-formats.md#e-ac-3)
-- [AC-4 (Dolby AC-4 Immersive Stereo)](./audio-file-formats.md#ac-4)
+- [E-AC-3 (Dolby Digital Plus Atmos)](../features/audio-file-formats.md#e-ac-3)
+- [AC-4 (Dolby AC-4 Immersive Stereo)](../features/audio-file-formats.md#ac-4)
 
-See [Supported Media Players](./audio-file-formats.md#supported-media-players) for an incomplete compatibility list.
+See [Supported Media Players](../features/audio-file-formats.md#supported-media-players) for an incomplete compatibility list.
 
-**Playing a file is not the same as hearing Atmos.** Many players decode E-AC-3 as plain 5.1 surround without rendering spatial objects. Dolby Atmos rendering often requires extra software (for example [Dolby Access](https://apps.microsoft.com/detail/9n0866fs04w8) on Windows) or hardware support. See [Spatial Audio and Dolby Atmos](./audio-file-formats.md#spatial-audio-and-dolby-atmos) for more detail.
+**Playing a file is not the same as hearing Atmos.** Many players decode E-AC-3 as plain 5.1 surround without rendering spatial objects. Dolby Atmos rendering often requires extra software (for example [Dolby Access](https://apps.microsoft.com/detail/9n0866fs04w8) on Windows) or hardware support. See [Spatial Audio and Dolby Atmos](../features/audio-file-formats.md#spatial-audio-and-dolby-atmos) for more detail.
 
 If you expected Atmos but your **new** download is stereo, that is expected with current Libation versions.
 
 ## Related documentation
 
-- [Audio File Formats](./audio-file-formats.md) -- codecs, settings, and media players
+- [Audio File Formats](../features/audio-file-formats.md) -- codecs, settings, and media players
 - [FAQ: Non-spatial playback trouble](/docs/frequently-asked-questions#im-having-trouble-playing-my-non-spatial-audiobook-how-can-i-fix-this)
-- [Troubleshooting](/docs/advanced/troubleshoot)
+- [Troubleshooting](./troubleshoot.md)

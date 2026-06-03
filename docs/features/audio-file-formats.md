@@ -95,7 +95,7 @@ Below is an incomplete matrix of codec support across various media players and 
 ## Spatial Audio and Dolby Atmos
 
 > [!IMPORTANT]
-> **Download status (2026):** The **Request Spatial Audio** and **Spatial Audio Codec** settings were removed in Libation 13.1.3. Audible now requires Widevine L1 (hardware-backed DRM) for many spatial titles, which Libation cannot use. Libation does not currently download new spatial/Atmos content. The sections below describe E-AC-3 and AC-4 for **playback** of files downloaded before the change. See **[Spatial Audio, Dolby Atmos, and Widevine DRM](./spatial-audio.md)** for full details and [issue #1553](https://github.com/rmcrackan/Libation/issues/1553).
+> **Download status (2026):** The **Request Spatial Audio** and **Spatial Audio Codec** settings were removed in Libation 13.1.3. Audible now requires Widevine L1 (hardware-backed DRM) for many spatial titles, which Libation cannot use. Libation does not currently download new spatial/Atmos content. The sections below describe E-AC-3 and AC-4 for **playback** of files downloaded before the change. See [Spatial Audio, Dolby Atmos, and Widevine DRM](../advanced/spatial-audio.md) for full details and [issue #1553](https://github.com/rmcrackan/Libation/issues/1553).
 
 Atmos is a surround sound technology that expands on existing surround sound systems by adding height channels as well as free-moving sound objects. Audible delivers Dolby Atmos in two formats: E-AC-3 and AC-4.
 

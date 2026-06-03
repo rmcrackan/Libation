@@ -23,13 +23,13 @@ Learn about Libation's powerful features:
 - **[Naming Templates](/docs/features/naming-templates)** - Customize how your audiobook files are named
 - **[Searching & Filtering](/docs/features/searching-and-filtering)** - Find and organize your audiobooks
 - **[Easy guide to searching](/docs/features/lucene)** - Tutorial for search queries
-- **[Spatial Audio & DRM](/docs/features/spatial-audio)** - Dolby Atmos download status, Widevine L1/L3, and what still works
 
 ## Advanced
 
 - **[Advanced Topics](/docs/advanced/advanced)** - Deep dives and configuration details
 - **[Command Line Interface](/docs/advanced/command-line-interface)** - CLI usage and commands
 - **[Troubleshooting](/docs/advanced/troubleshoot)** - Common errors and solutions
+- **[Spatial Audio & DRM](/docs/advanced/spatial-audio)** - Why Dolby Atmos download is not available and what still works
 
 ## Development
 

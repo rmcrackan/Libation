@@ -107,6 +107,6 @@ These errors come from Audible refusing to grant a download license. Common caus
 
 1. **Temporary Audible outage or Plus throttling** -- wait 24 to 48 hours and try again. See the [FAQ](/docs/frequently-asked-questions).
 2. **Title requires Widevine** -- some Plus titles no longer download as AAXC; enable **Use Widevine DRM** in Settings and re-add your account if prompted. See [issue #1580](https://github.com/rmcrackan/Libation/issues/1580).
-3. **Spatial / Dolby Atmos requested (older Libation versions)** -- Audible now requires Widevine L1 for many spatial titles. Libation 13.1.3+ no longer offers spatial download. See **[Spatial Audio & DRM](/docs/features/spatial-audio)**.
+3. **Spatial / Dolby Atmos requested (older Libation versions)** -- Audible now requires Widevine L1 for many spatial titles. Libation 13.1.3+ no longer offers spatial download. See [Spatial Audio & DRM](/docs/advanced/spatial-audio).
 
 Attach your log file when opening a GitHub issue.
