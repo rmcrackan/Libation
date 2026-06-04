@@ -1,5 +1,6 @@
 ﻿using ApplicationServices;
 using AudibleUtilities;
+using Dinah.Core.Threading;
 using Dinah.Core.WindowsDesktop.Drawing;
 using FileManager;
 using LibationFileManager;
@@ -26,14 +27,19 @@ public partial class Form1
 
 		// wire-up event to automatically download after scan.
 		// winforms only. this should NOT be allowed in cli
-		updateCountsBw.RunWorkerCompleted += async (object? sender, System.ComponentModel.RunWorkerCompletedEventArgs e) =>
-		{
-			if (!Configuration.Instance.AutoDownloadEpisodes || e.Result is not LibraryCommands.LibraryStats libraryStats)
-				return;
+		updateCountsBw.RunWorkerCompleted += (_, e) => tryAutoDownloadAfterCounts(e);
+	}
 
-			if ((libraryStats.PendingBooks + libraryStats.pdfsNotDownloaded) > 0)
-				await BackupAllBooksAsync(libraryStats.LibraryBooks);
-		};
+	private void tryAutoDownloadAfterCounts(System.ComponentModel.RunWorkerCompletedEventArgs e)
+	{
+		if (!Configuration.Instance.AutoDownloadEpisodes || e.Result is not LibraryCommands.LibraryStats libraryStats)
+			return;
+
+		if (libraryStats.PendingBooks + libraryStats.pdfsNotDownloaded <= 0)
+			return;
+
+		// RunWorkerCompleted has no SynchronizationContext; queue items require the UI thread.
+		this.UIThreadAsync(() => _ = BackupAllBooksAsync(libraryStats.LibraryBooks));
 	}
 
 	private static object? LoadResourceImage(string resourceName)

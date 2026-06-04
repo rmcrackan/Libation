@@ -1,4 +1,5 @@
 ﻿using ApplicationServices;
+using Avalonia.Threading;
 using DataLayer;
 using LibationFileManager;
 using ReactiveUI;
@@ -77,6 +78,9 @@ partial class MainVM
 
 		if (Configuration.Instance.AutoDownloadEpisodes
 			&& stats.PendingBooks + stats.pdfsNotDownloaded > 0)
-			await BackupAllBooksAsync(stats.LibraryBooks);
+		{
+			// RunWorkerCompleted has no SynchronizationContext; queue items require the UI thread.
+			await Dispatcher.UIThread.InvokeAsync(async () => await BackupAllBooksAsync(stats.LibraryBooks));
+		}
 	}
 }

@@ -255,7 +255,16 @@ public class ProcessQueueViewModel : ReactiveObject
 		&& entry.Status is ProcessBookStatus.Completed
 		&& Queue.RemoveCompleted(entry);
 
+	/// <summary>
+	/// ProcessBookViewModel requires a captured UI SynchronizationContext. Callers may resume on a
+	/// thread-pool thread after await (e.g. auto-download after BackgroundWorker).
+	/// </summary>
+	private void RunOnQueueUiThread(Action action) => Invoke(action);
+
 	private void AddDownloadPdf(IList<LibraryBook> entries, Configuration config)
+		=> RunOnQueueUiThread(() => addDownloadPdfCore(entries, config));
+
+	private void addDownloadPdfCore(IList<LibraryBook> entries, Configuration config)
 	{
 		var procs = entries.Where(e => !IsBookInQueue(e)).Select(Create).ToArray();
 		Serilog.Log.Logger.Information("Queueing {count} books for PDF-only download", procs.Length);
@@ -266,6 +275,9 @@ public class ProcessQueueViewModel : ReactiveObject
 	}
 
 	private void AddDownloadDecrypt(IList<LibraryBook> entries, Configuration config)
+		=> RunOnQueueUiThread(() => addDownloadDecryptCore(entries, config));
+
+	private void addDownloadDecryptCore(IList<LibraryBook> entries, Configuration config)
 	{
 		var procs = entries.Where(e => !IsBookInQueue(e)).Select(Create).ToArray();
 		Serilog.Log.Logger.Information("Queueing {count} books ofr download/decrypt", procs.Length);
@@ -276,6 +288,9 @@ public class ProcessQueueViewModel : ReactiveObject
 	}
 
 	private void AddConvertMp3(IList<LibraryBook> entries, Configuration config)
+		=> RunOnQueueUiThread(() => addConvertMp3Core(entries, config));
+
+	private void addConvertMp3Core(IList<LibraryBook> entries, Configuration config)
 	{
 		var procs = entries.Where(e => !IsBookInQueue(e)).Select(Create).ToArray();
 		Serilog.Log.Logger.Information("Queueing {count} books for mp3 conversion", procs.Length);
