@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -49,7 +50,15 @@ public class LibationContextFactory
 	{
 		try
 		{
-			context.Database.Migrate();
+			// Migrate() acquires the EF migration lock before checking whether anything is pending.
+			// For SQLite that lock is a row in __EFMigrationsLock with no timeout (SQLite has no
+			// connection-scoped lock that frees on disconnect). A process killed after acquiring the
+			// lock but before releasing it - even during an otherwise no-op Migrate() - orphans the row,
+			// and every later Migrate() then spins forever in SqliteHistoryRepository.AcquireDatabaseLock().
+			// The row is persisted in the db file, so restarting does not clear it. Skipping Migrate()
+			// when nothing is pending keeps the steady-state path off the lock entirely. See #1729.
+			if (context.Database.GetPendingMigrations().Any())
+				context.Database.Migrate();
 		}
 		// SQLITE_READONLY == 8 (https://www.sqlite.org/rescode.html)
 		catch (SqliteException ex) when (ex.SqliteErrorCode == 8 && sqliteDatabaseFilePath is not null)
@@ -63,7 +72,9 @@ public class LibationContextFactory
 	{
 		try
 		{
-			await context.Database.MigrateAsync(cancellationToken);
+			// See ApplyMigrations for why pending migrations are checked before acquiring the lock (#1729).
+			if ((await context.Database.GetPendingMigrationsAsync(cancellationToken)).Any())
+				await context.Database.MigrateAsync(cancellationToken);
 		}
 		// SQLITE_READONLY == 8 (https://www.sqlite.org/rescode.html)
 		catch (SqliteException ex) when (ex.SqliteErrorCode == 8 && sqliteDatabaseFilePath is not null)
