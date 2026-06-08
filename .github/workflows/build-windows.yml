@@ -41,6 +41,7 @@ jobs:
           - architecture: arm64
             ui: Avalonia
             release_name: chardonnay
+            artifact_stem: Libation
     steps:
       - uses: actions/checkout@v6
       
