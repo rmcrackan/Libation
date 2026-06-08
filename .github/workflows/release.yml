@@ -45,7 +45,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           path: artifacts
-          pattern: "*(Classic-)Libation.*"
+          pattern: "*Libation*"
 
       - name: Release
         id: release
