@@ -83,7 +83,7 @@ CI wiring (`build-windows.yml`) is step 8.3.
 
 | File | Purpose |
 |------|---------|
-| [`Libation.iss`](Libation.iss) | Parameterized Inno Setup script |
-| [`libation.ico`](libation.ico) | Setup/uninstaller icon (copied from Avalonia assets) |
-| [`Build-WindowsInstaller.ps1`](Build-WindowsInstaller.ps1) | Local publish + ISCC helper |
+| `Libation.iss` | Parameterized Inno Setup script |
+| `libation.ico` | Setup/uninstaller icon (copied from Avalonia assets) |
+| `Build-WindowsInstaller.ps1` | Local publish + ISCC helper |
 | `README.md` | This document |
