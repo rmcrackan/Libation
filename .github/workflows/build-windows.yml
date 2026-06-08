@@ -16,6 +16,10 @@ on:
         type: boolean
       publish-r2r:
         type: boolean
+      build-installer:
+        type: boolean
+        description: "Build *-setup.exe on all Windows matrix jobs when release (zips always built for .releaseindex.json)"
+        default: false
       retention-days:
         type: number
 
@@ -28,11 +32,12 @@ jobs:
         ui: [Avalonia]
         architecture: [x64]
         release_name: [chardonnay]
+        artifact_stem: Libation
         include:
           - architecture: x64
             ui: WinForms
             release_name: classic
-            prefix: Classic-
+            artifact_stem: Libation-Classic
           - architecture: arm64
             ui: Avalonia
             release_name: chardonnay
@@ -75,7 +80,7 @@ jobs:
             "WindowsConfigApp.deps.json")
           
           foreach ($file in $delfiles){ if (test-path $file){ Remove-Item $file } }
-          $artifact="${{ matrix.prefix }}Libation.${{ inputs.libation-version }}-windows-${{ matrix.release_name }}-${{ matrix.architecture }}.zip"
+          $artifact="${{ matrix.artifact_stem }}.${{ inputs.libation-version }}-windows-${{ matrix.release_name }}-${{ matrix.architecture }}.zip"
           "artifact=$artifact" >> $env:GITHUB_OUTPUT
           Compress-Archive -Path * -DestinationPath "$artifact"
 
@@ -85,3 +90,40 @@ jobs:
           path: ./bin/${{ steps.zip.outputs.artifact }}
           if-no-files-found: error
           retention-days: ${{ inputs.retention-days }}
+
+      - name: Install Inno Setup
+        if: ${{ inputs.build-installer }}
+        run: choco install innosetup -y --no-progress
+
+      - name: Build Windows installer
+        id: setup
+        if: ${{ inputs.build-installer }}
+        shell: pwsh
+        run: |
+          if ("${{ matrix.ui }}" -eq "WinForms") {
+            $setupName = "Libation-Classic.${{ inputs.libation-version }}-windows-${{ matrix.release_name }}-${{ matrix.architecture }}-setup.exe"
+            $ui = "WinForms"
+          } else {
+            $setupName = "Libation.${{ inputs.libation-version }}-windows-${{ matrix.release_name }}-${{ matrix.architecture }}-setup.exe"
+            $ui = "Avalonia"
+          }
+          ./Scripts/Windows/Build-WindowsInstaller.ps1 `
+            -Version "${{ inputs.libation-version }}" `
+            -Ui $ui `
+            -Architecture "${{ matrix.architecture }}" `
+            -SkipPublish `
+            -BinDir "${{ github.workspace }}/bin"
+          if (-not (Test-Path "${{ github.workspace }}/bin/$setupName")) {
+            throw "Installer not found: bin/$setupName"
+          }
+          "setup=$setupName" >> $env:GITHUB_OUTPUT
+
+      - name: Upload installer artifact
+        if: ${{ inputs.build-installer }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.setup.outputs.setup }}
+          path: ./bin/${{ steps.setup.outputs.setup }}
+          if-no-files-found: error
+          retention-days: ${{ inputs.retention-days }}
+
