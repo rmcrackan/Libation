@@ -45,12 +45,14 @@ internal class WinInterop : IInteropFunctions
 
 		File.Copy(Path.Combine(thisDir, ExtractorExeName), zipExtractor, overwrite: true);
 
-		var proc = RunAsRoot(zipExtractor,
-				$"--input {upgradeBundle.SurroundWithQuotes()} " +
-				$"--output {thisDir.SurroundWithQuotes()} " +
-				$"--executable {thisExe.SurroundWithQuotes()}");
+		var args =
+			$"--input {upgradeBundle.SurroundWithQuotes()} " +
+			$"--output {thisDir.SurroundWithQuotes()} " +
+			$"--executable {thisExe.SurroundWithQuotes()}";
+
+		var proc = StartProcess(zipExtractor, args, elevate: !IsDirectoryWritable(thisDir));
 		if (proc is null)
-			throw new InvalidOperationException("Could not start the elevated upgrade process.");
+			throw new InvalidOperationException("Could not start the upgrade process.");
 		await proc.WaitForExitAsync();
 		if (proc.ExitCode != 0)
 			throw new InvalidOperationException($"ZipExtractor exited with code {proc.ExitCode}.");
@@ -60,18 +62,40 @@ internal class WinInterop : IInteropFunctions
 
 	public void TrySyncInstallMetadata() => WindowsUninstallRegistrySync.TrySync();
 
-	public Process? RunAsRoot(string exe, string args)
+	public Process? RunAsRoot(string exe, string args) => StartProcess(exe, args, elevate: true);
+
+	private static Process? StartProcess(string exe, string args, bool elevate)
 	{
-		var psi = new ProcessStartInfo()
+		var psi = new ProcessStartInfo
 		{
 			FileName = exe,
 			UseShellExecute = true,
-			Verb = "runas",
 			WindowStyle = ProcessWindowStyle.Normal,
 			CreateNoWindow = true,
 			Arguments = args
 		};
 
+		if (elevate)
+			psi.Verb = "runas";
+
 		return Process.Start(psi);
+	}
+
+	private static bool IsDirectoryWritable(string directory)
+	{
+		try
+		{
+			var probe = Path.Combine(directory, $".libation-write-test-{Guid.NewGuid():N}");
+			using (File.Create(probe, 1, FileOptions.DeleteOnClose)) { }
+			return true;
+		}
+		catch (UnauthorizedAccessException)
+		{
+			return false;
+		}
+		catch (IOException)
+		{
+			return false;
+		}
 	}
 }
