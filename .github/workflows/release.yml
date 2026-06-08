@@ -41,11 +41,19 @@ jobs:
     needs: [prerelease, build]
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
+      - name: Download Chardonnay, Linux, and Mac artifacts
         uses: actions/download-artifact@v8
         with:
           path: artifacts
-          pattern: "*Libation*"
+          pattern: "Libation.*"
+          merge-multiple: true
+
+      - name: Download Classic Windows artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+          pattern: "Libation-Classic.*"
+          merge-multiple: true
 
       - name: Release
         id: release
