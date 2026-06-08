@@ -35,6 +35,7 @@ jobs:
       dotnet-version: ${{ inputs.dotnet-version }}
       run-unit-tests: ${{ inputs.run-unit-tests }}
       publish-r2r: ${{ inputs.publish-r2r }}
+      build-installer: ${{ inputs.release }}
       retention-days: ${{ inputs.retention-days }}
       
   macOS:
@@ -66,4 +67,6 @@ jobs:
       retention-days: ${{ inputs.retention-days }}
       architecture: ${{ matrix.architecture }}
       OS: ${{ matrix.OS }}
+
+
 
