@@ -54,6 +54,8 @@ internal class MacOSInterop : IInteropFunctions
 		return Task.Run(() => Process.Start("open", upgradeBundle.SurroundWithQuotes())?.WaitForExit());
 	}
 
+	public void TrySyncInstallMetadata() { }
+
 	//Using osascript -e '[script]' works from the terminal, but I haven't figured
 	//out the syntax for it to work from create_process, so write to stdin instead.
 	public Process? RunAsRoot(string _, string command)

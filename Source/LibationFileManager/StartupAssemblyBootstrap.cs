@@ -18,6 +18,22 @@ public static class StartupAssemblyBootstrap
 	{
 		_ = InteropFactory.InteropFunctionsType;
 		ValidateEntityFrameworkCoreSqlitePresent();
+		TrySyncWindowsInstallMetadata();
+	}
+
+	private static void TrySyncWindowsInstallMetadata()
+	{
+		if (!Configuration.IsWindows || InteropFactory.InteropFunctionsType is null)
+			return;
+
+		try
+		{
+			InteropFactory.Create().TrySyncInstallMetadata();
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Warning(ex, "Could not run install metadata sync at startup");
+		}
 	}
 
 	public static string GetLibraryLoadFailureMessage() =>

@@ -71,7 +71,7 @@ arm64: set `MyArchitecture=arm64` and `ArchitecturesAllowed=arm64`.
 - **Shortcuts** target `{app}\Libation.exe` (required for upgrade path detection).
 - **Does not** create `appsettings.json` or Libation Files; same as zip install.
 - **Includes** full publish output so `ZipExtractor.exe` remains for in-app updates.
-- **Settings -> Apps:** shows `Libation (Chardonnay)` or `Libation (Classic)` with version, via `UninstallDisplayName`; icon from `SetupIconFile` / `UninstallDisplayIcon` (`Scripts/Windows/libation.ico` and `{app}\Libation.exe`).
+- **Settings -> Apps:** shows `Libation (Chardonnay)` or `Libation (Classic)` with version in `DisplayVersion` (Inno at install; synced after in-app zip upgrades via `WindowsUninstallRegistrySync`); icon from `SetupIconFile` / `UninstallDisplayIcon` (`Scripts/Windows/libation.ico` and `{app}\Libation.exe`).
 
 ## Next plan step (8.2)
 

@@ -102,6 +102,7 @@ export function getDetectOS() {
     if (lower.endsWith('.deb')) packageType = 'deb'
     else if (lower.endsWith('.rpm')) packageType = 'rpm'
     else if (lower.endsWith('.dmg')) packageType = 'dmg'
+    else if (lower.endsWith('-setup.exe')) packageType = 'installer'
     else if (lower.endsWith('.zip') || lower.endsWith('.msi')) packageType = 'archive'
     return { platform, arch, packageType: packageType || 'unknown', name }
   }
@@ -141,6 +142,8 @@ export function getDetectOS() {
       if (wantOs === 'linux' && p.packageType === 'deb' && preferDeb) s += 20
       if (wantOs === 'linux' && p.packageType === 'rpm' && preferRpm) s += 20
       if (wantOs === 'linux' && !preferDeb && !preferRpm && p.packageType === 'deb') s += 5
+      if (wantOs === 'windows' && p.packageType === 'installer') s += 30
+      if (wantOs === 'windows' && p.packageType === 'archive') s -= 10
       if (nameLower.includes('chardonnay')) s += 10
       if (nameLower.includes('classic')) s -= 5
       return s
@@ -154,6 +157,20 @@ export function getDetectOS() {
     if (wantArch) altCandidates = altCandidates.filter(e => e.parsed.arch === wantArch)
     const alternatives = altCandidates.map(e => ({ name: e.name, url: e.url }))
     const classicVsChardonnayFaqUrl = 'https://getlibation.com/docs/frequently-asked-questions#what-s-the-difference-between-classic-and-chardonnay'
+    function isWindowsSetup(name) {
+      return (name || '').toLowerCase().endsWith('-setup.exe')
+    }
+    function preferWindowsAsset(current, candidate) {
+      if (!candidate) return current
+      if (!current) return candidate
+      const candSetup = isWindowsSetup(candidate.name)
+      const currSetup = isWindowsSetup(current.name)
+      if (candSetup && !currSetup) return candidate
+      return current
+    }
+    function isClassicWindowsAsset(nameLower) {
+      return nameLower.includes('libation-classic') || nameLower.includes('classic-libation')
+    }
     let windowsX64Choice = null
     if (wantOs === 'windows' && wantArch === 'x64') {
       let winChardonnay = null
@@ -162,10 +179,15 @@ export function getDetectOS() {
         const e = parsed[j]
         if (e.parsed.platform !== 'windows' || e.parsed.arch !== 'x64') continue
         const n = (e.name || '').toLowerCase()
-        if (n.includes('chardonnay')) winChardonnay = { name: e.name, url: e.url }
-        if (n.includes('classic')) winClassic = { name: e.name, url: e.url }
+        if (n.includes('chardonnay')) winChardonnay = preferWindowsAsset(winChardonnay, e)
+        else if (isClassicWindowsAsset(n)) winClassic = preferWindowsAsset(winClassic, e)
       }
-      if (winChardonnay && winClassic) windowsX64Choice = { chardonnay: winChardonnay, classic: winClassic }
+      if (winChardonnay && winClassic) {
+        windowsX64Choice = {
+          chardonnay: { name: winChardonnay.name, url: winChardonnay.url },
+          classic: { name: winClassic.name, url: winClassic.url },
+        }
+      }
     }
     if (!recommended && wantOs) {
       reason = 'No asset matched your system (OS: ' + os + ', arch: ' + arch + '). Try choosing a download manually.'

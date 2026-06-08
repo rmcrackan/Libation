@@ -54,7 +54,11 @@ internal class WinInterop : IInteropFunctions
 		await proc.WaitForExitAsync();
 		if (proc.ExitCode != 0)
 			throw new InvalidOperationException($"ZipExtractor exited with code {proc.ExitCode}.");
+
+		TrySyncInstallMetadata();
 	}
+
+	public void TrySyncInstallMetadata() => WindowsUninstallRegistrySync.TrySync();
 
 	public Process? RunAsRoot(string exe, string args)
 	{
