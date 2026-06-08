@@ -17,4 +17,5 @@ public class NullInteropFunctions : IInteropFunctions
 	public string ReleaseIdString => throw new PlatformNotSupportedException();
 	public Process RunAsRoot(string exe, string args) => throw new PlatformNotSupportedException();
 	public Task InstallUpgradeAsync(string updateBundle) => throw new PlatformNotSupportedException();
+	public void TrySyncInstallMetadata() { }
 }

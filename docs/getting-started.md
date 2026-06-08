@@ -16,7 +16,18 @@ Nearly 100% of the difference is look and feel -- it's a matter of preference.
 
 - Windows
 
-Extract the zip file to a folder and then run `Libation.exe` from inside of that folder. Do not put it in Program Files. The inability to edit files from there causes problems with configuration and updating.
+**Recommended:** run the `*-setup.exe` installer for your variant (Chardonnay or Classic). Installers use a per-user folder under `%LocalAppData%` and do not require admin rights.
+
+| Variant | Default install folder |
+|---------|------------------------|
+| Chardonnay | `%LocalAppData%\Libation` |
+| Classic | `%LocalAppData%\Libation-Classic` |
+
+Do not install to `Program Files`. Read-only install folders break configuration and in-app updates.
+
+**Portable (advanced):** download the `.zip` instead, extract to a folder you can write to, and run `Libation.exe` from that folder. Zips are also what the in-app updater uses when you choose to upgrade from inside Libation.
+
+Chardonnay is available for x64 and arm64. Classic is x64 only.
 
 Requires 64-bit Windows 10 or later. Older versions of Windows are not supported.
 

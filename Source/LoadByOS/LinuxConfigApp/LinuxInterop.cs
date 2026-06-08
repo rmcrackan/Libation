@@ -164,4 +164,6 @@ internal class LinuxInterop : IInteropFunctions
 		}
 		throw new PlatformNotSupportedException($"Could not start any of the supported terminals: {string.Join(", ", consoleCommands.Select(c => c[0]))}");
 	}
+
+	public void TrySyncInstallMetadata() { }
 }
