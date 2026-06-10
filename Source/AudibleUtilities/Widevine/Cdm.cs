@@ -290,7 +290,7 @@ public partial class Cdm
 		private static uint RandomUint()
 		{
 			var bts = new byte[4];
-			new Random().NextBytes(bts);
+			RandomNumberGenerator.Fill(bts);
 			return BitConverter.ToUInt32(bts, 0);
 		}
 	}

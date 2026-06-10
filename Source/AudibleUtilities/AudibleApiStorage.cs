@@ -62,24 +62,16 @@ public static class AudibleApiStorage
 		=> GetIdentityTokensJsonPath(account.AccountId, account.Locale?.Name);
 	public static string GetIdentityTokensJsonPath(string username, string? localeName)
 	{
-		var usernameSanitized = trimSurroundingQuotes(JsonConvert.ToString(username));
-		var localeNameSanitized = trimSurroundingQuotes(JsonConvert.ToString(localeName));
+		var usernameEscaped = EscapeNewtonsoftJsonPathSingleQuotedLiteral(username);
+		var localeNameEscaped = EscapeNewtonsoftJsonPathSingleQuotedLiteral(localeName ?? string.Empty);
 
-		return $"$.Accounts[?(@.AccountId == '{usernameSanitized}' && @.IdentityTokens.LocaleName == '{localeNameSanitized}')].IdentityTokens";
+		return $"$.Accounts[?(@.AccountId == '{usernameEscaped}' && @.IdentityTokens.LocaleName == '{localeNameEscaped}')].IdentityTokens";
 	}
-	private static string trimSurroundingQuotes(string str)
-	{
-		// SubString algo is better than .Trim("\"")
-		//   orig string  "
-		//   json string  "\""
-		// Eg:
-		//   =>           str.Trim("\"")
-		//   output       \
-		// vs
-		//   =>           str.Substring(1, str.Length - 2)
-		//   output       \"
-		// also works with surrounding single quotes
 
-		return str.Substring(1, str.Length - 2);
-	}
+	/// <summary>
+	/// Escape a value for use inside single-quoted Newtonsoft JSONPath filter literals.
+	/// See https://www.newtonsoft.com/json/help/html/QueryJsonSelectTokenEscaped.htm
+	/// </summary>
+	internal static string EscapeNewtonsoftJsonPathSingleQuotedLiteral(string value)
+		=> value.Replace("\\", @"\\").Replace("'", @"\'");
 }
