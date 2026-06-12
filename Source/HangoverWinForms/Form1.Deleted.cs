@@ -42,6 +42,12 @@ public partial class Form1
 	private async void saveBtn_Click(object sender, EventArgs e)
 	{
 		var libraryBooksToRestore = deletedCbl.CheckedItems.Cast<LibraryBook>().ToList();
+		if (libraryBooksToRestore.Count == 0)
+			return;
+
+		if (!HangoverMutationConfirm.Confirm(this, HangoverBase.HangoverDbMutation.RestoreDeletedBooksDescription))
+			return;
+
 		saveBtn.Enabled = false;
 		var qtyChanges = await libraryBooksToRestore.RestoreBooksAsync();
 		if (qtyChanges > 0)

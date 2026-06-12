@@ -33,7 +33,7 @@ public static class LibraryBookQueries
 			.AsEnumerable()
 			.ToList();
 
-		public LibraryBook? GetLibraryBook_Flat_NoTracking(string productId, bool caseSensative = true)
+		public LibraryBook? GetLibraryBook_Flat_NoTracking(string productId, bool caseSensative = true, string? account = null)
 		{
 			var libraryQuery
 				= context
@@ -41,8 +41,14 @@ public static class LibraryBookQueries
 				.AsNoTrackingWithIdentityResolution()
 				.GetLibrary();
 
-			return caseSensative ? libraryQuery.SingleOrDefault(lb => lb.Book.AudibleProductId == productId)
-				: libraryQuery.SingleOrDefault(lb => EF.Functions.Collate(lb.Book.AudibleProductId, "NOCASE") == productId);
+			var matches = caseSensative
+				? libraryQuery.Where(lb => lb.Book.AudibleProductId == productId)
+				: libraryQuery.Where(lb => EF.Functions.Collate(lb.Book.AudibleProductId, "NOCASE") == productId);
+
+			if (account is not null)
+				matches = matches.Where(lb => lb.Account == account);
+
+			return matches.FirstOrDefault();
 		}
 
 		public List<LibraryBook> GetUnLiberated_Flat_NoTracking()

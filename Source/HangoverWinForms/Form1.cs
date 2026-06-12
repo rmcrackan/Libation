@@ -12,12 +12,10 @@ public partial class Form1 : Form
 		LibationScaffolding.RunPostConfigMigrations(config);
 		LibationScaffolding.RunPostMigrationScaffolding(Variety.Classic, config);
 
-		databaseTab.VisibleChanged += databaseTab_VisibleChanged;
-		cliTab.VisibleChanged += cliTab_VisibleChanged;
+		fixDuplicatesTab.VisibleChanged += fixDuplicatesTab_VisibleChanged;
 		deletedTab.VisibleChanged += deletedTab_VisibleChanged;
 
 		Load_databaseTab();
-		Load_cliTab();
 		Load_deletedTab();
 	}
 }

@@ -132,9 +132,9 @@ public static class DbContexts
 		return context.GetDeletedLibraryBooks();
 	}
 
-	public static LibraryBook? GetLibraryBook_Flat_NoTracking(string productId, bool caseSensative = true)
+	public static LibraryBook? GetLibraryBook_Flat_NoTracking(string productId, bool caseSensative = true, string? account = null)
 	{
 		using var context = GetContext();
-		return context.GetLibraryBook_Flat_NoTracking(productId, caseSensative);
+		return context.GetLibraryBook_Flat_NoTracking(productId, caseSensative, account);
 	}
 }

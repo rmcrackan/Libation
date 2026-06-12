@@ -1,4 +1,5 @@
-﻿using LibationWinForms.Dialogs;
+﻿using LibationFileManager;
+using LibationWinForms.Dialogs;
 using System;
 using System.Windows.Forms;
 
@@ -42,11 +43,17 @@ public partial class Form1
 	{
 		try
 		{
-			System.Diagnostics.Process.Start("Hangover.exe");
+			HangoverLauncher.Launch();
 		}
 		catch (Exception ex)
 		{
 			Serilog.Log.Logger.Error(ex, "Failed to launch Hangover");
+			MessageBox.Show(
+				this,
+				HangoverLauncher.GetLaunchFailureMessage(ex),
+				"Launch Hangover",
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Warning);
 		}
 	}
 }

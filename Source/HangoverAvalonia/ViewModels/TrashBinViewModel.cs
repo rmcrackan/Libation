@@ -77,8 +77,17 @@ public class TrashBinViewModel : ViewModelBase, IDisposable
 			item.IsChecked = false;
 	}
 
+	public Func<string, Task<bool>>? ConfirmDbMutationAsync { get; set; }
+
 	public async Task RestoreCheckedAsync()
 	{
+		if (!CheckedBooks.Any())
+			return;
+
+		if (ConfirmDbMutationAsync is not null
+			&& !await ConfirmDbMutationAsync(HangoverBase.HangoverDbMutation.RestoreDeletedBooksDescription))
+			return;
+
 		ControlsEnabled = false;
 		var qtyChanges = await CheckedBooks.RestoreBooksAsync();
 		if (qtyChanges > 0)
@@ -88,6 +97,13 @@ public class TrashBinViewModel : ViewModelBase, IDisposable
 
 	public async Task PermanentlyDeleteCheckedAsync()
 	{
+		if (!CheckedBooks.Any())
+			return;
+
+		if (ConfirmDbMutationAsync is not null
+			&& !await ConfirmDbMutationAsync(HangoverBase.HangoverDbMutation.PermanentlyDeleteBooksDescription))
+			return;
+
 		ControlsEnabled = false;
 		var qtyChanges = await CheckedBooks.PermanentlyDeleteBooksAsync();
 		if (qtyChanges > 0)

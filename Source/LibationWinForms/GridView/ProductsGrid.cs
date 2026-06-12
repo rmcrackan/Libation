@@ -468,7 +468,11 @@ public partial class ProductsGrid : UserControl
 				episodeEntry = new LibraryBookEntry(episodeBook, seriesEntry);
 				seriesEntry.Children.Add(episodeEntry);
 				seriesEntry.Children.Sort((c1, c2) => c1.SeriesIndex.CompareTo(c2.SeriesIndex));
-				var seriesBook = dbBooks.Single(lb => lb.Book.AudibleProductId == seriesEntry.LibraryBook.Book.AudibleProductId);
+				var seriesBook = dbBooks.FindSeriesParent(episodeBook)
+					?? dbBooks.FirstOrDefault(lb =>
+						lb.Book.AudibleProductId == seriesEntry.LibraryBook.Book.AudibleProductId
+						&& lb.Account == seriesEntry.LibraryBook.Account)
+					?? seriesEntry.LibraryBook;
 				seriesEntry.UpdateLibraryBook(seriesBook);
 			}
 

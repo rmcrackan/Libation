@@ -1,140 +1,362 @@
 <Window xmlns="https://github.com/avaloniaui"
+
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+
         xmlns:vm="using:HangoverAvalonia.ViewModels"
+
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+
 		xmlns:controls="clr-namespace:HangoverAvalonia.Controls"
+
 		xmlns:vms="clr-namespace:HangoverAvalonia.ViewModels"
+
 		x:DataType="vms:MainVM"
+
 		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+
 		Width="800" Height="500"
+
         x:Class="HangoverAvalonia.Views.MainWindow"
+
         Icon="/Assets/hangover.ico "
+
         Title="Hangover: Libation debug and recovery tool">
+
 	<Design.DataContext>
+
 		<vm:MainVM/>
+
 	</Design.DataContext>
 
+
+
 	<TabControl Name="tabControl1" Grid.Row="0">
+
 		<TabControl.Styles>
+
 			<Style Selector="TabControl /template/ ItemsPresenter#PART_ItemsPresenter">
+
 				<Setter Property="Height" Value="33"/>
+
 			</Style>
+
 			<Style Selector="TabItem /template/ Border#PART_LayoutRoot">
+
 				<Setter Property="Height" Value="33"/>
+
 			</Style>
+
 			<Style Selector="TabItem#Header TextBlock">
+
 				<Setter Property="MinHeight" Value="5"/>
+
 			</Style>
+
 			<Style Selector="Button">
+
 				<Setter Property="Padding" Value="20,5,20,5"/>
+
 			</Style>
+
 		</TabControl.Styles>
+
 		
+
 		<!-- Database Tab -->
+
 		<TabItem Name="databaseTab">
+
 			<TabItem.Header>
+
 				<TextBlock FontSize="14" VerticalAlignment="Center">Database</TextBlock>
+
 			</TabItem.Header>
+
+
 
 			<Grid RowDefinitions="Auto,Auto,*,Auto,2*">
-				
+
 				<TextBlock
+
 					Margin="0,10,0,5"
+
 					Grid.Row="0"
+
 					Text="{Binding DatabaseFileText}" />
+
 				
+
 				<TextBlock
+
 					Margin="0,5,0,5"
+
 					Grid.Row="1"
+
 					Text="SQL (database command)" />
+
 				
+
 				<TextBox
+
 					Margin="0,5,0,5"
+
 					AcceptsReturn="True"
+
 					Grid.Row="2" Text="{Binding SqlQuery, Mode=OneWayToSource}" />
+
 				
+
 				<Button
+
 					Grid.Row="3"
+
 					Content="Execute"
+
 					IsEnabled="{Binding DatabaseFound}"
+
 					Click="Execute_Click" />
+
 				
+
 				<TextBox
+
 					Margin="0,5,0,10"
+
 					IsReadOnly="True"
+
 					Grid.Row="4"
+
 					Text="{Binding SqlResults}" />
+
 			</Grid>
-			
+
 		</TabItem>
+
+
 
 		<!-- Deleted Books Tab -->
+
 		<TabItem Name="deletedTab">
+
 			<TabItem.Header>
+
 				<TextBlock FontSize="14" VerticalAlignment="Center">Deleted Books</TextBlock>
+
 			</TabItem.Header>
+
 			<Grid
+
 				DataContext="{Binding TrashBinViewModel}"
+
 				RowDefinitions="Auto,*,Auto">
 
+
+
 				<TextBlock
+
 					Grid.Row="0"
+
 					Margin="5"
+
 					Text="Check books you want to permanently delete from or restore to Libation" />
 
+
+
 				<controls:CheckedListBox
+
 					Grid.Row="1"
+
 					Margin="5,0,5,0"
+
 					BorderThickness="1"
+
 					BorderBrush="Gray"
+
 					IsEnabled="{Binding	ControlsEnabled}"
+
 					Items="{Binding DeletedBooks}" />
 
+
+
 				<Grid
+
 					Grid.Row="2"
+
 					Margin="5"
+
 					ColumnDefinitions="Auto,Auto,*,Auto">
 
+
+
 					<CheckBox
+
 						IsEnabled="{Binding	ControlsEnabled}"
+
 						IsThreeState="True"
+
 						Margin="0,0,20,0"
+
 						IsChecked="{Binding EverythingChecked}"
+
 						Content="Everything" />
 
+
+
 					<TextBlock
+
 						Grid.Column="1"
+
 						VerticalAlignment="Center"
+
 						Text="{Binding CheckedCountText}" />
 
+
+
 					<Button
+
 						IsEnabled="{Binding	ControlsEnabled}"
+
 						Grid.Column="2"
+
 						Margin="0,0,20,0"
+
 						HorizontalAlignment="Right"
+
 						VerticalAlignment="Stretch"
+
 						VerticalContentAlignment="Center"
+
 						Content="Restore"
+
 						Command="{Binding RestoreCheckedAsync}"/>
 
+
+
 					<Button
+
 						IsEnabled="{Binding	ControlsEnabled}"
+
 						Grid.Column="3"
+
 						Command="{Binding PermanentlyDeleteCheckedAsync}" >
+
 						<TextBlock
+
 							TextAlignment="Center"
+
 							Text="Permanently Delete&#xa;from Libation" />
+
 					</Button>
+
 				</Grid>
+
 			</Grid>
+
 		</TabItem>
 
-		<!-- Command Line Interface Tab -->
-		<TabItem Name="cliTab">
+
+
+		<!-- Fix Duplicates Tab -->
+
+		<TabItem Name="fixDuplicatesTab">
+
 			<TabItem.Header>
-				<TextBlock FontSize="14" VerticalAlignment="Center">Command Line Interface</TextBlock>
-			</TabItem.Header>			
+
+				<TextBlock FontSize="14" VerticalAlignment="Center">Fix Duplicates</TextBlock>
+
+			</TabItem.Header>
+
+
+
+			<Grid RowDefinitions="Auto,Auto,*">
+
+				<TextBlock
+
+					Margin="0,10,0,10"
+
+					Grid.Row="0"
+
+					Text="{Binding DuplicateAsinStatusText}"
+
+					TextWrapping="Wrap" />
+
+
+
+				<Grid
+
+					Grid.Row="1"
+
+					ColumnDefinitions="Auto,Auto,*">
+
+
+
+					<Button
+
+						Grid.Column="0"
+
+						Margin="0,0,10,0"
+
+						Content="Scan Duplicate ASINs"
+
+						IsEnabled="{Binding DatabaseFound}"
+
+						Click="ScanDuplicateAsins_Click" />
+
+
+
+					<CheckBox
+
+						Grid.Column="1"
+
+						Margin="0,0,10,0"
+
+						VerticalAlignment="Center"
+
+						IsEnabled="{Binding CanRemoveDuplicateAsins}"
+
+						IsChecked="{Binding ConfirmRemoveDuplicateAsins}"
+
+						Content="Confirm removal" />
+
+
+
+					<Button
+
+						Grid.Column="2"
+
+						HorizontalAlignment="Left"
+
+						Content="Remove Duplicates"
+
+						IsEnabled="{Binding ConfirmRemoveDuplicateAsins}"
+
+						Click="RemoveDuplicateAsins_Click" />
+
+				</Grid>
+
+
+
+				<TextBox
+
+					Margin="0,10,0,10"
+
+					AcceptsReturn="True"
+
+					IsReadOnly="True"
+
+					Grid.Row="2"
+
+					Text="{Binding DuplicateResults}"
+
+					TextWrapping="Wrap" />
+
+			</Grid>
+
 		</TabItem>
+
 	</TabControl>
+
 </Window>
+
