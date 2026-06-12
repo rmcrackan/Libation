@@ -1,7 +1,9 @@
 ﻿using Avalonia.Controls;
 using LibationFileManager;
+using LibationUiBase.Forms;
 using ReactiveUI;
 using System;
+using System.Reactive;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.ViewModels;
@@ -10,8 +12,12 @@ partial class MainVM
 {
 	public string FindBetterQualityBooksTip => Configuration.GetHelpText("FindBetterQualityBooks");
 	public bool MenuBarVisible { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = !Configuration.IsMacOs;
+	public ReactiveCommand<Unit, Unit> LaunchHangover { get; private set; } = null!;
+
 	private void Configure_Settings()
 	{
+		LaunchHangover = ReactiveCommand.CreateFromTask(LaunchHangoverAsync);
+
 		if (App.Current is Avalonia.Application app &&
 			NativeMenu.GetMenu(app)?.Items[0] is NativeMenuItem aboutMenu)
 			aboutMenu.Command = ReactiveCommand.Create(ShowAboutAsync);
@@ -23,15 +29,21 @@ partial class MainVM
 	public Task ShowTrashBinAsync() => new LibationAvalonia.Dialogs.TrashBinDialog().ShowDialog(MainWindow);
 	public Task ShowFindBetterQualityBooksAsync() => new LibationAvalonia.Dialogs.FindBetterQualityBooksDialog().ShowDialog(MainWindow);
 
-	public void LaunchHangover()
+	private async Task LaunchHangoverAsync()
 	{
 		try
 		{
-			System.Diagnostics.Process.Start("Hangover" + (Configuration.IsWindows ? ".exe" : ""));
+			HangoverLauncher.Launch();
 		}
 		catch (Exception ex)
 		{
 			Serilog.Log.Logger.Error(ex, "Failed to launch Hangover");
+			await MessageBox.Show(
+				MainWindow,
+				HangoverLauncher.GetLaunchFailureMessage(ex),
+				"Launch Hangover",
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Warning);
 		}
 	}
 

@@ -18,8 +18,9 @@ public partial class MainWindow : Window
 
 	public void OnLoad()
 	{
-		databaseTab.PropertyChanged += (_, e) => { if (e.Property.Name == nameof(TabItem.IsSelected)) databaseTab_VisibleChanged(databaseTab.IsSelected); };
+		_viewModel.ConfirmDbMutationAsync = action => HangoverMutationConfirm.ConfirmAsync(this, action);
+
+		fixDuplicatesTab.PropertyChanged += (_, e) => { if (e.Property.Name == nameof(TabItem.IsSelected)) fixDuplicatesTab_VisibleChanged(fixDuplicatesTab.IsSelected); };
 		deletedTab.PropertyChanged += (_, e) => { if (e.Property.Name == nameof(TabItem.IsSelected)) deletedTab_VisibleChanged(deletedTab.IsSelected); };
-		cliTab.PropertyChanged += (_, e) => { if (e.Property.Name == nameof(TabItem.IsSelected)) cliTab_VisibleChanged(cliTab.IsSelected); };
 	}
 }

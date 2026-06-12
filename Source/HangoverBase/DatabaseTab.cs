@@ -11,16 +11,19 @@ public class DatabaseTabCommands
 	public Func<string> SqlInput { get; }
 	public Action<string> SqlOutputAppend { get; }
 	public Action<string> SqlOutputOverwrite { get; }
+	public Action<string> DuplicateOutputOverwrite { get; }
 
 	public DatabaseTabCommands() { }
 	public DatabaseTabCommands(
 		Func<string> sqlInput,
 		Action<string> sqlDisplayAppend,
-		Action<string> sqlDisplayOverwrite)
+		Action<string> sqlDisplayOverwrite,
+		Action<string> duplicateOutputOverwrite)
 	{
 		SqlInput = ArgumentValidator.EnsureNotNull(sqlInput, nameof(sqlInput));
 		SqlOutputAppend = ArgumentValidator.EnsureNotNull(sqlDisplayAppend, nameof(sqlDisplayAppend));
 		SqlOutputOverwrite = ArgumentValidator.EnsureNotNull(sqlDisplayOverwrite, nameof(sqlDisplayOverwrite));
+		DuplicateOutputOverwrite = ArgumentValidator.EnsureNotNull(duplicateOutputOverwrite, nameof(duplicateOutputOverwrite));
 	}
 }
 
@@ -36,6 +39,7 @@ public class DatabaseTab
 		ArgumentValidator.EnsureNotNull(commands, nameof(_commands.SqlInput));
 		ArgumentValidator.EnsureNotNull(commands, nameof(_commands.SqlOutputAppend));
 		ArgumentValidator.EnsureNotNull(commands, nameof(_commands.SqlOutputOverwrite));
+		ArgumentValidator.EnsureNotNull(commands, nameof(_commands.DuplicateOutputOverwrite));
 	}
 
 	public void LoadDatabaseFile() => DbFile = UNSAFE_MigrationHelper.DatabaseFile;
@@ -150,5 +154,41 @@ public class DatabaseTab
 		_commands.SqlOutputAppend($"{results} record");
 		if (results != 1) _commands.SqlOutputAppend("s");
 		_commands.SqlOutputAppend(" affected");
+	}
+
+	public string GetDuplicateAsinStatusText()
+	{
+		if (DuplicateAsinCleanup.IsCompleted())
+			return "Duplicate ASIN cleanup: completed (one-time migration already run).";
+
+		var scan = DuplicateAsinCleanup.Scan();
+		return scan.DuplicateGroupCount == 0
+			? "Duplicate ASIN cleanup: no duplicates found."
+			: $"Duplicate ASIN cleanup: {scan.DuplicateGroupCount} duplicate ASIN group(s) found. Scan for details, then remove.";
+	}
+
+	public bool CanRemoveDuplicateAsins()
+		=> !DuplicateAsinCleanup.IsCompleted() && DuplicateAsinCleanup.Scan().DuplicateGroupCount > 0;
+
+	public void ScanDuplicateAsins()
+	{
+		var scan = DuplicateAsinCleanup.Scan();
+		_commands.DuplicateOutputOverwrite(scan.Report);
+	}
+
+	public string RemoveDuplicateAsins()
+	{
+		EnsureBackup();
+
+		try
+		{
+			var result = DuplicateAsinCleanup.Execute();
+			_commands.DuplicateOutputOverwrite(result.Report);
+			return result.Report;
+		}
+		finally
+		{
+			DeleteUnneededBackups();
+		}
 	}
 }

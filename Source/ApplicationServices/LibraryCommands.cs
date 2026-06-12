@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static DtoImporterService.PerfLogger;
 
@@ -23,7 +24,12 @@ public static class LibraryCommands
 	public static event EventHandler<int>? ScanEnd;
 
 	public static bool Scanning { get; private set; }
-	private static object _lock { get; } = new();
+
+	/// <summary>
+	/// Serializes library scan and import operations so only one path reads/writes
+	/// <see cref="Book"/> / <see cref="LibraryBook"/> rows at a time (prevents duplicate ASIN inserts).
+	/// </summary>
+	private static readonly SemaphoreSlim ImportGate = new(1, 1);
 
 	static LibraryCommands()
 	{
@@ -35,67 +41,69 @@ public static class LibraryCommands
 	{
 		logRestart();
 
-		lock (_lock)
-		{
-			if (Scanning)
-				return new();
-		}
-		ScanBegin?.Invoke(null, accounts.Length);
-
-		//These are the minimum response groups required for the
-		//library scanner to pass all validation and filtering.
-		var libraryOptions = new LibraryOptions
-		{
-			ResponseGroups
-			 = LibraryOptions.ResponseGroupOptions.ProductAttrs
-			 | LibraryOptions.ResponseGroupOptions.ProductDesc
-			 | LibraryOptions.ResponseGroupOptions.Relationships
-		};
 		if (accounts is null || accounts.Length == 0)
 			return new List<LibraryBook>();
 
+		await ImportGate.WaitAsync();
 		try
 		{
-			logTime($"pre {nameof(scanAccountsAsync)} all");
-			var libraryItems = await scanAccountsAsync(accounts, libraryOptions);
-			logTime($"post {nameof(scanAccountsAsync)} all");
+			ScanBegin?.Invoke(null, accounts.Length);
 
-			var totalCount = libraryItems.Count;
-			Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
-
-			var missingBookList = existingLibrary.Where(b => !libraryItems.Any(i => i.DtoItem.Asin == b.Book.AudibleProductId)).ToList();
-
-			return missingBookList;
-		}
-		catch (AudibleApi.Authentication.LoginFailedException lfEx)
-		{
-			lfEx.SaveFiles(Configuration.Instance.LibationFiles.Location);
-
-			// nuget Serilog.Exceptions would automatically log custom properties
-			//   However, it comes with a scary warning when used with EntityFrameworkCore which I'm not yet ready to implement:
-			//   https://github.com/RehanSaeed/Serilog.Exceptions
-			// work-around: use 3rd param. don't just put exception object in 3rd param -- info overload: stack trace, etc
-			Log.Logger.Error(lfEx, "Error scanning library. Login failed. {@DebugInfo}", new
+			//These are the minimum response groups required for the
+			//library scanner to pass all validation and filtering.
+			var libraryOptions = new LibraryOptions
 			{
-				lfEx.RequestUrl,
-				ResponseStatusCodeNumber = (int)lfEx.ResponseStatusCode,
-				ResponseStatusCodeDesc = lfEx.ResponseStatusCode,
-				lfEx.ResponseInputFields,
-				lfEx.ResponseBodyFilePaths
-			});
-			throw;
-		}
-		catch (Exception ex)
-		{
-			Log.Logger.Error(ex, "Error scanning library");
-			throw;
+				ResponseGroups
+				 = LibraryOptions.ResponseGroupOptions.ProductAttrs
+				 | LibraryOptions.ResponseGroupOptions.ProductDesc
+				 | LibraryOptions.ResponseGroupOptions.Relationships
+			};
+
+			try
+			{
+				logTime($"pre {nameof(scanAccountsAsync)} all");
+				var libraryItems = await scanAccountsAsync(accounts, libraryOptions);
+				logTime($"post {nameof(scanAccountsAsync)} all");
+
+				var totalCount = libraryItems.Count;
+				Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
+
+				return existingLibrary.Where(b => !libraryItems.Any(i => i.DtoItem.Asin == b.Book.AudibleProductId)).ToList();
+			}
+			catch (AudibleApi.Authentication.LoginFailedException lfEx)
+			{
+				lfEx.SaveFiles(Configuration.Instance.LibationFiles.Location);
+
+				// nuget Serilog.Exceptions would automatically log custom properties
+				//   However, it comes with a scary warning when used with EntityFrameworkCore which I'm not yet ready to implement:
+				//   https://github.com/RehanSaeed/Serilog.Exceptions
+				// work-around: use 3rd param. don't just put exception object in 3rd param -- info overload: stack trace, etc
+				Log.Logger.Error(lfEx, "Error scanning library. Login failed. {@DebugInfo}", new
+				{
+					lfEx.RequestUrl,
+					ResponseStatusCodeNumber = (int)lfEx.ResponseStatusCode,
+					ResponseStatusCodeDesc = lfEx.ResponseStatusCode,
+					lfEx.ResponseInputFields,
+					lfEx.ResponseBodyFilePaths
+				});
+				throw;
+			}
+			catch (Exception ex)
+			{
+				Log.Logger.Error(ex, "Error scanning library");
+				throw;
+			}
+			finally
+			{
+				stop();
+				var putBreakPointHere = logOutput;
+				ScanEnd?.Invoke(null, 0);
+				GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+			}
 		}
 		finally
 		{
-			stop();
-			var putBreakPointHere = logOutput;
-			ScanEnd?.Invoke(null, 0);
-			GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+			ImportGate.Release();
 		}
 	}
 
@@ -107,79 +115,93 @@ public static class LibraryCommands
 		if (accounts is null || accounts.Length == 0)
 			return (0, 0);
 
+		await ImportGate.WaitAsync();
 		int newCount = 0;
 		try
 		{
-			lock (_lock)
-			{
-				if (Scanning)
-					return (0, 0);
-			}
 			ScanBegin?.Invoke(null, accounts.Length);
 
-			logTime($"pre {nameof(scanAccountsAsync)} all");
-			var libraryOptions = new LibraryOptions
+			try
 			{
-				ResponseGroups
-				= LibraryOptions.ResponseGroupOptions.Rating | LibraryOptions.ResponseGroupOptions.Media
-				| LibraryOptions.ResponseGroupOptions.Relationships | LibraryOptions.ResponseGroupOptions.ProductDesc
-				| LibraryOptions.ResponseGroupOptions.Contributors | LibraryOptions.ResponseGroupOptions.ProvidedReview
-				| LibraryOptions.ResponseGroupOptions.ProductPlans | LibraryOptions.ResponseGroupOptions.Series
-				| LibraryOptions.ResponseGroupOptions.CategoryLadders | LibraryOptions.ResponseGroupOptions.ProductExtendedAttrs
-				| LibraryOptions.ResponseGroupOptions.PdfUrl | LibraryOptions.ResponseGroupOptions.OriginAsin
-					| LibraryOptions.ResponseGroupOptions.IsFinished,
-				ImageSizes = LibraryOptions.ImageSizeOptions._500 | LibraryOptions.ImageSizeOptions._1215
-			};
-			var importItems = await scanAccountsAsync(accounts, libraryOptions);
-			logTime($"post {nameof(scanAccountsAsync)} all");
+				logTime($"pre {nameof(scanAccountsAsync)} all");
+				var libraryOptions = new LibraryOptions
+				{
+					ResponseGroups
+					= LibraryOptions.ResponseGroupOptions.Rating | LibraryOptions.ResponseGroupOptions.Media
+					| LibraryOptions.ResponseGroupOptions.Relationships | LibraryOptions.ResponseGroupOptions.ProductDesc
+					| LibraryOptions.ResponseGroupOptions.Contributors | LibraryOptions.ResponseGroupOptions.ProvidedReview
+					| LibraryOptions.ResponseGroupOptions.ProductPlans | LibraryOptions.ResponseGroupOptions.Series
+					| LibraryOptions.ResponseGroupOptions.CategoryLadders | LibraryOptions.ResponseGroupOptions.ProductExtendedAttrs
+					| LibraryOptions.ResponseGroupOptions.PdfUrl | LibraryOptions.ResponseGroupOptions.OriginAsin
+						| LibraryOptions.ResponseGroupOptions.IsFinished,
+					ImageSizes = LibraryOptions.ImageSizeOptions._500 | LibraryOptions.ImageSizeOptions._1215
+				};
+				var importItems = await scanAccountsAsync(accounts, libraryOptions);
+				logTime($"post {nameof(scanAccountsAsync)} all");
 
-			var totalCount = importItems.Count;
-			Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
+				var totalCount = importItems.Count;
+				Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 
-			if (totalCount == 0)
-				return default;
+				if (totalCount == 0)
+					return default;
 
-			Log.Logger.Information("Begin long-running import");
-			logTime($"pre {nameof(ImportIntoDbAsync)}");
-			newCount = await Task.Run(() => ImportIntoDbAsync(importItems));
-			logTime($"post {nameof(ImportIntoDbAsync)}");
-			Log.Logger.Information($"Import complete. New count {newCount}");
+				Log.Logger.Information("Begin long-running import");
+				logTime($"pre {nameof(ImportIntoDbAsync)}");
+				newCount = await Task.Run(() => ImportIntoDbAsync(importItems));
+				logTime($"post {nameof(ImportIntoDbAsync)}");
+				Log.Logger.Information($"Import complete. New count {newCount}");
 
-			return (totalCount, newCount);
-		}
-		catch (AudibleApi.Authentication.LoginFailedException lfEx)
-		{
-			lfEx.SaveFiles(Configuration.Instance.LibationFiles.Location);
-
-			// nuget Serilog.Exceptions would automatically log custom properties
-			//   However, it comes with a scary warning when used with EntityFrameworkCore which I'm not yet ready to implement:
-			//   https://github.com/RehanSaeed/Serilog.Exceptions
-			// work-around: use 3rd param. don't just put exception object in 3rd param -- info overload: stack trace, etc
-			Log.Logger.Error(lfEx, "Error importing library. Login failed. {@DebugInfo}", new
+				return (totalCount, newCount);
+			}
+			catch (AudibleApi.Authentication.LoginFailedException lfEx)
 			{
-				lfEx.RequestUrl,
-				ResponseStatusCodeNumber = (int)lfEx.ResponseStatusCode,
-				ResponseStatusCodeDesc = lfEx.ResponseStatusCode,
-				lfEx.ResponseInputFields,
-				lfEx.ResponseBodyFilePaths
-			});
-			throw;
-		}
-		catch (Exception ex)
-		{
-			Log.Logger.Error(ex, "Error importing library");
-			throw;
+				lfEx.SaveFiles(Configuration.Instance.LibationFiles.Location);
+
+				// nuget Serilog.Exceptions would automatically log custom properties
+				//   However, it comes with a scary warning when used with EntityFrameworkCore which I'm not yet ready to implement:
+				//   https://github.com/RehanSaeed/Serilog.Exceptions
+				// work-around: use 3rd param. don't just put exception object in 3rd param -- info overload: stack trace, etc
+				Log.Logger.Error(lfEx, "Error importing library. Login failed. {@DebugInfo}", new
+				{
+					lfEx.RequestUrl,
+					ResponseStatusCodeNumber = (int)lfEx.ResponseStatusCode,
+					ResponseStatusCodeDesc = lfEx.ResponseStatusCode,
+					lfEx.ResponseInputFields,
+					lfEx.ResponseBodyFilePaths
+				});
+				throw;
+			}
+			catch (Exception ex)
+			{
+				Log.Logger.Error(ex, "Error importing library");
+				throw;
+			}
+			finally
+			{
+				stop();
+				var putBreakPointHere = logOutput;
+				ScanEnd?.Invoke(null, newCount);
+				GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+			}
 		}
 		finally
 		{
-			stop();
-			var putBreakPointHere = logOutput;
-			ScanEnd?.Invoke(null, newCount);
-			GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+			ImportGate.Release();
 		}
 	}
 
-	public static Task<int> ImportSingleToDbAsync(AudibleApi.Common.Item item, string accountId, string localeName) => Task.Run(() => importSingleToDb(item, accountId, localeName));
+	public static async Task<int> ImportSingleToDbAsync(AudibleApi.Common.Item item, string accountId, string localeName)
+	{
+		await ImportGate.WaitAsync();
+		try
+		{
+			return importSingleToDb(item, accountId, localeName);
+		}
+		finally
+		{
+			ImportGate.Release();
+		}
+	}
 	private static int importSingleToDb(AudibleApi.Common.Item item, string accountId, string localeName)
 	{
 		ArgumentValidator.EnsureNotNull(item, nameof(item));

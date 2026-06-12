@@ -177,7 +177,7 @@ public class GridContextMenu
 			Configuration.Instance.SavePodcastsToParentFolder &&
 			libraryBook.Book.SeriesLink.SingleOrDefault() is SeriesBook series)
 		{
-			var seriesParent = DbContexts.GetLibraryBook_Flat_NoTracking(series.Series.AudibleSeriesId);
+			var seriesParent = DbContexts.GetLibraryBook_Flat_NoTracking(series.Series.AudibleSeriesId, account: libraryBook.Account);
 			folderDto = seriesParent?.ToDto() ?? fileDto;
 		}
 

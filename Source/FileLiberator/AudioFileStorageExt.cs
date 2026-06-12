@@ -26,7 +26,9 @@ public static class AudioFileStorageExt
 			var series = libraryBook.Book.SeriesLink.SingleOrDefault();
 			if (series is not null)
 			{
-				LibraryBook? seriesParent = ApplicationServices.DbContexts.GetLibraryBook_Flat_NoTracking(series.Series.AudibleSeriesId);
+				LibraryBook? seriesParent = ApplicationServices.DbContexts.GetLibraryBook_Flat_NoTracking(
+					series.Series.AudibleSeriesId,
+					account: libraryBook.Account);
 				if (seriesParent is not null)
 				{
 					return Templates.Folder.GetFilename(seriesParent.ToDto(), books, "");

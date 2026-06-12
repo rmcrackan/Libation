@@ -28,7 +28,7 @@ static class Program
 			//We can do this because we're already executing inside the sandbox.
 			//Any process created in the sandbox executes in the same sandbox.
 			//Unfortunately, all sandbox files are read/execute, so no writing!
-			Process.Start("Hangover");
+			HangoverLauncher.Launch();
 			return;
 		}
 		if (Configuration.IsMacOs && args?.Length > 0 && args[0] == "cli")
