@@ -21,6 +21,7 @@ public class ProcessQueueViewModel : ReactiveObject
 {
 	public ObservableCollection<LogEntry> LogEntries { get; } = new();
 	public TrackedQueue<ProcessBookViewModel> Queue { get; } = new();
+	private readonly BadBookSessionContext _badBookSession = new();
 	public Task? QueueRunner { get; private set; }
 	public bool Running => !QueueRunner?.IsCompleted ?? false;
 
@@ -130,6 +131,34 @@ public class ProcessQueueViewModel : ReactiveObject
 			return true;
 		}
 		return false;
+	}
+
+	/// <summary>
+	/// Queues visible books with an instant simulated failure for testing the bad-book error dialog.
+	/// Does not download or modify files.
+	/// </summary>
+	public void QueueSimulatedBadBookFailures(IList<LibraryBook> libraryBooks, Configuration? config = null, int maxBooks = 5)
+	{
+		config ??= Configuration.Instance;
+		if (libraryBooks.Count == 0)
+			return;
+
+		RunOnQueueUiThread(() => addSimulatedBadBookFailuresCore(libraryBooks, config, maxBooks));
+	}
+
+	private void addSimulatedBadBookFailuresCore(IList<LibraryBook> libraryBooks, Configuration config, int maxBooks)
+	{
+		var procs = libraryBooks
+			.Where(e => !IsBookInQueue(e))
+			.Take(maxBooks)
+			.Select(entry => new ProcessBookViewModel(entry, config, _badBookSession).AddSimulateBadBookFailure())
+			.ToArray();
+
+		if (procs.Length == 0)
+			return;
+
+		Serilog.Log.Logger.Information("Queueing {count} books for simulated bad-book failure testing", procs.Length);
+		AddToQueue(procs);
 	}
 
 	public async Task<bool> QueueDownloadDecryptAsync(IList<LibraryBook> libraryBooks, Configuration? config = null)
@@ -271,7 +300,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		AddToQueue(procs);
 
 		ProcessBookViewModel Create(LibraryBook entry)
-			=> new ProcessBookViewModel(entry, config).AddDownloadPdf();
+			=> new ProcessBookViewModel(entry, config, _badBookSession).AddDownloadPdf();
 	}
 
 	private void AddDownloadDecrypt(IList<LibraryBook> entries, Configuration config)
@@ -284,7 +313,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		AddToQueue(procs);
 
 		ProcessBookViewModel Create(LibraryBook entry)
-			=> new ProcessBookViewModel(entry, config).AddDownloadDecryptBook().AddDownloadPdf();
+			=> new ProcessBookViewModel(entry, config, _badBookSession).AddDownloadDecryptBook().AddDownloadPdf();
 	}
 
 	private void AddConvertMp3(IList<LibraryBook> entries, Configuration config)
@@ -297,7 +326,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		AddToQueue(procs);
 
 		ProcessBookViewModel Create(LibraryBook entry)
-			=> new ProcessBookViewModel(entry, config).AddConvertToMp3();
+			=> new ProcessBookViewModel(entry, config, _badBookSession).AddConvertToMp3();
 	}
 
 	private void AddToQueue(IList<ProcessBookViewModel> pbook)
@@ -319,6 +348,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		{
 			Serilog.Log.Logger.Information("Begin processing queue");
 
+			_badBookSession.Reset();
 			RunningTime = string.Empty;
 			ProgressBarVisible = true;
 			var startingTime = DateTime.Now;

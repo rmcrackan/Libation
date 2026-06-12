@@ -46,7 +46,40 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 		Configuration.Instance.PropertyChanged += Settings_PropertyChanged;
 		Settings_PropertyChanged(this, null);
 		DataContext = new MainVM(this);
+#if DEBUG
+		Configure_DebugMenu();
+#endif
 	}
+
+#if DEBUG
+	private void Configure_DebugMenu()
+	{
+		var simulateItem = new MenuItem { Header = "Simulate bad book failures (test dialog)..." };
+		simulateItem.Click += async (_, _) =>
+		{
+			if (ViewModel is MainVM vm)
+				await vm.SimulateBadBookFailuresAsync();
+		};
+
+		// Insert before Tour; the Separator above Tour in axaml already provides the divider.
+		var items = settingsToolStripMenuItem.Items;
+		var insertIndex = -1;
+		for (var i = 0; i < items.Count; i++)
+		{
+			if (items[i] is MenuItem menuItem
+				&& menuItem.Header?.ToString()?.Contains("Tour", StringComparison.OrdinalIgnoreCase) == true)
+			{
+				insertIndex = i;
+				break;
+			}
+		}
+
+		if (insertIndex < 0)
+			insertIndex = items.Count;
+
+		items.Insert(insertIndex, simulateItem);
+	}
+#endif
 
 	[Dinah.Core.PropertyChangeFilter(nameof(Configuration.Books))]
 	private void Settings_PropertyChanged(object? sender, Dinah.Core.PropertyChangedEventArgsEx? e)

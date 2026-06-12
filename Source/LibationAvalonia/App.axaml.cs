@@ -47,6 +47,9 @@ public class App : Application
 			MessageBoxBase.ShowAsyncImpl = (owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition) =>
 				MessageBox.Show(owner as Window, message, caption, buttons, icon, defaultButton, saveAndRestorePosition);
 
+			BadBookActionDialogBase.ShowAsyncImpl = (owner, message, caption) =>
+				Dialogs.BadBookActionDialog.ShowAsync(owner as Window, message, caption);
+
 			if (LibraryTask is null)
 			{
 				RunSetupIfNeededAsync(desktop, Configuration.Instance);
