@@ -45,6 +45,7 @@ public class ProcessBookViewModel : ReactiveObject
 {
 	public LibraryBook LibraryBook { get; protected set; }
 	public Configuration Configuration { get; }
+	private readonly BadBookSessionContext? _badBookSession;
 
 	#region Properties exposed to the view
 	public ProcessBookResult Result { get => field; set { RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(StatusText)); } }
@@ -99,10 +100,11 @@ public class ProcessBookViewModel : ReactiveObject
 	/// <summary> A series of Processable actions to perform on this book </summary>
 	protected Queue<Func<Processable>> Processes { get; } = new();
 
-	public ProcessBookViewModel(LibraryBook libraryBook, Configuration configuration)
+	public ProcessBookViewModel(LibraryBook libraryBook, Configuration configuration, BadBookSessionContext? badBookSession = null)
 	{
 		LibraryBook = libraryBook;
 		Configuration = configuration;
+		_badBookSession = badBookSession;
 
 		Title = LibraryBook.Book.TitleWithSubtitle;
 		Author = LibraryBook.Book.AuthorNames;
@@ -258,6 +260,7 @@ public class ProcessBookViewModel : ReactiveObject
 	public ProcessBookViewModel AddDownloadPdf() => AddProcessable<DownloadPdf>();
 	public ProcessBookViewModel AddDownloadDecryptBook() => AddProcessable<DownloadDecryptBook>();
 	public ProcessBookViewModel AddConvertToMp3() => AddProcessable<ConvertToMp3>();
+	public ProcessBookViewModel AddSimulateBadBookFailure() => AddProcessable<SimulateBadBookFailure>();
 
 	private ProcessBookViewModel AddProcessable<T>() where T : Processable, IProcessable<T>
 	{
@@ -374,12 +377,14 @@ public class ProcessBookViewModel : ReactiveObject
 		const DialogResult SkipResult = DialogResult.Ignore;
 		LogError($"ERROR. All books have not been processed. Book failed: {libraryBook.Book}");
 
-		DialogResult? dialogResult = Configuration.BadBook switch
+		DialogResult dialogResult = Configuration.BadBook switch
 		{
 			Configuration.BadBookAction.Abort => DialogResult.Abort,
 			Configuration.BadBookAction.Retry => DialogResult.Retry,
 			Configuration.BadBookAction.Ignore => DialogResult.Ignore,
-			Configuration.BadBookAction.Ask or _ => await ShowRetryDialogAsync(libraryBook)
+			Configuration.BadBookAction.Ask or _ => _badBookSession?.Override is Configuration.BadBookAction sessionOverride
+				? ToDialogResult(sessionOverride)
+				: await ShowRetryDialogAsync(libraryBook)
 		};
 
 		if (dialogResult == SkipResult)
@@ -425,15 +430,21 @@ public class ProcessBookViewModel : ReactiveObject
 			
 			- IGNORE: Permanently ignore this book. Continue processing the queued books. (Will not try this book again later.)
 
-			See Settings in the Download/Decrypt tab to avoid this box in the future.
+			Check "Apply to all remaining books" to use your choice for the rest of this queue.
+			Check "Remember in Settings" to save your choice in Download/Decrypt settings.
 			""";
-
-		const MessageBoxButtons SkipDialogButtons = MessageBoxButtons.AbortRetryIgnore;
-		const MessageBoxDefaultButton SkipDialogDefaultButton = MessageBoxDefaultButton.Button1;
 
 		try
 		{
-			return await MessageBoxBase.Show(skipDialogText, "Skip this book?", SkipDialogButtons, MessageBoxIcon.Question, SkipDialogDefaultButton);
+			var result = await BadBookActionDialogBase.Show(skipDialogText, "Skip this book?");
+
+			if (result.ApplyToAll)
+				_badBookSession?.Override = ToBadBookAction(result.Action);
+
+			if (result.RememberInSettings)
+				Configuration.BadBook = ToBadBookAction(result.Action);
+
+			return result.Action;
 		}
 		catch (Exception ex)
 		{
@@ -441,6 +452,24 @@ public class ProcessBookViewModel : ReactiveObject
 			return DialogResult.Retry;
 		}
 	}
+
+	private static DialogResult ToDialogResult(Configuration.BadBookAction action)
+		=> action switch
+		{
+			Configuration.BadBookAction.Abort => DialogResult.Abort,
+			Configuration.BadBookAction.Retry => DialogResult.Retry,
+			Configuration.BadBookAction.Ignore => DialogResult.Ignore,
+			_ => DialogResult.Retry
+		};
+
+	private static Configuration.BadBookAction ToBadBookAction(DialogResult action)
+		=> action switch
+		{
+			DialogResult.Abort => Configuration.BadBookAction.Abort,
+			DialogResult.Retry => Configuration.BadBookAction.Retry,
+			DialogResult.Ignore => Configuration.BadBookAction.Ignore,
+			_ => Configuration.BadBookAction.Retry
+		};
 
 	#endregion
 }

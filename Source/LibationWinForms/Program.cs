@@ -48,6 +48,7 @@ static class Program
 			// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
 			var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
 			LibationUiBase.Forms.MessageBoxBase.ShowAsyncImpl = ShowMessageBox;
+			BadBookActionDialogBase.ShowAsyncImpl = ShowBadBookActionDialog;
 
 			// do this as soon as possible (post-config)
 			RunSetupIfNeededAsync(config);
@@ -124,6 +125,22 @@ static class Program
 
 		var result = form1 is null ? showMessageBox() : form1.Invoke(showMessageBox);
 		return Task.FromResult((LibationUiBase.Forms.DialogResult)result);
+	}
+	#endregion;
+
+	#region Bad Book Action Dialog Handler for LibationUiBase
+	static Task<BadBookDialogResult> ShowBadBookActionDialog(object? owner, string message, string caption)
+	{
+		Func<BadBookDialogResult> showDialog = () =>
+		{
+			BadBookDialogResult result = new(LibationUiBase.Forms.DialogResult.Retry, false, false);
+			using var dialog = new BadBookActionDialog(message, caption);
+			dialog.ShowDialog(owner as IWin32Window ?? form1);
+			return dialog.Result;
+		};
+
+		var result = form1 is null ? showDialog() : form1.Invoke(showDialog);
+		return Task.FromResult(result);
 	}
 	#endregion;
 

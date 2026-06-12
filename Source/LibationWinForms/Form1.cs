@@ -50,6 +50,9 @@ public partial class Form1 : Form
 		Configure_Upgrade();
 		// misc which belongs in winforms app but doesn't have a UI element
 		Configure_NonUI();
+#if DEBUG
+		Configure_DebugMenu();
+#endif
 
 		// Configure_Grid(); // since it's just this, can keep here. If it needs more, then give grid it's own 'partial class Form1'
 		{

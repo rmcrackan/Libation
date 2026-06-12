@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="320"
+		MinWidth="400" MaxWidth="520"
+		SizeToContent="Height"
+		CanMaximize="False"
+		CanMinimize="False"
+		x:Class="LibationAvalonia.Dialogs.BadBookActionDialog"
+		ShowInTaskbar="True"
+		WindowStartupLocation="CenterOwner">
+
+	<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" Margin="5,10,10,10">
+		<Image Grid.Row="0" Grid.Column="0" Height="32" Width="32" Margin="5,0,5,0"
+			VerticalAlignment="Top" Stretch="Uniform" Source="/Assets/MBIcons/Question_64.png"/>
+		<TextBlock Grid.Row="0" Grid.Column="1" Name="messageTextBlock" Margin="5,0,0,0" MinWidth="300"
+			TextWrapping="Wrap" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+			FontSize="12"/>
+
+		<StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="10,10,10,10" Spacing="6">
+			<CheckBox Name="applyToAllCheckBox" Content="Apply to all remaining books in this queue"/>
+			<CheckBox Name="rememberInSettingsCheckBox" Content="Remember this choice in Settings"/>
+		</StackPanel>
+
+		<DockPanel Height="45" Grid.Row="2" Grid.ColumnSpan="2" Background="{DynamicResource SystemChromeMediumLowColor}">
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="5" DockPanel.Dock="Bottom">
+				<Button MinWidth="75" MinHeight="28" Name="abortButton" Click="AbortButton_Click" Margin="5">
+					<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Abort"/>
+				</Button>
+				<Button MinWidth="75" MinHeight="28" Name="retryButton" Click="RetryButton_Click" Margin="5">
+					<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Retry"/>
+				</Button>
+				<Button MinWidth="75" MinHeight="28" Name="ignoreButton" Click="IgnoreButton_Click" Margin="5">
+					<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Ignore"/>
+				</Button>
+			</StackPanel>
+		</DockPanel>
+	</Grid>
+</Window>
