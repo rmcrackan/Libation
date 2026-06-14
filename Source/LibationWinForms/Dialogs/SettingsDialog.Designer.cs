@@ -294,7 +294,7 @@
 			// stripAudibleBrandingCbox
 			// 
 			stripAudibleBrandingCbox.AutoSize = true;
-			stripAudibleBrandingCbox.Location = new System.Drawing.Point(13, 88);
+			stripAudibleBrandingCbox.Location = new System.Drawing.Point(13, 118);
 			stripAudibleBrandingCbox.Name = "stripAudibleBrandingCbox";
 			stripAudibleBrandingCbox.Size = new System.Drawing.Size(143, 34);
 			stripAudibleBrandingCbox.TabIndex = 16;
@@ -1006,7 +1006,7 @@
 			// stripUnabridgedCbox
 			// 
 			stripUnabridgedCbox.AutoSize = true;
-			stripUnabridgedCbox.Location = new System.Drawing.Point(13, 63);
+			stripUnabridgedCbox.Location = new System.Drawing.Point(13, 92);
 			stripUnabridgedCbox.Name = "stripUnabridgedCbox";
 			stripUnabridgedCbox.Size = new System.Drawing.Size(147, 19);
 			stripUnabridgedCbox.TabIndex = 15;
