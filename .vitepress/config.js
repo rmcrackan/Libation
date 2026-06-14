@@ -2,6 +2,13 @@ import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  vite: {
+    esbuild: {
+      supported: {
+        destructuring: true,
+      },
+    },
+  },
   title: "Libation",
   description:
     "Libation: Liberate your Library - A free application for downloading your Audible audiobooks",
