@@ -69,6 +69,8 @@ public static class LibationScaffolding
 		// // outdated. kept here as an example of what belongs in this area
 		// // Migrations.migrate_to_v5_2_0__pre_config();
 
+		InstallFolderUnblock.TryUnblockProcessDirectoryIfWindows();
+
 		Configuration.SetLibationVersion(BuildVersion);
 
 		//***********************************************//

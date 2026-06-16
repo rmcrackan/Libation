@@ -128,13 +128,24 @@ static class Program
 	{
 		var dispatcher = new DispatcherFrame();
 
-		var mbAlert = new MessageBoxAlertAdminDialog("""
-			Libation encountered a fatal error and must close.
+		string caption;
+		string message;
+		if (StartupAssemblyBootstrap.TryGetStartupFailureMessage(exception, out var title, out var body))
+		{
+			caption = title;
+			message = body;
+		}
+		else
+		{
+			caption = "Libation Crash";
+			message = """
+				Libation encountered a fatal error and must close.
 
-			Please consider reporting this issue on GitHub, including the contents of the LibationCrash.log file created in your user folder.
-			""",
-			"Libation Crash",
-			exception);
+				Please consider reporting this issue on GitHub, including the contents of the LibationCrash.log file created in your user folder.
+				""";
+		}
+
+		var mbAlert = new MessageBoxAlertAdminDialog(message, caption, exception);
 		mbAlert.Closed += (_, _) => dispatcher.Continue = false;
 		mbAlert.Show();
 		Dispatcher.UIThread.PushFrame(dispatcher);

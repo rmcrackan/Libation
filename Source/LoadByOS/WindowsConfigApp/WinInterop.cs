@@ -57,6 +57,16 @@ internal class WinInterop : IInteropFunctions
 		if (proc.ExitCode != 0)
 			throw new InvalidOperationException($"ZipExtractor exited with code {proc.ExitCode}.");
 
+		try
+		{
+			var unblockedCount = InstallFolderUnblock.UnblockDirectory(thisDir);
+			Serilog.Log.Logger.Information("Unblocked {UnblockedCount} install files after upgrade in {InstallDir}", unblockedCount, thisDir);
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Warning(ex, "Could not unblock install files after upgrade in {InstallDir}", thisDir);
+		}
+
 		TrySyncInstallMetadata();
 	}
 

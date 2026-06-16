@@ -151,13 +151,14 @@ public class App : Application
 				List<DataLayer.LibraryBook> library = await LibraryTask;
 				await Dispatcher.UIThread.InvokeAsync(() => MainWindow.OnLibraryLoadedAsync(library));
 			}
-			catch (Exception ex) when (StartupAssemblyBootstrap.IsMissingDependencyAssembly(ex))
+			catch (Exception ex) when (StartupAssemblyBootstrap.IsInstallFolderAssemblyLoadFailure(ex))
 			{
 				Serilog.Log.Logger.Error(ex, "Failed to load library at startup");
+				StartupAssemblyBootstrap.TryGetStartupFailureMessage(ex, out var title, out var body);
 				await MessageBox.Show(
 					MainWindow,
-					StartupAssemblyBootstrap.GetLibraryLoadFailureMessage(),
-					"Library load failed",
+					body,
+					title,
 					MessageBoxButtons.OK,
 					MessageBoxIcon.Error);
 				await Dispatcher.UIThread.InvokeAsync(() => MainWindow.OnLibraryLoadedAsync([]));
