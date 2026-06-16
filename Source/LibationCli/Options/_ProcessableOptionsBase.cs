@@ -131,6 +131,11 @@ public abstract class ProcessableOptionsBase : OptionsBase
 				Serilog.Log.Logger.Error(errorMessage);
 			}
 		}
+		catch (ApiErrorException ex) when (WidevineRecommendation.ShouldRecommendWidevine(ex, Configuration.Instance))
+		{
+			Console.Error.WriteLine(WidevineRecommendation.BuildLogSummary(libraryBook.Book.TitleWithSubtitle));
+			Serilog.Log.Logger.Error(ex, "ADRM license unavailable (Sable acr:null) {@DebugInfo}", new { Book = libraryBook.LogFriendly() });
+		}
 		catch (ContentLicenseDeniedException clEx)
 		{
 			foreach (var line in ContentLicenseDeniedCliSummary.Lines(clEx))

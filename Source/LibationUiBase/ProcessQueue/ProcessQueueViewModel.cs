@@ -89,6 +89,7 @@ public class ProcessQueueViewModel : ReactiveObject
 			or ProcessBookResult.FailedSkip
 			or ProcessBookResult.FailedRetry
 			or ProcessBookResult.ValidationFail
+			or ProcessBookResult.WidevineRecommended
 			or ProcessBookResult.DiskFull);
 		var completeCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.Success);
 
@@ -365,6 +366,7 @@ public class ProcessQueueViewModel : ReactiveObject
 
 			// Shared state written from parallel book tasks — protected by _resultLock
 			bool shownLicenseGuidanceMessage = false;
+			bool shownWidevineGuidanceMessage = false;
 			bool shownDiskFullMessage = false;
 			var _resultLock = new object();
 			using var abortCts = new CancellationTokenSource();
@@ -427,6 +429,17 @@ public class ProcessQueueViewModel : ReactiveObject
 								MessageBoxButtons.OK,
 								MessageBoxIcon.Asterisk);
 						}
+					}
+					else if (result == ProcessBookResult.WidevineRecommended)
+					{
+						bool show;
+						lock (_resultLock) { show = !shownWidevineGuidanceMessage; shownWidevineGuidanceMessage = true; }
+						if (show)
+							await MessageBoxBase.Show(
+								WidevineRecommendationUserMessage.BuildDialogBody(book.LibraryBook.Book.TitleWithSubtitle),
+								WidevineRecommendationUserMessage.DialogCaption,
+								MessageBoxButtons.OK,
+								MessageBoxIcon.Asterisk);
 					}
 				}
 
