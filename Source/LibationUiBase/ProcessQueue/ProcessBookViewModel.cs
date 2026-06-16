@@ -25,6 +25,8 @@ public enum ProcessBookResult
 	FailedAbort,
 	LicenseDenied,
 	LicenseDeniedPossibleOutage,
+	/// <summary>ADRM licenserequest failed with Sable acr:null; Widevine may work (see WidevineRecommendation).</summary>
+	WidevineRecommended,
 	/// <summary>Volume full on write; queue should stop (see ProcessQueueViewModel queue loop).</summary>
 	DiskFull
 }
@@ -72,6 +74,7 @@ public class ProcessBookViewModel : ReactiveObject
 		(ProcessBookResult.LicenseDenied, true) => "License denied (Plus; often temporary)",
 		(ProcessBookResult.LicenseDenied, false) => "License Denied",
 		(ProcessBookResult.LicenseDeniedPossibleOutage, _) => "Possible Service Interruption",
+		(ProcessBookResult.WidevineRecommended, _) => WidevineRecommendationUserMessage.QueueStatusText,
 		(ProcessBookResult.DiskFull, _) => "Disk full, queue stopped",
 		_ => Status.ToString(),
 	};
@@ -208,6 +211,12 @@ public class ProcessBookViewModel : ReactiveObject
 					result = ProcessBookResult.DiskFull;
 				}
 			}
+		}
+		catch (ApiErrorException ex) when (WidevineRecommendation.ShouldRecommendWidevine(ex, Configuration))
+		{
+			Serilog.Log.Logger.Error(ex, "ADRM license unavailable (Sable acr:null) for {Book}", LibraryBook.LogFriendly());
+			LogInfo($"{procName}:  {WidevineRecommendationUserMessage.BuildLogSummary(LibraryBook.Book.TitleWithSubtitle)}");
+			result = ProcessBookResult.WidevineRecommended;
 		}
 		catch (ContentLicenseDeniedException ldex)
 		{

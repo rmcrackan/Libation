@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\FileLiberator\FileLiberator.csproj" />
+    <ProjectReference Include="..\..\LibationFileManager\LibationFileManager.csproj" />
     <ProjectReference Include="..\AssertionHelper\AssertionHelper.csproj" />
   </ItemGroup>
 
