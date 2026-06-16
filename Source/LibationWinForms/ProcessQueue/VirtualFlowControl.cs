@@ -231,6 +231,17 @@ internal partial class VirtualFlowControl : UserControl
 	}
 
 	/// <summary>
+	/// Scrolls so that <paramref name="index"/> is pinned to the top of the view,
+	/// maximising how many items below it (e.g. parallel active downloads) are visible.
+	/// </summary>
+	public void ScrollToTop(int index)
+	{
+		if (index < 0 || index >= VirtualControlCount)
+			return;
+		SetScrollPosition(index * VirtualControlHeight);
+	}
+
+	/// <summary>
 	/// Calculated the virtual controls that are in view at the current scroll position and windows size,
 	/// positions <see cref="panel1"/> to simulate scroll activity, then fires updates the controls with
 	/// the context corresponding to the virtual scroll position

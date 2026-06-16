@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LibationUiBase.ProcessQueue;
@@ -30,11 +31,19 @@ public class ProcessQueueViewModel : ReactiveObject
 		Queue.QueuedCountChanged += Queue_QueuedCountChanged;
 		Queue.CompletedCountChanged += Queue_CompletedCountChanged;
 		SpeedLimit = Configuration.Instance.DownloadSpeedLimit / 1024m / 1024;
+		MaxConcurrentDownloads = Configuration.Instance.MaxConcurrentDownloads;
+		AutoScrollQueue = Configuration.Instance.AutoScrollQueue;
+		MultiThreadEnabled = true;
 	}
 
 	public int CompletedCount { get => field; private set { RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(AnyCompleted)); } }
 	public int QueuedCount { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(AnyQueued)); } }
 	public int ErrorCount { get => field; private set { RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(AnyErrors)); } }
+	public int MaxConcurrentDownloads { get => field; set { RaiseAndSetIfChanged(ref field, value); Configuration.Instance.MaxConcurrentDownloads = value; } }
+	public bool AutoScrollQueue { get => field; set { RaiseAndSetIfChanged(ref field, value); Configuration.Instance.AutoScrollQueue = value; } }
+	public bool MultiThreadEnabled { get => field; set => RaiseAndSetIfChanged(ref field, value); }
+
+	private int EffectiveConcurrentDownloads => MultiThreadEnabled ? Math.Max(2, MaxConcurrentDownloads) : 1;
 	public string? RunningTime { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public bool ProgressBarVisible { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public bool AnyCompleted => CompletedCount > 0;
@@ -59,8 +68,9 @@ public class ProcessQueueViewModel : ReactiveObject
 				: 0;
 
 			config.DownloadSpeedLimit = (long)(_speedLimit * 1024 * 1024);
-			if (Queue.Current is ProcessBookViewModel currentBook)
-				currentBook.Configuration.DownloadSpeedLimit = config.DownloadSpeedLimit;
+			// Apply to all currently active books
+			foreach (var activeBook in Queue.Active.OfType<ProcessBookViewModel>())
+				activeBook.Configuration.DownloadSpeedLimit = config.DownloadSpeedLimit;
 
 			SpeedLimitIncrement = _speedLimit > 100 ? 10
 				: _speedLimit > 10 ? 1
@@ -352,64 +362,111 @@ public class ProcessQueueViewModel : ReactiveObject
 			RunningTime = string.Empty;
 			ProgressBarVisible = true;
 			var startingTime = DateTime.Now;
+
+			// Shared state written from parallel book tasks — protected by _resultLock
 			bool shownLicenseGuidanceMessage = false;
 			bool shownDiskFullMessage = false;
+			var _resultLock = new object();
+			using var abortCts = new CancellationTokenSource();
+			var activeTasks = new HashSet<Task>();
 
-			using var counterTimer = new System.Threading.Timer(_ => RunningTime = timeToStr(DateTime.Now - startingTime), null, 0, 500);
+			using var counterTimer = new Timer(_ => RunningTime = timeToStr(DateTime.Now - startingTime), null, 0, 500);
 
-			while (Queue.MoveNext())
+			async Task ProcessBookAsync(ProcessBookViewModel book)
 			{
-				if (Queue.Current is not ProcessBookViewModel nextBook)
+				Serilog.Log.Logger.Information("Begin processing queued item: '{item_LibraryBook}'", book.LibraryBook);
+				ProcessStart?.Invoke(this, book);
+
+				var result = await book.ProcessOneAsync();
+
+				Serilog.Log.Logger.Information("Completed processing: '{item_LibraryBook}' result: {result}", book.LibraryBook, result);
+
+				if (result == ProcessBookResult.ValidationFail)
 				{
-					Serilog.Log.Logger.Information("Current queue item is empty.");
+					Queue.RemoveActive(book);
+				}
+				else
+				{
+					Queue.MarkCompleted(book);
+
+					if (result == ProcessBookResult.FailedAbort)
+					{
+						abortCts.Cancel();
+						Queue.ClearQueue();
+					}
+					else if (result == ProcessBookResult.DiskFull)
+					{
+						abortCts.Cancel();
+						Queue.ClearQueue();
+						bool show;
+						lock (_resultLock) { show = !shownDiskFullMessage; shownDiskFullMessage = true; }
+						if (show)
+							await MessageBoxBase.Show(
+								DiskFullUserMessage.BuildQueueStoppedBody(),
+								DiskFullUserMessage.DialogCaption,
+								MessageBoxButtons.OK,
+								MessageBoxIcon.Warning);
+					}
+					else if (result == ProcessBookResult.FailedSkip)
+					{
+						await book.LibraryBook.UpdateBookStatusAsync(LiberatedStatus.Error);
+					}
+					else if (result == ProcessBookResult.LicenseDeniedPossibleOutage
+						|| (result == ProcessBookResult.LicenseDenied && book.LibraryBook.IsAudiblePlus))
+					{
+						bool show;
+						lock (_resultLock) { show = !shownLicenseGuidanceMessage; shownLicenseGuidanceMessage = true; }
+						if (show)
+						{
+							var body = result == ProcessBookResult.LicenseDeniedPossibleOutage
+								? ContentLicenseDeniedUserMessage.BuildDialogBodyForPossibleOutage(book.LibraryBook.Book.TitleWithSubtitle)
+								: ContentLicenseDeniedUserMessage.BuildDialogBodyForPlusCatalog(book.LibraryBook.Book.TitleWithSubtitle);
+							await MessageBoxBase.Show(
+								body,
+								ContentLicenseDeniedUserMessage.DialogCaption,
+								MessageBoxButtons.OK,
+								MessageBoxIcon.Asterisk);
+						}
+					}
+				}
+
+				ProcessEnd?.Invoke(this, book);
+			}
+
+			while (true)
+			{
+				activeTasks.RemoveWhere(t => t.IsCompleted);
+
+				if (abortCts.IsCancellationRequested)
+				{
+					await Task.WhenAll(activeTasks);
+					break;
+				}
+
+				// If at capacity, wait for a slot to open before trying to dequeue more
+				if (activeTasks.Count >= EffectiveConcurrentDownloads)
+				{
+					await Task.WhenAny(activeTasks);
 					continue;
 				}
 
-				Serilog.Log.Logger.Information("Begin processing queued item: '{item_LibraryBook}'", nextBook.LibraryBook);
-				SpeedLimit = nextBook.Configuration.DownloadSpeedLimit / 1024m / 1024;
-				ProcessStart?.Invoke(this, nextBook);
-				var result = await nextBook.ProcessOneAsync();
-
-				Serilog.Log.Logger.Information("Completed processing queued item: '{item_LibraryBook}' with result: {result}", nextBook.LibraryBook, result);
-
-				if (result == ProcessBookResult.ValidationFail)
-					Queue.ClearCurrent();
-				else if (result == ProcessBookResult.FailedAbort)
-					Queue.ClearQueue();
-				// Stop the whole queue on first real disk-full write (local or network); do not retry hundreds of titles.
-				else if (result == ProcessBookResult.DiskFull)
+				if (Queue.TryDequeueNext(out var nextBook))
 				{
-					if (!shownDiskFullMessage)
-					{
-						await MessageBoxBase.Show(
-							DiskFullUserMessage.BuildQueueStoppedBody(),
-							DiskFullUserMessage.DialogCaption,
-							MessageBoxButtons.OK,
-							MessageBoxIcon.Warning);
-						shownDiskFullMessage = true;
-					}
-					Queue.ClearQueue();
+					activeTasks.Add(ProcessBookAsync(nextBook));
+					continue;
 				}
-				else if (result == ProcessBookResult.FailedSkip)
-					await nextBook.LibraryBook.UpdateBookStatusAsync(LiberatedStatus.Error);
-				else if (!shownLicenseGuidanceMessage
-					&& (result == ProcessBookResult.LicenseDeniedPossibleOutage
-						|| (result == ProcessBookResult.LicenseDenied && nextBook.LibraryBook.IsAudiblePlus)))
-				{
-					var body = result == ProcessBookResult.LicenseDeniedPossibleOutage
-						? ContentLicenseDeniedUserMessage.BuildDialogBodyForPossibleOutage(nextBook.LibraryBook.Book.TitleWithSubtitle)
-						: ContentLicenseDeniedUserMessage.BuildDialogBodyForPlusCatalog(nextBook.LibraryBook.Book.TitleWithSubtitle);
-					await MessageBoxBase.Show(
-						body,
-						ContentLicenseDeniedUserMessage.DialogCaption,
-						MessageBoxButtons.OK,
-						MessageBoxIcon.Asterisk);
-					shownLicenseGuidanceMessage = true;
-				}
-				ProcessEnd?.Invoke(this, nextBook);
+
+				// Queue is empty; if no tasks are running we are done
+				if (activeTasks.Count == 0)
+					break;
+
+				// Items still in flight — wait for one to finish; new items may arrive while waiting
+				await Task.WhenAny(activeTasks);
 			}
-			Serilog.Log.Logger.Information("Completed processing queue");
 
+			await Task.WhenAll(activeTasks);
+
+			Serilog.Log.Logger.Information("Completed processing queue");
 			Queue_CompletedCountChanged(this, 0);
 			ProgressBarVisible = false;
 		}

@@ -357,6 +357,21 @@ public partial class Configuration
 	[Description("Save all podcast episodes in a series to the series parent folder?")]
 	public bool SavePodcastsToParentFolder { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
+	[Description("Auto-scroll the download queue to keep active downloads in view.")]
+	public bool AutoScrollQueue { get => GetNonString(defaultValue: true); set => SetNonString(value); }
+
+	[Description("Maximum number of books to download and decrypt simultaneously. Defaults to the number of logical processors.")]
+	public int MaxConcurrentDownloads
+	{
+		get
+		{
+			var value = GetNonString(defaultValue: 0);
+			// Treat 0 or 1 as "use default" — 1 may have been written by an earlier bug.
+			return value <= 1 ? Environment.ProcessorCount : value;
+		}
+		set => SetNonString(Math.Max(2, value));
+	}
+
 	[Description("Global download speed limit in bytes per second.")]
 	public long DownloadSpeedLimit
 	{

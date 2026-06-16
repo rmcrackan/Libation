@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace LibationUiBase;
@@ -16,14 +17,14 @@ public enum QueuePosition
 
 /*
  * This data structure is like lifting a metal chain one link at a time.
- * Each time you grab and lift a new link (MoveNext call):
- * 
- *   1) you're holding a new link in your hand (Current)
- *   2) the remaining chain to be lifted shortens by 1 link (Queued)
- *   3) the pile of chain at your feet grows by 1 link (Completed)
- *   
+ * Each time you grab and lift a new link (TryDequeueNext call):
+ *
+ *   1) you're holding new links in your hand (Active)
+ *   2) the remaining chain to be lifted shortens (Queued)
+ *   3) as links are finished, the pile at your feet grows (Completed)
+ *
  * The index is the link position from the first link you lifted to the
- * last one in the chain. 
+ * last one in the chain.
  */
 public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionChanged where T : class
 {
@@ -31,13 +32,16 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	public event EventHandler<int>? QueuedCountChanged;
 	public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
-	public T? Current { get; private set; }
+	/// <summary>Returns the first active item for backward compatibility (e.g. speed limit display).</summary>
+	public T? Current => _active.FirstOrDefault();
+	public IReadOnlyList<T> Active => _active;
 	public IReadOnlyList<T> Completed => _completed;
 	private List<T> Queued { get; } = new();
 
+	private readonly List<T> _active = new();
 	private readonly List<T> _completed = new();
 	private readonly object lockObject = new();
-	private int QueueStartIndex => Completed.Count + (Current is null ? 0 : 1);
+	private int QueueStartIndex => Completed.Count + _active.Count;
 
 	public T this[int index]
 	{
@@ -45,10 +49,15 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 		{
 			lock (lockObject)
 			{
-				return index < Completed.Count ? Completed[index]
-					: index == Completed.Count && Current is not null ? Current
-					: index < Count ? Queued[index - QueueStartIndex]
-					: throw new IndexOutOfRangeException();
+				if (index < Completed.Count)
+					return Completed[index];
+				int activeOffset = index - Completed.Count;
+				if (activeOffset < _active.Count)
+					return _active[activeOffset];
+				int queueOffset = index - QueueStartIndex;
+				if (queueOffset >= 0 && queueOffset < Queued.Count)
+					return Queued[queueOffset];
+				throw new IndexOutOfRangeException();
 			}
 		}
 	}
@@ -69,8 +78,12 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 		lock (lockObject)
 		{
 			int index = _completed.IndexOf(item);
-			if (index < 0 && item == Current)
-				index = Completed.Count;
+			if (index < 0)
+			{
+				int activeIdx = _active.IndexOf(item);
+				if (activeIdx >= 0)
+					index = Completed.Count + activeIdx;
+			}
 			if (index < 0)
 			{
 				index = Queued.IndexOf(item);
@@ -123,15 +136,72 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 		return false;
 	}
 
-	public void ClearCurrent()
+	/// <summary>
+	/// Pops the next item from the queue into the Active set.
+	/// Returns false when the queue is empty.
+	/// </summary>
+	public bool TryDequeueNext([MaybeNullWhen(false)] out T item)
 	{
-		T? current;
+		int queuedCount;
 		lock (lockObject)
 		{
-			current = Current;
-			Current = null;
+			if (Queued.Count == 0)
+			{
+				item = null;
+				return false;
+			}
+			item = Queued[0];
+			Queued.RemoveAt(0);
+			_active.Add(item);
+			queuedCount = Queued.Count;
 		}
-		CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, current, _completed.Count));
+		QueuedCountChanged?.Invoke(this, queuedCount);
+		return true;
+	}
+
+	/// <summary>
+	/// Moves an active item into Completed when its processing succeeds or fails normally.
+	/// </summary>
+	public void MarkCompleted(T item)
+	{
+		int completedCount;
+		lock (lockObject)
+		{
+			_active.Remove(item);
+			_completed.Add(item);
+			completedCount = _completed.Count;
+		}
+		CompletedCountChanged?.Invoke(this, completedCount);
+	}
+
+	/// <summary>
+	/// Removes an active item from the queue display entirely (used for ValidationFail).
+	/// </summary>
+	public void RemoveActive(T item)
+	{
+		int removedIndex;
+		lock (lockObject)
+		{
+			removedIndex = _active.IndexOf(item);
+			if (removedIndex >= 0)
+				_active.RemoveAt(removedIndex);
+		}
+		if (removedIndex >= 0)
+			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, _completed.Count + removedIndex));
+	}
+
+	/// <summary>Legacy single-item sequential accessor — kept for compatibility.</summary>
+	public void ClearCurrent()
+	{
+		T? first;
+		lock (lockObject)
+		{
+			first = _active.FirstOrDefault();
+			if (first != null)
+				_active.Remove(first);
+		}
+		if (first != null)
+			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, first, _completed.Count));
 	}
 
 	public void ClearQueue()
@@ -181,28 +251,32 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 		CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, QueueStartIndex + newIndex, QueueStartIndex + oldIndex));
 	}
 
+	/// <summary>
+	/// Legacy sequential MoveNext — completes the first active item and dequeues the next.
+	/// Only valid when at most one item is active at a time.
+	/// </summary>
 	public bool MoveNext()
 	{
+		T? oldActive;
 		int completedCount = 0, queuedCount = 0;
 		bool completedChanged = false;
 		try
 		{
 			lock (lockObject)
 			{
-				if (Current != null)
+				oldActive = _active.FirstOrDefault();
+				if (oldActive != null)
 				{
-					_completed.Add(Current);
+					_active.Remove(oldActive);
+					_completed.Add(oldActive);
 					completedCount = _completed.Count;
 					completedChanged = true;
 				}
 				if (Queued.Count == 0)
-				{
-					Current = null;
 					return false;
-				}
-				Current = Queued[0];
+				var next = Queued[0];
 				Queued.RemoveAt(0);
-
+				_active.Add(next);
 				queuedCount = Queued.Count;
 				return true;
 			}
@@ -231,8 +305,7 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	{
 		lock (lockObject)
 		{
-			if (Current is null) return Completed.Concat(Queued);
-			return Completed.Concat([Current]).Concat(Queued);
+			return _completed.Concat(_active).Concat(Queued);
 		}
 	}
 
