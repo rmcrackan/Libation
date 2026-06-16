@@ -79,6 +79,7 @@ public class ProcessQueueViewModel : ReactiveObject
 			or ProcessBookResult.FailedSkip
 			or ProcessBookResult.FailedRetry
 			or ProcessBookResult.ValidationFail
+			or ProcessBookResult.WidevineRecommended
 			or ProcessBookResult.DiskFull);
 		var completeCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.Success);
 
@@ -353,6 +354,7 @@ public class ProcessQueueViewModel : ReactiveObject
 			ProgressBarVisible = true;
 			var startingTime = DateTime.Now;
 			bool shownLicenseGuidanceMessage = false;
+			bool shownWidevineGuidanceMessage = false;
 			bool shownDiskFullMessage = false;
 
 			using var counterTimer = new System.Threading.Timer(_ => RunningTime = timeToStr(DateTime.Now - startingTime), null, 0, 500);
@@ -405,6 +407,15 @@ public class ProcessQueueViewModel : ReactiveObject
 						MessageBoxButtons.OK,
 						MessageBoxIcon.Asterisk);
 					shownLicenseGuidanceMessage = true;
+				}
+				else if (!shownWidevineGuidanceMessage && result == ProcessBookResult.WidevineRecommended)
+				{
+					await MessageBoxBase.Show(
+						WidevineRecommendationUserMessage.BuildDialogBody(nextBook.LibraryBook.Book.TitleWithSubtitle),
+						WidevineRecommendationUserMessage.DialogCaption,
+						MessageBoxButtons.OK,
+						MessageBoxIcon.Asterisk);
+					shownWidevineGuidanceMessage = true;
 				}
 				ProcessEnd?.Invoke(this, nextBook);
 			}
