@@ -79,11 +79,13 @@ static class Program
 			if (Configuration.Instance.SerilogInitialized)
 				Log.Error(ex, "Fatal error during startup");
 
-			var (title, body) = StartupAssemblyBootstrap.IsMissingDependencyAssembly(ex)
-				? ("Library load failed", StartupAssemblyBootstrap.GetLibraryLoadFailureMessage())
-				: (
-					"Fatal error, pre-logging",
-					"An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.");
+			string title;
+			string body;
+			if (!StartupAssemblyBootstrap.TryGetStartupFailureMessage(ex, out title, out body))
+			{
+				title = "Fatal error, pre-logging";
+				body = "An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.";
+			}
 
 			try
 			{
@@ -210,14 +212,11 @@ static class Program
 		{
 			await form.InitLibraryAsync(await libraryLoadTask);
 		}
-		catch (Exception ex) when (StartupAssemblyBootstrap.IsMissingDependencyAssembly(ex))
+		catch (Exception ex) when (StartupAssemblyBootstrap.IsInstallFolderAssemblyLoadFailure(ex))
 		{
 			Log.Error(ex, "Failed to load library at startup");
-			MessageBoxLib.ShowAdminAlert(
-				form,
-				StartupAssemblyBootstrap.GetLibraryLoadFailureMessage(),
-				"Library load failed",
-				ex);
+			StartupAssemblyBootstrap.TryGetStartupFailureMessage(ex, out var title, out var body);
+			MessageBoxLib.ShowAdminAlert(form, body, title, ex);
 			await form.InitLibraryAsync([]);
 		}
 	}

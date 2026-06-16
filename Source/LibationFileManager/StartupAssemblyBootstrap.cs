@@ -9,6 +9,8 @@ namespace LibationFileManager;
 public static class StartupAssemblyBootstrap
 {
 	public const string EntityFrameworkCoreSqliteAssemblyFileName = "Microsoft.EntityFrameworkCore.Sqlite.dll";
+	public const int ApplicationControlBlockedHResult = unchecked((int)0x800711C7);
+	private const string TroubleshootApplicationControlUrl = "https://getlibation.com/docs/advanced/troubleshoot#windows-smart-app-control-and-in-app-upgrades";
 
 	/// <summary>
 	/// Registers <see cref="InteropFactory"/> assembly resolution and verifies required install-folder assemblies exist.
@@ -42,12 +44,87 @@ public static class StartupAssemblyBootstrap
 
 		This often happens after an incomplete in-app upgrade. Quit Libation completely, then install a fresh copy of the latest release to a new folder (do not overlay files on top of the old install).
 
+		If the error mentions an Application Control policy or Smart App Control, see:
+		{TroubleshootApplicationControlUrl}
+
 		Install folder:
 		{Configuration.ProcessDirectory}
 
 		Expected file:
 		{Path.Combine(Configuration.ProcessDirectory, EntityFrameworkCoreSqliteAssemblyFileName)}
 		""";
+
+	public static string GetApplicationControlBlockedMessage(Exception? ex = null)
+	{
+		var blockedFile = TryGetBlockedAssemblyPath(ex) ?? "(unknown)";
+
+		return $"""
+			Windows blocked Libation from loading a required file in its install folder. This often happens after an in-app upgrade when Smart App Control or another Application Control policy is enabled.
+
+			Blocked file:
+			{blockedFile}
+
+			Install folder:
+			{Configuration.ProcessDirectory}
+
+			Your library database, accounts, and settings are stored separately and should be unaffected.
+
+			To recover:
+			1. Quit Libation completely.
+			2. Download the latest release zip from GitHub and extract it to a new folder (do not copy files on top of the old install).
+			3. Run Libation from the new folder.
+
+			If Windows still blocks the app, review Smart App Control under Windows Security -> App & browser control, or run this in PowerShell (replace the path if needed):
+			Unblock-File -Path '{Configuration.ProcessDirectory}\*' -Recurse
+
+			More help:
+			{TroubleshootApplicationControlUrl}
+			""";
+	}
+
+	public static bool IsApplicationControlBlockedAssembly(Exception ex)
+	{
+		for (var current = ex; current is not null; current = current.InnerException)
+		{
+			if (current is FileLoadException fileLoadException)
+			{
+				if (fileLoadException.HResult == ApplicationControlBlockedHResult)
+					return true;
+
+				if (fileLoadException.Message.Contains("Application Control policy", StringComparison.OrdinalIgnoreCase))
+					return true;
+			}
+
+			if (current.Message.Contains("Application Control policy", StringComparison.OrdinalIgnoreCase))
+				return true;
+		}
+
+		return false;
+	}
+
+	public static bool IsInstallFolderAssemblyLoadFailure(Exception ex) =>
+		IsApplicationControlBlockedAssembly(ex) || IsMissingDependencyAssembly(ex);
+
+	public static bool TryGetStartupFailureMessage(Exception ex, out string title, out string body)
+	{
+		if (IsApplicationControlBlockedAssembly(ex))
+		{
+			title = "Libation blocked by Windows security";
+			body = GetApplicationControlBlockedMessage(ex);
+			return true;
+		}
+
+		if (IsMissingDependencyAssembly(ex))
+		{
+			title = "Library load failed";
+			body = GetLibraryLoadFailureMessage();
+			return true;
+		}
+
+		title = string.Empty;
+		body = string.Empty;
+		return false;
+	}
 
 	public static bool IsMissingDependencyAssembly(Exception ex)
 	{
@@ -63,6 +140,20 @@ public static class StartupAssemblyBootstrap
 		}
 
 		return false;
+	}
+
+	private static string? TryGetBlockedAssemblyPath(Exception? ex)
+	{
+		for (var current = ex; current is not null; current = current.InnerException)
+		{
+			if (current is FileLoadException { FileName: { Length: > 0 } blockedPath })
+				return blockedPath;
+
+			if (current is FileNotFoundException { FileName: { Length: > 0 } missingPath })
+				return missingPath;
+		}
+
+		return null;
 	}
 
 	private static void ValidateEntityFrameworkCoreSqlitePresent()
