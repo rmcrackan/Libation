@@ -73,6 +73,9 @@ public partial class Form1 : Form
 
 	private async void Form1_Shown(object? sender, EventArgs e)
 	{
+		if (InstallUpgradeManager.TakeStartupRecoveryAlert() is { } recovery)
+			MessageBox.Show(this, recovery.Body, recovery.Title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
 		if (Configuration.Instance.FirstLaunch)
 		{
 			var result = MessageBox.Show(this, "Would you like a guided tour to get started?", "Libation Walkthrough", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);

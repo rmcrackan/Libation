@@ -53,6 +53,7 @@ static class Program
 		try
 		{
 			var config = LibationScaffolding.RunPreConfigMigrations();
+			StartupAssemblyBootstrap.RecoverFromIncompleteUpgradeIfNeeded();
 			if (config.LibationFiles.SettingsAreValid)
 			{
 				App.RunMigrations(config);
@@ -128,24 +129,17 @@ static class Program
 	{
 		var dispatcher = new DispatcherFrame();
 
-		string caption;
-		string message;
-		if (StartupAssemblyBootstrap.TryGetStartupFailureMessage(exception, out var title, out var body))
-		{
-			caption = title;
-			message = body;
-		}
-		else
-		{
-			caption = "Libation Crash";
-			message = """
+		var fatalMessage = StartupAssemblyBootstrap.GetFatalStartupMessage(
+			exception,
+			new FatalStartupMessage(
+				"Libation Crash",
+				"""
 				Libation encountered a fatal error and must close.
 
 				Please consider reporting this issue on GitHub, including the contents of the LibationCrash.log file created in your user folder.
-				""";
-		}
+				"""));
 
-		var mbAlert = new MessageBoxAlertAdminDialog(message, caption, exception);
+		var mbAlert = new MessageBoxAlertAdminDialog(fatalMessage.Body, fatalMessage.Title, exception);
 		mbAlert.Closed += (_, _) => dispatcher.Continue = false;
 		mbAlert.Show();
 		Dispatcher.UIThread.PushFrame(dispatcher);

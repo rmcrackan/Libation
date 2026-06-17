@@ -33,13 +33,15 @@ internal class WinInterop : IInteropFunctions
 
 	public string ReleaseIdString => AppScaffolding.LibationScaffolding.ReleaseIdentifier.ToString();
 
-	public async Task InstallUpgradeAsync(string upgradeBundle)
+	public async Task InstallUpgradeAsync(string upgradeBundle, Version targetVersion)
 	{
 		const string ExtractorExeName = "ZipExtractor.exe";
 		var thisExe = Environment.ProcessPath;
 		var thisDir = Path.GetDirectoryName(thisExe);
 		if (!File.Exists(thisExe) || !Directory.Exists(thisDir))
 			return;
+
+		InstallUpgradeManager.PrepareForUpgrade(thisDir, upgradeBundle, targetVersion);
 
 		var zipExtractor = Path.Combine(Path.GetTempPath(), ExtractorExeName);
 
@@ -52,10 +54,31 @@ internal class WinInterop : IInteropFunctions
 
 		var proc = StartProcess(zipExtractor, args, elevate: !IsDirectoryWritable(thisDir));
 		if (proc is null)
+		{
+			InstallUpgradeManager.RollbackAfterFailedUpgrade(thisDir, "Could not start ZipExtractor.");
 			throw new InvalidOperationException("Could not start the upgrade process.");
+		}
+
 		await proc.WaitForExitAsync();
 		if (proc.ExitCode != 0)
-			throw new InvalidOperationException($"ZipExtractor exited with code {proc.ExitCode}.");
+		{
+			var message = $"ZipExtractor exited with code {proc.ExitCode}.";
+			InstallUpgradeManager.RollbackAfterFailedUpgrade(thisDir, message);
+			throw new InvalidOperationException(message);
+		}
+
+		var verification = InstallUpgradeManager.VerifyInstallMatchesUpgrade(thisDir);
+		if (!verification.Success)
+		{
+			InstallUpgradeManager.RollbackAfterFailedUpgrade(thisDir, verification.Summary);
+			Serilog.Log.Logger.Error("In-app upgrade failed integrity check before restart. {Summary}", verification.Summary);
+			throw new InstallUpgradeIntegrityException(
+				$"The in-app upgrade did not replace all required install files.{Environment.NewLine}{Environment.NewLine}{verification.Summary}");
+		}
+
+		Serilog.Log.Logger.Information(
+			"In-app upgrade to {TargetVersion} passed pre-restart integrity check. Pending verification will run on next startup.",
+			targetVersion);
 
 		try
 		{

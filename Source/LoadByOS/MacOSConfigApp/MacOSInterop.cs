@@ -46,9 +46,9 @@ internal class MacOSInterop : IInteropFunctions
 
 	public string ReleaseIdString => AppScaffolding.LibationScaffolding.ReleaseIdentifier.ToString();
 
-	public Task InstallUpgradeAsync(string upgradeBundle)
+	public Task InstallUpgradeAsync(string upgradeBundle, Version targetVersion)
 	{
-		Serilog.Log.Information($"Extracting upgrade bundle to {AppPath}");
+		Serilog.Log.Information($"Extracting upgrade bundle to {AppPath} (target version {targetVersion})");
 
 		//Upgrade bundle is a DMG
 		return Task.Run(() => Process.Start("open", upgradeBundle.SurroundWithQuotes())?.WaitForExit());
