@@ -63,8 +63,7 @@ Windows **Smart App Control** (and similar Application Control policies on recen
    ```
 
 3. Avoid running Libation from cloud-sync folders (OneDrive, etc.) if you can; use a normal local path for the install folder.
-
-Related reports: [#1876](https://github.com/rmcrackan/Libation/issues/1876), [#1873](https://github.com/rmcrackan/Libation/issues/1873).
+4. If needed, turn Smart App Control off temporarily, install from the [standalone setup](https://github.com/rmcrackan/Libation/releases/latest) (override Windows' "potentially unsafe" warning if prompted), and run Libation once. Some users report that Libation keeps working after turning Smart App Control back on. [#1876](https://github.com/rmcrackan/Libation/issues/1876), [#1873](https://github.com/rmcrackan/Libation/issues/1873).
 
 ### Hangover (Windows)
 
