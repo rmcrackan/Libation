@@ -47,6 +47,9 @@ public class App : Application
 			MessageBoxBase.ShowAsyncImpl = (owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition) =>
 				MessageBox.Show(owner as Window, message, caption, buttons, icon, defaultButton, saveAndRestorePosition);
 
+			if (InstallUpgradeManager.TakeStartupRecoveryAlert() is { } recovery)
+				_ = MessageBox.Show(null, recovery.Body, recovery.Title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
 			BadBookActionDialogBase.ShowAsyncImpl = (owner, message, caption) =>
 				Dialogs.BadBookActionDialog.ShowAsync(owner as Window, message, caption);
 
@@ -154,11 +157,11 @@ public class App : Application
 			catch (Exception ex) when (StartupAssemblyBootstrap.IsInstallFolderAssemblyLoadFailure(ex))
 			{
 				Serilog.Log.Logger.Error(ex, "Failed to load library at startup");
-				StartupAssemblyBootstrap.TryGetStartupFailureMessage(ex, out var title, out var body);
+				FatalStartupMessage failure = StartupAssemblyBootstrap.GetStartupFailureMessage(ex)!;
 				await MessageBox.Show(
 					MainWindow,
-					body,
-					title,
+					failure.Body,
+					failure.Title,
 					MessageBoxButtons.OK,
 					MessageBoxIcon.Error);
 				await Dispatcher.UIThread.InvokeAsync(() => MainWindow.OnLibraryLoadedAsync([]));
