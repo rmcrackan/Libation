@@ -214,7 +214,7 @@ static class Program
 		catch (Exception ex) when (StartupAssemblyBootstrap.IsInstallFolderAssemblyLoadFailure(ex))
 		{
 			Log.Error(ex, "Failed to load library at startup");
-			var failure = StartupAssemblyBootstrap.GetStartupFailureMessage(ex)!;
+			FatalStartupMessage failure = StartupAssemblyBootstrap.GetStartupFailureMessage(ex)!;
 			MessageBoxLib.ShowAdminAlert(form, failure.Body, failure.Title, ex);
 			await form.InitLibraryAsync([]);
 		}

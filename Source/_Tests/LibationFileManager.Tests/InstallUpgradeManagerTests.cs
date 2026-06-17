@@ -81,8 +81,8 @@ public class InstallUpgradeManagerTests
 		Assert.IsFalse(File.Exists(InstallUpgradeManager.GetPendingStatePath(_installDir)));
 		var recoveryAlert = InstallUpgradeManager.TakeStartupRecoveryAlert();
 		Assert.IsNotNull(recoveryAlert);
-		Assert.AreEqual("In-app upgrade failed -- Libation was restored", recoveryAlert.Value.Title);
-		StringAssert.Contains(recoveryAlert.Value.Body, "LibationUiBase.dll");
+		Assert.AreEqual("In-app upgrade failed -- Libation was restored", recoveryAlert.Title);
+		StringAssert.Contains(recoveryAlert.Body, "LibationUiBase.dll");
 	}
 
 	[TestMethod]
@@ -144,8 +144,8 @@ public class InstallUpgradeManagerTests
 		Assert.IsTrue(StartupAssemblyBootstrap.IsIncompleteUpgradeAssemblyFailure(ex));
 		var message = StartupAssemblyBootstrap.GetStartupFailureMessage(ex);
 		Assert.IsNotNull(message);
-		Assert.AreEqual("In-app upgrade failed", message.Value.Title);
-		StringAssert.Contains(message.Value.Body, "LibationUiBase");
+		Assert.AreEqual("In-app upgrade failed", message.Title);
+		StringAssert.Contains(message.Body, "LibationUiBase");
 	}
 
 	private void WriteInstallFile(string fileName, string contents)

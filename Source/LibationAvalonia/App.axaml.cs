@@ -157,7 +157,7 @@ public class App : Application
 			catch (Exception ex) when (StartupAssemblyBootstrap.IsInstallFolderAssemblyLoadFailure(ex))
 			{
 				Serilog.Log.Logger.Error(ex, "Failed to load library at startup");
-				var failure = StartupAssemblyBootstrap.GetStartupFailureMessage(ex)!;
+				FatalStartupMessage failure = StartupAssemblyBootstrap.GetStartupFailureMessage(ex)!;
 				await MessageBox.Show(
 					MainWindow,
 					failure.Body,
