@@ -194,7 +194,11 @@ public partial class DownloadOptions
 			stripBranding(chapters, licInfo.ContentMetadata.ChapterInfo.BrandIntroDurationMs, licInfo.ContentMetadata.ChapterInfo.BrandOutroDurationMs);
 
 		if (config.SplitFilesByChapter)
+		{
 			combineShortChapters(chapters, config.MinimumFileDuration * 1000);
+			if (config.MaximumFileDuration > 0)
+				splitLongChapters(chapters, config.MaximumFileDuration * 1000);
+		}
 
 		var dlOptions = new DownloadOptions(config, libraryBook, licInfo)
 		{
@@ -387,6 +391,39 @@ public partial class DownloadOptions
 				chapters[i].LengthMs += chapters[i + 1].LengthMs;
 				chapters.RemoveAt(i + 1);
 			}
+		}
+	}
+
+	public static void splitLongChapters(List<Chapter> chapters, long maxChapterLengthMs)
+	{
+		for (int i = 0; i < chapters.Count; i++)
+		{
+			if (chapters[i].LengthMs <= maxChapterLengthMs)
+				continue;
+
+			var original = chapters[i];
+			int totalParts = (int)Math.Ceiling((double)original.LengthMs / maxChapterLengthMs);
+			var parts = new List<Chapter>(totalParts);
+			long offset = original.StartOffsetMs;
+			long remaining = original.LengthMs;
+
+			for (int part = 1; part <= totalParts; part++)
+			{
+				long partLength = Math.Min(remaining, maxChapterLengthMs);
+				parts.Add(new Chapter
+				{
+					Title = $"{original.Title} (Part {part} of {totalParts})",
+					StartOffsetMs = offset,
+					StartOffsetSec = offset / 1000,
+					LengthMs = partLength,
+				});
+				offset += partLength;
+				remaining -= partLength;
+			}
+
+			chapters.RemoveAt(i);
+			chapters.InsertRange(i, parts);
+			i += parts.Count - 1;
 		}
 	}
 
