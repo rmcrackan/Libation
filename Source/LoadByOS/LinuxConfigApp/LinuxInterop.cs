@@ -27,13 +27,13 @@ internal class LinuxInterop : IInteropFunctions
 	public void SetFolderIcon(byte[] imageJpegBytes, string directory) => throw new PlatformNotSupportedException();
 	public void DeleteFolderIcon(string directory) => throw new PlatformNotSupportedException();
 
-	public string ReleaseIdString => LibationScaffolding.ReleaseIdentifier.ToString() + (File.Exists("/usr/bin/apt") || File.Exists("/bin/apt") ? "_DEB" : "_RPM");
+	public string ReleaseIdString => LibationScaffolding.ReleaseIdentifier.ToString() + LinuxPackageFormatSuffix();
 
 	//only run the auto upgrader if the current app was installed from the
 	//.deb or .rpm package. Try to detect this by checking if the symlink exists.
 	public bool CanUpgrade => File.Exists("/usr/bin/libation") || File.Exists("/bin/libation");
 
-	public async Task InstallUpgradeAsync(string upgradeBundle)
+	public async Task InstallUpgradeAsync(string upgradeBundle, Version targetVersion)
 	{
 		if (string.IsNullOrWhiteSpace(upgradeBundle) || !File.Exists(upgradeBundle))
 			throw new FileNotFoundException("Upgrade bundle not found.", upgradeBundle);
@@ -73,30 +73,43 @@ internal class LinuxInterop : IInteropFunctions
 
 	private static bool TryResolvePackageManager(string upgradeBundle, out string pkgExe, out string[] pkgArgs)
 	{
-		if (TryFirstExisting(out pkgExe, "/usr/bin/dnf5", "/bin/dnf5"))
+		var isRpmBundle = string.Equals(Path.GetExtension(upgradeBundle), ".rpm", StringComparison.OrdinalIgnoreCase);
+		var isDebBundle = string.Equals(Path.GetExtension(upgradeBundle), ".deb", StringComparison.OrdinalIgnoreCase);
+
+		if (isRpmBundle || (!isDebBundle && UsesRpmPackageFormat()))
 		{
-			pkgArgs = new[] { "install", "-y", upgradeBundle };
-			return true;
+			if (TryFirstExisting(out pkgExe, "/usr/bin/dnf5", "/bin/dnf5")
+				|| TryFirstExisting(out pkgExe, "/usr/bin/dnf", "/bin/dnf")
+				|| TryFirstExisting(out pkgExe, "/usr/bin/yum", "/bin/yum"))
+			{
+				pkgArgs = new[] { "install", "-y", upgradeBundle };
+				return true;
+			}
 		}
-		if (TryFirstExisting(out pkgExe, "/usr/bin/dnf", "/bin/dnf"))
+
+		if (isDebBundle || UsesDebPackageFormat())
 		{
-			pkgArgs = new[] { "install", "-y", upgradeBundle };
-			return true;
+			if (TryFirstExisting(out pkgExe, "/usr/bin/apt", "/bin/apt"))
+			{
+				pkgArgs = new[] { "install", "-y", "-o", "Dpkg::Options::=--force-confdef", "-o", "Dpkg::Options::=--force-confold", upgradeBundle };
+				return true;
+			}
 		}
-		if (TryFirstExisting(out pkgExe, "/usr/bin/yum", "/bin/yum"))
-		{
-			pkgArgs = new[] { "install", "-y", upgradeBundle };
-			return true;
-		}
-		if (TryFirstExisting(out pkgExe, "/usr/bin/apt", "/bin/apt"))
-		{
-			pkgArgs = new[] { "install", "-y", "-o", "Dpkg::Options::=--force-confdef", "-o", "Dpkg::Options::=--force-confold", upgradeBundle };
-			return true;
-		}
+
 		pkgExe = "";
 		pkgArgs = Array.Empty<string>();
 		return false;
 	}
+
+	// RHEL/Fedora can have apt installed for .deb files; prefer native RPM managers when present.
+	internal static string LinuxPackageFormatSuffix()
+		=> UsesRpmPackageFormat() ? "_RPM" : UsesDebPackageFormat() ? "_DEB" : "_RPM";
+
+	private static bool UsesRpmPackageFormat()
+		=> TryFirstExisting(out _, "/usr/bin/dnf5", "/bin/dnf5", "/usr/bin/dnf", "/bin/dnf", "/usr/bin/yum", "/bin/yum");
+
+	private static bool UsesDebPackageFormat()
+		=> TryFirstExisting(out _, "/usr/bin/apt", "/bin/apt");
 
 	private static bool TryFirstExisting(out string path, params string[] candidates)
 	{
@@ -150,7 +163,7 @@ internal class LinuxInterop : IInteropFunctions
 					console[2],
 					"/bin/sh",
 					Path.Combine(Configuration.ProcessDirectory, runasroot), //script file
-					"Installing libation.deb", //command title
+					"Installing Libation package", //command title
 					command, // command to execute vis /bin/sh
 					$"Please run '{command}' manually" // error message to display in the terminal
 				}

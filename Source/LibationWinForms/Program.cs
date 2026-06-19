@@ -47,6 +47,7 @@ static class Program
 			//***********************************************//
 			// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
 			var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
+			StartupAssemblyBootstrap.RecoverFromIncompleteUpgradeIfNeeded();
 			LibationUiBase.Forms.MessageBoxBase.ShowAsyncImpl = ShowMessageBox;
 			BadBookActionDialogBase.ShowAsyncImpl = ShowBadBookActionDialog;
 
@@ -79,19 +80,19 @@ static class Program
 			if (Configuration.Instance.SerilogInitialized)
 				Log.Error(ex, "Fatal error during startup");
 
-			var (title, body) = StartupAssemblyBootstrap.IsMissingDependencyAssembly(ex)
-				? ("Library load failed", StartupAssemblyBootstrap.GetLibraryLoadFailureMessage())
-				: (
+			var fatalMessage = StartupAssemblyBootstrap.GetFatalStartupMessage(
+				ex,
+				new FatalStartupMessage(
 					"Fatal error, pre-logging",
-					"An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.");
+					"An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file."));
 
 			try
 			{
-				MessageBoxLib.ShowAdminAlert(null, body, title, ex);
+				MessageBoxLib.ShowAdminAlert(null, fatalMessage.Body, fatalMessage.Title, ex);
 			}
 			catch
 			{
-				MessageBox.Show($"{body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show($"{fatalMessage.Body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", fatalMessage.Title, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 			return;
 		}
@@ -210,14 +211,11 @@ static class Program
 		{
 			await form.InitLibraryAsync(await libraryLoadTask);
 		}
-		catch (Exception ex) when (StartupAssemblyBootstrap.IsMissingDependencyAssembly(ex))
+		catch (Exception ex) when (StartupAssemblyBootstrap.IsInstallFolderAssemblyLoadFailure(ex))
 		{
 			Log.Error(ex, "Failed to load library at startup");
-			MessageBoxLib.ShowAdminAlert(
-				form,
-				StartupAssemblyBootstrap.GetLibraryLoadFailureMessage(),
-				"Library load failed",
-				ex);
+			FatalStartupMessage failure = StartupAssemblyBootstrap.GetStartupFailureMessage(ex)!;
+			MessageBoxLib.ShowAdminAlert(form, failure.Body, failure.Title, ex);
 			await form.InitLibraryAsync([]);
 		}
 	}

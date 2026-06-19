@@ -32,6 +32,39 @@ Platform-specific steps: [Windows](#hangover-windows) · [macOS](#hangover-macos
 
 ## Windows
 
+### Smart App Control and in-app upgrades {#windows-smart-app-control-and-in-app-upgrades}
+
+After accepting an in-app update, Libation may fail to restart with an error like:
+
+`An Application Control policy has blocked this file. (0x800711C7)`
+
+Windows **Smart App Control** (and similar Application Control policies on recent Windows 11 builds) can block DLLs that were just written when the in-app upgrader overlays a new release onto your existing install folder. The blocked path is usually under your **Libation install folder** (where `Libation.exe` lives), not your user data folder (`%UserProfile%\Libation`).
+
+**Symptoms**
+
+- Fatal crash immediately after an in-app upgrade (Chardonnay / Avalonia).
+- Classic may start but library import or database access fails with the same `0x800711C7` message on a `.dll` in the install folder.
+- Windows Security may also warn about an unsigned library.
+
+**Fix (recommended)**
+
+1. Quit Libation completely.
+2. Download the latest [release zip](https://github.com/rmcrackan/Libation/releases/latest) from GitHub.
+3. Extract to a **new folder** (for example `C:\Apps\Libation`). Do **not** copy new files on top of the old install folder.
+4. Run `Libation.exe` from the new folder. Your library database, accounts, and settings in `%UserProfile%\Libation` (or the path in `appsettings.json` -> `LibationFiles`) are separate and should still work.
+
+**If Windows still blocks the new install**
+
+1. Open **Windows Security** -> **App & browser control** and review **Smart App Control** (Evaluation or On modes are the usual trigger).
+2. In PowerShell, unblock the install folder (adjust the path):
+
+   ```powershell
+   Unblock-File -Path 'C:\Apps\Libation\*' -Recurse
+   ```
+
+3. Avoid running Libation from cloud-sync folders (OneDrive, etc.) if you can; use a normal local path for the install folder.
+4. If needed, turn Smart App Control off temporarily, install from the [standalone setup](https://github.com/rmcrackan/Libation/releases/latest) (override Windows' "potentially unsafe" warning if prompted), and run Libation once. Some users report that Libation keeps working after turning Smart App Control back on. [#1876](https://github.com/rmcrackan/Libation/issues/1876), [#1873](https://github.com/rmcrackan/Libation/issues/1873).
+
 ### Hangover (Windows)
 
 Hangover.exe is located in the folder containing Libation.exe. Double-click it to run it.

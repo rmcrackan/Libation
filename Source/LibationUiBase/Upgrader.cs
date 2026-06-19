@@ -242,8 +242,15 @@ public abstract class UpgraderBase
 				Serilog.Log.Logger.Information($"Begin running auto-upgrader");
 				try
 				{
-					await interop.InstallUpgradeAsync(upgradeBundle);
+					await interop.InstallUpgradeAsync(upgradeBundle, upgradeProperties.LatestRelease);
 					Serilog.Log.Logger.Information($"Completed running auto-upgrader");
+				}
+				catch (InstallUpgradeIntegrityException ex)
+				{
+					Serilog.Log.Logger.Error(ex, "In-app upgrade failed integrity check and was rolled back");
+					OnUpgradeFailed(
+						$"The in-app upgrade did not complete successfully. Libation restored your previous install files from backup.{Environment.NewLine}{Environment.NewLine}{ex.Message}",
+						ex);
 				}
 				catch (Exception ex)
 				{

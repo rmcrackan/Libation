@@ -69,6 +69,8 @@ public static class LibationScaffolding
 		// // outdated. kept here as an example of what belongs in this area
 		// // Migrations.migrate_to_v5_2_0__pre_config();
 
+		InstallFolderUnblock.TryUnblockProcessDirectoryIfWindows();
+
 		Configuration.SetLibationVersion(BuildVersion);
 
 		//***********************************************//
@@ -347,7 +349,7 @@ public static class LibationScaffolding
 
 	private static void wireUpSystemEvents(Configuration configuration)
 	{
-		LibraryCommands.LibrarySizeChanged += (object? _, List<DataLayer.LibraryBook> libraryBooks)
+		LibraryCommands.LibrarySizeChanged += (_, libraryBooks)
 			=> SearchEngineCommands.FullReIndex(libraryBooks);
 
 		LibraryCommands.BookUserDefinedItemCommitted += (_, books)
@@ -421,25 +423,37 @@ public static class LibationScaffolding
 		var releaseIndex = JObject.Parse(System.Text.Encoding.ASCII.GetString(bts));
 
 		string? regexPattern;
+		string? releaseIdString = null;
 
 		try
 		{
-			regexPattern = releaseIndex.Value<string>(InteropFactory.Create().ReleaseIdString);
+			releaseIdString = InteropFactory.Create().ReleaseIdString;
+			regexPattern = releaseIndex.Value<string>(releaseIdString);
 		}
 		catch
 		{
 			regexPattern = null;
 		}
+		if (string.IsNullOrEmpty(regexPattern) && Configuration.IsLinux)
+		{
+			var baseId = ReleaseIdentifier.ToString();
+			regexPattern = releaseIndex.Value<string>($"{baseId}_RPM")
+				?? releaseIndex.Value<string>($"{baseId}_DEB");
+			releaseIdString ??= $"{baseId}_RPM";
+		}
 		if (string.IsNullOrEmpty(regexPattern))
 			regexPattern = releaseIndex.Value<string>(ReleaseIdentifier.ToString());
 		if (string.IsNullOrEmpty(regexPattern))
 		{
-			Log.Logger.Warning("Release index has no entry for this platform (ReleaseIdentifier: {ReleaseId}). Version check inconclusive.", ReleaseIdentifier);
+			Log.Logger.Warning("Release index has no entry for this platform (ReleaseIdentifier: {ReleaseId}, ReleaseIdString: {ReleaseIdString}). Version check inconclusive.", ReleaseIdentifier, releaseIdString);
 			return (null, null, null, false);
 		}
 
 		var regex = new System.Text.RegularExpressions.Regex(regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 		var zip = latestRelease?.Assets?.FirstOrDefault(a => regex.IsMatch(a.Name));
+
+		if (zip is not null && !string.IsNullOrEmpty(releaseIdString))
+			Log.Logger.Information("Update asset matched using {ReleaseIdString}: {AssetName}", releaseIdString, zip.Name);
 
 		return (releaseVersion, latestRelease, zip, true);
 	}
@@ -497,7 +511,7 @@ internal static class Migrations
 	class FilterState_6_6_9
 	{
 		public bool UseDefault { get; set; }
-		public List<string> Filters { get; set; } = new();
+		public List<string> Filters { get; set; } = [];
 	}
 
 	public static void migrate_to_v12_0_1(Configuration config)
@@ -518,7 +532,7 @@ internal static class Migrations
 				if (JArray.Parse(File.ReadAllText(jsonFileV1)) is not JArray v1Cache || v1Cache.Count == 0)
 					return;
 
-				Dictionary<string, JArray> cache = new();
+				Dictionary<string, JArray> cache = [];
 
 				//Convert to c# objects to speed up searching by ID inside the iterator 
 				var allItems
@@ -610,10 +624,12 @@ internal static class Migrations
 			if (JsonConvert.DeserializeObject<FilterState_6_6_9>(File.ReadAllText(QuickFilters.JsonFile))
 				is FilterState_6_6_9 inMemState)
 			{
-				// Copy old structure to new.
-				QuickFilters.InMemoryState = new();
-				QuickFilters.InMemoryState.UseDefault = inMemState.UseDefault;
-				foreach (var oldFilter in inMemState.Filters)
+                // Copy old structure to new.
+                QuickFilters.InMemoryState = new()
+                {
+                    UseDefault = inMemState.UseDefault
+                };
+                foreach (var oldFilter in inMemState.Filters)
 					QuickFilters.InMemoryState.Filters.Add(new QuickFilters.NamedFilter(oldFilter, null));
 
 				return;
