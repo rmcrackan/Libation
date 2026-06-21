@@ -98,10 +98,10 @@ if (-not $SkipPublish) {
             '-p:PublishReadyToRun=false',
             '-p:SelfContained=true'
         )
-        dotnet publish "Libation$Ui/Libation$Ui.csproj" @publishArgs
-        dotnet publish 'LoadByOS/WindowsConfigApp/WindowsConfigApp.csproj' @publishArgs
-        dotnet publish 'LibationCli/LibationCli.csproj' @publishArgs
-        dotnet publish "Hangover$Ui/Hangover$Ui.csproj" @publishArgs
+        & "C:\Program Files\dotnet\dotnet.exe" publish "Libation$Ui/Libation$Ui.csproj" @publishArgs
+        & "C:\Program Files\dotnet\dotnet.exe" publish 'LoadByOS/WindowsConfigApp/WindowsConfigApp.csproj' @publishArgs
+        & "C:\Program Files\dotnet\dotnet.exe" publish 'LibationCli/LibationCli.csproj' @publishArgs
+        & "C:\Program Files\dotnet\dotnet.exe" publish "Hangover$Ui/Hangover$Ui.csproj" @publishArgs
     }
     finally {
         Pop-Location
