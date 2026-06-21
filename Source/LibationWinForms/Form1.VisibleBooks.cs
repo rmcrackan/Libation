@@ -3,6 +3,7 @@ using DataLayer;
 using Dinah.Core.Threading;
 using LibationWinForms.Dialogs;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -24,15 +25,19 @@ public partial class Form1
 		LibraryCommands.BookUserDefinedItemCommitted += setLiberatedVisibleMenuItemAsync;
 	}
 	private async void setLiberatedVisibleMenuItemAsync(object? _, object __)
-		=> await Task.Run(setLiberatedVisibleMenuItem);
+	{
+		var visible = (List<DataLayer.LibraryBook>)this.Invoke(() => productsDisplay.GetVisible());
+		await Task.Run(() => setLiberatedVisibleMenuItem(visible));
+	}
 
 	private static DateTime lastVisibleCountUpdated;
-	void setLiberatedVisibleMenuItem()
+	void setLiberatedVisibleMenuItem(List<DataLayer.LibraryBook>? visible = null)
 	{
 		//Assume that all calls to update arrive in order,
 		//Only display results of the latest book count.
 		var updaterTime = lastVisibleCountUpdated = DateTime.UtcNow;
-		var libraryStats = LibraryCommands.GetCounts(productsDisplay.GetVisible());
+		visible ??= (List<DataLayer.LibraryBook>)this.Invoke(() => productsDisplay.GetVisible());
+		var libraryStats = LibraryCommands.GetCounts(visible);
 		if (updaterTime < lastVisibleCountUpdated)
 			return;
 
@@ -179,6 +184,7 @@ public partial class Form1
 		visibleBooksToolStripMenuItem.Format(qty);
 		visibleBooksToolStripMenuItem.Enabled = qty > 0;
 
-		await Task.Run(setLiberatedVisibleMenuItem);
+		var visible = productsDisplay.GetVisible();
+		await Task.Run(() => setLiberatedVisibleMenuItem(visible));
 	}
 }
