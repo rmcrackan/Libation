@@ -154,14 +154,14 @@
 					<Grid
 						Margin="0,0,0,5"
 						Grid.ColumnDefinitions="Auto,Auto"
-						Grid.RowDefinitions="Auto,Auto">
-						
-						<CheckBox Margin="0" Grid.ColumnSpan="2" IsChecked="{Binding SplitFilesByChapter, Mode=TwoWay}">						
-							<TextBlock Grid.ColumnSpan="2" Text="{Binding SplitFilesByChapterText}" />						
+						Grid.RowDefinitions="Auto,Auto,Auto">
+
+						<CheckBox Margin="0" Grid.ColumnSpan="2" IsChecked="{Binding SplitFilesByChapter, Mode=TwoWay}">
+							<TextBlock Grid.ColumnSpan="2" Text="{Binding SplitFilesByChapterText}" />
 						</CheckBox>
 
 						<TextBlock Grid.Row="1" Margin="15,0" VerticalAlignment="Center" ToolTip.Tip="{Binding MinimumFileDurationTip}" Text="{Binding MinimumFileDurationText}" />
-							
+
 						<NumericUpDown
 							Classes="SmallNumericUpDown"
 							Grid.Column="1"
@@ -175,6 +175,22 @@
 							ParsingNumberStyle="Integer"
 							IsEnabled="{Binding SplitFilesByChapter}"
 							Value="{Binding MinimumFileDuration, Mode=TwoWay}"/>
+
+						<TextBlock Grid.Row="2" Margin="15,0" VerticalAlignment="Center" ToolTip.Tip="{Binding MaximumFileDurationTip}" Text="{Binding MaximumFileDurationText}" />
+
+						<NumericUpDown
+							Classes="SmallNumericUpDown"
+							Grid.Column="1"
+							Grid.Row="2"
+							ToolTip.Tip="{Binding MaximumFileDurationTip}"
+							MinWidth="100"
+							Minimum="0"
+							Maximum="1440"
+							Increment="1"
+							FormatString="N0"
+							ParsingNumberStyle="Integer"
+							IsEnabled="{Binding SplitFilesByChapter}"
+							Value="{Binding MaximumFileDuration, Mode=TwoWay}"/>
 					</Grid>
 
 					<CheckBox

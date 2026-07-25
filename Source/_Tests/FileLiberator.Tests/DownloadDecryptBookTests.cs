@@ -538,4 +538,116 @@ public class DownloadDecryptBookTests
 			value[i].LengthMs.Should().Be(expected[i].LengthMs);
 		}
 	}
+
+	[TestMethod]
+	public void SplitLongChapters_ShortChapter_NotSplit()
+	{
+		var chapters = new List<Chapter>
+		{
+			new() { Title = "Chapter 1", StartOffsetMs = 0, StartOffsetSec = 0, LengthMs = 60_000 },
+		};
+
+		DownloadOptions.splitLongChapters(chapters, 120_000);
+
+		chapters.Count.Should().Be(1);
+		chapters[0].Title.Should().Be("Chapter 1");
+		chapters[0].LengthMs.Should().Be(60_000);
+	}
+
+	[TestMethod]
+	public void SplitLongChapters_ExactlyAtLimit_NotSplit()
+	{
+		var chapters = new List<Chapter>
+		{
+			new() { Title = "Chapter 1", StartOffsetMs = 0, StartOffsetSec = 0, LengthMs = 120_000 },
+		};
+
+		DownloadOptions.splitLongChapters(chapters, 120_000);
+
+		chapters.Count.Should().Be(1);
+		chapters[0].Title.Should().Be("Chapter 1");
+	}
+
+	[TestMethod]
+	public void SplitLongChapters_TwoParts_SplitsEvenly()
+	{
+		var chapters = new List<Chapter>
+		{
+			new() { Title = "Chapter 1", StartOffsetMs = 0, StartOffsetSec = 0, LengthMs = 200_000 },
+		};
+
+		DownloadOptions.splitLongChapters(chapters, 100_000);
+
+		chapters.Count.Should().Be(2);
+		chapters[0].Title.Should().Be("Chapter 1 (Part 1 of 2)");
+		chapters[0].StartOffsetMs.Should().Be(0);
+		chapters[0].StartOffsetSec.Should().Be(0);
+		chapters[0].LengthMs.Should().Be(100_000);
+		chapters[1].Title.Should().Be("Chapter 1 (Part 2 of 2)");
+		chapters[1].StartOffsetMs.Should().Be(100_000);
+		chapters[1].StartOffsetSec.Should().Be(100);
+		chapters[1].LengthMs.Should().Be(100_000);
+	}
+
+	[TestMethod]
+	public void SplitLongChapters_ThreeParts_LastPartShorter()
+	{
+		var chapters = new List<Chapter>
+		{
+			new() { Title = "Long Chapter", StartOffsetMs = 0, StartOffsetSec = 0, LengthMs = 250_000 },
+		};
+
+		DownloadOptions.splitLongChapters(chapters, 100_000);
+
+		chapters.Count.Should().Be(3);
+		chapters[0].LengthMs.Should().Be(100_000);
+		chapters[1].LengthMs.Should().Be(100_000);
+		chapters[2].LengthMs.Should().Be(50_000);
+		chapters[2].StartOffsetMs.Should().Be(200_000);
+		chapters[2].StartOffsetSec.Should().Be(200);
+		chapters[2].Title.Should().Be("Long Chapter (Part 3 of 3)");
+	}
+
+	[TestMethod]
+	public void SplitLongChapters_OffsetPreserved()
+	{
+		var chapters = new List<Chapter>
+		{
+			new() { Title = "Chapter 1", StartOffsetMs = 0, StartOffsetSec = 0, LengthMs = 60_000 },
+			new() { Title = "Chapter 2", StartOffsetMs = 60_000, StartOffsetSec = 60, LengthMs = 200_000 },
+		};
+
+		DownloadOptions.splitLongChapters(chapters, 100_000);
+
+		chapters.Count.Should().Be(3);
+		chapters[0].Title.Should().Be("Chapter 1");
+		chapters[1].Title.Should().Be("Chapter 2 (Part 1 of 2)");
+		chapters[1].StartOffsetMs.Should().Be(60_000);
+		chapters[1].StartOffsetSec.Should().Be(60);
+		chapters[1].LengthMs.Should().Be(100_000);
+		chapters[2].Title.Should().Be("Chapter 2 (Part 2 of 2)");
+		chapters[2].StartOffsetMs.Should().Be(160_000);
+		chapters[2].StartOffsetSec.Should().Be(160);
+		chapters[2].LengthMs.Should().Be(100_000);
+	}
+
+	[TestMethod]
+	public void SplitLongChapters_MultipleChaptersOnlyLongOnesSplit()
+	{
+		var chapters = new List<Chapter>
+		{
+			new() { Title = "Short", StartOffsetMs = 0, StartOffsetSec = 0, LengthMs = 30_000 },
+			new() { Title = "Long", StartOffsetMs = 30_000, StartOffsetSec = 30, LengthMs = 300_000 },
+			new() { Title = "Short2", StartOffsetMs = 330_000, StartOffsetSec = 330, LengthMs = 30_000 },
+		};
+
+		DownloadOptions.splitLongChapters(chapters, 100_000);
+
+		chapters.Count.Should().Be(5);
+		chapters[0].Title.Should().Be("Short");
+		chapters[1].Title.Should().Be("Long (Part 1 of 3)");
+		chapters[2].Title.Should().Be("Long (Part 2 of 3)");
+		chapters[3].Title.Should().Be("Long (Part 3 of 3)");
+		chapters[4].Title.Should().Be("Short2");
+	}
 }

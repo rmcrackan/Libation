@@ -82,11 +82,20 @@ public partial class Configuration
 			re-encoding.
 			""" },
 		{nameof(MinimumFileDuration), """
-			The minimum duration (in minutes) for an chapter to
+			The minimum duration (in seconds) for a chapter to
 			be split into its own file. Chapters shorter than
 			this duration will be merged with the following
 			chapter. Merged chapter titles will be joined with
 			a space between them.
+			""" },
+		{nameof(MaximumFileDuration), """
+			The maximum duration (in seconds) for a chapter to
+			be split into its own file. Chapters longer than
+			this duration will be split into segments of at most
+			this length; the last segment will be shorter if the
+			chapter does not divide evenly. Segment titles are
+			suffixed with "(Part N of M)".
+			Set to 0 to disable.
 			""" },
 		{nameof(SpatialAudioCodec), """
 			The Dolby Digital Plus (E-AC-3) codec is more widely

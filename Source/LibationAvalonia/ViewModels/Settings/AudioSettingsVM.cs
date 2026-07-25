@@ -40,6 +40,7 @@ public class AudioSettingsVM : ViewModelBase
 		ClipBookmarkFormat = config.ClipsBookmarksFileFormat;
 		SplitFilesByChapter = config.SplitFilesByChapter;
 		MinimumFileDuration = config.MinimumFileDuration;
+		MaximumFileDuration = config.MaximumFileDuration;
 		MergeOpeningAndEndCredits = config.MergeOpeningAndEndCredits;
 		StripAudibleBrandAudio = config.StripAudibleBrandAudio;
 		StripUnabridged = config.StripUnabridged;
@@ -73,6 +74,7 @@ public class AudioSettingsVM : ViewModelBase
 		config.ClipsBookmarksFileFormat = ClipBookmarkFormat;
 		config.SplitFilesByChapter = SplitFilesByChapter;
 		config.MinimumFileDuration = MinimumFileDuration;
+		config.MaximumFileDuration = MaximumFileDuration;
 		config.MergeOpeningAndEndCredits = MergeOpeningAndEndCredits;
 		config.StripAudibleBrandAudio = StripAudibleBrandAudio;
 		config.StripUnabridged = StripUnabridged;
@@ -121,6 +123,7 @@ public class AudioSettingsVM : ViewModelBase
 	public string RetainAaxFileText { get; } = Configuration.GetDescription(nameof(Configuration.RetainAaxFile));
 	public string SplitFilesByChapterText { get; } = Configuration.GetDescription(nameof(Configuration.SplitFilesByChapter));
 	public string MinimumFileDurationText { get; } = Configuration.GetDescription(nameof(Configuration.MinimumFileDuration));
+	public string MaximumFileDurationText { get; } = Configuration.GetDescription(nameof(Configuration.MaximumFileDuration));
 	public string MergeOpeningEndCreditsText { get; } = Configuration.GetDescription(nameof(Configuration.MergeOpeningAndEndCredits));
 	public string StripAudibleBrandingText { get; } = Configuration.GetDescription(nameof(Configuration.StripAudibleBrandAudio));
 	public string StripUnabridgedText { get; } = Configuration.GetDescription(nameof(Configuration.StripUnabridged));
@@ -150,6 +153,7 @@ public class AudioSettingsVM : ViewModelBase
 	public bool DecryptToLossy { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 	public string DecryptToLossyTip => Configuration.GetHelpText(nameof(DecryptToLossy));
 	public string MinimumFileDurationTip => Configuration.GetHelpText(nameof(MinimumFileDuration));
+	public string MaximumFileDurationTip => Configuration.GetHelpText(nameof(MaximumFileDuration));
 	public bool MoveMoovToBeginning { get; set; }
 
 	public bool LameDownsampleMono { get; set; } = Design.IsDesignMode;
@@ -158,6 +162,7 @@ public class AudioSettingsVM : ViewModelBase
 
 	public bool SplitFilesByChapter { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
 	public int MinimumFileDuration { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
+	public int MaximumFileDuration { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
 	public bool LameTargetBitrate { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
 	public bool LameMatchSource { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
 	public int LameBitrate { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
