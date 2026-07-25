@@ -1,9 +1,9 @@
-using AppScaffolding;
 using ApplicationServices;
 using AudibleUtilities;
 using Dinah.Core;
 using Dinah.Core.StepRunner;
 using LibationFileManager;
+using LibationUiBase;
 using LibationWinForms.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -16,14 +16,7 @@ namespace LibationWinForms;
 
 internal class Walkthrough
 {
-	private readonly Dictionary<string, string> settingTabMessages = new()
-	{
-		{ "Important settings", "From here you can change where liberated books are stored and how detailed Libation's logs are.\r\n\r\nIf you experience a problem and need help, you'll be asked to provide your log file. In certain circumstances we may need you to reproduce the error with a higher level of logging detail."},
-		{ "Import library", "In this tab you can change how your library is scanned and imported into Libation, as well as automatic liberation.\r\n\r\nFor best use with screen readers, uncheck \"Use Libation's built-in web browser to log into Audible?\"."},
-		{ "Download/Decrypt", "These settings allow you to control how liberated files and folders are named and stored.\r\nYou can customize the 'Naming Templates' to use any number of the audiobook's properties to build a customized file and folder naming format. Learn more about the syntax from the wiki at\r\n\r\n" + LibationScaffolding.NamingTemplatesDocUrl},
-		{ "Audio File Options", "Control how audio files are decrypted, including audio format and metadata handling.\r\n\r\nIf you choose to split your audiobook into multiple files by chapter marker, you may edit the chapter file 'Naming Template' to control how each chapter file is named."},
-	};
-
+	private readonly HashSet<string> shownSettingTabs = [];
 	private static readonly Color FlashColor = Color.DodgerBlue;
 	private readonly Form1 MainForm;
 	private readonly AsyncStepSequence sequence = new();
@@ -49,7 +42,8 @@ internal class Walkthrough
 
 	private async Task<bool> ShowAccountDialog()
 	{
-		if (!ProceedMessageBox("First, add your Audible account(s).", "Add Accounts"))
+		var proceed = WalkthroughMessages.AddAccountsProceed;
+		if (!ProceedMessageBox(proceed.Message, proceed.Title))
 			return false;
 
 		await Task.Delay(750);
@@ -58,14 +52,16 @@ internal class Walkthrough
 
 		using var accountSettings = MainForm.Invoke(() => new AccountsDialog());
 		accountSettings.StartPosition = FormStartPosition.CenterParent;
-		accountSettings.Shown += (_, _) => MessageBox.Show(accountSettings, "Add your Audible account(s), then save.\r\n\r\nMost accounts use email and a normal region. If yours is a pre-Amazon username login, choose a pre-amazon locale and enter that username.", "Add an Account");
+		var onDialog = WalkthroughMessages.AddAccountOnDialog;
+		accountSettings.Shown += (_, _) => MessageBox.Show(accountSettings, onDialog.Message, onDialog.Title);
 		MainForm.Invoke(() => accountSettings.ShowDialog(MainForm));
 		return true;
 	}
 
 	private async Task<bool> ShowSettingsDialog()
 	{
-		if (!ProceedMessageBox("Next, adjust Libation's settings", "Change Settings"))
+		var proceed = WalkthroughMessages.ChangeSettingsProceed;
+		if (!ProceedMessageBox(proceed.Message, proceed.Title))
 			return false;
 
 		await Task.Delay(750);
@@ -100,11 +96,12 @@ internal class Walkthrough
 				settingsDialog.saveBtn.Visible = true;
 			}
 
-			if (!selectedTab.Visible || !settingTabMessages.ContainsKey(selectedTab.Text)) return;
+			if (!selectedTab.Visible
+				|| !WalkthroughMessages.TryGetSettingsTab(selectedTab.Text, out var message)
+				|| !shownSettingTabs.Add(selectedTab.Text))
+				return;
 
-			MessageBox.Show(selectedTab, settingTabMessages[selectedTab.Text], selectedTab.Text + " Tab", MessageBoxButtons.OK);
-
-			settingTabMessages.Remove(selectedTab.Text);
+			MessageBox.Show(selectedTab, message.Message, message.Title, MessageBoxButtons.OK);
 		}
 
 		void SettingsDialog_FormClosing(object? sender, FormClosingEventArgs e)
@@ -125,13 +122,13 @@ internal class Walkthrough
 
 		if (count < 1)
 		{
-			MainForm.Invoke(() => MessageBox.Show(MainForm, "Add an Audible account, then sync your library through the 'Import' menu.", "Add an Audible Account", MessageBoxButtons.OK, MessageBoxIcon.Information));
+			var noAccounts = WalkthroughMessages.NoAccountsYet;
+			MainForm.Invoke(() => MessageBox.Show(MainForm, noAccounts.Message, noAccounts.Title, MessageBoxButtons.OK, MessageBoxIcon.Information));
 			return true;
 		}
 
-		var accounts = count > 1 ? "accounts" : "account";
-		var library = count > 1 ? "libraries" : "library";
-		if (!ProceedMessageBox($"Finally, scan your Audible {accounts} to sync your {library} with Libation.\r\n\r\nIf this is your first time scanning an account, you'll be prompted to enter your account's password to log into your Audible account.", $"Scan {accounts}"))
+		var proceed = WalkthroughMessages.ScanProceed(count);
+		if (!ProceedMessageBox(proceed.Message, proceed.Title))
 			return false;
 
 		var scanItem = count > 1 ? MainForm.scanLibraryOfAllAccountsToolStripMenuItem : MainForm.scanLibraryToolStripMenuItem;
@@ -160,7 +157,8 @@ internal class Walkthrough
 		var firstAuthor = getFirstAuthor()?.SurroundWithQuotes();
 		if (firstAuthor == null) return true;
 
-		if (!ProceedMessageBox("You can filter the grid entries by searching", "Searching"))
+		var proceed = WalkthroughMessages.SearchingProceed;
+		if (!ProceedMessageBox(proceed.Message, proceed.Title))
 			return false;
 
 		await displayControlAsync(MainForm.filterSearchTb);
@@ -178,7 +176,8 @@ internal class Walkthrough
 
 		await Task.Delay(1000);
 
-		MessageBox.Show(MainForm, "Libation provides a built-in cheat sheet for its query language", "Search Cheat Sheet");
+		var cheatSheet = WalkthroughMessages.SearchCheatSheet;
+		MessageBox.Show(MainForm, cheatSheet.Message, cheatSheet.Title);
 
 		await displayControlAsync(MainForm.filterHelpBtn);
 
@@ -194,7 +193,8 @@ internal class Walkthrough
 		var firstAuthor = getFirstAuthor()?.SurroundWithQuotes();
 		if (firstAuthor == null) return true;
 
-		if (!ProceedMessageBox("Queries that you perform regularly can be added to 'Quick Filters'", "Quick Filters"))
+		var proceed = WalkthroughMessages.QuickFiltersProceed;
+		if (!ProceedMessageBox(proceed.Message, proceed.Title))
 			return false;
 
 		MainForm.Invoke(() => MainForm.filterSearchTb.Text = firstAuthor);
@@ -206,7 +206,8 @@ internal class Walkthrough
 		await displayControlAsync(MainForm.editQuickFiltersToolStripMenuItem);
 
 		var editQuickFilters = MainForm.Invoke(() => new EditQuickFilters());
-		editQuickFilters.Shown += (_, _) => MessageBox.Show(editQuickFilters, "From here you can edit, delete, and change the order of Quick Filters", "Editing Quick Filters");
+		var editMsg = WalkthroughMessages.EditQuickFilters;
+		editQuickFilters.Shown += (_, _) => MessageBox.Show(editQuickFilters, editMsg.Message, editMsg.Title);
 		MainForm.Invoke(editQuickFilters.ShowDialog);
 
 		return true;
@@ -214,7 +215,8 @@ internal class Walkthrough
 
 	private Task<bool> ShowTourComplete()
 	{
-		MessageBox.Show(MainForm, "You're now ready to begin using Libation.\r\n\r\nEnjoy!", "Tour Finished");
+		var finished = WalkthroughMessages.TourFinished;
+		MessageBox.Show(MainForm, finished.Message, finished.Title);
 		return Task.FromResult(true);
 	}
 
