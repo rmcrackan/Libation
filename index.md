@@ -20,24 +20,22 @@ hero:
       link: https://github.com/rmcrackan/Libation/issues
 
 features:
-  - title: Powered by AAXClean
-    details: Now uses the lightweight AAXClean for decryption, replacing the ffmpeg.
-
+  - title: Import Library
+    details: Import your library from Audible, including cover art
+  - title: DRM Removal
+    details: Download and remove DRM from all books
+  - title: PDF Download
+    details: Download accompanying PDFs
+  - title: Cross-Platform
+    details: Fully supported on Windows, Mac, and Linux
   - title: Region Support
     details: Supports most regions US, UK, Canada, Germany, France, Australia, Japan, India, and Spain
+  - title: Free, Open Source
+    details: Completely free. Forever. Source code you can see and trust.
   - title: Search
     details: Powerful advanced search built on the Lucene search engine
   - title: Filters
     details: Customizable saved filters for common searches
-  - title: Import Library
-    details: Import your library from Audible, including cover art
-  - title: Cross-Platform
-    details: Fully supported on Windows, Mac, and Linux
-  - title: PDF Download
-    details: Download accompanying PDFs
-
-  - title: DRM Removal
-    details: Download and remove DRM from all books
   - title: Organization
     details: Add tags to books for better organization
 ---
