@@ -58,7 +58,7 @@ export default defineConfig({
         text: "Issues & Requests",
         link: "https://github.com/rmcrackan/Libation/issues",
       },
-      { text: "Donate", link: "https://www.paypal.com/paypalme/mcrackan" },
+      { text: "Donate", link: "/donate" },
     ],
     sidebar: [
       {
@@ -70,7 +70,7 @@ export default defineConfig({
             text: "Issues & Requests",
             link: "https://github.com/rmcrackan/Libation/issues",
           },
-          { text: "Donate", link: "https://www.paypal.com/paypalme/mcrackan" },
+          { text: "Donate", link: "/donate" },
         ],
       },
       {
