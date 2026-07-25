@@ -1,5 +1,4 @@
 using ApplicationServices;
-using AudibleUtilities;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
@@ -51,7 +50,7 @@ internal class Walkthrough
 		if (!await ProceedMessageBox(proceed.Message, proceed.Title))
 			return false;
 
-		await Task.Delay(750);
+		await Task.Delay(WalkthroughHelpers.Timing.BeforeHighlightMs);
 		await displayControlAsync(MainForm.settingsToolStripMenuItem);
 		await displayControlAsync(MainForm.accountsToolStripMenuItem);
 
@@ -68,7 +67,7 @@ internal class Walkthrough
 		if (!await ProceedMessageBox(proceed.Message, proceed.Title))
 			return false;
 
-		await Task.Delay(750);
+		await Task.Delay(WalkthroughHelpers.Timing.BeforeHighlightMs);
 		await displayControlAsync(MainForm.settingsToolStripMenuItem);
 		await displayControlAsync(MainForm.basicSettingsToolStripMenuItem);
 
@@ -133,9 +132,7 @@ internal class Walkthrough
 
 	private async Task<bool> ShowAccountScanning()
 	{
-		var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-		var count = persister.AccountsSettings.Accounts.Count;
-		persister.Dispose();
+		var count = WalkthroughHelpers.GetConfiguredAccountCount();
 
 		if (count < 1)
 		{
@@ -150,7 +147,7 @@ internal class Walkthrough
 
 		var scanItem = count > 1 ? MainForm.scanLibraryOfAllAccountsToolStripMenuItem : MainForm.scanLibraryToolStripMenuItem;
 
-		await Task.Delay(750);
+		await Task.Delay(WalkthroughHelpers.Timing.BeforeHighlightMs);
 		await displayControlAsync(MainForm.importToolStripMenuItem);
 		await displayControlAsync(scanItem);
 
@@ -180,10 +177,12 @@ internal class Walkthrough
 	private async Task<bool> ShowSearching()
 	{
 		var books = DbContexts.GetLibrary_Flat_NoTracking();
-		if (books.Count == 0) return true;
+		if (books.Count == 0)
+			return true;
 
-		var firstAuthor = getFirstAuthor()?.SurroundWithQuotes();
-		if (firstAuthor == null) return true;
+		var firstAuthor = WalkthroughHelpers.GetFirstAuthorName()?.SurroundWithQuotes();
+		if (firstAuthor is null)
+			return true;
 
 		var proceed = WalkthroughMessages.SearchingProceed;
 		if (!await ProceedMessageBox(proceed.Message, proceed.Title))
@@ -195,14 +194,14 @@ internal class Walkthrough
 		foreach (var c in firstAuthor)
 		{
 			MainForm.filterSearchTb.Text += c;
-			await Task.Delay(150);
+			await Task.Delay(WalkthroughHelpers.Timing.TypeCharDelayMs);
 		}
 
 		await displayControlAsync(MainForm.filterBtn);
 
 		MainForm.filterBtn.Command?.Execute(firstAuthor);
 
-		await Task.Delay(1000);
+		await Task.Delay(WalkthroughHelpers.Timing.AfterFilterMs);
 
 		var cheatSheet = WalkthroughMessages.SearchCheatSheet;
 		await MessageBox.Show(MainForm, cheatSheet.Message, cheatSheet.Title);
@@ -218,8 +217,9 @@ internal class Walkthrough
 
 	private async Task<bool> ShowQuickFilters()
 	{
-		var firstAuthor = getFirstAuthor()?.SurroundWithQuotes();
-		if (firstAuthor == null) return true;
+		var firstAuthor = WalkthroughHelpers.GetFirstAuthorName()?.SurroundWithQuotes();
+		if (firstAuthor is null)
+			return true;
 
 		var proceed = WalkthroughMessages.QuickFiltersProceed;
 		if (!await ProceedMessageBox(proceed.Message, proceed.Title))
@@ -229,7 +229,7 @@ internal class Walkthrough
 
 		var editQuickFiltersToolStripMenuItem = MainForm.quickFiltersToolStripMenuItem.ItemsSource?.OfType<MenuItem>().ElementAt(1);
 
-		await Task.Delay(750);
+		await Task.Delay(WalkthroughHelpers.Timing.BeforeHighlightMs);
 		await displayControlAsync(MainForm.addQuickFilterBtn);
 		MainForm.addQuickFilterBtn.Command?.Execute(firstAuthor);
 		await displayControlAsync(MainForm.quickFiltersToolStripMenuItem);
@@ -250,12 +250,6 @@ internal class Walkthrough
 		return true;
 	}
 
-	private string? getFirstAuthor()
-	{
-		var books = DbContexts.GetLibrary_Flat_NoTracking();
-		return books.SelectMany(lb => lb.Book.Authors).FirstOrDefault(a => !string.IsNullOrWhiteSpace(a.Name))?.Name;
-	}
-
 	private async Task displayControlAsync(TemplatedControl? control)
 	{
 		if (control is null)
@@ -264,23 +258,23 @@ internal class Walkthrough
 		MainForm.productsDisplay.Focus();
 		await flashControlAsync(control);
 		if (control is MenuItem menuItem) menuItem.Open();
-		await Task.Delay(500);
+		await Task.Delay(WalkthroughHelpers.Timing.AfterHighlightMs);
 		control.IsEnabled = true;
 	}
 
-	private static async Task flashControlAsync(TemplatedControl control, int flashCount = 3)
+	private static async Task flashControlAsync(TemplatedControl control, int flashCount = WalkthroughHelpers.Timing.FlashCount)
 	{
 		for (int i = 0; i < flashCount; i++)
 		{
 			control.Styles.Add(disabledStyle);
 			control.Styles.Add(disabledStyle2);
-			await Task.Delay(200);
+			await Task.Delay(WalkthroughHelpers.Timing.FlashIntervalMs);
 			control.Styles.Remove(disabledStyle);
 			control.Styles.Remove(disabledStyle2);
 			control.Styles.Add(enabedStyle);
 			control.Styles.Add(enabedStyle2);
 			control.InvalidateVisual();
-			await Task.Delay(200);
+			await Task.Delay(WalkthroughHelpers.Timing.FlashIntervalMs);
 			control.Styles.Remove(enabedStyle);
 			control.Styles.Remove(enabedStyle2);
 		}
