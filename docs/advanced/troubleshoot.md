@@ -23,6 +23,10 @@ Audible returned an HTML page instead of JSON. Common causes: transient outage, 
 3. Disable VPN/proxy and scan again.
 4. Remove and re-add the account in Libation.
 
+## Login fails for an old pre-Amazon Audible account
+
+If your Audible account predates Amazon and login fails when you use an email or a normal region, choose a **pre-amazon** locale and enter your old **username** in the Audible email/login field. See the [FAQ](/docs/frequently-asked-questions#my-audible-account-is-from-before-amazon---how-do-i-add-it).
+
 ## How to run the Hangover App
 
 When troubleshooting, you may be asked to run 'Hangover'. Hangover is a debugging app to help diagnose and solve some problems with Libation.

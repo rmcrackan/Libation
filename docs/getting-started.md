@@ -40,9 +40,11 @@ Create your account(s):
 
 ![Create your accounts, menu](images/v40_accounts.png)
 
-New locale options include many more regions including old audible accounts which pre-date the amazon acquisition
-
 ![Choose your account locales](images/v40_locales.png)
+
+::: tip Pre-Amazon accounts
+Most people use a normal region and their Audible **email**. If your account predates Amazon and still signs in with a **username**, choose a **pre-amazon** locale and put that username in the Audible email/login field.
+:::
 
 ## Import Your Library
 
