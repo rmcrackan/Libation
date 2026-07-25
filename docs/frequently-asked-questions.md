@@ -67,6 +67,10 @@ Like many countries, amazon gives South Africa it's own amazon site. [Unlike man
 
 (Not exactly a *frequently* asked question but it's come up more than once)
 
+## My Audible Account Is From Before Amazon - How Do I Add It?
+
+Choose a **pre-amazon** locale (US, UK, or Germany) in the region dropdown, and enter your old Audible **username** in the Audible email/login field - not an email address. Details: [Getting Started - Create Accounts](/docs/getting-started#create-accounts).
+
 ## Spatial audio and Dolby Atmos
 
 Libation **cannot download** Dolby Atmos or spatial audio from Audible. Full explanation: [Spatial Audio, Dolby Atmos, and Widevine DRM](./advanced/spatial-audio.md).

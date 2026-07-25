@@ -58,7 +58,7 @@ internal class Walkthrough
 
 		using var accountSettings = MainForm.Invoke(() => new AccountsDialog());
 		accountSettings.StartPosition = FormStartPosition.CenterParent;
-		accountSettings.Shown += (_, _) => MessageBox.Show(accountSettings, "Add your Audible account(s), then save.", "Add an Account");
+		accountSettings.Shown += (_, _) => MessageBox.Show(accountSettings, "Add your Audible account(s), then save.\r\n\r\nMost accounts use email and a normal region. If yours is a pre-Amazon username login, choose a pre-amazon locale and enter that username.", "Add an Account");
 		MainForm.Invoke(() => accountSettings.ShowDialog(MainForm));
 		return true;
 	}
