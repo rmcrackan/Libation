@@ -30,6 +30,7 @@ public partial class AboutDialog : Form
 		MBucariLbl.SetLinkLabelColors();
 		releaseNotesLbl.SetLinkLabelColors();
 		getLibationLbl.SetLinkLabelColors();
+		donateLbl.SetLinkLabelColors();
 
 		var toolTip = new ToolTip();
 		toolTip.SetToolTip(releaseNotesLbl, "View Release Notes");
@@ -82,4 +83,7 @@ public partial class AboutDialog : Form
 
 	private void getLibationLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		=> Dinah.Core.Go.To.Url(AppScaffolding.LibationScaffolding.WebsiteUrl);
+
+	private void donateLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		=> Dinah.Core.Go.To.Url(AppScaffolding.LibationScaffolding.DonateUrl);
 }
