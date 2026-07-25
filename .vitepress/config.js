@@ -137,5 +137,8 @@ export default defineConfig({
     search: {
       provider: "local",
     },
+
+    // Show the external-link arrow on outbound links in markdown (nav/sidebar already do).
+    externalLinkIcon: true,
   },
 });
