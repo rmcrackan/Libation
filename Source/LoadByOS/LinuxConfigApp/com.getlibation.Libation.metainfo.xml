@@ -26,7 +26,7 @@
   </description>
   <launchable type="desktop-id">com.getlibation.Libation.desktop</launchable>
   <url type="bugtracker">https://github.com/rmcrackan/Libation/issues</url>
-  <url type="donation">https://paypal.me/mcrackan?locale.x=en_us</url>
+  <url type="donation">https://getlibation.com/donate</url>
   <url type="homepage">https://getlibation.com</url>
   <url type="vcs-browser">https://github.com/rmcrackan/Libation</url>
   <screenshots>

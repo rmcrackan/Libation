@@ -54,5 +54,5 @@ Libation is released under the GPL-3.0 License
 
 ---
 
-If you found this useful, tell a friend. If you found this REALLY useful, you can click here to PayPal.me
+If you found this useful, tell a friend. If you found this REALLY useful, you can [donate here](https://getlibation.com/donate)
 ...or just tell more friends. As long as I'm maintaining this software, it will remain free and open source.

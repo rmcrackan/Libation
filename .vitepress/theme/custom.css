@@ -9,6 +9,51 @@
     "Liberation Mono", "Courier New", monospace;
 }
 
+/* Donate page: primary options */
+.donate-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.donate-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  min-width: 11rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background: var(--vp-c-bg-soft);
+  text-decoration: none !important;
+  color: var(--vp-c-text-1) !important;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.donate-option:hover {
+  border-color: var(--vp-c-brand-1);
+  background: var(--vp-c-bg-elv);
+}
+
+.donate-option__icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.donate-option__label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.donate-option__hint {
+  font-size: 0.85rem;
+  color: var(--vp-c-text-2);
+}
+
 /* Hide certain nav items on tablet devices to prevent horizontal scroll */
 @media (min-width: 640px) and (max-width: 959px) {
   /* Target specific nav items by their position */

@@ -62,6 +62,8 @@ public partial class AboutDialog : DialogWindow
 
 	private void Link_getlibation(object sender, Avalonia.Input.TappedEventArgs e) => Dinah.Core.Go.To.Url(AppScaffolding.LibationScaffolding.WebsiteUrl);
 
+	private void Link_donate(object sender, Avalonia.Input.TappedEventArgs e) => Dinah.Core.Go.To.Url(AppScaffolding.LibationScaffolding.DonateUrl);
+
 	private void ViewReleaseNotes_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
 		=> Dinah.Core.Go.To.Url($"{AppScaffolding.LibationScaffolding.RepositoryUrl}/releases/tag/v{AppScaffolding.LibationScaffolding.BuildVersion.ToVersionString()}");
 }

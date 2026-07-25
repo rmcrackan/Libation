@@ -32,6 +32,7 @@
 			releaseNotesLbl = new System.Windows.Forms.LinkLabel();
 			checkForUpgradeBtn = new System.Windows.Forms.Button();
 			getLibationLbl = new System.Windows.Forms.LinkLabel();
+			donateLbl = new System.Windows.Forms.LinkLabel();
 			rmcrackanLbl = new System.Windows.Forms.LinkLabel();
 			MBucariLbl = new System.Windows.Forms.LinkLabel();
 			groupBox1 = new System.Windows.Forms.GroupBox();
@@ -91,6 +92,19 @@
 			getLibationLbl.TabStop = true;
 			getLibationLbl.Text = "https://getlibation.com";
 			getLibationLbl.LinkClicked += getLibationLbl_LinkClicked;
+			// 
+			// donateLbl
+			// 
+			donateLbl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			donateLbl.AutoSize = true;
+			donateLbl.Font = new System.Drawing.Font("Segoe UI", 11F);
+			donateLbl.Location = new System.Drawing.Point(185, 12);
+			donateLbl.Name = "donateLbl";
+			donateLbl.Size = new System.Drawing.Size(54, 20);
+			donateLbl.TabIndex = 8;
+			donateLbl.TabStop = true;
+			donateLbl.Text = "Donate";
+			donateLbl.LinkClicked += donateLbl_LinkClicked;
 			// 
 			// rmcrackanLbl
 			// 
@@ -193,6 +207,7 @@
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			ClientSize = new System.Drawing.Size(434, 491);
 			Controls.Add(groupBox1);
+			Controls.Add(donateLbl);
 			Controls.Add(getLibationLbl);
 			Controls.Add(checkForUpgradeBtn);
 			Controls.Add(releaseNotesLbl);
@@ -214,6 +229,7 @@
 		private System.Windows.Forms.LinkLabel releaseNotesLbl;
 		private System.Windows.Forms.Button checkForUpgradeBtn;
 		private System.Windows.Forms.LinkLabel getLibationLbl;
+		private System.Windows.Forms.LinkLabel donateLbl;
 		private System.Windows.Forms.LinkLabel rmcrackanLbl;
 		private System.Windows.Forms.LinkLabel MBucariLbl;
 		private System.Windows.Forms.GroupBox groupBox1;

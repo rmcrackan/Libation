@@ -3,9 +3,25 @@ import { defineConfig } from "vitepress";
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   vite: {
+    // esbuild 0.28+ will not downlevel destructuring for safari14 / chrome87.
+    // Raise the target so docs:dev and docs:build do not need that transform.
+    build: {
+      target: "es2022",
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        target: "es2022",
+      },
+    },
     esbuild: {
       supported: {
         destructuring: true,
+      },
+    },
+    // Avoid watching the C# solution / VS locks (EBUSY on .vsidx files).
+    server: {
+      watch: {
+        ignored: ["**/Source/**", "**/.vs/**", "**/bin/**", "**/obj/**"],
       },
     },
   },
@@ -42,7 +58,7 @@ export default defineConfig({
         text: "Issues & Requests",
         link: "https://github.com/rmcrackan/Libation/issues",
       },
-      { text: "Donate", link: "https://www.paypal.com/paypalme/mcrackan" },
+      { text: "Donate", link: "/donate" },
     ],
     sidebar: [
       {
@@ -54,7 +70,7 @@ export default defineConfig({
             text: "Issues & Requests",
             link: "https://github.com/rmcrackan/Libation/issues",
           },
-          { text: "Donate", link: "https://www.paypal.com/paypalme/mcrackan" },
+          { text: "Donate", link: "/donate" },
         ],
       },
       {
@@ -121,5 +137,8 @@ export default defineConfig({
     search: {
       provider: "local",
     },
+
+    // Show the external-link arrow on outbound links in markdown (nav/sidebar already do).
+    externalLinkIcon: true,
   },
 });

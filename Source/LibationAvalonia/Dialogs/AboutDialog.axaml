@@ -15,7 +15,10 @@
 		
 		<controls:LinkLabel FontSize="16" FontWeight="Bold" Text="{Binding Version}" ToolTip.Tip="View Release Notes" Tapped="ViewReleaseNotes_Tapped" />
 
-		<controls:LinkLabel Grid.Row="1" FontSize="14" VerticalAlignment="Center" Text="https://getlibation.com" Tapped="Link_getlibation"/>
+		<StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="16">
+			<controls:LinkLabel FontSize="14" VerticalAlignment="Center" Text="https://getlibation.com" Tapped="Link_getlibation"/>
+			<controls:LinkLabel FontSize="14" VerticalAlignment="Center" Text="Donate" Tapped="Link_donate"/>
+		</StackPanel>
 		
 		<Button Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,10,0,0"  IsEnabled="{Binding CanCheckForUpgrade}" Content="{Binding UpgradeButtonText}" Click="CheckForUpgrade_Click" />
 

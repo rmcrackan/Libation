@@ -1,27 +1,47 @@
 # Website & Docs
 
-This documentation is built with [VitePress](https://vitepress.dev/) and located in the `docs` directory. For more information like [markdown syntax](https://vitepress.dev/guide/markdown#advanced-configuration) and [routing](https://vitepress.dev/guide/routing) or other features, refer [VitePress documentation](https://vitepress.dev/guide).
+The [getlibation.com](https://getlibation.com) site is built with [VitePress](https://vitepress.dev/). Site content lives in this repo: the home page is `index.md` at the root, documentation pages are under `docs/`, and site config / theme files are in `.vitepress/`.
 
-### Prerequisites
+For VitePress details (markdown, routing, and more), see the [VitePress guide](https://vitepress.dev/guide).
 
-- Node.js 18+
+## Prerequisites
 
-### Commands
+- [Node.js](https://nodejs.org/) 18 or newer
+
+## Run the site locally
+
+From the **repository root** (`Libation/`, where `package.json` is):
+
+### One-time setup
+
+Install npm dependencies (needed once after cloning, or again after dependency changes):
 
 ```bash
-# Install dependencies
 npm install
+```
 
-# Start local dev server (http://localhost:5173)
+### Start the dev server
+
+```bash
 npm run docs:dev
+```
 
-# Build for production (output: docs/.vitepress/dist)
+Then open [http://localhost:5173](http://localhost:5173) in your browser. The server reloads when you edit markdown or theme files.
+
+Stop it with `Ctrl+C` in that terminal.
+
+### Other commands
+
+```bash
+# Production build (output: .vitepress/dist)
 npm run docs:build
 
-# Preview production build
+# Preview the production build locally
 npm run docs:preview
 ```
 
-### Note
+## Adding pages
 
-New pages are automatically routed based on their folder structure (e.g., `docs/docs/index.md` maps to `/docs/index`). To add them to the sidebar, update the `sidebar` configuration in `.vitepress/config.js`.
+New markdown files are routed from their path automatically (for example `docs/getting-started.md` -> `/docs/getting-started`, or `donate.md` at the repo root -> `/donate`).
+
+To show a page in the sidebar or top nav, add it in `.vitepress/config.js`. A page can exist and be reachable by URL without being linked in navigation.

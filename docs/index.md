@@ -43,4 +43,4 @@ Join the community and contribute to Libation:
 ## Support & Community
 
 - **[Issues & Requests](https://github.com/rmcrackan/Libation/issues)** - Report bugs or request features
-- **[Donate](https://www.paypal.com/paypalme/mcrackan)** - Support the development of Libation
+- **[Donate](/donate)** - Support the development of Libation
