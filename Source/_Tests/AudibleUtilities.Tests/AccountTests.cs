@@ -1,11 +1,15 @@
 ﻿using AssertionHelper;
 using AudibleApi;
 using AudibleApi.Authorization;
+using AudibleApi.Cryptography;
 using AudibleUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 [assembly: Parallelize]
 
@@ -602,6 +606,150 @@ public class transactions : AccountsTestBase
 			File.ReadAllText(TestFile).Should().Be(EMPTY_FILE);
 			p.IsInTransaction.Should().BeTrue();
 		}
+	}
+}
+
+/// <summary>
+/// Characterization: AccountsSettings.json currently persists Identity tokens as plaintext
+/// with no IsEncrypted metadata. Baseline before token-storage encryption work.
+/// </summary>
+[TestClass]
+public class LegacyPlaintextIdentityTokens : AccountsTestBase
+{
+	const string SampleAccessToken = "Atna|_CHAR_ACCESS_";
+	const string SampleRefreshToken = "Atnr|_CHAR_REFRESH_";
+	const string SampleAdpToken = "{enc:abcdefg}{key:1234}{iv:56789}{name:QURQVG9rZW5FbmNyeXB0aW9uS2V5}{serial:Mg==}";
+	const string SampleStoreAuthCookie = "store-auth-cookie-value";
+	static readonly DateTime SampleExpires = new(2200, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+
+	const string SamplePrivateKey = @"
+-----BEGIN RSA PRIVATE KEY-----
+MIIEpgIBAAKCAQEA5nPbGSVDmlEH2tJa6kz/P2HI8IeirhfPHdmi+X/nsb9i3WNf
+tmEdZxfK26IValQDXvBH17a1gr0HD6pYse1XsV2w0HxiW1RW+ZnjL8/fzPdkSOb+
+4xKlqRopCueBSdDGgAF06spZ3IeHLfEFOJX4dO1Y73pFBUkA0k53LT12L2Tjay/r
+buZHJqIzxmwja7/nkiWL0Xo7UySHtQACYsKEatu6yHBS+cPTlGR/qeUpeJTHwDLP
+7ZQ7kWzJGY1mfInYekjlZLsMsWswso3pg1vPyHgxzM2BWhY8m6mlXQ9G/USxBTib
+MNuMtpR73XsgamneFCc+Uv1cxw7ofZ41YOOAbQIDAQABAoIBAQDIre8HkKm0Aggj
+B7df/TjxCsgenR6PF/Cmf9UqC7XJ1W3UeCrq+NrP4aonZJfdhdeBnyAQuuyJMu6p
+N6ARISuSKpJEm2xTN7idluJ9yjmLlYtg6LbhKmXUQhGniz3M999DrQERTLDAF80h
+tpbjVcWMnPsrX4AnQBFVEjs5zCHU1hD+X463EmUHBWyT975jbZ8Fy7/fTzkdzLnn
+qE5lROALr2MCAAwQRFbRE6dd52vnXaBrVcAtRzjATts3WG3+SNi2Fm/OrYqQcY9e
+lBexNviT8VcldOAMrO10E2u0d+tvxFzwB3ABMvaVamrEZky4XSfB6aLzpD0JJj1s
+UHnIiVwJAoGBAPl8nLll/J9rud/N2HiAX2YkP0MC0HW4yM3KxLtXKyXrP5qBpaci
+wTDUmSWEEE3GUJMM1Z4d9tl9Lz2MhU2KqkEvLI3kQ7aUu33PYUBGMVcUzhFQ49lU
+Nzz8YB183iqo31o/DKk2Cr5gI7SykQZ0gn/urZkEJeErLzlhPXcyeY5jAoGBAOx4
+CGucVdv5MbdXZP8jVzxuvUlSp7BIQJ2phQXDFBNApFKnZn7yBYBx7dqzleymGm+R
+INZAurg3SNw4nvbQc3Z2dJ8I+n5ErjFCKp1IedVxx1eMEfecTwrQZuUwLISIyjqF
+czSJNwcNqzCx67z397/Cg5K/0pu6uIe0r7xozcbvAoGBAOOvZ9CDVPOg+rdXQvFm
+Jqou9lUPonNtOkUlgjl+qfAnK5q0KxvHSgxoWYO1bLOuAybQlbuBmSCPcKd5MMa9
+f/eRN9YetfVQ83Mz6YshBDJ22EFRUz+p7eeIY6dFp/PCvmO8Gq/qlA996dglBtmf
+RuG+T0vQT0mZgbWaGuBHfkwFAoGBAMOLg1MRxgKRMKavk6pU3EfyP3+J5XemWCDI
+1WLtbgV5uClNmzmxBBGypQHs7jbzKPtHpULn5kB+HzdVb0clG8ZDsK7u6s5OF0pO
+sBS+oVl7rF/eSeFcFhUYP26ZhsbWo3z/bERuj926VO2AxDPRTsP5o3pQPGZhY0V9
+irGgbUJrAoGBAOseS3J4BqYM4R3Hr7cRAhvzSjIkeTcDF1zTOa4FZDHBxZ6g2PNq
+8ekhtfn1zPczsPTF1vNuqEISKLxaPkVPiw0mtaZQjVwpF/IOxMNjWVLp6oJf8Mm2
+BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
+-----END RSA PRIVATE KEY-----
+";
+
+	static Identity CreateRegisteredIdentity()
+	{
+		var identity = new Identity(Localization.Get("us"));
+		identity.Update(
+			new PrivateKey(SamplePrivateKey),
+			new AdpToken(SampleAdpToken),
+			new AccessToken(SampleAccessToken, SampleExpires),
+			new RefreshToken(SampleRefreshToken),
+			new List<KeyValuePair<string, string?>> { new("session-id", "cookie-secret-value") },
+			deviceSerialNumber: "device-serial",
+			deviceType: "device-type",
+			amazonAccountId: "amzn-account",
+			deviceName: "device-name",
+			storeAuthenticationCookie: SampleStoreAuthCookie);
+		return identity;
+	}
+
+	[TestMethod]
+	public void toJson_registered_account_has_no_IsEncrypted_and_plaintext_secrets()
+	{
+		var settings = new AccountsSettings();
+		settings.Add(new Account("user@example.com")
+		{
+			AccountName = "Main",
+			IdentityTokens = CreateRegisteredIdentity()
+		});
+
+		var json = settings.ToJson();
+		var jo = JObject.Parse(json);
+
+		jo.SelectTokens("$..IsEncrypted").Should().HaveCount(0);
+		var tokens = jo["Accounts"]![0]!["IdentityTokens"]!;
+		tokens["ExistingAccessToken"]!["TokenValue"]!.Value<string>().Should().Be(SampleAccessToken);
+		tokens["RefreshToken"]!["Value"]!.Value<string>().Should().Be(SampleRefreshToken);
+		tokens["AdpToken"]!["Value"]!.Value<string>().Should().Be(SampleAdpToken);
+		tokens["PrivateKey"]!["Value"]!.Value<string>().Should().Be(SamplePrivateKey);
+		tokens["StoreAuthenticationCookie"]!.Value<string>().Should().Be(SampleStoreAuthCookie);
+		tokens["Cookies"]![0]!["Value"]!.Value<string>().Should().Be("cookie-secret-value");
+	}
+
+	[TestMethod]
+	public void fromJson_legacy_file_loads_usable_plaintext_tokens()
+	{
+		var settings = new AccountsSettings();
+		settings.Add(new Account("user@example.com")
+		{
+			AccountName = "Main",
+			DecryptKey = "activation-bytes-ok-as-plaintext",
+			IdentityTokens = CreateRegisteredIdentity()
+		});
+		var legacyJson = settings.ToJson();
+		JObject.Parse(legacyJson).SelectTokens("$..IsEncrypted").Should().HaveCount(0);
+
+		var loaded = AccountsSettings.FromJson(legacyJson);
+		loaded.BeNotNull();
+		loaded.Accounts.Count.Should().Be(1);
+
+		var account = loaded.Accounts[0];
+		account.AccountId.Should().Be("user@example.com");
+		account.DecryptKey.Should().Be("activation-bytes-ok-as-plaintext");
+		account.IdentityTokens.BeNotNull();
+		account.IdentityTokens.IsValid.Should().BeTrue();
+		account.IdentityTokens.ExistingAccessToken.TokenValue.Should().Be(SampleAccessToken);
+		account.IdentityTokens.RefreshToken.BeNotNull();
+		account.IdentityTokens.RefreshToken.Value.Should().Be(SampleRefreshToken);
+		account.IdentityTokens.AdpToken.BeNotNull();
+		account.IdentityTokens.AdpToken.Value.Should().Be(SampleAdpToken);
+		account.IdentityTokens.PrivateKey.BeNotNull();
+		account.IdentityTokens.PrivateKey.Value.Should().Be(SamplePrivateKey);
+		account.IdentityTokens.StoreAuthenticationCookie.Should().Be(SampleStoreAuthCookie);
+		account.IdentityTokens.Cookies.Single().Value.Should().Be("cookie-secret-value");
+	}
+
+	[TestMethod]
+	public void persister_roundtrip_keeps_plaintext_tokens_without_IsEncrypted()
+	{
+		using (var p = new AccountsSettingsPersister(new AccountsSettings(), TestFile))
+		{
+			p.AccountsSettings.Add(new Account("user@example.com")
+			{
+				AccountName = "Main",
+				IdentityTokens = CreateRegisteredIdentity()
+			});
+		}
+
+		var onDisk = File.ReadAllText(TestFile);
+		var jo = JObject.Parse(onDisk);
+		jo.SelectTokens("$..IsEncrypted").Should().HaveCount(0);
+		jo["Accounts"]![0]!["IdentityTokens"]!["RefreshToken"]!["Value"]!.Value<string>()
+			.Should().Be(SampleRefreshToken);
+
+		using var loaded = new AccountsSettingsPersister(TestFile);
+		var tokens = loaded.AccountsSettings.Accounts[0].IdentityTokens;
+		tokens.BeNotNull();
+		tokens.IsValid.Should().BeTrue();
+		tokens.ExistingAccessToken.TokenValue.Should().Be(SampleAccessToken);
+		tokens.RefreshToken.BeNotNull();
+		tokens.RefreshToken.Value.Should().Be(SampleRefreshToken);
 	}
 }
 #pragma warning restore CS8981
