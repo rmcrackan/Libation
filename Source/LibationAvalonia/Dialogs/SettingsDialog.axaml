@@ -80,6 +80,14 @@
 					<settings:Audio DataContext="{Binding AudioSettings, Mode=OneTime}" />
 				</ScrollViewer>
 			</TabItem>
+			<TabItem>
+				<TabItem.Header>
+					<TextBlock Text="Audiobookshelf"/>
+				</TabItem.Header>
+				<ScrollViewer VerticalScrollBarVisibility="Auto">
+					<settings:Audiobookshelf DataContext="{Binding AudiobookshelfSettings, Mode=OneTime}" />
+				</ScrollViewer>
+			</TabItem>
 		</TabControl>
 	</Grid>
 </Window>

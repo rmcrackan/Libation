@@ -269,6 +269,7 @@ public class ProcessBookViewModel : ReactiveObject
 	public ProcessBookViewModel AddDownloadPdf() => AddProcessable<DownloadPdf>();
 	public ProcessBookViewModel AddDownloadDecryptBook() => AddProcessable<DownloadDecryptBook>();
 	public ProcessBookViewModel AddConvertToMp3() => AddProcessable<ConvertToMp3>();
+	public ProcessBookViewModel AddUploadToAudiobookshelf() => AddProcessable<UploadToAudiobookshelf>();
 	public ProcessBookViewModel AddSimulateBadBookFailure() => AddProcessable<SimulateBadBookFailure>();
 
 	private ProcessBookViewModel AddProcessable<T>() where T : Processable, IProcessable<T>

@@ -1,0 +1,79 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
+             xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
+             x:DataType="vm:AudiobookshelfSettingsVM"
+             x:Class="LibationAvalonia.Controls.Settings.Audiobookshelf">
+
+	<StackPanel Margin="6" Spacing="0">
+		<CheckBox IsChecked="{Binding Enabled, Mode=TwoWay}"
+				  Content="Automatically upload downloaded books to Audiobookshelf"
+				  Margin="0,0,0,10" />
+
+		<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+			<!-- Server URL -->
+			<TextBlock Grid.Row="0" Grid.Column="0"
+					   Text="Server URL"
+					   VerticalAlignment="Center"
+					   Margin="0,0,10,6" />
+			<TextBox Grid.Row="0" Grid.Column="1"
+					 Text="{Binding ServerUrl, Mode=TwoWay}"
+					 PlaceholderText="https://abs.example.com"
+					 Margin="0,0,0,6" />
+
+			<!-- API Token -->
+			<TextBlock Grid.Row="1" Grid.Column="0"
+					   Text="API Token"
+					   VerticalAlignment="Center"
+					   Margin="0,0,10,10" />
+			<TextBox Grid.Row="1" Grid.Column="1"
+					 Text="{Binding ApiToken, Mode=TwoWay}"
+					 PasswordChar="*"
+					 PlaceholderText="Your ABS API token"
+					 Margin="0,0,0,10" />
+
+			<!-- Connect Button -->
+			<Button Grid.Row="2" Grid.Column="1"
+					Content="Connect / Refresh"
+					Command="{Binding ConnectCommand}"
+					IsEnabled="{Binding !IsConnecting}"
+					HorizontalAlignment="Left"
+					HorizontalContentAlignment="Center"
+					MinWidth="150"
+					MinHeight="34"
+					Margin="0,0,0,10" />
+
+			<!-- Status -->
+			<ProgressBar Grid.Row="3" Grid.Column="1"
+						 IsIndeterminate="True"
+						 IsVisible="{Binding IsConnecting}"
+						 Margin="0,0,0,6" />
+			<TextBlock Grid.Row="4" Grid.Column="1"
+					   Text="{Binding StatusText}"
+					   TextWrapping="Wrap"
+					   IsVisible="{Binding !IsConnecting}"
+					   Margin="0,0,0,8" />
+
+			<!-- Library -->
+			<TextBlock Grid.Row="5" Grid.Column="0"
+					   Text="Library"
+					   VerticalAlignment="Center"
+					   Margin="0,0,10,7" />
+			<ComboBox Grid.Row="5" Grid.Column="1"
+					  ItemsSource="{Binding LibraryNames}"
+					  SelectedIndex="{Binding SelectedLibraryIndex, Mode=TwoWay}"
+					  Margin="0,0,0,7" />
+
+			<!-- Folder -->
+			<TextBlock Grid.Row="6" Grid.Column="0"
+					   Text="Folder"
+					   VerticalAlignment="Center"
+					   Margin="0,0,10,0" />
+			<ComboBox Grid.Row="6" Grid.Column="1"
+					  ItemsSource="{Binding FolderNames}"
+					  SelectedIndex="{Binding SelectedFolderIndex, Mode=TwoWay}" />
+		</Grid>
+	</StackPanel>
+</UserControl>

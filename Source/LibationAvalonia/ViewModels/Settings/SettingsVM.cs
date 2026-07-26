@@ -10,12 +10,14 @@ public class SettingsVM
 		ImportSettings = new ImportSettingsVM(config);
 		DownloadDecryptSettings = new DownloadDecryptSettingsVM(config);
 		AudioSettings = new AudioSettingsVM(config);
+		AudiobookshelfSettings = new AudiobookshelfSettingsVM(config);
 	}
 
 	public ImportantSettingsVM ImportantSettings { get; private set; }
 	public ImportSettingsVM ImportSettings { get; private set; }
 	public DownloadDecryptSettingsVM DownloadDecryptSettings { get; private set; }
 	public AudioSettingsVM AudioSettings { get; private set; }
+	public AudiobookshelfSettingsVM AudiobookshelfSettings { get; private set; }
 
 	public void SaveSettings(Configuration config)
 	{
@@ -23,5 +25,6 @@ public class SettingsVM
 		ImportSettings.SaveSettings(config);
 		DownloadDecryptSettings.SaveSettings(config);
 		AudioSettings.SaveSettings(config);
+		AudiobookshelfSettings.SaveSettings(config);
 	}
 }

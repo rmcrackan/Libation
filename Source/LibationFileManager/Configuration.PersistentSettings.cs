@@ -318,6 +318,23 @@ public partial class Configuration
 	//[Description("Request Spatial Audio")]
 	public bool RequestSpatial { get => false; set { } } // { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
+	#region Audiobookshelf
+	[Description("Automatically upload downloaded books to Audiobookshelf")]
+	public bool AudiobookshelfEnabled { get => GetNonString(defaultValue: false); set => SetNonString(value); }
+
+	[Description("Audiobookshelf server URL")]
+	public string? AudiobookshelfServerUrl { get => GetString(); set => SetString(value); }
+
+	[Description("Audiobookshelf API token")]
+	public string? AudiobookshelfApiToken { get => GetString(); set => SetString(value); }
+
+	[Description("Audiobookshelf library ID")]
+	public string? AudiobookshelfLibraryId { get => GetString(); set => SetString(value); }
+
+	[Description("Audiobookshelf folder ID")]
+	public string? AudiobookshelfFolderId { get => GetString(); set => SetString(value); }
+	#endregion
+
 	//[Description("Spatial audio codec:")]
 	public SpatialCodec SpatialAudioCodec { get => GetNonString(defaultValue: SpatialCodec.EC_3); set => SetNonString(value); }
 
