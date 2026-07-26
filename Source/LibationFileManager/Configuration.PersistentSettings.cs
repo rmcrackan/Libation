@@ -1,3 +1,4 @@
+using AudibleApi.Authorization;
 using FileManager;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -299,6 +300,13 @@ public partial class Configuration
 	{
 		EC_3,
 		AC_4
+	}
+
+	[Description("Store authentication tokens encrypted. Unchecking this option stores tokens in plaintext.")]
+	public TokenStorageMethod TokenStorageMethod
+	{
+		get => GetNonString(defaultValue: TokenStorageMethod.Encrypted);
+		set => SetNonString(value);
 	}
 
 	[Description("Use Widevine DRM")]

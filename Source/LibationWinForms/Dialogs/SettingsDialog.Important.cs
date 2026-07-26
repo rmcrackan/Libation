@@ -1,10 +1,13 @@
-﻿using Dinah.Core;
+﻿using AudibleApi.Authorization;
+using AudibleUtilities;
+using Dinah.Core;
 using FileManager;
 using LibationFileManager;
 using LibationUiBase;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LibationWinForms.Dialogs;
@@ -20,6 +23,8 @@ public partial class SettingsDialog
 	}
 	private Configuration.Theme themeVariant;
 	private Configuration.Theme initialThemeVariant;
+	private TokenStorageMethod initialTokenStorageMethod;
+	private bool osSecretStoreAvailable;
 
 	private void Load_Important(Configuration config)
 	{
@@ -67,9 +72,60 @@ public partial class SettingsDialog
 		overwriteExistingCbox.Checked = config.OverwriteExisting;
 		gridScaleFactorTbar.Value = scaleFactorToLinearRange(config.GridScaleFactor);
 		gridFontScaleFactorTbar.Value = scaleFactorToLinearRange(config.GridFontScaleFactor);
+
+		Load_TokenStorage(config);
 	}
 
-	private bool Save_Important(Configuration config)
+	private void Load_TokenStorage(Configuration config)
+	{
+		initialTokenStorageMethod = config.TokenStorageMethod;
+		osSecretStoreAvailable = IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out var unavailableReason);
+
+		encryptTokensCbox.Text = TokenStorageSettingsUi.CheckboxText;
+		plaintextTokenWarningLbl.Text = TokenStorageSettingsUi.PlaintextWarningText;
+		updateExistingTokensBtn.Text = TokenStorageSettingsUi.ConvertButtonText;
+		toolTip.SetToolTip(updateExistingTokensBtn, TokenStorageSettingsUi.ConvertButtonToolTip);
+
+		if (!osSecretStoreAvailable)
+		{
+			osSecretStoreUnavailableLbl.Text = TokenStorageSettingsUi.OsStoreUnavailableMessage(unavailableReason);
+			osSecretStoreUnavailableLbl.Visible = true;
+			encryptTokensCbox.Checked = false;
+			encryptTokensCbox.Enabled = false;
+		}
+		else
+		{
+			osSecretStoreUnavailableLbl.Visible = false;
+			encryptTokensCbox.Enabled = true;
+			encryptTokensCbox.Checked = TokenStorageSettingsUi.CheckboxFromMethod(config.TokenStorageMethod);
+		}
+
+		RefreshTokenStorageUiState();
+	}
+
+	private TokenStorageMethod SelectedTokenStorageMethod
+		=> TokenStorageSettingsUi.MethodFromCheckbox(encryptTokensCbox.Checked);
+
+	private void RefreshTokenStorageUiState()
+	{
+		var method = SelectedTokenStorageMethod;
+		plaintextTokenWarningLbl.Visible = osSecretStoreAvailable && method == TokenStorageMethod.Plaintext;
+
+		var alignment = AccountTokenStorage.GetAccountsAlignment(method);
+		updateExistingTokensBtn.Enabled = TokenStorageSettingsUi.IsConvertButtonEnabled(alignment);
+	}
+
+	private void encryptTokensCbox_CheckedChanged(object? sender, EventArgs e)
+		=> RefreshTokenStorageUiState();
+
+	private async void updateExistingTokensBtn_Click(object? sender, EventArgs e)
+	{
+		var converted = await TokenStorageSettingsUi.ConfirmAndConvertAsync(this, SelectedTokenStorageMethod);
+		if (converted)
+			RefreshTokenStorageUiState();
+	}
+
+	private async Task<bool> Save_Important(Configuration config)
 	{
 		var newBooks = booksSelectControl.SelectedDirectory;
 
@@ -96,6 +152,10 @@ public partial class SettingsDialog
 		}
 		#endregion
 
+		var selectedTokenMethod = SelectedTokenStorageMethod;
+		var tokenDecision = await TokenStorageSettingsUi.PromptOnPreferenceSaveAsync(this, initialTokenStorageMethod, selectedTokenMethod);
+		if (tokenDecision == TokenStorageSaveDecision.Abort)
+			return false;
 
 		config.Books = newBooks;
 
@@ -116,6 +176,17 @@ public partial class SettingsDialog
 		config.CreationTime = (creationTimeCb.SelectedItem as EnumDisplay<Configuration.DateTimeSource>)?.Value ?? Configuration.DateTimeSource.File;
 		config.LastWriteTime = (lastWriteTimeCb.SelectedItem as EnumDisplay<Configuration.DateTimeSource>)?.Value ?? Configuration.DateTimeSource.File;
 		config.ThemeVariant = (themeCb.SelectedItem as EnumDisplay<Configuration.Theme>)?.Value ?? Configuration.Theme.System;
+		config.TokenStorageMethod = selectedTokenMethod;
+
+		if (tokenDecision == TokenStorageSaveDecision.SavePreferenceAndConvert)
+		{
+			var converted = await TokenStorageSettingsUi.RunConversionAsync(this, selectedTokenMethod);
+			if (!converted)
+				return false;
+		}
+
+		initialTokenStorageMethod = selectedTokenMethod;
+		RefreshTokenStorageUiState();
 		return true;
 	}
 

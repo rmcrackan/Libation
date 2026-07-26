@@ -1,6 +1,7 @@
 ﻿using LibationFileManager;
 using LibationFileManager.Templates;
 using System;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LibationWinForms.Dialogs;
@@ -40,9 +41,9 @@ public partial class SettingsDialog : Form
 			textBox.Text = template.EditingTemplate.TemplateText;
 	}
 
-	private void saveBtn_Click(object sender, EventArgs e)
+	private async void saveBtn_Click(object sender, EventArgs e)
 	{
-		if (!Save_Important(config)) return;
+		if (!await Save_Important(config)) return;
 		Save_ImportLibrary(config);
 		Save_DownloadDecrypt(config);
 		Save_AudioSettings(config);

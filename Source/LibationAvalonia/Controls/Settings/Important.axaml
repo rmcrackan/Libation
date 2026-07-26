@@ -8,7 +8,7 @@
 			 x:DataType="vm:ImportantSettingsVM"
              x:Class="LibationAvalonia.Controls.Settings.Important">
 
-	<Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
+	<Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*">
 		<controls:GroupBox
 			Grid.Row="0"
 			Margin="5"
@@ -85,8 +85,41 @@
 			</StackPanel>
 		</CheckBox>
 
+		<controls:GroupBox
+			Grid.Row="2"
+			Margin="5"
+			Label="Authentication tokens">
+			<StackPanel>
+				<CheckBox
+					IsEnabled="{Binding CanEditEncryptTokens}"
+					IsChecked="{Binding EncryptTokens, Mode=TwoWay}">
+					<TextBlock Text="{Binding EncryptTokensText}" TextWrapping="Wrap" />
+				</CheckBox>
+				<TextBlock
+					Margin="24,4,0,0"
+					Foreground="DarkRed"
+					IsVisible="{Binding PlaintextWarningVisible}"
+					Text="{Binding PlaintextWarningText}"
+					TextWrapping="Wrap" />
+				<TextBlock
+					Margin="24,4,0,0"
+					Foreground="DarkRed"
+					IsVisible="{Binding OsStoreUnavailableVisible}"
+					Text="{Binding OsStoreUnavailableMessage}"
+					TextWrapping="Wrap" />
+				<Button
+					Margin="0,10,0,0"
+					HorizontalAlignment="Right"
+					Padding="20,0"
+					Content="{Binding ConvertButtonText}"
+					ToolTip.Tip="{Binding ConvertButtonToolTip}"
+					IsEnabled="{Binding ConvertButtonEnabled}"
+					Command="{Binding ConvertExistingTokensCommand}" />
+			</StackPanel>
+		</controls:GroupBox>
+
 		<StackPanel
-			Grid.Row="2" Margin="5"
+			Grid.Row="3" Margin="5"
 			Orientation="Horizontal">
 
 			<TextBlock
@@ -111,7 +144,7 @@
 		</StackPanel>
 
 		<controls:GroupBox
-			Grid.Row="3"
+			Grid.Row="4"
 			Margin="5"
 			Label="Display Settings">
 			<Grid
@@ -166,7 +199,7 @@
 		</controls:GroupBox>
 
 		<Grid
-			Grid.Row="4"
+			Grid.Row="5"
 			ColumnDefinitions="Auto,Auto,*"
 			Margin="10"
 			VerticalAlignment="Bottom">

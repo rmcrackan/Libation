@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using FileManager;
 using LibationAvalonia.ViewModels.Settings;
 using LibationFileManager;
+using LibationUiBase;
 using LibationUiBase.Forms;
 using System;
 using System.Threading.Tasks;
@@ -32,7 +33,18 @@ public partial class SettingsDialog : DialogWindow
 
 		#endregion
 
+		var tokenDecision = await settingsDisp.ImportantSettings.PromptOnSaveAsync(this);
+		if (tokenDecision == TokenStorageSaveDecision.Abort)
+			return;
+
 		settingsDisp.SaveSettings(config);
+
+		if (tokenDecision == TokenStorageSaveDecision.SavePreferenceAndConvert)
+		{
+			var converted = await settingsDisp.ImportantSettings.ConvertAfterSaveAsync(this);
+			if (!converted)
+				return;
+		}
 
 		await MessageBox.VerboseLoggingWarning_ShowIfTrue();
 		await base.SaveAndCloseAsync();

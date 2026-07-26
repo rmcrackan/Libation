@@ -96,6 +96,7 @@ public static class LibationScaffolding
 		}
 		DeleteOpenSqliteFiles(config);
 		AudibleApiStorage.EnsureAccountsSettingsFileExists();
+		IdentityTokenStorageWiring.Apply(config);
 
 		//
 		// migrations go below here
