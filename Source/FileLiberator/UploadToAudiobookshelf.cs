@@ -38,7 +38,7 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 			if (files.Count == 0)
 			{
 				OnStatusUpdate("No audio files found to upload");
-				return new StatusHandler { "No audio files found to upload" };
+				return new StatusHandler();
 			}
 
 			OnStatusUpdate($"Uploading {files.Count} file(s) to Audiobookshelf...");
@@ -47,7 +47,7 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 			var author = libraryBook.Book.AuthorNames;
 			var series = libraryBook.Book.SeriesNames();
 
-			var success = await AudiobookshelfApiService.UploadBookAsync(
+			var result = await AudiobookshelfApiService.UploadBookAsync(
 				Configuration.AudiobookshelfServerUrl!,
 				Configuration.AudiobookshelfApiToken!,
 				Configuration.AudiobookshelfLibraryId!,
@@ -57,21 +57,31 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 				series,
 				files);
 
-			if (success)
+			if (result == AudiobookshelfApiService.UploadResult.Success)
 			{
 				OnStatusUpdate("Upload to Audiobookshelf completed successfully");
 				return new StatusHandler();
 			}
+			else if (result == AudiobookshelfApiService.UploadResult.AlreadyExists)
+			{
+				OnStatusUpdate("Book already exists on Audiobookshelf; skipping upload");
+				Serilog.Log.Logger.Information("Book already exists on Audiobookshelf, skipping upload: {Book}", libraryBook.LogFriendly());
+				return new StatusHandler();
+			}
 			else
 			{
-				OnStatusUpdate("Upload to Audiobookshelf failed");
-				return new StatusHandler { "Upload to Audiobookshelf failed" };
+				OnStatusUpdate("Upload to Audiobookshelf failed; book remains liberated on disk");
+				Serilog.Log.Logger.Error("Audiobookshelf upload failed for {Book}, but continuing as soft-failure", libraryBook.LogFriendly());
+				// Soft-fail: log the error but do not mark the book as failed
+				return new StatusHandler();
 			}
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Error(ex, "Error uploading {Book} to Audiobookshelf", libraryBook.LogFriendly());
-			return new StatusHandler { $"Audiobookshelf upload error: {ex.Message}" };
+			Serilog.Log.Logger.Error(ex, "Error uploading {Book} to Audiobookshelf; continuing as soft-failure", libraryBook.LogFriendly());
+			OnStatusUpdate($"Audiobookshelf upload error: {ex.Message}");
+			// Soft-fail: log the error but do not mark the book as failed
+			return new StatusHandler();
 		}
 		finally
 		{
@@ -93,19 +103,20 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 
 		files.AddRange(audioFiles);
 
-		// Also look for cover art in the same directory as the first audio file
+		// Use Libation's known cover art output path (same logic as DownloadDecryptBook.DownloadCoverArt)
 		if (audioFiles.FirstOrDefault() is { } firstAudioFile)
 		{
 			var dir = Path.GetDirectoryName(firstAudioFile);
 			if (dir is not null)
 			{
-				var coverFile = Directory.EnumerateFiles(dir, "*.jpg", SearchOption.TopDirectoryOnly)
-					.Concat(Directory.EnumerateFiles(dir, "*.jpeg", SearchOption.TopDirectoryOnly))
-					.Concat(Directory.EnumerateFiles(dir, "*.png", SearchOption.TopDirectoryOnly))
-					.FirstOrDefault();
+				var coverPath = AudibleFileStorage.Audio.GetCustomDirFilename(
+					libraryBook,
+					dir,
+					".jpg",
+					returnFirstExisting: false);
 
-				if (coverFile is not null)
-					files.Add(coverFile);
+				if (File.Exists(coverPath))
+					files.Add(coverPath);
 			}
 		}
 

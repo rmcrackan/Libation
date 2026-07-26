@@ -319,19 +319,19 @@ public partial class Configuration
 	public bool RequestSpatial { get => false; set { } } // { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
 	#region Audiobookshelf
-	[Description("Automatically upload downloaded books to Audiobookshelf")]
+	[Description("Automatically upload downloaded books")]
 	public bool AudiobookshelfEnabled { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
-	[Description("Audiobookshelf server URL")]
+	[Description("Server URL")]
 	public string? AudiobookshelfServerUrl { get => GetString(); set => SetString(value); }
 
-	[Description("Audiobookshelf API token")]
+	[Description("API Token")]
 	public string? AudiobookshelfApiToken { get => GetString(); set => SetString(value); }
 
-	[Description("Audiobookshelf library ID")]
+	[Description("Library")]
 	public string? AudiobookshelfLibraryId { get => GetString(); set => SetString(value); }
 
-	[Description("Audiobookshelf folder ID")]
+	[Description("Folder")]
 	public string? AudiobookshelfFolderId { get => GetString(); set => SetString(value); }
 	#endregion
 

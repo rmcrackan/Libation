@@ -1,6 +1,9 @@
 using ApplicationServices;
+using AudibleApi.Authorization;
+using AudibleUtilities;
 using LibationFileManager;
 using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -17,6 +20,7 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	private string apiToken = "";
 	private string statusText = "";
 	private bool statusIsError;
+	private bool plaintextWarningVisible;
 	private List<AudiobookshelfApiService.Library> libraries = [];
 	private int selectedLibraryIndex = -1;
 	private int selectedFolderIndex = -1;
@@ -29,7 +33,10 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 		this.config = config;
 		enabled = config.AudiobookshelfEnabled;
 		serverUrl = config.AudiobookshelfServerUrl ?? "";
-		apiToken = config.AudiobookshelfApiToken ?? "";
+		apiToken = AudiobookshelfTokenStorage.DecryptToken(config.AudiobookshelfApiToken) ?? "";
+
+		var osSecretStoreAvailable = IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out _);
+		PlaintextWarningVisible = osSecretStoreAvailable && config.TokenStorageMethod == TokenStorageMethod.Plaintext;
 
 		ConnectCommand = ReactiveCommand.CreateFromTask(ConnectAsync);
 		_ = RestoreLibrariesAsync();
@@ -63,6 +70,12 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	{
 		get => statusIsError;
 		set => this.RaiseAndSetIfChanged(ref statusIsError, value);
+	}
+
+	public bool PlaintextWarningVisible
+	{
+		get => plaintextWarningVisible;
+		private set => this.RaiseAndSetIfChanged(ref plaintextWarningVisible, value);
 	}
 
 	public List<AudiobookshelfApiService.Library> Libraries
@@ -113,6 +126,15 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 
 	public ICommand ConnectCommand { get; }
 
+	// Labels from Configuration descriptions
+	public string EnabledText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfEnabled));
+	public string ServerUrlText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfServerUrl));
+	public string ApiTokenText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfApiToken));
+	public string LibraryText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfLibraryId));
+	public string FolderText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfFolderId));
+	public string PlaintextWarningText { get; } = "Warning: The API token is stored as plaintext in Settings.json.";
+	public string ConnectButtonText { get; } = "Connect / Refresh";
+
 	private void UpdateLibraryNames()
 	{
 		LibraryNames.Clear();
@@ -154,7 +176,7 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 			var libs = await AudiobookshelfApiService.GetLibrariesAsync(ServerUrl.Trim(), ApiToken.Trim());
 			if (libs.Count == 0)
 			{
-				StatusText = "Could not connect or no libraries found. Check your settings.";
+				StatusText = "No book libraries found. Check your settings.";
 				StatusIsError = true;
 				return;
 			}
@@ -206,7 +228,7 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	{
 		config.AudiobookshelfEnabled = Enabled;
 		config.AudiobookshelfServerUrl = ServerUrl.Trim();
-		config.AudiobookshelfApiToken = ApiToken.Trim();
+		config.AudiobookshelfApiToken = AudiobookshelfTokenStorage.EncryptToken(ApiToken.Trim());
 
 		if (SelectedLibraryIndex >= 0 && Libraries.Count > SelectedLibraryIndex)
 			config.AudiobookshelfLibraryId = Libraries[SelectedLibraryIndex].Id;

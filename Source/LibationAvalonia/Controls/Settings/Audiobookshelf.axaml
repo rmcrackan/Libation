@@ -9,71 +9,86 @@
 
 	<StackPanel Margin="6" Spacing="0">
 		<CheckBox IsChecked="{Binding Enabled, Mode=TwoWay}"
-				  Content="Automatically upload downloaded books to Audiobookshelf"
+				  Content="{Binding EnabledText}"
 				  Margin="0,0,0,10" />
 
-		<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+		<Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
 			<!-- Server URL -->
 			<TextBlock Grid.Row="0" Grid.Column="0"
-					   Text="Server URL"
+					   Text="{Binding ServerUrlText}"
 					   VerticalAlignment="Center"
 					   Margin="0,0,10,6" />
 			<TextBox Grid.Row="0" Grid.Column="1"
 					 Text="{Binding ServerUrl, Mode=TwoWay}"
 					 PlaceholderText="https://abs.example.com"
-					 Margin="0,0,0,6" />
+					 IsEnabled="{Binding Enabled}"
+					 Margin="0,0,10,6" />
 
 			<!-- API Token -->
 			<TextBlock Grid.Row="1" Grid.Column="0"
-					   Text="API Token"
+					   Text="{Binding ApiTokenText}"
 					   VerticalAlignment="Center"
 					   Margin="0,0,10,10" />
 			<TextBox Grid.Row="1" Grid.Column="1"
 					 Text="{Binding ApiToken, Mode=TwoWay}"
 					 PasswordChar="*"
 					 PlaceholderText="Your ABS API token"
-					 Margin="0,0,0,10" />
+					 IsEnabled="{Binding Enabled}"
+					 Margin="0,0,10,10" />
 
 			<!-- Connect Button -->
-			<Button Grid.Row="2" Grid.Column="1"
-					Content="Connect / Refresh"
+			<Button Grid.Row="0" Grid.Column="2"
+					Grid.RowSpan="2"
+					Content="{Binding ConnectButtonText}"
 					Command="{Binding ConnectCommand}"
-					IsEnabled="{Binding !IsConnecting}"
+					IsEnabled="{Binding Enabled}"
 					HorizontalAlignment="Left"
 					HorizontalContentAlignment="Center"
 					MinWidth="150"
 					MinHeight="34"
+					VerticalAlignment="Stretch"
 					Margin="0,0,0,10" />
 
+			<!-- Plaintext warning -->
+			<TextBlock Grid.Row="2" Grid.Column="1"
+					   Text="{Binding PlaintextWarningText}"
+					   Foreground="DarkOrange"
+					   TextWrapping="Wrap"
+					   IsVisible="{Binding PlaintextWarningVisible}"
+					   Margin="0,0,0,10" />
+
 			<!-- Status -->
-			<ProgressBar Grid.Row="3" Grid.Column="1"
+			<ProgressBar Grid.Row="4" Grid.Column="1"
 						 IsIndeterminate="True"
 						 IsVisible="{Binding IsConnecting}"
 						 Margin="0,0,0,6" />
-			<TextBlock Grid.Row="4" Grid.Column="1"
+			<TextBlock Grid.Row="5" Grid.Column="1"
 					   Text="{Binding StatusText}"
 					   TextWrapping="Wrap"
 					   IsVisible="{Binding !IsConnecting}"
 					   Margin="0,0,0,8" />
 
 			<!-- Library -->
-			<TextBlock Grid.Row="5" Grid.Column="0"
-					   Text="Library"
+			<TextBlock Grid.Row="6" Grid.Column="0"
+					   Text="{Binding LibraryText}"
 					   VerticalAlignment="Center"
 					   Margin="0,0,10,7" />
-			<ComboBox Grid.Row="5" Grid.Column="1"
+			<ComboBox Grid.Row="6" Grid.Column="1"
 					  ItemsSource="{Binding LibraryNames}"
 					  SelectedIndex="{Binding SelectedLibraryIndex, Mode=TwoWay}"
+					  IsEnabled="{Binding Enabled}"
 					  Margin="0,0,0,7" />
 
 			<!-- Folder -->
-			<TextBlock Grid.Row="6" Grid.Column="0"
-					   Text="Folder"
+			<TextBlock Grid.Row="7" Grid.Column="0"
+					   Text="{Binding FolderText}"
 					   VerticalAlignment="Center"
 					   Margin="0,0,10,0" />
-			<ComboBox Grid.Row="6" Grid.Column="1"
+			<ComboBox Grid.Row="7" Grid.Column="1"
 					  ItemsSource="{Binding FolderNames}"
-					  SelectedIndex="{Binding SelectedFolderIndex, Mode=TwoWay}" />
+					  SelectedIndex="{Binding SelectedFolderIndex, Mode=TwoWay}"
+					  IsEnabled="{Binding Enabled}"
+					  Margin="0,0,0,0" />
 		</Grid>
 	</StackPanel>
 </UserControl>

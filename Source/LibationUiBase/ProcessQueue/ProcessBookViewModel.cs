@@ -286,6 +286,7 @@ public class ProcessBookViewModel : ReactiveObject
 	{
 		processable.Begin += Processable_Begin;
 		processable.Completed += Processable_Completed;
+		processable.StatusUpdate += Processable_StatusUpdate;
 		processable.StreamingProgressChanged += Streamable_StreamingProgressChanged;
 		processable.StreamingTimeRemaining += Streamable_StreamingTimeRemaining;
 
@@ -303,6 +304,7 @@ public class ProcessBookViewModel : ReactiveObject
 	{
 		processable.Begin -= Processable_Begin;
 		processable.Completed -= Processable_Completed;
+		processable.StatusUpdate -= Processable_StatusUpdate;
 		processable.StreamingProgressChanged -= Streamable_StreamingProgressChanged;
 		processable.StreamingTimeRemaining -= Streamable_StreamingTimeRemaining;
 
@@ -371,6 +373,9 @@ public class ProcessBookViewModel : ReactiveObject
 		Author = libraryBook.Book.AuthorNames;
 		Narrator = libraryBook.Book.NarratorNames;
 	}
+
+	private void Processable_StatusUpdate(object? sender, string statusUpdate)
+		=> LogInfo(statusUpdate);
 
 	private void Processable_Completed(object? sender, LibraryBook libraryBook)
 	{
