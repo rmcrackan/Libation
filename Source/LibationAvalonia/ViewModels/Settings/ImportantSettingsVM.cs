@@ -1,3 +1,5 @@
+using AudibleApi.Authorization;
+using AudibleUtilities;
 using Dinah.Core;
 using FileManager;
 using LibationFileManager;
@@ -6,6 +8,8 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace LibationAvalonia.ViewModels.Settings;
 
@@ -13,6 +17,13 @@ public class ImportantSettingsVM : ViewModelBase
 {
 	private EnumDisplay<Configuration.Theme> themeVariant;
 	private readonly Configuration config;
+	private bool encryptTokens;
+	private bool plaintextWarningVisible;
+	private bool convertButtonEnabled;
+	private bool osStoreUnavailableVisible;
+	private string osStoreUnavailableMessage = "";
+	private TokenStorageMethod initialTokenStorageMethod;
+	private bool osSecretStoreAvailable;
 
 	public ImportantSettingsVM(Configuration config)
 	{
@@ -29,7 +40,32 @@ public class ImportantSettingsVM : ViewModelBase
 		GridFontScaleFactor = scaleFactorToLinearRange(config.GridFontScaleFactor);
 
 		themeVariant = Themes.Single(v => v.Value == config.ThemeVariant);
+
+		initialTokenStorageMethod = config.TokenStorageMethod;
+		osSecretStoreAvailable = IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out var unavailableReason);
+		if (!osSecretStoreAvailable)
+		{
+			OsStoreUnavailableVisible = true;
+			OsStoreUnavailableMessage = TokenStorageSettingsUi.OsStoreUnavailableMessage(unavailableReason);
+			encryptTokens = false;
+			CanEditEncryptTokens = false;
+		}
+		else
+		{
+			OsStoreUnavailableVisible = false;
+			encryptTokens = TokenStorageSettingsUi.CheckboxFromMethod(config.TokenStorageMethod);
+			CanEditEncryptTokens = true;
+		}
+
+		RefreshTokenStorageUiState();
+		ConvertExistingTokensCommand = ReactiveCommand.CreateFromTask(ConvertExistingTokensAsync);
 	}
+
+	public async Task<TokenStorageSaveDecision> PromptOnSaveAsync(object? owner)
+		=> await TokenStorageSettingsUi.PromptOnPreferenceSaveAsync(owner, initialTokenStorageMethod, SelectedTokenStorageMethod);
+
+	public async Task<bool> ConvertAfterSaveAsync(object? owner)
+		=> await TokenStorageSettingsUi.RunConversionAsync(owner, SelectedTokenStorageMethod);
 
 	public void SaveSettings(Configuration config)
 	{
@@ -40,6 +76,9 @@ public class ImportantSettingsVM : ViewModelBase
 		config.LastWriteTime = LastWriteTime.Value;
 		config.UseWebView = UseWebView;
 		config.LogLevel = LoggingLevel;
+		config.TokenStorageMethod = SelectedTokenStorageMethod;
+		initialTokenStorageMethod = SelectedTokenStorageMethod;
+		RefreshTokenStorageUiState();
 	}
 
 	public LongPath GetBooksDirectory()
@@ -62,6 +101,24 @@ public class ImportantSettingsVM : ViewModelBase
 		else
 			Go.To.Folder(Configuration.Instance.LibationFiles.Location.ShortPathName);
 	}
+
+	private async Task ConvertExistingTokensAsync()
+	{
+		var converted = await TokenStorageSettingsUi.ConfirmAndConvertAsync(null, SelectedTokenStorageMethod);
+		if (converted)
+			RefreshTokenStorageUiState();
+	}
+
+	private void RefreshTokenStorageUiState()
+	{
+		var method = SelectedTokenStorageMethod;
+		PlaintextWarningVisible = osSecretStoreAvailable && method == TokenStorageMethod.Plaintext;
+		var alignment = AccountTokenStorage.GetAccountsAlignment(method);
+		ConvertButtonEnabled = TokenStorageSettingsUi.IsConvertButtonEnabled(alignment);
+	}
+
+	private TokenStorageMethod SelectedTokenStorageMethod
+		=> TokenStorageSettingsUi.MethodFromCheckbox(EncryptTokens);
 
 	public List<Configuration.KnownDirectories> KnownDirectories { get; } = new()
 	{
@@ -95,6 +152,12 @@ public class ImportantSettingsVM : ViewModelBase
 		.Select(v => new EnumDisplay<Configuration.Theme>(v))
 		.ToArray();
 
+	public string EncryptTokensText { get; } = TokenStorageSettingsUi.CheckboxText;
+	public string PlaintextWarningText { get; } = TokenStorageSettingsUi.PlaintextWarningText;
+	public string ConvertButtonText { get; } = TokenStorageSettingsUi.ConvertButtonText;
+	public string ConvertButtonToolTip { get; } = TokenStorageSettingsUi.ConvertButtonToolTip;
+	public bool CanEditEncryptTokens { get; }
+
 	public string BooksDirectory { get; set; }
 	public bool SavePodcastsToParentFolder { get; set; }
 	public bool OverwriteExisting { get; set; }
@@ -104,6 +167,42 @@ public class ImportantSettingsVM : ViewModelBase
 	public EnumDisplay<Configuration.DateTimeSource> LastWriteTime { get; set; }
 	public bool UseWebView { get; set; }
 	public Serilog.Events.LogEventLevel LoggingLevel { get; set; }
+
+	public bool EncryptTokens
+	{
+		get => encryptTokens;
+		set
+		{
+			this.RaiseAndSetIfChanged(ref encryptTokens, value);
+			RefreshTokenStorageUiState();
+		}
+	}
+
+	public bool PlaintextWarningVisible
+	{
+		get => plaintextWarningVisible;
+		private set => this.RaiseAndSetIfChanged(ref plaintextWarningVisible, value);
+	}
+
+	public bool ConvertButtonEnabled
+	{
+		get => convertButtonEnabled;
+		private set => this.RaiseAndSetIfChanged(ref convertButtonEnabled, value);
+	}
+
+	public bool OsStoreUnavailableVisible
+	{
+		get => osStoreUnavailableVisible;
+		private set => this.RaiseAndSetIfChanged(ref osStoreUnavailableVisible, value);
+	}
+
+	public string OsStoreUnavailableMessage
+	{
+		get => osStoreUnavailableMessage;
+		private set => this.RaiseAndSetIfChanged(ref osStoreUnavailableMessage, value);
+	}
+
+	public ICommand ConvertExistingTokensCommand { get; }
 
 	public EnumDisplay<Configuration.Theme> ThemeVariant
 	{

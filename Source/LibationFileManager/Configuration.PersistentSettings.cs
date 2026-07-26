@@ -302,7 +302,7 @@ public partial class Configuration
 		AC_4
 	}
 
-	[Description("Store authentication tokens encrypted using the OS secret store.\r\nUnchecking stores tokens in plaintext in AccountsSettings.json.\r\nChanging this setting does not convert existing tokens until you choose to convert them.")]
+	[Description("Store authentication tokens encrypted. Unchecking this option stores tokens in plaintext.")]
 	public TokenStorageMethod TokenStorageMethod
 	{
 		get => GetNonString(defaultValue: TokenStorageMethod.Encrypted);

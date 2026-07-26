@@ -58,6 +58,11 @@
 			gridScaleFactorTbar = new System.Windows.Forms.TrackBar();
 			gridFontScaleFactorLbl = new System.Windows.Forms.Label();
 			gridFontScaleFactorTbar = new System.Windows.Forms.TrackBar();
+			tokenStorageGb = new System.Windows.Forms.GroupBox();
+			encryptTokensCbox = new System.Windows.Forms.CheckBox();
+			plaintextTokenWarningLbl = new System.Windows.Forms.Label();
+			osSecretStoreUnavailableLbl = new System.Windows.Forms.Label();
+			updateExistingTokensBtn = new System.Windows.Forms.Button();
 			booksGb = new System.Windows.Forms.GroupBox();
 			booksSelectControl = new DirectoryOrCustomSelectControl();
 			lastWriteTimeCb = new System.Windows.Forms.ComboBox();
@@ -148,6 +153,7 @@
 			groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)gridScaleFactorTbar).BeginInit();
 			((System.ComponentModel.ISupportInitialize)gridFontScaleFactorTbar).BeginInit();
+			tokenStorageGb.SuspendLayout();
 			booksGb.SuspendLayout();
 			tab2ImportLibrary.SuspendLayout();
 			tab3DownloadDecrypt.SuspendLayout();
@@ -349,7 +355,7 @@
 			// 
 			// logsBtn
 			// 
-			logsBtn.Location = new System.Drawing.Point(256, 424);
+			logsBtn.Location = new System.Drawing.Point(256, 534);
 			logsBtn.Name = "logsBtn";
 			logsBtn.Size = new System.Drawing.Size(132, 23);
 			logsBtn.TabIndex = 5;
@@ -360,7 +366,7 @@
 			// loggingLevelLbl
 			// 
 			loggingLevelLbl.AutoSize = true;
-			loggingLevelLbl.Location = new System.Drawing.Point(6, 427);
+			loggingLevelLbl.Location = new System.Drawing.Point(6, 537);
 			loggingLevelLbl.Name = "loggingLevelLbl";
 			loggingLevelLbl.Size = new System.Drawing.Size(78, 15);
 			loggingLevelLbl.TabIndex = 3;
@@ -370,7 +376,7 @@
 			// 
 			loggingLevelCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			loggingLevelCb.FormattingEnabled = true;
-			loggingLevelCb.Location = new System.Drawing.Point(90, 424);
+			loggingLevelCb.Location = new System.Drawing.Point(90, 534);
 			loggingLevelCb.Name = "loggingLevelCb";
 			loggingLevelCb.Size = new System.Drawing.Size(129, 23);
 			loggingLevelCb.TabIndex = 4;
@@ -396,6 +402,7 @@
 			tab1ImportantSettings.Controls.Add(themeCb);
 			tab1ImportantSettings.Controls.Add(label22);
 			tab1ImportantSettings.Controls.Add(groupBox1);
+			tab1ImportantSettings.Controls.Add(tokenStorageGb);
 			tab1ImportantSettings.Controls.Add(booksGb);
 			tab1ImportantSettings.Controls.Add(logsBtn);
 			tab1ImportantSettings.Controls.Add(loggingLevelCb);
@@ -410,7 +417,7 @@
 			// themeLbl
 			// 
 			themeLbl.AutoSize = true;
-			themeLbl.Location = new System.Drawing.Point(190, 393);
+			themeLbl.Location = new System.Drawing.Point(190, 503);
 			themeLbl.Name = "themeLbl";
 			themeLbl.Size = new System.Drawing.Size(296, 15);
 			themeLbl.TabIndex = 12;
@@ -420,7 +427,7 @@
 			// 
 			themeCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			themeCb.FormattingEnabled = true;
-			themeCb.Location = new System.Drawing.Point(63, 390);
+			themeCb.Location = new System.Drawing.Point(63, 500);
 			themeCb.Name = "themeCb";
 			themeCb.Size = new System.Drawing.Size(121, 23);
 			themeCb.TabIndex = 11;
@@ -429,7 +436,7 @@
 			// label22
 			// 
 			label22.AutoSize = true;
-			label22.Location = new System.Drawing.Point(4, 393);
+			label22.Location = new System.Drawing.Point(4, 503);
 			label22.Name = "label22";
 			label22.Size = new System.Drawing.Size(44, 15);
 			label22.TabIndex = 10;
@@ -443,7 +450,7 @@
 			groupBox1.Controls.Add(gridScaleFactorTbar);
 			groupBox1.Controls.Add(gridFontScaleFactorLbl);
 			groupBox1.Controls.Add(gridFontScaleFactorTbar);
-			groupBox1.Location = new System.Drawing.Point(6, 277);
+			groupBox1.Location = new System.Drawing.Point(6, 387);
 			groupBox1.Name = "groupBox1";
 			groupBox1.Size = new System.Drawing.Size(844, 83);
 			groupBox1.TabIndex = 9;
@@ -502,6 +509,63 @@
 			gridFontScaleFactorTbar.Size = new System.Drawing.Size(160, 20);
 			gridFontScaleFactorTbar.TabIndex = 7;
 			gridFontScaleFactorTbar.TickFrequency = 25;
+			// 
+			// tokenStorageGb
+			// 
+			tokenStorageGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			tokenStorageGb.Controls.Add(updateExistingTokensBtn);
+			tokenStorageGb.Controls.Add(osSecretStoreUnavailableLbl);
+			tokenStorageGb.Controls.Add(plaintextTokenWarningLbl);
+			tokenStorageGb.Controls.Add(encryptTokensCbox);
+			tokenStorageGb.Location = new System.Drawing.Point(6, 277);
+			tokenStorageGb.Name = "tokenStorageGb";
+			tokenStorageGb.Size = new System.Drawing.Size(844, 104);
+			tokenStorageGb.TabIndex = 8;
+			tokenStorageGb.TabStop = false;
+			tokenStorageGb.Text = "Authentication tokens";
+			// 
+			// encryptTokensCbox
+			// 
+			encryptTokensCbox.AutoSize = true;
+			encryptTokensCbox.Location = new System.Drawing.Point(8, 22);
+			encryptTokensCbox.Name = "encryptTokensCbox";
+			encryptTokensCbox.Size = new System.Drawing.Size(520, 19);
+			encryptTokensCbox.TabIndex = 0;
+			encryptTokensCbox.Text = "Store authentication tokens encrypted. Unchecking this option stores tokens in plaintext.";
+			encryptTokensCbox.UseVisualStyleBackColor = true;
+			encryptTokensCbox.CheckedChanged += encryptTokensCbox_CheckedChanged;
+			// 
+			// plaintextTokenWarningLbl
+			// 
+			plaintextTokenWarningLbl.AutoSize = true;
+			plaintextTokenWarningLbl.ForeColor = System.Drawing.Color.DarkRed;
+			plaintextTokenWarningLbl.Location = new System.Drawing.Point(27, 44);
+			plaintextTokenWarningLbl.Name = "plaintextTokenWarningLbl";
+			plaintextTokenWarningLbl.Size = new System.Drawing.Size(480, 15);
+			plaintextTokenWarningLbl.TabIndex = 1;
+			plaintextTokenWarningLbl.Text = "Authentication tokens will be stored as readable plaintext in AccountsSettings.json.";
+			// 
+			// osSecretStoreUnavailableLbl
+			// 
+			osSecretStoreUnavailableLbl.AutoSize = true;
+			osSecretStoreUnavailableLbl.ForeColor = System.Drawing.Color.DarkRed;
+			osSecretStoreUnavailableLbl.Location = new System.Drawing.Point(27, 44);
+			osSecretStoreUnavailableLbl.Name = "osSecretStoreUnavailableLbl";
+			osSecretStoreUnavailableLbl.Size = new System.Drawing.Size(250, 15);
+			osSecretStoreUnavailableLbl.TabIndex = 2;
+			osSecretStoreUnavailableLbl.Text = "[OS secret store unavailable]";
+			osSecretStoreUnavailableLbl.Visible = false;
+			// 
+			// updateExistingTokensBtn
+			// 
+			updateExistingTokensBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			updateExistingTokensBtn.Location = new System.Drawing.Point(628, 68);
+			updateExistingTokensBtn.Name = "updateExistingTokensBtn";
+			updateExistingTokensBtn.Size = new System.Drawing.Size(200, 27);
+			updateExistingTokensBtn.TabIndex = 3;
+			updateExistingTokensBtn.Text = "Update existing stored tokens";
+			updateExistingTokensBtn.UseVisualStyleBackColor = true;
+			updateExistingTokensBtn.Click += updateExistingTokensBtn_Click;
 			// 
 			// booksGb
 			// 
@@ -1493,6 +1557,8 @@
 			groupBox1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)gridScaleFactorTbar).EndInit();
 			((System.ComponentModel.ISupportInitialize)gridFontScaleFactorTbar).EndInit();
+			tokenStorageGb.ResumeLayout(false);
+			tokenStorageGb.PerformLayout();
 			booksGb.ResumeLayout(false);
 			booksGb.PerformLayout();
 			tab2ImportLibrary.ResumeLayout(false);
@@ -1544,6 +1610,11 @@
 		private System.Windows.Forms.CheckBox splitFilesByChapterCbox;
 		public System.Windows.Forms.TabControl tabControl;
 		private System.Windows.Forms.TabPage tab1ImportantSettings;
+		private System.Windows.Forms.GroupBox tokenStorageGb;
+		private System.Windows.Forms.CheckBox encryptTokensCbox;
+		private System.Windows.Forms.Label plaintextTokenWarningLbl;
+		private System.Windows.Forms.Label osSecretStoreUnavailableLbl;
+		private System.Windows.Forms.Button updateExistingTokensBtn;
 		private System.Windows.Forms.GroupBox booksGb;
 		private System.Windows.Forms.TabPage tab2ImportLibrary;
 		private System.Windows.Forms.TabPage tab3DownloadDecrypt;
