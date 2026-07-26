@@ -9,6 +9,7 @@
 		Width="500" Height="350"
 		Icon="/Assets/libation.ico"
         Title="Welcome to Libation"
+		ShowInTaskbar="True"
 		x:DataType="dialogs:SetupDialog">
 
 	<Grid

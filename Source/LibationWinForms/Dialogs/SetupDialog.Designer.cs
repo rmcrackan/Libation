@@ -77,7 +77,10 @@
 			Controls.Add(returningUserBtn);
 			Controls.Add(newUserBtn);
 			Controls.Add(welcomeLbl);
-			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+			MaximizeBox = false;
+			MinimizeBox = true;
+			ShowInTaskbar = true;
 			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			Name = "SetupDialog";
 			StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
