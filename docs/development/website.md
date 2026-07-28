@@ -45,3 +45,10 @@ npm run docs:preview
 New markdown files are routed from their path automatically (for example `docs/getting-started.md` -> `/docs/getting-started`, or `donate.md` at the repo root -> `/donate`).
 
 To show a page in the sidebar or top nav, add it in `.vitepress/config.js`. A page can exist and be reachable by URL without being linked in navigation.
+
+When you add a docs page that belongs in the documentation index, update **both**:
+
+- `docs/index.md` (Documentation Overview)
+- the **Documentation** section of root `index.md` (home page)
+
+Those two TOC lists should stay the same. The home page has extra marketing content above them; the link lists should match.

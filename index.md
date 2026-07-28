@@ -64,7 +64,7 @@ features:
 
 Platform-specific installation guides:
 
-- **[Linux Installation](/docs/installation/linux)** - Install Libation on Linux
+- **[Linux Installation](/docs/installation/linux)** - Install Libation on Linux (includes [Snap](/docs/installation/linux#snap) notes)
 - **[Mac Installation](/docs/installation/mac)** - Install Libation on macOS
 - **[Docker Installation](/docs/installation/docker)** - Run Libation in a Docker container
 
@@ -76,10 +76,13 @@ Learn about Libation's powerful features:
 - **[Audiobookshelf Auto-Upload](/docs/features/audiobookshelf)** - Optionally upload liberated books to Audiobookshelf
 - **[Naming Templates](/docs/features/naming-templates)** - Customize how your audiobook files are named
 - **[Searching & Filtering](/docs/features/searching-and-filtering)** - Find and organize your audiobooks
+- **[Easy guide to searching](/docs/features/lucene)** - Tutorial for search queries
 
 ### Advanced
 
 - **[Advanced Topics](/docs/advanced/advanced)** - Deep dives and configuration details
+- **[Command Line Interface](/docs/advanced/command-line-interface)** - CLI usage and commands
+- **[Troubleshooting](/docs/advanced/troubleshoot)** - Common errors and solutions
 - **[Spatial Audio & DRM](/docs/advanced/spatial-audio)** - Why Dolby Atmos download is not available and what still works
 
 ### Development
