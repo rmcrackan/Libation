@@ -32,6 +32,7 @@ public partial class SettingsDialog : Form
 		Load_ImportLibrary(config);
 		Load_DownloadDecrypt(config);
 		Load_AudioSettings(config);
+		Load_Audiobookshelf(config);
 	}
 
 	private static void editTemplate(ITemplateEditor template, TextBox textBox)
@@ -47,6 +48,7 @@ public partial class SettingsDialog : Form
 		Save_ImportLibrary(config);
 		Save_DownloadDecrypt(config);
 		Save_AudioSettings(config);
+		Save_Audiobookshelf(config);
 
 		this.DialogResult = DialogResult.OK;
 		this.Close();

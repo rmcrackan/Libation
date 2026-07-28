@@ -314,7 +314,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		AddToQueue(procs);
 
 		ProcessBookViewModel Create(LibraryBook entry)
-			=> new ProcessBookViewModel(entry, config, _badBookSession).AddDownloadDecryptBook().AddDownloadPdf();
+			=> new ProcessBookViewModel(entry, config, _badBookSession).AddDownloadDecryptBook().AddDownloadPdf().AddUploadToAudiobookshelf();
 	}
 
 	private void AddConvertMp3(IList<LibraryBook> entries, Configuration config)

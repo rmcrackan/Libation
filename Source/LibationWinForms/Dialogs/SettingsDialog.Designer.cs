@@ -48,6 +48,19 @@
 			loggingLevelLbl = new System.Windows.Forms.Label();
 			loggingLevelCb = new System.Windows.Forms.ComboBox();
 			tabControl = new System.Windows.Forms.TabControl();
+			tab5Audiobookshelf = new System.Windows.Forms.TabPage();
+			absEnabledCb = new System.Windows.Forms.CheckBox();
+			absPlaintextWarningLbl = new System.Windows.Forms.Label();
+			absUrlLbl = new System.Windows.Forms.Label();
+			absUrlTb = new System.Windows.Forms.TextBox();
+			absTokenLbl = new System.Windows.Forms.Label();
+			absTokenTb = new System.Windows.Forms.TextBox();
+			absConnectBtn = new System.Windows.Forms.Button();
+			absStatusLbl = new System.Windows.Forms.Label();
+			absLibraryLbl = new System.Windows.Forms.Label();
+			absLibraryCb = new System.Windows.Forms.ComboBox();
+			absFolderLbl = new System.Windows.Forms.Label();
+			absFolderCb = new System.Windows.Forms.ComboBox();
 			tab1ImportantSettings = new System.Windows.Forms.TabPage();
 			themeLbl = new System.Windows.Forms.Label();
 			themeCb = new System.Windows.Forms.ComboBox();
@@ -160,6 +173,7 @@
 			inProgressFilesGb.SuspendLayout();
 			customFileNamingGb.SuspendLayout();
 			tab4AudioFileOptions.SuspendLayout();
+			tab5Audiobookshelf.SuspendLayout();
 			audiobookFixupsGb.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)minFileDurationNud).BeginInit();
 			chapterTitleTemplateGb.SuspendLayout();
@@ -388,6 +402,7 @@
 			tabControl.Controls.Add(tab2ImportLibrary);
 			tabControl.Controls.Add(tab3DownloadDecrypt);
 			tabControl.Controls.Add(tab4AudioFileOptions);
+			tabControl.Controls.Add(tab5Audiobookshelf);
 			tabControl.Location = new System.Drawing.Point(12, 12);
 			tabControl.Name = "tabControl";
 			tabControl.SelectedIndex = 0;
@@ -923,6 +938,29 @@
 			tab4AudioFileOptions.Size = new System.Drawing.Size(856, 457);
 			tab4AudioFileOptions.TabIndex = 3;
 			tab4AudioFileOptions.Text = "Audio File Options";
+			// 
+			// tab5Audiobookshelf
+			// 
+			tab5Audiobookshelf.AutoScroll = true;
+			tab5Audiobookshelf.BackColor = System.Drawing.SystemColors.Window;
+			tab5Audiobookshelf.Controls.Add(absEnabledCb);
+			tab5Audiobookshelf.Controls.Add(absPlaintextWarningLbl);
+			tab5Audiobookshelf.Controls.Add(absUrlLbl);
+			tab5Audiobookshelf.Controls.Add(absUrlTb);
+			tab5Audiobookshelf.Controls.Add(absTokenLbl);
+			tab5Audiobookshelf.Controls.Add(absTokenTb);
+			tab5Audiobookshelf.Controls.Add(absConnectBtn);
+			tab5Audiobookshelf.Controls.Add(absStatusLbl);
+			tab5Audiobookshelf.Controls.Add(absLibraryLbl);
+			tab5Audiobookshelf.Controls.Add(absLibraryCb);
+			tab5Audiobookshelf.Controls.Add(absFolderLbl);
+			tab5Audiobookshelf.Controls.Add(absFolderCb);
+			tab5Audiobookshelf.Location = new System.Drawing.Point(4, 24);
+			tab5Audiobookshelf.Name = "tab5Audiobookshelf";
+			tab5Audiobookshelf.Padding = new System.Windows.Forms.Padding(3);
+			tab5Audiobookshelf.Size = new System.Drawing.Size(856, 457);
+			tab5Audiobookshelf.TabIndex = 4;
+			tab5Audiobookshelf.Text = "Audiobookshelf";
 			// 
 			// request_xHE_AAC_Cbox
 			// 
@@ -1531,6 +1569,120 @@
 			createCueSheetCbox.UseVisualStyleBackColor = true;
 			createCueSheetCbox.CheckedChanged += allowLibationFixupCbox_CheckedChanged;
 			// 
+			// absEnabledCb
+			// 
+			absEnabledCb.AutoSize = true;
+			absEnabledCb.Location = new System.Drawing.Point(6, 6);
+			absEnabledCb.Name = "absEnabledCb";
+			absEnabledCb.Size = new System.Drawing.Size(280, 19);
+			absEnabledCb.TabIndex = 0;
+			absEnabledCb.Text = "[AudiobookshelfEnabled desc]";
+			absEnabledCb.UseVisualStyleBackColor = true;
+			absEnabledCb.CheckedChanged += absEnabledCb_CheckedChanged;
+			// 
+			// absPlaintextWarningLbl
+			// 
+			absPlaintextWarningLbl.AutoSize = true;
+			absPlaintextWarningLbl.ForeColor = System.Drawing.Color.DarkOrange;
+			absPlaintextWarningLbl.Location = new System.Drawing.Point(6, 30);
+			absPlaintextWarningLbl.Name = "absPlaintextWarningLbl";
+			absPlaintextWarningLbl.Size = new System.Drawing.Size(480, 15);
+			absPlaintextWarningLbl.TabIndex = 1;
+			absPlaintextWarningLbl.Text = "Warning: The API token is stored as plaintext in Settings.json.";
+			// 
+			// absUrlLbl
+			// 
+			absUrlLbl.AutoSize = true;
+			absUrlLbl.Location = new System.Drawing.Point(6, 55);
+			absUrlLbl.Name = "absUrlLbl";
+			absUrlLbl.Size = new System.Drawing.Size(70, 15);
+			absUrlLbl.TabIndex = 2;
+			absUrlLbl.Text = "[AudiobookshelfServerUrl desc]";
+			// 
+			// absUrlTb
+			// 
+			absUrlTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			absUrlTb.Location = new System.Drawing.Point(90, 52);
+			absUrlTb.Name = "absUrlTb";
+			absUrlTb.Size = new System.Drawing.Size(550, 23);
+			absUrlTb.TabIndex = 3;
+			// 
+			// absTokenLbl
+			// 
+			absTokenLbl.AutoSize = true;
+			absTokenLbl.Location = new System.Drawing.Point(6, 84);
+			absTokenLbl.Name = "absTokenLbl";
+			absTokenLbl.Size = new System.Drawing.Size(65, 15);
+			absTokenLbl.TabIndex = 4;
+			absTokenLbl.Text = "[AudiobookshelfApiToken desc]";
+			// 
+			// absTokenTb
+			// 
+			absTokenTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			absTokenTb.Location = new System.Drawing.Point(90, 81);
+			absTokenTb.Name = "absTokenTb";
+			absTokenTb.Size = new System.Drawing.Size(550, 23);
+			absTokenTb.TabIndex = 5;
+			// 
+			// absConnectBtn
+			// 
+			absConnectBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			absConnectBtn.Location = new System.Drawing.Point(646, 52);
+			absConnectBtn.Name = "absConnectBtn";
+			absConnectBtn.Size = new System.Drawing.Size(130, 52);
+			absConnectBtn.TabIndex = 6;
+			absConnectBtn.Text = "Connect / Refresh";
+			absConnectBtn.UseVisualStyleBackColor = true;
+			absConnectBtn.Click += absConnectBtn_Click;
+			// 
+			// absStatusLbl
+			// 
+			absStatusLbl.AutoSize = true;
+			absStatusLbl.Location = new System.Drawing.Point(6, 114);
+			absStatusLbl.Name = "absStatusLbl";
+			absStatusLbl.Size = new System.Drawing.Size(0, 15);
+			absStatusLbl.TabIndex = 7;
+			absStatusLbl.Text = "";
+			// 
+			// absLibraryLbl
+			// 
+			absLibraryLbl.AutoSize = true;
+			absLibraryLbl.Location = new System.Drawing.Point(6, 140);
+			absLibraryLbl.Name = "absLibraryLbl";
+			absLibraryLbl.Size = new System.Drawing.Size(50, 15);
+			absLibraryLbl.TabIndex = 8;
+			absLibraryLbl.Text = "[AudiobookshelfLibraryId desc]";
+			// 
+			// absLibraryCb
+			// 
+			absLibraryCb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			absLibraryCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			absLibraryCb.FormattingEnabled = true;
+			absLibraryCb.Location = new System.Drawing.Point(90, 137);
+			absLibraryCb.Name = "absLibraryCb";
+			absLibraryCb.Size = new System.Drawing.Size(686, 23);
+			absLibraryCb.TabIndex = 9;
+			absLibraryCb.SelectedIndexChanged += absLibraryCb_SelectedIndexChanged;
+			// 
+			// absFolderLbl
+			// 
+			absFolderLbl.AutoSize = true;
+			absFolderLbl.Location = new System.Drawing.Point(6, 170);
+			absFolderLbl.Name = "absFolderLbl";
+			absFolderLbl.Size = new System.Drawing.Size(45, 15);
+			absFolderLbl.TabIndex = 10;
+			absFolderLbl.Text = "[AudiobookshelfFolderId desc]";
+			// 
+			// absFolderCb
+			// 
+			absFolderCb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			absFolderCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			absFolderCb.FormattingEnabled = true;
+			absFolderCb.Location = new System.Drawing.Point(90, 167);
+			absFolderCb.Name = "absFolderCb";
+			absFolderCb.Size = new System.Drawing.Size(686, 23);
+			absFolderCb.TabIndex = 11;
+			// 
 			// SettingsDialog
 			// 
 			AcceptButton = saveBtn;
@@ -1586,6 +1738,8 @@
 			((System.ComponentModel.ISupportInitialize)lameVBRQualityTb).EndInit();
 			groupBox2.ResumeLayout(false);
 			groupBox2.PerformLayout();
+			tab5Audiobookshelf.ResumeLayout(false);
+			tab5Audiobookshelf.PerformLayout();
 			ResumeLayout(false);
 		}
 
@@ -1709,5 +1863,18 @@
 		private System.Windows.Forms.CheckBox importPlusTitlesCb;
 		private System.Windows.Forms.Label minFileDurationLbl;
 		private System.Windows.Forms.NumericUpDown minFileDurationNud;
+		private System.Windows.Forms.TabPage tab5Audiobookshelf;
+		private System.Windows.Forms.CheckBox absEnabledCb;
+		private System.Windows.Forms.Label absPlaintextWarningLbl;
+		private System.Windows.Forms.Label absUrlLbl;
+		private System.Windows.Forms.TextBox absUrlTb;
+		private System.Windows.Forms.Label absTokenLbl;
+		private System.Windows.Forms.TextBox absTokenTb;
+		private System.Windows.Forms.Button absConnectBtn;
+		private System.Windows.Forms.Label absStatusLbl;
+		private System.Windows.Forms.Label absLibraryLbl;
+		private System.Windows.Forms.ComboBox absLibraryCb;
+		private System.Windows.Forms.Label absFolderLbl;
+		private System.Windows.Forms.ComboBox absFolderCb;
 	}
 }

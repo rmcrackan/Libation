@@ -144,12 +144,14 @@ public class LiberateOptions : ProcessableOptionsBase
 	private static Processable CreateBackupBook(DownloadOptions.LicenseInfo? licenseInfo)
 	{
 		var downloadPdf = CreateProcessable<DownloadPdf>();
+		var uploadToAudiobookshelf = CreateProcessable<UploadToAudiobookshelf>();
 
-		//Chain pdf download on DownloadDecryptBook.Completed
+		// Chain pdf download and audiobookshelf upload on DownloadDecryptBook.Completed
 		void onDownloadDecryptBookCompleted(object? sender, LibraryBook e)
 		{
 			// this is fast anyway. run as sync for easy exception catching
 			downloadPdf.TryProcessAsync(e).GetAwaiter().GetResult();
+			uploadToAudiobookshelf.TryProcessAsync(e).GetAwaiter().GetResult();
 		}
 
 		var downloadDecryptBook = CreateProcessable<DownloadDecryptBook>(onDownloadDecryptBookCompleted);
