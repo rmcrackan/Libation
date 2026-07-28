@@ -136,6 +136,8 @@ libationcli convert
 libationcli liberate
 ```
 
+If Audiobookshelf auto-upload is enabled in Settings, `liberate` also uploads each liberated book after download/decrypt (and PDF). See [Audiobookshelf Auto-Upload](/docs/features/audiobookshelf). The separate `convert` command does not upload.
+
 ## Liberate Pdfs Only
 
 ```console
