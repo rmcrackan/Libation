@@ -51,8 +51,9 @@ public class LibationContributor
 			GitHubUser("Youssef1313"),
 			GitHubUser("niontrix"),
 			GitHubUser("CryptoJones"),
-			GitHubUser("m-j-r"),
-		]);
+            GitHubUser("m-j-r"),
+            GitHubUser("Demoniskk"),
+        ]);
 
 	private LibationContributor(string name, LibationContributorType type, Uri link)
 	{
