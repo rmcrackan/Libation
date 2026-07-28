@@ -90,6 +90,10 @@ export default defineConfig({
             text: "Audio File Formats",
             link: "/docs/features/audio-file-formats",
           },
+          {
+            text: "Audiobookshelf Auto-Upload",
+            link: "/docs/features/audiobookshelf",
+          },
           { text: "Naming Templates", link: "/docs/features/naming-templates" },
           {
             text: "Searching & Filtering",

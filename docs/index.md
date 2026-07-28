@@ -20,6 +20,7 @@ Platform-specific installation guides:
 Learn about Libation's powerful features:
 
 - **[Audio File Formats](/docs/features/audio-file-formats)** - Supported audio formats and conversion options
+- **[Audiobookshelf Auto-Upload](/docs/features/audiobookshelf)** - Optionally upload liberated books to Audiobookshelf
 - **[Naming Templates](/docs/features/naming-templates)** - Customize how your audiobook files are named
 - **[Searching & Filtering](/docs/features/searching-and-filtering)** - Find and organize your audiobooks
 - **[Easy guide to searching](/docs/features/lucene)** - Tutorial for search queries

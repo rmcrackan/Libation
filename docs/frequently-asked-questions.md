@@ -41,7 +41,7 @@ You can use any app which plays m4b files (or mp3 files if you used that setting
 
 Self-hosting online:
 
-- [audiobookshelf](https://www.audiobookshelf.org). On [reddit](https://www.reddit.com/r/audiobookshelf/)
+- [audiobookshelf](https://www.audiobookshelf.org). On [reddit](https://www.reddit.com/r/audiobookshelf/). Libation can optionally [upload liberated books to Audiobookshelf automatically](./features/audiobookshelf.md).
 - [plex](https://www.plex.tv/). Listen with [Prologue](https://prologue.audio/) (iOS)
 
 ## I'm Having Trouble Playing My Non-Spatial Audiobook, How Can I Fix This?
