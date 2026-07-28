@@ -57,93 +57,155 @@ public static class AudiobookshelfApiService
 		return allLibraries.Where(l => string.Equals(l.MediaType, "book", StringComparison.OrdinalIgnoreCase)).ToList();
 	}
 
-	public static async Task<bool> BookExistsAsync(string serverUrl, string apiToken, string libraryId, string title)
+	public static async Task<bool> BookExistsAsync(string serverUrl, string apiToken, string libraryId, string title, string? author = null)
 	{
 		apiToken = AudiobookshelfTokenStorage.DecryptToken(apiToken) ?? "";
 		using var client = CreateClient(serverUrl);
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
-		client.Timeout = TimeSpan.FromMinutes(2);
+		client.Timeout = TimeSpan.FromSeconds(30);
 
 		var normalizedTitle = NormalizeTitle(title);
 		var baseTitle = GetBaseTitle(normalizedTitle);
 
-		int page = 0;
-		const int limit = 500;
-		const int maxPages = 200;
+		Serilog.Log.Logger.Debug("Audiobookshelf duplicate check: looking for '{Title}' (base: '{BaseTitle}') in library {LibraryId}", normalizedTitle, baseTitle, libraryId);
 
-		Serilog.Log.Logger.Information("Audiobookshelf duplicate check: looking for '{Title}' (base: '{BaseTitle}') in library {LibraryId}", normalizedTitle, baseTitle, libraryId);
-
-		while (page < maxPages)
+		try
 		{
-			var url = $"api/libraries/{Uri.EscapeDataString(libraryId)}/items?minified=1&limit={limit}&page={page}";
-			var response = await client.GetAsync(url);
-			if (!response.IsSuccessStatusCode)
+			// Search with base title first (shorter = broader fuzzy matches, better recall)
+			var candidates = await SearchLibraryAsync(client, libraryId, baseTitle, 20);
+
+			// Also search with full title to catch cases where ABS stores the longer/subtitled version
+			if (!string.Equals(normalizedTitle, baseTitle, StringComparison.Ordinal))
 			{
-				var errorBody = await response.Content.ReadAsStringAsync();
-				throw new HttpRequestException($"Audiobookshelf API returned {(int)response.StatusCode} when checking for existing books. Body: {errorBody}");
-			}
-
-			var json = await response.Content.ReadAsStringAsync();
-			var obj = JObject.Parse(json);
-			var results = obj["results"] as JArray ?? new JArray();
-
-			Serilog.Log.Logger.Information("Audiobookshelf duplicate check page {Page}: received {Count} items (total={Total})", page, results.Count, obj["total"]?.Value<int>() ?? -1);
-
-			if (results.Count == 0)
-				break;
-
-			foreach (var item in results)
-			{
-				var itemTitle = item["media"]?["metadata"]?["title"]?.Value<string>()?.Replace("\u00A0", " ").Trim();
-				var itemSubtitle = item["media"]?["metadata"]?["subtitle"]?.Value<string>()?.Replace("\u00A0", " ").Trim();
-
-				var itemFullTitle = string.IsNullOrWhiteSpace(itemSubtitle)
-					? itemTitle
-					: $"{itemTitle}: {itemSubtitle}";
-
-				var normalizedItemTitle = NormalizeTitle(itemTitle);
-				var normalizedItemFullTitle = NormalizeTitle(itemFullTitle);
-
-				Serilog.Log.Logger.Information("Audiobookshelf duplicate check: comparing search='{SearchTitle}'/'{BaseTitle}' against ABS '{ItemTitle}'/'{ItemFullTitle}' (normalized: '{NormItemTitle}'/'{NormItemFull}')", normalizedTitle, baseTitle, itemTitle, itemFullTitle, normalizedItemTitle, normalizedItemFullTitle);
-
-				if (!string.IsNullOrWhiteSpace(normalizedItemTitle))
+				var fullCandidates = await SearchLibraryAsync(client, libraryId, normalizedTitle, 10);
+				foreach (var c in fullCandidates)
 				{
-					// 1) Exact match against normalized full title
-					if (string.Equals(normalizedItemTitle, normalizedTitle, StringComparison.OrdinalIgnoreCase))
-						return true;
-
-					// 2) Exact match against base title (without subtitle)
-					if (string.Equals(normalizedItemTitle, baseTitle, StringComparison.OrdinalIgnoreCase))
-						return true;
-
-					// 3) Match against combined title:subtitle
-					if (!string.IsNullOrWhiteSpace(normalizedItemFullTitle)
-						&& string.Equals(normalizedItemFullTitle, normalizedTitle, StringComparison.OrdinalIgnoreCase))
-						return true;
-
-					// 4) Substring fallback: ABS title contains our base title (handles "The Hobbit" vs "The Hobbit: 75th Anniversary Edition")
-					if (!string.IsNullOrWhiteSpace(baseTitle)
-						&& baseTitle.Length > 5
-						&& normalizedItemTitle.Contains(baseTitle, StringComparison.OrdinalIgnoreCase))
-						return true;
+					if (!candidates.Any(existing => string.Equals(existing.Id, c.Id, StringComparison.Ordinal)))
+						candidates.Add(c);
 				}
 			}
 
-			// CRITICAL FIX: use results.Count < limit as primary end-of-pagination indicator.
-			// Do NOT fall back to results.Count for total — that caused breaking after page 1
-			// when the first page had exactly 'limit' items.
-			if (results.Count < limit)
-				break;
+			if (candidates.Count == 0)
+			{
+				Serilog.Log.Logger.Debug("Audiobookshelf duplicate check: no candidates found for '{Title}' in library {LibraryId}", normalizedTitle, libraryId);
+				return false;
+			}
 
-			// Secondary: if API provides total, use it to avoid a blank-page round-trip
-			if (obj["total"]?.Value<int>() is int total && (page + 1) * limit >= total)
-				break;
+			Serilog.Log.Logger.Debug("Audiobookshelf duplicate check: found {Count} candidate(s) for '{Title}' in library {LibraryId}", candidates.Count, normalizedTitle, libraryId);
 
-			page++;
+			foreach (var candidate in candidates)
+			{
+				if (string.IsNullOrWhiteSpace(candidate.Title))
+					continue;
+
+				bool titleMatch = false;
+
+				// 1) Exact match against normalized title
+				if (string.Equals(candidate.Title, normalizedTitle, StringComparison.OrdinalIgnoreCase))
+					titleMatch = true;
+
+				// 2) Exact match against base title (without subtitle)
+				if (!titleMatch && string.Equals(candidate.Title, baseTitle, StringComparison.OrdinalIgnoreCase))
+					titleMatch = true;
+
+				// 3) Exact match against combined title:subtitle
+				if (!titleMatch && !string.IsNullOrWhiteSpace(candidate.FullTitle)
+					&& string.Equals(candidate.FullTitle, normalizedTitle, StringComparison.OrdinalIgnoreCase))
+					titleMatch = true;
+
+				if (titleMatch && AuthorsCompatible(author, candidate.Authors))
+				{
+					Serilog.Log.Logger.Information("Audiobookshelf duplicate check: found match for '{Title}' (id={ItemId})", title, candidate.Id);
+					return true;
+				}
+			}
+
+			Serilog.Log.Logger.Debug("Audiobookshelf duplicate check: '{Title}' not found in library {LibraryId}", normalizedTitle, libraryId);
+			return false;
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Debug(ex, "Audiobookshelf duplicate check failed for '{Title}' in library {LibraryId}", title, libraryId);
+			throw; // Let caller decide whether to proceed with upload
+		}
+	}
+
+	private record SearchCandidate(string Id, string Title, string FullTitle, List<string> Authors);
+
+	private static async Task<List<SearchCandidate>> SearchLibraryAsync(HttpClient client, string libraryId, string query, int limit)
+	{
+		var url = $"api/libraries/{Uri.EscapeDataString(libraryId)}/search?q={Uri.EscapeDataString(query)}&limit={limit}";
+		var response = await client.GetAsync(url);
+		if (!response.IsSuccessStatusCode)
+		{
+			var errorBody = await response.Content.ReadAsStringAsync();
+			throw new HttpRequestException($"Audiobookshelf search returned {(int)response.StatusCode} for query '{query}'. Body: {errorBody}");
 		}
 
-		Serilog.Log.Logger.Information("Audiobookshelf duplicate check: '{SearchTitle}' not found in library {LibraryId}", normalizedTitle, libraryId);
+		var json = await response.Content.ReadAsStringAsync();
+		var obj = JObject.Parse(json);
+		var books = obj["book"] as JArray ?? new JArray();
+
+		var results = new List<SearchCandidate>();
+		foreach (var entry in books)
+		{
+			var item = entry["libraryItem"] ?? entry;
+			var id = item["id"]?.Value<string>() ?? entry["id"]?.Value<string>() ?? "";
+			var itemTitle = item["media"]?["metadata"]?["title"]?.Value<string>()?.Replace("\u00A0", " ").Trim();
+			var itemSubtitle = item["media"]?["metadata"]?["subtitle"]?.Value<string>()?.Replace("\u00A0", " ").Trim();
+
+			var itemFullTitle = string.IsNullOrWhiteSpace(itemSubtitle)
+				? itemTitle
+				: $"{itemTitle}: {itemSubtitle}";
+
+			var authors = item["media"]?["metadata"]?["authors"] as JArray;
+			var authorList = authors?.Select(a => a["name"]?.Value<string>()?.Trim() ?? "")
+				.Where(n => !string.IsNullOrWhiteSpace(n))
+				.ToList() ?? [];
+
+			results.Add(new SearchCandidate(
+				id,
+				NormalizeTitle(itemTitle),
+				NormalizeTitle(itemFullTitle),
+				authorList));
+		}
+
+		return results;
+	}
+
+	private static bool AuthorsCompatible(string? libationAuthor, List<string> absAuthors)
+	{
+		// If either side has no author info, we can't use authors to disambiguate
+		if (string.IsNullOrWhiteSpace(libationAuthor))
+			return true;
+		if (absAuthors == null || absAuthors.Count == 0)
+			return true;
+
+		var libationAuthors = libationAuthor.Split(',', StringSplitOptions.RemoveEmptyEntries)
+			.Select(a => NormalizeAuthor(a))
+			.Where(a => !string.IsNullOrWhiteSpace(a))
+			.ToList();
+
+		if (libationAuthors.Count == 0)
+			return true;
+
+		foreach (var absAuthor in absAuthors.Select(NormalizeAuthor))
+		{
+			foreach (var la in libationAuthors)
+			{
+				if (string.Equals(absAuthor, la, StringComparison.OrdinalIgnoreCase))
+					return true;
+			}
+		}
+
 		return false;
+	}
+
+	private static string NormalizeAuthor(string? author)
+	{
+		if (string.IsNullOrWhiteSpace(author))
+			return author ?? "";
+		return author.Replace("\u00A0", " ").Trim();
 	}
 
 	private static string NormalizeTitle(string? title)
@@ -188,7 +250,7 @@ public static class AudiobookshelfApiService
 		// Pre-check for existing item
 		try
 		{
-			if (await BookExistsAsync(serverUrl, apiToken, libraryId, title))
+			if (await BookExistsAsync(serverUrl, apiToken, libraryId, title, author))
 			{
 				Serilog.Log.Logger.Information("Skipping Audiobookshelf upload: book '{Title}' already exists in library {LibraryId}", title, libraryId);
 				return UploadResult.AlreadyExists;
@@ -196,8 +258,8 @@ public static class AudiobookshelfApiService
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Error(ex, "Pre-check for existing book on Audiobookshelf failed; aborting upload");
-			return UploadResult.Failed;
+			Serilog.Log.Logger.Warning(ex, "Pre-check for existing book on Audiobookshelf failed; will still attempt upload");
+			// Continue to upload attempt below
 		}
 
 		using var client = CreateClient(serverUrl);

@@ -36,7 +36,8 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 		apiToken = AudiobookshelfTokenStorage.DecryptToken(config.AudiobookshelfApiToken) ?? "";
 
 		var osSecretStoreAvailable = IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out _);
-		PlaintextWarningVisible = osSecretStoreAvailable && config.TokenStorageMethod == TokenStorageMethod.Plaintext;
+		bool encryptingButNoProtector = config.TokenStorageMethod == TokenStorageMethod.Encrypted && IdentityTokenStorage.Protector is null;
+		PlaintextWarningVisible = (osSecretStoreAvailable && config.TokenStorageMethod == TokenStorageMethod.Plaintext) || encryptingButNoProtector;
 
 		ConnectCommand = ReactiveCommand.CreateFromTask(ConnectAsync);
 		_ = RestoreLibrariesAsync();
@@ -45,7 +46,11 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	public bool Enabled
 	{
 		get => enabled;
-		set => this.RaiseAndSetIfChanged(ref enabled, value);
+		set
+		{
+			this.RaiseAndSetIfChanged(ref enabled, value);
+			this.RaisePropertyChanged(nameof(CanConnect));
+		}
 	}
 
 	public string ServerUrl
@@ -119,10 +124,14 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	public bool IsConnecting
 	{
 		get => isConnecting;
-		set => this.RaiseAndSetIfChanged(ref isConnecting, value);
+		set
+		{
+			this.RaiseAndSetIfChanged(ref isConnecting, value);
+			this.RaisePropertyChanged(nameof(CanConnect));
+		}
 	}
 
-	public bool CanConnect => !IsConnecting;
+	public bool CanConnect => Enabled && !IsConnecting;
 
 	public ICommand ConnectCommand { get; }
 

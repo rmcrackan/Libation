@@ -30,7 +30,8 @@ public partial class SettingsDialog
 		absTokenTb.PasswordChar = '*';
 
 		var osSecretStoreAvailable = IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out _);
-		absPlaintextWarningLbl.Visible = osSecretStoreAvailable && config.TokenStorageMethod == TokenStorageMethod.Plaintext;
+		bool encryptingButNoProtector = config.TokenStorageMethod == TokenStorageMethod.Encrypted && IdentityTokenStorage.Protector is null;
+		absPlaintextWarningLbl.Visible = (osSecretStoreAvailable && config.TokenStorageMethod == TokenStorageMethod.Plaintext) || encryptingButNoProtector;
 
 		ToggleAudiobookshelfControls(absEnabledCb.Checked);
 
@@ -95,7 +96,7 @@ public partial class SettingsDialog
 		}
 		finally
 		{
-			absConnectBtn.Enabled = true;
+			ToggleAudiobookshelfControls(absEnabledCb.Checked);
 		}
 	}
 

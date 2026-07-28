@@ -41,7 +41,7 @@
 					Grid.RowSpan="2"
 					Content="{Binding ConnectButtonText}"
 					Command="{Binding ConnectCommand}"
-					IsEnabled="{Binding Enabled}"
+					IsEnabled="{Binding CanConnect}"
 					HorizontalAlignment="Left"
 					HorizontalContentAlignment="Center"
 					MinWidth="150"
