@@ -8,17 +8,44 @@ Available in Classic (WinForms), Chardonnay (Avalonia), and the CLI `liberate` c
 
 1. Open **Settings** -> **Audiobookshelf**.
 2. Enable **Automatically upload downloaded books**.
-3. Enter your Audiobookshelf **Server URL** (for example `https://abs.example.com`) and **API Token**.
+3. Enter your Audiobookshelf **Server URL** and **API Token** (see below).
 4. Click **Connect / Refresh**. Libation loads your book libraries and folders.
 5. Choose the target **Library** and **Folder**, then save settings.
 
 Only libraries with media type `book` are listed (podcast libraries are excluded).
+
+### Server URL
+
+Use the **base address** of your Audiobookshelf server - the same host (and optional subpath) you use to open the web UI, **without** a library, book, or other page path.
+
+Examples:
+
+| Setup | Server URL |
+| --- | --- |
+| Local default install | `http://localhost:13378` |
+| Hosted / reverse proxy at root | `https://abs.example.com` |
+| Served under a subpath | `https://example.com/audiobookshelf` |
+
+Do **not** paste a browser address for a specific library or book, such as:
+
+- `http://localhost:13378/library/<id>`
+- `https://example.com/audiobookshelf/library/<id>/bookshelf`
+
+Libation calls the Audiobookshelf API at `{Server URL}/api/...`. If the Server URL already includes `/library/...`, that request path will be wrong.
+
+Libation will try to strip common browser paths (and a trailing `/api`) automatically when you connect or save. If connection still fails with 404, double-check that the URL is only the server base (plus subpath, if any).
 
 ### API token storage
 
 The API token is stored in Libation's settings. When Libation's token storage is set to encrypted (and the OS secret store is available), the Audiobookshelf token is encrypted the same way as Audible auth tokens. If encryption is not in effect, Settings shows a plaintext warning.
 
 Create an API token in Audiobookshelf under your user account settings (see Audiobookshelf's docs for the current location).
+
+### Connection troubleshooting
+
+- **404 when fetching libraries** - Server URL is usually wrong (page URL instead of base, or missing/extra subpath). See [Server URL](#server-url).
+- **401 / 403** - API token is missing, incorrect, or expired. Create a new token in Audiobookshelf and paste it again.
+- **Timeout / could not reach server** - Confirm Audiobookshelf is running, the host and port are correct, and (if Libation runs on another machine) that the server is reachable on the network. `localhost` only works when Audiobookshelf is on the same computer as Libation.
 
 ## How it works
 

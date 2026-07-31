@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ApplicationServices;
@@ -17,25 +17,125 @@ public static class AudiobookshelfApiService
 	public record Folder(string Id, string FullPath);
 	public enum UploadResult { Success, AlreadyExists, Failed }
 
+	/// <summary>
+	/// Audiobookshelf client (browser) route segments. If present in a pasted URL,
+	/// everything from that segment onward is UI path, not part of the API base.
+	/// </summary>
+	private static readonly HashSet<string> ClientRouteSegments = new(StringComparer.OrdinalIgnoreCase)
+	{
+		"library",
+		"item",
+		"collection",
+		"playlist",
+		"author",
+		"series",
+		"audiobook",
+		"config",
+		"login",
+		"account",
+	};
+
+	/// <summary>
+	/// Normalize a user-supplied Audiobookshelf server URL to an API base address.
+	/// Compensates for common mistakes such as pasting a browser library/item page URL,
+	/// including a trailing <c>/api</c> path, query strings, or omitting the scheme.
+	/// </summary>
+	/// <returns>Absolute http(s) base URL with no trailing slash.</returns>
+	public static string NormalizeServerUrl(string? serverUrl)
+	{
+		if (string.IsNullOrWhiteSpace(serverUrl))
+			throw new ArgumentException("Server URL is required.", nameof(serverUrl));
+
+		var trimmed = serverUrl.Trim();
+
+		// Allow host:port without a scheme (common when copying from docs or local setups).
+		if (!trimmed.Contains("://", StringComparison.Ordinal))
+			trimmed = "http://" + trimmed;
+
+		if (!Uri.TryCreate(trimmed, UriKind.Absolute, out var uri)
+			|| (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+			|| string.IsNullOrWhiteSpace(uri.Host))
+		{
+			throw new ArgumentException(
+				"Server URL must be an absolute http(s) address, for example http://localhost:13378 or https://abs.example.com",
+				nameof(serverUrl));
+		}
+
+		var path = StripClientRoutesAndApi(uri.AbsolutePath);
+		var authority = uri.GetLeftPart(UriPartial.Authority);
+		if (string.IsNullOrEmpty(path) || path == "/")
+			return authority;
+
+		return authority + path.TrimEnd('/');
+	}
+
+	private static string StripClientRoutesAndApi(string absolutePath)
+	{
+		if (string.IsNullOrEmpty(absolutePath) || absolutePath == "/")
+			return "";
+
+		var parts = absolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+		var prefixLength = 0;
+
+		for (var i = 0; i < parts.Length; i++)
+		{
+			var part = parts[i];
+
+			// Trailing or mid-path /api/... means the user included the API root.
+			if (string.Equals(part, "api", StringComparison.OrdinalIgnoreCase))
+				break;
+
+			if (ClientRouteSegments.Contains(part))
+				break;
+
+			prefixLength += 1 + part.Length;
+		}
+
+		if (prefixLength <= 0)
+			return "";
+
+		return absolutePath[..prefixLength];
+	}
+
 	private static HttpClient CreateClient(string serverUrl)
 	{
+		var normalized = NormalizeServerUrl(serverUrl);
 		var client = new HttpClient();
-		client.BaseAddress = new Uri(serverUrl.TrimEnd('/') + "/");
+		client.BaseAddress = new Uri(normalized + "/");
 		client.Timeout = TimeSpan.FromSeconds(30);
 		return client;
 	}
 
 	public static async Task<List<Library>> GetLibrariesAsync(string serverUrl, string apiToken)
 	{
+		var normalizedUrl = NormalizeServerUrl(serverUrl);
 		apiToken = AudiobookshelfTokenStorage.DecryptToken(apiToken) ?? "";
-		using var client = CreateClient(serverUrl);
+
+		using var client = CreateClient(normalizedUrl);
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
 
-		var response = await client.GetAsync("api/libraries");
+		HttpResponseMessage response;
+		try
+		{
+			response = await client.GetAsync("api/libraries");
+		}
+		catch (TaskCanceledException ex)
+		{
+			throw new HttpRequestException(
+				$"Timed out connecting to Audiobookshelf at {normalizedUrl}. Check the Server URL and that the server is running.",
+				ex);
+		}
+		catch (HttpRequestException ex)
+		{
+			throw new HttpRequestException(
+				$"Could not reach Audiobookshelf at {normalizedUrl}. Check the Server URL, network, and that the server is running. Details: {ex.Message}",
+				ex);
+		}
+
 		if (!response.IsSuccessStatusCode)
 		{
 			var errorBody = await response.Content.ReadAsStringAsync();
-			throw new HttpRequestException($"Audiobookshelf API returned {(int)response.StatusCode} ({response.StatusCode}) when fetching libraries. Response: {errorBody}");
+			throw CreateLibrariesFetchException(normalizedUrl, response.StatusCode, errorBody);
 		}
 
 		var json = await response.Content.ReadAsStringAsync();
@@ -55,6 +155,146 @@ public static class AudiobookshelfApiService
 
 		// Only return libraries with book media type
 		return allLibraries.Where(l => string.Equals(l.MediaType, "book", StringComparison.OrdinalIgnoreCase)).ToList();
+	}
+
+	private static HttpRequestException CreateLibrariesFetchException(string normalizedUrl, HttpStatusCode statusCode, string errorBody)
+	{
+		var code = (int)statusCode;
+		var bodyPreview = SummarizeErrorBody(errorBody);
+
+		if (statusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+		{
+			return new HttpRequestException(
+				$"Audiobookshelf rejected the API token ({code} {statusCode}). " +
+				$"Check that the token is correct and not expired. Server: {normalizedUrl}");
+		}
+
+		if (statusCode == HttpStatusCode.NotFound)
+		{
+			return new HttpRequestException(
+				$"Audiobookshelf returned 404 when calling {normalizedUrl}/api/libraries. " +
+				"Server URL should be the Audiobookshelf base address only " +
+				"(for example http://localhost:13378 or https://abs.example.com), " +
+				"not a library or book page from the browser. " +
+				"If Audiobookshelf is served under a subpath, include that subpath " +
+				$"(for example http://host/audiobookshelf). Response: {bodyPreview}");
+		}
+
+		return new HttpRequestException(
+			$"Audiobookshelf API returned {code} ({statusCode}) when fetching libraries from {normalizedUrl}. Response: {bodyPreview}");
+	}
+
+	private static string SummarizeErrorBody(string errorBody)
+	{
+		if (string.IsNullOrWhiteSpace(errorBody))
+			return "(empty)";
+
+		var trimmed = errorBody.Trim();
+		const int maxLen = 280;
+		if (trimmed.Length <= maxLen)
+			return trimmed;
+
+		return trimmed[..maxLen] + "...";
+	}
+
+	public sealed record ConnectResult(
+		bool Success,
+		string StatusMessage,
+		string? NormalizedServerUrl,
+		bool ServerUrlAdjusted,
+		IReadOnlyList<Library> Libraries);
+
+	/// <summary>
+	/// Normalize URL, fetch book libraries, and produce UI status text.
+	/// Callers apply busy-state and bind <see cref="ConnectResult.Libraries"/> to controls.
+	/// </summary>
+	public static async Task<ConnectResult> ConnectAsync(string? serverUrl, string? apiToken)
+	{
+		if (string.IsNullOrWhiteSpace(serverUrl) || string.IsNullOrWhiteSpace(apiToken))
+		{
+			return new ConnectResult(
+				Success: false,
+				StatusMessage: "Please enter both server URL and API token.",
+				NormalizedServerUrl: null,
+				ServerUrlAdjusted: false,
+				Libraries: []);
+		}
+
+		string normalizedUrl;
+		bool urlAdjusted;
+		try
+		{
+			var trimmedUrl = serverUrl.Trim();
+			normalizedUrl = NormalizeServerUrl(trimmedUrl);
+			urlAdjusted = !string.Equals(trimmedUrl.TrimEnd('/'), normalizedUrl, StringComparison.OrdinalIgnoreCase);
+		}
+		catch (Exception ex)
+		{
+			return new ConnectResult(
+				Success: false,
+				StatusMessage: $"Connection failed: {ex.Message}",
+				NormalizedServerUrl: null,
+				ServerUrlAdjusted: false,
+				Libraries: []);
+		}
+
+		try
+		{
+			var libraries = await GetLibrariesAsync(normalizedUrl, apiToken.Trim());
+			if (libraries.Count == 0)
+			{
+				return new ConnectResult(
+					Success: false,
+					StatusMessage: "No book libraries found. Check your settings.",
+					NormalizedServerUrl: normalizedUrl,
+					ServerUrlAdjusted: urlAdjusted,
+					Libraries: []);
+			}
+
+			return new ConnectResult(
+				Success: true,
+				StatusMessage: FormatConnectedStatus(libraries.Count, urlAdjusted),
+				NormalizedServerUrl: normalizedUrl,
+				ServerUrlAdjusted: urlAdjusted,
+				Libraries: libraries);
+		}
+		catch (Exception ex)
+		{
+			return new ConnectResult(
+				Success: false,
+				StatusMessage: $"Connection failed: {ex.Message}",
+				NormalizedServerUrl: normalizedUrl,
+				ServerUrlAdjusted: urlAdjusted,
+				Libraries: []);
+		}
+	}
+
+	public static string FormatConnectedStatus(int libraryCount, bool urlAdjusted)
+	{
+		var libraryWord = libraryCount == 1 ? "library" : "libraries";
+		var message = $"Connected. Found {libraryCount} {libraryWord}.";
+		if (urlAdjusted)
+			message += " Server URL adjusted to the API base address.";
+		return message;
+	}
+
+	/// <summary>
+	/// Normalize for persistence when possible; otherwise keep the trimmed raw value
+	/// so the user can fix it on the next connect attempt.
+	/// </summary>
+	public static string TryNormalizeServerUrlForSave(string? url)
+	{
+		if (string.IsNullOrWhiteSpace(url))
+			return url?.Trim() ?? "";
+
+		try
+		{
+			return NormalizeServerUrl(url);
+		}
+		catch (ArgumentException)
+		{
+			return url.Trim();
+		}
 	}
 
 	public static async Task<bool> BookExistsAsync(string serverUrl, string apiToken, string libraryId, string title, string? author = null)

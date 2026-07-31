@@ -175,31 +175,19 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 
 		try
 		{
-			if (string.IsNullOrWhiteSpace(ServerUrl) || string.IsNullOrWhiteSpace(ApiToken))
-			{
-				StatusText = "Please enter both server URL and API token.";
-				StatusIsError = true;
-				return;
-			}
+			var result = await AudiobookshelfApiService.ConnectAsync(ServerUrl, ApiToken);
 
-			var libs = await AudiobookshelfApiService.GetLibrariesAsync(ServerUrl.Trim(), ApiToken.Trim());
-			if (libs.Count == 0)
-			{
-				StatusText = "No book libraries found. Check your settings.";
-				StatusIsError = true;
-				return;
-			}
+			if (!string.IsNullOrEmpty(result.NormalizedServerUrl))
+				ServerUrl = result.NormalizedServerUrl;
 
-			Libraries = libs;
+			StatusText = result.StatusMessage;
+			StatusIsError = !result.Success;
+
+			if (!result.Success)
+				return;
+
+			Libraries = result.Libraries.ToList();
 			SelectedLibraryIndex = 0;
-
-			StatusText = $"Connected. Found {libs.Count} library(ies).";
-			StatusIsError = false;
-		}
-		catch (System.Exception ex)
-		{
-			StatusText = $"Connection failed: {ex.Message}";
-			StatusIsError = true;
 		}
 		finally
 		{
@@ -236,7 +224,8 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	public void SaveSettings(Configuration config)
 	{
 		config.AudiobookshelfEnabled = Enabled;
-		config.AudiobookshelfServerUrl = ServerUrl.Trim();
+		config.AudiobookshelfServerUrl = AudiobookshelfApiService.TryNormalizeServerUrlForSave(ServerUrl);
+		ServerUrl = config.AudiobookshelfServerUrl ?? "";
 		config.AudiobookshelfApiToken = AudiobookshelfTokenStorage.EncryptToken(ApiToken.Trim());
 
 		if (SelectedLibraryIndex >= 0 && Libraries.Count > SelectedLibraryIndex)

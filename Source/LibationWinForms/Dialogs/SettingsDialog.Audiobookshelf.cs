@@ -60,39 +60,25 @@ public partial class SettingsDialog
 
 		try
 		{
-			var url = absUrlTb.Text.Trim();
-			var token = absTokenTb.Text.Trim();
+			var result = await AudiobookshelfApiService.ConnectAsync(absUrlTb.Text, absTokenTb.Text);
 
-			if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(token))
-			{
-				absStatusLbl.Text = "Please enter both server URL and API token.";
-				absStatusLbl.ForeColor = System.Drawing.Color.DarkRed;
+			if (!string.IsNullOrEmpty(result.NormalizedServerUrl))
+				absUrlTb.Text = result.NormalizedServerUrl;
+
+			absStatusLbl.Text = result.StatusMessage;
+			absStatusLbl.ForeColor = result.Success
+				? System.Drawing.Color.DarkGreen
+				: System.Drawing.Color.DarkRed;
+
+			if (!result.Success)
 				return;
-			}
 
-			var libraries = await AudiobookshelfApiService.GetLibrariesAsync(url, token);
-
-			if (libraries.Count == 0)
-			{
-				absStatusLbl.Text = "No book libraries found. Check your settings.";
-				absStatusLbl.ForeColor = System.Drawing.Color.DarkRed;
-				return;
-			}
-
-			_absLibraries = libraries;
+			_absLibraries = result.Libraries.ToList();
 			absLibraryCb.Items.Clear();
-			absLibraryCb.Items.AddRange(libraries.Select(l => $"{l.Name} ({l.Id})").ToArray());
+			absLibraryCb.Items.AddRange(_absLibraries.Select(l => $"{l.Name} ({l.Id})").ToArray());
 			absFolderCb.Items.Clear();
 			absFolderCb.SelectedIndex = -1;
-
-			absStatusLbl.Text = $"Connected. Found {libraries.Count} library(ies).";
-			absStatusLbl.ForeColor = System.Drawing.Color.DarkGreen;
-			ToggleAudiobookshelfControls(absEnabledCb.Checked);
-		}
-		catch (Exception ex)
-		{
-			absStatusLbl.Text = $"Connection failed: {ex.Message}";
-			absStatusLbl.ForeColor = System.Drawing.Color.DarkRed;
+			absLibraryCb.SelectedIndex = 0;
 		}
 		finally
 		{
@@ -151,7 +137,8 @@ public partial class SettingsDialog
 	private void Save_Audiobookshelf(Configuration config)
 	{
 		config.AudiobookshelfEnabled = absEnabledCb.Checked;
-		config.AudiobookshelfServerUrl = absUrlTb.Text.Trim();
+		config.AudiobookshelfServerUrl = AudiobookshelfApiService.TryNormalizeServerUrlForSave(absUrlTb.Text);
+		absUrlTb.Text = config.AudiobookshelfServerUrl ?? "";
 		config.AudiobookshelfApiToken = AudiobookshelfTokenStorage.EncryptToken(absTokenTb.Text.Trim());
 
 		if (absLibraryCb.SelectedIndex >= 0 && _absLibraries.Count > absLibraryCb.SelectedIndex)
