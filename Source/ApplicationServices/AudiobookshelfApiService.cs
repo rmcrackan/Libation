@@ -197,6 +197,106 @@ public static class AudiobookshelfApiService
 		return trimmed[..maxLen] + "...";
 	}
 
+	public sealed record ConnectResult(
+		bool Success,
+		string StatusMessage,
+		string? NormalizedServerUrl,
+		bool ServerUrlAdjusted,
+		IReadOnlyList<Library> Libraries);
+
+	/// <summary>
+	/// Normalize URL, fetch book libraries, and produce UI status text.
+	/// Callers apply busy-state and bind <see cref="ConnectResult.Libraries"/> to controls.
+	/// </summary>
+	public static async Task<ConnectResult> ConnectAsync(string? serverUrl, string? apiToken)
+	{
+		if (string.IsNullOrWhiteSpace(serverUrl) || string.IsNullOrWhiteSpace(apiToken))
+		{
+			return new ConnectResult(
+				Success: false,
+				StatusMessage: "Please enter both server URL and API token.",
+				NormalizedServerUrl: null,
+				ServerUrlAdjusted: false,
+				Libraries: []);
+		}
+
+		string normalizedUrl;
+		bool urlAdjusted;
+		try
+		{
+			var trimmedUrl = serverUrl.Trim();
+			normalizedUrl = NormalizeServerUrl(trimmedUrl);
+			urlAdjusted = !string.Equals(trimmedUrl.TrimEnd('/'), normalizedUrl, StringComparison.OrdinalIgnoreCase);
+		}
+		catch (Exception ex)
+		{
+			return new ConnectResult(
+				Success: false,
+				StatusMessage: $"Connection failed: {ex.Message}",
+				NormalizedServerUrl: null,
+				ServerUrlAdjusted: false,
+				Libraries: []);
+		}
+
+		try
+		{
+			var libraries = await GetLibrariesAsync(normalizedUrl, apiToken.Trim());
+			if (libraries.Count == 0)
+			{
+				return new ConnectResult(
+					Success: false,
+					StatusMessage: "No book libraries found. Check your settings.",
+					NormalizedServerUrl: normalizedUrl,
+					ServerUrlAdjusted: urlAdjusted,
+					Libraries: []);
+			}
+
+			return new ConnectResult(
+				Success: true,
+				StatusMessage: FormatConnectedStatus(libraries.Count, urlAdjusted),
+				NormalizedServerUrl: normalizedUrl,
+				ServerUrlAdjusted: urlAdjusted,
+				Libraries: libraries);
+		}
+		catch (Exception ex)
+		{
+			return new ConnectResult(
+				Success: false,
+				StatusMessage: $"Connection failed: {ex.Message}",
+				NormalizedServerUrl: normalizedUrl,
+				ServerUrlAdjusted: urlAdjusted,
+				Libraries: []);
+		}
+	}
+
+	public static string FormatConnectedStatus(int libraryCount, bool urlAdjusted)
+	{
+		var libraryWord = libraryCount == 1 ? "library" : "libraries";
+		var message = $"Connected. Found {libraryCount} {libraryWord}.";
+		if (urlAdjusted)
+			message += " Server URL adjusted to the API base address.";
+		return message;
+	}
+
+	/// <summary>
+	/// Normalize for persistence when possible; otherwise keep the trimmed raw value
+	/// so the user can fix it on the next connect attempt.
+	/// </summary>
+	public static string TryNormalizeServerUrlForSave(string? url)
+	{
+		if (string.IsNullOrWhiteSpace(url))
+			return url?.Trim() ?? "";
+
+		try
+		{
+			return NormalizeServerUrl(url);
+		}
+		catch (ArgumentException)
+		{
+			return url.Trim();
+		}
+	}
+
 	public static async Task<bool> BookExistsAsync(string serverUrl, string apiToken, string libraryId, string title, string? author = null)
 	{
 		apiToken = AudiobookshelfTokenStorage.DecryptToken(apiToken) ?? "";

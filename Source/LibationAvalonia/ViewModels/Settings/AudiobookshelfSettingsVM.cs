@@ -175,39 +175,19 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 
 		try
 		{
-			if (string.IsNullOrWhiteSpace(ServerUrl) || string.IsNullOrWhiteSpace(ApiToken))
-			{
-				StatusText = "Please enter both server URL and API token.";
-				StatusIsError = true;
+			var result = await AudiobookshelfApiService.ConnectAsync(ServerUrl, ApiToken);
+
+			if (!string.IsNullOrEmpty(result.NormalizedServerUrl))
+				ServerUrl = result.NormalizedServerUrl;
+
+			StatusText = result.StatusMessage;
+			StatusIsError = !result.Success;
+
+			if (!result.Success)
 				return;
-			}
 
-			var normalizedUrl = AudiobookshelfApiService.NormalizeServerUrl(ServerUrl);
-			var urlAdjusted = !string.Equals(ServerUrl.Trim().TrimEnd('/'), normalizedUrl, StringComparison.OrdinalIgnoreCase);
-			if (urlAdjusted)
-				ServerUrl = normalizedUrl;
-
-			var libs = await AudiobookshelfApiService.GetLibrariesAsync(normalizedUrl, ApiToken.Trim());
-			if (libs.Count == 0)
-			{
-				StatusText = "No book libraries found. Check your settings.";
-				StatusIsError = true;
-				return;
-			}
-
-			Libraries = libs;
+			Libraries = result.Libraries.ToList();
 			SelectedLibraryIndex = 0;
-
-			var libraryWord = libs.Count == 1 ? "library" : "libraries";
-			StatusText = urlAdjusted
-				? $"Connected. Found {libs.Count} {libraryWord}. Server URL adjusted to the API base address."
-				: $"Connected. Found {libs.Count} {libraryWord}.";
-			StatusIsError = false;
-		}
-		catch (System.Exception ex)
-		{
-			StatusText = $"Connection failed: {ex.Message}";
-			StatusIsError = true;
 		}
 		finally
 		{
@@ -244,7 +224,7 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	public void SaveSettings(Configuration config)
 	{
 		config.AudiobookshelfEnabled = Enabled;
-		config.AudiobookshelfServerUrl = TryNormalizeServerUrlForSave(ServerUrl);
+		config.AudiobookshelfServerUrl = AudiobookshelfApiService.TryNormalizeServerUrlForSave(ServerUrl);
 		ServerUrl = config.AudiobookshelfServerUrl ?? "";
 		config.AudiobookshelfApiToken = AudiobookshelfTokenStorage.EncryptToken(ApiToken.Trim());
 
@@ -263,20 +243,5 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 		}
 		else
 			config.AudiobookshelfFolderId = null;
-	}
-
-	private static string TryNormalizeServerUrlForSave(string? url)
-	{
-		if (string.IsNullOrWhiteSpace(url))
-			return url?.Trim() ?? "";
-
-		try
-		{
-			return AudiobookshelfApiService.NormalizeServerUrl(url);
-		}
-		catch (ArgumentException)
-		{
-			return url.Trim();
-		}
 	}
 }
