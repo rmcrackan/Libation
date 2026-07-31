@@ -61,6 +61,7 @@
     <File Path="__README - COLLABORATORS.txt" />
   </Folder>
   <Folder Name="/_Tests/">
+    <Project Path="_Tests/ApplicationServices.Tests/ApplicationServices.Tests.csproj" />
     <Project Path="_Tests/AssertionHelper/AssertionHelper.csproj" />
     <Project Path="_Tests/AudibleUtilities.Tests/AudibleUtilities.Tests.csproj" />
     <Project Path="_Tests/FileLiberator.Tests/FileLiberator.Tests.csproj" />

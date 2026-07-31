@@ -182,7 +182,12 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 				return;
 			}
 
-			var libs = await AudiobookshelfApiService.GetLibrariesAsync(ServerUrl.Trim(), ApiToken.Trim());
+			var normalizedUrl = AudiobookshelfApiService.NormalizeServerUrl(ServerUrl);
+			var urlAdjusted = !string.Equals(ServerUrl.Trim().TrimEnd('/'), normalizedUrl, StringComparison.OrdinalIgnoreCase);
+			if (urlAdjusted)
+				ServerUrl = normalizedUrl;
+
+			var libs = await AudiobookshelfApiService.GetLibrariesAsync(normalizedUrl, ApiToken.Trim());
 			if (libs.Count == 0)
 			{
 				StatusText = "No book libraries found. Check your settings.";
@@ -193,7 +198,10 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 			Libraries = libs;
 			SelectedLibraryIndex = 0;
 
-			StatusText = $"Connected. Found {libs.Count} library(ies).";
+			var libraryWord = libs.Count == 1 ? "library" : "libraries";
+			StatusText = urlAdjusted
+				? $"Connected. Found {libs.Count} {libraryWord}. Server URL adjusted to the API base address."
+				: $"Connected. Found {libs.Count} {libraryWord}.";
 			StatusIsError = false;
 		}
 		catch (System.Exception ex)
@@ -236,7 +244,8 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	public void SaveSettings(Configuration config)
 	{
 		config.AudiobookshelfEnabled = Enabled;
-		config.AudiobookshelfServerUrl = ServerUrl.Trim();
+		config.AudiobookshelfServerUrl = TryNormalizeServerUrlForSave(ServerUrl);
+		ServerUrl = config.AudiobookshelfServerUrl ?? "";
 		config.AudiobookshelfApiToken = AudiobookshelfTokenStorage.EncryptToken(ApiToken.Trim());
 
 		if (SelectedLibraryIndex >= 0 && Libraries.Count > SelectedLibraryIndex)
@@ -254,5 +263,20 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 		}
 		else
 			config.AudiobookshelfFolderId = null;
+	}
+
+	private static string TryNormalizeServerUrlForSave(string? url)
+	{
+		if (string.IsNullOrWhiteSpace(url))
+			return url?.Trim() ?? "";
+
+		try
+		{
+			return AudiobookshelfApiService.NormalizeServerUrl(url);
+		}
+		catch (ArgumentException)
+		{
+			return url.Trim();
+		}
 	}
 }

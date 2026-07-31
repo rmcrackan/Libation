@@ -20,7 +20,7 @@
 					   Margin="0,0,10,6" />
 			<TextBox Grid.Row="0" Grid.Column="1"
 					 Text="{Binding ServerUrl, Mode=TwoWay}"
-					 PlaceholderText="https://abs.example.com"
+					 PlaceholderText="http://localhost:13378"
 					 IsEnabled="{Binding Enabled}"
 					 Margin="0,0,10,6" />
 

@@ -70,7 +70,12 @@ public partial class SettingsDialog
 				return;
 			}
 
-			var libraries = await AudiobookshelfApiService.GetLibrariesAsync(url, token);
+			var normalizedUrl = AudiobookshelfApiService.NormalizeServerUrl(url);
+			var urlAdjusted = !string.Equals(url.TrimEnd('/'), normalizedUrl, StringComparison.OrdinalIgnoreCase);
+			if (urlAdjusted)
+				absUrlTb.Text = normalizedUrl;
+
+			var libraries = await AudiobookshelfApiService.GetLibrariesAsync(normalizedUrl, token);
 
 			if (libraries.Count == 0)
 			{
@@ -85,7 +90,10 @@ public partial class SettingsDialog
 			absFolderCb.Items.Clear();
 			absFolderCb.SelectedIndex = -1;
 
-			absStatusLbl.Text = $"Connected. Found {libraries.Count} library(ies).";
+			var libraryWord = libraries.Count == 1 ? "library" : "libraries";
+			absStatusLbl.Text = urlAdjusted
+				? $"Connected. Found {libraries.Count} {libraryWord}. Server URL adjusted to the API base address."
+				: $"Connected. Found {libraries.Count} {libraryWord}.";
 			absStatusLbl.ForeColor = System.Drawing.Color.DarkGreen;
 			ToggleAudiobookshelfControls(absEnabledCb.Checked);
 		}
@@ -151,7 +159,8 @@ public partial class SettingsDialog
 	private void Save_Audiobookshelf(Configuration config)
 	{
 		config.AudiobookshelfEnabled = absEnabledCb.Checked;
-		config.AudiobookshelfServerUrl = absUrlTb.Text.Trim();
+		config.AudiobookshelfServerUrl = TryNormalizeServerUrlForSave(absUrlTb.Text);
+		absUrlTb.Text = config.AudiobookshelfServerUrl ?? "";
 		config.AudiobookshelfApiToken = AudiobookshelfTokenStorage.EncryptToken(absTokenTb.Text.Trim());
 
 		if (absLibraryCb.SelectedIndex >= 0 && _absLibraries.Count > absLibraryCb.SelectedIndex)
@@ -169,5 +178,21 @@ public partial class SettingsDialog
 		}
 		else
 			config.AudiobookshelfFolderId = null;
+	}
+
+	private static string? TryNormalizeServerUrlForSave(string? url)
+	{
+		if (string.IsNullOrWhiteSpace(url))
+			return url?.Trim() ?? "";
+
+		try
+		{
+			return AudiobookshelfApiService.NormalizeServerUrl(url);
+		}
+		catch (ArgumentException)
+		{
+			// Keep the trimmed raw value so the user can fix it on next connect.
+			return url.Trim();
+		}
 	}
 }
