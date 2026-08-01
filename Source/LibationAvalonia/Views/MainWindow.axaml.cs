@@ -116,18 +116,27 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 		}
 
 		async void showAccountSettingsRecoveredMessage(LongPath backupFile)
-		=> await MessageBox.Show(this, $"""
-			Libation could not load your account settings, so it had created a new, empty account settings file.
+		{
+			var ex = e.GetException();
+			var body = AccountSettingsDecryptFailure.TryFindInTree(ex, out _)
+				? AccountSettingsDecryptFailure.GetRecoveredDialogBody(ex, backupFile.PathWithoutPrefix)
+				: $"""
+					Libation could not load your account settings, so it had created a new, empty account settings file.
 
-			You will need to re-add you Audible account(s) before scanning or downloading.
+					You will need to re-add you Audible account(s) before scanning or downloading.
 
-			The old account settings file has been archived at '{backupFile.PathWithoutPrefix}'
+					The old account settings file has been archived at '{backupFile.PathWithoutPrefix}'
 
-			{e.GetException().ToString()}
-			""",
-			"Error Loading Account Settings",
-			MessageBoxButtons.OK,
-			MessageBoxIcon.Warning);
+					{ex}
+					""";
+
+			await MessageBox.Show(
+				this,
+				body,
+				AccountSettingsDecryptFailure.LoadErrorCaption,
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Warning);
+		}
 
 		void showAccountSettingsUnrecoveredMessage()
 		{

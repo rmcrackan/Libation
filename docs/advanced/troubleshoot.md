@@ -35,7 +35,7 @@ Audible returned an HTML page instead of JSON. Common causes: transient outage, 
 
 **Fix without copying Windows accounts:** Create or refresh credentials inside Docker with `login-external` or `import-account`. See [Docker - Adding Audible accounts without the GUI](/docs/installation/docker#adding-audible-accounts-without-the-gui).
 
-Also listed under [Docker Troubleshooting](/docs/installation/docker#troubleshooting) and the [FAQ](/docs/frequently-asked-questions#docker-finds-no-new-books--failed-to-decrypt-existingaccesstoken).
+Also listed under [Docker Troubleshooting](/docs/installation/docker#troubleshooting) and the [FAQ](/docs/frequently-asked-questions#docker-finds-no-new-books-failed-to-decrypt-existingaccesstoken).
 
 ## Login fails for an old pre-Amazon Audible account
 
