@@ -55,6 +55,16 @@ If you enabled the [Request xHE-AAC Codec](./features/audio-file-formats.md#requ
 
 For reasons known only to Jeff Bezos and God, amazon and audible brazil handle logins slightly differently. The external browser login option is not possible for Brazil. [See this ticket for more details.](https://github.com/rmcrackan/Libation/issues/1103)
 
+## Docker finds no new books / Failed to decrypt ExistingAccessToken
+
+The Windows app sees your library (including new books), but Docker does not, and the log shows `Failed to decrypt ExistingAccessToken`.
+
+You likely copied an `AccountsSettings.json` that has **encrypted** tokens (`"IsEncrypted": true`). The decryption key stays on the Windows machine and is not in the file, so Docker cannot use those credentials.
+
+**Fix:** On Windows, **Settings -> Important**, uncheck **Store authentication tokens encrypted**, confirm converting existing tokens to plaintext, then copy the updated file into your Docker config and restart. Or re-login inside the container with `login-external` / `import-account`.
+
+Full steps: [Troubleshooting - Failed to decrypt ExistingAccessToken](/docs/advanced/troubleshoot#failed-to-decrypt-existingaccesstoken-docker-finds-no-new-books) and [Docker Troubleshooting](/docs/installation/docker#troubleshooting).
+
 ## Snap refreshed and Libation crashes on the database - what should I check?
 
 Snap keeps per-version folders under `~/snap/libation/<revision>/`. After an update, `appsettings.json` in the **new** folder may still list `"LibationFiles"` with an **old** revision path. Libation then opens the wrong directory and you can see errors about SQLite or migrations even when permissions look fine.
