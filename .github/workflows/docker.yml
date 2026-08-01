@@ -59,7 +59,9 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: ${{ steps.metadata.outputs.tags != ''}}
+          # Always read cache. Only write on release so PR validate cannot fail
+          # when GHA cache is full or the token cannot write cache.
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: ${{ inputs.release && 'type=gha,mode=max,ignore-error=true' || '' }}
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
