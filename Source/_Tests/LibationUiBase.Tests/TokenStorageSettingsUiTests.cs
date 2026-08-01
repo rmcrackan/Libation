@@ -53,4 +53,12 @@ public class TokenStorageSettingsUiTests
 		StringAssert.Contains(message, "AccessToken");
 		Assert.IsFalse(message.Contains("Atna|"));
 	}
+
+	[TestMethod]
+	public void Export_copy_warns_about_secret_file()
+	{
+		StringAssert.Contains(TokenStorageSettingsUi.ExportConfirmBody, "password");
+		StringAssert.Contains(TokenStorageSettingsUi.ExportButtonToolTip, "Docker");
+		Assert.AreEqual("Export encryption key...", TokenStorageSettingsUi.ExportButtonText);
+	}
 }

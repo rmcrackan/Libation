@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 
 namespace IdentityTokenStorageWiringTests;
 
@@ -73,6 +74,9 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 	{
 		IdentityTokenStorage.Reset();
 		Configuration.RestoreSingletonInstance();
+		Environment.SetEnvironmentVariable(IdentityTokenStorageWiring.MasterKeyFileEnvVar, null);
+		Environment.SetEnvironmentVariable(IdentityTokenStorageWiring.MasterKeyEnvVar, null);
+		Environment.SetEnvironmentVariable(LibationFiles.LIBATION_FILES_DIR, null);
 
 		if (_tempDir is not null && Directory.Exists(_tempDir))
 		{
@@ -92,6 +96,87 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 		Assert.AreEqual(TokenStorageMethod.Encrypted, IdentityTokenStorage.WriteMethod);
 		if (IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out _))
 			Assert.IsNotNull(IdentityTokenStorage.Protector);
+	}
+
+	[TestMethod]
+	public void ResolveSecretStore_uses_master_key_file_env_before_os_store()
+	{
+		var keyPath = WriteTempMasterKeyFile();
+		Environment.SetEnvironmentVariable(IdentityTokenStorageWiring.MasterKeyFileEnvVar, keyPath);
+		Environment.SetEnvironmentVariable(LibationFiles.LIBATION_FILES_DIR, _tempDir);
+
+		var config = Configuration.CreateMockInstance();
+		var store = IdentityTokenStorageWiring.ResolveSecretStore(config);
+
+		store.Name.Should().Be("Memory");
+		store.TryGet(AesGcmSecretProtector.DefaultMasterKeyName, out var key).Should().BeTrue();
+		key.Length.Should().Be(AesGcmSecretProtector.KeySizeBytes);
+
+		IdentityTokenStorageWiring.ConfigureFrom(config);
+		Assert.IsNotNull(IdentityTokenStorage.Protector);
+		var payload = IdentityTokenStorage.Protector!.Protect("portable-secret", "aad");
+		IdentityTokenStorage.Protector.Unprotect(payload, "aad").Should().Be("portable-secret");
+	}
+
+	[TestMethod]
+	public void ResolveSecretStore_uses_default_libation_master_key_file()
+	{
+		Environment.SetEnvironmentVariable(LibationFiles.LIBATION_FILES_DIR, _tempDir);
+		var config = Configuration.CreateMockInstance();
+		var defaultPath = Path.Combine(config.LibationFiles.Location, IdentityTokenStorageWiring.DefaultMasterKeyFileName);
+		WriteMasterKeyFile(defaultPath);
+
+		var store = IdentityTokenStorageWiring.ResolveSecretStore(config);
+		store.Name.Should().Be("Memory");
+		store.TryGet(AesGcmSecretProtector.DefaultMasterKeyName, out _).Should().BeTrue();
+	}
+
+	[TestMethod]
+	public void ResolveSecretStore_uses_master_key_env_base64()
+	{
+		var key = new byte[AesGcmSecretProtector.KeySizeBytes];
+		RandomNumberGenerator.Fill(key);
+		Environment.SetEnvironmentVariable(IdentityTokenStorageWiring.MasterKeyEnvVar, Convert.ToBase64String(key));
+		Environment.SetEnvironmentVariable(LibationFiles.LIBATION_FILES_DIR, _tempDir);
+
+		var config = Configuration.CreateMockInstance();
+		var store = IdentityTokenStorageWiring.ResolveSecretStore(config);
+
+		store.Name.Should().Be("Memory");
+		store.TryGet(AesGcmSecretProtector.DefaultMasterKeyName, out var loaded).Should().BeTrue();
+		CollectionAssert.AreEqual(key, loaded);
+	}
+
+	[TestMethod]
+	public void ResolveSecretStore_invalid_master_key_env_fails_closed_without_falling_through()
+	{
+		Environment.SetEnvironmentVariable(IdentityTokenStorageWiring.MasterKeyEnvVar, "not-valid-base64!!!");
+		Environment.SetEnvironmentVariable(LibationFiles.LIBATION_FILES_DIR, _tempDir);
+
+		var config = Configuration.CreateMockInstance();
+		var store = IdentityTokenStorageWiring.ResolveSecretStore(config);
+
+		store.IsAvailable.Should().BeFalse();
+		store.Name.Should().Be("Portable master key env");
+
+		config.TokenStorageMethod = TokenStorageMethod.Encrypted;
+		IdentityTokenStorageWiring.ConfigureFrom(config);
+		Assert.IsNull(IdentityTokenStorage.Protector);
+	}
+
+	[TestMethod]
+	public void ResolveSecretStore_missing_master_key_file_env_fails_closed()
+	{
+		var missing = Path.Combine(_tempDir!, "missing-master.key");
+		Environment.SetEnvironmentVariable(IdentityTokenStorageWiring.MasterKeyFileEnvVar, missing);
+		Environment.SetEnvironmentVariable(LibationFiles.LIBATION_FILES_DIR, _tempDir);
+
+		var config = Configuration.CreateMockInstance();
+		var store = IdentityTokenStorageWiring.ResolveSecretStore(config);
+
+		store.IsAvailable.Should().BeFalse();
+		IdentityTokenStorageWiring.IsEncryptionKeyAvailable(config, out var reason).Should().BeFalse();
+		StringAssert.Contains(reason, "unusable");
 	}
 
 	[TestMethod]
@@ -200,5 +285,47 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 			deviceName: "device-name",
 			storeAuthenticationCookie: SampleStoreAuthCookie);
 		return identity;
+	}
+
+	[TestMethod]
+	public void MasterKeyExport_writes_key_file_when_os_store_has_key()
+	{
+		if (!IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out var reason))
+			Assert.Inconclusive("OS secret store unavailable: " + reason);
+
+		Environment.SetEnvironmentVariable(LibationFiles.LIBATION_FILES_DIR, _tempDir);
+		var config = Configuration.CreateMockInstance();
+		config.TokenStorageMethod = TokenStorageMethod.Encrypted;
+		IdentityTokenStorageWiring.ConfigureFrom(config);
+
+		Assert.IsNotNull(IdentityTokenStorage.Protector);
+		_ = IdentityTokenStorage.Protector!.Protect("seed-master-key");
+
+		var exportPath = Path.Combine(_tempDir!, "libation-master.key");
+		MasterKeyExport.ExportToFile(exportPath);
+
+		File.Exists(exportPath).Should().BeTrue();
+		File.ReadAllBytes(exportPath).Length.Should().Be(AesGcmSecretProtector.KeySizeBytes);
+
+		// Portable load of the exported file can decrypt ciphertext from the OS-backed protector.
+		var payload = IdentityTokenStorage.Protector.Protect("roundtrip-secret", "aad");
+		Environment.SetEnvironmentVariable(IdentityTokenStorageWiring.MasterKeyFileEnvVar, exportPath);
+		IdentityTokenStorageWiring.ConfigureFrom(config);
+		IdentityTokenStorage.Protector!.Unprotect(payload, "aad").Should().Be("roundtrip-secret");
+	}
+
+	private string WriteTempMasterKeyFile()
+	{
+		var path = Path.Combine(_tempDir!, "exported-master.key");
+		WriteMasterKeyFile(path);
+		return path;
+	}
+
+	private static void WriteMasterKeyFile(string path)
+	{
+		var key = new byte[AesGcmSecretProtector.KeySizeBytes];
+		RandomNumberGenerator.Fill(key);
+		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+		File.WriteAllBytes(path, key);
 	}
 }

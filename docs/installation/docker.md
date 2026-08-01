@@ -12,11 +12,18 @@ The docker image is provided as-is. We hope it can be useful to you but it is no
 
 ## Configuration
 
-> [!WARNING] Encrypted tokens from Windows will not work in Docker
+> [!WARNING] Encrypted tokens need the master key in Docker
 >
-> If Docker logs show `Failed to decrypt ExistingAccessToken` (or your scan finds no books after copying Windows config), you copied an `AccountsSettings.json` whose auth tokens are encrypted with a key that stays on the Windows machine. Docker cannot decrypt them.
+> If Docker logs show `Failed to decrypt ExistingAccessToken` (or your scan finds no books after copying Windows config), you copied an `AccountsSettings.json` whose auth tokens are encrypted with a key that normally stays on the desktop OS secret store.
 >
-> **Fix:** On Windows, **Settings -> Important**, uncheck **Store authentication tokens encrypted**, convert existing tokens to plaintext when prompted, then re-copy `AccountsSettings.json` into the Docker config folder. Or skip copying Windows accounts and use `login-external` / `import-account` inside the container (see below).
+> **Preferred fix (keep encryption):** On the desktop machine, export the master key:
+>
+> - **GUI:** Settings -> Important -> **Export encryption key...**
+> - **CLI:** `LibationCli export-master-key libation-master.key`
+>
+> Copy `libation-master.key` into the same Docker config folder as `AccountsSettings.json` (mounted at `/config`). Libation loads it automatically. Alternatively set `LIBATION_MASTER_KEY_FILE` to the key path, or `LIBATION_MASTER_KEY` to the Base64-encoded key. Treat the key file like a password.
+>
+> **Other fixes:** On Windows, **Settings -> Important**, uncheck **Store authentication tokens encrypted**, convert existing tokens to plaintext when prompted, then re-copy `AccountsSettings.json`. Or skip copying Windows accounts and use `login-external` / `import-account` inside the container (see below).
 >
 > Details: [FAQ](/docs/frequently-asked-questions#docker-finds-no-new-books-failed-to-decrypt-existingaccesstoken) · [Troubleshooting](/docs/advanced/troubleshoot#failed-to-decrypt-existingaccesstoken-docker-finds-no-new-books)
 
@@ -26,7 +33,7 @@ The docker image is provided as-is. We hope it can be useful to you but it is no
 >
 > **Solution:** Configure custom replacement characters in `Settings.json` to replace colons with compatible characters. See [Command Line Interface - Set custom replacement characters](/docs/advanced/command-line-interface#set-custom-replacement-characters) for configuration examples.
 
-Configuration in Libation is handled by two files, `AccountsSettings.json` and `Settings.json`. These files can usually be found in the Libation folder in your user's home directory. The easiest way to configure these is to run the desktop version of Libation and then copy them into a folder, such as `/opt/libation/config`, that you'll volume mount into the image. `Settings.json` is technically optional, and, if not provided, Libation will run using the default settings. Additionally, the `Books` and `InProgress` settings in `Settings.json` will be ignored and the image will instead substitute it's own values. If tokens in that file are encrypted on Windows, see the encrypted-tokens warning above.
+Configuration in Libation is handled by two files, `AccountsSettings.json` and `Settings.json`. These files can usually be found in the Libation folder in your user's home directory. The easiest way to configure these is to run the desktop version of Libation and then copy them into a folder, such as `/opt/libation/config`, that you'll volume mount into the image. `Settings.json` is technically optional, and, if not provided, Libation will run using the default settings. Additionally, the `Books` and `InProgress` settings in `Settings.json` will be ignored and the image will instead substitute it's own values. If tokens in that file are encrypted on the desktop, also copy the exported `libation-master.key` (see the encrypted-tokens warning above).
 
 ### Adding Audible accounts without the GUI
 
@@ -80,6 +87,8 @@ sudo docker run -d \
 | LIBATION_DB_FILE           |         | Name of database file to load. By default it will look for all `.db` files and load one if there is only one present. |
 | LIBATION_CREATE_DB         | true    | Whether or not the image should create a database file if none are found.                                             |
 | LIBATION_CONNECTION_STRING |         | Connection string for Postgresql. If not present, Libation uses the default sqlite.                                   |
+| LIBATION_MASTER_KEY_FILE   |         | Path to a raw 32-byte master key file (from `export-master-key`). If unset, Libation also looks for `libation-master.key` under the Libation files / config directory. |
+| LIBATION_MASTER_KEY        |         | Base64-encoded 32-byte master key (alternative to a key file).                                                        |
 
 ## User
 

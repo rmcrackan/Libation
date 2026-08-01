@@ -59,9 +59,11 @@ For reasons known only to Jeff Bezos and God, amazon and audible brazil handle l
 
 The Windows app sees your library (including new books), but Docker does not, and the log shows `Failed to decrypt ExistingAccessToken`.
 
-You likely copied an `AccountsSettings.json` that has **encrypted** tokens (`"IsEncrypted": true`). The decryption key stays on the Windows machine and is not in the file, so Docker cannot use those credentials.
+You likely copied an `AccountsSettings.json` that has **encrypted** tokens (`"IsEncrypted": true`). The decryption key normally stays on the Windows machine and is not in the JSON file, so Docker cannot use those credentials unless you also provide the exported master key.
 
-**Fix:** On Windows, **Settings -> Important**, uncheck **Store authentication tokens encrypted**, confirm converting existing tokens to plaintext, then copy the updated file into your Docker config and restart. Or re-login inside the container with `login-external` / `import-account`.
+**Preferred fix:** On Windows, export the key (**Settings -> Important -> Export encryption key...**, or `LibationCli export-master-key libation-master.key`), copy `libation-master.key` into your Docker config next to `AccountsSettings.json`, and restart.
+
+**Other fixes:** Convert tokens to plaintext in Settings -> Important, then re-copy the JSON; or re-login inside the container with `login-external` / `import-account`.
 
 Full steps: [Troubleshooting - Failed to decrypt ExistingAccessToken](/docs/advanced/troubleshoot#failed-to-decrypt-existingaccesstoken-docker-finds-no-new-books) and [Docker Troubleshooting](/docs/installation/docker#troubleshooting).
 

@@ -83,7 +83,9 @@ public partial class SettingsDialog
 
 		encryptTokensCbox.Text = TokenStorageSettingsUi.CheckboxText;
 		plaintextTokenWarningLbl.Text = TokenStorageSettingsUi.PlaintextWarningText;
+		exportMasterKeyBtn.Text = TokenStorageSettingsUi.ExportButtonText;
 		updateExistingTokensBtn.Text = TokenStorageSettingsUi.ConvertButtonText;
+		toolTip.SetToolTip(exportMasterKeyBtn, TokenStorageSettingsUi.ExportButtonToolTip);
 		toolTip.SetToolTip(updateExistingTokensBtn, TokenStorageSettingsUi.ConvertButtonToolTip);
 
 		if (!osSecretStoreAvailable)
@@ -92,11 +94,13 @@ public partial class SettingsDialog
 			osSecretStoreUnavailableLbl.Visible = true;
 			encryptTokensCbox.Checked = false;
 			encryptTokensCbox.Enabled = false;
+			exportMasterKeyBtn.Enabled = false;
 		}
 		else
 		{
 			osSecretStoreUnavailableLbl.Visible = false;
 			encryptTokensCbox.Enabled = true;
+			exportMasterKeyBtn.Enabled = true;
 			encryptTokensCbox.Checked = TokenStorageSettingsUi.CheckboxFromMethod(config.TokenStorageMethod);
 		}
 
@@ -117,6 +121,25 @@ public partial class SettingsDialog
 
 	private void encryptTokensCbox_CheckedChanged(object? sender, EventArgs e)
 		=> RefreshTokenStorageUiState();
+
+	private async void exportMasterKeyBtn_Click(object? sender, EventArgs e)
+	{
+		if (!await TokenStorageSettingsUi.ConfirmExportMasterKeyAsync(this))
+			return;
+
+		using var dialog = new SaveFileDialog
+		{
+			Title = TokenStorageSettingsUi.ExportConfirmCaption,
+			FileName = IdentityTokenStorageWiring.DefaultMasterKeyFileName,
+			Filter = "Master key (*.key)|*.key|All files (*.*)|*.*",
+			OverwritePrompt = true
+		};
+
+		if (dialog.ShowDialog(this) != DialogResult.OK)
+			return;
+
+		await TokenStorageSettingsUi.ExportMasterKeyToFileAsync(this, dialog.FileName);
+	}
 
 	private async void updateExistingTokensBtn_Click(object? sender, EventArgs e)
 	{

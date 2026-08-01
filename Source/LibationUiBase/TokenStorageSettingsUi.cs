@@ -1,6 +1,7 @@
 using AudibleApi.Authorization;
 using AudibleUtilities;
 using LibationUiBase.Forms;
+using System;
 using System.Threading.Tasks;
 
 namespace LibationUiBase;
@@ -20,6 +21,20 @@ public static class TokenStorageSettingsUi
 
 	public const string ConvertButtonToolTip
 		= "Convert existing tokens in AccountsSettings.json to match the currently selected storage method.";
+
+	public const string ExportButtonText = "Export encryption key...";
+
+	public const string ExportButtonToolTip
+		= "Export the OS-bound encryption master key to a file for Docker or another machine. Treat the file like a password.";
+
+	public const string ExportConfirmCaption = "Export encryption key";
+
+	public const string ExportConfirmBody
+		= "Export the encryption master key to a file for use in Docker or on another machine?\r\n\r\n"
+		+ "Anyone with this file can decrypt encrypted tokens in AccountsSettings.json. Treat it like a password.";
+
+	public const string ExportSucceededCaption = "Encryption key exported";
+	public const string ExportFailedCaption = "Export failed";
 
 	public const string SavePromptCaption = "Convert existing tokens?";
 	public const string ConvertConfirmCaption = "Confirm token conversion";
@@ -199,6 +214,53 @@ public static class TokenStorageSettingsUi
 		}
 
 		return true;
+	}
+
+	/// <summary>Ask the user to confirm exporting the master key. Returns true when they choose Yes.</summary>
+	public static async Task<bool> ConfirmExportMasterKeyAsync(object? owner)
+	{
+		var confirm = await MessageBoxBase.Show(
+			owner,
+			ExportConfirmBody,
+			ExportConfirmCaption,
+			MessageBoxButtons.YesNo,
+			MessageBoxIcon.Warning,
+			defaultButton: MessageBoxDefaultButton.Button2);
+
+		return confirm == DialogResult.Yes;
+	}
+
+	/// <summary>
+	/// Export the OS-bound master key to <paramref name="filePath"/> and show success/error.
+	/// Caller should confirm first and obtain <paramref name="filePath"/> via a save-file dialog.
+	/// </summary>
+	public static async Task ExportMasterKeyToFileAsync(object? owner, string filePath)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+
+		try
+		{
+			MasterKeyExport.ExportToFile(filePath);
+		}
+		catch (System.Exception ex)
+		{
+			Serilog.Log.Logger.Warning(ex, "Master key export failed");
+			await MessageBoxBase.Show(
+				owner,
+				ex.Message,
+				ExportFailedCaption,
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Error);
+			return;
+		}
+
+		await MessageBoxBase.Show(
+			owner,
+			$"Wrote master key to:\r\n{filePath}\r\n\r\n"
+			+ "For Docker, copy it next to AccountsSettings.json as libation-master.key, or set LIBATION_MASTER_KEY_FILE.",
+			ExportSucceededCaption,
+			MessageBoxButtons.OK,
+			MessageBoxIcon.Information);
 	}
 }
 
