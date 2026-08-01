@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using AudibleApi.Authorization;
 
 namespace AudibleUtilities;
 
@@ -13,8 +13,6 @@ public static class AccountSettingsDecryptFailure
 	public const string FaqUrl
 		= "https://getlibation.com/docs/frequently-asked-questions#docker-finds-no-new-books-failed-to-decrypt-existingaccesstoken";
 
-	private const string MessagePrefix = "Failed to decrypt";
-
 	private static readonly string[] ThingsToTryBullets =
 	[
 		"On the machine that created the encrypted file (usually Windows): Settings -> Important, uncheck \"Store authentication tokens encrypted\", convert existing tokens to plaintext when prompted, then copy the updated AccountsSettings.json again.",
@@ -25,10 +23,10 @@ public static class AccountSettingsDecryptFailure
 	/// <summary>
 	/// True when <paramref name="ex"/> (or an inner exception) is a decrypt failure from identity token JSON.
 	/// </summary>
-	public static bool TryFindInTree(Exception ex, out JsonReaderException? match)
+	public static bool TryFindInTree(Exception ex, out IdentityTokenDecryptException? match)
 	{
 		ArgumentNullException.ThrowIfNull(ex);
-		JsonReaderException? found = null;
+		IdentityTokenDecryptException? found = null;
 		walk(ex);
 		match = found;
 		return found is not null;
@@ -38,10 +36,9 @@ public static class AccountSettingsDecryptFailure
 			if (e is null || found is not null)
 				return;
 
-			if (e is JsonReaderException jsonEx
-				&& jsonEx.Message.StartsWith(MessagePrefix, StringComparison.Ordinal))
+			if (e is IdentityTokenDecryptException decryptEx)
 			{
-				found = jsonEx;
+				found = decryptEx;
 				return;
 			}
 
