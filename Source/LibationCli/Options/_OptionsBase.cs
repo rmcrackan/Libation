@@ -54,6 +54,16 @@ public abstract class OptionsBase
 				return;
 			}
 
+			if (AccountSettingsDecryptFailure.TryFindInTree(ex, out var decryptEx) && decryptEx is not null)
+			{
+				Console.Error.WriteLine("ERROR");
+				Console.Error.WriteLine("=====");
+				foreach (var line in AccountSettingsDecryptFailure.GetExplainerLines(ex))
+					Console.Error.WriteLine(line);
+				Serilog.Log.Logger.Error(decryptEx, "Failed to decrypt account settings tokens");
+				return;
+			}
+
 			PrintVerbUsage(
 				"ERROR",
 				"=====",

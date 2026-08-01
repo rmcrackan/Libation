@@ -141,6 +141,11 @@ setup_db() {
 run() {
   info "scanning accounts"
   /libation/LibationCli scan
+  local scan_exit=$?
+  if [ "${scan_exit}" -ne 0 ]; then
+    error "scan failed (exit ${scan_exit}); skipping liberate. If the log shows Failed to decrypt ExistingAccessToken, see https://getlibation.com/docs/frequently-asked-questions#docker-finds-no-new-books-failed-to-decrypt-existingaccesstoken"
+    exit "${scan_exit}"
+  fi
   info "liberating books"
   /libation/LibationCli liberate
 }

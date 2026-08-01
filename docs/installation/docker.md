@@ -12,15 +12,21 @@ The docker image is provided as-is. We hope it can be useful to you but it is no
 
 ## Configuration
 
+> [!WARNING] Encrypted tokens from Windows will not work in Docker
+>
+> If Docker logs show `Failed to decrypt ExistingAccessToken` (or your scan finds no books after copying Windows config), you copied an `AccountsSettings.json` whose auth tokens are encrypted with a key that stays on the Windows machine. Docker cannot decrypt them.
+>
+> **Fix:** On Windows, **Settings -> Important**, uncheck **Store authentication tokens encrypted**, convert existing tokens to plaintext when prompted, then re-copy `AccountsSettings.json` into the Docker config folder. Or skip copying Windows accounts and use `login-external` / `import-account` inside the container (see below).
+>
+> Details: [FAQ](/docs/frequently-asked-questions#docker-finds-no-new-books-failed-to-decrypt-existingaccesstoken) · [Troubleshooting](/docs/advanced/troubleshoot#failed-to-decrypt-existingaccesstoken-docker-finds-no-new-books)
+
 > [!WARNING] NTFS filesystem limitations
 >
 > NTFS filesystems (Windows, and NTFS-formatted external drives on Linux/Mac) do not support colons (`:`) in filenames. Since many audiobook titles contain colons (e.g., "Title: A Subtitle"), downloads may produce invalid filenames.
 >
 > **Solution:** Configure custom replacement characters in `Settings.json` to replace colons with compatible characters. See [Command Line Interface - Set custom replacement characters](/docs/advanced/command-line-interface#set-custom-replacement-characters) for configuration examples.
 
-Configuration in Libation is handled by two files, `AccountsSettings.json` and `Settings.json`. These files can usually be found in the Libation folder in your user's home directory. The easiest way to configure these is to run the desktop version of Libation and then copy them into a folder, such as `/opt/libation/config`, that you'll volume mount into the image. `Settings.json` is technically optional, and, if not provided, Libation will run using the default settings. Additionally, the `Books` and `InProgress` settings in `Settings.json` will be ignored and the image will instead substitute it's own values.
-
-If you copy `AccountsSettings.json` from Windows and the desktop app is storing tokens encrypted, Docker cannot decrypt them (the encryption key stays on the Windows machine). See [Troubleshooting](#troubleshooting), the site-wide [Troubleshooting](/docs/advanced/troubleshoot#failed-to-decrypt-existingaccesstoken-docker-finds-no-new-books) page, or the [FAQ](/docs/frequently-asked-questions#docker-finds-no-new-books--failed-to-decrypt-existingaccesstoken).
+Configuration in Libation is handled by two files, `AccountsSettings.json` and `Settings.json`. These files can usually be found in the Libation folder in your user's home directory. The easiest way to configure these is to run the desktop version of Libation and then copy them into a folder, such as `/opt/libation/config`, that you'll volume mount into the image. `Settings.json` is technically optional, and, if not provided, Libation will run using the default settings. Additionally, the `Books` and `InProgress` settings in `Settings.json` will be ignored and the image will instead substitute it's own values. If tokens in that file are encrypted on Windows, see the encrypted-tokens warning above.
 
 ### Adding Audible accounts without the GUI
 
@@ -97,7 +103,7 @@ If the user it's running as is correct, and it still cannot write, be sure to ch
 
 ## Troubleshooting
 
-- **`Failed to decrypt ExistingAccessToken` (scan finds no books after copying Windows config):** Encrypted tokens from a Windows desktop install cannot be decrypted in Docker. Full symptoms, checks, and fixes: [Troubleshooting - Failed to decrypt ExistingAccessToken](/docs/advanced/troubleshoot#failed-to-decrypt-existingaccesstoken-docker-finds-no-new-books) and [FAQ](/docs/frequently-asked-questions#docker-finds-no-new-books--failed-to-decrypt-existingaccesstoken). Short version: on Windows, **Settings -> Important**, uncheck **Store authentication tokens encrypted**, convert existing tokens to plaintext, re-copy `AccountsSettings.json`, or use `login-external` / `import-account` inside the container ([above](#adding-audible-accounts-without-the-gui)).
+- **`Failed to decrypt ExistingAccessToken` (scan finds no books after copying Windows config):** See the [encrypted-tokens warning](#configuration) at the top of Configuration, plus [Troubleshooting](/docs/advanced/troubleshoot#failed-to-decrypt-existingaccesstoken-docker-finds-no-new-books) and the [FAQ](/docs/frequently-asked-questions#docker-finds-no-new-books-failed-to-decrypt-existingaccesstoken).
 - **Library scan appears to hang in Docker:** Try setting `ImportEpisodes` to `false` in `Settings.json` on your config volume and run again. That turns off the extra episode/podcast catalog requests during import and helps narrow down whether the stall is in that path versus auth or the network.
 
 ## Advanced Database Options
