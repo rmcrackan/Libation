@@ -1,8 +1,11 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
+using AudibleUtilities;
 using LibationAvalonia.Dialogs;
 using LibationAvalonia.ViewModels.Settings;
 using LibationFileManager;
+using LibationUiBase;
 using System.Linq;
 
 namespace LibationAvalonia.Controls.Settings;
@@ -19,6 +22,32 @@ public partial class Important : UserControl
 		}
 
 		ThemeComboBox.SelectionChanged += ThemeComboBox_SelectionChanged;
+	}
+
+	private async void ExportMasterKey_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+	{
+		var owner = this.GetParentWindow();
+		if (!await TokenStorageSettingsUi.ConfirmExportMasterKeyAsync(owner))
+			return;
+
+		var options = new FilePickerSaveOptions
+		{
+			Title = TokenStorageSettingsUi.ExportConfirmCaption,
+			SuggestedFileName = IdentityTokenStorageWiring.DefaultMasterKeyFileName,
+			DefaultExtension = "key",
+			ShowOverwritePrompt = true,
+			FileTypeChoices =
+			[
+				new("Master key (*.key)") { Patterns = ["*.key"] },
+				new("All files (*.*)") { Patterns = ["*"] }
+			]
+		};
+
+		var selectedFile = (await owner.StorageProvider.SaveFilePickerAsync(options))?.TryGetLocalPath();
+		if (selectedFile is null)
+			return;
+
+		await TokenStorageSettingsUi.ExportMasterKeyToFileAsync(owner, selectedFile);
 	}
 
 	private void EditThemeColors_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)

@@ -107,14 +107,24 @@
 					IsVisible="{Binding OsStoreUnavailableVisible}"
 					Text="{Binding OsStoreUnavailableMessage}"
 					TextWrapping="Wrap" />
-				<Button
+				<StackPanel
 					Margin="0,10,0,0"
+					Orientation="Horizontal"
 					HorizontalAlignment="Right"
-					Padding="20,0"
-					Content="{Binding ConvertButtonText}"
-					ToolTip.Tip="{Binding ConvertButtonToolTip}"
-					IsEnabled="{Binding ConvertButtonEnabled}"
-					Command="{Binding ConvertExistingTokensCommand}" />
+					Spacing="10">
+					<Button
+						Padding="20,0"
+						Content="{Binding ExportButtonText}"
+						ToolTip.Tip="{Binding ExportButtonToolTip}"
+						IsEnabled="{Binding ExportButtonEnabled}"
+						Click="ExportMasterKey_Click" />
+					<Button
+						Padding="20,0"
+						Content="{Binding ConvertButtonText}"
+						ToolTip.Tip="{Binding ConvertButtonToolTip}"
+						IsEnabled="{Binding ConvertButtonEnabled}"
+						Command="{Binding ConvertExistingTokensCommand}" />
+				</StackPanel>
 			</StackPanel>
 		</controls:GroupBox>
 

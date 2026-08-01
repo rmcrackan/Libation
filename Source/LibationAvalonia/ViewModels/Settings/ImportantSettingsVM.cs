@@ -49,12 +49,14 @@ public class ImportantSettingsVM : ViewModelBase
 			OsStoreUnavailableMessage = TokenStorageSettingsUi.OsStoreUnavailableMessage(unavailableReason);
 			encryptTokens = false;
 			CanEditEncryptTokens = false;
+			ExportButtonEnabled = false;
 		}
 		else
 		{
 			OsStoreUnavailableVisible = false;
 			encryptTokens = TokenStorageSettingsUi.CheckboxFromMethod(config.TokenStorageMethod);
 			CanEditEncryptTokens = true;
+			ExportButtonEnabled = true;
 		}
 
 		RefreshTokenStorageUiState();
@@ -156,7 +158,10 @@ public class ImportantSettingsVM : ViewModelBase
 	public string PlaintextWarningText { get; } = TokenStorageSettingsUi.PlaintextWarningText;
 	public string ConvertButtonText { get; } = TokenStorageSettingsUi.ConvertButtonText;
 	public string ConvertButtonToolTip { get; } = TokenStorageSettingsUi.ConvertButtonToolTip;
+	public string ExportButtonText { get; } = TokenStorageSettingsUi.ExportButtonText;
+	public string ExportButtonToolTip { get; } = TokenStorageSettingsUi.ExportButtonToolTip;
 	public bool CanEditEncryptTokens { get; }
+	public bool ExportButtonEnabled { get; }
 
 	public string BooksDirectory { get; set; }
 	public bool SavePodcastsToParentFolder { get; set; }

@@ -75,6 +75,7 @@
 			encryptTokensCbox = new System.Windows.Forms.CheckBox();
 			plaintextTokenWarningLbl = new System.Windows.Forms.Label();
 			osSecretStoreUnavailableLbl = new System.Windows.Forms.Label();
+			exportMasterKeyBtn = new System.Windows.Forms.Button();
 			updateExistingTokensBtn = new System.Windows.Forms.Button();
 			booksGb = new System.Windows.Forms.GroupBox();
 			booksSelectControl = new DirectoryOrCustomSelectControl();
@@ -529,6 +530,7 @@
 			// 
 			tokenStorageGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			tokenStorageGb.Controls.Add(updateExistingTokensBtn);
+			tokenStorageGb.Controls.Add(exportMasterKeyBtn);
 			tokenStorageGb.Controls.Add(osSecretStoreUnavailableLbl);
 			tokenStorageGb.Controls.Add(plaintextTokenWarningLbl);
 			tokenStorageGb.Controls.Add(encryptTokensCbox);
@@ -571,13 +573,24 @@
 			osSecretStoreUnavailableLbl.Text = "[OS secret store unavailable]";
 			osSecretStoreUnavailableLbl.Visible = false;
 			// 
+			// exportMasterKeyBtn
+			// 
+			exportMasterKeyBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			exportMasterKeyBtn.Location = new System.Drawing.Point(422, 68);
+			exportMasterKeyBtn.Name = "exportMasterKeyBtn";
+			exportMasterKeyBtn.Size = new System.Drawing.Size(200, 27);
+			exportMasterKeyBtn.TabIndex = 3;
+			exportMasterKeyBtn.Text = "Export encryption key...";
+			exportMasterKeyBtn.UseVisualStyleBackColor = true;
+			exportMasterKeyBtn.Click += exportMasterKeyBtn_Click;
+			// 
 			// updateExistingTokensBtn
 			// 
 			updateExistingTokensBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
 			updateExistingTokensBtn.Location = new System.Drawing.Point(628, 68);
 			updateExistingTokensBtn.Name = "updateExistingTokensBtn";
 			updateExistingTokensBtn.Size = new System.Drawing.Size(200, 27);
-			updateExistingTokensBtn.TabIndex = 3;
+			updateExistingTokensBtn.TabIndex = 4;
 			updateExistingTokensBtn.Text = "Update existing stored tokens";
 			updateExistingTokensBtn.UseVisualStyleBackColor = true;
 			updateExistingTokensBtn.Click += updateExistingTokensBtn_Click;
@@ -1768,6 +1781,7 @@
 		private System.Windows.Forms.CheckBox encryptTokensCbox;
 		private System.Windows.Forms.Label plaintextTokenWarningLbl;
 		private System.Windows.Forms.Label osSecretStoreUnavailableLbl;
+		private System.Windows.Forms.Button exportMasterKeyBtn;
 		private System.Windows.Forms.Button updateExistingTokensBtn;
 		private System.Windows.Forms.GroupBox booksGb;
 		private System.Windows.Forms.TabPage tab2ImportLibrary;
