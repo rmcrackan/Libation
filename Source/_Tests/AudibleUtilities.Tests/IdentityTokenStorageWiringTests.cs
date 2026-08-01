@@ -287,6 +287,33 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 		return identity;
 	}
 
+	[TestMethod]
+	public void MasterKeyExport_writes_key_file_when_os_store_has_key()
+	{
+		if (!IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out var reason))
+			Assert.Inconclusive("OS secret store unavailable: " + reason);
+
+		Environment.SetEnvironmentVariable(LibationFiles.LIBATION_FILES_DIR, _tempDir);
+		var config = Configuration.CreateMockInstance();
+		config.TokenStorageMethod = TokenStorageMethod.Encrypted;
+		IdentityTokenStorageWiring.ConfigureFrom(config);
+
+		Assert.IsNotNull(IdentityTokenStorage.Protector);
+		_ = IdentityTokenStorage.Protector!.Protect("seed-master-key");
+
+		var exportPath = Path.Combine(_tempDir!, "libation-master.key");
+		MasterKeyExport.ExportToFile(exportPath);
+
+		File.Exists(exportPath).Should().BeTrue();
+		File.ReadAllBytes(exportPath).Length.Should().Be(AesGcmSecretProtector.KeySizeBytes);
+
+		// Portable load of the exported file can decrypt ciphertext from the OS-backed protector.
+		var payload = IdentityTokenStorage.Protector.Protect("roundtrip-secret", "aad");
+		Environment.SetEnvironmentVariable(IdentityTokenStorageWiring.MasterKeyFileEnvVar, exportPath);
+		IdentityTokenStorageWiring.ConfigureFrom(config);
+		IdentityTokenStorage.Protector!.Unprotect(payload, "aad").Should().Be("roundtrip-secret");
+	}
+
 	private string WriteTempMasterKeyFile()
 	{
 		var path = Path.Combine(_tempDir!, "exported-master.key");
