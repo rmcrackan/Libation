@@ -46,12 +46,15 @@ public class AccountSettingsDecryptFailureTests
 	}
 
 	[TestMethod]
-	public void Explainer_mentions_plaintext_convert_cli_and_faq()
+	public void Explainer_mentions_portable_key_plaintext_cli_and_faq()
 	{
 		var ex = CreateDecryptException("ExistingAccessToken");
 		var body = AccountSettingsDecryptFailure.GetExplainerBody(ex);
 
 		StringAssert.Contains(body, "could not be decrypted");
+		StringAssert.Contains(body, "export-master-key");
+		StringAssert.Contains(body, "libation-master.key");
+		StringAssert.Contains(body, "LIBATION_MASTER_KEY_FILE");
 		StringAssert.Contains(body, "Store authentication tokens encrypted");
 		StringAssert.Contains(body, "login-external");
 		StringAssert.Contains(body, "import-account");

@@ -27,11 +27,18 @@ Audible returned an HTML page instead of JSON. Common causes: transient outage, 
 
 **Symptoms:** The Windows (or other desktop) app shows your full library and new titles, but Docker / Linux finds no new books after you copy `AccountsSettings.json` from that machine. Container or `Libation.log` output includes `Failed to decrypt ExistingAccessToken`.
 
-**Cause:** Recent Libation can encrypt auth tokens in `AccountsSettings.json` using a key stored in the OS secret store (on Windows: DPAPI). That key does **not** travel when you copy the file into Docker, so the container cannot decrypt the tokens and the library scan fails.
+**Cause:** Libation can encrypt auth tokens in `AccountsSettings.json` using a key stored in the OS secret store (on Windows: DPAPI). That key does **not** travel when you copy only the JSON file into Docker, so the container cannot decrypt the tokens and the library scan fails.
 
 **Quick check:** Open `AccountsSettings.json` on the Docker config volume. If you see `"IsEncrypted": true` near `ExistingAccessToken`, `RefreshToken`, or related fields, that is the problem.
 
-**Fix from Windows:** In the desktop app, open **Settings -> Important**, uncheck **Store authentication tokens encrypted**, and when prompted choose **Yes** to decrypt and re-save existing tokens as plaintext. Copy the updated `AccountsSettings.json` (and `Settings.json`) into the Docker config folder and restart the container.
+**Preferred fix (keep encryption):** On the desktop machine, export the master key:
+
+- **GUI:** Settings -> Important -> **Export encryption key...**
+- **CLI:** `LibationCli export-master-key libation-master.key`
+
+Copy `libation-master.key` into the Docker config folder next to `AccountsSettings.json` and restart. Or set `LIBATION_MASTER_KEY_FILE` / `LIBATION_MASTER_KEY` (see [Docker environment variables](/docs/installation/docker#environment-variables)). Treat the key file like a password.
+
+**Fix with plaintext tokens:** In the desktop app, open **Settings -> Important**, uncheck **Store authentication tokens encrypted**, and when prompted choose **Yes** to decrypt and re-save existing tokens as plaintext. Copy the updated `AccountsSettings.json` (and `Settings.json`) into the Docker config folder and restart the container.
 
 **Fix without copying Windows accounts:** Create or refresh credentials inside Docker with `login-external` or `import-account`. See [Docker - Adding Audible accounts without the GUI](/docs/installation/docker#adding-audible-accounts-without-the-gui).
 

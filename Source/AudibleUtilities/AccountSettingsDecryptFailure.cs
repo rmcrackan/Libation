@@ -15,8 +15,9 @@ public static class AccountSettingsDecryptFailure
 
 	private static readonly string[] ThingsToTryBullets =
 	[
-		"On the machine that created the encrypted file (usually Windows): Settings -> Important, uncheck \"Store authentication tokens encrypted\", convert existing tokens to plaintext when prompted, then copy the updated AccountsSettings.json again.",
-		"Or re-authenticate on this machine/container with LibationCli login-external or import-account (do not rely on the encrypted Windows copy).",
+		"Keep tokens encrypted: on the machine that created the file, export the master key (Settings -> Important -> Export encryption key..., or LibationCli export-master-key libation-master.key), then copy that file into the Docker/config folder next to AccountsSettings.json (or set LIBATION_MASTER_KEY_FILE / LIBATION_MASTER_KEY).",
+		"Or convert to plaintext: Settings -> Important, uncheck \"Store authentication tokens encrypted\", convert existing tokens when prompted, then copy the updated AccountsSettings.json again.",
+		"Or re-authenticate on this machine/container with LibationCli login-external or import-account.",
 		$"Details: {FaqUrl}",
 	];
 

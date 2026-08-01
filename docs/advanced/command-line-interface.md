@@ -72,6 +72,26 @@ libationcli import-account /home/me/Audible/account.json
 
 Use `libationcli import-account --help` for the exact options on your build.
 
+## Export the encryption master key (`export-master-key`)
+
+When authentication tokens are stored encrypted, the AES-GCM master key lives in the desktop OS secret store and does not travel with `AccountsSettings.json`. Export it to a file for Docker or another machine:
+
+```console
+libationcli export-master-key libation-master.key
+libationcli export-master-key --path "C:\path\to\libation-master.key"
+```
+
+Requirements:
+
+- The OS secret store must be available on the machine where you run the command.
+- A master key must already exist (encrypt tokens at least once on that machine).
+
+Treat the output file like a password: anyone with it can decrypt encrypted tokens in `AccountsSettings.json`. For Docker, copy `libation-master.key` into the config folder next to `AccountsSettings.json`, or set `LIBATION_MASTER_KEY_FILE` / `LIBATION_MASTER_KEY`. See [Docker - encrypted tokens](/docs/installation/docker#configuration).
+
+You can also export from the GUI: **Settings -> Important -> Export encryption key...**
+
+Use `libationcli export-master-key --help` for the exact options on your build.
+
 ## Log in with an external browser (`login-external`)
 
 For headless servers or when you prefer not to use the GUI, this verb performs the same external browser OAuth flow as Libation's alternate login: the CLI prints a sign-in URL, you complete login in your own browser, then supply the full URL shown in the browser after Audible redirects you (it is normal if that page looks broken or says the page does not exist).
