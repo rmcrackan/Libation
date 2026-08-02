@@ -99,7 +99,7 @@ For headless servers or when you prefer not to use the GUI, this verb performs t
 Required flags:
 
 - `--account` / `-a` — Your Audible login id (email).
-- `--locale` / `-l` — Marketplace code, same as in the GUI (for example `us`, `uk`, `de`).
+- `--locale` / `-l` — Marketplace country code or locale name (for example `us`, `uk`, `de`, or `germany`). Unknown values fail with an error instead of building a broken Amazon URL.
 
 Interactive use (terminal attached to a keyboard):
 

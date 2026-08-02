@@ -2,6 +2,7 @@ using AudibleApi;
 using AudibleUtilities;
 using CommandLine;
 using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -13,7 +14,7 @@ internal class LoginExternalOptions : OptionsBase
 	[Option('a', "account", Required = true, HelpText = "Audible login id (email) for this account.")]
 	public string? AccountId { get; set; }
 
-	[Option('l', "locale", Required = true, HelpText = "Audible marketplace / locale (e.g. us, uk, de).")]
+	[Option('l', "locale", Required = true, HelpText = "Audible marketplace / locale name or country code (e.g. us, uk, de, germany).")]
 	public string? Locale { get; set; }
 
 	[Option("response-url", Required = false, HelpText = "Final browser URL after login. Use when stdin is not a TTY (e.g. scripts, Docker).")]
@@ -22,33 +23,37 @@ internal class LoginExternalOptions : OptionsBase
 	protected override async Task ProcessAsync()
 	{
 		var accountId = AccountId?.Trim();
-		var localeName = Locale?.Trim();
-		if (string.IsNullOrEmpty(accountId) || string.IsNullOrEmpty(localeName))
+		var localeInput = Locale?.Trim();
+		if (string.IsNullOrEmpty(accountId) || string.IsNullOrEmpty(localeInput))
 		{
 			PrintVerbUsage("ERROR", "=====", "Both --account and --locale are required.");
 			Environment.ExitCode = (int)ExitCode.RunTimeError;
 			return;
 		}
 
-		Locale locale;
-		try
+		var locale = ResolveLocale(localeInput);
+		if (IsEmptyLocale(locale))
 		{
-			locale = Localization.Get(localeName);
-		}
-		catch (Exception ex)
-		{
-			PrintVerbUsage("ERROR", "=====", $"Unknown locale '{localeName}': {ex.Message}");
+			var known = string.Join(", ",
+				Localization.Locales
+					.Where(l => !l.WithUsername)
+					.Select(l => $"{l.CountryCode} ({l.Name})"));
+			PrintVerbUsage(
+				"ERROR",
+				"=====",
+				$"Unknown locale '{localeInput}'. Use a country code or locale name, for example: {known}");
 			Environment.ExitCode = (int)ExitCode.RunTimeError;
 			return;
 		}
 
 		using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-		var account = persister.AccountsSettings.Upsert(accountId, localeName);
+		// Persist by canonical locale name ("germany"), not the user input ("de").
+		var account = persister.AccountsSettings.Upsert(accountId, locale.Name);
 
 		if (account.IdentityTokens?.IsValid == true)
 		{
 			Console.WriteLine(
-				$"Account '{accountId}' ({localeName}) is already authenticated. No browser login needed.");
+				$"Account '{accountId}' ({locale.Name}) is already authenticated. No browser login needed.");
 			return;
 		}
 
@@ -72,13 +77,34 @@ internal class LoginExternalOptions : OptionsBase
 		}
 		catch (Exception ex)
 		{
-			PrintVerbUsage("ERROR", "=====", ex.Message, "", ex.StackTrace);
+			PrintVerbUsage("ERROR", "=====", ex.Message, "", ex.ToString());
 			Environment.ExitCode = (int)ExitCode.RunTimeError;
 			return;
 		}
 
-		Console.WriteLine($"Successfully authenticated account '{accountId}' ({localeName}).");
+		Console.WriteLine($"Successfully authenticated account '{accountId}' ({locale.Name}).");
 	}
+
+	/// <summary>
+	/// Resolve by locale name or country code. Prefers modern (non-pre-amazon) locales for country codes.
+	/// Works with older AudibleApi builds where <see cref="Localization.Get"/> only matched names.
+	/// </summary>
+	internal static AudibleApi.Locale ResolveLocale(string localeInput)
+	{
+		var fromGet = Localization.Get(localeInput);
+		if (!IsEmptyLocale(fromGet))
+			return fromGet;
+
+		return Localization.Locales
+			.Where(l => l.CountryCode.Equals(localeInput, StringComparison.OrdinalIgnoreCase)
+				|| l.Name.Equals(localeInput, StringComparison.OrdinalIgnoreCase))
+			.OrderBy(l => l.WithUsername)
+			.FirstOrDefault()
+			?? AudibleApi.Locale.Empty;
+	}
+
+	internal static bool IsEmptyLocale(AudibleApi.Locale locale)
+		=> string.IsNullOrEmpty(locale.CountryCode);
 
 	private sealed class CliLoginExternal : ILoginExternal
 	{

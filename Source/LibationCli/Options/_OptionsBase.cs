@@ -69,7 +69,8 @@ public abstract class OptionsBase
 				"=====",
 				ex.Message,
 				"",
-				ex.StackTrace);
+				// Include inner exceptions (e.g. real token failure behind AuthenticationRequiredException).
+				ex.ToString());
 		}
 	}
 
