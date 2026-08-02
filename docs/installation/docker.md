@@ -37,7 +37,7 @@ Configuration in Libation is handled by two files, `AccountsSettings.json` and `
 
 ### Adding Audible accounts without the GUI
 
-If you run Libation on a server or in Docker and do not want to copy `AccountsSettings.json` from a desktop install, you can create or update accounts with LibationCli (same binary as in the image under `/libation/LibationCli`):
+If you run Libation on a server or in Docker and do not want to copy `AccountsSettings.json` from a desktop install, you can create or update accounts with LibationCli (same binary as in the image under `/libation/LibationCli`, also available on `PATH` as `LibationCli`):
 
 - `import-account` — Import an account from a JSON file exported by [mkb79's audible-cli](https://github.com/mkb79/audible-cli) (or Libation's own compatible export). Example:  
   `LibationCli import-account /path/to/account.json`
@@ -49,7 +49,7 @@ If you run Libation on a server or in Docker and do not want to copy `AccountsSe
 
 For full syntax, overrides, and the `--libationFiles` option (or the `LIBATION_FILES_DIR` environment variable) when your Libation data directory is not the default, see [Command Line Interface](/docs/advanced/command-line-interface).
 
-Docker tip: The entrypoint script copies your mounted config into an internal path before running LibationCli. The most reliable way to run account commands inside the same layout the container uses is to `docker exec` into an already running Libation container (so `AccountsSettings.json` and `appsettings.json` are already in place), then run `/libation/LibationCli import-account ...` or `/libation/LibationCli login-external ...`. Alternatively, run LibationCli on any host where you can point `--libationFiles` (or `LIBATION_FILES_DIR`) at the folder that you later mount as `/config` on the server.
+Docker tip: The entrypoint script copies your mounted config into an internal path before running LibationCli. The most reliable way to run account commands inside the same layout the container uses is to start a container with an interactive shell instead of the default liberate loop (see [Interactive Shell](#interactive-shell) below), or to `docker exec` into an already running Libation container (so `AccountsSettings.json` and `appsettings.json` are already in place), then run `LibationCli import-account ...` or `LibationCli login-external ...`. Alternatively, run LibationCli on any host where you can point `--libationFiles` (or `LIBATION_FILES_DIR`) at the folder that you later mount as `/config` on the server.
 
 ## Running
 
@@ -75,6 +75,19 @@ sudo docker run -d \
   --restart=always \
   rmcrackan/libation:latest
 ```
+
+### Interactive Shell
+
+If you pass a command to `docker run` instead of using the default, the entrypoint script still performs its normal setup (copying config into place, applying `Books`/`InProgress` overrides, and locating/creating the database) but then runs your command instead of the liberate loop. This gives you a shell with the same layout the container uses at runtime, without needing an already-running container to `docker exec` into:
+
+```bash
+sudo docker run --rm -it \
+  -v /opt/libation/config:/config \
+  -v /opt/libation/books:/data \
+  rmcrackan/libation:latest bash
+```
+
+From there you can run `LibationCli import-account ...`, `LibationCli login-external ...`, or any other one-off command against the mounted config.
 
 ## Environment Variables
 

@@ -176,6 +176,13 @@ main() {
     warn "${LIBATION_BOOKS_DIR} does not appear to be mounted, books will not be saved"
   fi
 
+  # If a command was passed to the container (e.g. `docker run -it libation bash`),
+  # run that instead of the liberate loop so the environment is still set up
+  if [ "$#" -gt 0 ]; then
+    info "executing '$*' instead of the liberate loop"
+    exec "$@"
+  fi
+
   # Let the user know what the run type will be
   if [[ -z "${SLEEP_TIME}" ]]; then
     SLEEP_TIME=-1
@@ -203,4 +210,4 @@ main() {
   info "exiting"
 }
 
-main
+main "$@"
