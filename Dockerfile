@@ -41,4 +41,4 @@ RUN ln -s /libation/LibationCli /usr/local/bin/LibationCli
 
 USER ${USER_UID}:${USER_GID}
 
-CMD ["/libation/liberate.sh"]
+ENTRYPOINT ["/libation/liberate.sh"]
