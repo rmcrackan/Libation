@@ -53,11 +53,27 @@ public class ApiExtended
 		}
 		catch (Exception ex)
 		{
-			if (!allowInteractiveLogin)
-				throw new AuthenticationRequiredException(account, innerException: ex);
+			if (!allowInteractiveLogin || LoginChoiceFactory is null)
+			{
+				Serilog.Log.Logger.Error(ex,
+					"Stored credentials could not be used and interactive login is not available. {@DebugInfo}",
+					new
+					{
+						Account = account.MaskedLogEntry ?? "[null]",
+						LocaleName = locale.Name,
+						AllowInteractiveLogin = allowInteractiveLogin,
+						LoginChoiceFactorySet = LoginChoiceFactory is not null
+					});
 
-			if (LoginChoiceFactory is null)
-				throw new InvalidOperationException($"The UI module must first set {nameof(LoginChoiceFactory)} before attempting to create the api");
+				throw new AuthenticationRequiredException(
+					account,
+					message: $"Stored credentials for '{account.AccountId}' could not be used"
+						+ (LoginChoiceFactory is null
+							? " and interactive login is not available in this context (CLI/Docker)."
+							: " and interactive login was not allowed.")
+						+ $" {ex.Message}",
+					innerException: ex);
+			}
 
 			await InteractiveLoginGate.WaitAsync();
 			try

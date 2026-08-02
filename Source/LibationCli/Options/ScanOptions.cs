@@ -32,7 +32,10 @@ public class ScanOptions : OptionsBase
 			: $"Scanning Audible library: {_accounts.Length} accounts. This may take a few minutes per account.";
 		Console.WriteLine(intro);
 
-		var (TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportAccountAsync(_accounts);
+		// CLI/Docker cannot interactive-login; fail closed with the real token/auth error.
+		var (TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportAccountAsync(
+			_accounts,
+			allowInteractiveLogin: false);
 
 		Console.WriteLine("Scan complete.");
 		Console.WriteLine($"Total processed: {TotalBooksProcessed}");
