@@ -39,12 +39,12 @@ Configuration in Libation is handled by two files, `AccountsSettings.json` and `
 
 If you run Libation on a server or in Docker and do not want to copy `AccountsSettings.json` from a desktop install, you can create or update accounts with LibationCli (same binary as in the image under `/libation/LibationCli`, also available on `PATH` as `LibationCli`):
 
-- `import-account` — Import an account from a JSON file exported by [mkb79's audible-cli](https://github.com/mkb79/audible-cli) (or Libation's own compatible export). Example:  
+- `import-account` — Import an account from a JSON file exported by [mkb79's audible-cli](https://github.com/mkb79/audible-cli) (or Libation's own compatible export). Example:
   `LibationCli import-account /path/to/account.json`
-- `login-external` — Browser-based sign-in: the CLI prints an Audible login URL; you open it in a normal browser, sign in, then paste the final URL from the address bar back into the terminal. Example:  
-  `LibationCli login-external --account you@example.com --locale us`  
+- `login-external` — Browser-based sign-in: the CLI prints an Audible login URL; you open it in a normal browser, sign in, then paste the final URL from the address bar back into the terminal. Example:
+  `LibationCli login-external --account you@example.com --locale us`
   If standard input is not a TTY (for example in some automation), pass the final URL with `--response-url "https://..."` instead of pasting interactively.
-- `list-accounts` — List configured accounts and whether each has valid stored credentials (and scan-on/off). Example:  
+- `list-accounts` — List configured accounts and whether each has valid stored credentials (and scan-on/off). Example:
   `LibationCli list-accounts` or `LibationCli list-accounts --bare` for tab-separated output.
 
 For full syntax, overrides, and the `--libationFiles` option (or the `LIBATION_FILES_DIR` environment variable) when your Libation data directory is not the default, see [Command Line Interface](/docs/advanced/command-line-interface).
@@ -135,7 +135,7 @@ The docker image supports an optional database mount location defined by `LIBATI
 
 ## Logging
 
-LibationCli already writes a `Log.log` file (rolling monthly) using the same logging setup as the desktop apps — no extra configuration is required to generate it. However, in the docker image the log is written to an internal path (`/config-internal`) that isn't persisted or mounted by any of the examples above, so it disappears when the container is removed. To keep it around, use one of the following:
+LibationCli already writes a `LogYYYYMM.log` file (rolling monthly) using the same logging setup as the desktop apps — no extra configuration is required to generate it. However, in the docker image the log is written to an internal path (`/config-internal`) that isn't persisted or mounted by any of the examples above, so it disappears when the container is removed. To keep it around, use one of the following:
 
 - **Mount the internal config path**, e.g. add `-v /opt/libation/logs:/config-internal` to your `docker run` command. Note that this directory also holds the staged copies of `AccountsSettings.json`/`Settings.json` and the database symlink, which are regenerated from `/config`/`/db` on every container start.
 - **Point the log file at an already-mounted directory** by adding a `Serilog` section to your `Settings.json` (in your `/config` volume) with a `File` sink `path` pointing somewhere persisted, such as `/data/Log.log`. If `Settings.json` already contains a `Serilog` section, Libation uses it as-is instead of generating its own default:
