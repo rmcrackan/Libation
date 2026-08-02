@@ -133,6 +133,38 @@ If the user it's running as is correct, and it still cannot write, be sure to ch
 
 The docker image supports an optional database mount location defined by `LIBATION_DB_DIR`. This allows the database to be mounted as read/write, while allowing the rest of the configuration files to be mounted as read only. This is specifically useful if running in Kubernetes where you can use Configmaps and Secrets to define the configuration. If the `LIBATION_DB_DIR` is mounted, it will be used, otherwise it will look for the database in `LIBATION_CONFIG_DIR`. If it does not find the database in the expected location, it will attempt to make an empty database there.
 
+## Logging
+
+LibationCli already writes a `Log.log` file (rolling monthly) using the same logging setup as the desktop apps — no extra configuration is required to generate it. However, in the docker image the log is written to an internal path (`/config-internal`) that isn't persisted or mounted by any of the examples above, so it disappears when the container is removed. To keep it around, use one of the following:
+
+- **Mount the internal config path**, e.g. add `-v /opt/libation/logs:/config-internal` to your `docker run` command. Note that this directory also holds the staged copies of `AccountsSettings.json`/`Settings.json` and the database symlink, which are regenerated from `/config`/`/db` on every container start.
+- **Point the log file at an already-mounted directory** by adding a `Serilog` section to your `Settings.json` (in your `/config` volume) with a `File` sink `path` pointing somewhere persisted, such as `/data/Log.log`. If `Settings.json` already contains a `Serilog` section, Libation uses it as-is instead of generating its own default:
+
+  ```json
+  "Serilog": {
+    "MinimumLevel": "Information",
+    "WriteTo": [
+      {
+        "Name": "File",
+        "Args": {
+          "path": "/data/Log.log",
+          "rollingInterval": "Month",
+          "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception} {Properties:j}",
+          "hooks": "LibationFileManager.FileSinkHook, LibationFileManager, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+        }
+      }
+    ],
+    "Using": [
+      "Dinah.Core",
+      "Serilog.Exceptions"
+    ],
+    "Enrich": [
+      "WithCaller",
+      "WithExceptionDetails"
+    ]
+  }
+  ```
+
 ## Getting Help
 
 As mentioned above: docker is not officially supported. I'm adding this at the bottom of the page for anyone serious enough to have read this far. If you've tried everything above and would still like help, you can open an [issue](https://github.com/rmcrackan/Libation/issues). Please include `[docker]` in the title. There are also some docker folks who have offered occasional assistance who you can tag within your issue: `@ducamagnifico` , `@wtanksleyjr` , `@CLHatch` , `@oxivanisher`.
