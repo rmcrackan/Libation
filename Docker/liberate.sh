@@ -38,6 +38,25 @@ init_config_file() {
   fi
 }
 
+init_master_key() {
+  FILE=libation-master.key
+  FULLPATH=${LIBATION_CONFIG_DIR}/${FILE}
+  if [ -n "${LIBATION_MASTER_KEY_FILE}" ]; then
+    debug "LIBATION_MASTER_KEY_FILE is already set, not looking for ${FILE}"
+    return 0
+  fi
+  if [ -n "${LIBATION_MASTER_KEY}" ]; then
+    debug "LIBATION_MASTER_KEY is already set, not looking for ${FILE}"
+    return 0
+  fi
+  if [ -f ${FULLPATH} ]; then
+    info "loading ${FILE}"
+    cp ${FULLPATH} ${LIBATION_CONFIG_INTERNAL}/
+  else
+    debug "${FULLPATH} not found, assuming accounts don't use encrypted tokens"
+  fi
+}
+
 update_settings() {
   FILE=$1
   KEY=$2
@@ -154,7 +173,8 @@ main() {
   info "initializing libation"
   init_config_file AccountsSettings.json
   init_config_file Settings.json
-  
+  init_master_key
+
   info "loading settings"
   update_settings Settings.json Books "${LIBATION_BOOKS_DIR:-/data}"
   update_settings Settings.json InProgress /tmp
@@ -174,6 +194,13 @@ main() {
   if ! is_mounted "${LIBATION_BOOKS_DIR}";
   then
     warn "${LIBATION_BOOKS_DIR} does not appear to be mounted, books will not be saved"
+  fi
+
+  # If a command was passed to the container (e.g. `docker run -it libation bash`),
+  # run that instead of the liberate loop so the environment is still set up
+  if [ "$#" -gt 0 ]; then
+    info "executing '$*' instead of the liberate loop"
+    exec "$@"
   fi
 
   # Let the user know what the run type will be
@@ -203,4 +230,4 @@ main() {
   info "exiting"
 }
 
-main
+main "$@"

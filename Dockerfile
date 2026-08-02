@@ -37,6 +37,8 @@ RUN apt-get update && apt-get -y upgrade && \
 COPY --from=build /Source/bin/Publish/Linux-chardonnay /libation
 COPY Docker/* /libation
 
+RUN ln -s /libation/LibationCli /usr/local/bin/LibationCli
+
 USER ${USER_UID}:${USER_GID}
 
-CMD ["/libation/liberate.sh"]
+ENTRYPOINT ["/libation/liberate.sh"]

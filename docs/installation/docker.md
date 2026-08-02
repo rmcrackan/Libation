@@ -37,19 +37,19 @@ Configuration in Libation is handled by two files, `AccountsSettings.json` and `
 
 ### Adding Audible accounts without the GUI
 
-If you run Libation on a server or in Docker and do not want to copy `AccountsSettings.json` from a desktop install, you can create or update accounts with LibationCli (same binary as in the image under `/libation/LibationCli`):
+If you run Libation on a server or in Docker and do not want to copy `AccountsSettings.json` from a desktop install, you can create or update accounts with LibationCli (same binary as in the image under `/libation/LibationCli`, also available on `PATH` as `LibationCli`):
 
-- `import-account` — Import an account from a JSON file exported by [mkb79's audible-cli](https://github.com/mkb79/audible-cli) (or Libation's own compatible export). Example:  
+- `import-account` — Import an account from a JSON file exported by [mkb79's audible-cli](https://github.com/mkb79/audible-cli) (or Libation's own compatible export). Example:
   `LibationCli import-account /path/to/account.json`
-- `login-external` — Browser-based sign-in: the CLI prints an Audible login URL; you open it in a normal browser, sign in, then paste the final URL from the address bar back into the terminal. Example:  
-  `LibationCli login-external --account you@example.com --locale us`  
+- `login-external` — Browser-based sign-in: the CLI prints an Audible login URL; you open it in a normal browser, sign in, then paste the final URL from the address bar back into the terminal. Example:
+  `LibationCli login-external --account you@example.com --locale us`
   If standard input is not a TTY (for example in some automation), pass the final URL with `--response-url "https://..."` instead of pasting interactively.
-- `list-accounts` — List configured accounts and whether each has valid stored credentials (and scan-on/off). Example:  
+- `list-accounts` — List configured accounts and whether each has valid stored credentials (and scan-on/off). Example:
   `LibationCli list-accounts` or `LibationCli list-accounts --bare` for tab-separated output.
 
 For full syntax, overrides, and the `--libationFiles` option (or the `LIBATION_FILES_DIR` environment variable) when your Libation data directory is not the default, see [Command Line Interface](/docs/advanced/command-line-interface).
 
-Docker tip: The entrypoint script copies your mounted config into an internal path before running LibationCli. The most reliable way to run account commands inside the same layout the container uses is to `docker exec` into an already running Libation container (so `AccountsSettings.json` and `appsettings.json` are already in place), then run `/libation/LibationCli import-account ...` or `/libation/LibationCli login-external ...`. Alternatively, run LibationCli on any host where you can point `--libationFiles` (or `LIBATION_FILES_DIR`) at the folder that you later mount as `/config` on the server.
+Docker tip: The entrypoint script copies your mounted config into an internal path before running LibationCli. The most reliable way to run account commands inside the same layout the container uses is to start a container with an interactive shell instead of the default liberate loop (see [Interactive Shell](#interactive-shell) below), or to `docker exec` into an already running Libation container (so `AccountsSettings.json` and `appsettings.json` are already in place), then run `LibationCli import-account ...` or `LibationCli login-external ...`. Alternatively, run LibationCli on any host where you can point `--libationFiles` (or `LIBATION_FILES_DIR`) at the folder that you later mount as `/config` on the server.
 
 ## Running
 
@@ -76,11 +76,25 @@ sudo docker run -d \
   rmcrackan/libation:latest
 ```
 
+### Interactive Shell
+
+If you pass a command to `docker run` instead of using the default, the entrypoint script still performs its normal setup (copying config into place, applying `Books`/`InProgress` overrides, and locating/creating the database) but then runs your command instead of the liberate loop. This gives you a shell with the same layout the container uses at runtime, without needing an already-running container to `docker exec` into:
+
+```bash
+sudo docker run --rm -it \
+  -v /opt/libation/config:/config \
+  -v /opt/libation/books:/data \
+  rmcrackan/libation:latest bash
+```
+
+From there you can run `LibationCli import-account ...`, `LibationCli login-external ...`, or any other one-off command against the mounted config.
+
 ## Environment Variables
 
 | Env Var                    | Default | Description                                                                                                           |
 | -------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------- |
 | SLEEP_TIME                 | -1      | Length of time to sleep before doing another scan/download. Set to -1 to run one.                                     |
+| LOG_LEVEL                  |         | Set to `debug` to enable debug-level log messages from the entrypoint script.                                         |
 | LIBATION_BOOKS_DIR         | /data   | Folder where books will be saved                                                                                      |
 | LIBATION_CONFIG_DIR        | /config | Folder to read configuration from.                                                                                    |
 | LIBATION_DB_DIR            | /db     | Optional folder to load database from. If not mounted, will load database from `LIBATION_CONFIG_DIR`.                 |
@@ -119,8 +133,40 @@ If the user it's running as is correct, and it still cannot write, be sure to ch
 
 The docker image supports an optional database mount location defined by `LIBATION_DB_DIR`. This allows the database to be mounted as read/write, while allowing the rest of the configuration files to be mounted as read only. This is specifically useful if running in Kubernetes where you can use Configmaps and Secrets to define the configuration. If the `LIBATION_DB_DIR` is mounted, it will be used, otherwise it will look for the database in `LIBATION_CONFIG_DIR`. If it does not find the database in the expected location, it will attempt to make an empty database there.
 
+## Logging
+
+LibationCli already writes a `LogYYYYMM.log` file (rolling monthly) using the same logging setup as the desktop apps — no extra configuration is required to generate it. However, in the docker image the log is written to an internal path (`/config-internal`) that isn't persisted or mounted by any of the examples above, so it disappears when the container is removed. To keep it around, use one of the following:
+
+- **Mount the internal config path**, e.g. add `-v /opt/libation/logs:/config-internal` to your `docker run` command. Note that this directory also holds the staged copies of `AccountsSettings.json`/`Settings.json` and the database symlink, which are regenerated from `/config`/`/db` on every container start.
+- **Point the log file at an already-mounted directory** by adding a `Serilog` section to your `Settings.json` (in your `/config` volume) with a `File` sink `path` pointing somewhere persisted, such as `/data/Log.log`. If `Settings.json` already contains a `Serilog` section, Libation uses it as-is instead of generating its own default:
+
+  ```json
+  "Serilog": {
+    "MinimumLevel": "Information",
+    "WriteTo": [
+      {
+        "Name": "File",
+        "Args": {
+          "path": "/data/Log.log",
+          "rollingInterval": "Month",
+          "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception} {Properties:j}",
+          "hooks": "LibationFileManager.FileSinkHook, LibationFileManager, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+        }
+      }
+    ],
+    "Using": [
+      "Dinah.Core",
+      "Serilog.Exceptions"
+    ],
+    "Enrich": [
+      "WithCaller",
+      "WithExceptionDetails"
+    ]
+  }
+  ```
+
 ## Getting Help
 
-As mentioned above: docker is not officially supported. I'm adding this at the bottom of the page for anyone serious enough to have read this far. If you've tried everything above and would still like help, you can open an [issue](https://github.com/rmcrackan/Libation/issues). Please include `[docker]` in the title. There are also some docker folks who have offered occasional assistance who you can tag within your issue: `@ducamagnifico` , `@wtanksleyjr` , `@CLHatch`.
+As mentioned above: docker is not officially supported. I'm adding this at the bottom of the page for anyone serious enough to have read this far. If you've tried everything above and would still like help, you can open an [issue](https://github.com/rmcrackan/Libation/issues). Please include `[docker]` in the title. There are also some docker folks who have offered occasional assistance who you can tag within your issue: `@ducamagnifico` , `@wtanksleyjr` , `@CLHatch` , `@oxivanisher`.
 
 **Reminder** that these are just friendly users who are sometimes around. They're _not_ our customer support.
