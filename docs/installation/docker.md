@@ -94,6 +94,7 @@ From there you can run `LibationCli import-account ...`, `LibationCli login-exte
 | Env Var                    | Default | Description                                                                                                           |
 | -------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------- |
 | SLEEP_TIME                 | -1      | Length of time to sleep before doing another scan/download. Set to -1 to run one.                                     |
+| LOG_LEVEL                  |         | Set to `debug` to enable debug-level log messages from the entrypoint script.                                         |
 | LIBATION_BOOKS_DIR         | /data   | Folder where books will be saved                                                                                      |
 | LIBATION_CONFIG_DIR        | /config | Folder to read configuration from.                                                                                    |
 | LIBATION_DB_DIR            | /db     | Optional folder to load database from. If not mounted, will load database from `LIBATION_CONFIG_DIR`.                 |
