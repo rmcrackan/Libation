@@ -135,6 +135,6 @@ The docker image supports an optional database mount location defined by `LIBATI
 
 ## Getting Help
 
-As mentioned above: docker is not officially supported. I'm adding this at the bottom of the page for anyone serious enough to have read this far. If you've tried everything above and would still like help, you can open an [issue](https://github.com/rmcrackan/Libation/issues). Please include `[docker]` in the title. There are also some docker folks who have offered occasional assistance who you can tag within your issue: `@ducamagnifico` , `@wtanksleyjr` , `@CLHatch`.
+As mentioned above: docker is not officially supported. I'm adding this at the bottom of the page for anyone serious enough to have read this far. If you've tried everything above and would still like help, you can open an [issue](https://github.com/rmcrackan/Libation/issues). Please include `[docker]` in the title. There are also some docker folks who have offered occasional assistance who you can tag within your issue: `@ducamagnifico` , `@wtanksleyjr` , `@CLHatch` , `@oxivanisher`.
 
 **Reminder** that these are just friendly users who are sometimes around. They're _not_ our customer support.
