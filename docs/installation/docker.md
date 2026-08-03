@@ -25,6 +25,8 @@ The docker image is provided as-is. We hope it can be useful to you but it is no
 >
 > **Other fixes:** On Windows, **Settings -> Important**, uncheck **Store authentication tokens encrypted**, convert existing tokens to plaintext when prompted, then re-copy `AccountsSettings.json`. Or skip copying Windows accounts and use `login-external` / `import-account` inside the container (see below).
 >
+> **Last resort (not recommended):** If encryption stays on and you never supply a key, Libation may auto-create `libation-master.key` under the Libation files directory and warn loudly (console, log, and `libation-master.key.NOTICE.txt`). That key only unlocks tokens encrypted with it afterward - it will not decrypt tokens from another machine. Prefer the steps above. When creating accounts in Docker, use `--libationFiles /config` so any key file persists on the host mount.
+>
 > Details: [FAQ](/docs/frequently-asked-questions#docker-finds-no-new-books-failed-to-decrypt-existingaccesstoken) · [Troubleshooting](/docs/advanced/troubleshoot#failed-to-decrypt-existingaccesstoken-docker-finds-no-new-books)
 
 > [!WARNING] NTFS filesystem limitations

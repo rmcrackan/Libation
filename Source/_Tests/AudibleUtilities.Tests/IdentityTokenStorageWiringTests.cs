@@ -288,6 +288,73 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 	}
 
 	[TestMethod]
+	public void ResolveSecretStore_uses_os_store_when_available_without_last_resort_key_file()
+	{
+		if (!IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out var reason))
+			Assert.Inconclusive("OS secret store unavailable: " + reason);
+
+		Environment.SetEnvironmentVariable(LibationFiles.LIBATION_FILES_DIR, _tempDir);
+		var config = Configuration.CreateMockInstance();
+		var defaultPath = Path.Combine(config.LibationFiles.Location, IdentityTokenStorageWiring.DefaultMasterKeyFileName);
+
+		var store = IdentityTokenStorageWiring.ResolveSecretStore(config);
+
+		store.IsAvailable.Should().BeTrue();
+		Assert.IsFalse(File.Exists(defaultPath), "OS store available => must not mint last-resort key file");
+	}
+
+	[TestMethod]
+	public void TryCreateLastResortPortableMasterKeyStore_mints_default_key_file_and_loads_protector()
+	{
+		Environment.SetEnvironmentVariable(LibationFiles.LIBATION_FILES_DIR, _tempDir);
+		var config = Configuration.CreateMockInstance();
+		var defaultPath = Path.Combine(config.LibationFiles.Location, IdentityTokenStorageWiring.DefaultMasterKeyFileName);
+		File.Exists(defaultPath).Should().BeFalse();
+
+		var store = IdentityTokenStorageWiring.TryCreateLastResortPortableMasterKeyStore(config);
+
+		store.IsAvailable.Should().BeTrue();
+		store.Name.Should().Be("Memory");
+		File.Exists(defaultPath).Should().BeTrue();
+		File.ReadAllBytes(defaultPath).Length.Should().Be(AesGcmSecretProtector.KeySizeBytes);
+		var noticePath = Path.Combine(config.LibationFiles.Location, IdentityTokenStorageWiring.LastResortMasterKeyNoticeFileName);
+		File.Exists(noticePath).Should().BeTrue();
+		var notice = File.ReadAllText(noticePath);
+		StringAssert.Contains(notice, "LAST-RESORT");
+		StringAssert.Contains(notice, "Plaintext");
+		StringAssert.Contains(notice, IdentityTokenStorageWiring.MasterKeyFileEnvVar);
+		store.TryGet(AesGcmSecretProtector.DefaultMasterKeyName, out var key).Should().BeTrue();
+		key.Length.Should().Be(AesGcmSecretProtector.KeySizeBytes);
+
+		// Second call must reuse the file, not mint a different key.
+		var store2 = IdentityTokenStorageWiring.TryCreateLastResortPortableMasterKeyStore(config);
+		store2.TryGet(AesGcmSecretProtector.DefaultMasterKeyName, out var key2).Should().BeTrue();
+		CollectionAssert.AreEqual(key, key2);
+
+		config.TokenStorageMethod = TokenStorageMethod.Encrypted;
+		IdentityTokenStorageWiring.ConfigureFrom(config);
+		Assert.IsNotNull(IdentityTokenStorage.Protector);
+		var payload = IdentityTokenStorage.Protector!.Protect("last-resort-secret", "aad");
+		IdentityTokenStorage.Protector.Unprotect(payload, "aad").Should().Be("last-resort-secret");
+	}
+
+	[TestMethod]
+	public void AnnounceLastResortPortableMasterKey_writes_notice_beside_key()
+	{
+		var keyPath = Path.Combine(_tempDir!, IdentityTokenStorageWiring.DefaultMasterKeyFileName);
+		File.WriteAllBytes(keyPath, new byte[AesGcmSecretProtector.KeySizeBytes]);
+
+		IdentityTokenStorageWiring.AnnounceLastResortPortableMasterKey(keyPath);
+
+		var noticePath = Path.Combine(_tempDir!, IdentityTokenStorageWiring.LastResortMasterKeyNoticeFileName);
+		File.Exists(noticePath).Should().BeTrue();
+		var notice = File.ReadAllText(noticePath);
+		StringAssert.Contains(notice, "LAST-RESORT");
+		StringAssert.Contains(notice, keyPath);
+		StringAssert.Contains(notice, "compatibility fallback");
+	}
+
+	[TestMethod]
 	public void MasterKeyExport_writes_key_file_when_os_store_has_key()
 	{
 		if (!IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out var reason))
