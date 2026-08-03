@@ -49,7 +49,13 @@ If you run Libation on a server or in Docker and do not want to copy `AccountsSe
 
 For full syntax, overrides, and the `--libationFiles` option (or the `LIBATION_FILES_DIR` environment variable) when your Libation data directory is not the default, see [Command Line Interface](/docs/advanced/command-line-interface).
 
-Docker tip: The entrypoint script copies your mounted config into an internal path before running LibationCli. The most reliable way to run account commands inside the same layout the container uses is to start a container with an interactive shell instead of the default liberate loop (see [Interactive Shell](#interactive-shell) below), or to `docker exec` into an already running Libation container (so `AccountsSettings.json` and `appsettings.json` are already in place), then run `LibationCli import-account ...` or `LibationCli login-external ...`. Alternatively, run LibationCli on any host where you can point `--libationFiles` (or `LIBATION_FILES_DIR`) at the folder that you later mount as `/config` on the server.
+Docker tip: The entrypoint script copies your mounted config into an internal path before running LibationCli. To add or refresh accounts against the mounted volume, `docker exec` into a running container and point LibationCli at `/config` (so changes persist on the host):
+
+```bash
+docker exec -it libation LibationCli login-external --libationFiles /config --locale us --account you@example.com
+```
+
+You can also start a container with an interactive shell instead of the default liberate loop (see [Interactive Shell](#interactive-shell) below), or run LibationCli on any host where you can point `--libationFiles` (or `LIBATION_FILES_DIR`) at the folder that you later mount as `/config` on the server.
 
 ## Running
 
