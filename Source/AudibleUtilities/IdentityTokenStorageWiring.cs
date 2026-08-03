@@ -114,6 +114,9 @@ public static class IdentityTokenStorageWiring
 		return store.IsAvailable;
 	}
 
+	/// <summary>Sidecar notice written beside an auto-minted last-resort master key.</summary>
+	public const string LastResortMasterKeyNoticeFileName = "libation-master.key.NOTICE.txt";
+
 	/// <summary>
 	/// Headless / Docker compatibility path when encryption is enabled but there is no OS secret store
 	/// and the user did not supply a master key.
@@ -129,7 +132,10 @@ public static class IdentityTokenStorageWiring
 		try
 		{
 			if (!File.Exists(keyPath))
+			{
 				MintRawMasterKeyFile(keyPath);
+				AnnounceLastResortPortableMasterKey(keyPath);
+			}
 
 			return LoadMasterKeyFileOrUnavailable(keyPath);
 		}
@@ -139,6 +145,40 @@ public static class IdentityTokenStorageWiring
 				"Last-resort portable master key",
 				$"Could not create or load last-resort portable master key ({keyPath}): {SafeMessage(ex)}");
 		}
+	}
+
+	/// <summary>
+	/// Warn that a last-resort portable master key was auto-created. Not the recommended setup.
+	/// </summary>
+	internal static void AnnounceLastResortPortableMasterKey(string keyPath)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(keyPath);
+
+		var fullKeyPath = Path.GetFullPath(keyPath);
+		var noticePath = Path.Combine(
+			Path.GetDirectoryName(fullKeyPath) ?? ".",
+			LastResortMasterKeyNoticeFileName);
+
+		var message =
+			"LAST-RESORT: Token encryption is enabled, but no OS secret store is available and no master key was supplied. "
+			+ $"Libation created a portable master key at '{fullKeyPath}'. "
+			+ "This is a compatibility fallback, not the recommended setup. "
+			+ "Prefer: set TokenStorageMethod to Plaintext in Settings, "
+			+ $"OR supply your own key (export from desktop and place '{DefaultMasterKeyFileName}' next to AccountsSettings.json, "
+			+ $"or set {MasterKeyFileEnvVar} / {MasterKeyEnvVar}). "
+			+ "Treat the key file like a password. It will not decrypt tokens encrypted under a different machine's key.";
+
+		try
+		{
+			AtomicFileWriter.WriteAllText(noticePath, message + Environment.NewLine);
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Warning(ex, "Could not write last-resort master key notice file at {NoticePath}", noticePath);
+		}
+
+		Serilog.Log.Logger.Warning(message);
+		Console.Error.WriteLine(message);
 	}
 
 	/// <summary>Write a new raw 32-byte master key file (same format as <c>export-master-key</c>).</summary>

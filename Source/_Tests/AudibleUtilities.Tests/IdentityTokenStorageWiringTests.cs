@@ -317,6 +317,12 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 		store.Name.Should().Be("Memory");
 		File.Exists(defaultPath).Should().BeTrue();
 		File.ReadAllBytes(defaultPath).Length.Should().Be(AesGcmSecretProtector.KeySizeBytes);
+		var noticePath = Path.Combine(config.LibationFiles.Location, IdentityTokenStorageWiring.LastResortMasterKeyNoticeFileName);
+		File.Exists(noticePath).Should().BeTrue();
+		var notice = File.ReadAllText(noticePath);
+		StringAssert.Contains(notice, "LAST-RESORT");
+		StringAssert.Contains(notice, "Plaintext");
+		StringAssert.Contains(notice, IdentityTokenStorageWiring.MasterKeyFileEnvVar);
 		store.TryGet(AesGcmSecretProtector.DefaultMasterKeyName, out var key).Should().BeTrue();
 		key.Length.Should().Be(AesGcmSecretProtector.KeySizeBytes);
 
@@ -330,6 +336,22 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 		Assert.IsNotNull(IdentityTokenStorage.Protector);
 		var payload = IdentityTokenStorage.Protector!.Protect("last-resort-secret", "aad");
 		IdentityTokenStorage.Protector.Unprotect(payload, "aad").Should().Be("last-resort-secret");
+	}
+
+	[TestMethod]
+	public void AnnounceLastResortPortableMasterKey_writes_notice_beside_key()
+	{
+		var keyPath = Path.Combine(_tempDir!, IdentityTokenStorageWiring.DefaultMasterKeyFileName);
+		File.WriteAllBytes(keyPath, new byte[AesGcmSecretProtector.KeySizeBytes]);
+
+		IdentityTokenStorageWiring.AnnounceLastResortPortableMasterKey(keyPath);
+
+		var noticePath = Path.Combine(_tempDir!, IdentityTokenStorageWiring.LastResortMasterKeyNoticeFileName);
+		File.Exists(noticePath).Should().BeTrue();
+		var notice = File.ReadAllText(noticePath);
+		StringAssert.Contains(notice, "LAST-RESORT");
+		StringAssert.Contains(notice, keyPath);
+		StringAssert.Contains(notice, "compatibility fallback");
 	}
 
 	[TestMethod]
