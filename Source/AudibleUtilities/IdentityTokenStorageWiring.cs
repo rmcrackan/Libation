@@ -1,4 +1,5 @@
 using AudibleApi.Authorization;
+using Dinah.Core.IO;
 using Dinah.Core.Security;
 using LibationFileManager;
 using System.ComponentModel;
@@ -68,8 +69,10 @@ public static class IdentityTokenStorageWiring
 
 	/// <summary>
 	/// Resolve the secret store used for the AES-GCM master key.
-	/// Priority: <see cref="MasterKeyFileEnvVar"/> -> default <see cref="DefaultMasterKeyFileName"/> under Libation files
-	/// -> <see cref="MasterKeyEnvVar"/> -> OS-bound <see cref="OsSecretStore"/>.
+	/// Supported priority: <see cref="MasterKeyFileEnvVar"/> -> existing default <see cref="DefaultMasterKeyFileName"/>
+	/// under Libation files -> <see cref="MasterKeyEnvVar"/> -> OS-bound <see cref="OsSecretStore"/>.
+	/// If the OS store is unavailable, falls through to
+	/// <see cref="TryCreateLastResortPortableMasterKeyStore"/> (headless compatibility path; not the preferred setup).
 	/// </summary>
 	public static IOsSecretStore ResolveSecretStore(Configuration config)
 	{
@@ -87,7 +90,11 @@ public static class IdentityTokenStorageWiring
 		if (!string.IsNullOrWhiteSpace(keyEnv))
 			return LoadMasterKeyBase64OrUnavailable(keyEnv.Trim());
 
-		return OsSecretStore.Create(ApplicationName);
+		var osStore = OsSecretStore.Create(ApplicationName);
+		if (osStore.IsAvailable)
+			return osStore;
+
+		return TryCreateLastResortPortableMasterKeyStore(config);
 	}
 
 	/// <summary>True when the OS secret store can hold Libation's encryption master key.</summary>
@@ -105,6 +112,52 @@ public static class IdentityTokenStorageWiring
 		var store = ResolveSecretStore(config);
 		unavailableReason = store.IsAvailable ? null : store.UnavailableReason;
 		return store.IsAvailable;
+	}
+
+	/// <summary>
+	/// Headless / Docker compatibility path when encryption is enabled but there is no OS secret store
+	/// and the user did not supply a master key.
+	/// Prefer setting <see cref="Configuration.TokenStorageMethod"/> to plaintext, or supplying an exported
+	/// <see cref="DefaultMasterKeyFileName"/> / env key, instead of relying on this path.
+	/// Creates <see cref="DefaultMasterKeyFileName"/> under Libation files if missing, then loads it.
+	/// </summary>
+	internal static IOsSecretStore TryCreateLastResortPortableMasterKeyStore(Configuration config)
+	{
+		ArgumentNullException.ThrowIfNull(config);
+
+		var keyPath = Path.Combine(config.LibationFiles.Location, DefaultMasterKeyFileName);
+		try
+		{
+			if (!File.Exists(keyPath))
+				MintRawMasterKeyFile(keyPath);
+
+			return LoadMasterKeyFileOrUnavailable(keyPath);
+		}
+		catch (Exception ex)
+		{
+			return new UnavailablePortableSecretStore(
+				"Last-resort portable master key",
+				$"Could not create or load last-resort portable master key ({keyPath}): {SafeMessage(ex)}");
+		}
+	}
+
+	/// <summary>Write a new raw 32-byte master key file (same format as <c>export-master-key</c>).</summary>
+	private static void MintRawMasterKeyFile(string keyPath)
+	{
+		var key = new byte[AesGcmSecretProtector.KeySizeBytes];
+		RandomNumberGenerator.Fill(key);
+		try
+		{
+			var directory = Path.GetDirectoryName(Path.GetFullPath(keyPath));
+			if (!string.IsNullOrEmpty(directory))
+				Directory.CreateDirectory(directory);
+
+			AtomicFileWriter.WriteAllBytes(keyPath, key);
+		}
+		finally
+		{
+			CryptographicOperations.ZeroMemory(key);
+		}
 	}
 
 	private static IOsSecretStore LoadMasterKeyFileOrUnavailable(string path)
