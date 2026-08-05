@@ -44,6 +44,16 @@ Copy `libation-master.key` into the Docker config folder next to `AccountsSettin
 
 Also listed under [Docker Troubleshooting](/docs/installation/docker#troubleshooting) and the [FAQ](/docs/frequently-asked-questions#docker-finds-no-new-books-failed-to-decrypt-existingaccesstoken).
 
+## Failed to encrypt identity field (Saving as plaintext)
+
+**Symptoms:** Docker or headless logs show an **Error** like `Failed to encrypt identity field ExistingAccessToken (locale us). Saving as plaintext so the app can continue.` (often several fields in a row). The container keeps scanning and liberating; it does not exit for this alone.
+
+**Cause:** Token storage is set to encrypted, but no usable protector is available in that environment (typical in Docker without `libation-master.key` / `LIBATION_MASTER_KEY*` and without an OS secret store). On the next write - commonly after an access-token refresh - Libation tries to encrypt, fails, and falls back to plaintext so the app is not blocked.
+
+**What to do:** Nothing is required for the app to keep working. To store tokens encrypted at rest instead, supply a master key (export from desktop, or see [Docker encrypted-tokens warning](/docs/installation/docker#configuration)). To avoid the encrypt attempts and the Error noise, set token storage to plaintext in Settings -> Important (or `TokenStorageMethod` in `Settings.json`) and convert existing tokens when prompted.
+
+**Not the same as decrypt failure:** If the log says `Failed to decrypt ExistingAccessToken`, tokens are already ciphertext you cannot unlock - the plaintext-save fallback does not help. Use the [decrypt troubleshooting](#failed-to-decrypt-existingaccesstoken-docker-finds-no-new-books) steps.
+
 ## Login fails for an old pre-Amazon Audible account
 
 If your Audible account predates Amazon and login fails when you use an email or a normal region, choose a **pre-amazon** locale and enter your old **username** in the Audible email/login field. See the [FAQ](/docs/frequently-asked-questions#my-audible-account-is-from-before-amazon---how-do-i-add-it).
