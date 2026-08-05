@@ -67,6 +67,12 @@ You likely copied an `AccountsSettings.json` that has **encrypted** tokens (`"Is
 
 Full steps: [Troubleshooting - Failed to decrypt ExistingAccessToken](/docs/advanced/troubleshoot#failed-to-decrypt-existingaccesstoken-docker-finds-no-new-books) and [Docker Troubleshooting](/docs/installation/docker#troubleshooting).
 
+## Docker log says Failed to encrypt identity field / Saving as plaintext
+
+That means encryption was preferred but could not run (usually no master key in the container). Libation re-saves those fields as plaintext and **continues** - this is expected and not a crash. Supply a master key if you want encryption at rest, or switch token storage to plaintext to quiet the Errors.
+
+This is different from `Failed to decrypt ExistingAccessToken`, which still needs a key or a plaintext/re-login fix. Details: [Troubleshooting - Failed to encrypt](/docs/advanced/troubleshoot#failed-to-encrypt-identity-field-saving-as-plaintext) and [Docker Configuration](/docs/installation/docker#configuration).
+
 ## Snap refreshed and Libation crashes on the database - what should I check?
 
 Snap keeps per-version folders under `~/snap/libation/<revision>/`. After an update, `appsettings.json` in the **new** folder may still list `"LibationFiles"` with an **old** revision path. Libation then opens the wrong directory and you can see errors about SQLite or migrations even when permissions look fine.

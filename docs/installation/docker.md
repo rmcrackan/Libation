@@ -27,6 +27,8 @@ The docker image is provided as-is. We hope it can be useful to you but it is no
 >
 > **Last resort (not recommended):** If encryption stays on and you never supply a key, Libation may auto-create `libation-master.key` under the Libation files directory and warn loudly (console, log, and `libation-master.key.NOTICE.txt`). That key only unlocks tokens encrypted with it afterward - it will not decrypt tokens from another machine. Prefer the steps above. When creating accounts in Docker, use `--libationFiles /config` so any key file persists on the host mount.
 >
+> **Encrypt-on-save without a key:** If tokens are already usable (plaintext, or ciphertext you can unlock) but encryption is preferred and no protector is available, a later save (for example after an access-token refresh) does **not** stop the container. Libation logs an error such as `Failed to encrypt identity field ... Saving as plaintext so the app can continue` and re-saves those fields as plaintext. That is intentional so headless Docker keeps working. Prefer supplying a master key (above) if you want tokens encrypted at rest. This does **not** fix `Failed to decrypt` for tokens encrypted on another machine without the key.
+>
 > Details: [FAQ](/docs/frequently-asked-questions#docker-finds-no-new-books-failed-to-decrypt-existingaccesstoken) · [Troubleshooting](/docs/advanced/troubleshoot#failed-to-decrypt-existingaccesstoken-docker-finds-no-new-books)
 
 > [!WARNING] NTFS filesystem limitations
@@ -135,6 +137,7 @@ If the user it's running as is correct, and it still cannot write, be sure to ch
 ## Troubleshooting
 
 - **`Failed to decrypt ExistingAccessToken` (scan finds no books after copying Windows config):** See the [encrypted-tokens warning](#configuration) at the top of Configuration, plus [Troubleshooting](/docs/advanced/troubleshoot#failed-to-decrypt-existingaccesstoken-docker-finds-no-new-books) and the [FAQ](/docs/frequently-asked-questions#docker-finds-no-new-books-failed-to-decrypt-existingaccesstoken).
+- **`Failed to encrypt identity field ... Saving as plaintext`:** Harmless for operation - encryption could not run (usually no master key / OS store in the container), so tokens were saved as plaintext and the run continued. Supply a master key if you want encryption at rest. See the [encrypted-tokens warning](#configuration).
 - **Library scan appears to hang in Docker:** Try setting `ImportEpisodes` to `false` in `Settings.json` on your config volume and run again. That turns off the extra episode/podcast catalog requests during import and helps narrow down whether the stall is in that path versus auth or the network.
 
 ## Advanced Database Options
