@@ -65,7 +65,13 @@ public class SeriesEntry : GridEntry
 	{
 		var seriesEntries = await GetAllProductsAsync(libraryBooks, lb => lb.Book.IsEpisodeParent(), lb => new SeriesEntry(lb, []));
 		var seriesDict = seriesEntries.ToDictionarySafe(s => s.AudibleProductId);
-		await GetAllProductsAsync(libraryBooks, lb => lb.Book.IsEpisodeChild(), CreateAndLinkEpisodeEntry);
+
+		// Create episode entries in parallel (GetAllProductsAsync), then link on one thread.
+		// Concurrent Children.Add is not safe and can leave null slots that crash Sort (#1914).
+		var episodeEntries = await GetAllProductsAsync(libraryBooks, lb => lb.Book.IsEpisodeChild(), CreateEpisodeEntry);
+
+		foreach (var entry in episodeEntries)
+			entry.Parent!.Children.Add(entry);
 
 		//sort episodes by series order descending and update SeriesEntry
 		foreach (var series in seriesEntries)
@@ -76,17 +82,12 @@ public class SeriesEntry : GridEntry
 
 		return seriesEntries.Where(s => s.Children.Count != 0).ToList();
 
-		//Create a LibraryBookEntry for an episode and link it to its series parent
-		LibraryBookEntry? CreateAndLinkEpisodeEntry(LibraryBook episode)
+		LibraryBookEntry? CreateEpisodeEntry(LibraryBook episode)
 		{
 			foreach (var s in episode.Book.SeriesLink)
 			{
 				if (seriesDict.TryGetValue(s.Series.AudibleSeriesId, out var seriesParent))
-				{
-					var entry = new LibraryBookEntry(episode, seriesParent);
-					seriesParent.Children.Add(entry);
-					return entry;
-				}
+					return new LibraryBookEntry(episode, seriesParent);
 			}
 			return null;
 		}
