@@ -22,7 +22,7 @@ internal class EphemeralDictionary : IJsonBackedDictionary
 	public string? GetString(string propertyName, string? defaultValue = null)
 		=> JsonObject[propertyName]?.Value<string>() ?? defaultValue;
 	public T? GetNonString<T>(string propertyName, T? defaultValue = default)
-		=> GetObject(propertyName) is object obj ? IJsonBackedDictionary.UpCast<T>(obj) : defaultValue;
+		=> GetObject(propertyName) is object obj ? IJsonBackedDictionary.UpCast<T>(obj, propertyName) : defaultValue;
 	public object? GetObject(string propertyName)
 		=> JsonObject[propertyName]?.Value<object>();
 	public void SetString(string propertyName, string? newValue)

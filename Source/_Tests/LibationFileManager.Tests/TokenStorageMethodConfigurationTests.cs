@@ -41,13 +41,56 @@ public class TokenStorageMethodConfigurationTests
 	}
 
 	[TestMethod]
-	public void Unknown_enum_value_resolves_to_Encrypted_not_Plaintext()
+	public void Unknown_enum_value_throws_InvalidConfigurationValueException()
 	{
-		// Same UpCast path used by Settings.json deserialization for enum settings.
-		var parsed = IJsonBackedDictionary.UpCast<TokenStorageMethod>(new JValue("NotARealMethod"));
+		var ex = Assert.ThrowsExactly<InvalidConfigurationValueException>(
+			() => IJsonBackedDictionary.UpCast<TokenStorageMethod>(new JValue("NotARealMethod"), nameof(Configuration.TokenStorageMethod)));
 
-		Assert.AreEqual(TokenStorageMethod.Encrypted, parsed);
-		Assert.AreNotEqual(TokenStorageMethod.Plaintext, parsed);
+		StringAssert.Contains(ex.Message, "TokenStorageMethod");
+		StringAssert.Contains(ex.Message, "NotARealMethod");
+		StringAssert.Contains(ex.Message, "Plaintext");
+		StringAssert.Contains(ex.Message, "Encrypted");
+	}
+
+	[TestMethod]
+	public void PlainText_casing_resolves_to_Plaintext()
+	{
+		Assert.AreEqual(
+			TokenStorageMethod.Plaintext,
+			IJsonBackedDictionary.UpCast<TokenStorageMethod>(new JValue("PlainText")));
+		Assert.AreEqual(
+			TokenStorageMethod.Plaintext,
+			IJsonBackedDictionary.UpCast<TokenStorageMethod>(new JValue("plaintext")));
+	}
+
+	[TestMethod]
+	public void Undefined_numeric_enum_value_throws()
+	{
+		var ex = Assert.ThrowsExactly<InvalidConfigurationValueException>(
+			() => IJsonBackedDictionary.UpCast<TokenStorageMethod>(new JValue(99), nameof(Configuration.TokenStorageMethod)));
+
+		StringAssert.Contains(ex.Message, "TokenStorageMethod");
+		StringAssert.Contains(ex.Message, "99");
+	}
+
+	[TestMethod]
+	public void Config_property_throws_for_invalid_TokenStorageMethod()
+	{
+		var config = Configuration.CreateMockInstance();
+		config.SetNonString("PlainTextTypo", nameof(Configuration.TokenStorageMethod));
+
+		var ex = Assert.ThrowsExactly<InvalidConfigurationValueException>(() => _ = config.TokenStorageMethod);
+		StringAssert.Contains(ex.Message, "TokenStorageMethod");
+		StringAssert.Contains(ex.Message, "PlainTextTypo");
+	}
+
+	[TestMethod]
+	public void ValidateEnumSettings_throws_for_invalid_TokenStorageMethod()
+	{
+		var config = Configuration.CreateMockInstance();
+		config.SetNonString("NotARealMethod", nameof(Configuration.TokenStorageMethod));
+
+		Assert.ThrowsExactly<InvalidConfigurationValueException>(config.ValidateEnumSettings);
 	}
 
 	[TestMethod]

@@ -1,3 +1,4 @@
+using FileManager;
 using System;
 using System.IO;
 using System.Linq;
@@ -158,6 +159,16 @@ public static class StartupAssemblyBootstrap
 
 	public static FatalStartupMessage? GetStartupFailureMessage(Exception ex)
 	{
+		if (TryFindInvalidConfigurationValue(ex, out var configEx) && configEx is not null)
+		{
+			return new FatalStartupMessage(
+				"Invalid Settings.json",
+				configEx.Message
+					+ Environment.NewLine
+					+ Environment.NewLine
+					+ "Edit Settings.json to use a valid value, then restart Libation.");
+		}
+
 		if (IsApplicationControlBlockedAssembly(ex))
 		{
 			return new FatalStartupMessage(
@@ -180,6 +191,30 @@ public static class StartupAssemblyBootstrap
 		}
 
 		return null;
+	}
+
+	public static bool TryFindInvalidConfigurationValue(Exception? ex, out InvalidConfigurationValueException? configEx)
+	{
+		configEx = null;
+		for (var current = ex; current is not null; current = current.InnerException)
+		{
+			if (current is InvalidConfigurationValueException found)
+			{
+				configEx = found;
+				return true;
+			}
+
+			if (current is AggregateException aggregate)
+			{
+				foreach (var inner in aggregate.InnerExceptions)
+				{
+					if (TryFindInvalidConfigurationValue(inner, out configEx))
+						return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/// <summary>

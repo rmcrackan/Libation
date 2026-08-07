@@ -1,5 +1,16 @@
 # Troubleshooting Common Libation Errors
 
+## Invalid Settings.json value (TokenStorageMethod, Serilog, etc.)
+
+**Symptoms:** Libation or LibationCli refuses to start with **Invalid Settings.json** (GUI) or **Invalid configuration** (CLI). The message names the setting, the bad value, and (for enums) the allowed values.
+
+**Common causes:**
+- `TokenStorageMethod` mistyped (canonical values are `Encrypted` and `Plaintext` - casing variants like `PlainText` are accepted, but unknown spellings are not)
+- `Serilog.WriteTo` missing, empty, or malformed (not an array of objects with `Name`). Hand-edited custom sink names are allowed; legacy `ZipFile` is migrated to `File` automatically
+- `Serilog.MinimumLevel` set to a value that is not a Serilog level
+
+**Fix:** Edit `Settings.json` in your Libation Files directory to a valid value and restart. Do not delete the whole file unless it is corrupt JSON.
+
 ## Invalid filenames or mangled paths (NTFS / Windows)
 
 NTFS filesystems (Windows, and NTFS-formatted external drives on Linux or Mac) do not allow colons (`:`) in filenames. Libation chooses filename replacement rules from the **OS it is running on**, not from the filesystem where books are saved. On Linux or in Docker, that often means colons are left in names even when `LIBATION_BOOKS_DIR` points at an NTFS volume, which can produce invalid paths, failed moves, or mangled folder names.

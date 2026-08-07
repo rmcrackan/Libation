@@ -33,7 +33,20 @@ public abstract class OptionsBase
 		//   do not use Configuration before this line   //
 		//                                               //
 		//***********************************************//
-		Setup.Initialize();
+		try
+		{
+			Setup.Initialize();
+		}
+		catch (Exception ex) when (StartupAssemblyBootstrap.TryFindInvalidConfigurationValue(ex, out var configEx) && configEx is not null)
+		{
+			Environment.ExitCode = (int)ExitCode.RunTimeError;
+			Console.Error.WriteLine("Invalid configuration");
+			Console.Error.WriteLine("=====================");
+			Console.Error.WriteLine(configEx.Message);
+			Console.Error.WriteLine();
+			Console.Error.WriteLine("Edit Settings.json to use a valid value, then retry.");
+			return;
+		}
 
 		if (SettingOverrides is not null)
 			ProcessSettingsOverrides();
