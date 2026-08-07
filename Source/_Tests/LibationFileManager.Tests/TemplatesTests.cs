@@ -1517,4 +1517,60 @@ namespace Templates_ChapterFile_Tests
 				.Should().Be(expected);
 		}
 	}
+
+	[TestClass]
+	public class SortTags
+	{
+		static LibraryBookDto Book(string titleWithSubtitle, string title, string? seriesName = null)
+		{
+			var dto = GetLibraryBook(seriesName is null ? null : [new SeriesDto(seriesName, "1", "sid")]);
+			dto.Title = title;
+			dto.TitleWithSubtitle = titleWithSubtitle;
+			return dto;
+		}
+
+		private static string Evaluate(string template, LibraryBookDto dto)
+		{
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var t).Should().BeTrue();
+			return t.GetName(dto, new MultiConvertFileProperties { OutputFileName = string.Empty });
+		}
+
+		[TestMethod]
+		[DataRow("The Hobbit", "The Hobbit", "Hobbit")]
+		[DataRow("A Tale of Two Cities", "A Tale of Two Cities", "Tale of Two Cities")]
+		[DataRow("An American in Paris", "An American in Paris", "American in Paris")]
+		[DataRow("Foundation", "Foundation", "Foundation")]          // no article — unchanged
+		[DataRow("Theatre of War", "Theatre of War", "Theatre of War")] // "The" must be whole word
+		public void TitleSort_strips_leading_article(string titleWithSubtitle, string title, string expected)
+			=> Evaluate("<title sort>", Book(titleWithSubtitle, title)).Should().Be(expected);
+
+		[TestMethod]
+		[DataRow("The Hobbit: There and Back Again", "The Hobbit", "Hobbit")]
+		[DataRow("A Tale: Subtitle", "A Tale", "Tale")]
+		[DataRow("Foundation: Prelude", "Foundation", "Foundation")] // no article
+		public void TitleShortSort_strips_leading_article(string titleWithSubtitle, string title, string expected)
+			=> Evaluate("<title short sort>", Book(titleWithSubtitle, title)).Should().Be(expected);
+
+		[TestMethod]
+		[DataRow("The Lord of the Rings", "Lord of the Rings")]
+		[DataRow("A Series of Unfortunate Events", "Series of Unfortunate Events")]
+		[DataRow("An Inspector Calls", "Inspector Calls")]
+		[DataRow("Sherlock Holmes", "Sherlock Holmes")] // no article — unchanged
+		public void FirstSeriesSort_strips_leading_article(string seriesName, string expected)
+			=> Evaluate("<first series sort>", Book("any", "any", seriesName)).Should().Be(expected);
+
+		[TestMethod]
+		public void TitleSort_case_insensitive()
+			=> Evaluate("<title sort>", Book("the hobbit", "the hobbit")).Should().Be("hobbit");
+
+		[TestMethod]
+		public void TitleSort_available_in_chapter_template()
+		{
+			Templates.TryGetTemplate<Templates.ChapterFileTemplate>("<title sort>", out var t).Should().BeTrue();
+			var dto = GetLibraryBook();
+			dto.TitleWithSubtitle = "The Silmarillion";
+			t.GetName(dto, new MultiConvertFileProperties { OutputFileName = string.Empty })
+				.Should().Be("Silmarillion");
+		}
+	}
 }
