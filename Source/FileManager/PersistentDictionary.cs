@@ -58,7 +58,7 @@ public class PersistentDictionary : IJsonBackedDictionary
 			objectCache[propertyName] = defaultValue;
 			return defaultValue;
 		}
-		return IJsonBackedDictionary.UpCast<T>(obj);
+		return IJsonBackedDictionary.UpCast<T>(obj, propertyName);
 	}
 
 	public object? GetObject(string propertyName)

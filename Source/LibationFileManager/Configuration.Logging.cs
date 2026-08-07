@@ -1,12 +1,17 @@
 ﻿using Dinah.Core.Logging;
 using FileManager;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Serilog;
 using Serilog.Events;
 using Serilog.Exceptions;
 using Serilog.Settings.Configuration;
 using System;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace LibationFileManager;
 
@@ -16,16 +21,81 @@ public partial class Configuration
 
 	public bool SerilogInitialized { get; private set; }
 
+	/// <summary>
+	/// Create default Serilog config if missing, and migrate legacy ZipFile sink to File.
+	/// Must run before <see cref="ValidateSerilogConfiguration"/> / <see cref="ConfigureLogging"/>.
+	/// </summary>
+	public void EnsureSerilogConfig()
+	{
+		if (GetObject("Serilog") is JObject serilog)
+		{
+			bool fileChanged = false;
+			foreach (var zipFileSink in serilog.SelectTokens("$.WriteTo[?(@.Name == 'ZipFile')]", false).OfType<JObject>())
+			{
+				zipFileSink["Name"] = "File";
+				fileChanged = true;
+			}
+			var hooks = typeof(FileSinkHook).AssemblyQualifiedName;
+			foreach (var fileSinkArgs in serilog.SelectTokens("$.WriteTo[?(@.Name == 'File')].Args", false).OfType<JObject>())
+			{
+				if (fileSinkArgs["hooks"]?.Value<string>() != hooks)
+				{
+					fileSinkArgs["hooks"] = hooks;
+					fileChanged = true;
+				}
+			}
+
+			if (fileChanged)
+				SetNonString(serilog.DeepClone(), "Serilog");
+			return;
+		}
+
+		var serilogObj = new JObject
+		{
+			{ "MinimumLevel", "Information" },
+			{ "WriteTo", new JArray
+				{
+					// ABOUT SINKS
+					// Only File sink is currently used. By user request (June 2024) others packages are included for experimental use.
+
+					// new JObject { {"Name", "Console" } }, // this has caused more problems than it's solved
+					new JObject
+					{
+						{ "Name", "File" },
+						{ "Args",
+							new JObject
+							{
+								// for this sink to work, a path must be provided. we override this below
+								{ "path", Path.Combine(LibationFiles.Location, "Log.log") },
+								{ "rollingInterval", "Month" },
+								// Serilog template formatting examples
+								// - default:                    "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+								//   output example:             2019-11-26 08:48:40.224 -05:00 [DBG] Begin Libation
+								// - with class and method info: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}";
+								//   output example:             2019-11-26 08:48:40.224 -05:00 [DBG] (at LibationWinForms.Program.init()) Begin Libation
+								// {Properties:j} needed for expanded exception logging
+								{ "outputTemplate", "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception} {Properties:j}" },
+								{ "hooks", typeof(FileSinkHook).AssemblyQualifiedName }, // for FileSinkHook
+							}
+						}
+					}
+				}
+			},
+			// better exception logging with: Serilog.Exceptions library -- WithExceptionDetails
+			{ "Using", new JArray{ "Dinah.Core", "Serilog.Exceptions" } }, // dll's name, NOT namespace
+			{ "Enrich", new JArray{ "WithCaller", "WithExceptionDetails" } },
+		};
+		SetNonString(serilogObj, "Serilog");
+	}
+
 	public void ConfigureLogging()
 	{
-		//pass explicit assemblies to the ConfigurationReaderOptions
-		//This is a workaround for the issue where serilog will try to load all
-		//Assemblies starting with "serilog" from the app folder, but it will fail
-		//if those assemblies are unreferenced.
-		//This was a problem when migrating from the ZipFile sink to the File sink.
-		//Upgrading users would still have the ZipFile sink dll in the program
-		//folder and serilog would try to load it, unsuccessfully.
-		//https://github.com/serilog/serilog-settings-configuration/issues/406
+		ValidateSerilogConfiguration();
+
+		// Pass explicit assemblies to ConfigurationReaderOptions.
+		// Workaround: Serilog otherwise loads all "Serilog*" assemblies from the app folder and fails
+		// on unreferenced leftovers (e.g. ZipFile sink after migration).
+		// https://github.com/serilog/serilog-settings-configuration/issues/406
 		var readerOptions = new ConfigurationReaderOptions(
 			typeof(ILogger).Assembly,                                 // Serilog
 			typeof(LoggerCallerEnrichmentConfiguration).Assembly,     // Dinah.Core
@@ -33,15 +103,161 @@ public partial class Configuration
 			typeof(ConsoleLoggerConfigurationExtensions).Assembly,    // Serilog.Sinks.Console
 			typeof(FileLoggerConfigurationExtensions).Assembly);      // Serilog.Sinks.File
 
-		configuration = new ConfigurationBuilder()
-			.AddJsonFile(Instance.LibationFiles.SettingsFilePath, optional: false, reloadOnChange: true)
-			.Build();
+		// Build from the in-memory settings store so ZipFile->File migration (and CLI ephemeral
+		// settings) are what Serilog sees, not a stale disk copy.
+		configuration = CreateLoggingConfigurationRoot();
 		Log.Logger = new LoggerConfiguration()
 			 .ReadFrom.Configuration(configuration, readerOptions)
 			 .Destructure.ByTransforming<LongPath>(lp => lp.Path)
 			 .Destructure.With<LogFileFilter>()
 			 .CreateLogger();
 		SerilogInitialized = true;
+	}
+
+	private IConfigurationRoot CreateLoggingConfigurationRoot()
+	{
+		var json = Settings.GetJObject().ToString(Formatting.None);
+		using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+		return new ConfigurationBuilder()
+			.AddJsonStream(stream)
+			.Build();
+	}
+
+	/// <summary>
+	/// Fail fast on structurally broken Serilog config (missing/empty WriteTo, bad MinimumLevel).
+	/// Hand-edited custom sink names are allowed; legacy ZipFile is migrated by <see cref="EnsureSerilogConfig"/>.
+	/// Call after ZipFile->File migration in scaffolding.
+	/// </summary>
+	public void ValidateSerilogConfiguration()
+	{
+		var settingsPath = LibationFiles.SettingsFilePath;
+		if (GetObject("Serilog") is not JObject serilog)
+		{
+			throw InvalidConfigurationValueException.ForPath(
+				"Serilog",
+				null,
+				$"Settings.json ({settingsPath}) is missing a Serilog section. " +
+				"Add a Serilog configuration with at least one WriteTo sink (Libation defaults to File).");
+		}
+
+		ValidateSerilogMinimumLevel(serilog, settingsPath);
+		ValidateSerilogWriteTo(serilog, settingsPath);
+	}
+
+	private static void ValidateSerilogMinimumLevel(JObject serilog, string settingsPath)
+	{
+		var minLevelToken = serilog["MinimumLevel"];
+		if (minLevelToken is null)
+			return;
+
+		string? levelText = minLevelToken.Type switch
+		{
+			JTokenType.String => minLevelToken.Value<string>(),
+			JTokenType.Object => minLevelToken["Default"]?.Value<string>(),
+			_ => minLevelToken.ToString()
+		};
+
+		if (levelText is null)
+			return;
+
+		if (!Enum.TryParse<LogEventLevel>(levelText, ignoreCase: true, out _))
+		{
+			var allowed = string.Join(", ", Enum.GetNames<LogEventLevel>());
+			throw InvalidConfigurationValueException.ForPath(
+				"Serilog.MinimumLevel",
+				levelText,
+				$"Invalid value for 'Serilog.MinimumLevel' in Settings.json ({settingsPath}): " +
+				$"{InvalidConfigurationValueException.FormatValue(levelText)}. Expected one of: {allowed}.");
+		}
+	}
+
+	private static void ValidateSerilogWriteTo(JObject serilog, string settingsPath)
+	{
+		var writeToToken = serilog["WriteTo"];
+		if (writeToToken is null)
+		{
+			throw InvalidConfigurationValueException.ForPath(
+				"Serilog.WriteTo",
+				null,
+				$"Settings.json ({settingsPath}) Serilog section has no WriteTo sinks. " +
+				"Add at least one WriteTo sink (Libation defaults to File).");
+		}
+
+		if (writeToToken is not JArray writeTo)
+		{
+			throw InvalidConfigurationValueException.ForPath(
+				"Serilog.WriteTo",
+				writeToToken.Type.ToString(),
+				$"Settings.json ({settingsPath}) 'Serilog.WriteTo' must be a JSON array of sink objects.");
+		}
+
+		if (writeTo.Count == 0)
+		{
+			throw InvalidConfigurationValueException.ForPath(
+				"Serilog.WriteTo",
+				"[]",
+				$"Settings.json ({settingsPath}) Serilog.WriteTo is empty. " +
+				"Add at least one WriteTo sink (Libation defaults to File).");
+		}
+
+		for (var i = 0; i < writeTo.Count; i++)
+		{
+			var path = $"Serilog.WriteTo[{i}]";
+			if (writeTo[i] is not JObject sink)
+			{
+				throw InvalidConfigurationValueException.ForPath(
+					path,
+					writeTo[i]?.Type.ToString(),
+					$"Settings.json ({settingsPath}) '{path}' must be a JSON object with a Name property.");
+			}
+
+			var name = sink["Name"]?.Value<string>();
+			var namePath = $"{path}.Name";
+			if (string.IsNullOrWhiteSpace(name))
+			{
+				throw InvalidConfigurationValueException.ForPath(
+					namePath,
+					name,
+					$"Settings.json ({settingsPath}) '{namePath}' is missing or empty.");
+			}
+		}
+	}
+
+	/// <summary>
+	/// Force-read enum-backed settings so invalid values fail at startup instead of later.
+	/// </summary>
+	public void ValidateEnumSettings()
+	{
+		try
+		{
+			_ = ThemeVariant;
+			_ = MaxSampleRate;
+			_ = LameEncoderQuality;
+			_ = ClipsBookmarksFileFormat;
+			_ = TokenStorageMethod;
+			_ = SpatialAudioCodec;
+			_ = FileDownloadQuality;
+			_ = CreationTime;
+			_ = LastWriteTime;
+			_ = BadBook;
+		}
+		catch (InvalidConfigurationValueException ex)
+		{
+			throw EnhanceWithSettingsPath(ex);
+		}
+	}
+
+	private InvalidConfigurationValueException EnhanceWithSettingsPath(InvalidConfigurationValueException ex)
+	{
+		var path = LibationFiles.SettingsFilePath;
+		if (ex.Message.Contains(path, StringComparison.OrdinalIgnoreCase))
+			return ex;
+
+		return new InvalidConfigurationValueException(
+			ex.PropertyPath,
+			ex.InvalidValue,
+			ex.ExpectedType,
+			$"Settings.json ({path}): {ex.Message}");
 	}
 
 	[Description("The importance of a log event")]
@@ -62,7 +278,11 @@ public partial class Configuration
 				return;
 			}
 
-			configuration?.Reload();
+			if (SerilogInitialized)
+			{
+				// Rebuild from current settings (in-memory or disk) so MinimumLevel applies.
+				ConfigureLogging();
+			}
 
 			OnPropertyChanged(nameof(LogLevel), value);
 

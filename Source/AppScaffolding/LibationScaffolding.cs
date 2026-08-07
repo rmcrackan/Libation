@@ -94,6 +94,7 @@ public static class LibationScaffolding
 		{
 			config.LoadPersistentSettings(config.LibationFiles.SettingsFilePath);
 		}
+		config.ValidateEnumSettings();
 		DeleteOpenSqliteFiles(config);
 		AudibleApiStorage.EnsureAccountsSettingsFileExists();
 		IdentityTokenStorageWiring.Apply(config);
@@ -102,9 +103,6 @@ public static class LibationScaffolding
 		// migrations go below here
 		//
 
-		Migrations.migrate_to_v6_6_9(config);
-		Migrations.migrate_to_v11_5_0(config);
-		Migrations.migrate_to_v11_6_5(config);
 		Migrations.migrate_to_v12_0_1(config);
 	}
 
@@ -163,65 +161,7 @@ public static class LibationScaffolding
 	}
 
 	private static void ensureSerilogConfig(Configuration config)
-	{
-		if (config.GetObject("Serilog") is JObject serilog)
-		{
-			bool fileChanged = false;
-			if (serilog.SelectToken("$.WriteTo[?(@.Name == 'ZipFile')]", false) is JObject zipFileSink)
-			{
-				zipFileSink["Name"] = "File";
-				fileChanged = true;
-			}
-			var hooks = typeof(FileSinkHook).AssemblyQualifiedName;
-			if (serilog.SelectToken("$.WriteTo[?(@.Name == 'File')].Args", false) is JObject fileSinkArgs
-				&& fileSinkArgs["hooks"]?.Value<string>() != hooks)
-			{
-				fileSinkArgs["hooks"] = hooks;
-				fileChanged = true;
-			}
-
-			if (fileChanged)
-				config.SetNonString(serilog.DeepClone(), "Serilog");
-			return;
-		}
-
-		var serilogObj = new JObject
-		{
-			{ "MinimumLevel", "Information" },
-			{ "WriteTo", new JArray
-				{
-					// ABOUT SINKS
-					// Only File sink is currently used. By user request (June 2024) others packages are included for experimental use.
-
-					// new JObject { {"Name", "Console" } }, // this has caused more problems than it's solved
-					new JObject
-					{
-						{ "Name", "File" },
-						{ "Args",
-							new JObject
-							{
-								// for this sink to work, a path must be provided. we override this below
-								{ "path", Path.Combine(config.LibationFiles.Location, "Log.log") },
-								{ "rollingInterval", "Month" },
-								// Serilog template formatting examples
-								// - default:                    "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
-								//   output example:             2019-11-26 08:48:40.224 -05:00 [DBG] Begin Libation
-								// - with class and method info: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}";
-								//   output example:             2019-11-26 08:48:40.224 -05:00 [DBG] (at LibationWinForms.Program.init()) Begin Libation
-								// {Properties:j} needed for expanded exception logging
-								{ "outputTemplate", "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception} {Properties:j}" },
-								{ "hooks", typeof(FileSinkHook).AssemblyQualifiedName }, // for FileSinkHook
-							}
-						}
-					}
-				}
-			},
-			// better exception logging with: Serilog.Exceptions library -- WithExceptionDetails
-			{ "Using", new JArray{ "Dinah.Core", "Serilog.Exceptions" } }, // dll's name, NOT namespace
-			{ "Enrich", new JArray{ "WithCaller", "WithExceptionDetails" } },
-		};
-		config.SetNonString(serilogObj, "Serilog");
-	}
+		=> config.EnsureSerilogConfig();
 
 	// to restore original: Console.SetOut(origOut);
 	private static TextWriter origOut { get; } = Console.Out;
@@ -463,59 +403,6 @@ public static class LibationScaffolding
 
 internal static class Migrations
 {
-	public static void migrate_to_v6_6_9(Configuration config)
-	{
-		var writeToPath = $"Serilog.WriteTo";
-
-		// remove WriteTo[].Name == Console
-		{
-			if (UNSAFE_MigrationHelper.Settings_TryGetArrayLength(writeToPath, out var length1))
-			{
-				for (var i = length1 - 1; i >= 0; i--)
-				{
-					var exists = UNSAFE_MigrationHelper.Settings_TryGetFromJsonPath($"{writeToPath}[{i}].Name", out var value);
-
-					if (exists && value == "Console")
-						UNSAFE_MigrationHelper.Settings_RemoveFromArray(writeToPath, i);
-				}
-			}
-		}
-
-		// add Serilog.Exceptions -- WithExceptionDetails
-		{
-			// outputTemplate should contain "{Properties:j}"
-			{
-				// re-calculate. previous loop may have changed the length
-				if (UNSAFE_MigrationHelper.Settings_TryGetArrayLength(writeToPath, out var length2))
-				{
-					var propertyName = "outputTemplate";
-					for (var i = 0; i < length2; i++)
-					{
-						var jsonPath = $"{writeToPath}[{i}].Args";
-						var exists = UNSAFE_MigrationHelper.Settings_TryGetFromJsonPath($"{jsonPath}.{propertyName}", out var value);
-
-						var newValue = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception} {Properties:j}";
-
-						if (exists && value != newValue)
-							UNSAFE_MigrationHelper.Settings_SetWithJsonPath(jsonPath, propertyName, newValue);
-					}
-				}
-			}
-
-			// Serilog.Using must include "Serilog.Exceptions"
-			UNSAFE_MigrationHelper.Settings_AddUniqueToArray("Serilog.Using", "Serilog.Exceptions");
-
-			// Serilog.Enrich must include "WithExceptionDetails"
-			UNSAFE_MigrationHelper.Settings_AddUniqueToArray("Serilog.Enrich", "WithExceptionDetails");
-		}
-	}
-
-	class FilterState_6_6_9
-	{
-		public bool UseDefault { get; set; }
-		public List<string> Filters { get; set; } = [];
-	}
-
 	public static void migrate_to_v12_0_1(Configuration config)
 	{
 		//Migrate from version 1 file cache to the dictionary-based version 2 cache
@@ -586,61 +473,6 @@ internal static class Migrations
 				}
 			}
 			catch { /* eat */ }
-		}
-	}
-
-	public static void migrate_to_v11_6_5(Configuration config)
-	{
-		//Settings migration for unsupported sample rates (#1116)
-		if (config.MaxSampleRate < AAXClean.SampleRate.Hz_8000)
-			config.MaxSampleRate = AAXClean.SampleRate.Hz_8000;
-		else if (config.MaxSampleRate > AAXClean.SampleRate.Hz_48000)
-			config.MaxSampleRate = AAXClean.SampleRate.Hz_48000;
-	}
-
-	public static void migrate_to_v11_5_0(Configuration config)
-	{
-		// Read file, but convert old format to new (with Name field) as necessary.
-		if (!File.Exists(QuickFilters.JsonFile))
-		{
-			QuickFilters.InMemoryState = new();
-			return;
-		}
-
-		try
-		{
-			if (JsonConvert.DeserializeObject<QuickFilters.FilterState>(File.ReadAllText(QuickFilters.JsonFile))
-				is QuickFilters.FilterState inMemState)
-			{
-				QuickFilters.InMemoryState = inMemState;
-				return;
-			}
-		}
-		catch
-		{
-			// Eat
-		}
-
-		try
-		{
-			if (JsonConvert.DeserializeObject<FilterState_6_6_9>(File.ReadAllText(QuickFilters.JsonFile))
-				is FilterState_6_6_9 inMemState)
-			{
-                // Copy old structure to new.
-                QuickFilters.InMemoryState = new()
-                {
-                    UseDefault = inMemState.UseDefault
-                };
-                foreach (var oldFilter in inMemState.Filters)
-					QuickFilters.InMemoryState.Filters.Add(new QuickFilters.NamedFilter(oldFilter, null));
-
-				return;
-			}
-			Debug.Assert(false, "Should not get here, QuickFilters.json deserialization issue");
-		}
-		catch
-		{
-			// Eat
 		}
 	}
 }

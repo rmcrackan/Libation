@@ -37,7 +37,18 @@ public partial class Configuration
 
 	[return: NotNullIfNotNull(nameof(defaultValue))]
 	public T? GetNonString<T>(T defaultValue, [CallerMemberName] string propertyName = "")
-		=> Settings is null ? default : Settings.GetNonString(propertyName, defaultValue);
+	{
+		if (Settings is null)
+			return default;
+		try
+		{
+			return Settings.GetNonString(propertyName, defaultValue);
+		}
+		catch (InvalidConfigurationValueException ex)
+		{
+			throw EnhanceWithSettingsPath(ex);
+		}
+	}
 
 
 	[return: NotNullIfNotNull(nameof(defaultValue))]
