@@ -15,6 +15,27 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 {
 	public override string Name => "Upload to Audiobookshelf";
 
+	public enum UploadOutcome { Uploaded, AlreadyExists, NoFilesFound, Failed }
+
+	public sealed class UploadOutcomeEventArgs(UploadOutcome outcome, string message) : EventArgs
+	{
+		public UploadOutcome Outcome { get; } = outcome;
+		public string Message { get; } = message;
+	}
+
+	/// <summary>
+	/// Raised exactly once per processed book, classifying what happened and why.
+	/// <para/>
+	/// Upload failures are reported here rather than through the returned <see cref="StatusHandler"/>.
+	/// A non-success StatusHandler marks the book as a bad book: the GUI process queue breaks its step
+	/// loop and raises the Abort/Retry/Ignore dialog. Uploading is a courtesy step layered onto
+	/// liberation and must never fail the book, so <see cref="ProcessAsync"/> always reports success.
+	/// </summary>
+	public event EventHandler<UploadOutcomeEventArgs>? OutcomeDetermined;
+
+	private void OnOutcomeDetermined(UploadOutcome outcome, string message)
+		=> OutcomeDetermined?.Invoke(this, new UploadOutcomeEventArgs(outcome, message));
+
 	public override bool Validate(LibraryBook libraryBook)
 	{
 		if (!Configuration.AudiobookshelfEnabled)
@@ -26,7 +47,9 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 			|| string.IsNullOrWhiteSpace(Configuration.AudiobookshelfFolderId))
 			return false;
 
-		return libraryBook.Book.AudioExists;
+		// Deliberately narrower than Book.AudioExists, which also accepts LiberatedStatus.Error.
+		// An errored liberation may have left partial files; uploading those is worse than skipping.
+		return libraryBook.Book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated;
 	}
 
 	public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
@@ -37,7 +60,10 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 			var files = GetFilesToUpload(libraryBook);
 			if (files.Count == 0)
 			{
-				OnStatusUpdate("No audio files found to upload");
+				const string message = "No audio files found on disk to upload";
+				OnStatusUpdate(message);
+				Serilog.Log.Logger.Error("No audio files found on disk to upload for {Book}", libraryBook.LogFriendly());
+				OnOutcomeDetermined(UploadOutcome.NoFilesFound, message);
 				return new StatusHandler();
 			}
 
@@ -59,20 +85,26 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 
 			if (result == AudiobookshelfApiService.UploadResult.Success)
 			{
-				OnStatusUpdate("Upload to Audiobookshelf completed successfully");
+				const string message = "Upload to Audiobookshelf completed successfully";
+				OnStatusUpdate(message);
+				OnOutcomeDetermined(UploadOutcome.Uploaded, message);
 				return new StatusHandler();
 			}
 			else if (result == AudiobookshelfApiService.UploadResult.AlreadyExists)
 			{
-				OnStatusUpdate("Book already exists on Audiobookshelf; skipping upload");
+				const string message = "Book already exists on Audiobookshelf; skipping upload";
+				OnStatusUpdate(message);
 				Serilog.Log.Logger.Information("Book already exists on Audiobookshelf, skipping upload: {Book}", libraryBook.LogFriendly());
+				OnOutcomeDetermined(UploadOutcome.AlreadyExists, message);
 				return new StatusHandler();
 			}
 			else
 			{
-				OnStatusUpdate("Upload to Audiobookshelf failed; book remains liberated on disk");
+				const string message = "Upload to Audiobookshelf failed; book remains liberated on disk";
+				OnStatusUpdate(message);
 				Serilog.Log.Logger.Error("Audiobookshelf upload failed for {Book}, but continuing as soft-failure", libraryBook.LogFriendly());
 				// Soft-fail: log the error but do not mark the book as failed
+				OnOutcomeDetermined(UploadOutcome.Failed, message + ". See log for details.");
 				return new StatusHandler();
 			}
 		}
@@ -81,6 +113,7 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 			Serilog.Log.Logger.Error(ex, "Error uploading {Book} to Audiobookshelf; continuing as soft-failure", libraryBook.LogFriendly());
 			OnStatusUpdate($"Audiobookshelf upload error: {ex.Message}");
 			// Soft-fail: log the error but do not mark the book as failed
+			OnOutcomeDetermined(UploadOutcome.Failed, $"Audiobookshelf upload error: {ex.Message}");
 			return new StatusHandler();
 		}
 		finally
@@ -89,38 +122,55 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 		}
 	}
 
-	private static List<string> GetFilesToUpload(LibraryBook libraryBook)
-	{
-		var files = new List<string>();
-		var productId = libraryBook.Book.AudibleProductId;
+	/// <summary>
+	/// Resolves a book's audio files by both the path cache and a live scan of the Books directory.
+	/// <para/>
+	/// Must not use <see cref="FilePathCache"/> alone. A book can be liberated - and so pass
+	/// <see cref="Validate"/>, which reads a database status - while having no cache entry at all.
+	/// </summary>
+	internal static List<string> GetAudioFilesOnDisk(string productId)
+		=> AudibleFileStorage.Audio.GetPaths(productId)
+		.Select(p => (string)p)
+		.Where(File.Exists)
+		.ToList();
 
-		// Get audio files from cache
-		var audioFiles = FilePathCache.GetFiles(productId)
-			.Where(f => f.fileType == FileType.Audio && File.Exists(f.path))
-			.Select(f => (string)f.path)
+	/// <summary>
+	/// Composes the final upload payload: de-duplicated audio files, followed by cover art at most once.
+	/// </summary>
+	internal static List<string> BuildUploadFileList(IEnumerable<string> audioPaths, string? coverPath)
+	{
+		var files = audioPaths
+			.Where(p => !string.IsNullOrWhiteSpace(p))
 			.Distinct()
+			.Where(p => !string.Equals(p, coverPath, StringComparison.Ordinal))
 			.ToList();
 
-		files.AddRange(audioFiles);
-
-		// Use Libation's known cover art output path (same logic as DownloadDecryptBook.DownloadCoverArt)
-		if (audioFiles.FirstOrDefault() is { } firstAudioFile)
-		{
-			var dir = Path.GetDirectoryName(firstAudioFile);
-			if (dir is not null)
-			{
-				var coverPath = AudibleFileStorage.Audio.GetCustomDirFilename(
-					libraryBook,
-					dir,
-					".jpg",
-					returnFirstExisting: false);
-
-				if (File.Exists(coverPath))
-					files.Add(coverPath);
-			}
-		}
+		if (!string.IsNullOrWhiteSpace(coverPath))
+			files.Add(coverPath);
 
 		return files;
+	}
+
+	internal static List<string> GetFilesToUpload(LibraryBook libraryBook)
+	{
+		var audioFiles = GetAudioFilesOnDisk(libraryBook.Book.AudibleProductId);
+
+		return BuildUploadFileList(audioFiles, GetCoverArtPath(libraryBook, audioFiles.FirstOrDefault()));
+	}
+
+	/// <summary>Libation's known cover art output path. Same logic as DownloadDecryptBook.DownloadCoverArt.</summary>
+	private static string? GetCoverArtPath(LibraryBook libraryBook, string? firstAudioFile)
+	{
+		if (firstAudioFile is null || Path.GetDirectoryName(firstAudioFile) is not string dir)
+			return null;
+
+		var coverPath = AudibleFileStorage.Audio.GetCustomDirFilename(
+			libraryBook,
+			dir,
+			".jpg",
+			returnFirstExisting: false);
+
+		return File.Exists(coverPath) ? coverPath : null;
 	}
 
 	public static UploadToAudiobookshelf Create(Configuration config) => new() { Configuration = config };
