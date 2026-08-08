@@ -38,23 +38,21 @@ internal partial class ProcessQueueControl : UserControl
 		ViewModel.PropertyChanged += ProcessQueue_PropertyChanged;
 		ViewModel.LogEntries.CollectionChanged += LogEntries_CollectionChanged;
 		ViewModel.ProcessStart += Book_ProcessStart;
+		autoScrollChk.CheckedChanged += (s, e) => ViewModel.AutoScrollQueue = autoScrollChk.Checked;
+		multiThreadChk.CheckedChanged += (s, e) => ViewModel.MultiThreadEnabled = multiThreadChk.Checked;
 		ProcessQueue_PropertyChanged(this, new PropertyChangedEventArgs(null));
 	}
 
 	private void Book_ProcessStart(object? sender, ProcessBookViewModel e)
 	{
+		if (!ViewModel.AutoScrollQueue) return;
 		Invoke(() =>
 		{
-			if (ViewModel.Queue?.IndexOf(e) is int newtBookIndex && newtBookIndex > 0 && itemIsVisible(newtBookIndex - 1))
-			{
-				// Only scroll the new item into view if the previous item is visible.
-				// This allows users to scroll through the queue without being interrupted.
-				virtualFlowControl2.ScrollIntoView(newtBookIndex);
-			}
+			// Pin the first active download to the top so all parallel in-progress items are visible.
+			int firstActiveIndex = ViewModel.Queue.Completed.Count;
+			if (firstActiveIndex < ViewModel.Queue.Count)
+				virtualFlowControl2.ScrollToTop(firstActiveIndex);
 		});
-
-		bool itemIsVisible(int newtBookIndex)
-			=> virtualFlowControl2.FirstRealizedIndex <= newtBookIndex && virtualFlowControl2.LastRealizedIndex >= newtBookIndex;
 	}
 
 	private void LogEntries_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -69,8 +67,8 @@ internal partial class ProcessQueueControl : UserControl
 	private async void cancelAllBtn_Click(object? sender, EventArgs e)
 	{
 		ViewModel.Queue.ClearQueue();
-		if (ViewModel.Queue.Current is not null)
-			await ViewModel.Queue.Current.CancelAsync();
+		var cancels = ViewModel.Queue.Active.OfType<ProcessBookViewModel>().Select(b => b.CancelAsync());
+		await System.Threading.Tasks.Task.WhenAll(cancels);
 	}
 
 	private void btnClearFinished_Click(object? sender, EventArgs e)
@@ -135,6 +133,10 @@ internal partial class ProcessQueueControl : UserControl
 			numericUpDown1.Increment = ViewModel.SpeedLimitIncrement;
 			numericUpDown1.DecimalPlaces = ViewModel.SpeedLimit >= 10 ? 0 : ViewModel.SpeedLimit >= 1 ? 1 : 2;
 		}
+		if (e.PropertyName is null or nameof(ViewModel.AutoScrollQueue))
+			autoScrollChk.Checked = ViewModel.AutoScrollQueue;
+		if (e.PropertyName is null or nameof(ViewModel.MultiThreadEnabled))
+			multiThreadChk.Checked = ViewModel.MultiThreadEnabled;
 	}
 
 	/// <summary>
