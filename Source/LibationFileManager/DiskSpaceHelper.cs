@@ -79,7 +79,10 @@ public static class DiskSpaceHelper
 	}
 
 	/// <summary>
-	/// Returns the volume root used for free-space queries (e.g. C:\ or \\server\share\), or null if unknown.
+	/// Returns the volume root used for free-space queries and drive grouping
+	/// (e.g. <c>C:\</c>, <c>\\server\share\</c>, or a Unix mount such as <c>/var/home</c>), or null if unknown.
+	/// On Unix, <see cref="Path.GetPathRoot"/> is not used: it always returns <c>/</c> for absolute paths and
+	/// mis-attributes free space when Books/In progress live on another mount (e.g. Bazzite <c>/var/home</c>).
 	/// </summary>
 	public static string? GetPathRootForDiskSpaceCheck(string? path)
 	{
@@ -90,13 +93,94 @@ public static class DiskSpaceHelper
 		{
 			var normalized = NormalizePathForDriveQuery(path);
 			var fullPath = Path.GetFullPath(normalized);
-			var root = Path.GetPathRoot(fullPath);
-			return string.IsNullOrWhiteSpace(root) ? null : root;
+
+			if (OperatingSystem.IsWindows())
+			{
+				var root = Path.GetPathRoot(fullPath);
+				return string.IsNullOrWhiteSpace(root) ? null : root;
+			}
+
+			return GetUnixMountPoint(fullPath);
 		}
 		catch
 		{
 			return null;
 		}
+	}
+
+	/// <summary>
+	/// Resolves symlinks in <paramref name="path"/> component-by-component so that e.g.
+	/// <c>/home/user/Books</c> becomes <c>/var/home/user/Books</c> when <c>/home</c> → <c>/var/home</c>.
+	/// Non-existent trailing segments are kept so a not-yet-created Books folder still resolves.
+	/// </summary>
+	public static string ResolvePathSymlinks(string path)
+	{
+		var fullPath = Path.GetFullPath(path);
+		if (OperatingSystem.IsWindows())
+			return fullPath;
+
+		var parts = fullPath.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
+		var resolved = "/";
+
+		foreach (var part in parts)
+		{
+			var next = resolved == "/"
+				? "/" + part
+				: resolved + Path.DirectorySeparatorChar + part;
+
+			try
+			{
+				var dirInfo = new DirectoryInfo(next);
+				if (dirInfo.Exists)
+				{
+					var target = dirInfo.ResolveLinkTarget(returnFinalTarget: true);
+					resolved = target?.FullName ?? dirInfo.FullName;
+					continue;
+				}
+
+				var fileInfo = new FileInfo(next);
+				if (fileInfo.Exists)
+				{
+					var target = fileInfo.ResolveLinkTarget(returnFinalTarget: true);
+					resolved = target?.FullName ?? fileInfo.FullName;
+					continue;
+				}
+			}
+			catch
+			{
+				// Keep syntactic path when link resolution fails for a segment.
+			}
+
+			resolved = next;
+		}
+
+		return resolved;
+	}
+
+	/// <summary>
+	/// Pure helper: longest mount-point prefix of <paramref name="fullPath"/> from <paramref name="mountPoints"/>.
+	/// Used for Unix volume identity and unit tests (injectable mount list).
+	/// </summary>
+	public static string? FindLongestMountPointPrefix(string fullPath, IEnumerable<string> mountPoints)
+	{
+		if (string.IsNullOrWhiteSpace(fullPath))
+			return null;
+
+		string? best = null;
+
+		foreach (var mount in mountPoints)
+		{
+			if (string.IsNullOrWhiteSpace(mount))
+				continue;
+
+			if (!IsPathOnMount(fullPath, mount))
+				continue;
+
+			if (best is null || mount.Length > best.Length)
+				best = mount;
+		}
+
+		return best;
 	}
 
 	/// <summary>
@@ -147,7 +231,10 @@ public static class DiskSpaceHelper
 
 	public static IReadOnlyList<BackupDriveSpace> GetBackupDriveSpaces(Configuration config, int bookCount)
 	{
-		var pathsByRoot = new Dictionary<string, (List<string> paths, BackupDriveUsage usage)>(StringComparer.OrdinalIgnoreCase);
+		var pathComparer = OperatingSystem.IsWindows()
+			? StringComparer.OrdinalIgnoreCase
+			: StringComparer.Ordinal;
+		var pathsByRoot = new Dictionary<string, (List<string> paths, BackupDriveUsage usage)>(pathComparer);
 
 		void addPath(string? path, BackupDriveUsage usageFlag)
 		{
@@ -164,7 +251,7 @@ public static class DiskSpaceHelper
 				return;
 			}
 
-			var root = Path.GetPathRoot(fullPath);
+			var root = GetPathRootForDiskSpaceCheck(fullPath);
 			if (string.IsNullOrWhiteSpace(root))
 				return;
 
@@ -173,7 +260,7 @@ public static class DiskSpaceHelper
 			else
 				entry.usage |= usageFlag;
 
-			if (!entry.paths.Contains(fullPath, StringComparer.OrdinalIgnoreCase))
+			if (!entry.paths.Contains(fullPath, pathComparer))
 				entry.paths.Add(fullPath);
 
 			pathsByRoot[root] = entry;
@@ -210,11 +297,46 @@ public static class DiskSpaceHelper
 		=> drives.Any(d => d.AvailableBytes is not null && d.AvailableBytes < GetCriticalFreeBytesForDriveUsage(d.Usage));
 
 	public readonly record struct BackupDriveSpace(
-		/// <summary>Volume root used for free-space display (e.g. C:\ or \\nas\library\).</summary>
+		/// <summary>Volume root used for free-space display (e.g. C:\ , \\nas\library\ , or /var/home).</summary>
 		string DriveRoot,
 		IReadOnlyList<string> Paths,
 		/// <summary>Null when <see cref="TryGetAvailableFreeBytes"/> could not query this root.</summary>
 		long? AvailableBytes,
 		long RequiredBytes,
 		BackupDriveUsage Usage);
+
+	private static string? GetUnixMountPoint(string fullPath)
+	{
+		var resolved = ResolvePathSymlinks(fullPath);
+		var mounts = DriveInfo.GetDrives()
+			.Where(static d => d.IsReady)
+			.Select(static d => d.Name);
+
+		return FindLongestMountPointPrefix(resolved, mounts)
+			?? Path.GetPathRoot(resolved);
+	}
+
+	/// <summary>
+	/// Unix mount paths always use '/'. Do not use <see cref="Path.DirectorySeparatorChar"/> —
+	/// on Windows that is '\', which would break pure unit tests and any cross-OS path handling.
+	/// </summary>
+	private static bool IsPathOnMount(string fullPath, string mount)
+	{
+		const char unixSep = '/';
+
+		var mountTrimmed = mount.TrimEnd(unixSep);
+		if (mountTrimmed.Length == 0)
+			mountTrimmed = "/";
+
+		if (fullPath.Equals(mountTrimmed, StringComparison.Ordinal))
+			return true;
+
+		// Root mount "/" prefixes every absolute Unix path.
+		if (mountTrimmed == "/")
+			return fullPath.StartsWith("/", StringComparison.Ordinal);
+
+		var prefix = mount.EndsWith(unixSep) ? mount : mount + unixSep;
+
+		return fullPath.StartsWith(prefix, StringComparison.Ordinal);
+	}
 }
