@@ -1,0 +1,16 @@
+---
+description: Prefer ASCII-centric characters in all written output
+alwaysApply: true
+---
+
+# Prefer ASCII-centric characters
+
+In all written output (chat replies, GitHub comments, commit messages, docs, PR bodies, and similar prose):
+
+- Prefer `->` instead of arrow glyphs (no `→`, `⇒`, `←`, etc.)
+- Prefer `...` instead of single-character ellipses (no `…`)
+- Prefer straight single and double quotes (`'` and `"`) instead of curly/smart quotes
+- Prefer `-` instead of long dashes (no `–`, `—`)
+- No emoji or similar decorative characters/glyphs
+
+Use plain ASCII unless a non-ASCII character is required for correctness (e.g. a code identifier, file path, or user-facing string that already contains it).
