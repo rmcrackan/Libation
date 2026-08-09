@@ -316,9 +316,15 @@ public static class DiskSpaceHelper
 			?? Path.GetPathRoot(resolved);
 	}
 
+	/// <summary>
+	/// Unix mount paths always use '/'. Do not use <see cref="Path.DirectorySeparatorChar"/> —
+	/// on Windows that is '\', which would break pure unit tests and any cross-OS path handling.
+	/// </summary>
 	private static bool IsPathOnMount(string fullPath, string mount)
 	{
-		var mountTrimmed = mount.TrimEnd(Path.DirectorySeparatorChar);
+		const char unixSep = '/';
+
+		var mountTrimmed = mount.TrimEnd(unixSep);
 		if (mountTrimmed.Length == 0)
 			mountTrimmed = "/";
 
@@ -329,9 +335,7 @@ public static class DiskSpaceHelper
 		if (mountTrimmed == "/")
 			return fullPath.StartsWith("/", StringComparison.Ordinal);
 
-		var prefix = mount.EndsWith(Path.DirectorySeparatorChar)
-			? mount
-			: mount + Path.DirectorySeparatorChar;
+		var prefix = mount.EndsWith(unixSep) ? mount : mount + unixSep;
 
 		return fullPath.StartsWith(prefix, StringComparison.Ordinal);
 	}
