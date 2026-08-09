@@ -2,6 +2,7 @@ using LibationFileManager;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace LibationFileManager.Tests;
 
@@ -33,27 +34,121 @@ public class DiskSpaceHelperTests
 	}
 
 	[TestMethod]
-    [OSCondition(OperatingSystems.Windows)]
-    public void Windows_NormalizePathForDriveQuery_strips_extended_prefix()
+	[OSCondition(OperatingSystems.Windows)]
+	public void Windows_NormalizePathForDriveQuery_strips_extended_prefix()
 	{
 		Assert.AreEqual(@"C:\Audiobooks\Books", DiskSpaceHelper.NormalizePathForDriveQuery(@"\\?\C:\Audiobooks\Books"));
 		Assert.AreEqual(@"\\server\share\Books", DiskSpaceHelper.NormalizePathForDriveQuery(@"\\?\UNC\server\share\Books"));
 	}
 
 	[TestMethod]
-    [OSCondition(OperatingSystems.Windows)]
-    public void Windows_GetPathRootForDiskSpaceCheck_strips_extended_prefix()
+	[OSCondition(OperatingSystems.Windows)]
+	public void Windows_GetPathRootForDiskSpaceCheck_strips_extended_prefix()
 	{
 		Assert.AreEqual(@"C:\", DiskSpaceHelper.GetPathRootForDiskSpaceCheck(@"\\?\C:\Audiobooks\Books"));
 	}
 
 	[TestMethod]
-	public void GetPathRootForDiskSpaceCheck_unix_absolute_path()
+	public void FindLongestMountPointPrefix_prefers_var_home_over_root()
+	{
+		var mounts = new[] { "/", "/boot", "/var/home", "/tmp" };
+
+		Assert.AreEqual(
+			"/var/home",
+			DiskSpaceHelper.FindLongestMountPointPrefix("/var/home/user/Libation/Books", mounts));
+		Assert.AreEqual(
+			"/var/home",
+			DiskSpaceHelper.FindLongestMountPointPrefix("/var/home", mounts));
+		Assert.AreEqual(
+			"/tmp",
+			DiskSpaceHelper.FindLongestMountPointPrefix("/tmp/Libation-user", mounts));
+		Assert.AreEqual(
+			"/",
+			DiskSpaceHelper.FindLongestMountPointPrefix("/usr/local/bin", mounts));
+	}
+
+	[TestMethod]
+	public void FindLongestMountPointPrefix_does_not_match_partial_segment()
+	{
+		// "/var/home2/..." must not match mount "/var/home"
+		var mounts = new[] { "/", "/var/home" };
+
+		Assert.AreEqual(
+			"/",
+			DiskSpaceHelper.FindLongestMountPointPrefix("/var/home2/books", mounts));
+	}
+
+	[TestMethod]
+	public void FindLongestMountPointPrefix_home_without_symlink_resolution_stays_on_root()
+	{
+		// Documents the Bazzite trap: /home/... does not prefix-match /var/home until symlinks are resolved.
+		var mounts = new[] { "/", "/var/home", "/tmp" };
+
+		Assert.AreEqual(
+			"/",
+			DiskSpaceHelper.FindLongestMountPointPrefix("/home/user/Libation/Books", mounts));
+	}
+
+	[TestMethod]
+	public void ResolvePathSymlinks_follows_home_to_var_home_style_link()
 	{
 		if (OperatingSystem.IsWindows())
 			Assert.Inconclusive("Skipped because OS is Windows.");
 
-		Assert.AreEqual("/", DiskSpaceHelper.GetPathRootForDiskSpaceCheck("/home/user/Libation/Books"));
+		var root = Path.Combine(Path.GetTempPath(), "libation-diskspace-" + Guid.NewGuid().ToString("N"));
+		var varHome = Path.Combine(root, "var", "home");
+		var homeLink = Path.Combine(root, "home");
+		var booksUnderHome = Path.Combine(homeLink, "user", "Libation", "Books");
+
+		try
+		{
+			Directory.CreateDirectory(varHome);
+			Directory.CreateSymbolicLink(homeLink, varHome);
+
+			var resolved = DiskSpaceHelper.ResolvePathSymlinks(booksUnderHome);
+			var expected = Path.Combine(varHome, "user", "Libation", "Books");
+
+			Assert.AreEqual(expected, resolved);
+
+			var mounts = new[] { "/", varHome, Path.Combine(root, "tmp") };
+			Assert.AreEqual(
+				varHome,
+				DiskSpaceHelper.FindLongestMountPointPrefix(resolved, mounts));
+		}
+		finally
+		{
+			try
+			{
+				if (Directory.Exists(root))
+					Directory.Delete(root, recursive: true);
+			}
+			catch
+			{
+				// best-effort cleanup
+			}
+		}
+	}
+
+	[TestMethod]
+	public void GetPathRootForDiskSpaceCheck_unix_uses_real_mount_not_always_slash()
+	{
+		if (OperatingSystem.IsWindows())
+			Assert.Inconclusive("Skipped because OS is Windows.");
+
+		// Pick any ready non-root mount that exists on this machine (often /tmp or similar).
+		var nonRootMount = DriveInfo.GetDrives()
+			.Where(d => d.IsReady && d.Name is not "/" and not null)
+			.OrderByDescending(d => d.Name.Length)
+			.FirstOrDefault();
+
+		if (nonRootMount is null)
+			Assert.Inconclusive("No non-root mounts available to assert against.");
+
+		var probePath = Path.Combine(nonRootMount.Name.TrimEnd(Path.DirectorySeparatorChar), "libation-probe");
+		var root = DiskSpaceHelper.GetPathRootForDiskSpaceCheck(probePath);
+
+		Assert.AreEqual(nonRootMount.Name, root);
+		Assert.AreNotEqual("/", root);
 	}
 
 	[TestMethod]
