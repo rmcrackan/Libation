@@ -215,18 +215,9 @@ public class ApiExtended
 		Serilog.Log.Logger.Debug("Begin indexing series episodes");
 		items.AddRange(allEps);
 
-		//Set the Item.Series info for episodes and parents.
-		foreach (var parent in items.Where(i => i.IsSeriesParent))
-		{
-			var children = items.Where(i => i.IsEpisodes && i.Relationships?.Any(r => r.Asin == parent.Asin) is true);
-			SetSeries(parent, children);
-		}
-
-		//An episode whose series parent never made it into this scan can't be linked to a series, so it
-		//gets dropped. Name the casualties: without them a title silently vanishes from the library and
+		//Name the casualties: an unlinked episode silently vanishes from the library, and without this
 		//there is nothing in the log to explain why.
-		var orphans = items.Where(isOrphan).Select(describe).Distinct().ToList();
-		items.RemoveAll(isOrphan);
+		var orphans = LinkEpisodesToSeries(items).Select(describe).Distinct().ToList();
 		if (orphans.Count > 0)
 			Serilog.Log.Logger.Warning(
 				"{orphansRemoved} podcast episodes were not imported because their series parent was missing from this scan. {@DebugInfo}",
@@ -256,8 +247,31 @@ public class ApiExtended
 
 		return items;
 
-		static bool isOrphan(Item item) => (item.IsEpisodes || item.IsSeriesParent) && item.Series is null;
 		static string describe(Item item) => $"[{item.Asin}] {item.Title}";
+	}
+
+	/// <summary>
+	/// Set <see cref="Item.Series"/> on every series parent in <paramref name="items"/> and on the episodes
+	/// belonging to it, then drop the episodes and parents left unlinked. An episode is left unlinked when
+	/// its parent is not among <paramref name="items"/>, which happens when Audible omits the parent from a
+	/// catalog response or when the parent is a container Libation does not treat as a series (e.g. a season).
+	/// </summary>
+	/// <returns>The unlinked items removed from <paramref name="items"/>.</returns>
+	public static List<Item> LinkEpisodesToSeries(List<Item> items)
+	{
+		ArgumentValidator.EnsureNotNull(items, nameof(items));
+
+		foreach (var parent in items.Where(i => i.IsSeriesParent))
+		{
+			var children = items.Where(i => i.IsEpisodes && i.Relationships?.Any(r => r.Asin == parent.Asin) is true);
+			SetSeries(parent, children);
+		}
+
+		var unlinked = items.Where(isUnlinked).ToList();
+		items.RemoveAll(isUnlinked);
+		return unlinked;
+
+		static bool isUnlinked(Item item) => (item.IsEpisodes || item.IsSeriesParent) && item.Series is null;
 	}
 
 	#region episodes and podcasts
