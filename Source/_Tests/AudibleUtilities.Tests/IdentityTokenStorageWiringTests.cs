@@ -60,6 +60,33 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 	private string? _tempDir;
 	private string? _accountsFile;
 
+	/// <summary>
+	/// Set to "1" to also run the tests that talk to the real OS secret store.
+	/// </summary>
+	private const string OsSecretStoreTestsEnvVar = "LIBATION_TEST_OS_SECRET_STORE";
+
+	/// <summary>
+	/// Reading the OS secret store blocks until the desktop unlock prompt is answered, which can be
+	/// forever on a headless or locked-keyring machine. Probing availability first does not help: the
+	/// probe is the blocking call. Tests that need the real store are therefore opt-in.
+	/// </summary>
+	private static void SkipUnlessOsSecretStoreTestsEnabled()
+	{
+		if (Environment.GetEnvironmentVariable(OsSecretStoreTestsEnvVar) != "1")
+			Assert.Inconclusive($"Set {OsSecretStoreTestsEnvVar}=1 to exercise the real OS secret store.");
+	}
+
+	/// <summary>
+	/// Resolve the master key from a temp key file so <see cref="IdentityTokenStorageWiring.ResolveSecretStore"/>
+	/// short-circuits before it reaches the OS secret store. Tests about which write method gets configured
+	/// have no business depending on a desktop keyring, and must not mint a key into the real Libation folder.
+	/// </summary>
+	private void UsePortableMasterKey()
+	{
+		Environment.SetEnvironmentVariable(LibationFiles.LIBATION_FILES_DIR, _tempDir);
+		Environment.SetEnvironmentVariable(IdentityTokenStorageWiring.MasterKeyFileEnvVar, WriteTempMasterKeyFile());
+	}
+
 	[TestInitialize]
 	public void Init()
 	{
@@ -86,16 +113,16 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 	}
 
 	[TestMethod]
-	public void Apply_Encrypted_configures_write_method_and_protector_when_store_available()
+	public void Apply_Encrypted_configures_write_method_and_protector()
 	{
+		UsePortableMasterKey();
 		var config = Configuration.CreateMockInstance();
 		config.TokenStorageMethod = TokenStorageMethod.Encrypted;
 
 		IdentityTokenStorageWiring.Apply(config);
 
 		Assert.AreEqual(TokenStorageMethod.Encrypted, IdentityTokenStorage.WriteMethod);
-		if (IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out _))
-			Assert.IsNotNull(IdentityTokenStorage.Protector);
+		Assert.IsNotNull(IdentityTokenStorage.Protector);
 	}
 
 	[TestMethod]
@@ -182,6 +209,7 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 	[TestMethod]
 	public void Apply_Plaintext_configures_plaintext_writes()
 	{
+		UsePortableMasterKey();
 		var config = Configuration.CreateMockInstance();
 		config.TokenStorageMethod = TokenStorageMethod.Plaintext;
 
@@ -193,6 +221,7 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 	[TestMethod]
 	public void Changing_preference_updates_write_method_without_converting_existing_tokens()
 	{
+		UsePortableMasterKey();
 		WriteLegacyAccountsFile(_accountsFile!);
 		var before = File.ReadAllText(_accountsFile!);
 
@@ -290,6 +319,7 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 	[TestMethod]
 	public void ResolveSecretStore_uses_os_store_when_available_without_last_resort_key_file()
 	{
+		SkipUnlessOsSecretStoreTestsEnabled();
 		if (!IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out var reason))
 			Assert.Inconclusive("OS secret store unavailable: " + reason);
 
@@ -357,6 +387,7 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 	[TestMethod]
 	public void MasterKeyExport_writes_key_file_when_os_store_has_key()
 	{
+		SkipUnlessOsSecretStoreTestsEnabled();
 		if (!IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out var reason))
 			Assert.Inconclusive("OS secret store unavailable: " + reason);
 
