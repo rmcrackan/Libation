@@ -32,11 +32,14 @@ public class LibraryBookEntry : GridEntry
 	}
 
 	/// <summary>
-	/// Creates <see cref="LibraryBookEntry{TStatus}"/> for all non-episode books in an enumeration of <see cref="LibraryBook"/>.
+	/// Creates <see cref="LibraryBookEntry{TStatus}"/> for ordinary books and episodes whose series parent is missing.
 	/// </summary>
 	/// <remarks>Can be called from any thread, but requires the calling thread's <see cref="System.Threading.SynchronizationContext.Current"/> to be valid.</remarks>
 	public static async Task<List<GridEntry>> GetAllProductsAsync(IEnumerable<LibraryBook> libraryBooks)
-		=> await GetAllProductsAsync(libraryBooks, lb => lb.Book.IsProduct(), lb => new LibraryBookEntry(lb) as GridEntry);
+		=> await GetAllProductsAsync(
+			libraryBooks.StandaloneBooks(),
+			_ => true,
+			lb => new LibraryBookEntry(lb) as GridEntry);
 
 	protected override string? GetBookTags()
 		=> Book is null ? null : string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);

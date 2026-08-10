@@ -350,6 +350,7 @@ public partial class ProductsGrid : UserControl
 		var allEntries = bindingList.AllItems().BookEntries().ToDictionarySafe(b => b.AudibleProductId);
 		var seriesEntries = bindingList.AllItems().SeriesEntries().ToList();
 		var parentedEpisodes = dbBooks.ParentedEpisodes().ToHashSet();
+		var orphanedEpisodes = dbBooks.FindOrphanedEpisodes().ToHashSet();
 
 		//Get the UI thread's synchronization context and set it on the current thread to ensure
 		//it's available for creation of new IGridEntry items during upsert
@@ -361,14 +362,30 @@ public partial class ProductsGrid : UserControl
 		{
 			var existingEntry = allEntries.TryGetValue(libraryBook.Book.AudibleProductId, out var e) ? e : null;
 
-			if (libraryBook.Book.IsProduct())
+			if (libraryBook.Book.IsProduct() || orphanedEpisodes.Contains(libraryBook))
 			{
+				// An episode can become orphaned when its parent is removed. Move it out from under
+				// the old parent and keep it visible as a standalone row.
+				if (existingEntry?.Parent is not null)
+				{
+					existingEntry.Parent.RemoveChild(existingEntry);
+					bindingList.Remove(existingEntry);
+					existingEntry = null;
+				}
+
 				AddOrUpdateBook(libraryBook, existingEntry);
 				continue;
 			}
 			if (parentedEpisodes.Contains(libraryBook))
 			{
-				//Only try to add or update is this LibraryBook is a know child of a parent
+				// If a formerly orphaned episode now has a parent, remove its standalone row
+				// before recreating it beneath that parent.
+				if (existingEntry is { Parent: null })
+				{
+					bindingList.Remove(existingEntry);
+					existingEntry = null;
+				}
+
 				AddOrUpdateEpisode(libraryBook, existingEntry, seriesEntries, dbBooks);
 			}
 		}

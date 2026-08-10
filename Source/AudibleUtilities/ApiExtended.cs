@@ -143,8 +143,10 @@ public class ApiExtended
 		var importEpisodes = Configuration.Instance.ImportEpisodes;
 		var importPlusTitles = Configuration.Instance.ImportPlusTitles;
 
-		List<Item> items = new();
-		int libraryItemCount = 0, episodeItemsExcluded = 0, plusTitlesExcluded = 0;
+		var items = new List<Item>();
+		var libraryItemCount = 0;
+		var episodeItemsExcluded = 0;
+		var plusTitlesExcluded = 0;
 		var sw = Stopwatch.StartNew();
 		var totalTime = TimeSpan.Zero;
 		using var semaphore = new SemaphoreSlim(MaxConcurrency);
@@ -378,7 +380,7 @@ public class ApiExtended
 		var items = await fetch(asins);
 		var missing = GetMissingAsins(asins, items);
 
-		for (int attempt = 1; attempt <= maxRetries && missing.Count > 0; attempt++)
+		for (var attempt = 1; attempt <= maxRetries && missing.Count > 0; attempt++)
 		{
 			onRetry?.Invoke(attempt);
 
