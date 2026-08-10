@@ -1,4 +1,5 @@
 using DataLayer;
+using LibationUiBase.GridView;
 
 namespace LibationUiBase.Tests;
 
@@ -69,5 +70,20 @@ public class StandaloneBooksTests
 		CollectionAssert.AreEquivalent(
 			new[] { "BOOK", "ORPHAN" },
 			standalone.Select(lb => lb.Book.AudibleProductId).ToList());
+	}
+
+	[TestMethod]
+	public async Task grid_entries_include_orphaned_episode_as_a_standalone_row()
+	{
+		var parent = libraryBook("SHOW", ContentType.Parent, "SHOW");
+		var child = libraryBook("CHILD", ContentType.Episode, "SHOW");
+		var orphan = libraryBook("ORPHAN", ContentType.Episode, "MISSING_SHOW");
+
+		var entries = await LibraryBookEntry.GetAllProductsAsync([parent, child, orphan]);
+
+		CollectionAssert.AreEqual(
+			new[] { "ORPHAN" },
+			entries.Select(entry => entry.AudibleProductId).ToList());
+		Assert.IsNull(((LibraryBookEntry)entries.Single()).Parent);
 	}
 }
