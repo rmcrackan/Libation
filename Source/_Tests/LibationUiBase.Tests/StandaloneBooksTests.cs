@@ -79,6 +79,7 @@ public class StandaloneBooksTests
 		var child = libraryBook("CHILD", ContentType.Episode, "SHOW");
 		var orphan = libraryBook("ORPHAN", ContentType.Episode, "MISSING_SHOW");
 
+		SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
 		var entries = await LibraryBookEntry.GetAllProductsAsync([parent, child, orphan]);
 
 		CollectionAssert.AreEqual(
