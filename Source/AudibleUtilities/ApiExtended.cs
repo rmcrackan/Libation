@@ -23,6 +23,10 @@ public class ApiExtended
 
 	private const int MaxConcurrency = 10;
 	private const int BatchSize = 50;
+	/// <summary>Extra attempts to re-request catalog products that Audible omitted from an otherwise successful response.</summary>
+	private const int MissingAsinRetries = 2;
+	/// <summary>Upper bound on how many dropped titles a single log entry will name.</summary>
+	private const int MaxLoggedTitles = 50;
 
 	private ApiExtended(Api api) => Api = api;
 
@@ -135,7 +139,14 @@ public class ApiExtended
 	{
 		Serilog.Log.Logger.Debug("Beginning library scan.");
 
-		List<Item> items = new();
+		//Read the import filters once so a settings change mid-scan can't produce a half-filtered library.
+		var importEpisodes = Configuration.Instance.ImportEpisodes;
+		var importPlusTitles = Configuration.Instance.ImportPlusTitles;
+
+		var items = new List<Item>();
+		var libraryItemCount = 0;
+		var episodeItemsExcluded = 0;
+		var plusTitlesExcluded = 0;
 		var sw = Stopwatch.StartNew();
 		var totalTime = TimeSpan.Zero;
 		using var semaphore = new SemaphoreSlim(MaxConcurrency);
@@ -147,7 +158,9 @@ public class ApiExtended
 		//Get relationship asins from episode-type items and write them to episodeChannel where they will be batched and queried.
 		await foreach (var itemsBatch in Api.GetLibraryItemsPagesAsync(libraryOptions, BatchSize, semaphore))
 		{
-			if (Configuration.Instance.ImportEpisodes)
+			libraryItemCount += itemsBatch.Length;
+
+			if (importEpisodes)
 			{
 				var episodes = itemsBatch.Where(i => i.IsEpisodes).ToList();
 				var series = itemsBatch.Where(i => i.IsSeriesParent).ToList();
@@ -170,11 +183,18 @@ public class ApiExtended
 				items.AddRange(episodes);
 				items.AddRange(series);
 			}
+			else
+				episodeItemsExcluded += itemsBatch.Count(i => i.IsSeriesParent || i.IsEpisodes);
 
-			var booksInBatch
-				= itemsBatch
-				.Where(i => !i.IsSeriesParent && !i.IsEpisodes)
-				.Where(i => i.IsAyce is not true || Configuration.Instance.ImportPlusTitles);
+			var booksInBatch = itemsBatch.Where(i => !i.IsSeriesParent && !i.IsEpisodes).ToList();
+
+			if (!importPlusTitles)
+			{
+				var ownedInBatch = booksInBatch.Where(i => i.IsAyce is not true).ToList();
+				plusTitlesExcluded += booksInBatch.Count - ownedInBatch.Count;
+				booksInBatch = ownedInBatch;
+			}
+
 			items.AddRange(booksInBatch);
 		}
 
@@ -197,21 +217,30 @@ public class ApiExtended
 		Serilog.Log.Logger.Debug("Begin indexing series episodes");
 		items.AddRange(allEps);
 
-		//Set the Item.Series info for episodes and parents.
-		foreach (var parent in items.Where(i => i.IsSeriesParent))
-		{
-			var children = items.Where(i => i.IsEpisodes && i.Relationships?.Any(r => r.Asin == parent.Asin) is true);
-			SetSeries(parent, children);
-		}
-
-		int orphansRemoved = items.RemoveAll(i => (i.IsEpisodes || i.IsSeriesParent) && i.Series is null);
-		if (orphansRemoved > 0)
-			Serilog.Log.Debug("{orphansRemoved} podcast orphans not imported", orphansRemoved);
+		//Name the casualties: an unlinked episode silently vanishes from the library, and without this
+		//there is nothing in the log to explain why.
+		var orphans = LinkEpisodesToSeries(items).Select(describe).Distinct().ToList();
+		if (orphans.Count > 0)
+			Serilog.Log.Logger.Warning(
+				"{orphansRemoved} podcast episodes were not imported because their series parent was missing from this scan. {@DebugInfo}",
+				orphans.Count,
+				new { Orphans = orphans.Take(MaxLoggedTitles).ToList(), Truncated = orphans.Count > MaxLoggedTitles });
 
 		sw.Stop();
 		totalTime += sw.Elapsed;
 		Serilog.Log.Logger.Information("Completed indexing series episodes after {elappsed_ms} ms.", sw.ElapsedMilliseconds);
 		Serilog.Log.Logger.Information($"Completed library scan in {totalTime.TotalMilliseconds:F0} ms.");
+		Serilog.Log.Logger.Information("Library scan tally. {@DebugInfo}", new
+		{
+			LibraryItems = libraryItemCount,
+			EpisodesFetched = allEps.Count,
+			OrphanedEpisodesDropped = orphans.Count,
+			ImportEpisodes = importEpisodes,
+			EpisodeItemsExcluded = episodeItemsExcluded,
+			ImportPlusTitles = importPlusTitles,
+			PlusTitlesExcluded = plusTitlesExcluded,
+			ItemsToImport = items.Count
+		});
 
 		Array.ForEach(ISanitizer.GetAllSanitizers(), s => s.Sanitize(items));
 		var allExceptions = IValidator.GetAllValidators().SelectMany(v => v.Validate(items)).ToList();
@@ -219,6 +248,32 @@ public class ApiExtended
 			throw new ImportValidationException(items, allExceptions);
 
 		return items;
+
+		static string describe(Item item) => $"[{item.Asin}] {item.Title}";
+	}
+
+	/// <summary>
+	/// Set <see cref="Item.Series"/> on every series parent in <paramref name="items"/> and on the episodes
+	/// belonging to it, then drop the episodes and parents left unlinked. An episode is left unlinked when
+	/// its parent is not among <paramref name="items"/>, which happens when Audible omits the parent from a
+	/// catalog response or when the parent is a container Libation does not treat as a series (e.g. a season).
+	/// </summary>
+	/// <returns>The unlinked items removed from <paramref name="items"/>.</returns>
+	public static List<Item> LinkEpisodesToSeries(List<Item> items)
+	{
+		ArgumentValidator.EnsureNotNull(items, nameof(items));
+
+		foreach (var parent in items.Where(i => i.IsSeriesParent))
+		{
+			var children = items.Where(i => i.IsEpisodes && i.Relationships?.Any(r => r.Asin == parent.Asin) is true);
+			SetSeries(parent, children);
+		}
+
+		var unlinked = items.Where(isUnlinked).ToList();
+		items.RemoveAll(isUnlinked);
+		return unlinked;
+
+		static bool isUnlinked(Item item) => (item.IsEpisodes || item.IsSeriesParent) && item.Series is null;
 	}
 
 	#region episodes and podcasts
@@ -260,14 +315,26 @@ public class ApiExtended
 		try
 		{
 			var sw = Stopwatch.StartNew();
-			var items = await Api.GetCatalogProductsAsync(asins, CatalogOptions.ResponseGroupOptions.Rating | CatalogOptions.ResponseGroupOptions.Media
-				| CatalogOptions.ResponseGroupOptions.Relationships | CatalogOptions.ResponseGroupOptions.ProductDesc
-				| CatalogOptions.ResponseGroupOptions.Contributors | CatalogOptions.ResponseGroupOptions.ProvidedReview
-				| CatalogOptions.ResponseGroupOptions.ProductPlans | CatalogOptions.ResponseGroupOptions.Series
-				| CatalogOptions.ResponseGroupOptions.CategoryLadders | CatalogOptions.ResponseGroupOptions.ProductExtendedAttrs);
+
+			//Audible sometimes omits products from a response that is otherwise successful. Those episodes
+			//would silently disappear from the library, so re-request them before accepting the loss.
+			var (items, missing) = await FetchRetryingMissingAsync(
+				asins,
+				getCatalogProductsAsync,
+				MissingAsinRetries,
+				attempt => Serilog.Log.Logger.Debug($"Batch {batchNum} Retry {attempt}: Re-fetching asins Audible did not return"));
+
 			sw.Stop();
 
 			Serilog.Log.Logger.Debug($"Batch {batchNum} End: Retrieved {items.Count} items in {sw.ElapsedMilliseconds} ms");
+
+			if (missing.Count > 0)
+				Serilog.Log.Logger.Warning(
+					"Audible did not return {missingCount} of the {requestedCount} catalog products requested in batch {batchNum}. Those titles are missing from this scan. {@DebugInfo}",
+					missing.Count,
+					asins.Count,
+					batchNum,
+					new { MissingAsins = missing });
 
 			return items;
 		}
@@ -277,6 +344,52 @@ public class ApiExtended
 			throw;
 		}
 		finally { semaphore.Release(); }
+	}
+
+	private Task<List<Item>> getCatalogProductsAsync(List<string> asins)
+		=> Api.GetCatalogProductsAsync(asins, CatalogOptions.ResponseGroupOptions.Rating | CatalogOptions.ResponseGroupOptions.Media
+			| CatalogOptions.ResponseGroupOptions.Relationships | CatalogOptions.ResponseGroupOptions.ProductDesc
+			| CatalogOptions.ResponseGroupOptions.Contributors | CatalogOptions.ResponseGroupOptions.ProvidedReview
+			| CatalogOptions.ResponseGroupOptions.ProductPlans | CatalogOptions.ResponseGroupOptions.Series
+			| CatalogOptions.ResponseGroupOptions.CategoryLadders | CatalogOptions.ResponseGroupOptions.ProductExtendedAttrs);
+
+	/// <summary>Requested asins for which <paramref name="received"/> holds no matching <see cref="Item"/>.</summary>
+	public static List<string> GetMissingAsins(IEnumerable<string> requested, IEnumerable<Item> received)
+	{
+		ArgumentValidator.EnsureNotNull(requested, nameof(requested));
+		ArgumentValidator.EnsureNotNull(received, nameof(received));
+
+		var found = received.Select(i => i.Asin).OfType<string>().ToHashSet(StringComparer.OrdinalIgnoreCase);
+		return requested.Where(a => !found.Contains(a)).ToList();
+	}
+
+	/// <summary>
+	/// Fetch <paramref name="asins"/>, re-requesting any that <paramref name="fetch"/> fails to return.
+	/// Audible's catalog endpoint can answer 200 while quietly omitting products.
+	/// </summary>
+	/// <returns>Everything that was returned, plus the asins still unaccounted for after the last attempt.</returns>
+	public static async Task<(List<Item> Items, List<string> Missing)> FetchRetryingMissingAsync(
+		List<string> asins,
+		Func<List<string>, Task<List<Item>>> fetch,
+		int maxRetries,
+		Action<int>? onRetry = null)
+	{
+		ArgumentValidator.EnsureNotNull(asins, nameof(asins));
+		ArgumentValidator.EnsureNotNull(fetch, nameof(fetch));
+
+		var items = await fetch(asins);
+		var missing = GetMissingAsins(asins, items);
+
+		for (var attempt = 1; attempt <= maxRetries && missing.Count > 0; attempt++)
+		{
+			onRetry?.Invoke(attempt);
+
+			var retriedItems = await fetch(missing);
+			items.AddRange(retriedItems);
+			missing = GetMissingAsins(missing, retriedItems);
+		}
+
+		return (items, missing);
 	}
 
 	public static void SetSeries(Item parent, IEnumerable<Item> children)

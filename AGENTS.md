@@ -35,14 +35,19 @@ plus a headless CLI (`LibationCli`) that shares the same config and SQLite libra
 - CI runs `dotnet test` from `Source/`, which builds the entire solution first and is slow;
   prefer running the seven test projects individually on Linux.
 - **GNOME Keyring / OS secret store:** Libation's default `TokenStorageMethod` is `Encrypted`,
-  and the AES-GCM master key is stored via the OS secret store (`OsSecretStore` /
-  `IdentityTokenStorageWiring`). On Linux that is GNOME Keyring (Secret Service). Some tests in
-  `AudibleUtilities.Tests` exercise the real OS store when it is available. If the login keyring
-  has never been created/unlocked, those calls can **block for minutes** waiting on a desktop
-  password prompt (looks like a hung test suite). A human must set a keyring password once via
-  the Desktop pane when the prompt appears; after that, subsequent runs are fast. The keyring
-  lives at `~/.local/share/keyrings/`. Do not "kill and retry" a stalled `AudibleUtilities.Tests`
-  run until you have checked for a keyring dialog on `DISPLAY=:1`.
+ and the AES-GCM master key is stored via the OS secret store (`OsSecretStore` /
+ `IdentityTokenStorageWiring`). On Linux that is GNOME Keyring (Secret Service), which **blocks
+ indefinitely** here: the login keyring is locked with a password nobody has, and the D-Bus call
+ hangs even with no prompt on screen. Probing availability does not help - the probe is the
+ blocking call.
+ Every test project should finish in about a second. If one runs for minutes, assume something
+ reached the OS secret store; do not sit through it and do not re-run it hoping for a different
+ result. `ResolveSecretStore` short-circuits on `LIBATION_MASTER_KEY_FILE`, an existing
+ `libation-master.key` under the Libation files dir, or `LIBATION_MASTER_KEY`, so setting one of
+ those keeps a test off the OS store entirely.
+ The tests that deliberately exercise the real store are opt-in via
+ `LIBATION_TEST_OS_SECRET_STORE=1` and are skipped otherwise. Leave them skipped on Linux; they
+ will hang if enabled. Always run tests under `timeout` so a regression here cannot stall a session.
 
 ### Running the apps
 - GUI: a display is available on `DISPLAY=:1`. Run with

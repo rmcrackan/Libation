@@ -108,6 +108,16 @@ public static class LibraryBookQueries
 					.ParentedEpisodes()
 					.Select(ge => ge.Book.AudibleProductId), ge => ge.Book.AudibleProductId);
 
+		/// <summary>
+		/// Books displayed as top-level rows: ordinary products plus episodes whose series parent
+		/// is not in the database. Showing orphaned episodes here keeps a successfully imported
+		/// title discoverable instead of silently hiding it from both grids.
+		/// </summary>
+		public IEnumerable<LibraryBook> StandaloneBooks()
+			=> libraryBooks
+				.Where(lb => lb.Book.IsProduct())
+				.Concat(libraryBooks.FindOrphanedEpisodes());
+
 		public IEnumerable<LibraryBook> FindChildren(LibraryBook parent)
 			=> libraryBooks.Where(lb => lb.Book.IsEpisodeChild() && lb.HasSeriesId(parent.Book.AudibleProductId));
 

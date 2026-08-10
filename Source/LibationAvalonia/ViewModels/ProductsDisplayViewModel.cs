@@ -162,6 +162,7 @@ public class ProductsDisplayViewModel : ViewModelBase
 		var allEntries = SOURCE.BookEntries().ToDictionarySafe(b => b.AudibleProductId);
 		var seriesEntries = SOURCE.SeriesEntries().ToList();
 		var parentedEpisodes = dbBooks.ParentedEpisodes().ToHashSet();
+		var orphanedEpisodes = dbBooks.FindOrphanedEpisodes().ToHashSet();
 
 		await Dispatcher.UIThread.InvokeAsync(() =>
 		{
@@ -169,11 +170,31 @@ public class ProductsDisplayViewModel : ViewModelBase
 			{
 				var existingEntry = allEntries.TryGetValue(libraryBook.Book.AudibleProductId, out var e) ? e : null;
 
-				if (libraryBook.Book.IsProduct())
+				if (libraryBook.Book.IsProduct() || orphanedEpisodes.Contains(libraryBook))
+				{
+					// An episode can become orphaned when its parent is removed. Move it out from under
+					// the old parent and keep it visible as a standalone row.
+					if (existingEntry?.Parent is not null)
+					{
+						existingEntry.Parent.RemoveChild(existingEntry);
+						RemoveBooks([existingEntry], []);
+						existingEntry = null;
+					}
+
 					UpsertBook(libraryBook, existingEntry);
+				}
 				else if (parentedEpisodes.Contains(libraryBook))
-					//Only try to add or update is this LibraryBook is a know child of a parent
+				{
+					// If a formerly orphaned episode now has a parent, remove its standalone row
+					// before recreating it beneath that parent.
+					if (existingEntry is { Parent: null })
+					{
+						RemoveBooks([existingEntry], []);
+						existingEntry = null;
+					}
+
 					UpsertEpisode(libraryBook, existingEntry, seriesEntries, dbBooks);
+				}
 			}
 		});
 
