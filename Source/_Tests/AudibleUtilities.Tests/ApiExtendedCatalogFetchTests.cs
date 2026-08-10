@@ -95,7 +95,7 @@ public class FetchRetryingMissingAsync
 	public async Task omitted_asin_is_re_requested_on_its_own()
 	{
 		var requests = new List<List<string>>();
-		int call = 0;
+		var call = 0;
 
 		// Audible drops A2 from the first response, then returns it when asked again.
 		Task<List<Item>> fetch(List<string> asins)
