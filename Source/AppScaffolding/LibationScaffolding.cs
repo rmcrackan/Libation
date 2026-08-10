@@ -269,6 +269,10 @@ public static class LibationScaffolding
 			LogLevel_Fatal_Enabled = Log.Logger.IsFatalEnabled(),
 
 			config.AutoScan,
+			// These silently exclude titles from every scan, so a log without them can't explain a missing book
+			config.ImportEpisodes,
+			config.ImportPlusTitles,
+			config.DownloadEpisodes,
 			config.BetaOptIn,
 			config.UseCoverAsFolderIcon,
 			config.LibationFiles,
