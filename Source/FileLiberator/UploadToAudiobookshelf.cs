@@ -62,7 +62,7 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 			{
 				const string message = "No audio files found on disk to upload";
 				OnStatusUpdate(message);
-				Serilog.Log.Logger.Error("No audio files found on disk to upload for {Book}", libraryBook.LogFriendly());
+				Serilog.Log.Logger.Warning("No audio files found on disk to upload for {Book}", libraryBook.LogFriendly());
 				OnOutcomeDetermined(UploadOutcome.NoFilesFound, message);
 				return new StatusHandler();
 			}
@@ -135,13 +135,27 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 		.ToList();
 
 	/// <summary>
-	/// Composes the final upload payload: de-duplicated audio files, followed by cover art at most once.
+	/// Composes the final upload payload from one preferred audio format, in deterministic order,
+	/// followed by cover art at most once.
 	/// </summary>
 	internal static List<string> BuildUploadFileList(IEnumerable<string> audioPaths, string? coverPath)
 	{
-		var files = audioPaths
+		var audioFiles = audioPaths
 			.Where(p => !string.IsNullOrWhiteSpace(p))
-			.Distinct()
+			.Distinct(StringComparer.Ordinal)
+			.ToList();
+
+		var m4bFiles = audioFiles
+			.Where(p => p.EndsWith(".m4b", StringComparison.OrdinalIgnoreCase))
+			.ToList();
+		var preferredAudioFiles = m4bFiles.Count > 0
+			? m4bFiles
+			: audioFiles.Any(p => p.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase))
+				? audioFiles.Where(p => p.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase)).ToList()
+				: audioFiles;
+
+		var files = preferredAudioFiles
+			.OrderBy(p => p, StringComparer.Ordinal)
 			.Where(p => !string.Equals(p, coverPath, StringComparison.Ordinal))
 			.ToList();
 

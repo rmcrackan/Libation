@@ -51,6 +51,7 @@ public class LibationContributor
 			GitHubUser("Youssef1313"),
 			GitHubUser("niontrix"),
 			GitHubUser("CryptoJones"),
+			GitHubUser("caiowilson"),
             GitHubUser("m-j-r"),
             GitHubUser("Demoniskk"),
             GitHubUser("oxivanisher"),

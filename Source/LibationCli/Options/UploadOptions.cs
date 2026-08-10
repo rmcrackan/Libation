@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace LibationCli;
 
-[Verb("upload", HelpText = "Upload already-liberated books to Audiobookshelf. Default: all liberated titles whose audio is on disk.\n"
-	+ "Optional: specify product id(s) via --id or positional ASIN(s) to upload those book(s).\n"
+[Verb("abs-upload", HelpText = "Upload already-liberated books to Audiobookshelf. Default: all liberated titles.\n"
+	+ "Optional: specify product id(s) via --id or positional ASIN(s).\n"
 	+ "Books are never re-downloaded and local files are never deleted.")]
-public class UploadOptions : ProcessableOptionsBase
+public class AbsUploadOptions : ProcessableOptionsBase
 {
 	protected override async Task ProcessAsync()
 	{
@@ -50,9 +50,10 @@ public class UploadOptions : ProcessableOptionsBase
 		// targeted run never reach ProcessAsync and so raise no outcome; counting here lets the summary
 		// account for them instead of silently omitting them.
 		var candidates = 0;
-		await RunAsync(uploader, _ => candidates++);
+		var notFound = 0;
+		await RunAsync(uploader, _ => candidates++, _ => notFound++);
 
-		PrintSummary(outcomes, candidates);
+		PrintSummary(outcomes, candidates, notFound);
 	}
 
 	/// <summary>
@@ -78,12 +79,12 @@ public class UploadOptions : ProcessableOptionsBase
 		return errors;
 	}
 
-	private static void PrintSummary(Dictionary<UploadToAudiobookshelf.UploadOutcome, int> outcomes, int candidates)
+	private static void PrintSummary(Dictionary<UploadToAudiobookshelf.UploadOutcome, int> outcomes, int candidates, int notFound)
 	{
 		int count(UploadToAudiobookshelf.UploadOutcome outcome) => outcomes.GetValueOrDefault(outcome);
 
 		// Anything counted as a candidate but never processed was rejected before ProcessAsync ran.
-		var skipped = int.Max(0, candidates - outcomes.Values.Sum());
+		var skipped = notFound + int.Max(0, candidates - outcomes.Values.Sum());
 
 		Console.WriteLine();
 		Console.WriteLine("Audiobookshelf upload summary:");

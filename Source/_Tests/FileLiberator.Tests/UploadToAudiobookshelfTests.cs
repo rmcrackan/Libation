@@ -104,16 +104,28 @@ public class UploadToAudiobookshelfTests
 	}
 
 	[TestMethod]
-	public void BuildUploadFileList_preserves_audio_file_order()
+	public void BuildUploadFileList_sorts_multipart_audio_paths()
 	{
 		var result = UploadToAudiobookshelf.BuildUploadFileList(
-			["/books/part1.m4b", "/books/part2.m4b", "/books/part3.m4b"],
+			["/books/part3.m4b", "/books/part1.m4b", "/books/part2.m4b"],
 			coverPath: null);
 
 		result.Should().HaveCount(3);
 		result[0].Should().Be("/books/part1.m4b");
 		result[1].Should().Be("/books/part2.m4b");
 		result[2].Should().Be("/books/part3.m4b");
+	}
+
+	[TestMethod]
+	public void BuildUploadFileList_prefers_m4b_when_m4b_and_mp3_are_available()
+	{
+		var result = UploadToAudiobookshelf.BuildUploadFileList(
+			["/books/part1.mp3", "/books/part2.m4b", "/books/part1.m4b", "/books/part2.mp3"],
+			coverPath: null);
+
+		result.Should().HaveCount(2);
+		result[0].Should().Be("/books/part1.m4b");
+		result[1].Should().Be("/books/part2.m4b");
 	}
 
 	[TestMethod]

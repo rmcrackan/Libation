@@ -156,27 +156,27 @@ libationcli convert
 libationcli liberate
 ```
 
-If Audiobookshelf auto-upload is enabled in Settings, `liberate` also uploads each liberated book after download/decrypt (and PDF). See [Audiobookshelf Auto-Upload](/docs/features/audiobookshelf). The separate `convert` command does not upload. To upload books that were already liberated, use [`upload`](#upload-already-liberated-books-to-audiobookshelf).
+If Audiobookshelf auto-upload is enabled in Settings, `liberate` also uploads each liberated book after download/decrypt (and PDF). See [Audiobookshelf Auto-Upload](/docs/features/audiobookshelf). The separate `convert` command does not upload. To upload books that were already liberated, use [`abs-upload`](#upload-already-liberated-books-to-audiobookshelf-abs-upload).
 
-## Upload Already-Liberated Books to Audiobookshelf
+## Upload Already-Liberated Books to Audiobookshelf (`abs-upload`)
 
-Auto-upload only runs at the moment a book is liberated. Use `upload` to send books liberated earlier, using the files already on disk. Nothing is re-downloaded.
+Auto-upload only runs at the moment a book is liberated. Use `abs-upload` to send books liberated earlier, using the files already on disk. Nothing is re-downloaded.
 
 ```console
-libationcli upload
+libationcli abs-upload
 ```
 
 Upload specific titles:
 
 ```console
-libationcli upload B017V4IM1G
-libationcli upload --id B017V4IM1G
+libationcli abs-upload B017V4IM1G
+libationcli abs-upload --id B017V4IM1G
 ```
 
 Requires Audiobookshelf to be enabled and fully configured; otherwise the command reports what is missing and exits without processing anything. Settings can be supplied per-run with `--override`, for example:
 
 ```console
-libationcli upload -o AudiobookshelfServerUrl="https://abs.example.com" -o AudiobookshelfApiToken="..."
+libationcli abs-upload -o AudiobookshelfServerUrl="https://abs.example.com" -o AudiobookshelfApiToken="..."
 ```
 
 Titles already on the server are skipped. The run ends with a summary of uploaded, already-on-server, no-files-found, failed, and skipped counts. Failures are also written to stderr; the command exits 0 either way. See [Audiobookshelf Auto-Upload](/docs/features/audiobookshelf#uploading-books-you-already-liberated).
