@@ -196,12 +196,14 @@ public partial class ProductsDisplay : UserControl
 		ctxMenu.Items.Add(removeMenuItem);
 
 		#endregion
-		#region Liberate All (multiple books only)
-		if (entries.OfType<LibraryBookEntry>().Count() > 1)
+		#region Download audiobook(s)
+		var selectedBookCount = entries.OfType<LibraryBookEntry>().Count();
+		if (selectedBookCount >= 1)
 		{
 			var downloadSelectedMenuItem = new ToolStripMenuItem()
 			{
-				Text = ctx.DownloadSelectedText
+				Text = selectedBookCount == 1 ? ctx.DownloadSingleText : ctx.DownloadSelectedText,
+				Enabled = ctx.DownloadBookEnabled
 			};
 			ctxMenu.Items.Add(downloadSelectedMenuItem);
 			downloadSelectedMenuItem.Click += (s, _) =>

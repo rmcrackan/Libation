@@ -27,6 +27,7 @@ public class GridContextMenu
 	public string ConvertToMp3Text => $"{Accelerator}Convert to Mp3";
 	public string DownloadAsChapters => $"Download {Accelerator}split by chapters";
 	public string ReDownloadText => "Re-download this audiobook";
+	public string DownloadSingleText => "Download this audiobook";
 	public string DownloadSelectedText => "Download selected audiobooks";
 	public string EditTemplatesText => "Edit Templates";
 	public string FolderTemplateText => "Folder Template";
@@ -39,6 +40,7 @@ public class GridContextMenu
 	public bool SetDownloadedEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus != LiberatedStatus.Liberated || ge.Liberate?.IsSeries is true);
 	public bool SetNotDownloadedEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated || ge.Liberate?.IsSeries is true);
 	public bool ConvertToMp3Enabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
+	public bool DownloadBookEnabled => LibraryBookEntries.Any(ge => ge.LibraryBook.NeedsBookDownload || ge.LibraryBook.NeedsPdfDownload);
 	public bool DownloadAsChaptersEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus is not LiberatedStatus.Error);
 	public bool ReDownloadEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
 	public bool RemoveFromAudibleEnabled => LibraryBookEntries.Any(ge => ge.LibraryBook.IsAudiblePlus);
