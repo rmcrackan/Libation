@@ -18,6 +18,9 @@ public partial class ThemePickerDialog : DialogWindow
 	private ChardonnayTheme ExistingTheme { get; } = ChardonnayTheme.GetLiveTheme();
 	private ChardonnayTheme WorkingTheme { get; set; }
 
+	/// <summary>The number of <see cref="Controls.ColorPickerExt"/> flyouts which are currently open</summary>
+	private int OpenColorPickerFlyouts;
+
 	public ThemePickerDialog()
 	{
 		InitializeComponent();
@@ -27,6 +30,7 @@ public partial class ThemePickerDialog : DialogWindow
 
 		DataContext = this;
 		Closing += ThemePickerDialog_Closing;
+		Closed += ThemePickerDialog_Closed;
 	}
 
 	private void ThemePickerDialog_Closing(object? sender, Avalonia.Controls.WindowClosingEventArgs e)
@@ -37,6 +41,10 @@ public partial class ThemePickerDialog : DialogWindow
 			e.Cancel = true;
 		}
 	}
+
+	private void ThemePickerDialog_Closed(object? sender, EventArgs e)
+		//This window's color pickers are gone, so any deferred reload is now safe to perform.
+		=> ChardonnayTheme.ReloadDeferredFluentTheme();
 
 	public async Task ImportTheme()
 	{
@@ -173,7 +181,19 @@ public partial class ThemePickerDialog : DialogWindow
 	private void ColorSetter(Color color, string colorName)
 	{
 		WorkingTheme.SetColor(ActualThemeVariant, colorName, color);
-		WorkingTheme.ApplyTheme(ActualThemeVariant);
+		WorkingTheme.ApplyTheme(ActualThemeVariant, deferFluentReload: OpenColorPickerFlyouts > 0);
+	}
+
+	private void ColorPicker_FlyoutOpened(object? sender, EventArgs e)
+		=> OpenColorPickerFlyouts++;
+
+	private void ColorPicker_FlyoutClosed(object? sender, EventArgs e)
+	{
+		if (--OpenColorPickerFlyouts <= 0)
+		{
+			OpenColorPickerFlyouts = 0;
+			ChardonnayTheme.ReloadDeferredFluentTheme();
+		}
 	}
 
 	public class ThemeItemColor : ViewModels.ViewModelBase
