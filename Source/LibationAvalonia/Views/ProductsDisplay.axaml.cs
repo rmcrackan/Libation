@@ -371,12 +371,14 @@ public partial class ProductsDisplay : UserControl
 		});
 
 		#endregion
-		#region Liberate All (multiple books only)
-		if (entries.OfType<LibraryBookEntry>().Count() > 1)
+		#region Download audiobook(s)
+		var selectedBookCount = entries.OfType<LibraryBookEntry>().Count();
+		if (selectedBookCount >= 1)
 		{
 			args.ContextMenuItems.Add(new MenuItem
 			{
-				Header = ctx.DownloadSelectedText,
+				Header = selectedBookCount == 1 ? ctx.DownloadSingleText : ctx.DownloadSelectedText,
+				IsEnabled = ctx.DownloadBookEnabled,
 				Command = ReactiveCommand.Create(() => LiberateClicked?.Invoke(this, ctx.LibraryBookEntries.Select(e => e.LibraryBook).ToArray(), Configuration.Instance))
 			});
 		}

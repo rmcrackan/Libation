@@ -160,7 +160,7 @@ public class EntryStatus : ReactiveObject, IComparable
 		if (BookStatus == LiberatedStatus.NotLiberated ||
 			BookStatus == LiberatedStatus.PartialDownload ||
 			PdfStatus == LiberatedStatus.NotLiberated)
-			mouseoverText += "\r\nClick to complete";
+			mouseoverText += "\r\nClick to download";
 
 		return mouseoverText;
 	}
