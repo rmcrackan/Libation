@@ -28,6 +28,9 @@ public class ChardonnayTheme : IUpdatable, ICloneable
 	private static readonly FrozenDictionary<ThemeVariant, ColorPaletteResources> ColorPalettes
 		= FluentVariants.ToFrozenDictionary(t => t, _ => new ColorPaletteResources());
 
+	/// <summary>Whether a fluent theme reload has been deferred by <see cref="ApplyTheme(ThemeVariant, bool)"/></summary>
+	private static bool fluentReloadDeferred;
+
 	private ChardonnayTheme()
 	{
 		ThemeColors = FluentVariants.ToDictionary(t => t, _ => new Dictionary<string, Color>());
@@ -80,7 +83,12 @@ public class ChardonnayTheme : IUpdatable, ICloneable
 	public void ApplyTheme(LibationFileManager.Configuration.Theme themeVariant)
 		=> ApplyTheme(FromVariantName(themeVariant));
 
-	public void ApplyTheme(ThemeVariant themeVariant)
+	/// <param name="deferFluentReload">
+	/// Whether to postpone reloading the fluent theme until <see cref="ReloadDeferredFluentTheme"/> is called.
+	/// Reloading it while a popup is open leaves the popup's contents parented to its old
+	/// presenter, and reopening that popup then throws.
+	/// </param>
+	public void ApplyTheme(ThemeVariant themeVariant, bool deferFluentReload = false)
 	{
 		App.Current.RequestedThemeVariant = themeVariant;
 		themeVariant = App.Current.ActualThemeVariant;
@@ -112,21 +120,38 @@ public class ChardonnayTheme : IUpdatable, ICloneable
 			}
 		}
 
-		if (fluentColorChanged)
+		if (fluentColorChanged || fluentReloadDeferred)
 		{
-			var oldFluent = App.Current.Styles.OfType<FluentTheme>().Single();
-			App.Current.Styles.Remove(oldFluent);
-
-			//We must make a new fluent theme and add it to the app for
-			//the changes to the ColorPaletteResources to take effect.
-			//Changes to the Libation-specific resources are instant.
-			var newFluent = new FluentTheme();
-
-			foreach (var kvp in ColorPalettes)
-				newFluent.Palettes[kvp.Key] = kvp.Value;
-
-			App.Current.Styles.Add(newFluent);
+			if (deferFluentReload)
+				fluentReloadDeferred = true;
+			else
+				ReloadFluentTheme();
 		}
+	}
+
+	/// <summary> Perform a fluent theme reload which <see cref="ApplyTheme(ThemeVariant, bool)"/> deferred. </summary>
+	public static void ReloadDeferredFluentTheme()
+	{
+		if (fluentReloadDeferred)
+			ReloadFluentTheme();
+	}
+
+	private static void ReloadFluentTheme()
+	{
+		fluentReloadDeferred = false;
+
+		var oldFluent = App.Current.Styles.OfType<FluentTheme>().Single();
+		App.Current.Styles.Remove(oldFluent);
+
+		//We must make a new fluent theme and add it to the app for
+		//the changes to the ColorPaletteResources to take effect.
+		//Changes to the Libation-specific resources are instant.
+		var newFluent = new FluentTheme();
+
+		foreach (var kvp in ColorPalettes)
+			newFluent.Palettes[kvp.Key] = kvp.Value;
+
+		App.Current.Styles.Add(newFluent);
 	}
 
 	/// <summary> Get the currently-active theme colors. </summary>

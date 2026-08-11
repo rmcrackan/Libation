@@ -30,8 +30,10 @@
 					<DataGridTemplateColumn Width="Auto" Header="Color">
 						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate>
-								<ColorPicker
+								<controls:ColorPickerExt
 									IsHexInputVisible="True"
+									FlyoutOpened="ColorPicker_FlyoutOpened"
+									FlyoutClosed="ColorPicker_FlyoutClosed"
 									Color="{Binding ThemeColor, Mode=TwoWay}" />
 							</DataTemplate>
 						</DataGridTemplateColumn.CellTemplate>
