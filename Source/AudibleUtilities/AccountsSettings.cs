@@ -117,7 +117,7 @@ public class AccountsSettings : IUpdatable
 		// only by letter case (e.g. a stored id capitalized differently than settings), which caused
 		// spurious "No account found" failures that blocked every affected book. See issue #1931.
 		return Accounts.SingleOrDefault(a =>
-			string.Equals(a.AccountId, accountId, StringComparison.OrdinalIgnoreCase)
+			a.AccountId.EqualsInsensitive(accountId)
 			&& a.Locale?.Name == locale);
 	}
 
