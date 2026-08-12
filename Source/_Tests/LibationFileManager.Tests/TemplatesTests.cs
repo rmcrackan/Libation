@@ -785,11 +785,11 @@ namespace TemplatesTests
 		[TestMethod]
 		// a book can be in a series but have no series number. <has series#-> nested inside
 		// <if series-> is the way to keep the number's punctuation out of the name in that case.
-		[DataRow("<if series-><first series>|<has series#-><series#>. <-has><-if series><title short>", "1", "Series A|1. A Study in Scarlet")]
-		[DataRow("<if series-><first series>|<has series#-><series#>. <-has><-if series><title short>", "", "Series A|A Study in Scarlet")]
-		[DataRow("<if series-><first series>|<has series#-><series#>. <-has><-if series><title short>", null, "A Study in Scarlet")]
+		[DataRow("<if series-><first series> - <has series#-><series#>. <-has><-if series><title short>", "1", "Series A - 1. A Study in Scarlet")]
+		[DataRow("<if series-><first series> - <has series#-><series#>. <-has><-if series><title short>", "", "Series A - A Study in Scarlet")]
+		[DataRow("<if series-><first series> - <has series#-><series#>. <-has><-if series><title short>", null, "A Study in Scarlet")]
 		// without the conditional, a missing number leaves its trailing punctuation behind
-		[DataRow("<if series-><first series>|<series#>. <-if series><title short>", "", "Series A|. A Study in Scarlet")]
+		[DataRow("<if series-><first series> - <series#>. <-if series><title short>", "", "Series A - . A Study in Scarlet")]
 		// and a missing number between two spaces leaves a double space, which is then collapsed
 		[DataRow("<if series-><first series><has series#-> <series#><-has> - <-if series><title short>", "1", "Series A 1 - A Study in Scarlet")]
 		[DataRow("<if series-><first series><has series#-> <series#><-has> - <-if series><title short>", "", "Series A - A Study in Scarlet")]
