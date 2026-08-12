@@ -783,6 +783,32 @@ namespace TemplatesTests
 		}
 
 		[TestMethod]
+		// a book can be in a series but have no series number. <has series#-> nested inside
+		// <if series-> is the way to keep the number's punctuation out of the name in that case.
+		[DataRow("<if series-><first series>|<has series#-><series#>. <-has><-if series><title short>", "1", "Series A|1. A Study in Scarlet")]
+		[DataRow("<if series-><first series>|<has series#-><series#>. <-has><-if series><title short>", "", "Series A|A Study in Scarlet")]
+		[DataRow("<if series-><first series>|<has series#-><series#>. <-has><-if series><title short>", null, "A Study in Scarlet")]
+		// without the conditional, a missing number leaves its trailing punctuation behind
+		[DataRow("<if series-><first series>|<series#>. <-if series><title short>", "", "Series A|. A Study in Scarlet")]
+		// and a missing number between two spaces leaves a double space, which is then collapsed
+		[DataRow("<if series-><first series><has series#-> <series#><-has> - <-if series><title short>", "1", "Series A 1 - A Study in Scarlet")]
+		[DataRow("<if series-><first series><has series#-> <series#><-has> - <-if series><title short>", "", "Series A - A Study in Scarlet")]
+		[DataRow("<if series-><first series[{N}{ {#}}]> - <-if series><title short>", "1", "Series A 1 - A Study in Scarlet")]
+		[DataRow("<if series-><first series[{N}{ {#}}]> - <-if series><title short>", "", "Series A - A Study in Scarlet")]
+		public void HasSeriesNumber_nested_in_IfSeries(string template, string? seriesOrder, string expected)
+		{
+			var bookDto = GetLibraryBook(seriesOrder is null ? null : [new SeriesDto("Series A", seriesOrder, "B1")]);
+
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate.Errors.Should().HaveCount(0);
+			fileTemplate.Warnings.Should().HaveCount(0);
+			fileTemplate
+				.GetFilename(bookDto, "", "", culture: CultureInfo.InvariantCulture, replacements: Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
+
+		[TestMethod]
 		[DataRow(@"C:\a\b", @"C:\a\b\foobar.ext", PlatformID.Win32NT)]
 		[DataRow(@"/a/b", @"/a/b/foobar.ext", PlatformID.Unix)]
 		public void IfSeries_empty(string directory, string expected, PlatformID platformId)

@@ -102,7 +102,11 @@ As an example, this folder template will place all Liberated podcasts into a "Po
 
 This example will add a number if the `<series#>` tag has a value:
 
-`<has series#><series#><-has>`
+`<has series#-><series#><-has>`
+
+Conditionals may be nested. This folder template puts every book under its series, and prefixes the book folder with the series number only for the books that have one, so that books without a number don't end up in a folder starting with `.`:
+
+`<if series-><first series>/<has series#-><series#>. <-has><-if series><title short>`
 
 This example will put non-series books in a "Standalones" folder:
 
