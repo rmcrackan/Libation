@@ -134,7 +134,7 @@ public class SearchEngine
 			return;
 
 		foreach (var file in System.IO.Directory.GetFiles(searchEngineDirectory, "*", SearchOption.AllDirectories))
-			FileUtility.SaferDelete(file);
+			FileUtility.TrySaferDelete(file);
 
 		foreach (var dir in System.IO.Directory.GetDirectories(searchEngineDirectory, "*", SearchOption.AllDirectories).OrderByDescending(d => d.Length))
 		{

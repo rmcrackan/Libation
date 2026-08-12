@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using AssertionHelper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -243,4 +244,25 @@ public class RemoveLastCharacter
 	[DataRow("123", "12")]
 	public void Tests(string input, string? expected)
 		=> FileUtility.RemoveLastCharacter(input).Should().Be(expected);
+}
+
+[TestClass]
+public class TrySaferDelete
+{
+	[TestMethod]
+	public void deletes_existing_file()
+	{
+		var path = Path.GetTempFileName();
+
+		FileUtility.TrySaferDelete(path).Should().BeTrue();
+		File.Exists(path).Should().BeFalse();
+	}
+
+	[TestMethod]
+	public void missing_file_is_success()
+	{
+		var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+
+		FileUtility.TrySaferDelete(path).Should().BeTrue();
+	}
 }

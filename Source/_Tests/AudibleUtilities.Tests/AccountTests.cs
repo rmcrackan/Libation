@@ -412,6 +412,21 @@ public class retrieve : AccountsTestBase
 		acct.BeNotNull();
 		acct.AccountName.Should().Be("bar");
 	}
+
+	[TestMethod]
+	public void get_account_id_is_case_insensitive()
+	{
+		var id = new Identity(usLocale);
+		var acct = new Account("HopefulRN2016@Gmail.com") { IdentityTokens = id, AccountName = "foo" };
+
+		var accountsSettings = new AccountsSettings();
+		accountsSettings.Add(acct);
+
+		// stored id differs only by letter case; lookup must still succeed (issue #1931)
+		var found = accountsSettings.GetAccount("hopefulrn2016@gmail.com", "us");
+		found.BeNotNull();
+		found.AccountName.Should().Be("foo");
+	}
 }
 
 [TestClass]

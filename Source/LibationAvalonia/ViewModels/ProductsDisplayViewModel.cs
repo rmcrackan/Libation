@@ -150,7 +150,17 @@ public class ProductsDisplayViewModel : ViewModelBase
 		ArgumentNullException.ThrowIfNull(dbBooks, nameof(dbBooks));
 
 		if (GridEntries == null)
-			throw new InvalidOperationException($"Must call {nameof(BindToGridAsync)} before calling {nameof(UpdateGridAsync)}");
+		{
+			// The initial bind never completed (e.g. a failed library load left GridEntries null).
+			// Rebuild the grid from scratch instead of throwing. Throwing here previously wedged the
+			// grid for the rest of the session and produced a "Library Size Change Error" dialog on
+			// every subsequent auto-scan. See issue #1931. SOURCE is cleared first in case a prior
+			// bind partially populated it; no CollectionChanged handler is attached while GridEntries
+			// is null, so clearing is safe.
+			SOURCE.Clear();
+			await BindToGridAsync(dbBooks);
+			return;
+		}
 
 		//CollectionChanged fires for every book added, and the handler invokes
 		//VisibleCountChanged which triggers Libation to re-count all books.

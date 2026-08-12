@@ -181,26 +181,49 @@ public static class FileUtility
 
 	/// <summary>Delete file. No error when source does not exist. Retry up to 3 times before throwing exception.</summary>
 	public static void SaferDelete(LongPath source)
-		=> retryPolicy.Execute(() =>
-		{
-			try
-			{
-				if (!File.Exists(source))
-				{
-					Serilog.Log.Logger.Debug("No file to delete: {@DebugText}", new { source });
-					return;
-				}
+		=> retryPolicy.Execute(() => deleteFile(source, logAttemptFailure: true));
 
-				Serilog.Log.Logger.Debug("Attempt to delete file: {@DebugText}", new { source });
-				File.Delete(source);
-				Serilog.Log.Logger.Information("File successfully deleted: {@DebugText}", new { source });
-			}
-			catch (Exception e)
+	/// <summary>
+	/// Delete file, best-effort. No error when source does not exist. Retries up to 3 times and
+	/// returns false instead of throwing when the file cannot be deleted.
+	/// </summary>
+	public static bool TrySaferDelete(LongPath source)
+	{
+		try
+		{
+			retryPolicy.Execute(() => deleteFile(source, logAttemptFailure: false));
+			return true;
+		}
+		catch (Exception ex)
+		{
+			// Unlike SaferDelete, log only once after retries are exhausted. Best-effort cleanup
+			// callers should not produce an error entry for every retry or need their own wrapper.
+			Serilog.Log.Logger.Warning(ex, "Unable to delete file after retries: {@DebugText}", new { source });
+			return false;
+		}
+	}
+
+	private static void deleteFile(LongPath source, bool logAttemptFailure)
+	{
+		try
+		{
+			if (!File.Exists(source))
 			{
-				Serilog.Log.Logger.Error(e, "Failed to delete file: {@DebugText}", new { source });
-				throw;
+				Serilog.Log.Logger.Debug("No file to delete: {@DebugText}", new { source });
+				return;
 			}
-		});
+
+			Serilog.Log.Logger.Debug("Attempt to delete file: {@DebugText}", new { source });
+			File.Delete(source);
+			Serilog.Log.Logger.Information("File successfully deleted: {@DebugText}", new { source });
+		}
+		catch (Exception ex)
+		{
+			if (logAttemptFailure)
+				Serilog.Log.Logger.Error(ex, "Failed to delete file: {@DebugText}", new { source });
+			throw;
+		}
+	}
 
 	/// <summary>Move file. No error when source does not exist. Retry up to 3 times before throwing exception.</summary>
 	public static void SaferMove(LongPath source, LongPath destination)

@@ -72,6 +72,16 @@ partial class MainVM
 
 	private async void UpdateCountsBw_CompletedAsync(object? sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
 	{
+		// Reading e.Result rethrows any exception from UpdateCountsBw_DoWork. Because this is an
+		// async void handler with no SynchronizationContext, that would become an unhandled
+		// exception and crash the app. Check e.Error/e.Cancelled first and degrade gracefully.
+		if (e.Cancelled)
+			return;
+		if (e.Error is not null)
+		{
+			Serilog.Log.Logger.Error(e.Error, "Failed to update backup counts");
+			return;
+		}
 		if (e.Result is not LibraryCommands.LibraryStats stats)
 			return;
 		LibraryStats = stats;

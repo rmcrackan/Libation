@@ -26,6 +26,9 @@ namespace LibationAvalonia;
 public class App : Application
 {
 	public static Task<List<DataLayer.LibraryBook>>? LibraryTask { get; set; }
+
+	/// <summary>Set by <see cref="Program"/> when another Libation instance already holds this folder's lock.</summary>
+	public static bool IsAnotherInstanceRunning { get; set; }
 	public static ChardonnayTheme? DefaultThemeColors { get; private set; }
 	public static MainWindow? MainWindow { get; private set; }
 	public static Uri AssetUriBase { get; } = new("avares://Libation/Assets/");
@@ -47,6 +50,15 @@ public class App : Application
 			MessageBoxBase.ShowAsyncImpl = (owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition) =>
 				MessageBox.Show(owner as Window, message, caption, buttons, icon, defaultButton, saveAndRestorePosition);
 
+			// Another instance already owns this folder. No database work has been done in this process,
+			// so just tell the user and shut down instead of racing on shared files. See issue #1931.
+			if (IsAnotherInstanceRunning)
+			{
+				_ = ShowAlreadyRunningThenShutdownAsync(desktop);
+				base.OnFrameworkInitializationCompleted();
+				return;
+			}
+
 			if (InstallUpgradeManager.TakeStartupRecoveryAlert() is { } recovery)
 				_ = MessageBox.Show(null, recovery.Body, recovery.Title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
@@ -66,6 +78,28 @@ public class App : Application
 		}
 
 		base.OnFrameworkInitializationCompleted();
+	}
+
+	private static async Task ShowAlreadyRunningThenShutdownAsync(IClassicDesktopStyleApplicationLifetime desktop)
+	{
+		try
+		{
+			await MessageBox.Show(
+				"Libation is already running.\r\n\r\n"
+					+ "Please use the Libation window that is already open. Running more than one copy of "
+					+ "Libation against the same folder at the same time can corrupt your library.",
+				"Libation is already running",
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Warning);
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Failed to show the 'already running' message");
+		}
+		finally
+		{
+			desktop.Shutdown();
+		}
 	}
 
 	private static async void RunSetupIfNeededAsync(IClassicDesktopStyleApplicationLifetime desktop, Configuration config)
@@ -147,24 +181,55 @@ public class App : Application
 
 	private static async void MainWindow_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{
-		if (LibraryTask is not null && MainWindow is not null)
+		// This is an async void handler: any exception that escapes it becomes an unhandled
+		// exception and crashes Libation. Every path below is caught so that a failure to load
+		// or bind the library degrades to an empty, still-usable grid instead. See issue #1931.
+		if (LibraryTask is null || MainWindow is not { } mainWindow)
+			return;
+
+		try
+		{
+			List<DataLayer.LibraryBook> library = await LibraryTask;
+			await Dispatcher.UIThread.InvokeAsync(() => mainWindow.OnLibraryLoadedAsync(library));
+		}
+		catch (Exception ex) when (StartupAssemblyBootstrap.IsInstallFolderAssemblyLoadFailure(ex))
+		{
+			Serilog.Log.Logger.Error(ex, "Failed to load library at startup");
+			FatalStartupMessage failure = StartupAssemblyBootstrap.GetStartupFailureMessage(ex)!;
+			await MessageBox.Show(
+				mainWindow,
+				failure.Body,
+				failure.Title,
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Error);
+			await showEmptyLibraryAsync();
+		}
+		catch (Exception ex)
+		{
+			// Any other failure loading or binding the library must not take down the whole app.
+			// Log it, tell the user, and continue with an empty grid so Settings, re-scan, etc.
+			// remain reachable.
+			Serilog.Log.Logger.Error(ex, "Failed to load library at startup");
+			await MessageBox.Show(
+				mainWindow,
+				"Libation could not load your library, so the library view will be empty for this session. "
+					+ "Restarting Libation may resolve it. If this keeps happening, your library database or your "
+					+ "computer's memory or disk may be corrupted.",
+				"Error loading library",
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Error);
+			await showEmptyLibraryAsync();
+		}
+
+		async Task showEmptyLibraryAsync()
 		{
 			try
 			{
-				List<DataLayer.LibraryBook> library = await LibraryTask;
-				await Dispatcher.UIThread.InvokeAsync(() => MainWindow.OnLibraryLoadedAsync(library));
+				await Dispatcher.UIThread.InvokeAsync(() => mainWindow.OnLibraryLoadedAsync([]));
 			}
-			catch (Exception ex) when (StartupAssemblyBootstrap.IsInstallFolderAssemblyLoadFailure(ex))
+			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "Failed to load library at startup");
-				FatalStartupMessage failure = StartupAssemblyBootstrap.GetStartupFailureMessage(ex)!;
-				await MessageBox.Show(
-					MainWindow,
-					failure.Body,
-					failure.Title,
-					MessageBoxButtons.OK,
-					MessageBoxIcon.Error);
-				await Dispatcher.UIThread.InvokeAsync(() => MainWindow.OnLibraryLoadedAsync([]));
+				Serilog.Log.Logger.Error(ex, "Failed to show empty library after a library load failure");
 			}
 		}
 	}

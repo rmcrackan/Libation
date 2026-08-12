@@ -113,29 +113,74 @@ public static class LibationScaffolding
 	/// </summary>
 	private static void DeleteOpenSqliteFiles(Configuration config)
 	{
-		var walFile = SqliteStorage.DatabasePath + "-wal";
-		var shmFile = SqliteStorage.DatabasePath + "-shm";
+		var dbFile = SqliteStorage.DatabasePath;
+		var walFile = dbFile + "-wal";
+		var shmFile = dbFile + "-shm";
+
+		// If another Libation process currently has the database open, its WAL/SHM are live state.
+		// Deleting them would corrupt that process's database (and ours), so leave everything alone.
+		// See issue #1931.
+		if (IsFileLockedByAnotherProcess(dbFile))
+		{
+			Log.Logger.Information("Skipping SQLite WAL/SHM cleanup: the database appears to be open in another process.");
+			return;
+		}
+
+		// A non-empty WAL from a previous run that ended abruptly can hold committed-but-uncheckpointed
+		// transactions. Deleting it would silently discard that data; instead, leave it in place and let
+		// SQLite recover it when the database is next opened. Only remove an already-checkpointed WAL.
 		if (File.Exists(walFile))
 		{
-			try
-			{
-				FileManager.FileUtility.SaferDelete(walFile);
-			}
-			catch (Exception ex)
-			{
-				Log.Logger.Warning(ex, "Could not delete SQLite WAL file: {WalFile}", walFile);
-			}
+			if (WalHoldsUnrecoveredTransactions(walFile))
+				Log.Logger.Information("Leaving SQLite WAL in place so SQLite can recover it on open: {WalFile}", walFile);
+			else
+				FileManager.FileUtility.TrySaferDelete(walFile);
 		}
+
+		// The SHM (shared-memory index) is rebuilt from the WAL/database, so it is safe to remove once
+		// no other process holds the database.
 		if (File.Exists(shmFile))
+			FileManager.FileUtility.TrySaferDelete(shmFile);
+	}
+
+	/// <summary>True if <paramref name="path"/> exists and cannot be opened exclusively, i.e. another process holds it.</summary>
+	private static bool IsFileLockedByAnotherProcess(string path)
+	{
+		if (!File.Exists(path))
+			return false;
+
+		try
 		{
-			try
-			{
-				FileManager.FileUtility.SaferDelete(shmFile);
-			}
-			catch (Exception ex)
-			{
-				Log.Logger.Warning(ex, "Could not delete SQLite SHM file: {ShmFile}", shmFile);
-			}
+			using var _ = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+			return false;
+		}
+		catch (IOException)
+		{
+			return true;
+		}
+		catch (UnauthorizedAccessException)
+		{
+			// Can't prove another process holds it, but we also can't safely touch it. Be conservative.
+			return true;
+		}
+	}
+
+	/// <summary>
+	/// True if the WAL may contain committed transactions SQLite still needs to recover. A WAL longer
+	/// than its 32-byte header may hold frames; treat any such file as unrecovered so it is preserved.
+	/// </summary>
+	private static bool WalHoldsUnrecoveredTransactions(string walFile)
+	{
+		const long walHeaderSize = 32;
+		try
+		{
+			return new FileInfo(walFile).Length > walHeaderSize;
+		}
+		catch (Exception ex)
+		{
+			// If we can't measure it, assume it matters and keep it rather than risk data loss.
+			Log.Logger.Warning(ex, "Could not inspect SQLite WAL file; leaving it in place: {WalFile}", walFile);
+			return true;
 		}
 	}
 	static bool migrationsRun = false;

@@ -113,7 +113,12 @@ public class AccountsSettings : IUpdatable
 		if (locale is null)
 			return null;
 
-		return Accounts.SingleOrDefault(a => a.AccountId == accountId && a.Locale?.Name == locale);
+		// AccountId is compared case-insensitively: Audible/library data has been observed to differ
+		// only by letter case (e.g. a stored id capitalized differently than settings), which caused
+		// spurious "No account found" failures that blocked every affected book. See issue #1931.
+		return Accounts.SingleOrDefault(a =>
+			a.AccountId.EqualsInsensitive(accountId)
+			&& a.Locale?.Name == locale);
 	}
 
 	public bool Delete(string accountId, string locale)
