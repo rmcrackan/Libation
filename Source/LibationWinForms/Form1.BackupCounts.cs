@@ -21,10 +21,28 @@ public partial class Form1
 			=> setBackupCounts(null, null);
 
 		updateCountsBw.DoWork += UpdateCountsBw_DoWork;
+		// Register the error logger first so a failed count is logged exactly once, before the
+		// display handlers below run and (safely) treat the stats as unavailable.
+		updateCountsBw.RunWorkerCompleted += logBackupCountsError;
 		updateCountsBw.RunWorkerCompleted += exportMenuEnable;
 		updateCountsBw.RunWorkerCompleted += updateBottomStats;
 		updateCountsBw.RunWorkerCompleted += update_BeginBookBackups_menuItem;
 		updateCountsBw.RunWorkerCompleted += udpate_BeginPdfOnlyBackups_menuItem;
+	}
+
+	/// <summary>
+	/// Safely extract the completed <see cref="LibraryCommands.LibraryStats"/>. Returns null when the
+	/// background count was cancelled or faulted. Reading <see cref="System.ComponentModel.RunWorkerCompletedEventArgs.Result"/>
+	/// directly rethrows any <see cref="System.ComponentModel.RunWorkerCompletedEventArgs.Error"/>, which would otherwise
+	/// crash the app; callers must degrade gracefully on null.
+	/// </summary>
+	private static LibraryCommands.LibraryStats? getLibraryStats(System.ComponentModel.RunWorkerCompletedEventArgs e)
+		=> e.Cancelled || e.Error is not null ? null : e.Result as LibraryCommands.LibraryStats;
+
+	private static void logBackupCountsError(object? _, System.ComponentModel.RunWorkerCompletedEventArgs e)
+	{
+		if (e.Error is not null)
+			Serilog.Log.Logger.Error(e.Error, "Failed to update backup counts");
 	}
 
 	private bool runBackupCountsAgain;
@@ -48,20 +66,20 @@ public partial class Form1
 
 	private void exportMenuEnable(object? _, System.ComponentModel.RunWorkerCompletedEventArgs e)
 	{
-		var libraryStats = e.Result as LibraryCommands.LibraryStats;
+		var libraryStats = getLibraryStats(e);
 		Invoke(() => exportLibraryToolStripMenuItem.Enabled = libraryStats?.HasBookResults is true);
 	}
 
 	private void updateBottomStats(object? _, System.ComponentModel.RunWorkerCompletedEventArgs e)
 	{
-		var libraryStats = e.Result as LibraryCommands.LibraryStats;
+		var libraryStats = getLibraryStats(e);
 		statusStrip1.UIThreadAsync(() => backupsCountsLbl.Text = libraryStats?.StatusString ?? "ERROR GETTING STATUS");
 	}
 
 	// update 'begin book and pdf backups' menu item
 	private void update_BeginBookBackups_menuItem(object? _, System.ComponentModel.RunWorkerCompletedEventArgs e)
 	{
-		var libraryStats = e.Result as LibraryCommands.LibraryStats;
+		var libraryStats = getLibraryStats(e);
 
 		var menuItemText
 			= libraryStats?.HasPendingBooks is true
@@ -77,7 +95,7 @@ public partial class Form1
 	// update 'begin pdf only backups' menu item
 	private void udpate_BeginPdfOnlyBackups_menuItem(object? _, System.ComponentModel.RunWorkerCompletedEventArgs e)
 	{
-		var libraryStats = e.Result as LibraryCommands.LibraryStats;
+		var libraryStats = getLibraryStats(e);
 
 		var menuItemText
 			= libraryStats?.pdfsNotDownloaded > 0

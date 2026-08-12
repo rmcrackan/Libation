@@ -32,7 +32,12 @@ public partial class Form1
 
 	private void tryAutoDownloadAfterCounts(System.ComponentModel.RunWorkerCompletedEventArgs e)
 	{
-		if (!Configuration.Instance.AutoDownloadEpisodes || e.Result is not LibraryCommands.LibraryStats libraryStats)
+		// Guard e.Cancelled/e.Error before reading e.Result: e.Result rethrows a faulted count,
+		// which here (a RunWorkerCompleted handler) would become an unhandled exception.
+		if (!Configuration.Instance.AutoDownloadEpisodes || e.Cancelled || e.Error is not null)
+			return;
+
+		if (e.Result is not LibraryCommands.LibraryStats libraryStats)
 			return;
 
 		if (libraryStats.PendingBooks + libraryStats.pdfsNotDownloaded <= 0)
