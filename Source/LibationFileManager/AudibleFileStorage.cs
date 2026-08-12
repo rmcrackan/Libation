@@ -79,7 +79,7 @@ public abstract class AudibleFileStorage
 			if (DecryptInProgressDirectory is not LongPath decryptDir)
 				return;
 			foreach (var tempFile in FileUtility.SaferEnumerateFiles(decryptDir))
-				FileUtility.SaferDelete(tempFile);
+				FileUtility.TrySaferDelete(tempFile);
 		}
 		catch (Exception ex)
 		{

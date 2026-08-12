@@ -57,15 +57,8 @@ public static class FileSystemTest
 			Serilog.Log.Logger.Debug("Testing ability to write filename: {filename}", filename);
 			File.WriteAllBytes(filename, []);
 			Serilog.Log.Logger.Debug("Deleting test file after successful write: {filename}", filename);
-			try
-			{
-				FileUtility.SaferDelete(filename);
-			}
-			catch (Exception ex)
-			{
-				//An error deleting the file doesn't constitute a write failure.
-				Serilog.Log.Logger.Debug(ex, "Error deleting test file: {filename}", filename);
-			}
+			// An error deleting the file doesn't constitute a write failure.
+			FileUtility.TrySaferDelete(filename);
 			return true;
 		}
 		catch (Exception ex)

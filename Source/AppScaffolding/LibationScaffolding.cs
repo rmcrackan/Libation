@@ -134,25 +134,13 @@ public static class LibationScaffolding
 			if (WalHoldsUnrecoveredTransactions(walFile))
 				Log.Logger.Information("Leaving SQLite WAL in place so SQLite can recover it on open: {WalFile}", walFile);
 			else
-				trySaferDelete(walFile, "WAL");
+				FileManager.FileUtility.TrySaferDelete(walFile);
 		}
 
 		// The SHM (shared-memory index) is rebuilt from the WAL/database, so it is safe to remove once
 		// no other process holds the database.
 		if (File.Exists(shmFile))
-			trySaferDelete(shmFile, "SHM");
-
-		static void trySaferDelete(string file, string label)
-		{
-			try
-			{
-				FileManager.FileUtility.SaferDelete(file);
-			}
-			catch (Exception ex)
-			{
-				Log.Logger.Warning(ex, "Could not delete SQLite {Label} file: {File}", label, file);
-			}
-		}
+			FileManager.FileUtility.TrySaferDelete(shmFile);
 	}
 
 	/// <summary>True if <paramref name="path"/> exists and cannot be opened exclusively, i.e. another process holds it.</summary>
