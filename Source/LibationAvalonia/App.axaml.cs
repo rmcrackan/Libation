@@ -147,24 +147,55 @@ public class App : Application
 
 	private static async void MainWindow_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{
-		if (LibraryTask is not null && MainWindow is not null)
+		// This is an async void handler: any exception that escapes it becomes an unhandled
+		// exception and crashes Libation. Every path below is caught so that a failure to load
+		// or bind the library degrades to an empty, still-usable grid instead. See issue #1931.
+		if (LibraryTask is null || MainWindow is not { } mainWindow)
+			return;
+
+		try
+		{
+			List<DataLayer.LibraryBook> library = await LibraryTask;
+			await Dispatcher.UIThread.InvokeAsync(() => mainWindow.OnLibraryLoadedAsync(library));
+		}
+		catch (Exception ex) when (StartupAssemblyBootstrap.IsInstallFolderAssemblyLoadFailure(ex))
+		{
+			Serilog.Log.Logger.Error(ex, "Failed to load library at startup");
+			FatalStartupMessage failure = StartupAssemblyBootstrap.GetStartupFailureMessage(ex)!;
+			await MessageBox.Show(
+				mainWindow,
+				failure.Body,
+				failure.Title,
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Error);
+			await showEmptyLibraryAsync();
+		}
+		catch (Exception ex)
+		{
+			// Any other failure loading or binding the library must not take down the whole app.
+			// Log it, tell the user, and continue with an empty grid so Settings, re-scan, etc.
+			// remain reachable.
+			Serilog.Log.Logger.Error(ex, "Failed to load library at startup");
+			await MessageBox.Show(
+				mainWindow,
+				"Libation could not load your library, so the library view will be empty for this session. "
+					+ "Restarting Libation may resolve it. If this keeps happening, your library database or your "
+					+ "computer's memory or disk may be corrupted.",
+				"Error loading library",
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Error);
+			await showEmptyLibraryAsync();
+		}
+
+		async Task showEmptyLibraryAsync()
 		{
 			try
 			{
-				List<DataLayer.LibraryBook> library = await LibraryTask;
-				await Dispatcher.UIThread.InvokeAsync(() => MainWindow.OnLibraryLoadedAsync(library));
+				await Dispatcher.UIThread.InvokeAsync(() => mainWindow.OnLibraryLoadedAsync([]));
 			}
-			catch (Exception ex) when (StartupAssemblyBootstrap.IsInstallFolderAssemblyLoadFailure(ex))
+			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "Failed to load library at startup");
-				FatalStartupMessage failure = StartupAssemblyBootstrap.GetStartupFailureMessage(ex)!;
-				await MessageBox.Show(
-					MainWindow,
-					failure.Body,
-					failure.Title,
-					MessageBoxButtons.OK,
-					MessageBoxIcon.Error);
-				await Dispatcher.UIThread.InvokeAsync(() => MainWindow.OnLibraryLoadedAsync([]));
+				Serilog.Log.Logger.Error(ex, "Failed to show empty library after a library load failure");
 			}
 		}
 	}
