@@ -21,6 +21,9 @@ static class Program
 
 	private static Form1? form1;
 
+	/// <summary>Held for the lifetime of the process to enforce a single instance per LibationFiles folder.</summary>
+	private static SingleInstance? singleInstanceLock;
+
 	[STAThread]
 	static void Main()
 	{
@@ -48,6 +51,22 @@ static class Program
 			// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
 			var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
 			StartupAssemblyBootstrap.RecoverFromIncompleteUpgradeIfNeeded();
+
+			// Prevent a second instance from racing on the same database, search index, and log file.
+			// Bail out before any database access when we are not the first instance. See issue #1931.
+			singleInstanceLock = SingleInstance.TryAcquire(config.LibationFiles.Location);
+			if (!singleInstanceLock.IsFirstInstance)
+			{
+				MessageBox.Show(
+					"Libation is already running.\r\n\r\n"
+						+ "Please use the Libation window that is already open. Running more than one copy of "
+						+ "Libation against the same folder at the same time can corrupt your library.",
+					"Libation is already running",
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Warning);
+				return;
+			}
+
 			LibationUiBase.Forms.MessageBoxBase.ShowAsyncImpl = ShowMessageBox;
 			BadBookActionDialogBase.ShowAsyncImpl = ShowBadBookActionDialog;
 

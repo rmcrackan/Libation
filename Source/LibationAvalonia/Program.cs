@@ -19,6 +19,9 @@ namespace LibationAvalonia;
 static class Program
 {
 	private static System.Threading.Lock SetupLock { get; } = new();
+
+	/// <summary>Held for the lifetime of the process to enforce a single instance per LibationFiles folder.</summary>
+	private static SingleInstance? SingleInstanceLock { get; set; }
 	[STAThread]
 	static void Main(string[] args)
 	{
@@ -54,7 +57,14 @@ static class Program
 		{
 			var config = LibationScaffolding.RunPreConfigMigrations();
 			StartupAssemblyBootstrap.RecoverFromIncompleteUpgradeIfNeeded();
-			if (config.LibationFiles.SettingsAreValid)
+
+			// Prevent a second instance from racing on the same database, search index, and log file.
+			// Hold the lock for the whole process; skip all database access when we are not the first
+			// instance so the running copy's state is never touched. See issue #1931.
+			SingleInstanceLock = SingleInstance.TryAcquire(config.LibationFiles.Location);
+			App.IsAnotherInstanceRunning = !SingleInstanceLock.IsFirstInstance;
+
+			if (SingleInstanceLock.IsFirstInstance && config.LibationFiles.SettingsAreValid)
 			{
 				App.RunMigrations(config);
 				StartupAssemblyBootstrap.PrepareForBackgroundDataAccess();

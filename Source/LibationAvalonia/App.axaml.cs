@@ -26,6 +26,9 @@ namespace LibationAvalonia;
 public class App : Application
 {
 	public static Task<List<DataLayer.LibraryBook>>? LibraryTask { get; set; }
+
+	/// <summary>Set by <see cref="Program"/> when another Libation instance already holds this folder's lock.</summary>
+	public static bool IsAnotherInstanceRunning { get; set; }
 	public static ChardonnayTheme? DefaultThemeColors { get; private set; }
 	public static MainWindow? MainWindow { get; private set; }
 	public static Uri AssetUriBase { get; } = new("avares://Libation/Assets/");
@@ -47,6 +50,15 @@ public class App : Application
 			MessageBoxBase.ShowAsyncImpl = (owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition) =>
 				MessageBox.Show(owner as Window, message, caption, buttons, icon, defaultButton, saveAndRestorePosition);
 
+			// Another instance already owns this folder. No database work has been done in this process,
+			// so just tell the user and shut down instead of racing on shared files. See issue #1931.
+			if (IsAnotherInstanceRunning)
+			{
+				_ = ShowAlreadyRunningThenShutdownAsync(desktop);
+				base.OnFrameworkInitializationCompleted();
+				return;
+			}
+
 			if (InstallUpgradeManager.TakeStartupRecoveryAlert() is { } recovery)
 				_ = MessageBox.Show(null, recovery.Body, recovery.Title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
@@ -66,6 +78,28 @@ public class App : Application
 		}
 
 		base.OnFrameworkInitializationCompleted();
+	}
+
+	private static async Task ShowAlreadyRunningThenShutdownAsync(IClassicDesktopStyleApplicationLifetime desktop)
+	{
+		try
+		{
+			await MessageBox.Show(
+				"Libation is already running.\r\n\r\n"
+					+ "Please use the Libation window that is already open. Running more than one copy of "
+					+ "Libation against the same folder at the same time can corrupt your library.",
+				"Libation is already running",
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Warning);
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Failed to show the 'already running' message");
+		}
+		finally
+		{
+			desktop.Shutdown();
+		}
 	}
 
 	private static async void RunSetupIfNeededAsync(IClassicDesktopStyleApplicationLifetime desktop, Configuration config)
