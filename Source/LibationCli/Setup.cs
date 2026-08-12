@@ -38,6 +38,17 @@ public static class Setup
 #else
 		LibationScaffolding.RunPostMigrationScaffolding(Variety.Chardonnay, config);
 #endif
+
+		// The CLI remains intentionally unrestricted for scripting and parallel use. However, if a
+		// GUI owns this LibationFiles folder's single-instance lock, record an advisory warning so
+		// concurrent access is visible when diagnosing database/search-index issues.
+		using var guiInstanceCheck = SingleInstance.TryAcquire(config.LibationFiles.Location);
+		if (!guiInstanceCheck.IsFirstInstance)
+		{
+			Serilog.Log.Logger.Warning(
+				"Another Libation GUI instance is running against this LibationFiles folder. "
+				+ "The CLI command will continue, but concurrent writes may conflict.");
+		}
 	}
 
 	static void PrintLibationFilestipAndExit()
