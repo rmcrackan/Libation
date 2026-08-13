@@ -34,14 +34,14 @@ public class CliCommandRouterTests
 			route.ParserArgs);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(new[] { "help", "abs", "upload" }, new[] { "upload", "--help" })]
 	[DataRow(new[] { "abs", "upload", "--help" }, new[] { "upload", "--help" })]
 	[DataRow(new[] { "abs", "upload", "-h" }, new[] { "upload", "-h" })]
 	public void Nested_help_forms_resolve_to_upload(string[] input, string[] expected)
 		=> CollectionAssert.AreEqual(expected, CliCommandRouter.Route(input, CliCommandGroups.All).ParserArgs);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("abs-upload", "--help")]
 	[DataRow("upload", "--help")]
 	public void Root_upload_aliases_are_rejected(params string[] args)
@@ -55,15 +55,30 @@ public class CliCommandRouterTests
 	}
 
 	[TestMethod]
-	public void Global_help_lists_the_abs_group_without_legacy_upload_verb()
+	[DataRow("--help")]
+	[DataRow("help")]
+	[DataRow("-h")]
+	public void Global_help_lists_the_abs_group_without_legacy_upload_verb(string helpArg)
 	{
 		using var error = new StringWriter();
 
-		var outcome = Program.ParseInvocation(["--help"], error);
+		var outcome = Program.ParseInvocation([helpArg], error);
 
 		Assert.AreEqual(ExitCode.ProcessCompletedSuccessfully, outcome.ExitCode);
 		StringAssert.Contains(error.ToString(), "  abs                  Audiobookshelf commands.");
 		Assert.IsFalse(error.ToString().Contains("abs-upload", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
+	public void Empty_args_lists_the_abs_group()
+	{
+		using var error = new StringWriter();
+
+		var outcome = Program.ParseInvocation([], error);
+
+		Assert.AreEqual(ExitCode.ParseError, outcome.ExitCode);
+		StringAssert.Contains(error.ToString(), "No verb selected");
+		StringAssert.Contains(error.ToString(), "  abs                  Audiobookshelf commands.");
 	}
 
 	[TestMethod]
@@ -87,10 +102,14 @@ public class CliCommandRouterTests
 	{
 		using var error = new StringWriter();
 		var outcome = Program.ParseInvocation(["abs", "upload", "--help"], error);
+		var output = error.ToString();
 
 		Assert.AreEqual(ExitCode.ProcessCompletedSuccessfully, outcome.ExitCode);
 		Assert.AreEqual(typeof(AbsUploadOptions), outcome.Result!.TypeInfo.Current);
-		StringAssert.Contains(error.ToString(), "--id");
+		StringAssert.Contains(output, "abs upload");
+		StringAssert.Contains(output, "Upload liberated audiobooks to Audiobookshelf.");
+		StringAssert.Contains(output, "--id");
+		Assert.IsFalse(output.Contains("\nupload\n", StringComparison.Ordinal));
 	}
 
 	[TestMethod]
@@ -126,9 +145,11 @@ public class CliCommandRouterTests
 		using var error = new StringWriter();
 
 		var outcome = Program.ParseInvocation(args, error);
+		var output = error.ToString();
 
 		Assert.AreEqual(ExitCode.ProcessCompletedSuccessfully, outcome.ExitCode);
-		StringAssert.Contains(error.ToString(), "--id");
+		StringAssert.Contains(output, "abs upload");
+		StringAssert.Contains(output, "--id");
 	}
 
 	[TestMethod]
@@ -190,4 +211,5 @@ public class CliCommandRouterTests
 		Assert.AreEqual(CliRouteKind.UnknownSubcommand, route.Kind);
 		route.Group!.Name.Should().Be("abs");
 	}
+
 }

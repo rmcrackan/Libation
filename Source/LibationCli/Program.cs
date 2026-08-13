@@ -106,33 +106,35 @@ class Program
 
 		if (result.Value is HelpVerb helper)
 		{
-			error.WriteLine(helper.GetHelpText());
+			// AutoHelp normally intercepts bare `help` as HelpVerbRequestedError. Keep this path
+			// consistent if CommandLineParser ever hands us a parsed HelpVerb instead.
+			if (string.IsNullOrWhiteSpace(helper.HelpType))
+				WriteGlobalVerbListHelp(error);
+			else
+				error.WriteLine(helper.GetHelpText());
 			return new(result, ExitCode.ProcessCompletedSuccessfully);
 		}
 
 		if (result.TypeInfo.Current == typeof(HelpVerb))
 		{
 			//Error parsing the command, but the verb type was identified as HelpVerb
-			//Print LibationCli usage
-			var helpText = HelpVerb.CreateHelpText();
-			helpText.AddVerbs(VerbTypes);
-			error.WriteLine(helpText);
+			WriteGlobalVerbListHelp(error);
 			return new(result, ExitCode.ProcessCompletedSuccessfully);
 		}
 
 		if (result.Errors.Any())
-			return new(result, HandleErrors(result, error));
+			return new(result, HandleErrors(result, error, route));
 
 		return new(result, null);
 	}
 
-	private static ExitCode HandleErrors(ParserResult<object> result, TextWriter error)
+	private static ExitCode HandleErrors(ParserResult<object> result, TextWriter error, CliRoute route)
 	{
 		var errorsList = result.Errors.ToList();
 
 		if (errorsList.Any(e => e.Tag == ErrorType.HelpRequestedError))
 		{
-			WriteVerbOptionsHelp(result, error);
+			WriteVerbOptionsHelp(result, error, route);
 			return ExitCode.ProcessCompletedSuccessfully;
 		}
 
@@ -148,29 +150,26 @@ class Program
 			return ExitCode.ProcessCompletedSuccessfully;
 		}
 
-		var helpText = HelpVerb.CreateHelpText();
-
 		if (errorsList.OfType<NoVerbSelectedError>().Any())
 		{
-			//Print LibationCli usage
-			helpText.AddPreOptionsLine("No verb selected");
-			helpText.AddVerbs(VerbTypes);
+			WriteGlobalVerbListHelp(error, "No verb selected");
+			return ExitCode.ParseError;
 		}
-		else
+
+		//print the specified verb's usage
+		var helpText = HelpVerb.CreateHelpText();
+		helpText.AddDashesToOption = true;
+		helpText.AutoHelp = true;
+
+		if (!errorsList.OfType<UnknownOptionError>().Any(o => o.Token.ToLower() == "help"))
 		{
-			//print the specified verb's usage
-			helpText.AddDashesToOption = true;
-			helpText.AutoHelp = true;
-
-			if (!errorsList.OfType<UnknownOptionError>().Any(o => o.Token.ToLower() == "help"))
-			{
-				//verb was not executed with the "--help" option,
-				//so print verb option parsing error info.
-				helpText = HelpText.DefaultParsingErrorsHandler(result, helpText);
-			}
-
-			helpText.AddOptions(result);
+			//verb was not executed with the "--help" option,
+			//so print verb option parsing error info.
+			helpText = HelpText.DefaultParsingErrorsHandler(result, helpText);
 		}
+
+		AddNestedCommandHeading(helpText, route);
+		helpText.AddOptions(result);
 		error.WriteLine(helpText);
 		return ExitCode.ParseError;
 	}
@@ -209,24 +208,29 @@ class Program
 	}
 
 	private static void WriteGlobalVerbListHelp(TextWriter error, string? preOptionsLine = null)
+		=> HelpVerb.WriteGlobalVerbList(error, VerbTypes, CliCommandGroups.All, preOptionsLine);
+
+	private static void WriteVerbOptionsHelp(ParserResult<object> result, TextWriter error, CliRoute? route = null)
 	{
 		var helpText = HelpVerb.CreateHelpText();
-		if (preOptionsLine is not null)
-			helpText.AddPreOptionsLine(preOptionsLine);
-		helpText.AddVerbs(VerbTypes);
-		error.WriteLine(helpText);
-
-		foreach (var group in CliCommandGroups.All)
-			error.WriteLine($"  {group.Name,-21}{group.HelpText}");
-	}
-
-	private static void WriteVerbOptionsHelp(ParserResult<object> result, TextWriter error)
-	{
-		var helpText = HelpVerb.CreateHelpText();
+		AddNestedCommandHeading(helpText, route);
 		helpText.AddDashesToOption = true;
 		helpText.AutoHelp = true;
 		helpText.AddOptions(result);
 		error.WriteLine(helpText);
+	}
+
+	/// <summary>
+	/// Nested commands are rewritten to an internal parser verb (e.g. <c>upload</c>).
+	/// Brand help with the public path (<c>abs upload</c>) so the usage screen matches what users type.
+	/// </summary>
+	private static void AddNestedCommandHeading(HelpText helpText, CliRoute? route)
+	{
+		if (route?.Group is not { } group || route.Subcommand is not { } subcommand)
+			return;
+
+		helpText.AddPreOptionsLine($"{group.Name} {subcommand.Name}");
+		helpText.AddPreOptionsLine(subcommand.HelpText);
 	}
 
 	private static void WriteHelpForVerbRequestedError(HelpVerbRequestedError helpVerbErr, TextWriter error)
