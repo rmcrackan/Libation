@@ -3,6 +3,7 @@ using LibationCli;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace LibationCli.Tests;
 
@@ -29,28 +30,32 @@ public class CliCommandRouterTests
 			CliCommandGroups.All);
 
 		CollectionAssert.AreEqual(
-			new[] { "abs-upload", "B017V4IM1G", "--id", "B000000001", "--id", "B000000002" },
+			new[] { "upload", "B017V4IM1G", "--id", "B000000001", "--id", "B000000002" },
 			route.ParserArgs);
 	}
 
 	[DataTestMethod]
-	[DataRow(new[] { "help", "abs", "upload" }, new[] { "help", "abs-upload" })]
-	[DataRow(new[] { "abs", "upload", "--help" }, new[] { "abs-upload", "--help" })]
-	[DataRow(new[] { "abs", "upload", "-h" }, new[] { "abs-upload", "-h" })]
+	[DataRow(new[] { "help", "abs", "upload" }, new[] { "upload", "--help" })]
+	[DataRow(new[] { "abs", "upload", "--help" }, new[] { "upload", "--help" })]
+	[DataRow(new[] { "abs", "upload", "-h" }, new[] { "upload", "-h" })]
 	public void Nested_help_forms_resolve_to_upload(string[] input, string[] expected)
 		=> CollectionAssert.AreEqual(expected, CliCommandRouter.Route(input, CliCommandGroups.All).ParserArgs);
 
-	[TestMethod]
-	public void Legacy_abs_upload_is_passed_through_unchanged()
+	[DataTestMethod]
+	[DataRow("abs-upload", "--help")]
+	[DataRow("upload", "--help")]
+	public void Root_upload_aliases_are_rejected(params string[] args)
 	{
-		var route = CliCommandRouter.Route(["abs-upload", "--id", "B017V4IM1G"], CliCommandGroups.All);
+		using var error = new StringWriter();
 
-		Assert.AreEqual(CliRouteKind.PassThrough, route.Kind);
-		CollectionAssert.AreEqual(new[] { "abs-upload", "--id", "B017V4IM1G" }, route.ParserArgs);
+		var outcome = Program.ParseInvocation(args, error);
+
+		Assert.AreEqual(ExitCode.ParseError, outcome.ExitCode);
+		Assert.IsFalse(error.ToString().Contains("--id", StringComparison.Ordinal));
 	}
 
 	[TestMethod]
-	public void Global_help_lists_the_abs_group_and_legacy_upload_verb()
+	public void Global_help_lists_the_abs_group_without_legacy_upload_verb()
 	{
 		using var error = new StringWriter();
 
@@ -58,7 +63,7 @@ public class CliCommandRouterTests
 
 		Assert.AreEqual(ExitCode.ProcessCompletedSuccessfully, outcome.ExitCode);
 		StringAssert.Contains(error.ToString(), "  abs                  Audiobookshelf commands.");
-		StringAssert.Contains(error.ToString(), "  abs-upload           Upload already-liberated books to Audiobookshelf.");
+		Assert.IsFalse(error.ToString().Contains("abs-upload", StringComparison.Ordinal));
 	}
 
 	[TestMethod]
@@ -86,6 +91,20 @@ public class CliCommandRouterTests
 		Assert.AreEqual(ExitCode.ProcessCompletedSuccessfully, outcome.ExitCode);
 		Assert.AreEqual(typeof(AbsUploadOptions), outcome.Result!.TypeInfo.Current);
 		StringAssert.Contains(error.ToString(), "--id");
+	}
+
+	[TestMethod]
+	public void Nested_abs_upload_parses_positional_and_repeatable_ids()
+	{
+		using var error = new StringWriter();
+
+		var outcome = Program.ParseInvocation(["abs", "upload", "B017V4IM1G", "--id", "B000000001", "--id", "B000000002"], error);
+
+		Assert.IsNull(outcome.ExitCode);
+		var options = outcome.Result!.Value as AbsUploadOptions;
+		Assert.IsNotNull(options);
+		CollectionAssert.AreEqual(new[] { "B017V4IM1G" }, options.Asins!.ToArray());
+		CollectionAssert.AreEqual(new[] { "B000000001", "B000000002" }, options.Ids!.ToArray());
 	}
 
 	[TestMethod]
@@ -132,7 +151,7 @@ public class CliCommandRouterTests
 		var group = new CliCommandGroup(
 			"library",
 			"Library commands.",
-			[new("sync", "library-sync", "Sync the library.")]);
+			[new("sync", "library-sync", "Sync the library.", typeof(AbsUploadOptions))]);
 		using var error = new StringWriter();
 
 		var outcome = Program.ParseInvocation(["library", "delete"], error, [group]);

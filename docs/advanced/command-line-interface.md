@@ -160,7 +160,7 @@ If Audiobookshelf auto-upload is enabled in Settings, `liberate` also uploads ea
 
 ## Upload Already-Liberated Books to Audiobookshelf (`abs upload`)
 
-Auto-upload only runs at the moment a book is liberated. Use `abs upload` to send books liberated earlier, using the files already on disk. Nothing is re-downloaded. The legacy `abs-upload` command remains supported with identical behavior and no warning during this deprecation period.
+Auto-upload only runs at the moment a book is liberated. Use `abs upload` to send books liberated earlier, using the files already on disk. Nothing is re-downloaded.
 
 ```console
 libationcli abs upload

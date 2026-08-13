@@ -10,7 +10,7 @@ internal static class CliCommandGroups
 			"abs",
 			"Audiobookshelf commands.",
 			[
-				new("upload", "abs-upload", "Upload liberated audiobooks to Audiobookshelf."),
+				new("upload", "upload", "Upload liberated audiobooks to Audiobookshelf.", typeof(AbsUploadOptions)),
 			]),
 	];
 }

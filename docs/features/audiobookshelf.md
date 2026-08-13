@@ -62,7 +62,7 @@ Auto-upload only ever fires at the moment a book is liberated. To send books you
 
 ## Uploading books you already liberated
 
-Books liberated before Audiobookshelf was set up - or while it was turned off - are never sent by auto-upload. The `abs upload` command backfills them from the copies already on disk. Nothing is re-downloaded from Audible, and local files are never deleted. The legacy `abs-upload` command remains supported with identical behavior and no warning during this deprecation period.
+Books liberated before Audiobookshelf was set up - or while it was turned off - are never sent by auto-upload. The `abs upload` command backfills them from the copies already on disk. Nothing is re-downloaded from Audible, and local files are never deleted.
 
 Upload every liberated book:
 

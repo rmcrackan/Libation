@@ -12,9 +12,9 @@ internal enum CliRouteKind
 	UnknownSubcommand,
 }
 
-internal sealed record CliRoute(CliRouteKind Kind, string[] ParserArgs, CliCommandGroup? Group);
+internal sealed record CliRoute(CliRouteKind Kind, string[] ParserArgs, CliCommandGroup? Group, CliSubcommand? Subcommand = null);
 
-internal sealed record CliSubcommand(string Name, string FlatVerb, string HelpText);
+internal sealed record CliSubcommand(string Name, string ParserVerb, string HelpText, Type OptionsType);
 
 internal sealed record CliCommandGroup(string Name, string HelpText, IReadOnlyList<CliSubcommand> Subcommands);
 
@@ -27,7 +27,7 @@ internal static class CliCommandRouter
 			var nestedHelpGroup = groups.FirstOrDefault(group => group.Name == args[1]);
 			var nestedHelpSubcommand = nestedHelpGroup?.Subcommands.FirstOrDefault(subcommand => subcommand.Name == args[2]);
 			if (nestedHelpSubcommand is not null)
-				return new(CliRouteKind.RewrittenCommand, ["help", nestedHelpSubcommand.FlatVerb], nestedHelpGroup);
+				return new(CliRouteKind.RewrittenCommand, [nestedHelpSubcommand.ParserVerb, "--help"], nestedHelpGroup, nestedHelpSubcommand);
 		}
 
 		if (args.Length == 2 && args[0] == "help")
@@ -49,9 +49,9 @@ internal static class CliCommandRouter
 			return new(CliRouteKind.UnknownSubcommand, args, group);
 
 		var parserArgs = new string[args.Length - 1];
-		parserArgs[0] = subcommand.FlatVerb;
+		parserArgs[0] = subcommand.ParserVerb;
 		Array.Copy(args, 2, parserArgs, 1, parserArgs.Length - 1);
 
-		return new(CliRouteKind.RewrittenCommand, parserArgs, group);
+		return new(CliRouteKind.RewrittenCommand, parserArgs, group, subcommand);
 	}
 }

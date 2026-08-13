@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace LibationCli;
 
-[Verb("abs-upload", HelpText = "Upload already-liberated books to Audiobookshelf. Default: all liberated titles.\n"
+[Verb("upload", HelpText = "Upload already-liberated books to Audiobookshelf. Default: all liberated titles.\n"
 	+ "Optional: specify product id(s) via --id or positional ASIN(s).\n"
 	+ "Books are never re-downloaded and local files are never deleted.")]
 public class AbsUploadOptions : ProcessableOptionsBase

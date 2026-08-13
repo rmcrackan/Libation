@@ -35,7 +35,9 @@ internal sealed record CliParseOutcome(ParserResult<object>? Result, ExitCode? E
 
 class Program
 {
-	public static readonly Type[] VerbTypes = Setup.LoadVerbs();
+	public static readonly Type[] VerbTypes = Setup.LoadVerbs()
+		.Where(type => type != typeof(AbsUploadOptions))
+		.ToArray();
 	static async Task Main(string[] args)
 	{
 		Console.OutputEncoding = Console.InputEncoding = System.Text.Encoding.UTF8;
@@ -97,7 +99,10 @@ class Program
 
 		args = NormalizeVerbShortHelpAliases(args);
 
-		var result = new Parser(ConfigureParser).ParseArguments(args, VerbTypes);
+		Type[] parserVerbTypes = route.Subcommand is { } subcommand
+			? [subcommand.OptionsType]
+			: VerbTypes;
+		var result = new Parser(ConfigureParser).ParseArguments(args, parserVerbTypes);
 
 		if (result.Value is HelpVerb helper)
 		{
