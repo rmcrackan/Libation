@@ -23,7 +23,7 @@ public partial class Form1
 		PictureStorage.SetDefaultImage(PictureSize.Native, Properties.Resources.default_cover_500x500.ToBytes(format));
 
 		BaseUtil.SetLoadImageDelegate(WinFormsUtil.TryLoadImageOrDefault);
-		BaseUtil.SetLoadResourceImageDelegate(LoadResourceImage);
+		BaseUtil.SetIsDarkModeDelegate(() => Application.IsDarkModeEnabled);
 
 		// wire-up event to automatically download after scan.
 		// winforms only. this should NOT be allowed in cli
@@ -45,13 +45,6 @@ public partial class Form1
 
 		// RunWorkerCompleted has no SynchronizationContext; queue items require the UI thread.
 		this.UIThreadAsync(() => _ = BackupAllBooksAsync(libraryStats.LibraryBooks));
-	}
-
-	private static object? LoadResourceImage(string resourceName)
-	{
-		if (Application.IsDarkModeEnabled)
-			resourceName += "_dark";
-		return Properties.Resources.ResourceManager.GetObject(resourceName);
 	}
 
 	private void AudibleApiStorage_LoadError(object? sender, AccountSettingsLoadErrorEventArgs e)

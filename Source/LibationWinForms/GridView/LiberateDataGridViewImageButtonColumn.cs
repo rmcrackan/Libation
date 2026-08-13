@@ -1,5 +1,6 @@
 ﻿using DataLayer;
 using LibationUiBase.GridView;
+using LibationUiBase.StatusIcons;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -38,7 +39,7 @@ internal class LiberateDataGridViewImageButtonCell : DataGridViewImageButtonCell
 			base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
 
 			if (status.ButtonImage is Image buttonImage)
-				DrawButtonImage(graphics, buttonImage, cellBounds);
+				DrawButtonImage(graphics, buttonImage, cellBounds, StatusImageGenerator.RenderScale);
 			AccessibilityDescription = status.ToolTip;
 
 			if (status.IsUnavailable || status.Opacity < 1)

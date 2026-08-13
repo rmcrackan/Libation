@@ -110,8 +110,7 @@
 								BookStatus="{Binding Liberate.BookStatus}"
 								PdfStatus="{Binding Liberate.PdfStatus}"
 								IsUnavailable="{Binding Liberate.IsUnavailable}"
-								IsSeries="{Binding Liberate.IsSeries}"
-								Expanded="{Binding Liberate.Expanded}"
+								ButtonImage="{Binding Liberate.ButtonImage}"
 								Click="LiberateButton_Click" />
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
