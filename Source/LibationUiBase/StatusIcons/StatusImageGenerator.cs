@@ -74,9 +74,11 @@ public static class StatusImageGenerator
 			case LiberateIconKind.SeriesCollapsed:
 			case LiberateIconKind.SeriesExpanded:
 			{
-				var series = ParsePath(LiberateIconGeometry.SeriesCollapse);
-				if (descriptor.Kind is LiberateIconKind.SeriesExpanded)
-					series = Union(series, ParsePath(LiberateIconGeometry.SeriesExpandBar));
+				//The icon offers the action, not the state: an expanded series shows a minus to
+				//collapse it, and a collapsed series shows a plus to expand it.
+				var series = ParsePath(LiberateIconGeometry.SeriesMinus);
+				if (descriptor.Kind is LiberateIconKind.SeriesCollapsed)
+					series = Union(series, ParsePath(LiberateIconGeometry.SeriesPlusBar));
 				var size = MoveToOrigin(series);
 				layers.Add((series, palette.IconFill));
 				return (layers, size);

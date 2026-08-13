@@ -1,4 +1,5 @@
 using LibationUiBase.StatusIcons;
+using SkiaSharp;
 
 namespace LibationUiBase.Tests;
 
@@ -83,12 +84,14 @@ public class LiberateIconTests
 	}
 
 	[TestMethod]
-	public void expanded_and_collapsed_series_icons_differ()
+	public void a_collapsed_series_shows_a_plus_and_an_expanded_one_a_minus()
 	{
-		var collapsed = StatusImageGenerator.GetPng(LiberateIconDescriptor.ForSeries(expanded: false, isDark: false));
-		var expanded = StatusImageGenerator.GetPng(LiberateIconDescriptor.ForSeries(expanded: true, isDark: false));
+		//The plus is the minus plus a bar, so it is strictly the inkier of the two. Asserting that
+		//pins which way round they go: the icon offers the action, not the state.
+		var collapsed = InkedPixels(StatusImageGenerator.GetPng(LiberateIconDescriptor.ForSeries(expanded: false, isDark: false)));
+		var expanded = InkedPixels(StatusImageGenerator.GetPng(LiberateIconDescriptor.ForSeries(expanded: true, isDark: false)));
 
-		Assert.AreNotEqual(Convert.ToHexString(collapsed), Convert.ToHexString(expanded));
+		Assert.IsGreaterThan(expanded, collapsed);
 	}
 
 	[TestMethod]
@@ -100,6 +103,20 @@ public class LiberateIconTests
 		Assert.IsGreaterThan(1, StatusImageGenerator.RenderScale);
 		Assert.AreEqual(0, width % StatusImageGenerator.RenderScale);
 		Assert.AreEqual(0, height % StatusImageGenerator.RenderScale);
+	}
+
+	/// <summary>Count how many pixels the icon painted on.</summary>
+	private static int InkedPixels(byte[] png)
+	{
+		using var bitmap = SKBitmap.Decode(png);
+		Assert.IsNotNull(bitmap);
+
+		var inked = 0;
+		for (var x = 0; x < bitmap.Width; x++)
+			for (var y = 0; y < bitmap.Height; y++)
+				if (bitmap.GetPixel(x, y).Alpha > 0)
+					inked++;
+		return inked;
 	}
 
 	/// <summary>Read the dimensions out of a PNG's IHDR, which also asserts that it is a PNG.</summary>

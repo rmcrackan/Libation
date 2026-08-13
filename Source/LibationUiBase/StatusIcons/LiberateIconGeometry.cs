@@ -36,14 +36,14 @@ internal static class LiberateIconGeometry
 		""";
 
 	/// <summary>A rounded square containing a minus bar. Natural size 64 x 64.</summary>
-	public const string SeriesCollapse = """
+	public const string SeriesMinus = """
 		M0,2 A 2,2 0 0 1 2,0 H62 A2,2 0 0 1 64,2 V62 A 2,2 0 0 1 62,64 H 2 A 2,2 0 0 1 0,62 V2
 		M 2,2 H62 V62 H2 V2
 		M11,28 h42 a 1,1 0 0 1 1,1 v6 a 1,1 0 0 1 -1,1 h-42 a 1,1 0 0 1 -1,-1 v-6 a 1,1 0 0 1 1,-1
 		""";
 
-	/// <summary>A vertical bar, unioned with <see cref="SeriesCollapse"/> to turn the minus into a plus.</summary>
-	public const string SeriesExpandBar
+	/// <summary>A vertical bar, unioned with <see cref="SeriesMinus"/> to turn the minus into a plus.</summary>
+	public const string SeriesPlusBar
 		= "M28,53 v-42 a 1,1 0 0 1 1,-1 h6 a 1,1 0 0 1 1,1 v42 a 1,1 0 0 1 -1,1 h-6 a 1,1 0 0 1 -1,-1";
 
 	/// <summary>A "no entry" sign. Natural size 64 x 64.</summary>
