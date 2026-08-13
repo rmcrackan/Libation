@@ -62,6 +62,22 @@ public class CliCommandRouterTests
 	}
 
 	[TestMethod]
+	[DataRow("abs")]
+	[DataRow("help", "abs")]
+	[DataRow("abs", "--help")]
+	public void Abs_group_help_forms_are_handled_by_program(params string[] args)
+	{
+		using var error = new StringWriter();
+
+		var outcome = Program.ParseInvocation(args, error);
+
+		Assert.AreEqual(ExitCode.ProcessCompletedSuccessfully, outcome.ExitCode);
+		Assert.IsNull(outcome.Result);
+		StringAssert.Contains(error.ToString(), "Audiobookshelf commands.");
+		StringAssert.Contains(error.ToString(), "abs upload");
+	}
+
+	[TestMethod]
 	public void Nested_abs_upload_help_reaches_upload_help_path()
 	{
 		using var error = new StringWriter();
@@ -73,6 +89,19 @@ public class CliCommandRouterTests
 	}
 
 	[TestMethod]
+	[DataRow("help", "abs", "upload")]
+	[DataRow("abs", "upload", "-h")]
+	public void Additional_nested_upload_help_forms_are_handled_by_program(params string[] args)
+	{
+		using var error = new StringWriter();
+
+		var outcome = Program.ParseInvocation(args, error);
+
+		Assert.AreEqual(ExitCode.ProcessCompletedSuccessfully, outcome.ExitCode);
+		StringAssert.Contains(error.ToString(), "--id");
+	}
+
+	[TestMethod]
 	public void Unknown_abs_subcommand_writes_error_before_group_help_and_exits_parse_error()
 	{
 		using var error = new StringWriter();
@@ -80,8 +109,38 @@ public class CliCommandRouterTests
 		var output = error.ToString();
 
 		Assert.AreEqual(ExitCode.ParseError, outcome.ExitCode);
-		Assert.IsTrue(output.StartsWith($"Unknown ABS command 'download'.{Environment.NewLine}", StringComparison.Ordinal));
+		Assert.AreEqual("Unknown ABS command 'download'.", new StringReader(output).ReadLine());
 		StringAssert.Contains(output, "Audiobookshelf commands.");
+	}
+
+	[TestMethod]
+	public void Inverse_abs_help_upload_form_is_rejected()
+	{
+		using var error = new StringWriter();
+
+		var outcome = Program.ParseInvocation(["abs", "help", "upload"], error);
+		var output = error.ToString();
+
+		Assert.AreEqual(ExitCode.ParseError, outcome.ExitCode);
+		Assert.AreEqual("Unknown ABS command 'help'.", new StringReader(output).ReadLine());
+		StringAssert.Contains(output, "Audiobookshelf commands.");
+	}
+
+	[TestMethod]
+	public void Unknown_subcommand_uses_the_routed_group_name_in_diagnostic()
+	{
+		var group = new CliCommandGroup(
+			"library",
+			"Library commands.",
+			[new("sync", "library-sync", "Sync the library.")]);
+		using var error = new StringWriter();
+
+		var outcome = Program.ParseInvocation(["library", "delete"], error, [group]);
+		var output = error.ToString();
+
+		Assert.AreEqual(ExitCode.ParseError, outcome.ExitCode);
+		Assert.IsTrue(output.StartsWith($"Unknown LIBRARY command 'delete'.{Environment.NewLine}", StringComparison.Ordinal));
+		StringAssert.Contains(output, "Library commands.");
 	}
 
 	[TestMethod]

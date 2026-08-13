@@ -2,6 +2,7 @@
 using CommandLine.Text;
 using Dinah.Core;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -71,9 +72,12 @@ class Program
 		await outcome.Result!.WithParsedAsync<OptionsBase>(opt => opt.Run());
 	}
 
-	internal static CliParseOutcome ParseInvocation(string[] args, TextWriter error)
+	internal static CliParseOutcome ParseInvocation(
+		string[] args,
+		TextWriter error,
+		IReadOnlyList<CliCommandGroup>? groups = null)
 	{
-		var route = CliCommandRouter.Route(args, CliCommandGroups.All);
+		var route = CliCommandRouter.Route(args, groups ?? CliCommandGroups.All);
 		if (route.Kind == CliRouteKind.GroupHelp)
 		{
 			error.WriteLine(HelpVerb.GetGroupHelpText(route.Group!));
@@ -83,7 +87,7 @@ class Program
 		args = route.ParserArgs;
 		if (route.Kind == CliRouteKind.UnknownSubcommand)
 		{
-			error.WriteLine($"Unknown ABS command '{args[1]}'.");
+			error.WriteLine($"Unknown {route.Group!.Name.ToUpperInvariant()} command '{args[1]}'.");
 			error.WriteLine(HelpVerb.GetGroupHelpText(route.Group!));
 			return new(null, ExitCode.ParseError);
 		}

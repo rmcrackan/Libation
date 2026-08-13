@@ -66,6 +66,7 @@
     <Project Path="_Tests/AudibleUtilities.Tests/AudibleUtilities.Tests.csproj" />
     <Project Path="_Tests/FileLiberator.Tests/FileLiberator.Tests.csproj" />
     <Project Path="_Tests/FileManager.Tests/FileManager.Tests.csproj" />
+    <Project Path="_Tests/LibationCli.Tests/LibationCli.Tests.csproj" />
     <Project Path="_Tests/LibationFileManager.Tests/LibationFileManager.Tests.csproj" />
     <Project Path="_Tests/LibationSearchEngine.Tests/LibationSearchEngine.Tests.csproj" />
     <Project Path="_Tests/LibationUiBase.Tests/LibationUiBase.Tests.csproj" />
