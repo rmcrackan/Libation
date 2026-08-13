@@ -157,6 +157,29 @@ public class LiberateIconTests
 	}
 
 	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void a_rim_of_nothing_separates_the_badge_from_the_stoplight(bool isDark)
+	{
+		var png = StatusImageGenerator.GetPng(Book(PdfOverlay.None, isPlus: true, isDark));
+		var badge = FindColor(png, LiberateIconPalette.For(isDark).PlusBadge).Bounds;
+
+		using var bitmap = SKBitmap.Decode(png);
+		Assert.IsNotNull(bitmap);
+
+		//Walking left off the badge along its centre line reaches the stoplight. The gap in between
+		//has to be knocked out of the stoplight rather than filled, or the two run together.
+		var transparent = 0;
+		var x = badge.Left - 1;
+		for (; x >= 0 && bitmap.GetPixel(x, badge.MidY).Alpha != byte.MaxValue; x--)
+			if (bitmap.GetPixel(x, badge.MidY).Alpha == 0)
+				transparent++;
+
+		Assert.IsGreaterThanOrEqualTo(0, x, "Walked off the icon without reaching the stoplight.");
+		Assert.IsGreaterThan(2, transparent, "The badge is not separated from the stoplight by a hole.");
+	}
+
+	[TestMethod]
 	[DataRow(PdfOverlay.Downloaded)]
 	[DataRow(PdfOverlay.NotDownloaded)]
 	public void the_pdf_glyph_is_pushed_clear_of_the_badge(PdfOverlay pdf)

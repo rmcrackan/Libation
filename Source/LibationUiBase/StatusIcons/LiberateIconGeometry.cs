@@ -75,9 +75,15 @@ internal static class LiberateIconGeometry
 	/// drawn at the same size whether or not a book is a Plus title.
 	/// </summary>
 	public const float PlusBadgeDiameter = 18;
-	public const float PlusBadgeCornerOffset = 3;
+	public const float PlusBadgeCornerOffset = 5;
 
-	/// <summary>Keeps the badge from touching the PDF glyph on a Plus title which also has a PDF.</summary>
+	/// <summary>
+	/// How wide a rim of nothing is cut out of the stoplight around the badge. Without it the
+	/// circle runs straight into the body and the two read as one blobby shape.
+	/// </summary>
+	public const float PlusBadgeRimWidth = 2.5f;
+
+	/// <summary>Keeps the badge's rim from reaching the PDF glyph on a Plus title which has a PDF.</summary>
 	public const float PlusBadgePdfGap = 2;
 
 	/// <summary>

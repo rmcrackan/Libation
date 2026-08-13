@@ -117,7 +117,7 @@ namespace LibationWinForms.GridView
 			liberateGVColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
 			liberateGVColumn.ScaleFactor = 0F;
 			liberateGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-			liberateGVColumn.Width = 85;
+			liberateGVColumn.Width = 90;
 			// 
 			// coverGVColumn
 			// 

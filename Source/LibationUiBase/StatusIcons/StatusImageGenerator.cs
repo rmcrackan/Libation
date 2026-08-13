@@ -107,27 +107,44 @@ public static class StatusImageGenerator
 		//The lamp goes under the body, so it shows through the bezel cut out of it.
 		var lamp = new SKPath();
 		lamp.AddRect(SKRect.Create(LiberateIconGeometry.LampLeft, lampTop, LiberateIconGeometry.LampWidth, LiberateIconGeometry.LampHeight));
+
+		//Sitting flush with the top edge keeps the badge out of the stoplight's height, so a Plus
+		//title's stoplight is drawn at exactly the same size as a purchased one's.
+		var badgeRadius = LiberateIconGeometry.PlusBadgeDiameter / 2;
+		var badgeCenterX = stoplightWidth + LiberateIconGeometry.PlusBadgeCornerOffset;
+		var badgeCenterY = badgeRadius;
+		var badgeOuterRight = badgeCenterX + badgeRadius + LiberateIconGeometry.PlusBadgeRimWidth;
+
+		if (descriptor.IsPlus)
+		{
+			//Cut a rim of nothing out of the stoplight around the badge. Without it the circle
+			//abuts the body and the two smudge into one shape; the gap has to be a hole rather than
+			//stoplight-colored, so whatever is behind the icon shows through it.
+			using var rim = new SKPath();
+			rim.AddCircle(badgeCenterX, badgeCenterY, badgeRadius + LiberateIconGeometry.PlusBadgeRimWidth);
+
+			body = Difference(body, rim);
+			lamp = Difference(lamp, rim);
+		}
+
 		layers.Add((lamp, palette.Lamp(descriptor.Lamp)));
 		layers.Add((body, palette.IconFill));
 
 		var width = stoplightWidth;
-		var badgeRight = stoplightWidth;
+		var pdfLeft = stoplightWidth + LiberateIconGeometry.PdfLeftMargin;
 
 		if (descriptor.IsPlus)
 		{
-			//Sitting flush with the top edge keeps the badge out of the stoplight's height, so a
-			//Plus title's stoplight is drawn at exactly the same size as a purchased one's.
-			var radius = LiberateIconGeometry.PlusBadgeDiameter / 2;
-			var centerX = stoplightWidth + LiberateIconGeometry.PlusBadgeCornerOffset;
-
 			var badge = new SKPath();
-			badge.AddCircle(centerX, radius, radius);
+			badge.AddCircle(badgeCenterX, badgeCenterY, badgeRadius);
 
 			layers.Add((badge, palette.PlusBadge));
-			layers.Add((PlusGlyph(centerX, radius), palette.PlusBadgeGlyph));
+			layers.Add((PlusGlyph(badgeCenterX, badgeCenterY), palette.PlusBadgeGlyph));
 
-			badgeRight = centerX + radius;
-			width = badgeRight;
+			//Only the circle is ink, so the icon ends there; the rim beyond it is empty. The PDF
+			//still has to clear that rim, or it would sit inside the badge's gap.
+			width = badgeCenterX + badgeRadius;
+			pdfLeft = MathF.Max(pdfLeft, badgeOuterRight + LiberateIconGeometry.PlusBadgePdfGap);
 		}
 
 		if (descriptor.Pdf is not PdfOverlay.None)
@@ -140,14 +157,11 @@ public static class StatusImageGenerator
 			//whether or not the download arrow hangs beneath it.
 			var pdfBounds = pdf.TightBounds;
 			var pdfScale = LiberateIconGeometry.PdfWidth / pdfBounds.Width;
-			var left = MathF.Max(
-				stoplightWidth + LiberateIconGeometry.PdfLeftMargin,
-				badgeRight + LiberateIconGeometry.PlusBadgePdfGap);
 			var top = (LiberateIconGeometry.StoplightHeight - pdfBounds.Height * pdfScale) / 2;
-			pdf.Transform(ScaleThenTranslate(pdfScale, left - pdfBounds.Left * pdfScale, top - pdfBounds.Top * pdfScale));
+			pdf.Transform(ScaleThenTranslate(pdfScale, pdfLeft - pdfBounds.Left * pdfScale, top - pdfBounds.Top * pdfScale));
 
 			layers.Add((pdf, palette.IconFill));
-			width = left + LiberateIconGeometry.PdfWidth;
+			width = pdfLeft + LiberateIconGeometry.PdfWidth;
 		}
 
 		return (layers, new SKSize(width, LiberateIconGeometry.StoplightHeight));
@@ -183,6 +197,14 @@ public static class StatusImageGenerator
 		using (second)
 			return first.Op(second, SKPathOp.Union)
 				?? throw new InvalidOperationException("Could not union icon paths.");
+	}
+
+	/// <summary>Cut <paramref name="hole"/> out of <paramref name="path"/>. The caller keeps the hole.</summary>
+	private static SKPath Difference(SKPath path, SKPath hole)
+	{
+		using (path)
+			return path.Op(hole, SKPathOp.Difference)
+				?? throw new InvalidOperationException("Could not cut an icon path.");
 	}
 
 	/// <summary>Shift a path so its bounds start at the origin, and return those bounds' size.</summary>
