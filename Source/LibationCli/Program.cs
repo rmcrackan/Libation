@@ -55,6 +55,15 @@ class Program
 			args = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 		var setBreakPointHere = args;
 #endif
+		var route = CliCommandRouter.Route(args, CliCommandGroups.All);
+		if (route.Kind == CliRouteKind.GroupHelp)
+		{
+			Console.Error.WriteLine(HelpVerb.GetGroupHelpText(route.Group!));
+			Environment.ExitCode = (int)ExitCode.ProcessCompletedSuccessfully;
+			return;
+		}
+
+		args = route.ParserArgs;
 
 		if (TryPrintGlobalHelpOnly(args))
 			return;

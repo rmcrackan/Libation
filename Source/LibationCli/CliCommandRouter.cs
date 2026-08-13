@@ -22,11 +22,18 @@ internal static class CliCommandRouter
 {
 	public static CliRoute Route(string[] args, IReadOnlyList<CliCommandGroup> groups)
 	{
+		if (args.Length == 2 && args[0] == "help")
+		{
+			var helpGroup = groups.FirstOrDefault(group => group.Name == args[1]);
+			if (helpGroup is not null)
+				return new(CliRouteKind.GroupHelp, args, helpGroup);
+		}
+
 		var group = groups.FirstOrDefault(group => group.Name == args.FirstOrDefault());
 		if (group is null)
 			return new(CliRouteKind.PassThrough, args, null);
 
-		if (args.Length == 1)
+		if (args.Length == 1 || (args.Length == 2 && args[1] == "--help"))
 			return new(CliRouteKind.GroupHelp, args, group);
 
 		var subcommand = group.Subcommands.FirstOrDefault(subcommand => subcommand.Name == args[1]);

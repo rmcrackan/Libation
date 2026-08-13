@@ -8,9 +8,12 @@ namespace LibationCli.Tests;
 public class CliCommandRouterTests
 {
 	[TestMethod]
-	public void Abs_without_subcommand_requests_group_help()
+	[DataRow("abs")]
+	[DataRow("help", "abs")]
+	[DataRow("abs", "--help")]
+	public void Abs_group_help_forms_request_group_help(params string[] args)
 	{
-		var route = CliCommandRouter.Route(["abs"], CliCommandGroups.All);
+		var route = CliCommandRouter.Route(args, CliCommandGroups.All);
 
 		Assert.AreEqual(CliRouteKind.GroupHelp, route.Kind);
 		route.Group!.Name.Should().Be("abs");
