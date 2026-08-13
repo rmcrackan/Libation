@@ -3,7 +3,7 @@
 using Microsoft.Data.Sqlite;
 using System.Text.Json;
 
-// Seeds a Libation library with one book per Liberate-column icon state, for manual UI testing.
+// Seeds a Libation library with one book per Liberate-column state, for manual UI testing.
 //
 //   dotnet run Scripts/seed-demo-library.cs [--clean] [path-to-Libation-files-folder]
 //
@@ -96,9 +96,10 @@ foreach (var book in books)
 	Execute(
 		"""
 		insert into LibraryBooks (BookId, AbsentFromLastScan, Account, DateAdded, IncludedUntil, IsAudiblePlus, IsDeleted)
-		values ($bookId, 0, 'demo@example.com', '2026-08-13 00:00:00', $includedUntil, $isPlus, 0)
+		values ($bookId, $isAbsent, 'demo@example.com', '2026-08-13 00:00:00', $includedUntil, $isPlus, 0)
 		""",
 		("$bookId", bookId),
+		("$isAbsent", book.IsAbsent ? 1 : 0),
 		("$includedUntil", book.IsPlus ? "2027-01-31 00:00:00" : (object)DBNull.Value),
 		("$isPlus", book.IsPlus ? 1 : 0));
 
@@ -238,6 +239,30 @@ static List<DemoBook> BuildDemoBooks()
 			SeriesAsin: seriesAsin,
 			SeriesOrder: episode.ToString()));
 
+	// Books missing from the last scan. These keep their ordinary icon - there is no "unavailable"
+	// glyph - and the grid dims and disables the row around it instead, so they are the rows to
+	// check when an icon change might read badly under that treatment.
+	//
+	// Being absent is not enough on its own: a book which is fully liberated with nothing left to
+	// fetch stays available, because there is nothing the row would do if you clicked it.
+	foreach (var (label, bookStatus, pdfStatus, isPlus, expectation) in new (string, int, int?, bool, string)[]
+	{
+		("not downloaded | purchased", NotLiberated, null, false, "red lamp, dimmed and unclickable"),
+		("not downloaded | PLUS", NotLiberated, null, true, "red lamp with badge, dimmed and unclickable"),
+		("downloaded | purchased", Liberated, null, false, "green lamp, NOT dimmed - nothing left to fetch"),
+		("downloaded, PDF todo | purchased", Liberated, NotLiberated, false, "green lamp with PDF arrow, dimmed again - the PDF is outstanding"),
+	})
+		books.Add(new DemoBook(
+			Asin: $"{AsinPrefix}{++n:000}",
+			Title: $"{n:00} Absent | {label}",
+			ContentType: Product,
+			BookStatus: bookStatus,
+			PdfStatus: pdfStatus,
+			IsPlus: isPlus,
+			NeedsPartialDownload: false,
+			Expectation: expectation,
+			IsAbsent: true));
+
 	return books;
 }
 
@@ -347,4 +372,5 @@ record DemoBook(
 	bool NeedsPartialDownload,
 	string Expectation,
 	string? SeriesAsin = null,
-	string? SeriesOrder = null);
+	string? SeriesOrder = null,
+	bool IsAbsent = false);
