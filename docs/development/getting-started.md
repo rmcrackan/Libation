@@ -43,7 +43,7 @@ To run the desktop application (Avalonia):
 
 ### Using Visual Studio / Rider
 
-1.  Open `Libation.sln` (or open the root folder).
+1.  Open `Source/Libation.slnx` (or open the root folder).
 2.  Set `LibationAvalonia` as the startup project.
 3.  Press Run/Debug.
 
