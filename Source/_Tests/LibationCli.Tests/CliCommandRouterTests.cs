@@ -34,14 +34,14 @@ public class CliCommandRouterTests
 			route.ParserArgs);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow(new[] { "help", "abs", "upload" }, new[] { "upload", "--help" })]
 	[DataRow(new[] { "abs", "upload", "--help" }, new[] { "upload", "--help" })]
 	[DataRow(new[] { "abs", "upload", "-h" }, new[] { "upload", "-h" })]
 	public void Nested_help_forms_resolve_to_upload(string[] input, string[] expected)
 		=> CollectionAssert.AreEqual(expected, CliCommandRouter.Route(input, CliCommandGroups.All).ParserArgs);
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("abs-upload", "--help")]
 	[DataRow("upload", "--help")]
 	public void Root_upload_aliases_are_rejected(params string[] args)
