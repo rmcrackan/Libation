@@ -33,6 +33,34 @@ public class CliCommandRouterTests
 			route.ParserArgs);
 	}
 
+	[DataTestMethod]
+	[DataRow(new[] { "help", "abs", "upload" }, new[] { "help", "abs-upload" })]
+	[DataRow(new[] { "abs", "upload", "--help" }, new[] { "abs-upload", "--help" })]
+	[DataRow(new[] { "abs", "upload", "-h" }, new[] { "abs-upload", "-h" })]
+	public void Nested_help_forms_resolve_to_upload(string[] input, string[] expected)
+		=> CollectionAssert.AreEqual(expected, CliCommandRouter.Route(input, CliCommandGroups.All).ParserArgs);
+
+	[TestMethod]
+	public void Legacy_abs_upload_is_passed_through_unchanged()
+	{
+		var route = CliCommandRouter.Route(["abs-upload", "--id", "B017V4IM1G"], CliCommandGroups.All);
+
+		Assert.AreEqual(CliRouteKind.PassThrough, route.Kind);
+		CollectionAssert.AreEqual(new[] { "abs-upload", "--id", "B017V4IM1G" }, route.ParserArgs);
+	}
+
+	[TestMethod]
+	public void Global_help_lists_the_abs_group_and_legacy_upload_verb()
+	{
+		using var error = new StringWriter();
+
+		var outcome = Program.ParseInvocation(["--help"], error);
+
+		Assert.AreEqual(ExitCode.ProcessCompletedSuccessfully, outcome.ExitCode);
+		StringAssert.Contains(error.ToString(), "  abs                  Audiobookshelf commands.");
+		StringAssert.Contains(error.ToString(), "  abs-upload           Upload already-liberated books to Audiobookshelf.");
+	}
+
 	[TestMethod]
 	public void Nested_abs_upload_help_reaches_upload_help_path()
 	{

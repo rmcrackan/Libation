@@ -22,6 +22,14 @@ internal static class CliCommandRouter
 {
 	public static CliRoute Route(string[] args, IReadOnlyList<CliCommandGroup> groups)
 	{
+		if (args.Length == 3 && args[0] == "help")
+		{
+			var nestedHelpGroup = groups.FirstOrDefault(group => group.Name == args[1]);
+			var nestedHelpSubcommand = nestedHelpGroup?.Subcommands.FirstOrDefault(subcommand => subcommand.Name == args[2]);
+			if (nestedHelpSubcommand is not null)
+				return new(CliRouteKind.RewrittenCommand, ["help", nestedHelpSubcommand.FlatVerb], nestedHelpGroup);
+		}
+
 		if (args.Length == 2 && args[0] == "help")
 		{
 			var helpGroup = groups.FirstOrDefault(group => group.Name == args[1]);

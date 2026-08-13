@@ -206,6 +206,9 @@ class Program
 			helpText.AddPreOptionsLine(preOptionsLine);
 		helpText.AddVerbs(VerbTypes);
 		error.WriteLine(helpText);
+
+		foreach (var group in CliCommandGroups.All)
+			error.WriteLine($"  {group.Name,-21}{group.HelpText}");
 	}
 
 	private static void WriteVerbOptionsHelp(ParserResult<object> result, TextWriter error)
