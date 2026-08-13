@@ -156,9 +156,9 @@ libationcli convert
 libationcli liberate
 ```
 
-If Audiobookshelf auto-upload is enabled in Settings, `liberate` also uploads each liberated book after download/decrypt (and PDF). See [Audiobookshelf Auto-Upload](/docs/features/audiobookshelf). The separate `convert` command does not upload. To upload books that were already liberated, use [`abs upload`](#upload-already-liberated-books-to-audiobookshelf-abs-upload).
+If Audiobookshelf auto-upload is enabled in Settings, `liberate` also uploads each liberated book after download/decrypt (and PDF). See [Audiobookshelf Auto-Upload](/docs/features/audiobookshelf). The separate `convert` command does not upload. To upload books that were already liberated, use [`abs upload`](#upload-already-liberated-books-to-audiobookshelf).
 
-## Upload Already-Liberated Books to Audiobookshelf (`abs upload`)
+## Upload Already-Liberated Books to Audiobookshelf
 
 Auto-upload only runs at the moment a book is liberated. Use `abs upload` to send books liberated earlier, using the files already on disk. Nothing is re-downloaded.
 

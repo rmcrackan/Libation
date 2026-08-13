@@ -108,6 +108,17 @@ public class CliCommandRouterTests
 	}
 
 	[TestMethod]
+	public void Abs_upload_group_and_subcommand_are_case_insensitive()
+	{
+		using var error = new StringWriter();
+
+		var outcome = Program.ParseInvocation(["ABS", "UPLOAD", "B017V4IM1G"], error);
+
+		Assert.IsNull(outcome.ExitCode);
+		Assert.AreEqual(typeof(AbsUploadOptions), outcome.Result!.TypeInfo.Current);
+	}
+
+	[TestMethod]
 	[DataRow("help", "abs", "upload")]
 	[DataRow("abs", "upload", "-h")]
 	public void Additional_nested_upload_help_forms_are_handled_by_program(params string[] args)
