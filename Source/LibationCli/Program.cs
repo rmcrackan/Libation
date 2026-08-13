@@ -64,6 +64,13 @@ class Program
 		}
 
 		args = route.ParserArgs;
+		if (route.Kind == CliRouteKind.UnknownSubcommand)
+		{
+			Console.Error.WriteLine($"Unknown ABS command '{args[1]}'.");
+			Console.Error.WriteLine(HelpVerb.GetGroupHelpText(route.Group!));
+			Environment.ExitCode = (int)ExitCode.ParseError;
+			return;
+		}
 
 		if (TryPrintGlobalHelpOnly(args))
 			return;

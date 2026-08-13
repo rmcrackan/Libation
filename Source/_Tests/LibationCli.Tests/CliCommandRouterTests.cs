@@ -1,4 +1,5 @@
 using AssertionHelper;
+using CommandLine;
 using LibationCli;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -29,6 +30,17 @@ public class CliCommandRouterTests
 		CollectionAssert.AreEqual(
 			new[] { "abs-upload", "B017V4IM1G", "--id", "B000000001", "--id", "B000000002" },
 			route.ParserArgs);
+	}
+
+	[TestMethod]
+	public void Rewritten_abs_upload_arguments_parse_as_upload_options()
+	{
+		var route = CliCommandRouter.Route(
+			["abs", "upload", "B017V4IM1G", "--id", "B000000001"],
+			CliCommandGroups.All);
+		var result = new Parser().ParseArguments(route.ParserArgs, Program.VerbTypes);
+
+		Assert.IsInstanceOfType<AbsUploadOptions>(result.Value);
 	}
 
 	[TestMethod]
