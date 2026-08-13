@@ -2,6 +2,9 @@
 using CommandLine;
 using CommandLine.Text;
 using LibationFileManager;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace LibationCli;
 
@@ -34,6 +37,26 @@ internal class HelpVerb
 		foreach (var subcommand in group.Subcommands)
 			helpText.AddPreOptionsLine($"  {group.Name} {subcommand.Name}  {subcommand.HelpText}");
 		return helpText;
+	}
+
+	/// <summary>
+	/// Write the global verb list plus nested command groups (e.g. <c>abs</c>).
+	/// Groups are appended after <see cref="HelpText"/> because CommandLineParser has no post-options slot.
+	/// </summary>
+	public static void WriteGlobalVerbList(
+		TextWriter error,
+		Type[] verbTypes,
+		IReadOnlyList<CliCommandGroup> groups,
+		string? preOptionsLine = null)
+	{
+		var helpText = CreateHelpText();
+		if (preOptionsLine is not null)
+			helpText.AddPreOptionsLine(preOptionsLine);
+		helpText.AddVerbs(verbTypes);
+		error.WriteLine(helpText);
+
+		foreach (var group in groups)
+			error.WriteLine($"  {group.Name,-21}{group.HelpText}");
 	}
 
 	/// <summary>
