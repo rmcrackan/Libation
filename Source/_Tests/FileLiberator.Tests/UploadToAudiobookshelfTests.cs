@@ -1,9 +1,11 @@
 using AssertionHelper;
 using DataLayer;
+using FileManager;
 using LibationFileManager;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FileLiberator.Tests;
@@ -274,7 +276,9 @@ public class UploadToAudiobookshelfTests
 			// Precondition: the cache knows nothing about this book.
 			FilePathCache.GetFiles(productId).Should().HaveCount(0);
 
-			UploadToAudiobookshelf.GetAudioFilesOnDisk(productId).Should().BeEquivalentTo([audioFile]);
+			UploadToAudiobookshelf.GetAudioFilesOnDisk(productId)
+				.Select(path => ((LongPath)path).PathWithoutPrefix)
+				.Should().BeEquivalentTo([audioFile]);
 		}
 		finally
 		{
