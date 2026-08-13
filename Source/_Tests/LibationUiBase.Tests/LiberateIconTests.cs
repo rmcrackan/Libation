@@ -21,13 +21,13 @@ public class LiberateIconTests
 	}
 
 	[TestMethod]
-	public void the_finite_set_of_icons_is_the_9_stoplights_plus_3_others_per_theme()
+	public void the_finite_set_of_icons_is_the_18_stoplights_plus_3_others_per_theme()
 	{
 		var all = LiberateIconDescriptor.All().ToList();
 
-		Assert.AreEqual(24, all.Count);
-		Assert.AreEqual(24, all.Distinct().Count());
-		Assert.AreEqual(18, all.Count(d => d.Kind is LiberateIconKind.Book));
+		Assert.AreEqual(42, all.Count);
+		Assert.AreEqual(42, all.Distinct().Count());
+		Assert.AreEqual(36, all.Count(d => d.Kind is LiberateIconKind.Book));
 	}
 
 	[TestMethod]
@@ -65,22 +65,144 @@ public class LiberateIconTests
 	[DataRow(PdfOverlay.NotDownloaded)]
 	public void a_pdf_overlay_widens_the_stoplight(PdfOverlay pdf)
 	{
-		var withoutPdf = PngSize(StatusImageGenerator.GetPng(LiberateIconDescriptor.ForBook(StoplightLamp.Green, PdfOverlay.None, isDark: false)));
-		var withPdf = PngSize(StatusImageGenerator.GetPng(LiberateIconDescriptor.ForBook(StoplightLamp.Green, pdf, isDark: false)));
+		var withoutPdf = PngSize(StatusImageGenerator.GetPng(Book(PdfOverlay.None, isPlus: false, isDark: false)));
+		var withPdf = PngSize(StatusImageGenerator.GetPng(Book(pdf, isPlus: false, isDark: false)));
 
 		Assert.IsGreaterThan(withoutPdf.Width, withPdf.Width);
 		Assert.AreEqual(withoutPdf.Height, withPdf.Height);
 	}
 
 	[TestMethod]
-	public void series_and_error_icons_do_not_vary_by_lamp_or_pdf()
+	public void series_and_error_icons_do_not_vary_by_lamp_pdf_or_plus()
 	{
-		//Otherwise every lamp/PDF combination would get its own cache entry for the same image.
+		//Otherwise every lamp/PDF/Plus combination would get its own cache entry for the same image.
 		Assert.AreEqual(LiberateIconDescriptor.ForSeries(expanded: true, isDark: false), LiberateIconDescriptor.ForSeries(expanded: true, isDark: false));
 		Assert.AreEqual(default, LiberateIconDescriptor.ForError(isDark: false).Lamp);
 		Assert.AreEqual(default, LiberateIconDescriptor.ForError(isDark: false).Pdf);
+		Assert.IsFalse(LiberateIconDescriptor.ForError(isDark: false).IsPlus);
 		Assert.AreEqual(default, LiberateIconDescriptor.ForSeries(expanded: true, isDark: false).Lamp);
 		Assert.AreEqual(default, LiberateIconDescriptor.ForSeries(expanded: true, isDark: false).Pdf);
+		Assert.IsFalse(LiberateIconDescriptor.ForSeries(expanded: true, isDark: false).IsPlus);
+	}
+
+	#region Audible Plus badge
+
+	[TestMethod]
+	[DataRow(PdfOverlay.None)]
+	[DataRow(PdfOverlay.Downloaded)]
+	[DataRow(PdfOverlay.NotDownloaded)]
+	public void the_plus_badge_widens_the_icon_without_making_it_taller(PdfOverlay pdf)
+	{
+		//The badge hangs off the stoplight's right, and sits flush with the top edge rather than
+		//above it, so the stoplight itself is drawn identically for a Plus and a purchased title.
+		var purchased = PngSize(StatusImageGenerator.GetPng(Book(pdf, isPlus: false, isDark: false)));
+		var plus = PngSize(StatusImageGenerator.GetPng(Book(pdf, isPlus: true, isDark: false)));
+
+		Assert.AreEqual(purchased.Height, plus.Height);
+		Assert.IsGreaterThan(purchased.Width, plus.Width);
+	}
+
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void only_plus_titles_get_a_badge(bool isDark)
+	{
+		var badgeColor = LiberateIconPalette.For(isDark).PlusBadge;
+
+		foreach (var pdf in Enum.GetValues<PdfOverlay>())
+		{
+			Assert.AreEqual(0, FindColor(StatusImageGenerator.GetPng(Book(pdf, isPlus: false, isDark)), badgeColor).Count);
+			Assert.IsGreaterThan(0, FindColor(StatusImageGenerator.GetPng(Book(pdf, isPlus: true, isDark)), badgeColor).Count);
+		}
+	}
+
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void the_badge_is_a_circle_in_the_upper_right_corner(bool isDark)
+	{
+		var png = StatusImageGenerator.GetPng(Book(PdfOverlay.None, isPlus: true, isDark));
+		var (width, height) = PngSize(png);
+		var badge = FindColor(png, LiberateIconPalette.For(isDark).PlusBadge).Bounds;
+
+		//A circle's ink is as wide as it is tall. Antialiasing frays the outermost pixel or two of
+		//every edge, so these compare shapes and margins rather than exact coordinates.
+		Assert.IsLessThanOrEqualTo(2, Math.Abs(badge.Width - badge.Height));
+
+		//Upper: it rides the icon's top edge and stays out of the bottom half.
+		Assert.IsLessThanOrEqualTo(3, badge.Top);
+		Assert.IsLessThan(height / 2, badge.Bottom);
+
+		//Right: it hangs off the stoplight, whose right edge is where a purchased icon ends, and
+		//reaches the icon's own right edge, since the badge is what widened it.
+		var stoplightWidth = PngSize(StatusImageGenerator.GetPng(Book(PdfOverlay.None, isPlus: false, isDark))).Width;
+		Assert.IsGreaterThan(stoplightWidth, badge.Right);
+		Assert.IsGreaterThan(width - 4, badge.Right);
+	}
+
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void the_badges_plus_is_painted_a_solid_color_rather_than_punched_out(bool isDark)
+	{
+		//The plus is white on light and black on dark. Either way it is opaque: knocking it out to
+		//transparent would show the grid row through the badge instead.
+		var png = StatusImageGenerator.GetPng(Book(PdfOverlay.None, isPlus: true, isDark));
+		var badge = FindColor(png, LiberateIconPalette.For(isDark).PlusBadge).Bounds;
+
+		using var bitmap = SKBitmap.Decode(png);
+		Assert.IsNotNull(bitmap);
+
+		Assert.AreEqual(isDark ? SKColors.Black : SKColors.White, bitmap.GetPixel(badge.MidX, badge.MidY));
+	}
+
+	[TestMethod]
+	[DataRow(PdfOverlay.Downloaded)]
+	[DataRow(PdfOverlay.NotDownloaded)]
+	public void the_pdf_glyph_is_pushed_clear_of_the_badge(PdfOverlay pdf)
+	{
+		//Otherwise the PDF's top-left corner would collide with the badge hanging off the stoplight.
+		var palette = LiberateIconPalette.For(isDark: false);
+		var png = StatusImageGenerator.GetPng(Book(pdf, isPlus: true, isDark: false));
+		var badge = FindColor(png, palette.PlusBadge).Bounds;
+
+		//The part of the badge which hangs past the stoplight body - a purchased no-PDF icon ends at
+		//the body's right edge - should have no PDF ink behind it.
+		var bodyRight = PngSize(StatusImageGenerator.GetPng(Book(PdfOverlay.None, isPlus: false, isDark: false))).Width;
+		using var bitmap = SKBitmap.Decode(png);
+		Assert.IsNotNull(bitmap);
+
+		for (var x = bodyRight; x < badge.Right; x++)
+			for (var y = badge.Top; y < badge.Bottom; y++)
+				Assert.AreNotEqual(palette.IconFill, bitmap.GetPixel(x, y), $"PDF ink inside the badge's rows at {x},{y}");
+	}
+
+	#endregion
+
+	private static LiberateIconDescriptor Book(PdfOverlay pdf, bool isPlus, bool isDark)
+		=> LiberateIconDescriptor.ForBook(StoplightLamp.Green, pdf, isPlus, isDark);
+
+	/// <summary>The bounding box of, and number of, pixels painted exactly <paramref name="color"/>.</summary>
+	private static (SKRectI Bounds, int Count) FindColor(byte[] png, SKColor color)
+	{
+		using var bitmap = SKBitmap.Decode(png);
+		Assert.IsNotNull(bitmap);
+
+		int left = int.MaxValue, top = int.MaxValue, right = int.MinValue, bottom = int.MinValue;
+		var count = 0;
+
+		for (var x = 0; x < bitmap.Width; x++)
+			for (var y = 0; y < bitmap.Height; y++)
+				if (bitmap.GetPixel(x, y) == color)
+				{
+					left = Math.Min(left, x);
+					top = Math.Min(top, y);
+					right = Math.Max(right, x + 1);
+					bottom = Math.Max(bottom, y + 1);
+					count++;
+				}
+
+		return (count == 0 ? SKRectI.Empty : new SKRectI(left, top, right, bottom), count);
 	}
 
 	[TestMethod]
