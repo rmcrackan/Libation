@@ -27,11 +27,13 @@ public enum PdfOverlay { None, Downloaded, NotDownloaded }
 /// <see cref="StatusImageGenerator"/> caches a rendering of each one.
 /// </summary>
 /// <remarks>
+/// <see cref="IsPlus"/> marks an Audible Plus title, as opposed to a purchased one.
+/// <para>
 /// Use the factory methods rather than the constructor: they leave the members which don't apply to
 /// a given <see cref="LiberateIconKind"/> at their default, so that (for example) every series row
-/// shares one cache entry instead of one per lamp/PDF combination.
+/// shares one cache entry instead of one per lamp/PDF/Plus combination.
+/// </para>
 /// </remarks>
-/// <param name="IsPlus">Whether the book is an Audible Plus title rather than a purchased one.</param>
 public readonly record struct LiberateIconDescriptor(LiberateIconKind Kind, StoplightLamp Lamp, PdfOverlay Pdf, bool IsPlus, bool IsDark)
 {
 	public static LiberateIconDescriptor ForBook(StoplightLamp lamp, PdfOverlay pdf, bool isPlus, bool isDark)
