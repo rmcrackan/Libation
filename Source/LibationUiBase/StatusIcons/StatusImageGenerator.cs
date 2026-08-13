@@ -113,16 +113,14 @@ public static class StatusImageGenerator
 		var badgeRadius = LiberateIconGeometry.PlusBadgeDiameter / 2;
 		var badgeCenterX = stoplightWidth + LiberateIconGeometry.PlusBadgeCornerOffset;
 		var badgeCenterY = badgeRadius;
-		var badgeOuterRight = badgeCenterX + badgeRadius + LiberateIconGeometry.PlusBadgeRimWidth;
 
+		//The badge overlaps whatever it lands on rather than displacing it, so the icon is no wider
+		//than a purchased one once a PDF is present. What keeps that from looking muddy is the rim:
+		//a hole cut through everything underneath, so the row - not the stoplight or the PDF -
+		//shows through the gap around the circle.
 		if (descriptor.IsPlus)
 		{
-			//Cut a rim of nothing out of the stoplight around the badge. Without it the circle
-			//abuts the body and the two smudge into one shape; the gap has to be a hole rather than
-			//stoplight-colored, so whatever is behind the icon shows through it.
-			using var rim = new SKPath();
-			rim.AddCircle(badgeCenterX, badgeCenterY, badgeRadius + LiberateIconGeometry.PlusBadgeRimWidth);
-
+			using var rim = BadgeRim(badgeCenterX, badgeCenterY, badgeRadius);
 			body = Difference(body, rim);
 			lamp = Difference(lamp, rim);
 		}
@@ -130,22 +128,7 @@ public static class StatusImageGenerator
 		layers.Add((lamp, palette.Lamp(descriptor.Lamp)));
 		layers.Add((body, palette.IconFill));
 
-		var width = stoplightWidth;
-		var pdfLeft = stoplightWidth + LiberateIconGeometry.PdfLeftMargin;
-
-		if (descriptor.IsPlus)
-		{
-			var badge = new SKPath();
-			badge.AddCircle(badgeCenterX, badgeCenterY, badgeRadius);
-
-			layers.Add((badge, palette.PlusBadge));
-			layers.Add((PlusGlyph(badgeCenterX, badgeCenterY), palette.PlusBadgeGlyph));
-
-			//Only the circle is ink, so the icon ends there; the rim beyond it is empty. The PDF
-			//still has to clear that rim, or it would sit inside the badge's gap.
-			width = badgeCenterX + badgeRadius;
-			pdfLeft = MathF.Max(pdfLeft, badgeOuterRight + LiberateIconGeometry.PlusBadgePdfGap);
-		}
+		var width = descriptor.IsPlus ? badgeCenterX + badgeRadius : stoplightWidth;
 
 		if (descriptor.Pdf is not PdfOverlay.None)
 		{
@@ -154,17 +137,43 @@ public static class StatusImageGenerator
 				pdf = Union(pdf, ParsePath(LiberateIconGeometry.PdfDownArrow));
 
 			//Scale to a fixed width, then center vertically, so the document glyph is the same size
-			//whether or not the download arrow hangs beneath it.
+			//and in the same place whether or not the download arrow hangs beneath it, and whether
+			//or not the book is a Plus title.
 			var pdfBounds = pdf.TightBounds;
 			var pdfScale = LiberateIconGeometry.PdfWidth / pdfBounds.Width;
+			var left = stoplightWidth + LiberateIconGeometry.PdfLeftMargin;
 			var top = (LiberateIconGeometry.StoplightHeight - pdfBounds.Height * pdfScale) / 2;
-			pdf.Transform(ScaleThenTranslate(pdfScale, pdfLeft - pdfBounds.Left * pdfScale, top - pdfBounds.Top * pdfScale));
+			pdf.Transform(ScaleThenTranslate(pdfScale, left - pdfBounds.Left * pdfScale, top - pdfBounds.Top * pdfScale));
+
+			if (descriptor.IsPlus)
+			{
+				using var rim = BadgeRim(badgeCenterX, badgeCenterY, badgeRadius);
+				pdf = Difference(pdf, rim);
+			}
 
 			layers.Add((pdf, palette.IconFill));
-			width = pdfLeft + LiberateIconGeometry.PdfWidth;
+			width = MathF.Max(width, left + LiberateIconGeometry.PdfWidth);
+		}
+
+		//Drawn last so the badge sits on top of everything it overlaps.
+		if (descriptor.IsPlus)
+		{
+			var badge = new SKPath();
+			badge.AddCircle(badgeCenterX, badgeCenterY, badgeRadius);
+
+			layers.Add((badge, palette.PlusBadge));
+			layers.Add((PlusGlyph(badgeCenterX, badgeCenterY), palette.PlusBadgeGlyph));
 		}
 
 		return (layers, new SKSize(width, LiberateIconGeometry.StoplightHeight));
+	}
+
+	/// <summary>The hole cut around the Audible Plus badge, separating it from whatever it overlaps.</summary>
+	private static SKPath BadgeRim(float centerX, float centerY, float badgeRadius)
+	{
+		var rim = new SKPath();
+		rim.AddCircle(centerX, centerY, badgeRadius + LiberateIconGeometry.PlusBadgeRimWidth);
+		return rim;
 	}
 
 	/// <summary>

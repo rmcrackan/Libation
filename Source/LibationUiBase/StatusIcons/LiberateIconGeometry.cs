@@ -78,13 +78,10 @@ internal static class LiberateIconGeometry
 	public const float PlusBadgeCornerOffset = 5;
 
 	/// <summary>
-	/// How wide a rim of nothing is cut out of the stoplight around the badge. Without it the
-	/// circle runs straight into the body and the two read as one blobby shape.
+	/// How wide a rim of nothing is cut out of whatever the badge overlaps. Without it the circle
+	/// runs straight into the stoplight and the PDF, and they read as one blobby shape.
 	/// </summary>
 	public const float PlusBadgeRimWidth = 2.5f;
-
-	/// <summary>Keeps the badge's rim from reaching the PDF glyph on a Plus title which has a PDF.</summary>
-	public const float PlusBadgePdfGap = 2;
 
 	/// <summary>
 	/// The badge's plus, as a fraction of the badge's diameter, and its bars' thickness as a

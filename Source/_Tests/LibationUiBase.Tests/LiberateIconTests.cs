@@ -91,14 +91,36 @@ public class LiberateIconTests
 	[DataRow(PdfOverlay.None)]
 	[DataRow(PdfOverlay.Downloaded)]
 	[DataRow(PdfOverlay.NotDownloaded)]
-	public void the_plus_badge_widens_the_icon_without_making_it_taller(PdfOverlay pdf)
+	public void the_badge_never_makes_the_icon_taller(PdfOverlay pdf)
 	{
-		//The badge hangs off the stoplight's right, and sits flush with the top edge rather than
-		//above it, so the stoplight itself is drawn identically for a Plus and a purchased title.
+		//It sits flush with the top edge rather than above it, so the stoplight is drawn at exactly
+		//the same size for a Plus title as for a purchased one.
 		var purchased = PngSize(StatusImageGenerator.GetPng(Book(pdf, isPlus: false, isDark: false)));
 		var plus = PngSize(StatusImageGenerator.GetPng(Book(pdf, isPlus: true, isDark: false)));
 
 		Assert.AreEqual(purchased.Height, plus.Height);
+	}
+
+	[TestMethod]
+	[DataRow(PdfOverlay.Downloaded)]
+	[DataRow(PdfOverlay.NotDownloaded)]
+	public void the_badge_costs_no_width_on_an_icon_which_has_a_pdf(PdfOverlay pdf)
+	{
+		//The badge overlaps the PDF instead of displacing it, so the grid's widest icon is the same
+		//as it was before badges existed, and the PDF lines up across Plus and purchased rows.
+		var purchased = PngSize(StatusImageGenerator.GetPng(Book(pdf, isPlus: false, isDark: false)));
+		var plus = PngSize(StatusImageGenerator.GetPng(Book(pdf, isPlus: true, isDark: false)));
+
+		Assert.AreEqual(purchased.Width, plus.Width);
+	}
+
+	[TestMethod]
+	public void the_badge_widens_an_icon_with_nothing_to_overlap()
+	{
+		//With no PDF beside it there is nothing to overlap, so the badge hangs off the right.
+		var purchased = PngSize(StatusImageGenerator.GetPng(Book(PdfOverlay.None, isPlus: false, isDark: false)));
+		var plus = PngSize(StatusImageGenerator.GetPng(Book(PdfOverlay.None, isPlus: true, isDark: false)));
+
 		Assert.IsGreaterThan(purchased.Width, plus.Width);
 	}
 
@@ -180,24 +202,36 @@ public class LiberateIconTests
 	}
 
 	[TestMethod]
+	[DataRow(PdfOverlay.None)]
 	[DataRow(PdfOverlay.Downloaded)]
 	[DataRow(PdfOverlay.NotDownloaded)]
-	public void the_pdf_glyph_is_pushed_clear_of_the_badge(PdfOverlay pdf)
+	public void the_rim_keeps_the_stoplight_and_pdf_out_of_the_badge(PdfOverlay pdf)
 	{
-		//Otherwise the PDF's top-left corner would collide with the badge hanging off the stoplight.
+		//The badge is allowed to overlap both, so the rim is the only thing stopping them running
+		//together. Nothing but the badge may be painted inside it.
 		var palette = LiberateIconPalette.For(isDark: false);
 		var png = StatusImageGenerator.GetPng(Book(pdf, isPlus: true, isDark: false));
 		var badge = FindColor(png, palette.PlusBadge).Bounds;
 
-		//The part of the badge which hangs past the stoplight body - a purchased no-PDF icon ends at
-		//the body's right edge - should have no PDF ink behind it.
-		var bodyRight = PngSize(StatusImageGenerator.GetPng(Book(PdfOverlay.None, isPlus: false, isDark: false))).Width;
 		using var bitmap = SKBitmap.Decode(png);
 		Assert.IsNotNull(bitmap);
 
-		for (var x = bodyRight; x < badge.Right; x++)
-			for (var y = badge.Top; y < badge.Bottom; y++)
-				Assert.AreNotEqual(palette.IconFill, bitmap.GetPixel(x, y), $"PDF ink inside the badge's rows at {x},{y}");
+		//Probe a few pixels past the badge's painted edge, which lands inside the gap. Deriving this
+		//from the rim's own width would collapse the probe to nothing if the rim were removed.
+		var radius = badge.Width / 2f + 3;
+
+		for (var x = Math.Max(0, (int)(badge.MidX - radius)); x < Math.Min(bitmap.Width, badge.MidX + radius); x++)
+			for (var y = Math.Max(0, (int)(badge.MidY - radius)); y < Math.Min(bitmap.Height, badge.MidY + radius); y++)
+			{
+				var dx = x - badge.MidX;
+				var dy = y - badge.MidY;
+				if (dx * dx + dy * dy > radius * radius)
+					continue;
+
+				var pixel = bitmap.GetPixel(x, y);
+				Assert.AreNotEqual(palette.IconFill, pixel, $"stoplight or PDF ink inside the badge's rim at {x},{y}");
+				Assert.AreNotEqual(palette.Green, pixel, $"lamp inside the badge's rim at {x},{y}");
+			}
 	}
 
 	#endregion
