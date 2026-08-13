@@ -14,6 +14,10 @@ internal readonly struct LiberateIconPalette
 	public required SKColor Green { get; init; }
 	public required SKColor Error { get; init; }
 
+	/// <summary>The Audible Plus badge's circle, and the plus drawn on top of it.</summary>
+	public required SKColor PlusBadge { get; init; }
+	public required SKColor PlusBadgeGlyph { get; init; }
+
 	public SKColor Lamp(StoplightLamp lamp) => lamp switch
 	{
 		StoplightLamp.Red => Red,
@@ -31,7 +35,9 @@ internal readonly struct LiberateIconPalette
 		Yellow = new SKColor(0xF0, 0xE1, 0x60),
 		Green = new SKColor(0x70, 0xFA, 0x70),
 		//FireBrick
-		Error = new SKColor(0xB2, 0x22, 0x22)
+		Error = new SKColor(0xB2, 0x22, 0x22),
+		PlusBadge = new SKColor(0xE8, 0x72, 0x0C),
+		PlusBadgeGlyph = SKColors.White
 	};
 
 	private static readonly LiberateIconPalette Dark = new()
@@ -40,6 +46,10 @@ internal readonly struct LiberateIconPalette
 		Red = new SKColor(0x7D, 0x1F, 0x1F),
 		Yellow = new SKColor(0x7D, 0x7D, 0x1F),
 		Green = new SKColor(0x1F, 0x7D, 0x1F),
-		Error = new SKColor(0x80, 0x27, 0x27)
+		Error = new SKColor(0x80, 0x27, 0x27),
+		//Unlike the lamps, this is not muted for dark mode: the plus drawn on it is black, so the
+		//circle has to stay bright enough to read against.
+		PlusBadge = new SKColor(0xF0, 0x91, 0x3C),
+		PlusBadgeGlyph = SKColors.Black
 	};
 }

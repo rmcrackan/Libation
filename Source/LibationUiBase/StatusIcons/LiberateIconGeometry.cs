@@ -69,5 +69,24 @@ internal static class LiberateIconGeometry
 	public const float PdfWidth = 28.8f;
 	public const float PdfLeftMargin = 4;
 
+	/// <summary>
+	/// The Audible Plus badge's diameter, and how far right of the stoplight body's edge its center
+	/// sits. The badge's top is flush with the icon's, so it costs no height and the stoplight is
+	/// drawn at the same size whether or not a book is a Plus title.
+	/// </summary>
+	public const float PlusBadgeDiameter = 18;
+	public const float PlusBadgeCornerOffset = 3;
+
+	/// <summary>Keeps the badge from touching the PDF glyph on a Plus title which also has a PDF.</summary>
+	public const float PlusBadgePdfGap = 2;
+
+	/// <summary>
+	/// The badge's plus, as a fraction of the badge's diameter, and its bars' thickness as a
+	/// fraction of that. The bars are far chunkier than the series plus's because the badge is a
+	/// third of the icon's height, and a proportionally scaled plus would disappear in the grid.
+	/// </summary>
+	public const float PlusBadgeGlyphExtent = 0.55f;
+	public const float PlusBadgeGlyphThickness = 0.3f;
+
 	#endregion
 }

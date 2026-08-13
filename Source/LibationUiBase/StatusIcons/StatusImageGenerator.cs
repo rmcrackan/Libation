@@ -111,6 +111,24 @@ public static class StatusImageGenerator
 		layers.Add((body, palette.IconFill));
 
 		var width = stoplightWidth;
+		var badgeRight = stoplightWidth;
+
+		if (descriptor.IsPlus)
+		{
+			//Sitting flush with the top edge keeps the badge out of the stoplight's height, so a
+			//Plus title's stoplight is drawn at exactly the same size as a purchased one's.
+			var radius = LiberateIconGeometry.PlusBadgeDiameter / 2;
+			var centerX = stoplightWidth + LiberateIconGeometry.PlusBadgeCornerOffset;
+
+			var badge = new SKPath();
+			badge.AddCircle(centerX, radius, radius);
+
+			layers.Add((badge, palette.PlusBadge));
+			layers.Add((PlusGlyph(centerX, radius), palette.PlusBadgeGlyph));
+
+			badgeRight = centerX + radius;
+			width = badgeRight;
+		}
 
 		if (descriptor.Pdf is not PdfOverlay.None)
 		{
@@ -122,7 +140,9 @@ public static class StatusImageGenerator
 			//whether or not the download arrow hangs beneath it.
 			var pdfBounds = pdf.TightBounds;
 			var pdfScale = LiberateIconGeometry.PdfWidth / pdfBounds.Width;
-			var left = stoplightWidth + LiberateIconGeometry.PdfLeftMargin;
+			var left = MathF.Max(
+				stoplightWidth + LiberateIconGeometry.PdfLeftMargin,
+				badgeRight + LiberateIconGeometry.PlusBadgePdfGap);
 			var top = (LiberateIconGeometry.StoplightHeight - pdfBounds.Height * pdfScale) / 2;
 			pdf.Transform(ScaleThenTranslate(pdfScale, left - pdfBounds.Left * pdfScale, top - pdfBounds.Top * pdfScale));
 
@@ -131,6 +151,22 @@ public static class StatusImageGenerator
 		}
 
 		return (layers, new SKSize(width, LiberateIconGeometry.StoplightHeight));
+	}
+
+	/// <summary>
+	/// The plus drawn on the Audible Plus badge, as two overlapping rounded bars. They are wound the
+	/// same way and filled by the winding rule, so the square where they cross stays filled.
+	/// </summary>
+	private static SKPath PlusGlyph(float centerX, float centerY)
+	{
+		var extent = LiberateIconGeometry.PlusBadgeDiameter * LiberateIconGeometry.PlusBadgeGlyphExtent;
+		var thickness = extent * LiberateIconGeometry.PlusBadgeGlyphThickness;
+		var corner = thickness * 0.15f;
+
+		var plus = new SKPath { FillType = SKPathFillType.Winding };
+		plus.AddRoundRect(SKRect.Create(centerX - extent / 2, centerY - thickness / 2, extent, thickness), corner, corner);
+		plus.AddRoundRect(SKRect.Create(centerX - thickness / 2, centerY - extent / 2, thickness, extent), corner, corner);
+		return plus;
 	}
 
 	private static SKPath ParsePath(string svgPathData)
