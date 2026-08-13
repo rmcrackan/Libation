@@ -32,8 +32,9 @@ plus a headless CLI (`LibationCli`) that shares the same config and SQLite libra
   (configured via `global.json` `test.runner`). Because of this runner, `dotnet test` requires
   `--project` for a single project (a positional project path is rejected):
   `dotnet test --project Source/_Tests/FileManager.Tests/FileManager.Tests.csproj`
-- CI runs `dotnet test` from `Source/`, which builds the entire solution first and is slow;
-  prefer running the seven test projects individually on Linux.
+- CI runs `dotnet test` from `Source/` on every platform, Linux included, and it works here too: the
+  restore covers the whole solution but only the test projects and their references are compiled, so
+  the Windows-only projects never break the run. Naming one project is simply quicker.
 - **Manual UI testing:** `dotnet run Scripts/seed-demo-library.cs` fills the library with fake books
   covering every Liberate-column icon and prints the expected result for each row
   (`-- --clean` removes them). Read `docs/development/testing.md` before seeding library state by

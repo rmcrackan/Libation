@@ -19,7 +19,7 @@ cd Source
 dotnet test
 ```
 
-Running from `Source/` builds the whole solution first, which is slow, and on Linux it will fail on the Windows-only projects (`LibationWinForms`, `HangoverWinForms`, and the Windows and macOS `LoadByOS` config apps). Running the projects individually avoids both problems.
+Running from `Source/` works on every platform, including Linux. It restores the whole solution but only builds the test projects and what they reference, so the Windows-only projects (`LibationWinForms`, `HangoverWinForms`) are never compiled and do not break the run. Naming a single project is just quicker and gives less output while you iterate.
 
 Each one tests the source project of the same name:
 
