@@ -41,8 +41,8 @@ internal static class WinFormsUtil
 	public static int DpiUnscale(this Control control, int value)
 		=> (int)float.Round(BaseDpi / control.DeviceDpi * value);
 
-	public static int ScaleX(this Graphics control, int value)
-		=> (int)float.Round(control.DpiX / BaseDpi * value);
-	public static int ScaleY(this Graphics control, int value)
-		=> (int)float.Round(control.DpiY / BaseDpi * value);
+	public static float ScaleX(this Graphics control, float value)
+		=> control.DpiX / BaseDpi * value;
+	public static float ScaleY(this Graphics control, float value)
+		=> control.DpiY / BaseDpi * value;
 }
