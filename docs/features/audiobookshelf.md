@@ -58,6 +58,34 @@ When auto-upload is enabled and configured:
 
 Upload runs for GUI download/decrypt and for CLI `liberate`. It does **not** run on the separate **Convert to MP3** queue or `libationcli convert` - those paths only convert local files.
 
+Auto-upload only ever fires at the moment a book is liberated. To send books you liberated earlier, see [Uploading books you already liberated](#uploading-books-you-already-liberated).
+
+## Uploading books you already liberated
+
+Books liberated before Audiobookshelf was set up - or while it was turned off - are never sent by auto-upload. The `abs upload` command backfills them from the copies already on disk. Nothing is re-downloaded from Audible, and local files are never deleted.
+
+Upload every liberated book:
+
+```console
+libationcli abs upload
+```
+
+Upload specific titles:
+
+```console
+libationcli abs upload B017V4IM1G
+libationcli abs upload --id B017V4IM1G
+```
+
+The command:
+
+- Considers only books Libation has marked as **liberated**. Books whose liberation errored are skipped, because an errored liberation may have left partial files.
+- Finds audio using both Libation's file-path cache **and** a scan of your Books directory, so books whose cache entry was lost are still found.
+- Checks the server before each upload and skips titles already present - see [Duplicate handling](#duplicate-handling).
+- Prints a summary at the end: uploaded, already on server, no files found, failed, skipped. `skipped` counts books you named by ASIN that were not eligible - most often because they are not marked as liberated.
+
+Libation does not record which books it has already uploaded, so every run re-checks each candidate against the server. That costs a couple of search requests per book, which is noticeable on a large library but makes repeat runs safe to retry.
+
 ## Duplicate handling
 
 Before uploading, Libation searches the target Audiobookshelf library for an existing item with a matching title (and author when available). If a match is found, or Audiobookshelf reports that the destination already exists, Libation skips the upload and continues.
@@ -69,6 +97,8 @@ If the Audiobookshelf server is unreachable, the token is wrong, or upload fails
 - The book remains liberated on disk.
 - The queue or CLI does not treat the book as a failed/bad liberate.
 - Status text and the log still report the upload error.
+
+This applies to `libationcli abs upload` too: a failed upload never marks a book as a bad liberate. Because uploading is that command's only job, it also reports each failure on stderr and counts it in the end-of-run summary. It still exits 0, matching Libation's other commands - read the summary and stderr together to see whether a backfill actually succeeded.
 
 ## Tips
 

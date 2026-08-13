@@ -26,6 +26,16 @@ internal class HelpVerb
 		MaximumDisplayWidth = 80
 	};
 
+	public static HelpText GetGroupHelpText(CliCommandGroup group)
+	{
+		var helpText = CreateHelpText();
+		helpText.AddPreOptionsLine(group.HelpText);
+		helpText.AddPreOptionsLine($"{group.Name} commands:");
+		foreach (var subcommand in group.Subcommands)
+			helpText.AddPreOptionsLine($"  {group.Name} {subcommand.Name}  {subcommand.HelpText}");
+		return helpText;
+	}
+
 	/// <summary>
 	/// Get the <see cref="HelpType"/>'s <see cref="HelpText"/>
 	/// </summary>

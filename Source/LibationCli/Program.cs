@@ -2,6 +2,8 @@
 using CommandLine.Text;
 using Dinah.Core;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -28,9 +30,14 @@ public enum ExitCode
 	ParseError = 2,
 	RunTimeError = 3
 }
+
+internal sealed record CliParseOutcome(ParserResult<object>? Result, ExitCode? ExitCode);
+
 class Program
 {
-	public static readonly Type[] VerbTypes = Setup.LoadVerbs();
+	public static readonly Type[] VerbTypes = Setup.LoadVerbs()
+		.Where(type => type != typeof(AbsUploadOptions))
+		.ToArray();
 	static async Task Main(string[] args)
 	{
 		Console.OutputEncoding = Console.InputEncoding = System.Text.Encoding.UTF8;
@@ -55,60 +62,92 @@ class Program
 			args = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 		var setBreakPointHere = args;
 #endif
-
-		if (TryPrintGlobalHelpOnly(args))
+		var outcome = ParseInvocation(args, Console.Error);
+		if (outcome.ExitCode is { } exitCode)
+		{
+			Environment.ExitCode = (int)exitCode;
 			return;
+		}
+
+		//Everything parsed correctly, so execute the command
+		// async: run parsed options
+		await outcome.Result!.WithParsedAsync<OptionsBase>(opt => opt.Run());
+	}
+
+	internal static CliParseOutcome ParseInvocation(
+		string[] args,
+		TextWriter error,
+		IReadOnlyList<CliCommandGroup>? groups = null)
+	{
+		var route = CliCommandRouter.Route(args, groups ?? CliCommandGroups.All);
+		if (route.Kind == CliRouteKind.GroupHelp)
+		{
+			error.WriteLine(HelpVerb.GetGroupHelpText(route.Group!));
+			return new(null, ExitCode.ProcessCompletedSuccessfully);
+		}
+
+		args = route.ParserArgs;
+		if (route.Kind == CliRouteKind.UnknownSubcommand)
+		{
+			error.WriteLine($"Unknown {route.Group!.Name.ToUpperInvariant()} command '{args[1]}'.");
+			error.WriteLine(HelpVerb.GetGroupHelpText(route.Group!));
+			return new(null, ExitCode.ParseError);
+		}
+
+		if (TryPrintGlobalHelpOnly(args, error))
+			return new(null, ExitCode.ProcessCompletedSuccessfully);
 
 		args = NormalizeVerbShortHelpAliases(args);
 
-		var result = new Parser(ConfigureParser).ParseArguments(args, VerbTypes);
+		Type[] parserVerbTypes = route.Subcommand is { } subcommand
+			? [subcommand.OptionsType]
+			: VerbTypes;
+		var result = new Parser(ConfigureParser).ParseArguments(args, parserVerbTypes);
 
 		if (result.Value is HelpVerb helper)
-			Console.Error.WriteLine(helper.GetHelpText());
-		else if (result.TypeInfo.Current == typeof(HelpVerb))
+		{
+			error.WriteLine(helper.GetHelpText());
+			return new(result, ExitCode.ProcessCompletedSuccessfully);
+		}
+
+		if (result.TypeInfo.Current == typeof(HelpVerb))
 		{
 			//Error parsing the command, but the verb type was identified as HelpVerb
 			//Print LibationCli usage
 			var helpText = HelpVerb.CreateHelpText();
 			helpText.AddVerbs(VerbTypes);
-			Console.Error.WriteLine(helpText);
+			error.WriteLine(helpText);
+			return new(result, ExitCode.ProcessCompletedSuccessfully);
 		}
-		else if (result.Errors.Any())
-			HandleErrors(result);
-		else
-		{
-			//Everything parsed correctly, so execute the command
-			// async: run parsed options
-			await result.WithParsedAsync<OptionsBase>(opt => opt.Run());
-		}
+
+		if (result.Errors.Any())
+			return new(result, HandleErrors(result, error));
+
+		return new(result, null);
 	}
 
-	private static void HandleErrors(ParserResult<object> result)
+	private static ExitCode HandleErrors(ParserResult<object> result, TextWriter error)
 	{
 		var errorsList = result.Errors.ToList();
 
 		if (errorsList.Any(e => e.Tag == ErrorType.HelpRequestedError))
 		{
-			Environment.ExitCode = (int)ExitCode.ProcessCompletedSuccessfully;
-			WriteVerbOptionsHelp(result);
-			return;
+			WriteVerbOptionsHelp(result, error);
+			return ExitCode.ProcessCompletedSuccessfully;
 		}
 
 		if (errorsList.OfType<HelpVerbRequestedError>().FirstOrDefault() is { } helpVerbErr)
 		{
-			Environment.ExitCode = (int)ExitCode.ProcessCompletedSuccessfully;
-			WriteHelpForVerbRequestedError(helpVerbErr);
-			return;
+			WriteHelpForVerbRequestedError(helpVerbErr, error);
+			return ExitCode.ProcessCompletedSuccessfully;
 		}
 
 		if (errorsList.Any(e => e.Tag == ErrorType.VersionRequestedError))
 		{
-			Environment.ExitCode = (int)ExitCode.ProcessCompletedSuccessfully;
-			Console.Error.WriteLine(HelpVerb.CreateHelpText().Heading);
-			return;
+			error.WriteLine(HelpVerb.CreateHelpText().Heading);
+			return ExitCode.ProcessCompletedSuccessfully;
 		}
 
-		Environment.ExitCode = (int)ExitCode.ParseError;
 		var helpText = HelpVerb.CreateHelpText();
 
 		if (errorsList.OfType<NoVerbSelectedError>().Any())
@@ -132,19 +171,19 @@ class Program
 
 			helpText.AddOptions(result);
 		}
-		Console.Error.WriteLine(helpText);
+		error.WriteLine(helpText);
+		return ExitCode.ParseError;
 	}
 
 	/// <summary>
 	/// Multi-verb parsing treats the first token as a verb name, so bare <c>--help</c> / <c>-h</c> must be handled here.
 	/// </summary>
-	private static bool TryPrintGlobalHelpOnly(string[] args)
+	private static bool TryPrintGlobalHelpOnly(string[] args, TextWriter error)
 	{
 		if (args is not { Length: 1 } || !GlobalCliHelp.IsGlobalHelpToken(args[0]))
 			return false;
 
-		WriteGlobalVerbListHelp();
-		Environment.ExitCode = (int)ExitCode.ProcessCompletedSuccessfully;
+		WriteGlobalVerbListHelp(error);
 		return true;
 	}
 
@@ -169,37 +208,40 @@ class Program
 		return copy;
 	}
 
-	private static void WriteGlobalVerbListHelp(string? preOptionsLine = null)
+	private static void WriteGlobalVerbListHelp(TextWriter error, string? preOptionsLine = null)
 	{
 		var helpText = HelpVerb.CreateHelpText();
 		if (preOptionsLine is not null)
 			helpText.AddPreOptionsLine(preOptionsLine);
 		helpText.AddVerbs(VerbTypes);
-		Console.Error.WriteLine(helpText);
+		error.WriteLine(helpText);
+
+		foreach (var group in CliCommandGroups.All)
+			error.WriteLine($"  {group.Name,-21}{group.HelpText}");
 	}
 
-	private static void WriteVerbOptionsHelp(ParserResult<object> result)
+	private static void WriteVerbOptionsHelp(ParserResult<object> result, TextWriter error)
 	{
 		var helpText = HelpVerb.CreateHelpText();
 		helpText.AddDashesToOption = true;
 		helpText.AutoHelp = true;
 		helpText.AddOptions(result);
-		Console.Error.WriteLine(helpText);
+		error.WriteLine(helpText);
 	}
 
-	private static void WriteHelpForVerbRequestedError(HelpVerbRequestedError helpVerbErr)
+	private static void WriteHelpForVerbRequestedError(HelpVerbRequestedError helpVerbErr, TextWriter error)
 	{
 		if (!helpVerbErr.Matched || helpVerbErr.Type is null || string.IsNullOrWhiteSpace(helpVerbErr.Verb))
 		{
-			WriteGlobalVerbListHelp();
+			WriteGlobalVerbListHelp(error);
 			return;
 		}
 
 		var subResult = new Parser(ConfigureParser).ParseArguments(new[] { helpVerbErr.Verb }, VerbTypes);
 		if (subResult.TypeInfo.Current != typeof(NullInstance))
-			WriteVerbOptionsHelp(subResult);
+			WriteVerbOptionsHelp(subResult, error);
 		else
-			WriteGlobalVerbListHelp();
+			WriteGlobalVerbListHelp(error);
 	}
 
 	private static void ConfigureParser(ParserSettings settings)

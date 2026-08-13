@@ -81,7 +81,7 @@ public abstract class ProcessableOptionsBase : OptionsBase
 		return strProc;
 	}
 
-	protected async Task RunAsync(Processable Processable, Action<LibraryBook>? config = null)
+	protected async Task RunAsync(Processable Processable, Action<LibraryBook>? config = null, Action<string>? notFound = null)
 	{
 		var productIds = GetProductIds().ToArray();
 		if (productIds.Length > 0)
@@ -93,12 +93,13 @@ public abstract class ProcessableOptionsBase : OptionsBase
 					config?.Invoke(lb);
 					await ProcessOneAsync(Processable, lb, true);
 				}
-				else
-				{
+			else
+			{
 					var msg = $"Book with ASIN '{asin}' not found in library. Skipping.";
 					Console.Error.WriteLine(msg);
 					Serilog.Log.Logger.Error(msg);
-				}
+					notFound?.Invoke(asin);
+			}
 			}
 		}
 		else
