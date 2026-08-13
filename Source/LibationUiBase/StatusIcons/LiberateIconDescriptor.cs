@@ -27,20 +27,23 @@ public enum PdfOverlay { None, Downloaded, NotDownloaded }
 /// <see cref="StatusImageGenerator"/> caches a rendering of each one.
 /// </summary>
 /// <remarks>
+/// <see cref="IsPlus"/> marks an Audible Plus title, as opposed to a purchased one.
+/// <para>
 /// Use the factory methods rather than the constructor: they leave the members which don't apply to
 /// a given <see cref="LiberateIconKind"/> at their default, so that (for example) every series row
-/// shares one cache entry instead of one per lamp/PDF combination.
+/// shares one cache entry instead of one per lamp/PDF/Plus combination.
+/// </para>
 /// </remarks>
-public readonly record struct LiberateIconDescriptor(LiberateIconKind Kind, StoplightLamp Lamp, PdfOverlay Pdf, bool IsDark)
+public readonly record struct LiberateIconDescriptor(LiberateIconKind Kind, StoplightLamp Lamp, PdfOverlay Pdf, bool IsPlus, bool IsDark)
 {
-	public static LiberateIconDescriptor ForBook(StoplightLamp lamp, PdfOverlay pdf, bool isDark)
-		=> new(LiberateIconKind.Book, lamp, pdf, isDark);
+	public static LiberateIconDescriptor ForBook(StoplightLamp lamp, PdfOverlay pdf, bool isPlus, bool isDark)
+		=> new(LiberateIconKind.Book, lamp, pdf, isPlus, isDark);
 
 	public static LiberateIconDescriptor ForSeries(bool expanded, bool isDark)
-		=> new(expanded ? LiberateIconKind.SeriesExpanded : LiberateIconKind.SeriesCollapsed, default, default, isDark);
+		=> new(expanded ? LiberateIconKind.SeriesExpanded : LiberateIconKind.SeriesCollapsed, default, default, default, isDark);
 
 	public static LiberateIconDescriptor ForError(bool isDark)
-		=> new(LiberateIconKind.Error, default, default, isDark);
+		=> new(LiberateIconKind.Error, default, default, default, isDark);
 
 	/// <summary>Every icon the Liberate column can display.</summary>
 	public static IEnumerable<LiberateIconDescriptor> All()
@@ -49,7 +52,8 @@ public readonly record struct LiberateIconDescriptor(LiberateIconKind Kind, Stop
 		{
 			foreach (var lamp in Enum.GetValues<StoplightLamp>())
 				foreach (var pdf in Enum.GetValues<PdfOverlay>())
-					yield return ForBook(lamp, pdf, isDark);
+					foreach (var isPlus in new[] { false, true })
+						yield return ForBook(lamp, pdf, isPlus, isDark);
 
 			yield return ForSeries(expanded: false, isDark);
 			yield return ForSeries(expanded: true, isDark);

@@ -97,6 +97,7 @@ The stoplights will tell you a title's status:
 - Red: not downloaded
 - PDF icon without arrow: downloaded
 - PDF with arrow: not downloaded
+- Orange plus badge in the upper-right corner: an Audible Plus title rather than one you purchased
 
 Or hover over the button to see the status.
 

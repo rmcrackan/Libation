@@ -40,6 +40,7 @@ We welcome contributions!
 
 - **[Development Getting Started](https://getlibation.com/docs/development/getting-started)**: Setup your environment.
 - **[Contribute](https://getlibation.com/docs/development/contribute)**: How to contribute code.
+- **[Testing Changes](https://getlibation.com/docs/development/testing)**: Run the tests and seed a demo library for UI testing.
 - **[Website & Docs](https://getlibation.com/docs/development/website)**: How to run and improve the documentation.
 - **[Linux Setup (Nix)](https://getlibation.com/docs/development/nix-linux-setup)**: Nix-based environment setup.
 

@@ -107,10 +107,28 @@ public static class StatusImageGenerator
 		//The lamp goes under the body, so it shows through the bezel cut out of it.
 		var lamp = new SKPath();
 		lamp.AddRect(SKRect.Create(LiberateIconGeometry.LampLeft, lampTop, LiberateIconGeometry.LampWidth, LiberateIconGeometry.LampHeight));
+
+		//Sitting flush with the top edge keeps the badge out of the stoplight's height, so a Plus
+		//title's stoplight is drawn at exactly the same size as a purchased one's.
+		var badgeRadius = LiberateIconGeometry.PlusBadgeDiameter / 2;
+		var badgeCenterX = stoplightWidth + LiberateIconGeometry.PlusBadgeCornerOffset;
+		var badgeCenterY = badgeRadius;
+
+		//The badge overlaps whatever it lands on rather than displacing it, so the icon is no wider
+		//than a purchased one once a PDF is present. What keeps that from looking muddy is the rim:
+		//a hole cut through everything underneath, so the row - not the stoplight or the PDF -
+		//shows through the gap around the circle.
+		if (descriptor.IsPlus)
+		{
+			using var rim = BadgeRim(badgeCenterX, badgeCenterY, badgeRadius);
+			body = Difference(body, rim);
+			lamp = Difference(lamp, rim);
+		}
+
 		layers.Add((lamp, palette.Lamp(descriptor.Lamp)));
 		layers.Add((body, palette.IconFill));
 
-		var width = stoplightWidth;
+		var width = descriptor.IsPlus ? badgeCenterX + badgeRadius : stoplightWidth;
 
 		if (descriptor.Pdf is not PdfOverlay.None)
 		{
@@ -119,18 +137,59 @@ public static class StatusImageGenerator
 				pdf = Union(pdf, ParsePath(LiberateIconGeometry.PdfDownArrow));
 
 			//Scale to a fixed width, then center vertically, so the document glyph is the same size
-			//whether or not the download arrow hangs beneath it.
+			//and in the same place whether or not the download arrow hangs beneath it, and whether
+			//or not the book is a Plus title.
 			var pdfBounds = pdf.TightBounds;
 			var pdfScale = LiberateIconGeometry.PdfWidth / pdfBounds.Width;
 			var left = stoplightWidth + LiberateIconGeometry.PdfLeftMargin;
 			var top = (LiberateIconGeometry.StoplightHeight - pdfBounds.Height * pdfScale) / 2;
 			pdf.Transform(ScaleThenTranslate(pdfScale, left - pdfBounds.Left * pdfScale, top - pdfBounds.Top * pdfScale));
 
+			if (descriptor.IsPlus)
+			{
+				using var rim = BadgeRim(badgeCenterX, badgeCenterY, badgeRadius);
+				pdf = Difference(pdf, rim);
+			}
+
 			layers.Add((pdf, palette.IconFill));
-			width = left + LiberateIconGeometry.PdfWidth;
+			width = MathF.Max(width, left + LiberateIconGeometry.PdfWidth);
+		}
+
+		//Drawn last so the badge sits on top of everything it overlaps.
+		if (descriptor.IsPlus)
+		{
+			var badge = new SKPath();
+			badge.AddCircle(badgeCenterX, badgeCenterY, badgeRadius);
+
+			layers.Add((badge, palette.PlusBadge));
+			layers.Add((PlusGlyph(badgeCenterX, badgeCenterY), palette.PlusBadgeGlyph));
 		}
 
 		return (layers, new SKSize(width, LiberateIconGeometry.StoplightHeight));
+	}
+
+	/// <summary>The hole cut around the Audible Plus badge, separating it from whatever it overlaps.</summary>
+	private static SKPath BadgeRim(float centerX, float centerY, float badgeRadius)
+	{
+		var rim = new SKPath();
+		rim.AddCircle(centerX, centerY, badgeRadius + LiberateIconGeometry.PlusBadgeRimWidth);
+		return rim;
+	}
+
+	/// <summary>
+	/// The plus drawn on the Audible Plus badge, as two overlapping rounded bars. They are wound the
+	/// same way and filled by the winding rule, so the square where they cross stays filled.
+	/// </summary>
+	private static SKPath PlusGlyph(float centerX, float centerY)
+	{
+		var extent = LiberateIconGeometry.PlusBadgeDiameter * LiberateIconGeometry.PlusBadgeGlyphExtent;
+		var thickness = extent * LiberateIconGeometry.PlusBadgeGlyphThickness;
+		var corner = thickness * 0.15f;
+
+		var plus = new SKPath { FillType = SKPathFillType.Winding };
+		plus.AddRoundRect(SKRect.Create(centerX - extent / 2, centerY - thickness / 2, extent, thickness), corner, corner);
+		plus.AddRoundRect(SKRect.Create(centerX - thickness / 2, centerY - extent / 2, thickness, extent), corner, corner);
+		return plus;
 	}
 
 	private static SKPath ParsePath(string svgPathData)
@@ -147,6 +206,14 @@ public static class StatusImageGenerator
 		using (second)
 			return first.Op(second, SKPathOp.Union)
 				?? throw new InvalidOperationException("Could not union icon paths.");
+	}
+
+	/// <summary>Cut <paramref name="hole"/> out of <paramref name="path"/>. The caller keeps the hole.</summary>
+	private static SKPath Difference(SKPath path, SKPath hole)
+	{
+		using (path)
+			return path.Op(hole, SKPathOp.Difference)
+				?? throw new InvalidOperationException("Could not cut an icon path.");
 	}
 
 	/// <summary>Shift a path so its bounds start at the origin, and return those bounds' size.</summary>

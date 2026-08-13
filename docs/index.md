@@ -38,6 +38,7 @@ Join the community and contribute to Libation:
 
 - **[Getting Started](/docs/development/getting-started)** - Set up your development environment
 - **[Contribute](/docs/development/contribute)** - How to contribute code and handle PRs
+- **[Testing Changes](/docs/development/testing)** - Run the automated tests and seed a demo library for UI testing
 - **[Website & Docs](/docs/development/website)** - Help improve this documentation
 - **[Linux Setup (Nix)](/docs/development/nix-linux-setup)** - Nix-based setup for Linux users
 

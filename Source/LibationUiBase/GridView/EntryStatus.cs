@@ -62,12 +62,14 @@ public class EntryStatus : ReactiveObject, IComparable
 	private DateTime lastBookUpdate;
 	private LiberatedStatus bookStatus;
 	private readonly bool isAbsent;
+	private readonly bool isAudiblePlus;
 	private static readonly Dictionary<LiberateIconDescriptor, object?> iconCache = [];
 
 	internal EntryStatus(LibraryBook libraryBook)
 	{
 		Book = ArgumentValidator.EnsureNotNull(libraryBook, nameof(libraryBook)).Book;
 		isAbsent = libraryBook.AbsentFromLastScan is true;
+		isAudiblePlus = libraryBook.IsAudiblePlus;
 		IsEpisode = Book.ContentType is ContentType.Episode;
 		IsSeries = Book.ContentType is ContentType.Parent;
 	}
@@ -128,7 +130,7 @@ public class EntryStatus : ReactiveObject, IComparable
 			_ => throw new Exception("Unexpected PDF state")
 		};
 
-		return LiberateIconDescriptor.ForBook(lamp, pdf, isDark);
+		return LiberateIconDescriptor.ForBook(lamp, pdf, isAudiblePlus, isDark);
 	}
 
 	private string GetTooltip()
@@ -159,7 +161,9 @@ public class EntryStatus : ReactiveObject, IComparable
 			_ => throw new Exception("Unexpected PDF state")
 		};
 
-		var mouseoverText = libState + pdfState;
+		var plusState = isAudiblePlus ? "\r\nAudible Plus title" : "";
+
+		var mouseoverText = libState + pdfState + plusState;
 
 		if (BookStatus == LiberatedStatus.NotLiberated ||
 			BookStatus == LiberatedStatus.PartialDownload ||
