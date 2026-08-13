@@ -20,10 +20,12 @@ public class CliCommandRouterTests
 	public void Abs_upload_rewrites_only_the_command_path()
 	{
 		var route = CliCommandRouter.Route(
-			["abs", "upload", "B017V4IM1G", "--id", "B000000001"],
+			["abs", "upload", "B017V4IM1G", "--id", "B000000001", "--id", "B000000002"],
 			CliCommandGroups.All);
 
-		CollectionAssert.AreEqual(new[] { "abs-upload", "B017V4IM1G", "--id", "B000000001" }, route.ParserArgs);
+		CollectionAssert.AreEqual(
+			new[] { "abs-upload", "B017V4IM1G", "--id", "B000000001", "--id", "B000000002" },
+			route.ParserArgs);
 	}
 
 	[TestMethod]
