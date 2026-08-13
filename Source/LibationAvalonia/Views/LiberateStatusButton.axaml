@@ -9,22 +9,6 @@
              x:Class="LibationAvalonia.Views.LiberateStatusButton">
 
 	<UserControl.Styles>
-		<Style Selector="Path">
-			<Setter Property="Fill" Value="{DynamicResource IconFill}" />
-			<Setter Property="Stretch" Value="Uniform" />
-			<Setter Property="HorizontalAlignment" Value="Center" />
-			<Setter Property="VerticalAlignment" Value="Center" />
-		</Style>
-		<Style Selector="Rectangle">
-			<Setter Property="Width" Value="20" />
-			<Setter Property="Height" Value="18" />
-		</Style>
-
-		<Style Selector="Grid > Path">
-			<Setter Property="Margin" Value="4,0,0,0" />
-			<Setter Property="Width" Value="28.8" />
-		</Style>
-
 		<Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
 			<Setter Property="Background" Value="{DynamicResource SystemChromeDisabledLowColor}" />
 			<Setter Property="BorderBrush" Value="{DynamicResource SystemChromeDisabledLowColor}" />
@@ -39,41 +23,11 @@
 		IsEnabled="{Binding	IsButtonEnabled}" Click="Button_Click" >
 
 		<Grid RowDefinitions="*,8*,*">
-			<Viewbox
+			<Image
 				Grid.Row="1"
 				Stretch="Uniform"
-				HorizontalAlignment="Stretch"
-				VerticalAlignment="Stretch">
-				<Panel>
-					<Panel IsVisible="{Binding !IsError}">
-
-						<Panel IsVisible="{Binding IsSeries}">
-							<Path IsVisible="{Binding Expanded}" Data="{StaticResource CollapseIcon}" />
-							<Path IsVisible="{Binding !Expanded}" Data="{StaticResource ExpandIcon}" />
-						</Panel>
-
-						<Grid
-							IsVisible="{Binding	!IsSeries}"
-							HorizontalAlignment="Center"
-							ColumnDefinitions="Auto,Auto">
-							<Canvas Width="29.44" Height="64">
-								<Rectangle Canvas.Left="5" Canvas.Top="5" IsVisible="{Binding RedVisible}" Fill="{DynamicResource StoplightRed}" />
-								<Rectangle Canvas.Left="5" Canvas.Top="23" IsVisible="{Binding YellowVisible}" Fill="{DynamicResource StoplightYellow}" />
-								<Rectangle Canvas.Left="5" Canvas.Top="42" IsVisible="{Binding GreenVisible}" Fill="{DynamicResource StoplightGreen}" />
-								<Path Height="64" Stretch="Uniform" Data="{StaticResource StoplightBodyIcon}"/>
-							</Canvas>
-							<Path Grid.Column="1" IsVisible="{Binding PdfDownloadedVisible}" Data="{StaticResource PdfDownloadedIcon}"/>
-							<Path Grid.Column="1" IsVisible="{Binding PdfNotDownloadedVisible}" Data="{StaticResource PdfNotDownloadedIcon}"/>
-						</Grid>
-					</Panel>
-
-					<Path
-						Stretch="None" Width="64"
-						IsVisible="{Binding IsError}"
-						Fill="{DynamicResource CancelRed}"
-						Data="{StaticResource BookErrorIcon}" />
-				</Panel>
-			</Viewbox>
+				RenderOptions.BitmapInterpolationMode="HighQuality"
+				Source="{Binding ButtonImage}" />
 		</Grid>
 	</Button>
 </UserControl>

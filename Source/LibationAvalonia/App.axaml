@@ -31,9 +31,6 @@
 					<SolidColorBrush x:Key="HyperlinkVisited" Color="Purple" />
 					<SolidColorBrush x:Key="CancelRed" Color="FireBrick" />
 					<SolidColorBrush x:Key="IconFill" Color="#231F20" />
-					<SolidColorBrush x:Key="StoplightRed" Color="#F06060" />
-					<SolidColorBrush x:Key="StoplightYellow" Color="#F0E160" />
-					<SolidColorBrush x:Key="StoplightGreen" Color="#70FA70" />
 				</ResourceDictionary>
 				<ResourceDictionary x:Key="Dark">
 					<SolidColorBrush x:Key="SeriesEntryGridBackgroundBrush" Opacity="0.3" Color="#bed2fa" />
@@ -44,9 +41,6 @@
 					<SolidColorBrush x:Key="HyperlinkVisited" Color="Orchid" />
 					<SolidColorBrush x:Key="CancelRed" Color="#802727" />
 					<SolidColorBrush x:Key="IconFill" Color="#DCE0DF" />
-					<SolidColorBrush x:Key="StoplightRed" Color="#7d1f1f" />
-					<SolidColorBrush x:Key="StoplightYellow" Color="#7d7d1f" />
-					<SolidColorBrush x:Key="StoplightGreen" Color="#1f7d1f" />					
 				</ResourceDictionary>
 			</ResourceDictionary.ThemeDictionaries>
 		</ResourceDictionary>		

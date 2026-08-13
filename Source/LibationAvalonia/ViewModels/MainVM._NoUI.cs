@@ -1,6 +1,6 @@
-﻿using LibationFileManager;
+﻿using Avalonia.Styling;
+using LibationFileManager;
 using LibationUiBase;
-using System;
 using System.IO;
 
 namespace LibationAvalonia.ViewModels;
@@ -23,19 +23,6 @@ partial class MainVM
 		PictureStorage.SetDefaultImage(PictureSize.Native, ms3.ToArray());
 
 		BaseUtil.SetLoadImageDelegate(AvaloniaUtils.TryLoadImageOrDefault);
-		BaseUtil.SetLoadResourceImageDelegate(LoadResourceImage);
-	}
-	private static Avalonia.Media.Imaging.Bitmap? LoadResourceImage(string resourceName)
-	{
-		try
-		{
-			using var stream = App.OpenAsset(resourceName);
-			return new Avalonia.Media.Imaging.Bitmap(stream);
-		}
-		catch (Exception ex)
-		{
-			Serilog.Log.Error(ex, "Failed to load resource image: {ResourceName}", resourceName);
-			return null;
-		}
+		BaseUtil.SetIsDarkModeDelegate(() => App.Current.ActualThemeVariant == ThemeVariant.Dark);
 	}
 }

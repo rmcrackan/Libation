@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using DataLayer;
 using LibationAvalonia.ViewModels;
 using LibationUiBase.GridView;
@@ -21,17 +22,15 @@ public partial class LiberateStatusButton : UserControl
 	public static readonly StyledProperty<bool> IsUnavailableProperty =
 	AvaloniaProperty.Register<LiberateStatusButton, bool>(nameof(IsUnavailable));
 
-	public static readonly StyledProperty<bool> ExpandedProperty =
-	AvaloniaProperty.Register<LiberateStatusButton, bool>(nameof(Expanded));
-
-	public static readonly StyledProperty<bool> IsSeriesProperty =
-	AvaloniaProperty.Register<LiberateStatusButton, bool>(nameof(IsSeries));
+	public static readonly StyledProperty<IImage?> ButtonImageProperty =
+	AvaloniaProperty.Register<LiberateStatusButton, IImage?>(nameof(ButtonImage));
 
 	public LiberatedStatus BookStatus { get => GetValue(BookStatusProperty); set => SetValue(BookStatusProperty, value); }
 	public LiberatedStatus? PdfStatus { get => GetValue(PdfStatusProperty); set => SetValue(PdfStatusProperty, value); }
 	public bool IsUnavailable { get => GetValue(IsUnavailableProperty); set => SetValue(IsUnavailableProperty, value); }
-	public bool Expanded { get => GetValue(ExpandedProperty); set => SetValue(ExpandedProperty, value); }
-	public bool IsSeries { get => GetValue(IsSeriesProperty); set => SetValue(IsSeriesProperty, value); }
+
+	/// <summary>The shared rendering of this entry's status, from <see cref="EntryStatus.ButtonImage"/>.</summary>
+	public IImage? ButtonImage { get => GetValue(ButtonImageProperty); set => SetValue(ButtonImageProperty, value); }
 
 	private readonly LiberateStatusButtonViewModel viewModel = new();
 
@@ -40,14 +39,10 @@ public partial class LiberateStatusButton : UserControl
 		InitializeComponent();
 		button.DataContext = viewModel;
 
-		if (Design.IsDesignMode)
-		{
-			BookStatus = LiberatedStatus.PartialDownload;
-			PdfStatus = null;
-			IsSeries = true;
-		}
-
 		DataContextChanged += LiberateStatusButton_DataContextChanged;
+
+		//The icon is rendered for a specific theme, so it has to be re-rendered when the theme changes.
+		ActualThemeVariantChanged += (_, _) => (DataContext as GridEntry)?.Liberate?.Invalidate(nameof(EntryStatus.ButtonImage));
 	}
 
 	private void LiberateStatusButton_DataContextChanged(object? sender, EventArgs e)
@@ -55,35 +50,17 @@ public partial class LiberateStatusButton : UserControl
 		//Force book status recheck when an entry is scrolled into view.
 		//This will force a recheck for a partially downloaded file.
 		var status = DataContext as LibraryBookEntry;
-		status?.Liberate?.Invalidate(nameof(status.Liberate.BookStatus));
+		status?.Liberate?.Invalidate(nameof(status.Liberate.BookStatus), nameof(status.Liberate.ButtonImage));
 	}
 
 	private void Button_Click(object sender, RoutedEventArgs e) => Click?.Invoke(this, EventArgs.Empty);
 
 	protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
 	{
-		if (change.Property == BookStatusProperty)
-		{
-			viewModel.IsError = BookStatus is LiberatedStatus.Error;
-			viewModel.RedVisible = BookStatus is LiberatedStatus.NotLiberated;
-			viewModel.YellowVisible = BookStatus is LiberatedStatus.PartialDownload;
-			viewModel.GreenVisible = BookStatus is LiberatedStatus.Liberated;
-		}
-		else if (change.Property == PdfStatusProperty)
-		{
-			viewModel.PdfDownloadedVisible = PdfStatus is LiberatedStatus.Liberated;
-			viewModel.PdfNotDownloadedVisible = PdfStatus is LiberatedStatus.NotLiberated;
-		}
-		else if (change.Property == IsSeriesProperty)
-		{
-			viewModel.IsSeries = IsSeries;
-		}
-		else if (change.Property == ExpandedProperty)
-		{
-			viewModel.Expanded = Expanded;
-		}
+		if (change.Property == ButtonImageProperty)
+			viewModel.ButtonImage = ButtonImage;
 
-		viewModel.IsButtonEnabled = !viewModel.IsError && (!IsUnavailable || (BookStatus is LiberatedStatus.Liberated && PdfStatus is null or LiberatedStatus.Liberated));
+		viewModel.IsButtonEnabled = BookStatus is not LiberatedStatus.Error && (!IsUnavailable || (BookStatus is LiberatedStatus.Liberated && PdfStatus is null or LiberatedStatus.Liberated));
 
 		base.OnPropertyChanged(change);
 	}
