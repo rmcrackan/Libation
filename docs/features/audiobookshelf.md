@@ -62,19 +62,19 @@ Auto-upload only ever fires at the moment a book is liberated. To send books you
 
 ## Uploading books you already liberated
 
-Books liberated before Audiobookshelf was set up - or while it was turned off - are never sent by auto-upload. The `abs-upload` command backfills them from the copies already on disk. Nothing is re-downloaded from Audible, and local files are never deleted.
+Books liberated before Audiobookshelf was set up - or while it was turned off - are never sent by auto-upload. The `abs upload` command backfills them from the copies already on disk. Nothing is re-downloaded from Audible, and local files are never deleted. The legacy `abs-upload` command remains supported with identical behavior and no warning during this deprecation period.
 
 Upload every liberated book:
 
 ```console
-libationcli abs-upload
+libationcli abs upload
 ```
 
 Upload specific titles:
 
 ```console
-libationcli abs-upload B017V4IM1G
-libationcli abs-upload --id B017V4IM1G
+libationcli abs upload B017V4IM1G
+libationcli abs upload --id B017V4IM1G
 ```
 
 The command:
@@ -98,7 +98,7 @@ If the Audiobookshelf server is unreachable, the token is wrong, or upload fails
 - The queue or CLI does not treat the book as a failed/bad liberate.
 - Status text and the log still report the upload error.
 
-This applies to `libationcli abs-upload` too: a failed upload never marks a book as a bad liberate. Because uploading is that command's only job, it also reports each failure on stderr and counts it in the end-of-run summary. It still exits 0, matching Libation's other commands - read the summary and stderr together to see whether a backfill actually succeeded.
+This applies to `libationcli abs upload` too: a failed upload never marks a book as a bad liberate. Because uploading is that command's only job, it also reports each failure on stderr and counts it in the end-of-run summary. It still exits 0, matching Libation's other commands - read the summary and stderr together to see whether a backfill actually succeeded.
 
 ## Tips
 
