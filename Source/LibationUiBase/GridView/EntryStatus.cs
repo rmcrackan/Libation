@@ -1,6 +1,8 @@
 ﻿using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
+using LibationFileManager;
+using LibationUiBase.StatusIcons;
 using System;
 using System.Collections.Generic;
 
@@ -53,14 +55,14 @@ public class EntryStatus : ReactiveObject, IComparable
 			|| PdfStatus is not null and not LiberatedStatus.Liberated
 		);
 	public double Opacity => !IsSeries && Book.UserDefinedItem.Tags.ContainsInsensitive("hidden") ? 0.4 : 1;
-	public object? ButtonImage => GetLiberateIcon();
+	public object? ButtonImage => GetAndCacheIcon(GetLiberateIconDescriptor());
 	public string ToolTip => GetTooltip();
 	private Book Book { get; }
 
 	private DateTime lastBookUpdate;
 	private LiberatedStatus bookStatus;
 	private readonly bool isAbsent;
-	private static readonly Dictionary<string, object?> iconCache = new();
+	private static readonly Dictionary<LiberateIconDescriptor, object?> iconCache = [];
 
 	internal EntryStatus(LibraryBook libraryBook)
 	{
@@ -99,32 +101,34 @@ public class EntryStatus : ReactiveObject, IComparable
 		else return PdfStatus.Value.CompareTo(second.PdfStatus.Value);
 	}
 
-	private object? GetLiberateIcon()
+	private LiberateIconDescriptor GetLiberateIconDescriptor()
 	{
+		var isDark = BaseUtil.IsDarkMode();
+
 		if (IsSeries)
-			return Expanded ? GetAndCacheResource("minus") : GetAndCacheResource("plus");
+			return LiberateIconDescriptor.ForSeries(Expanded, isDark);
 
 		if (BookStatus == LiberatedStatus.Error)
-			return GetAndCacheResource("error");
+			return LiberateIconDescriptor.ForError(isDark);
 
-		string image_lib = BookStatus switch
+		var lamp = BookStatus switch
 		{
-			LiberatedStatus.Liberated => "green",
-			LiberatedStatus.PartialDownload => "yellow",
-			LiberatedStatus.NotLiberated => "red",
+			LiberatedStatus.Liberated => StoplightLamp.Green,
+			LiberatedStatus.PartialDownload => StoplightLamp.Yellow,
+			LiberatedStatus.NotLiberated => StoplightLamp.Red,
 			_ => throw new Exception("Unexpected liberation state")
 		};
 
-		string image_pdf = PdfStatus switch
+		var pdf = PdfStatus switch
 		{
-			LiberatedStatus.Liberated => "_pdf_yes",
-			LiberatedStatus.NotLiberated => "_pdf_no",
-			LiberatedStatus.Error => "_pdf_no",
-			null => "",
+			LiberatedStatus.Liberated => PdfOverlay.Downloaded,
+			LiberatedStatus.NotLiberated => PdfOverlay.NotDownloaded,
+			LiberatedStatus.Error => PdfOverlay.NotDownloaded,
+			null => PdfOverlay.None,
 			_ => throw new Exception("Unexpected PDF state")
 		};
 
-		return GetAndCacheResource($"liberate_{image_lib}{image_pdf}");
+		return LiberateIconDescriptor.ForBook(lamp, pdf, isDark);
 	}
 
 	private string GetTooltip()
@@ -165,10 +169,17 @@ public class EntryStatus : ReactiveObject, IComparable
 		return mouseoverText;
 	}
 
-	private object? GetAndCacheResource(string rescName)
+	/// <summary>
+	/// Load the shared rendering of an icon into this UI framework's image format. There are only a
+	/// couple dozen icons, and grid entries are created on several threads, so cache them all.
+	/// </summary>
+	private static object? GetAndCacheIcon(LiberateIconDescriptor descriptor)
 	{
-		if (!iconCache.ContainsKey(rescName))
-			iconCache[rescName] = BaseUtil.LoadResourceImage(rescName);
-		return iconCache[rescName];
+		lock (iconCache)
+		{
+			if (!iconCache.TryGetValue(descriptor, out var icon))
+				iconCache[descriptor] = icon = BaseUtil.LoadImage(StatusImageGenerator.GetPng(descriptor), PictureSize.Native);
+			return icon;
+		}
 	}
 }
