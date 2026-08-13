@@ -1,7 +1,8 @@
 using AssertionHelper;
-using CommandLine;
 using LibationCli;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.IO;
 
 namespace LibationCli.Tests;
 
@@ -33,14 +34,26 @@ public class CliCommandRouterTests
 	}
 
 	[TestMethod]
-	public void Rewritten_abs_upload_arguments_parse_as_upload_options()
+	public void Nested_abs_upload_help_reaches_upload_help_path()
 	{
-		var route = CliCommandRouter.Route(
-			["abs", "upload", "B017V4IM1G", "--id", "B000000001"],
-			CliCommandGroups.All);
-		var result = new Parser().ParseArguments(route.ParserArgs, Program.VerbTypes);
+		using var error = new StringWriter();
+		var outcome = Program.ParseInvocation(["abs", "upload", "--help"], error);
 
-		Assert.IsInstanceOfType<AbsUploadOptions>(result.Value);
+		Assert.AreEqual(ExitCode.ProcessCompletedSuccessfully, outcome.ExitCode);
+		Assert.AreEqual(typeof(AbsUploadOptions), outcome.Result!.TypeInfo.Current);
+		StringAssert.Contains(error.ToString(), "--id");
+	}
+
+	[TestMethod]
+	public void Unknown_abs_subcommand_writes_error_before_group_help_and_exits_parse_error()
+	{
+		using var error = new StringWriter();
+		var outcome = Program.ParseInvocation(["abs", "download"], error);
+		var output = error.ToString();
+
+		Assert.AreEqual(ExitCode.ParseError, outcome.ExitCode);
+		Assert.IsTrue(output.StartsWith($"Unknown ABS command 'download'.{Environment.NewLine}", StringComparison.Ordinal));
+		StringAssert.Contains(output, "Audiobookshelf commands.");
 	}
 
 	[TestMethod]
