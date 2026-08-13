@@ -34,6 +34,12 @@ plus a headless CLI (`LibationCli`) that shares the same config and SQLite libra
   `dotnet test --project Source/_Tests/FileManager.Tests/FileManager.Tests.csproj`
 - CI runs `dotnet test` from `Source/`, which builds the entire solution first and is slow;
   prefer running the seven test projects individually on Linux.
+- **Manual UI testing:** `dotnet run Scripts/seed-demo-library.cs` fills the library with fake books
+  covering every Liberate-column icon and prints the expected result for each row
+  (`-- --clean` removes them). Read `docs/development/testing.md` before seeding library state by
+  hand: the yellow lamp is an `.aaxc` file on disk rather than a stored status, `AudioExists` is a
+  database check so green/error need no files, and a podcast's series is keyed off the parent
+  book's own ASIN or the grid silently drops the parent row.
 - **GNOME Keyring / OS secret store:** Libation's default `TokenStorageMethod` is `Encrypted`,
  and the AES-GCM master key is stored via the OS secret store (`OsSecretStore` /
  `IdentityTokenStorageWiring`). On Linux that is GNOME Keyring (Secret Service), which **blocks

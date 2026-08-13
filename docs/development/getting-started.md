@@ -52,6 +52,10 @@ To run the desktop application (Avalonia):
 - **Assets/Cover Art**: If you encounter issues with missing assets, ensure you have run `git submodule update --init --recursive` if applicable, although Libation typically manages assets within the project.
 - **Port/Network**: Libation makes network requests to Audible and other services. Ensure your firewall allows the application to connect.
 
+## Testing your changes
+
+Once the app runs, see [Testing Changes](./testing.md) for how to run the automated tests and how to seed a demo library so UI changes can be checked by eye.
+
 ## Linux Specifics
 
 For Linux users, we have a specific guide using Nix:
