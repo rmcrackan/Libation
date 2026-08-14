@@ -533,6 +533,29 @@ public class ProcessQueueViewModel : ReactiveObject
 
 	public event EventHandler<ProcessBookViewModel>? ProcessStart;
 	public event EventHandler<ProcessBookViewModel>? ProcessEnd;
+
+	/// <summary>
+	/// Stops the queue and cancels everything still in flight.
+	/// </summary>
+	/// <remarks>
+	/// <see cref="TrackedQueue{T}.ClearQueue"/> only prevents new work from starting. With
+	/// parallel downloads there may be several books already running, and those keep going
+	/// until they are cancelled individually.
+	/// </remarks>
+	/// <param name="except">
+	/// A book that has already finished processing and so does not need cancelling - typically
+	/// the one whose result triggered the abort.
+	/// </param>
+	public async Task CancelAllAsync(ProcessBookViewModel? except = null)
+	{
+		Queue.ClearQueue();
+
+		// Snapshot before cancelling: Active is mutated as each book unwinds.
+		var inFlight = Queue.Active.Where(b => b != except).ToArray();
+
+		await Task.WhenAll(inFlight.Select(b => b.CancelAsync()));
+	}
+
 	private async Task QueueLoop()
 	{
 		try
@@ -576,12 +599,12 @@ public class ProcessQueueViewModel : ReactiveObject
 					if (result == ProcessBookResult.FailedAbort)
 					{
 						abortCts.Cancel();
-						Queue.ClearQueue();
+						await CancelAllAsync(book);
 					}
 					else if (result == ProcessBookResult.DiskFull)
 					{
 						abortCts.Cancel();
-						Queue.ClearQueue();
+						await CancelAllAsync(book);
 						bool show;
 						lock (_resultLock) { show = !shownDiskFullMessage; shownDiskFullMessage = true; }
 						if (show)
