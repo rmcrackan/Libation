@@ -104,8 +104,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		RaisePropertyChanged(nameof(Progress));
 	}
 
-	private void ProcessBook_LogWritten(object? sender, string logMessage)
-		=> Invoke(() => LogEntries.Add(new(DateTime.Now, logMessage.Trim())));
+	private void ProcessBook_LogWritten(object? sender, string logMessage) => AddQueueLogEntry(logMessage);
 
 	private void AddQueueLogEntry(string logMessage)
 		=> Invoke(() => LogEntries.Add(new(DateTime.Now, logMessage.Trim())));
@@ -357,6 +356,10 @@ public class ProcessQueueViewModel : ReactiveObject
 
 	private void AddToQueue(IList<ProcessBookViewModel> pbook)
 	{
+		// Queueing more work withdraws an earlier Cancel All, which may still be settling on the book it
+		// cancelled. Otherwise these new books would inherit that cancellation at the daily-limit gate.
+		cancelAllRequested = false;
+
 		foreach (var book in pbook)
 			book.LogWritten += ProcessBook_LogWritten;
 
