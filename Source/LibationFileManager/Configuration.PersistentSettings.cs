@@ -281,6 +281,28 @@ public partial class Configuration
 	}
 
 	[JsonConverter(typeof(StringEnumConverter))]
+	public enum DailyLimitScope
+	{
+		[Description("No limit")]
+		NoLimit = 0,
+		[Description("Plus titles only")]
+		PlusOnly = 1,
+		[Description("All books")]
+		AllBooks = 2
+	}
+
+	[JsonConverter(typeof(StringEnumConverter))]
+	public enum DailyLimitUnit
+	{
+		[Description("books")]
+		Books = 0,
+		[Description("MB")]
+		MB = 1,
+		[Description("GB")]
+		GB = 2
+	}
+
+	[JsonConverter(typeof(StringEnumConverter))]
 	public enum Theme
 	{
 		System = 0,
@@ -407,6 +429,20 @@ public partial class Configuration
 			SetNonString(limit);
 		}
 	}
+
+	#region daily download limit
+
+	[Description("Daily download limit (rolling 24 hours):")]
+	public DailyLimitScope DailyDownloadLimit { get => GetNonString(defaultValue: DailyLimitScope.NoLimit); set => SetNonString(value); }
+
+	/// <summary>Clamped so a hand-edited Settings.json holding 0 or a negative number cannot block all downloads.</summary>
+	[Description("Limit:")]
+	public int DailyDownloadLimitQuantity { get => Math.Max(1, GetNonString(defaultValue: 50)); set => SetNonString(Math.Max(1, value)); }
+
+	[Description("Unit:")]
+	public DailyLimitUnit DailyDownloadLimitUnit { get => GetNonString(defaultValue: DailyLimitUnit.Books); set => SetNonString(value); }
+
+	#endregion
 
 	#region templates: custom file naming
 

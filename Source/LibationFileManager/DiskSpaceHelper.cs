@@ -31,6 +31,16 @@ public static class DiskSpaceHelper
 		Books = 2,
 	}
 
+	/// <summary>Single byte formatter for user-facing copy, so free space and download limits read the same way.</summary>
+	public static string FormatBytes(long bytes)
+	{
+		const long gb = 1024L * 1024 * 1024;
+		if (bytes >= gb)
+			return $"{bytes / (double)gb:F1} GB";
+		const long mb = 1024 * 1024;
+		return $"{bytes / (double)mb:F0} MB";
+	}
+
 	public static bool IsDiskFullException(Exception? ex)
 	{
 		for (var current = ex; current is not null; current = current.InnerException)

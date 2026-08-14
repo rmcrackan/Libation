@@ -113,6 +113,7 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 
 				Serilog.Log.Verbose("Updating liberated status for {@Book}", libraryBook.LogFriendly());
 				await libraryBook.UpdateBookStatusAsync(LiberatedStatus.Liberated, Configuration.LibationVersion, audioFormat, audioVersion);
+				RecordDownloadForDailyLimit(libraryBook, result.ResultFiles);
 				Serilog.Log.Verbose("Setting directory time for {@Book}", libraryBook.LogFriendly());
 				SetDirectoryTime(libraryBook, finalStorageDir);
 				Serilog.Log.Verbose("Deleting cache files for {@Book}", libraryBook.LogFriendly());
@@ -310,6 +311,24 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 	#endregion
 
 	#region Post-success routines
+	/// <summary>
+	/// Records the finished download for the daily download limit. Always recorded, even when no limit is
+	/// configured, so that turning the limit on later reflects downloads already performed.
+	/// </summary>
+	private static void RecordDownloadForDailyLimit(LibraryBook libraryBook, List<TempFile> movedFiles)
+	{
+		try
+		{
+			// Files have already been moved, so these paths are their final locations in the Books directory.
+			var bytes = movedFiles.Sum(f => File.Exists(f.FilePath) ? new FileInfo(f.FilePath).Length : 0);
+			DownloadHistoryStore.Record(libraryBook.Book.AudibleProductId, libraryBook.IsAudiblePlus, bytes);
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Failed to measure a completed download for the daily download limit. The download itself succeeded. {@Book}", libraryBook.LogFriendly());
+		}
+	}
+
 	/// <summary>Read the audio format from the audio file's metadata.</summary>
 	public AudioFormat GetFileFormatInfo(DownloadOptions options, TempFile firstAudioFile)
 	{

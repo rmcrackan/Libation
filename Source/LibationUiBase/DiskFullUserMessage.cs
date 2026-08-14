@@ -76,12 +76,5 @@ public static class DiskFullUserMessage
 		return "Libation paths";
 	}
 
-	private static string FormatBytes(long bytes)
-	{
-		const long gb = 1024L * 1024 * 1024;
-		if (bytes >= gb)
-			return $"{bytes / (double)gb:F1} GB";
-		const long mb = 1024 * 1024;
-		return $"{bytes / (double)mb:F0} MB";
-	}
+	private static string FormatBytes(long bytes) => DiskSpaceHelper.FormatBytes(bytes);
 }

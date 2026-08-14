@@ -240,6 +240,8 @@ public partial class Configuration
 			_ = CreationTime;
 			_ = LastWriteTime;
 			_ = BadBook;
+			_ = DailyDownloadLimit;
+			_ = DailyDownloadLimitUnit;
 		}
 		catch (InvalidConfigurationValueException ex)
 		{

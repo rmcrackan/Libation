@@ -63,7 +63,19 @@ public class ProcessBookViewModel : ReactiveObject
 	public bool IsDownloading => Status is ProcessBookStatus.Working;
 	public bool Queued => Status is ProcessBookStatus.Queued;
 
-	public string StatusText => (Result, LibraryBook.IsAudiblePlus) switch
+	/// <summary>
+	/// Transient status shown instead of the usual text, e.g. while the queue waits on the daily download limit.
+	/// Null when the book's own state should speak for itself.
+	/// </summary>
+	public string? StatusOverride { get => field; set { RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(StatusText)); } }
+
+	/// <summary>
+	/// True when this queue item downloads an audiobook, so the daily download limit applies to it.
+	/// PDF-only and mp3-conversion items are never limited.
+	/// </summary>
+	public bool IncludesBookDownload { get; private set; }
+
+	public string StatusText => StatusOverride ?? (Result, LibraryBook.IsAudiblePlus) switch
 	{
 		(ProcessBookResult.Success, _) => "Finished",
 		(ProcessBookResult.Cancelled, _) => "Cancelled",
@@ -267,7 +279,11 @@ public class ProcessBookViewModel : ReactiveObject
 	}
 
 	public ProcessBookViewModel AddDownloadPdf() => AddProcessable<DownloadPdf>();
-	public ProcessBookViewModel AddDownloadDecryptBook() => AddProcessable<DownloadDecryptBook>();
+	public ProcessBookViewModel AddDownloadDecryptBook()
+	{
+		IncludesBookDownload = true;
+		return AddProcessable<DownloadDecryptBook>();
+	}
 	public ProcessBookViewModel AddConvertToMp3() => AddProcessable<ConvertToMp3>();
 	public ProcessBookViewModel AddUploadToAudiobookshelf() => AddProcessable<UploadToAudiobookshelf>();
 	public ProcessBookViewModel AddSimulateBadBookFailure() => AddProcessable<SimulateBadBookFailure>();
