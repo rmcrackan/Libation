@@ -421,9 +421,27 @@ public class ProcessQueueViewModel : ReactiveObject
 			book.LogWritten += ProcessBook_LogWritten;
 
 		Queue.Enqueue(pbook);
+		SignalEnqueued();
 		if (!Running)
 			QueueRunner = Task.Run(QueueLoop);
 	}
+
+	/// <summary>
+	/// Completes when books are added to the queue, so <see cref="QueueLoop"/> can wake on a new
+	/// arrival instead of only on a book finishing.
+	/// </summary>
+	private TaskCompletionSource _enqueueSignal = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+	private Task WaitForEnqueueAsync() => Volatile.Read(ref _enqueueSignal).Task;
+
+	/// <summary>
+	/// Swaps in a fresh signal for the next wait, then completes the old one to release anyone
+	/// already waiting on it.
+	/// </summary>
+	private void SignalEnqueued()
+		=> Interlocked
+			.Exchange(ref _enqueueSignal, new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously))
+			.TrySetResult();
 
 	#endregion
 
@@ -669,6 +687,11 @@ public class ProcessQueueViewModel : ReactiveObject
 			{
 				activeTasks.RemoveWhere(t => t.IsCompleted);
 
+				// Captured before the queue is inspected. If a book is enqueued between the
+				// TryDequeueNext below and the wait at the bottom of the loop, this task is
+				// already completed and the wait returns immediately rather than missing it.
+				var enqueued = WaitForEnqueueAsync();
+
 				if (abortCts.IsCancellationRequested)
 				{
 					await Task.WhenAll(activeTasks);
@@ -688,12 +711,21 @@ public class ProcessQueueViewModel : ReactiveObject
 					continue;
 				}
 
-				// Queue is empty; if no tasks are running we are done
+				// Queue is empty; if no tasks are running we are done - unless a book was queued
+				// while we were looking, in which case go round again and pick it up.
 				if (activeTasks.Count == 0)
+				{
+					if (enqueued.IsCompleted)
+						continue;
 					break;
+				}
 
-				// Items still in flight — wait for one to finish; new items may arrive while waiting
-				await Task.WhenAny(activeTasks);
+				// Items are still in flight but nothing is queued. Wake on whichever comes first:
+				// a book finishing, or a new book being queued. Waiting only on the active tasks
+				// would leave newly queued books sitting until an in-flight one happened to
+				// finish, so a batch queued a moment after the loop started would trickle in one
+				// at a time instead of filling the available slots.
+				await Task.WhenAny(activeTasks.Append(enqueued));
 			}
 
 			await Task.WhenAll(activeTasks);
