@@ -6,15 +6,6 @@ using System.Text;
 
 namespace LibationUiBase.ProcessQueue;
 
-/// <summary>Why a title in a backup request cannot be queued for download.</summary>
-internal enum BackupSkipReason
-{
-	AlreadyDownloaded,
-	PreviousError,
-	AbsentFromLastScan,
-	NoAudioOfItsOwn
-}
-
 /// <summary>
 /// Splits a multi-book backup request into the titles that can be queued and the reason each of the rest
 /// was left out, so a request Libation understands and declines can be explained instead of ignored.
@@ -23,39 +14,42 @@ internal sealed class BackupRequest
 {
 	public const string NothingQueuedCaption = "Download not queued";
 
-	/// <summary>Reasons are reported in this order, which runs from the most to the least common.</summary>
-	private static readonly BackupSkipReason[] ReasonOrder =
-	[
-		BackupSkipReason.AlreadyDownloaded,
-		BackupSkipReason.PreviousError,
-		BackupSkipReason.AbsentFromLastScan,
-		BackupSkipReason.NoAudioOfItsOwn
-	];
+	/// <summary>Why a title cannot be queued. Reported in declaration order.</summary>
+	internal sealed record SkipReason(string Label, string Advice = "")
+	{
+		public static readonly SkipReason AlreadyDownloaded = new("Already downloaded");
+		public static readonly SkipReason PreviousError = new("Previously failed to download", "set the download status to 'Not Downloaded' to try again");
+		public static readonly SkipReason AbsentFromLastScan = new("Absent from your last library scan", "run Scan, or `libationcli scan`, then try again");
+
+		public static readonly SkipReason[] All = [AlreadyDownloaded, PreviousError, AbsentFromLastScan];
+	}
 
 	/// <summary>The titles the caller asked to back up, including the ones that cannot be queued.</summary>
 	public int RequestedCount { get; }
 	public LibraryBook[] Queueable { get; }
-	public IReadOnlyDictionary<BackupSkipReason, int> SkippedByReason { get; }
 	public int SkippedCount => RequestedCount - Queueable.Length;
+	public int Skipped(SkipReason reason) => skipped.GetValueOrDefault(reason);
 
-	private BackupRequest(int requestedCount, LibraryBook[] queueable, IReadOnlyDictionary<BackupSkipReason, int> skippedByReason)
+	private readonly Dictionary<SkipReason, int> skipped;
+
+	private BackupRequest(int requestedCount, LibraryBook[] queueable, Dictionary<SkipReason, int> skipped)
 	{
 		RequestedCount = requestedCount;
 		Queueable = queueable;
-		SkippedByReason = skippedByReason;
+		this.skipped = skipped;
 	}
 
 	public static BackupRequest Create(IEnumerable<LibraryBook> libraryBooks)
 	{
 		var requestedCount = 0;
 		var queueable = new List<LibraryBook>();
-		var skipped = new Dictionary<BackupSkipReason, int>();
+		var skipped = new Dictionary<SkipReason, int>();
 
 		foreach (var libraryBook in libraryBooks)
 		{
 			requestedCount++;
 
-			if (GetSkipReason(libraryBook) is not BackupSkipReason reason)
+			if (GetSkipReason(libraryBook) is not SkipReason reason)
 				queueable.Add(libraryBook);
 			else
 				skipped[reason] = skipped.GetValueOrDefault(reason) + 1;
@@ -64,22 +58,18 @@ internal sealed class BackupRequest
 		return new BackupRequest(requestedCount, [.. queueable], skipped);
 	}
 
-	/// <summary>
-	/// Null when the title can be queued. The order of the checks mirrors LibraryBook.Downloadable: a title
-	/// absent from the last scan is reported as such no matter what its download status says.
-	/// </summary>
-	private static BackupSkipReason? GetSkipReason(LibraryBook libraryBook)
+	/// <summary>Null when the title can be queued. Absent outranks status: Downloadable is false either way.</summary>
+	private static SkipReason? GetSkipReason(LibraryBook libraryBook)
 		=> libraryBook.NeedsBookDownload || libraryBook.NeedsPdfDownload ? null
-		: libraryBook.AbsentFromLastScan ? BackupSkipReason.AbsentFromLastScan
-		: libraryBook.Book.ContentType is not (ContentType.Product or ContentType.Episode) ? BackupSkipReason.NoAudioOfItsOwn
-		: libraryBook.Book.UserDefinedItem.BookStatus is LiberatedStatus.Error ? BackupSkipReason.PreviousError
-		: BackupSkipReason.AlreadyDownloaded;
+		: libraryBook.AbsentFromLastScan ? SkipReason.AbsentFromLastScan
+		: libraryBook.Book.UserDefinedItem.BookStatus is LiberatedStatus.Error ? SkipReason.PreviousError
+		: SkipReason.AlreadyDownloaded;
 
-	/// <summary>A compact breakdown for the log, eg: "already downloaded: 3, absent from last scan: 1".</summary>
+	/// <summary>A compact breakdown for the log, eg: "already downloaded: 3, absent from your last library scan: 1".</summary>
 	public string BuildSkippedLogSummary()
 		=> SkippedCount == 0
 		? "none"
-		: string.Join(", ", OrderedReasons().Select(r => $"{LogName(r.Reason)}: {r.Count}"));
+		: string.Join(", ", Breakdown().Select(b => $"{b.Reason.Label.ToLowerInvariant()}: {b.Count}"));
 
 	/// <summary>The dialog body shown when a backup request produced nothing to queue.</summary>
 	public string BuildNothingQueuedBody()
@@ -95,42 +85,13 @@ internal sealed class BackupRequest
 		sb.AppendLine($"None of the {"title".PluralizeWithCount(RequestedCount)} could be queued for download.");
 		sb.AppendLine();
 
-		foreach (var (reason, count) in OrderedReasons())
-			sb.AppendLine($"{Label(reason)}: {count}{Hint(reason)}");
+		//the count comes before the advice so the numbers stay scannable
+		foreach (var (reason, count) in Breakdown())
+			sb.AppendLine($"{reason.Label}: {count}{(reason.Advice is "" ? "" : $"  ({reason.Advice})")}");
 
 		return sb.ToString().TrimEnd();
 	}
 
-	private IEnumerable<(BackupSkipReason Reason, int Count)> OrderedReasons()
-		=> ReasonOrder
-		.Where(SkippedByReason.ContainsKey)
-		.Select(reason => (reason, SkippedByReason[reason]));
-
-	private static string LogName(BackupSkipReason reason)
-		=> reason switch
-		{
-			BackupSkipReason.AlreadyDownloaded => "already downloaded",
-			BackupSkipReason.PreviousError => "previous error",
-			BackupSkipReason.AbsentFromLastScan => "absent from last scan",
-			_ => "no audio of its own"
-		};
-
-	private static string Label(BackupSkipReason reason)
-		=> reason switch
-		{
-			BackupSkipReason.AlreadyDownloaded => "Already downloaded",
-			BackupSkipReason.PreviousError => "Previously failed to download",
-			BackupSkipReason.AbsentFromLastScan => "Absent from your last library scan",
-			_ => "Series or podcast parent"
-		};
-
-	/// <summary>What to do about it, if there is anything to do. Follows the count so the numbers stay scannable.</summary>
-	private static string Hint(BackupSkipReason reason)
-		=> reason switch
-		{
-			BackupSkipReason.PreviousError => "  (set the download status to 'Not Downloaded' to try again)",
-			BackupSkipReason.AbsentFromLastScan => "  (run Scan, or `libationcli scan`, then try again)",
-			BackupSkipReason.NoAudioOfItsOwn => "  (no audio of its own)",
-			_ => ""
-		};
+	private IEnumerable<(SkipReason Reason, int Count)> Breakdown()
+		=> SkipReason.All.Where(skipped.ContainsKey).Select(reason => (reason, skipped[reason]));
 }

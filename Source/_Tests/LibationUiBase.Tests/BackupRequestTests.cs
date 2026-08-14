@@ -9,7 +9,6 @@ public class BackupRequestTests
 	private static LibraryBook LibraryBook(
 		string asin,
 		LiberatedStatus bookStatus = LiberatedStatus.NotLiberated,
-		ContentType contentType = ContentType.Product,
 		bool absentFromLastScan = false)
 	{
 		var contributor = Contributor.GetEmpty();
@@ -19,7 +18,7 @@ public class BackupRequestTests
 			null,
 			null,
 			1,
-			contentType,
+			ContentType.Product,
 			[contributor],
 			[contributor],
 			"us");
@@ -49,7 +48,7 @@ public class BackupRequestTests
 			LibraryBook("DONE2", LiberatedStatus.Liberated)]);
 
 		Assert.AreEqual(0, request.Queueable.Length);
-		Assert.AreEqual(2, request.SkippedByReason[BackupSkipReason.AlreadyDownloaded]);
+		Assert.AreEqual(2, request.Skipped(BackupRequest.SkipReason.AlreadyDownloaded));
 	}
 
 	[TestMethod]
@@ -57,7 +56,7 @@ public class BackupRequestTests
 	{
 		var request = BackupRequest.Create([LibraryBook("BAD", LiberatedStatus.Error)]);
 
-		Assert.AreEqual(1, request.SkippedByReason[BackupSkipReason.PreviousError]);
+		Assert.AreEqual(1, request.Skipped(BackupRequest.SkipReason.PreviousError));
 	}
 
 	[TestMethod]
@@ -67,15 +66,7 @@ public class BackupRequestTests
 		var request = BackupRequest.Create([LibraryBook("GONE", absentFromLastScan: true)]);
 
 		Assert.AreEqual(0, request.Queueable.Length);
-		Assert.AreEqual(1, request.SkippedByReason[BackupSkipReason.AbsentFromLastScan]);
-	}
-
-	[TestMethod]
-	public void series_parents_have_no_audio_of_their_own()
-	{
-		var request = BackupRequest.Create([LibraryBook("SHOW", contentType: ContentType.Parent)]);
-
-		Assert.AreEqual(1, request.SkippedByReason[BackupSkipReason.NoAudioOfItsOwn]);
+		Assert.AreEqual(1, request.Skipped(BackupRequest.SkipReason.AbsentFromLastScan));
 	}
 
 	[TestMethod]
@@ -117,6 +108,6 @@ public class BackupRequestTests
 			LibraryBook("DONE2", LiberatedStatus.Liberated),
 			LibraryBook("GONE", absentFromLastScan: true)]);
 
-		Assert.AreEqual("already downloaded: 2, absent from last scan: 1", request.BuildSkippedLogSummary());
+		Assert.AreEqual("already downloaded: 2, absent from your last library scan: 1", request.BuildSkippedLogSummary());
 	}
 }
