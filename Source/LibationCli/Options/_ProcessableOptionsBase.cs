@@ -100,7 +100,7 @@ public abstract class ProcessableOptionsBase : OptionsBase
 			{
 				if (DbContexts.GetLibraryBook_Flat_NoTracking(asin, caseSensative: false) is LibraryBook lb)
 				{
-					if (!await TryProcessAsync(lb, true))
+					if (!await ProcessOrStopAsync(lb, true))
 						break;
 				}
 				else
@@ -117,7 +117,7 @@ public abstract class ProcessableOptionsBase : OptionsBase
 			var libraryBooks = DbContexts.GetLibrary_Flat_NoTracking();
 			foreach (var lb in Processable.GetValidLibraryBooks(libraryBooks))
 			{
-				if (!await TryProcessAsync(lb, false))
+				if (!await ProcessOrStopAsync(lb, false))
 					break;
 			}
 		}
@@ -137,7 +137,7 @@ public abstract class ProcessableOptionsBase : OptionsBase
 
 		// False ends the run. The limit is checked here rather than at the top of the run so that a run whose
 		// books happen to end exactly at the limit says nothing: nothing was cut short.
-		async Task<bool> TryProcessAsync(LibraryBook libraryBook, bool validate)
+		async Task<bool> ProcessOrStopAsync(LibraryBook libraryBook, bool validate)
 		{
 			if (runLimit is not null && runLimit.TryStop(out var stopMessage))
 			{

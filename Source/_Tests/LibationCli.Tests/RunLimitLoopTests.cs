@@ -66,8 +66,11 @@ public class RunLimitLoopTests
 		await new LimitedRun(new(Configuration.DailyLimitUnit.Books, 2)).Go(processable);
 
 		processable.Downloaded.Should().HaveCount(2);
-		StringAssert.Contains(Output, "Reached this run's limit of 2 book(s)");
-		StringAssert.Contains(Output, "Done. Stopped early");
+		StringAssert.Contains(
+			Output,
+			"Reached this run's limit of 2 book(s). Downloaded 2 title(s); stopping. "
+			+ "Remaining titles are still un-liberated and will be tried on the next run.");
+		StringAssert.Contains(Output, "Done. Stopped early: this run's download limit was reached.");
 	}
 
 	[TestMethod]
@@ -80,7 +83,10 @@ public class RunLimitLoopTests
 
 		// A fourth 300 MB title would be assumed to need another 400 MB, past the 1 GB limit.
 		processable.Downloaded.Should().HaveCount(3);
-		StringAssert.Contains(Output, "Reached this run's limit of 1 GB");
+		StringAssert.Contains(
+			Output,
+			"Reached this run's limit of 1 GB. Downloaded about 900 MB across 3 title(s); stopping. "
+			+ "Remaining titles are still un-liberated and will be tried on the next run.");
 	}
 
 	[TestMethod]
