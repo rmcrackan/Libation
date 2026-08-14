@@ -206,6 +206,24 @@ libationcli liberate --force
 libationcli liberate -f
 ```
 
+## Limit How Much One Run Downloads
+
+A large library can take a long time and a lot of disk to liberate in one go. These options stop a run once it has downloaded a given amount, leaving the rest for the next run:
+
+```console
+libationcli liberate --limit-books 10
+libationcli liberate --limit-mb 500
+libationcli liberate --limit-gb 20
+```
+
+The three are mutually exclusive; using two together is an error. Each applies to a single invocation, so a scheduled or scripted run downloads what it may, stops, and the next run continues where it left off.
+
+Only successful audiobook downloads count. Failed titles do not, and PDFs are neither counted nor limited, so a limit cannot be combined with `--pdf`. Titles the limit stopped Libation from reaching remain un-liberated and are picked up next time. Reaching the limit is not a failure: the command still exits **0**.
+
+MB and GB are approximate, because Libation does not know how large a title is until it has downloaded it. When deciding whether there is room for another book it assumes about 400 MB for it, the same estimate it uses to warn about low disk space. One download is always allowed, so a limit smaller than a single book downloads one book rather than nothing.
+
+This is a per-run limit, separate from the [daily download limit](/docs/features/daily-download-limit) setting. Both apply if both are set.
+
 ## Liberate using a license file from the `get-license` command
 
 ```console
