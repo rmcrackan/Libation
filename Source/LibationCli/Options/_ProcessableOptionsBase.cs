@@ -81,9 +81,17 @@ public abstract class ProcessableOptionsBase : OptionsBase
 		return strProc;
 	}
 
+	/// <summary>How much this run may download before it stops, or null for a verb without a per-run limit.</summary>
+	protected virtual RunDownloadLimit? RunLimit => null;
+
 	protected async Task RunAsync(Processable Processable, Action<LibraryBook>? config = null, Action<string>? notFound = null)
 	{
 		var skippedForDailyLimit = 0;
+		var runLimitReached = false;
+
+		// Needs no guard against pdf or convert runs, unlike the daily limit below: the tracker counts only
+		// audiobook downloads this run recorded, and those verbs record none.
+		var runLimit = RunLimit is RunDownloadLimit limit ? new RunLimitTracker(limit, DateTimeOffset.Now) : null;
 
 		var productIds = GetProductIds().ToArray();
 		if (productIds.Length > 0)
@@ -92,19 +100,16 @@ public abstract class ProcessableOptionsBase : OptionsBase
 			{
 				if (DbContexts.GetLibraryBook_Flat_NoTracking(asin, caseSensative: false) is LibraryBook lb)
 				{
-					config?.Invoke(lb);
-					if (IsSkippedByDailyLimit(Processable, lb))
-						skippedForDailyLimit++;
-					else
-						await ProcessOneAsync(Processable, lb, true);
+					if (!await ProcessOrStopAsync(lb, true))
+						break;
 				}
-			else
-			{
+				else
+				{
 					var msg = $"Book with ASIN '{asin}' not found in library. Skipping.";
 					Console.Error.WriteLine(msg);
 					Serilog.Log.Logger.Error(msg);
 					notFound?.Invoke(asin);
-			}
+				}
 			}
 		}
 		else
@@ -112,11 +117,8 @@ public abstract class ProcessableOptionsBase : OptionsBase
 			var libraryBooks = DbContexts.GetLibrary_Flat_NoTracking();
 			foreach (var lb in Processable.GetValidLibraryBooks(libraryBooks))
 			{
-				config?.Invoke(lb);
-				if (IsSkippedByDailyLimit(Processable, lb))
-					skippedForDailyLimit++;
-				else
-					await ProcessOneAsync(Processable, lb, false);
+				if (!await ProcessOrStopAsync(lb, false))
+					break;
 			}
 		}
 
@@ -127,9 +129,36 @@ public abstract class ProcessableOptionsBase : OptionsBase
 			Serilog.Log.Logger.Information(summary);
 		}
 
-		var done = "Done. All books have been processed";
+		var done = runLimitReached
+			? "Done. Stopped early: this run's download limit was reached."
+			: "Done. All books have been processed";
 		Console.WriteLine(done);
 		Serilog.Log.Logger.Information(done);
+
+		// False ends the run. The limit is checked here rather than at the top of the run so that a run whose
+		// books happen to end exactly at the limit says nothing: nothing was cut short.
+		async Task<bool> ProcessOrStopAsync(LibraryBook libraryBook, bool validate)
+		{
+			if (runLimit is not null && runLimit.TryStop(out var stopMessage))
+			{
+				runLimitReached = true;
+				Console.WriteLine(stopMessage);
+				Serilog.Log.Logger.Information(stopMessage);
+				return false;
+			}
+
+			config?.Invoke(libraryBook);
+
+			if (IsSkippedByDailyLimit(Processable, libraryBook))
+			{
+				skippedForDailyLimit++;
+				return true;
+			}
+
+			runLimit?.Attempting(libraryBook.Book.AudibleProductId);
+			await ProcessOneAsync(Processable, libraryBook, validate);
+			return true;
+		}
 	}
 
 	protected bool announcedDailyLimit;

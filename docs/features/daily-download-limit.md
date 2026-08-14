@@ -50,6 +50,12 @@ Under "Plus titles only" a queue holding both kinds keeps going: Plus titles mov
 
 **On the command line:** `libationcli liberate` does not wait, since a scripted or scheduled run should not sit idle for hours. It skips the titles the limit covers, says so, and reports how many it skipped. Those titles remain un-liberated and are picked up by the next run.
 
+## A limit for one run
+
+The command line has a second, separate limit: `libationcli liberate --limit-books 10` (or `--limit-mb` / `--limit-gb`) stops that one run after downloading that much, whatever your daily limit says. It is useful for taking a large library a slice at a time, and both limits apply if both are set. See [Limit how much one run downloads](/docs/advanced/command-line-interface#limit-how-much-one-run-downloads).
+
+There is no equivalent in the app, where selecting rows in the grid and choosing **Download selected audiobooks** already says exactly which titles to download.
+
 ## Docker and the command line
 
 Containers have no settings dialog, so add the keys to the `Settings.json` you mount at `/config`:

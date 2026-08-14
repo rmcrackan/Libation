@@ -15,7 +15,8 @@ namespace LibationCli;
 
 [Verb("liberate", HelpText = "Liberate: book and pdf backups. Default: download and decrypt all un-liberated titles and download pdfs.\n"
 	+ "Optional: specify product id(s) via --id or positional ASIN(s) to liberate those book(s), including re-download if already liberated.\n"
-	+ "Optional: reads a license file from standard input.")]
+	+ "Optional: reads a license file from standard input.\n"
+	+ "Optional: stop this run early with --limit-books, --limit-mb or --limit-gb.")]
 public class LiberateOptions : ProcessableOptionsBase
 {
 	[Option(shortName: 'p', longName: "pdf", Required = false, Default = false, HelpText = "Flag to only download pdfs")]
@@ -28,8 +29,35 @@ public class LiberateOptions : ProcessableOptionsBase
 	[Option(shortName: 'l', longName: "license", Required = false, Default = null, HelpText = "A license file from the get-license command. Either a file path or dash ('-') to read from standard input.")]
 	public string? LicenseInput { get; set; }
 
+	#region per-run limit
+	// Distinct SetName values make these three mutually exclusive. See ExportOptions for the same pattern.
+
+	[Option(longName: "limit-books", Required = false, Default = null, SetName = "limit-books",
+		HelpText = "Stop this run after downloading this many books. A daily download limit, if set, still applies.")]
+	public int? LimitBooks { get; set; }
+
+	[Option(longName: "limit-mb", Required = false, Default = null, SetName = "limit-mb",
+		HelpText = "Stop this run after downloading about this many MB. Approximate: a title's size is unknown until it is downloaded.")]
+	public int? LimitMB { get; set; }
+
+	[Option(longName: "limit-gb", Required = false, Default = null, SetName = "limit-gb",
+		HelpText = "Stop this run after downloading about this many GB. Approximate: a title's size is unknown until it is downloaded.")]
+	public int? LimitGB { get; set; }
+
+	private RunDownloadLimit? runLimit;
+	protected override RunDownloadLimit? RunLimit => runLimit;
+
+	#endregion
+
 	protected override async Task ProcessAsync()
 	{
+		if (!RunDownloadLimit.TryCreate(LimitBooks, LimitMB, LimitGB, PdfOnly, out runLimit, out var limitError))
+		{
+			PrintVerbUsage("ERROR", "=====", limitError);
+			Environment.ExitCode = (int)ExitCode.RunTimeError;
+			return;
+		}
+
 		if (AudibleFileStorage.BooksDirectory is null)
 		{
 			Console.Error.WriteLine("Error: Books directory is not set. Please configure the 'Books' setting in Settings.json.");

@@ -69,13 +69,25 @@ public static class DailyDownloadLimit
 			_ => false
 		};
 
-	private static long ToBytes(int quantity, Configuration.DailyLimitUnit unit)
+	/// <summary>The limit expressed in bytes. Zero for a book count, which is not a size at all.</summary>
+	public static long ToBytes(int quantity, Configuration.DailyLimitUnit unit)
 		=> unit switch
 		{
 			Configuration.DailyLimitUnit.MB => quantity * BytesPerMB,
 			Configuration.DailyLimitUnit.GB => quantity * BytesPerGB,
 			_ => 0
 		};
+
+	/// <summary>
+	/// Whether one more download stays within <paramref name="quantity"/> of <paramref name="unit"/>, given what
+	/// has been downloaded already. Shared with the CLI's per-run limit so the two cannot disagree about what a
+	/// book or a byte is worth. In MB/GB mode the answer is necessarily an estimate: a title's size is unknown
+	/// until it has been downloaded.
+	/// </summary>
+	public static bool FitsAnother(Configuration.DailyLimitUnit unit, int quantity, int usedBooks, long usedBytes)
+		=> unit is Configuration.DailyLimitUnit.Books
+		? usedBooks < quantity
+		: usedBytes + DiskSpaceHelper.EstimatedBytesPerAudiobookBackup <= ToBytes(quantity, unit);
 
 	public static Allowance Evaluate(Configuration config, IReadOnlyList<DownloadHistoryEntry> history, DateTimeOffset now)
 	{
@@ -109,10 +121,7 @@ public static class DailyDownloadLimit
 			RemainingBooks: RemainingBooks(usedBytes, usedBooks, allowsAnother),
 			NextCapacityAt: allowsAnother ? null : NextCapacityAt(counted, usedBytes));
 
-		bool WouldFit(long bytes, int books)
-			=> unit is Configuration.DailyLimitUnit.Books
-			? books < quantity
-			: bytes + DiskSpaceHelper.EstimatedBytesPerAudiobookBackup <= ToBytes(quantity, unit);
+		bool WouldFit(long bytes, int books) => FitsAnother(unit, quantity, books, bytes);
 
 		int RemainingBooks(long bytes, int books, bool allows)
 		{
