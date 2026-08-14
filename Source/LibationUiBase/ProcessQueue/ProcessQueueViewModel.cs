@@ -66,8 +66,8 @@ public class ProcessQueueViewModel : ReactiveObject
 	public bool AutoScrollQueue { get => field; set { RaiseAndSetIfChanged(ref field, value); Configuration.Instance.AutoScrollQueue = value; } }
 
 	/// <summary>Exposed so UI controls can bind their spinner bounds rather than hardcoding them.</summary>
-	public static int MinConcurrentDownloads => Configuration.MinConcurrentDownloads;
-	public static int MaxAllowedConcurrentDownloads => Configuration.MaxAllowedConcurrentDownloads;
+	public int MinConcurrentDownloads => Configuration.MinConcurrentDownloads;
+	public int MaxAllowedConcurrentDownloads => Configuration.MaxAllowedConcurrentDownloads;
 	public string? RunningTime { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public bool ProgressBarVisible { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public bool AnyCompleted => CompletedCount > 0;

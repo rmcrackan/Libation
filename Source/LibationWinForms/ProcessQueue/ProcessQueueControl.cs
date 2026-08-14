@@ -40,8 +40,8 @@ internal partial class ProcessQueueControl : UserControl
 		ViewModel.ProcessStart += Book_ProcessStart;
 		autoScrollChk.CheckedChanged += (s, e) => ViewModel.AutoScrollQueue = autoScrollChk.Checked;
 
-		concurrencyNum.Minimum = ProcessQueueViewModel.MinConcurrentDownloads;
-		concurrencyNum.Maximum = ProcessQueueViewModel.MaxAllowedConcurrentDownloads;
+		concurrencyNum.Minimum = ViewModel.MinConcurrentDownloads;
+		concurrencyNum.Maximum = ViewModel.MaxAllowedConcurrentDownloads;
 		concurrencyNum.ValueChanged += (s, e) => ViewModel.MaxConcurrentDownloads = (int)concurrencyNum.Value;
 		ProcessQueue_PropertyChanged(this, new PropertyChangedEventArgs(null));
 	}

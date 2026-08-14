@@ -422,14 +422,25 @@ public partial class Configuration
 	public const int MinConcurrentDownloads = 1;
 
 	/// <summary>
-	/// The highest <see cref="MaxConcurrentDownloads"/> can go. Audible throttles license
-	/// requests, so more concurrency stops helping well before this and starts producing
-	/// license denials instead.
+	/// Hard ceiling on <see cref="MaxConcurrentDownloads"/>. Audible throttles license requests,
+	/// so concurrency stops helping well before this and starts producing license denials instead.
 	/// </summary>
-	public const int MaxAllowedConcurrentDownloads = 10;
+	public const int ConcurrentDownloadsHardLimit = 10;
 
-	/// <summary>Deliberately conservative. See <see cref="MaxAllowedConcurrentDownloads"/>.</summary>
+	/// <summary>Deliberately conservative. See <see cref="ConcurrentDownloadsHardLimit"/>.</summary>
 	public const int DefaultConcurrentDownloads = 3;
+
+	/// <summary>
+	/// The highest <see cref="MaxConcurrentDownloads"/> can go on this machine.
+	/// </summary>
+	/// <remarks>
+	/// Processor count is deliberately <em>not</em> the default. Downloading is bound by Audible's
+	/// license throttling rather than by local CPU, so core count says nothing about how many
+	/// concurrent downloads will succeed - it only bounds how many decrypts can usefully run at
+	/// once. It is therefore used as a ceiling and nothing more.
+	/// </remarks>
+	public static int MaxAllowedConcurrentDownloads
+		=> Math.Clamp(Environment.ProcessorCount, MinConcurrentDownloads, ConcurrentDownloadsHardLimit);
 
 	[Description("Maximum number of books to download and decrypt simultaneously. Set to 1 to download one book at a time.")]
 	public int MaxConcurrentDownloads
