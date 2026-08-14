@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <Version>13.7.7</Version>
+    <Version>13.7.8</Version>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
