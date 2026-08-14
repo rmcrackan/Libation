@@ -96,7 +96,7 @@ internal sealed class BackupRequest
 		sb.AppendLine();
 
 		foreach (var (reason, count) in OrderedReasons())
-			sb.AppendLine($"{Describe(reason)}: {count}");
+			sb.AppendLine($"{Label(reason)}: {count}{Hint(reason)}");
 
 		return sb.ToString().TrimEnd();
 	}
@@ -115,12 +115,22 @@ internal sealed class BackupRequest
 			_ => "no audio of its own"
 		};
 
-	private static string Describe(BackupSkipReason reason)
+	private static string Label(BackupSkipReason reason)
 		=> reason switch
 		{
 			BackupSkipReason.AlreadyDownloaded => "Already downloaded",
-			BackupSkipReason.PreviousError => "Previously failed to download (set the download status to 'Not Downloaded' to try again)",
-			BackupSkipReason.AbsentFromLastScan => "Absent from your last library scan (run Scan, or `libationcli scan`, then try again)",
-			_ => "Series or podcast parent, which has no audio of its own"
+			BackupSkipReason.PreviousError => "Previously failed to download",
+			BackupSkipReason.AbsentFromLastScan => "Absent from your last library scan",
+			_ => "Series or podcast parent"
+		};
+
+	/// <summary>What to do about it, if there is anything to do. Follows the count so the numbers stay scannable.</summary>
+	private static string Hint(BackupSkipReason reason)
+		=> reason switch
+		{
+			BackupSkipReason.PreviousError => "  (set the download status to 'Not Downloaded' to try again)",
+			BackupSkipReason.AbsentFromLastScan => "  (run Scan, or `libationcli scan`, then try again)",
+			BackupSkipReason.NoAudioOfItsOwn => "  (no audio of its own)",
+			_ => ""
 		};
 }

@@ -103,8 +103,10 @@ public class BackupRequestTests
 
 		StringAssert.Contains(body, "None of the 5 titles could be queued for download.");
 		StringAssert.Contains(body, "Already downloaded: 3");
-		StringAssert.Contains(body, "Previously failed to download");
-		StringAssert.Contains(body, "Absent from your last library scan");
+		StringAssert.Contains(body, "Previously failed to download: 1");
+		StringAssert.Contains(body, "Absent from your last library scan: 1");
+		//the guidance follows the count so the numbers stay scannable
+		StringAssert.Contains(body, "1  (run Scan, or `libationcli scan`, then try again)");
 	}
 
 	[TestMethod]
