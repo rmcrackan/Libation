@@ -12,6 +12,7 @@ namespace LibationWinForms;
 public partial class Form1
 {
 	int WidthChange = 0;
+	private bool queueIsPoppedOut;
 	private void Configure_ProcessQueue()
 	{
 		processBookQueue1.PopoutButton.Click += ProcessBookQueue1_PopOut;
@@ -85,7 +86,7 @@ public partial class Form1
 		}
 		else if (!collapsed && splitContainer1.Panel2Collapsed)
 		{
-			if (!processBookQueue1.PopoutButton.Visible)
+			if (queueIsPoppedOut)
 				//Queue is in popout mode. Do nothing.
 				return;
 
@@ -112,6 +113,7 @@ public partial class Form1
 		dockForm.FormClosing += DockForm_FormClosing;
 		splitContainer1.Panel2.Controls.Remove(processBookQueue1);
 		splitContainer1.Panel2Collapsed = true;
+		queueIsPoppedOut = true;
 		processBookQueue1.PopoutButton.Visible = false;
 		dockForm.PassControl(processBookQueue1);
 		dockForm.Show();
@@ -129,6 +131,7 @@ public partial class Form1
 			this.Width += dockForm.WidthChange;
 			splitContainer1.Panel2.Controls.Add(dockForm.RegainControl());
 			splitContainer1.Panel2Collapsed = false;
+			queueIsPoppedOut = false;
 			processBookQueue1.PopoutButton.Visible = true;
 			dockForm.SaveSizeAndLocation(Configuration.Instance);
 			this.Focus();
