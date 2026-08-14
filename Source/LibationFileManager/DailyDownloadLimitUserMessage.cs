@@ -26,24 +26,27 @@ public static class DailyDownloadLimitUserMessage
 			To download more now, change or turn off the limit in {SettingsLocation}. Libation picks up the new setting within a few seconds, so there is no need to requeue anything. To stop instead, use Cancel All in the process queue.
 			""";
 
-	/// <summary>Per-book status shown in the queue while paused. Recomputed on each re-check.</summary>
+	/// <summary>
+	/// Per-book status shown in the queue while paused, recomputed on each re-check. Kept short: the process
+	/// queue column is narrow and clips rather than wrapping, so the resume time has to fit on one short line.
+	/// </summary>
 	public static string BuildWaitingStatus(DailyDownloadLimit.Allowance allowance)
 		=> allowance.NextCapacityAt is DateTimeOffset next
-		? $"Daily limit reached, resumes about {next.ToLocalTime():t}"
+		? $"Daily limit, resumes {next.ToLocalTime():t}"
 		: "Daily limit reached, waiting";
 
 	public static string BuildQueueLogEntry(DailyDownloadLimit.Allowance allowance, string bookTitleWithSubtitle)
-		=> $"Daily download limit reached ({DescribeUsage(allowance)}). Waiting before downloading {bookTitleWithSubtitle}. "
+		=> $"Daily download limit reached. {DescribeUsage(allowance)} Waiting before downloading {bookTitleWithSubtitle}. "
 		+ $"Libation will continue on its own {DescribeResumption(allowance)}, or change the limit in {SettingsLocation}.";
 
 	public static string BuildDeferredLogEntry(DailyDownloadLimit.Allowance allowance, string bookTitleWithSubtitle)
-		=> $"Daily download limit reached for Audible Plus titles ({DescribeUsage(allowance)}). "
+		=> $"Daily download limit reached for Audible Plus titles. {DescribeUsage(allowance)} "
 		+ $"Moved {bookTitleWithSubtitle} to the end of the queue and continued with titles the limit does not cover.";
 
 	/// <summary>stderr lines for the CLI, which skips blocked titles instead of waiting.</summary>
 	public static IEnumerable<string> BuildCliSkippedLines(DailyDownloadLimit.Allowance allowance)
 	{
-		yield return $"Daily download limit reached: {DescribeUsage(allowance)}.";
+		yield return $"Daily download limit reached. {DescribeUsage(allowance)}";
 		yield return $"Skipping the titles it covers. Capacity returns {DescribeResumption(allowance)}.";
 		yield return $"To change or turn off the limit, set \"{nameof(Configuration.DailyDownloadLimit)}\" in Settings.json (or use {SettingsLocation} in the Libation app).";
 	}
@@ -76,13 +79,14 @@ public static class DailyDownloadLimitUserMessage
 			""";
 	}
 
+	/// <summary>A complete sentence, so it can stand alone as its own paragraph or line.</summary>
 	private static string DescribeUsage(DailyDownloadLimit.Allowance allowance)
 	{
 		var scope = allowance.Scope is Configuration.DailyLimitScope.PlusOnly ? "Audible Plus titles" : "books";
 
 		return allowance.LimitBytes is long limitBytes
-			? $"your limit is {allowance.Quantity} {allowance.Unit} of {scope} per 24 hours, and Libation has downloaded about {DiskSpaceHelper.FormatBytes(allowance.UsedBytes)} of {DiskSpaceHelper.FormatBytes(limitBytes)} in the last 24 hours ({allowance.UsedBooks} title(s))"
-			: $"your limit is {allowance.Quantity} {scope} per 24 hours, and Libation has downloaded {allowance.UsedBooks} in the last 24 hours";
+			? $"Your limit is {allowance.Quantity} {allowance.Unit} of {scope} per 24 hours, and Libation has downloaded about {DiskSpaceHelper.FormatBytes(allowance.UsedBytes)} of {DiskSpaceHelper.FormatBytes(limitBytes)} in the last 24 hours, across {allowance.UsedBooks} title(s)."
+			: $"Your limit is {allowance.Quantity} {scope} per 24 hours, and Libation has downloaded {allowance.UsedBooks} in the last 24 hours.";
 	}
 
 	private static string DescribeResumption(DailyDownloadLimit.Allowance allowance)

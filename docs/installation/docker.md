@@ -37,6 +37,10 @@ The docker image is provided as-is. We hope it can be useful to you but it is no
 >
 > **Solution:** Configure custom replacement characters in `Settings.json` to replace colons with compatible characters. See [Command Line Interface - Set custom replacement characters](/docs/advanced/command-line-interface#set-custom-replacement-characters) for configuration examples.
 
+> [!TIP] Pacing downloads
+>
+> To stop a scheduled container from downloading your whole library at once, see [Daily download limit](/docs/features/daily-download-limit#docker-and-the-command-line). It is off unless you add the keys to your mounted `Settings.json`. Download counts live in Libation's database, so they survive container restarts when that database is on a volume.
+
 Configuration in Libation is handled by two files, `AccountsSettings.json` and `Settings.json`. These files can usually be found in the Libation folder in your user's home directory. The easiest way to configure these is to run the desktop version of Libation and then copy them into a folder, such as `/opt/libation/config`, that you'll volume mount into the image. `Settings.json` is technically optional, and, if not provided, Libation will run using the default settings. Additionally, the `Books` and `InProgress` settings in `Settings.json` will be ignored and the image will instead substitute it's own values. If tokens in that file are encrypted on the desktop, also copy the exported `libation-master.key` (see the encrypted-tokens warning above).
 
 ### Adding Audible accounts without the GUI

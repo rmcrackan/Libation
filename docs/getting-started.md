@@ -101,6 +101,10 @@ The stoplights will tell you a title's status:
 
 Or hover over the button to see the status.
 
+::: tip Downloading a big Plus library
+Audible may temporarily deny licenses if you download a lot of Audible Plus titles at once. If that describes your library, consider a [daily download limit](/docs/features/daily-download-limit) before you start.
+:::
+
 ![Liberate book step 1](images/LiberateBook1.png)
 
 Select Liberate > Begin Book Backups

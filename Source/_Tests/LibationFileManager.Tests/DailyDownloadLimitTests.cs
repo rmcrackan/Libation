@@ -364,15 +364,17 @@ public class DailyDownloadLimitTests
 	}
 
 	[TestMethod]
-	public void Waiting_status_names_the_resume_time()
+	public void Waiting_status_names_the_resume_time_and_stays_short()
 	{
 		var config = Config(Configuration.DailyLimitScope.AllBooks, quantity: 1);
 		var allowance = DailyDownloadLimit.Evaluate(config, Downloads(1, Now.AddHours(-3), isPlus: false), Now);
 
 		var status = DailyDownloadLimitUserMessage.BuildWaitingStatus(allowance);
 
-		StringAssert.Contains(status, "Daily limit reached");
+		StringAssert.Contains(status, "Daily limit");
 		StringAssert.Contains(status, allowance.NextCapacityAt!.Value.ToLocalTime().ToString("t"));
+		// The process queue column clips instead of wrapping, so this has to stay short enough to read.
+		Assert.IsTrue(status.Length <= 34, $"Waiting status is too long for the queue column: '{status}'");
 	}
 
 	[TestMethod]
