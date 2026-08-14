@@ -141,6 +141,29 @@ public partial class Configuration
 
 			This may take a while, depending on the number of audio files in the folder and the speed of your storage device.
 			""" },
+		{nameof(DailyDownloadLimit), """
+			Stop downloading once you have downloaded this much
+			within the last 24 hours. This is a rolling window,
+			not a calendar day: capacity frees up 24 hours after
+			each download, not at midnight.
+
+			Only downloads that Libation completed successfully
+			are counted. Books you download from the Audible app
+			or website are not counted, because Libation cannot
+			see them.
+
+			"Plus titles only" limits just the Audible Plus
+			catalog titles (the ones with the orange plus badge),
+			which is where Audible is known to throttle heavy
+			use. Titles you own keep downloading.
+			""" },
+		{nameof(DailyDownloadLimitUnit), """
+			MB and GB are approximate. Libation does not know
+			precisely how large an audiobook is before it has
+			been downloaded, so it assumes about 400 MB per book
+			when deciding whether another download would exceed
+			your limit.
+			""" },
 		{nameof(ImportPlusTitles), """
 			When enabled, books from the Audible Plus catalog (titles you stream or borrow under your membership, not purchased) are imported into Libation.
 

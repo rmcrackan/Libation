@@ -8,9 +8,67 @@
 			 x:DataType="vm:DownloadDecryptSettingsVM"
              x:Class="LibationAvalonia.Controls.Settings.DownloadDecrypt">
 	
-	<Grid RowDefinitions="Auto,Auto,Auto,*">
+	<Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
 		<controls:GroupBox
 			Grid.Row="0"
+			Margin="5"
+			Label="{Binding DailyDownloadLimitGroupboxText}">
+
+			<StackPanel Margin="0,5">
+
+				<TextBlock
+					Margin="0,0,0,8"
+					TextWrapping="Wrap"
+					Text="{Binding DailyDownloadLimitDescriptionText}" />
+
+				<controls:WheelComboBox
+					HorizontalAlignment="Left"
+					MinWidth="200"
+					ToolTip.Tip="{Binding DailyDownloadLimitTip}"
+					ItemsSource="{Binding DailyDownloadLimitScopes}"
+					SelectedItem="{Binding DailyDownloadLimit}" />
+
+				<StackPanel
+					Margin="0,8,0,0"
+					Orientation="Horizontal"
+					IsVisible="{Binding DailyDownloadLimitQuantityVisible}">
+
+					<TextBlock
+						VerticalAlignment="Center"
+						Text="{Binding DailyDownloadLimitQuantityText}" />
+
+					<NumericUpDown
+						Classes="SmallNumericUpDown"
+						Margin="5,0,0,0"
+						MinWidth="140"
+						Minimum="1"
+						Maximum="2147483647"
+						Increment="1"
+						FormatString="N0"
+						ParsingNumberStyle="Integer"
+						Value="{Binding DailyDownloadLimitQuantity, Mode=TwoWay}" />
+
+					<controls:WheelComboBox
+						Margin="10,0,0,0"
+						MinWidth="90"
+						ItemsSource="{Binding DailyDownloadLimitUnits}"
+						SelectedItem="{Binding DailyDownloadLimitUnit}" />
+
+				</StackPanel>
+
+				<TextBlock
+					Margin="0,6,0,0"
+					FontStyle="Italic"
+					Opacity="0.8"
+					TextWrapping="Wrap"
+					IsVisible="{Binding DailyDownloadLimitApproximateNoteVisible}"
+					Text="{Binding DailyDownloadLimitApproximateNoteText}" />
+
+			</StackPanel>
+		</controls:GroupBox>
+
+		<controls:GroupBox
+			Grid.Row="1"
 			Margin="5"
 			Label="{Binding BadBookGroupboxText}">
 
@@ -66,7 +124,7 @@
 
 		<controls:GroupBox
 			Margin="5"
-			Grid.Row="1"
+			Grid.Row="2"
 			Label="Custom File Naming">
 
 			<Grid
@@ -146,7 +204,7 @@
 			</Grid>
 		</controls:GroupBox>
 		<controls:GroupBox
-			Grid.Row="2"
+			Grid.Row="3"
 			Margin="5"
 			Label="Temporary Files Location">
 
@@ -166,7 +224,7 @@
 		</controls:GroupBox>
 
 		<StackPanel
-			Grid.Row="3"
+			Grid.Row="4"
 			Orientation="Horizontal">
 
 			<CheckBox

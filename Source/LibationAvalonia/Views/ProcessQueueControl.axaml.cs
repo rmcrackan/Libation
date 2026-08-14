@@ -152,9 +152,8 @@ public partial class ProcessQueueControl : UserControl
 
 	public async void CancelAllBtn_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{
-		Queue?.ClearQueue();
-		if (Queue?.Current is not null)
-			await Queue.Current.CancelAsync();
+		if (_viewModel is ProcessQueueViewModel vm)
+			await vm.CancelAllAsync();
 	}
 
 	public void ClearFinishedBtn_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -182,9 +181,8 @@ public partial class ProcessQueueControl : UserControl
 
 	private async void cancelAllBtn_Click(object? sender, EventArgs e)
 	{
-		Queue?.ClearQueue();
-		if (Queue?.Current is not null)
-			await Queue.Current.CancelAsync();
+		if (_viewModel is ProcessQueueViewModel vm)
+			await vm.CancelAllAsync();
 	}
 
 	private void btnClearFinished_Click(object? sender, EventArgs e)

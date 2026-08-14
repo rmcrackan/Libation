@@ -94,6 +94,10 @@ export default defineConfig({
             text: "Audiobookshelf Auto-Upload",
             link: "/docs/features/audiobookshelf",
           },
+          {
+            text: "Daily Download Limit",
+            link: "/docs/features/daily-download-limit",
+          },
           { text: "Naming Templates", link: "/docs/features/naming-templates" },
           {
             text: "Searching & Filtering",

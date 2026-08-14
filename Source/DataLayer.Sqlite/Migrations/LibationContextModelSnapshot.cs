@@ -15,7 +15,7 @@ namespace DataLayer.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
 
             modelBuilder.Entity("CategoryCategoryLadder", b =>
                 {
@@ -186,6 +186,31 @@ namespace DataLayer.Migrations
                             ContributorId = -1,
                             Name = ""
                         });
+                });
+
+            modelBuilder.Entity("DataLayer.DownloadHistory", b =>
+                {
+                    b.Property<int>("DownloadHistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AudibleProductId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("Bytes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("CompletedAtUtcTicks")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsAudiblePlus")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("DownloadHistoryId");
+
+                    b.HasIndex("CompletedAtUtcTicks");
+
+                    b.ToTable("DownloadHistory");
                 });
 
             modelBuilder.Entity("DataLayer.LibraryBook", b =>

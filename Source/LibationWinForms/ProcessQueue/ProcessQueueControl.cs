@@ -67,11 +67,7 @@ internal partial class ProcessQueueControl : UserControl
 	}
 
 	private async void cancelAllBtn_Click(object? sender, EventArgs e)
-	{
-		ViewModel.Queue.ClearQueue();
-		if (ViewModel.Queue.Current is not null)
-			await ViewModel.Queue.Current.CancelAsync();
-	}
+		=> await ViewModel.CancelAllAsync();
 
 	private void btnClearFinished_Click(object? sender, EventArgs e)
 	{

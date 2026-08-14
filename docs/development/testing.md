@@ -93,3 +93,28 @@ Two of the Liberate icons are not stored in the database at all, which is worth 
 - **Green and Error are database-only.** `AudioExists` is defined as `BookStatus is Liberated or Error`, so neither needs an audio file to exist. Creating one changes nothing.
 
 One more trap, in the grid rather than the database: a podcast's series is identified by the **parent book's own ASIN**, not by an arbitrary series id, and `SeriesEntry.GetAllSeriesEntriesAsync` discards any series whose children it cannot match. Point the episodes at a different series id and the parent row disappears from the grid with no error.
+
+### seed-download-history.cs
+
+Fills the `DownloadHistory` table with fake completed downloads, so the [daily download limit](/docs/features/daily-download-limit) can be tested without downloading anything. Start Libation once first so the table exists.
+
+Reach a limit of 50 Audible Plus titles and stay there:
+
+```bash
+dotnet run Scripts/seed-download-history.cs -- --count 50 --age-seconds 7200
+```
+
+The limit uses a rolling 24 hour window, and `--age-seconds` is how long ago each fake download finished, so it also controls when the window frees up. Dating the rows just under 24 hours old turns a multi-day wait into a one minute wait, which is how the pause-and-resume behavior is checked:
+
+```bash
+# a paused queue resumes on its own about a minute from now
+dotnet run Scripts/seed-download-history.cs -- --count 50 --age-seconds 86325
+```
+
+Other flags: `--owned` seeds purchased titles instead of Plus ones (useful for checking that a Plus-only limit ignores them), `--mb` sets the size of each fake download for testing MB and GB limits, and `--clean` deletes every row.
+
+Libation may be running while you seed. Each check re-queries the database, so a running queue picks up the new rows within seconds without a restart.
+
+::: tip
+The limit is off by default. Set **Settings > Download/Decrypt > Daily download limit** before expecting seeded rows to block anything.
+:::

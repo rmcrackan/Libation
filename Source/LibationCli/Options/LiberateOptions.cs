@@ -68,7 +68,15 @@ public class LiberateOptions : ProcessableOptionsBase
 		}
 
 		PrepareBookForLiberate(libraryBook, isTargetedRun: true);
-		await ProcessOneAsync(GetProcessable(licenseInfo), libraryBook, true);
+
+		var processable = GetProcessable(licenseInfo);
+		if (IsSkippedByDailyLimit(processable, libraryBook))
+		{
+			Console.WriteLine(DailyDownloadLimitUserMessage.BuildCliSkippedSummary(1));
+			return;
+		}
+
+		await ProcessOneAsync(processable, libraryBook, true);
 	}
 
 	private static DownloadOptions.LicenseInfo? ReadLicenseFromFile(string licFile)

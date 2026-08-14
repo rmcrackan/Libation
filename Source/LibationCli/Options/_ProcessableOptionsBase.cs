@@ -83,6 +83,8 @@ public abstract class ProcessableOptionsBase : OptionsBase
 
 	protected async Task RunAsync(Processable Processable, Action<LibraryBook>? config = null, Action<string>? notFound = null)
 	{
+		var skippedForDailyLimit = 0;
+
 		var productIds = GetProductIds().ToArray();
 		if (productIds.Length > 0)
 		{
@@ -91,7 +93,10 @@ public abstract class ProcessableOptionsBase : OptionsBase
 				if (DbContexts.GetLibraryBook_Flat_NoTracking(asin, caseSensative: false) is LibraryBook lb)
 				{
 					config?.Invoke(lb);
-					await ProcessOneAsync(Processable, lb, true);
+					if (IsSkippedByDailyLimit(Processable, lb))
+						skippedForDailyLimit++;
+					else
+						await ProcessOneAsync(Processable, lb, true);
 				}
 			else
 			{
@@ -108,13 +113,62 @@ public abstract class ProcessableOptionsBase : OptionsBase
 			foreach (var lb in Processable.GetValidLibraryBooks(libraryBooks))
 			{
 				config?.Invoke(lb);
-				await ProcessOneAsync(Processable, lb, false);
+				if (IsSkippedByDailyLimit(Processable, lb))
+					skippedForDailyLimit++;
+				else
+					await ProcessOneAsync(Processable, lb, false);
 			}
+		}
+
+		if (skippedForDailyLimit > 0)
+		{
+			var summary = DailyDownloadLimitUserMessage.BuildCliSkippedSummary(skippedForDailyLimit);
+			Console.WriteLine(summary);
+			Serilog.Log.Logger.Information(summary);
 		}
 
 		var done = "Done. All books have been processed";
 		Console.WriteLine(done);
 		Serilog.Log.Logger.Information(done);
+	}
+
+	protected bool announcedDailyLimit;
+
+	/// <summary>
+	/// True when the user's daily download limit covers this title and has been reached. Unlike the GUI queue the
+	/// CLI never waits: a command-line run must not sit idle for hours, and in Docker the entrypoint has to return
+	/// so its own sleep loop keeps working. Skipped titles stay un-liberated and are retried on the next run.
+	/// </summary>
+	protected bool IsSkippedByDailyLimit(Processable processable, LibraryBook libraryBook)
+	{
+		// Only audiobook downloads are limited, and only titles the configured scope covers, so the common
+		// case of no limit (or a Plus-only limit against an owned title) costs nothing.
+		if (processable is not DownloadDecryptBook
+			|| !DailyDownloadLimit.AppliesTo(libraryBook.IsAudiblePlus, Configuration.Instance))
+			return false;
+
+		var now = DateTimeOffset.Now;
+		var allowance = DailyDownloadLimit.Evaluate(Configuration.Instance, DownloadHistoryStore.GetCurrentWindow(now), now);
+
+		if (!allowance.Blocks(libraryBook.IsAudiblePlus))
+			return false;
+
+		if (!announcedDailyLimit)
+		{
+			announcedDailyLimit = true;
+			foreach (var line in DailyDownloadLimitUserMessage.BuildCliSkippedLines(allowance))
+			{
+				Console.Error.WriteLine(line);
+				Serilog.Log.Logger.Information(line);
+			}
+		}
+
+		Serilog.Log.Logger.Information(
+			"Daily download limit reached; skipping {libraryBook}. {@DebugInfo}",
+			libraryBook.LogFriendly(),
+			new { allowance.Scope, allowance.Unit, allowance.Quantity, allowance.UsedBooks, allowance.UsedBytes, allowance.NextCapacityAt });
+
+		return true;
 	}
 
 	protected async Task ProcessOneAsync(Processable Processable, LibraryBook libraryBook, bool validate)

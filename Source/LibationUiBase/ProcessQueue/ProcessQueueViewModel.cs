@@ -19,11 +19,21 @@ public record LogEntry(DateTime LogDate, string LogMessage)
 
 public class ProcessQueueViewModel : ReactiveObject
 {
+	/// <summary>
+	/// How often a queue paused on the daily download limit re-checks. Short and fixed: never a delay computed
+	/// from when capacity is expected, so a change of setting or the window rolling over is picked up promptly.
+	/// </summary>
+	private static readonly TimeSpan DailyLimitPollInterval = TimeSpan.FromSeconds(15);
+
 	public ObservableCollection<LogEntry> LogEntries { get; } = new();
 	public TrackedQueue<ProcessBookViewModel> Queue { get; } = new();
 	private readonly BadBookSessionContext _badBookSession = new();
 	public Task? QueueRunner { get; private set; }
 	public bool Running => !QueueRunner?.IsCompleted ?? false;
+
+	/// <summary>Set by <see cref="CancelAllAsync"/>; watched by the daily download limit wait loop.</summary>
+	private volatile bool cancelAllRequested;
+	private bool dailyLimitMessageShownThisRun;
 
 	public ProcessQueueViewModel()
 	{
@@ -94,8 +104,22 @@ public class ProcessQueueViewModel : ReactiveObject
 		RaisePropertyChanged(nameof(Progress));
 	}
 
-	private void ProcessBook_LogWritten(object? sender, string logMessage)
+	private void ProcessBook_LogWritten(object? sender, string logMessage) => AddQueueLogEntry(logMessage);
+
+	private void AddQueueLogEntry(string logMessage)
 		=> Invoke(() => LogEntries.Add(new(DateTime.Now, logMessage.Trim())));
+
+	/// <summary>
+	/// Clears the queue and cancels the book being processed. Also ends a pause on the daily download limit,
+	/// which is why both UIs call this instead of manipulating the queue directly.
+	/// </summary>
+	public async Task CancelAllAsync()
+	{
+		cancelAllRequested = true;
+		Queue.ClearQueue();
+		if (Queue.Current is ProcessBookViewModel current)
+			await current.CancelAsync();
+	}
 
 	#region Add Books to Queue
 
@@ -332,6 +356,10 @@ public class ProcessQueueViewModel : ReactiveObject
 
 	private void AddToQueue(IList<ProcessBookViewModel> pbook)
 	{
+		// Queueing more work withdraws an earlier Cancel All, which may still be settling on the book it
+		// cancelled. Otherwise these new books would inherit that cancellation at the daily-limit gate.
+		cancelAllRequested = false;
+
 		foreach (var book in pbook)
 			book.LogWritten += ProcessBook_LogWritten;
 
@@ -341,6 +369,125 @@ public class ProcessQueueViewModel : ReactiveObject
 	}
 
 	#endregion
+
+	#region Daily download limit
+
+	private enum DailyLimitGate
+	{
+		/// <summary>The limit does not stop this book right now.</summary>
+		Proceed,
+		/// <summary>This book is limited but something else in the queue is not; try it later.</summary>
+		Defer,
+		/// <summary>The user cancelled the queue while it was waiting.</summary>
+		Cancelled
+	}
+
+	/// <summary>
+	/// Runs immediately before a book downloads, never at queueing time, so the queue keeps its contents and a
+	/// user can raise or turn off the limit mid-run. Every iteration re-reads the setting, re-queries the
+	/// history and re-reads the clock: a queue left alone for days must resume by itself as its oldest
+	/// downloads age out of the rolling window.
+	/// </summary>
+	/// <param name="deferralsSoFar">
+	/// How many books this queue run has already moved to the back for the limit. Compared against the live
+	/// queued count so the rotation cannot continue indefinitely.
+	/// </param>
+	private async Task<DailyLimitGate> WaitForDailyLimitAsync(ProcessBookViewModel nextBook, int deferralsSoFar)
+	{
+		if (!nextBook.IncludesBookDownload)
+			return DailyLimitGate.Proceed;
+
+		var paused = false;
+
+		while (true)
+		{
+			if (cancelAllRequested)
+			{
+				nextBook.StatusOverride = null;
+				return DailyLimitGate.Cancelled;
+			}
+
+			var now = DateTimeOffset.Now;
+			var allowance = DailyDownloadLimit.Evaluate(Configuration.Instance, DownloadHistoryStore.GetCurrentWindow(now), now);
+
+			if (!allowance.Blocks(nextBook.LibraryBook.IsAudiblePlus))
+			{
+				nextBook.StatusOverride = null;
+				if (paused)
+				{
+					var resumed = $"Daily download limit: capacity is available again. Resuming with {nextBook.LibraryBook.Book.TitleWithSubtitle}.";
+					Serilog.Log.Logger.Information("Daily download limit no longer blocks {libraryBook}. Resuming the queue.", nextBook.LibraryBook.LogFriendly());
+					AddQueueLogEntry(resumed);
+				}
+				return DailyLimitGate.Proceed;
+			}
+
+			// Under "Plus titles only" a mixed queue can keep going; do not stall owned titles behind a Plus title.
+			if (deferralsSoFar < QueuedCount && AnyOtherQueuedBookAllowed(nextBook, allowance))
+			{
+				nextBook.StatusOverride = null;
+				Serilog.Log.Logger.Information(
+					"Daily download limit blocks {libraryBook}. Moving it to the end of the queue and continuing with titles the limit does not cover.",
+					nextBook.LibraryBook.LogFriendly());
+				AddQueueLogEntry(DailyDownloadLimitUserMessage.BuildDeferredLogEntry(allowance, nextBook.LibraryBook.Book.TitleWithSubtitle));
+				return DailyLimitGate.Defer;
+			}
+
+			if (!paused)
+			{
+				paused = true;
+				Serilog.Log.Logger.Information(
+					"Daily download limit reached; pausing the queue before {libraryBook}. {@DebugInfo}",
+					nextBook.LibraryBook.LogFriendly(),
+					new { allowance.Scope, allowance.Unit, allowance.Quantity, allowance.UsedBooks, allowance.UsedBytes, allowance.NextCapacityAt });
+				AddQueueLogEntry(DailyDownloadLimitUserMessage.BuildQueueLogEntry(allowance, nextBook.LibraryBook.Book.TitleWithSubtitle));
+				ShowDailyLimitMessageOncePerRun(allowance, nextBook.LibraryBook.Book.TitleWithSubtitle);
+			}
+
+			nextBook.StatusOverride = DailyDownloadLimitUserMessage.BuildWaitingStatus(allowance);
+
+			await Task.Delay(DailyLimitPollInterval);
+		}
+	}
+
+	/// <summary>Moves the book being held back to the end of the queue without counting it as completed.</summary>
+	private void RequeueLast(ProcessBookViewModel book)
+	{
+		Queue.ClearCurrent();
+		Queue.Enqueue([book]);
+	}
+
+	private bool AnyOtherQueuedBookAllowed(ProcessBookViewModel nextBook, DailyDownloadLimit.Allowance allowance)
+		=> Queue.Any(b =>
+			b is not null
+			&& !ReferenceEquals(b, nextBook)
+			&& b.Status is ProcessBookStatus.Queued
+			&& (!b.IncludesBookDownload || !allowance.Blocks(b.LibraryBook.IsAudiblePlus)));
+
+	/// <summary>
+	/// Deliberately not awaited. This dialog only completes when the user dismisses it, and a queue that is
+	/// waiting must be free to resume by itself hours later with nobody at the keyboard. Shown once per queue
+	/// run so a multi-day drip-feed does not stack up a dialog per day; later pauses use the log and status.
+	/// </summary>
+	private void ShowDailyLimitMessageOncePerRun(DailyDownloadLimit.Allowance allowance, string bookTitleWithSubtitle)
+	{
+		if (dailyLimitMessageShownThisRun)
+			return;
+
+		dailyLimitMessageShownThisRun = true;
+
+		_ = MessageBoxBase.Show(
+			DailyDownloadLimitUserMessage.BuildQueuePausedBody(allowance, bookTitleWithSubtitle),
+			DailyDownloadLimitUserMessage.DialogCaption,
+			MessageBoxButtons.OK,
+			MessageBoxIcon.Information)
+			.ContinueWith(
+				t => Serilog.Log.Logger.Error(t.Exception, "Failed to show the daily download limit message"),
+				TaskContinuationOptions.OnlyOnFaulted);
+	}
+
+	#endregion
+
 	public event EventHandler<ProcessBookViewModel>? ProcessStart;
 	public event EventHandler<ProcessBookViewModel>? ProcessEnd;
 	private async Task QueueLoop()
@@ -350,12 +497,16 @@ public class ProcessQueueViewModel : ReactiveObject
 			Serilog.Log.Logger.Information("Begin processing queue");
 
 			_badBookSession.Reset();
+			cancelAllRequested = false;
+			dailyLimitMessageShownThisRun = false;
 			RunningTime = string.Empty;
 			ProgressBarVisible = true;
 			var startingTime = DateTime.Now;
 			bool shownLicenseGuidanceMessage = false;
 			bool shownWidevineGuidanceMessage = false;
 			bool shownDiskFullMessage = false;
+			// Bounds the daily-limit deferral rotation, so a book can never be shuffled to the back forever.
+			int consecutiveDeferrals = 0;
 
 			using var counterTimer = new System.Threading.Timer(_ => RunningTime = timeToStr(DateTime.Now - startingTime), null, 0, 500);
 
@@ -364,6 +515,27 @@ public class ProcessQueueViewModel : ReactiveObject
 				if (Queue.Current is not ProcessBookViewModel nextBook)
 				{
 					Serilog.Log.Logger.Information("Current queue item is empty.");
+					continue;
+				}
+
+				// Checked here rather than at queueing time so the queue keeps its contents and the user can
+				// change the limit mid-run. Deferral keeps a mixed queue moving under "Plus titles only".
+				var gate = await WaitForDailyLimitAsync(nextBook, consecutiveDeferrals);
+
+				if (gate is DailyLimitGate.Defer)
+				{
+					consecutiveDeferrals++;
+					RequeueLast(nextBook);
+					continue;
+				}
+
+				consecutiveDeferrals = 0;
+
+				if (gate is DailyLimitGate.Cancelled)
+				{
+					Serilog.Log.Logger.Information("Queue was cancelled while waiting on the daily download limit.");
+					nextBook.Result = ProcessBookResult.Cancelled;
+					nextBook.Status = ProcessBookStatus.Cancelled;
 					continue;
 				}
 

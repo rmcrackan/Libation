@@ -1,3 +1,7 @@
+using ApplicationServices;
+using LibationFileManager;
+using System;
+
 namespace LibationUiBase;
 
 /// <summary>
@@ -19,7 +23,7 @@ public static class ContentLicenseDeniedUserMessage
 			Heavy use of the Audible Plus catalog in a short time can also produce "license denied" responses; community reports often involve on the order of dozens of titles — Audible does not publish a fixed limit. Waiting 24 to 48 hours before trying again is usually enough.
 
 			If the problem continues after several days, open an issue on Libation's GitHub and include your logs.
-			""";
+			""" + AppendSuggestion();
 
 	/// <summary>License denied on an Audible Plus title — often rate limiting, not a Libation defect.</summary>
 	public static string BuildDialogBodyForPlusCatalog(string bookTitleWithSubtitle)
@@ -31,5 +35,33 @@ public static class ContentLicenseDeniedUserMessage
 			Try waiting 24 to 48 hours and liberate again. If it still fails after several days, open an issue on Libation's GitHub with logs.
 
 			If you should not have access to this title (for example it left Plus before you downloaded), confirm in the Audible app or website.
-			""";
+			""" + AppendSuggestion();
+
+	/// <summary>
+	/// Audible reports no distinct "throttled" reason, so this suggestion is what turns a guess into evidence:
+	/// it only appears when Libation's own record shows enough recent downloads for throttling to be plausible,
+	/// and when the user has no daily limit configured yet. Logged as well as shown.
+	/// </summary>
+	private static string AppendSuggestion()
+	{
+		try
+		{
+			var now = DateTimeOffset.Now;
+			var suggestion = DailyDownloadLimitUserMessage.BuildSuggestionParagraph(
+				Configuration.Instance,
+				DownloadHistoryStore.GetCurrentWindow(now),
+				now);
+
+			if (suggestion is null)
+				return string.Empty;
+
+			Serilog.Log.Logger.Information("Suggesting a daily download limit after a license denial. {Suggestion}", suggestion);
+			return Environment.NewLine + Environment.NewLine + suggestion;
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Failed to build the daily download limit suggestion");
+			return string.Empty;
+		}
+	}
 }
