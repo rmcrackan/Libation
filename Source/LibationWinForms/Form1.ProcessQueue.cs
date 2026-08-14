@@ -52,7 +52,10 @@ public partial class Form1
 		{
 			Serilog.Log.Logger.Information("Begin backing up all {series} episodes", series.LibraryBook);
 
-			if (await processBookQueue1.ViewModel.QueueDownloadDecryptAsync(series.Children.Select(c => c.LibraryBook).UnLiberated().ToArray()))
+			// Every episode, not just the ones that can be queued: the menu item is enabled from the grid's
+			// display status, so it can be clicked for episodes the queue will reject, and only the queue
+			// knows why it rejected them.
+			if (await processBookQueue1.ViewModel.QueueDownloadDecryptAsync(series.Children.Select(c => c.LibraryBook).ToArray()))
 				SetQueueCollapseState(false);
 		}
 		catch (Exception ex)
