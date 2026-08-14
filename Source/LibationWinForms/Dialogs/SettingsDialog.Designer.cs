@@ -35,6 +35,13 @@
 			importEpisodesCb = new System.Windows.Forms.CheckBox();
 			downloadEpisodesCb = new System.Windows.Forms.CheckBox();
 			badBookGb = new System.Windows.Forms.GroupBox();
+			dailyDownloadLimitGb = new System.Windows.Forms.GroupBox();
+			dailyDownloadLimitDescLbl = new System.Windows.Forms.Label();
+			dailyDownloadLimitScopeCb = new System.Windows.Forms.ComboBox();
+			dailyDownloadLimitQtyLbl = new System.Windows.Forms.Label();
+			dailyDownloadLimitQtyNud = new System.Windows.Forms.NumericUpDown();
+			dailyDownloadLimitUnitCb = new System.Windows.Forms.ComboBox();
+			dailyDownloadLimitApproxLbl = new System.Windows.Forms.Label();
 			badBookIgnoreRb = new System.Windows.Forms.RadioButton();
 			badBookRetryRb = new System.Windows.Forms.RadioButton();
 			badBookAbortRb = new System.Windows.Forms.RadioButton();
@@ -162,6 +169,8 @@
 			downloadCoverArtCbox = new System.Windows.Forms.CheckBox();
 			createCueSheetCbox = new System.Windows.Forms.CheckBox();
 			badBookGb.SuspendLayout();
+			dailyDownloadLimitGb.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)dailyDownloadLimitQtyNud).BeginInit();
 			tabControl.SuspendLayout();
 			tab1ImportantSettings.SuspendLayout();
 			groupBox1.SuspendLayout();
@@ -258,7 +267,7 @@
 			badBookGb.Controls.Add(badBookRetryRb);
 			badBookGb.Controls.Add(badBookAbortRb);
 			badBookGb.Controls.Add(badBookAskRb);
-			badBookGb.Location = new System.Drawing.Point(7, 6);
+			badBookGb.Location = new System.Drawing.Point(7, 122);
 			badBookGb.Name = "badBookGb";
 			badBookGb.Size = new System.Drawing.Size(841, 76);
 			badBookGb.TabIndex = 13;
@@ -747,6 +756,77 @@
 			useWebViewCb.Text = "[use webview desc]";
 			useWebViewCb.UseVisualStyleBackColor = true;
 			// 
+			// dailyDownloadLimitGb
+			// 
+			dailyDownloadLimitGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitApproxLbl);
+			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitUnitCb);
+			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitQtyNud);
+			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitQtyLbl);
+			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitScopeCb);
+			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitDescLbl);
+			dailyDownloadLimitGb.Location = new System.Drawing.Point(7, 6);
+			dailyDownloadLimitGb.Name = "dailyDownloadLimitGb";
+			dailyDownloadLimitGb.Size = new System.Drawing.Size(842, 110);
+			dailyDownloadLimitGb.TabIndex = 23;
+			dailyDownloadLimitGb.TabStop = false;
+			dailyDownloadLimitGb.Text = "[daily download limit desc]";
+			// 
+			// dailyDownloadLimitDescLbl
+			// 
+			dailyDownloadLimitDescLbl.Location = new System.Drawing.Point(7, 19);
+			dailyDownloadLimitDescLbl.Name = "dailyDownloadLimitDescLbl";
+			dailyDownloadLimitDescLbl.Size = new System.Drawing.Size(828, 32);
+			dailyDownloadLimitDescLbl.TabIndex = 1;
+			dailyDownloadLimitDescLbl.Text = "[daily download limit long desc]";
+			// 
+			// dailyDownloadLimitScopeCb
+			// 
+			dailyDownloadLimitScopeCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			dailyDownloadLimitScopeCb.FormattingEnabled = true;
+			dailyDownloadLimitScopeCb.Location = new System.Drawing.Point(7, 57);
+			dailyDownloadLimitScopeCb.Name = "dailyDownloadLimitScopeCb";
+			dailyDownloadLimitScopeCb.Size = new System.Drawing.Size(200, 23);
+			dailyDownloadLimitScopeCb.TabIndex = 2;
+			dailyDownloadLimitScopeCb.SelectedIndexChanged += dailyDownloadLimitScopeCb_SelectedIndexChanged;
+			// 
+			// dailyDownloadLimitQtyLbl
+			// 
+			dailyDownloadLimitQtyLbl.AutoSize = true;
+			dailyDownloadLimitQtyLbl.Location = new System.Drawing.Point(220, 61);
+			dailyDownloadLimitQtyLbl.Name = "dailyDownloadLimitQtyLbl";
+			dailyDownloadLimitQtyLbl.Size = new System.Drawing.Size(38, 15);
+			dailyDownloadLimitQtyLbl.TabIndex = 3;
+			dailyDownloadLimitQtyLbl.Text = "[qty]";
+			// 
+			// dailyDownloadLimitQtyNud
+			// 
+			dailyDownloadLimitQtyNud.Location = new System.Drawing.Point(264, 57);
+			dailyDownloadLimitQtyNud.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
+			dailyDownloadLimitQtyNud.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+			dailyDownloadLimitQtyNud.Name = "dailyDownloadLimitQtyNud";
+			dailyDownloadLimitQtyNud.Size = new System.Drawing.Size(110, 23);
+			dailyDownloadLimitQtyNud.TabIndex = 4;
+			dailyDownloadLimitQtyNud.Value = new decimal(new int[] { 50, 0, 0, 0 });
+			// 
+			// dailyDownloadLimitUnitCb
+			// 
+			dailyDownloadLimitUnitCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			dailyDownloadLimitUnitCb.FormattingEnabled = true;
+			dailyDownloadLimitUnitCb.Location = new System.Drawing.Point(383, 57);
+			dailyDownloadLimitUnitCb.Name = "dailyDownloadLimitUnitCb";
+			dailyDownloadLimitUnitCb.Size = new System.Drawing.Size(90, 23);
+			dailyDownloadLimitUnitCb.TabIndex = 5;
+			dailyDownloadLimitUnitCb.SelectedIndexChanged += dailyDownloadLimitUnitCb_SelectedIndexChanged;
+			// 
+			// dailyDownloadLimitApproxLbl
+			// 
+			dailyDownloadLimitApproxLbl.Location = new System.Drawing.Point(485, 53);
+			dailyDownloadLimitApproxLbl.Name = "dailyDownloadLimitApproxLbl";
+			dailyDownloadLimitApproxLbl.Size = new System.Drawing.Size(350, 45);
+			dailyDownloadLimitApproxLbl.TabIndex = 6;
+			dailyDownloadLimitApproxLbl.Text = "[mb/gb approximate note]";
+			// 
 			// tab3DownloadDecrypt
 			// 
 			tab3DownloadDecrypt.AutoScroll = true;
@@ -756,6 +836,7 @@
 			tab3DownloadDecrypt.Controls.Add(inProgressFilesGb);
 			tab3DownloadDecrypt.Controls.Add(customFileNamingGb);
 			tab3DownloadDecrypt.Controls.Add(badBookGb);
+			tab3DownloadDecrypt.Controls.Add(dailyDownloadLimitGb);
 			tab3DownloadDecrypt.Location = new System.Drawing.Point(4, 24);
 			tab3DownloadDecrypt.Name = "tab3DownloadDecrypt";
 			tab3DownloadDecrypt.Padding = new System.Windows.Forms.Padding(3);
@@ -765,9 +846,9 @@
 			// 
 			// saveMetadataToFileCbox
 			// 
-			saveMetadataToFileCbox.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+			saveMetadataToFileCbox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
 			saveMetadataToFileCbox.AutoSize = true;
-			saveMetadataToFileCbox.Location = new System.Drawing.Point(481, 435);
+			saveMetadataToFileCbox.Location = new System.Drawing.Point(481, 551);
 			saveMetadataToFileCbox.Name = "saveMetadataToFileCbox";
 			saveMetadataToFileCbox.Size = new System.Drawing.Size(166, 19);
 			saveMetadataToFileCbox.TabIndex = 22;
@@ -776,9 +857,9 @@
 			// 
 			// useCoverAsFolderIconCb
 			// 
-			useCoverAsFolderIconCb.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+			useCoverAsFolderIconCb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left;
 			useCoverAsFolderIconCb.AutoSize = true;
-			useCoverAsFolderIconCb.Location = new System.Drawing.Point(6, 435);
+			useCoverAsFolderIconCb.Location = new System.Drawing.Point(6, 551);
 			useCoverAsFolderIconCb.Name = "useCoverAsFolderIconCb";
 			useCoverAsFolderIconCb.Size = new System.Drawing.Size(180, 19);
 			useCoverAsFolderIconCb.TabIndex = 22;
@@ -787,10 +868,10 @@
 			// 
 			// inProgressFilesGb
 			// 
-			inProgressFilesGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			inProgressFilesGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			inProgressFilesGb.Controls.Add(inProgressSelectControl);
 			inProgressFilesGb.Controls.Add(inProgressDescLbl);
-			inProgressFilesGb.Location = new System.Drawing.Point(6, 281);
+			inProgressFilesGb.Location = new System.Drawing.Point(6, 397);
 			inProgressFilesGb.Name = "inProgressFilesGb";
 			inProgressFilesGb.Size = new System.Drawing.Size(842, 148);
 			inProgressFilesGb.TabIndex = 21;
@@ -799,7 +880,7 @@
 			// 
 			// inProgressSelectControl
 			// 
-			inProgressSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			inProgressSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			inProgressSelectControl.Location = new System.Drawing.Point(6, 65);
 			inProgressSelectControl.Name = "inProgressSelectControl";
 			inProgressSelectControl.Size = new System.Drawing.Size(830, 80);
@@ -818,7 +899,7 @@
 			customFileNamingGb.Controls.Add(folderTemplateBtn);
 			customFileNamingGb.Controls.Add(folderTemplateTb);
 			customFileNamingGb.Controls.Add(folderTemplateLbl);
-			customFileNamingGb.Location = new System.Drawing.Point(7, 88);
+			customFileNamingGb.Location = new System.Drawing.Point(7, 204);
 			customFileNamingGb.Name = "customFileNamingGb";
 			customFileNamingGb.Size = new System.Drawing.Size(842, 187);
 			customFileNamingGb.TabIndex = 20;
@@ -1715,6 +1796,9 @@
 			Load += SettingsDialog_Load;
 			badBookGb.ResumeLayout(false);
 			badBookGb.PerformLayout();
+			dailyDownloadLimitGb.ResumeLayout(false);
+			dailyDownloadLimitGb.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)dailyDownloadLimitQtyNud).EndInit();
 			tabControl.ResumeLayout(false);
 			tab1ImportantSettings.ResumeLayout(false);
 			tab1ImportantSettings.PerformLayout();
@@ -1768,6 +1852,13 @@
 		private System.Windows.Forms.Label loggingLevelLbl;
 		private System.Windows.Forms.ComboBox loggingLevelCb;
 		private System.Windows.Forms.GroupBox badBookGb;
+		private System.Windows.Forms.GroupBox dailyDownloadLimitGb;
+		private System.Windows.Forms.Label dailyDownloadLimitDescLbl;
+		private System.Windows.Forms.ComboBox dailyDownloadLimitScopeCb;
+		private System.Windows.Forms.Label dailyDownloadLimitQtyLbl;
+		private System.Windows.Forms.NumericUpDown dailyDownloadLimitQtyNud;
+		private System.Windows.Forms.ComboBox dailyDownloadLimitUnitCb;
+		private System.Windows.Forms.Label dailyDownloadLimitApproxLbl;
 		private System.Windows.Forms.RadioButton badBookRetryRb;
 		private System.Windows.Forms.RadioButton badBookAbortRb;
 		private System.Windows.Forms.RadioButton badBookAskRb;
