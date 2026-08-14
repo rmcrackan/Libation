@@ -190,7 +190,7 @@
 			//
 			this.concurrencyLbl.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Top;
 			this.concurrencyLbl.AutoSize = true;
-			this.concurrencyLbl.Location = new System.Drawing.Point(82, 30);
+			this.concurrencyLbl.Location = new System.Drawing.Point(172, 7);
 			this.concurrencyLbl.Name = "concurrencyLbl";
 			this.concurrencyLbl.Size = new System.Drawing.Size(54, 15);
 			this.concurrencyLbl.TabIndex = 7;
@@ -199,7 +199,7 @@
 			// concurrencyNum
 			//
 			this.concurrencyNum.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Top;
-			this.concurrencyNum.Location = new System.Drawing.Point(136, 27);
+			this.concurrencyNum.Location = new System.Drawing.Point(230, 3);
 			this.concurrencyNum.Name = "concurrencyNum";
 			this.concurrencyNum.Size = new System.Drawing.Size(45, 23);
 			this.concurrencyNum.TabIndex = 8;
