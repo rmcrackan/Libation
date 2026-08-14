@@ -19,12 +19,13 @@ public partial class Form1
 		await BackupAllBooksAsync(library);
 	}
 
-	private async Task BackupAllBooksAsync(IEnumerable<LibraryBook> books)
+	/// <param name="notifyIfNothingQueued">False for the automatic post-scan download, which runs unattended.</param>
+	private async Task BackupAllBooksAsync(IEnumerable<LibraryBook> books, bool notifyIfNothingQueued = true)
 	{
 		try
 		{
 			var unliberated = books.UnLiberated().ToArray();
-			if (await processBookQueue1.ViewModel.QueueDownloadDecryptAsync(unliberated))
+			if (await processBookQueue1.ViewModel.QueueDownloadDecryptAsync(unliberated, notifyIfNothingQueued: notifyIfNothingQueued))
 				SetQueueCollapseState(false);
 		}
 		catch (Exception ex)

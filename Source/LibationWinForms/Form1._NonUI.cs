@@ -44,7 +44,7 @@ public partial class Form1
 			return;
 
 		// RunWorkerCompleted has no SynchronizationContext; queue items require the UI thread.
-		this.UIThreadAsync(() => _ = BackupAllBooksAsync(libraryStats.LibraryBooks));
+		this.UIThreadAsync(() => _ = BackupAllBooksAsync(libraryStats.LibraryBooks, notifyIfNothingQueued: false));
 	}
 
 	private void AudibleApiStorage_LoadError(object? sender, AccountSettingsLoadErrorEventArgs e)

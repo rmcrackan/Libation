@@ -186,7 +186,11 @@ public class ProcessQueueViewModel : ReactiveObject
 		AddToQueue(procs);
 	}
 
-	public async Task<bool> QueueDownloadDecryptAsync(IList<LibraryBook> libraryBooks, Configuration? config = null)
+	/// <param name="notifyIfNothingQueued">
+	/// Whether to tell the user when a multi-book request queued nothing. Always logged either way. Automated
+	/// callers (auto-download after a scan) pass false so a routine no-op cannot put a dialog on screen.
+	/// </param>
+	public async Task<bool> QueueDownloadDecryptAsync(IList<LibraryBook> libraryBooks, Configuration? config = null, bool notifyIfNothingQueued = true)
 	{
 		config ??= Configuration.Instance;
 		if (!await IsBooksDirectoryValidAsync(config))
@@ -237,20 +241,42 @@ public class ProcessQueueViewModel : ReactiveObject
 		}
 		else
 		{
-			var toLiberate = libraryBooks.UnLiberated().ToArray();
+			var request = BackupRequest.Create(libraryBooks);
 
-			if (toLiberate.Length > 0)
+			if (request.Queueable.Length == 0)
 			{
-				// May no-op when free space is unknown (common on UNC); see DiskSpaceBackupPreflight.
-				if (!await DiskSpaceBackupPreflight.ConfirmBulkBackupAsync(toLiberate.Length, config, backupQueueAlreadyRunning: Running))
-					return false;
+				// This branch used to return with no log entry and no message, so a request Libation had
+				// understood and declined was indistinguishable from a dead button.
+				Serilog.Log.Logger.Information(
+					"Download not queued: none of the {requested} requested titles need downloading. Skipped: {skipped}",
+					request.RequestedCount,
+					request.BuildSkippedLogSummary());
 
-				Serilog.Log.Logger.Information("Begin backup of {count} library books", toLiberate.Length);
-				AddDownloadDecrypt(toLiberate, config);
-				return true;
+				if (notifyIfNothingQueued)
+					await MessageBoxBase.Show(
+						request.BuildNothingQueuedBody(),
+						BackupRequest.NothingQueuedCaption,
+						MessageBoxButtons.OK,
+						MessageBoxIcon.Information);
+
+				return false;
 			}
+
+			if (request.SkippedCount > 0)
+				Serilog.Log.Logger.Information(
+					"Skipping {skippedCount} of {requested} requested titles. Skipped: {skipped}",
+					request.SkippedCount,
+					request.RequestedCount,
+					request.BuildSkippedLogSummary());
+
+			// May no-op when free space is unknown (common on UNC); see DiskSpaceBackupPreflight.
+			if (!await DiskSpaceBackupPreflight.ConfirmBulkBackupAsync(request.Queueable.Length, config, backupQueueAlreadyRunning: Running))
+				return false;
+
+			Serilog.Log.Logger.Information("Begin backup of {count} library books", request.Queueable.Length);
+			AddDownloadDecrypt(request.Queueable, config);
+			return true;
 		}
-		return false;
 	}
 
 	private async Task<bool> IsBooksDirectoryValidAsync(Configuration config)
@@ -334,7 +360,9 @@ public class ProcessQueueViewModel : ReactiveObject
 	private void addDownloadDecryptCore(IList<LibraryBook> entries, Configuration config)
 	{
 		var procs = entries.Where(e => !IsBookInQueue(e)).Select(Create).ToArray();
-		Serilog.Log.Logger.Information("Queueing {count} books ofr download/decrypt", procs.Length);
+		Serilog.Log.Logger.Information("Queueing {count} books for download/decrypt", procs.Length);
+		if (procs.Length < entries.Count)
+			Serilog.Log.Logger.Information("{count} of the requested books are already in the queue and were not added again", entries.Count - procs.Length);
 		AddToQueue(procs);
 
 		ProcessBookViewModel Create(LibraryBook entry)

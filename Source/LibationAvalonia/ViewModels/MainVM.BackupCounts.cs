@@ -90,7 +90,7 @@ partial class MainVM
 			&& stats.PendingBooks + stats.pdfsNotDownloaded > 0)
 		{
 			// RunWorkerCompleted has no SynchronizationContext; queue items require the UI thread.
-			await Dispatcher.UIThread.InvokeAsync(async () => await BackupAllBooksAsync(stats.LibraryBooks));
+			await Dispatcher.UIThread.InvokeAsync(async () => await BackupAllBooksAsync(stats.LibraryBooks, notifyIfNothingQueued: false));
 		}
 	}
 }
