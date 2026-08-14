@@ -43,7 +43,8 @@
 			this.virtualFlowControl2 = new LibationWinForms.ProcessQueue.VirtualFlowControl();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.autoScrollChk = new System.Windows.Forms.CheckBox();
-			this.multiThreadChk = new System.Windows.Forms.CheckBox();
+			this.concurrencyLbl = new System.Windows.Forms.Label();
+			this.concurrencyNum = new System.Windows.Forms.NumericUpDown();
 			this.label1 = new System.Windows.Forms.Label();
 			this.numericUpDown1 = new LibationWinForms.ProcessQueue.NumericUpDownSuffix();
 			this.btnCleanFinished = new System.Windows.Forms.Button();
@@ -61,6 +62,7 @@
 			this.tabPage1.SuspendLayout();
 			this.panel1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.concurrencyNum)).BeginInit();
 			this.tabPage2.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.logDGV)).BeginInit();
 			this.panel2.SuspendLayout();
@@ -160,7 +162,8 @@
 			this.panel1.BackColor = System.Drawing.SystemColors.Control;
 			this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.panel1.Controls.Add(this.autoScrollChk);
-			this.panel1.Controls.Add(this.multiThreadChk);
+			this.panel1.Controls.Add(this.concurrencyLbl);
+			this.panel1.Controls.Add(this.concurrencyNum);
 			this.panel1.Controls.Add(this.label1);
 			this.panel1.Controls.Add(this.numericUpDown1);
 			this.panel1.Controls.Add(this.btnCleanFinished);
@@ -183,17 +186,23 @@
 			this.autoScrollChk.Text = "Auto-scroll";
 			this.autoScrollChk.UseVisualStyleBackColor = true;
 			//
-			// multiThreadChk
+			// concurrencyLbl
 			//
-			this.multiThreadChk.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Top;
-			this.multiThreadChk.AutoSize = true;
-			this.multiThreadChk.Checked = true;
-			this.multiThreadChk.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.multiThreadChk.Location = new System.Drawing.Point(82, 28);
-			this.multiThreadChk.Name = "multiThreadChk";
-			this.multiThreadChk.TabIndex = 7;
-			this.multiThreadChk.Text = "Parallel downloads";
-			this.multiThreadChk.UseVisualStyleBackColor = true;
+			this.concurrencyLbl.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Top;
+			this.concurrencyLbl.AutoSize = true;
+			this.concurrencyLbl.Location = new System.Drawing.Point(82, 30);
+			this.concurrencyLbl.Name = "concurrencyLbl";
+			this.concurrencyLbl.Size = new System.Drawing.Size(54, 15);
+			this.concurrencyLbl.TabIndex = 7;
+			this.concurrencyLbl.Text = "At once:";
+			//
+			// concurrencyNum
+			//
+			this.concurrencyNum.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Top;
+			this.concurrencyNum.Location = new System.Drawing.Point(136, 27);
+			this.concurrencyNum.Name = "concurrencyNum";
+			this.concurrencyNum.Size = new System.Drawing.Size(45, 23);
+			this.concurrencyNum.TabIndex = 8;
 			//
 			// label1
 			//
@@ -361,6 +370,7 @@
 			this.panel1.ResumeLayout(false);
 			this.panel1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.concurrencyNum)).EndInit();
 			this.tabPage2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.logDGV)).EndInit();
 			this.panel2.ResumeLayout(false);
@@ -393,6 +403,7 @@
 		private NumericUpDownSuffix numericUpDown1;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.CheckBox autoScrollChk;
-		private System.Windows.Forms.CheckBox multiThreadChk;
+		private System.Windows.Forms.Label concurrencyLbl;
+		private System.Windows.Forms.NumericUpDown concurrencyNum;
 	}
 }

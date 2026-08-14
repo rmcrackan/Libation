@@ -43,17 +43,31 @@ public class ProcessQueueViewModel : ReactiveObject
 		SpeedLimit = Configuration.Instance.DownloadSpeedLimit / 1024m / 1024;
 		MaxConcurrentDownloads = Configuration.Instance.MaxConcurrentDownloads;
 		AutoScrollQueue = Configuration.Instance.AutoScrollQueue;
-		MultiThreadEnabled = true;
 	}
 
 	public int CompletedCount { get => field; private set { RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(AnyCompleted)); } }
 	public int QueuedCount { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(AnyQueued)); } }
 	public int ErrorCount { get => field; private set { RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(AnyErrors)); } }
-	public int MaxConcurrentDownloads { get => field; set { RaiseAndSetIfChanged(ref field, value); Configuration.Instance.MaxConcurrentDownloads = value; } }
+	/// <summary>
+	/// How many books download and decrypt at once. <see cref="Configuration.MinConcurrentDownloads"/>
+	/// means one at a time, which is how Libation behaved before parallel downloads existed - so this
+	/// single value is both the limit and the off switch, and the two can never disagree.
+	/// </summary>
+	public int MaxConcurrentDownloads
+	{
+		get => field;
+		set
+		{
+			var clamped = Math.Clamp(value, Configuration.MinConcurrentDownloads, Configuration.MaxAllowedConcurrentDownloads);
+			RaiseAndSetIfChanged(ref field, clamped);
+			Configuration.Instance.MaxConcurrentDownloads = clamped;
+		}
+	}
 	public bool AutoScrollQueue { get => field; set { RaiseAndSetIfChanged(ref field, value); Configuration.Instance.AutoScrollQueue = value; } }
-	public bool MultiThreadEnabled { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 
-	private int EffectiveConcurrentDownloads => MultiThreadEnabled ? Math.Max(2, MaxConcurrentDownloads) : 1;
+	/// <summary>Exposed so UI controls can bind their spinner bounds rather than hardcoding them.</summary>
+	public static int MinConcurrentDownloads => Configuration.MinConcurrentDownloads;
+	public static int MaxAllowedConcurrentDownloads => Configuration.MaxAllowedConcurrentDownloads;
 	public string? RunningTime { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public bool ProgressBarVisible { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public bool AnyCompleted => CompletedCount > 0;
@@ -662,7 +676,7 @@ public class ProcessQueueViewModel : ReactiveObject
 				}
 
 				// If at capacity, wait for a slot to open before trying to dequeue more
-				if (activeTasks.Count >= EffectiveConcurrentDownloads)
+				if (activeTasks.Count >= MaxConcurrentDownloads)
 				{
 					await Task.WhenAny(activeTasks);
 					continue;

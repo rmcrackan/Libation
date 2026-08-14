@@ -418,16 +418,24 @@ public partial class Configuration
 	[Description("Auto-scroll the download queue to keep active downloads in view.")]
 	public bool AutoScrollQueue { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
-	[Description("Maximum number of books to download and decrypt simultaneously. Defaults to the number of logical processors.")]
+	/// <summary>The lowest <see cref="MaxConcurrentDownloads"/> can go: one book at a time.</summary>
+	public const int MinConcurrentDownloads = 1;
+
+	/// <summary>
+	/// The highest <see cref="MaxConcurrentDownloads"/> can go. Audible throttles license
+	/// requests, so more concurrency stops helping well before this and starts producing
+	/// license denials instead.
+	/// </summary>
+	public const int MaxAllowedConcurrentDownloads = 10;
+
+	/// <summary>Deliberately conservative. See <see cref="MaxAllowedConcurrentDownloads"/>.</summary>
+	public const int DefaultConcurrentDownloads = 3;
+
+	[Description("Maximum number of books to download and decrypt simultaneously. Set to 1 to download one book at a time.")]
 	public int MaxConcurrentDownloads
 	{
-		get
-		{
-			var value = GetNonString(defaultValue: 0);
-			// Treat 0 or 1 as "use default" — 1 may have been written by an earlier bug.
-			return value <= 1 ? Environment.ProcessorCount : value;
-		}
-		set => SetNonString(Math.Max(2, value));
+		get => Math.Clamp(GetNonString(defaultValue: DefaultConcurrentDownloads), MinConcurrentDownloads, MaxAllowedConcurrentDownloads);
+		set => SetNonString(Math.Clamp(value, MinConcurrentDownloads, MaxAllowedConcurrentDownloads));
 	}
 
 	[Description("Global download speed limit in bytes per second.")]

@@ -39,7 +39,10 @@ internal partial class ProcessQueueControl : UserControl
 		ViewModel.LogEntries.CollectionChanged += LogEntries_CollectionChanged;
 		ViewModel.ProcessStart += Book_ProcessStart;
 		autoScrollChk.CheckedChanged += (s, e) => ViewModel.AutoScrollQueue = autoScrollChk.Checked;
-		multiThreadChk.CheckedChanged += (s, e) => ViewModel.MultiThreadEnabled = multiThreadChk.Checked;
+
+		concurrencyNum.Minimum = ProcessQueueViewModel.MinConcurrentDownloads;
+		concurrencyNum.Maximum = ProcessQueueViewModel.MaxAllowedConcurrentDownloads;
+		concurrencyNum.ValueChanged += (s, e) => ViewModel.MaxConcurrentDownloads = (int)concurrencyNum.Value;
 		ProcessQueue_PropertyChanged(this, new PropertyChangedEventArgs(null));
 	}
 
@@ -131,8 +134,8 @@ internal partial class ProcessQueueControl : UserControl
 		}
 		if (e.PropertyName is null or nameof(ViewModel.AutoScrollQueue))
 			autoScrollChk.Checked = ViewModel.AutoScrollQueue;
-		if (e.PropertyName is null or nameof(ViewModel.MultiThreadEnabled))
-			multiThreadChk.Checked = ViewModel.MultiThreadEnabled;
+		if (e.PropertyName is null or nameof(ViewModel.MaxConcurrentDownloads))
+			concurrencyNum.Value = ViewModel.MaxConcurrentDownloads;
 	}
 
 	/// <summary>
