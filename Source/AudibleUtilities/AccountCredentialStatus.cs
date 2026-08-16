@@ -21,7 +21,10 @@ public static class AccountCredentialStatus
 		return string.IsNullOrWhiteSpace(tokens.RefreshToken?.Value);
 	}
 
-	/// <summary>Account label for dialogs and log messages.</summary>
+	/// <summary>
+	/// Account label for dialogs shown to the person who owns the account. Not for logs: those get attached to
+	/// public issue reports, which is what <see cref="Account.MaskedLogEntry"/> is for.
+	/// </summary>
 	public static string FormatAccountLabel(Account? account)
 	{
 		if (account is null)
