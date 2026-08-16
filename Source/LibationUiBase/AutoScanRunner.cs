@@ -16,7 +16,7 @@ public sealed class AutoScanRunner
 	private readonly Func<bool> isAutoScanEnabled;
 	private readonly Action pauseTimer;
 	private readonly Action resumeTimer;
-	private readonly Func<Task>? notifyAuthRequired;
+	private readonly Func<AuthenticationRequiredException, Task>? notifyAuthRequired;
 
 	private bool pausedForAuthentication;
 
@@ -24,7 +24,7 @@ public sealed class AutoScanRunner
 		Func<bool> isAutoScanEnabled,
 		Action pauseTimer,
 		Action resumeTimer,
-		Func<Task>? notifyAuthRequired = null)
+		Func<AuthenticationRequiredException, Task>? notifyAuthRequired = null)
 	{
 		this.isAutoScanEnabled = isAutoScanEnabled;
 		this.pauseTimer = pauseTimer;
@@ -72,7 +72,11 @@ public sealed class AutoScanRunner
 		}
 		catch (Exception ex) when (AuthenticationExceptionHelper.IsAuthenticationFailure(ex))
 		{
-			await pauseForAuthenticationAsync(ex);
+			// LoginFailedException and the "ADP token is null" case do not name an account, so fall back to one
+			// that at least carries the original failure
+			await pauseForAuthenticationAsync(
+				AuthenticationExceptionHelper.FindAuthenticationRequired(ex)
+				?? new AuthenticationRequiredException(account: null, message: ex.Message, innerException: ex));
 		}
 		catch (Exception ex)
 		{
@@ -80,7 +84,7 @@ public sealed class AutoScanRunner
 		}
 	}
 
-	private async Task pauseForAuthenticationAsync(Exception ex)
+	private async Task pauseForAuthenticationAsync(AuthenticationRequiredException ex)
 	{
 		if (pausedForAuthentication)
 			return;
@@ -88,9 +92,12 @@ public sealed class AutoScanRunner
 		pausedForAuthentication = true;
 		pauseTimer();
 
-		Log.Warning(ex, "Auto-scan paused: Audible login is required. Log in with Import > Scan Library to resume background scans.");
+		// masked, not the label the dialog uses: log files get attached to public issue reports
+		Log.Warning(ex,
+			"Auto-scan paused: Audible login is required for {Account}. Log in with Import > Scan Library to resume background scans.",
+			ex.Account?.MaskedLogEntry ?? "[unknown account]");
 
 		if (notifyAuthRequired is not null)
-			await notifyAuthRequired();
+			await notifyAuthRequired(ex);
 	}
 }

@@ -24,4 +24,28 @@ public static class AuthenticationExceptionHelper
 
 		return false;
 	}
+
+	/// <summary>
+	/// Finds the <see cref="AuthenticationRequiredException"/> in <paramref name="ex"/> or its inner chain, which is
+	/// the one that knows which account needs a login.
+	/// </summary>
+	public static AuthenticationRequiredException? FindAuthenticationRequired(Exception ex)
+	{
+		for (var current = ex; current is not null; current = current.InnerException)
+		{
+			if (current is AuthenticationRequiredException auth)
+				return auth;
+		}
+
+		if (ex is AggregateException aggregate)
+		{
+			foreach (var inner in aggregate.InnerExceptions)
+			{
+				if (FindAuthenticationRequired(inner) is { } found)
+					return found;
+			}
+		}
+
+		return null;
+	}
 }

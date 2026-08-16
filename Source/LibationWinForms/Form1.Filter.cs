@@ -1,4 +1,5 @@
-﻿using LibationWinForms.Dialogs;
+﻿using LibationUiBase;
+using LibationWinForms.Dialogs;
 using System;
 using System.Windows.Forms;
 
@@ -30,19 +31,39 @@ public partial class Form1
 	private string? lastGoodFilter = null;
 	private void performFilter(string? filterString)
 	{
+		if (applyFilter(filterString) is not Exception failure)
+			return;
+
+		Serilog.Log.Logger.Error(failure, "Error performing filtering. {@DebugInfo}", new { filterString, lastGoodFilter });
+
+		if (SearchIndexRecovery.IsIndexUnavailable(failure))
+			MessageBox.Show(this, SearchIndexRecovery.ManualRecoveryInstructions, SearchIndexRecovery.Caption, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+		else
+			MessageBox.Show(this, $"Bad filter string:\r\n\r\n{failure.Message}", "Bad filter string", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+		// Restore the last filter that worked, then give up on filtering entirely. Recursing into performFilter
+		// here never terminated when the search index rather than the query was at fault, because that fails for
+		// every filter including the one being restored. An empty filter never reaches the search engine.
+		if (!string.IsNullOrEmpty(lastGoodFilter) && applyFilter(lastGoodFilter) is null)
+			return;
+
+		applyFilter(string.Empty);
+	}
+
+	/// <summary>Applies a filter, returning the exception that stopped it, or null when it worked.</summary>
+	private Exception? applyFilter(string? filterString)
+	{
 		this.filterSearchTb.Text = filterString;
 
 		try
 		{
 			productsDisplay.Filter(filterString);
 			lastGoodFilter = filterString;
+			return null;
 		}
 		catch (Exception ex)
 		{
-			MessageBox.Show($"Bad filter string:\r\n\r\n{ex.Message}", "Bad filter string", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-			// re-apply last good filter
-			performFilter(lastGoodFilter);
+			return ex;
 		}
 	}
 

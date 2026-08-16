@@ -341,10 +341,10 @@ public static class LibationScaffolding
 	private static void wireUpSystemEvents(Configuration configuration)
 	{
 		LibraryCommands.LibrarySizeChanged += (_, libraryBooks)
-			=> SearchEngineCommands.FullReIndex(libraryBooks);
+			=> SearchEngineCommands.OnLibrarySizeChanged(libraryBooks);
 
 		LibraryCommands.BookUserDefinedItemCommitted += (_, books)
-			=> SearchEngineCommands.UpdateBooks(books);
+			=> SearchEngineCommands.OnBookUserDefinedItemCommitted(books);
 	}
 
 	public static VersionCheckResult GetLatestRelease()

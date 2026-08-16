@@ -37,6 +37,7 @@ public partial class Form1 : Form
 		// eg: if one of these init'd productsGrid, then another can't reliably subscribe to it
 		Configure_BackupCounts();
 		Configure_ScanAuto();
+		Configure_SearchIndex();
 		Configure_ScanNotification();
 		Configure_VisibleBooks();
 		Configure_QuickFilters();

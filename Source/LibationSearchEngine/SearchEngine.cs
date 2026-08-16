@@ -80,58 +80,105 @@ public class SearchEngine
 	/// <summary>create new. ie: full re-index</summary>
 	public void CreateNewIndex(IEnumerable<LibraryBook> library, bool overwrite = true)
 	{
-		const int maxRetries = 5;
-		const int baseDelayMs = 400;
 		var libraryList = library.ToList();
-		// Corruption (e.g. checksum mismatch in segments) is not fixed by waiting; clear and rebuild immediately.
-		var corruptRebuildAttemptsRemaining = 2;
 
-		// Exponential backoff retry: 400 ms, 800 ms, 1600 ms, etc
-		// Total wait time before giving up: 12.4 sec
-		for (var attempt = 0; attempt < maxRetries; attempt++)
+		// location of index/create the index
+		using var index = getIndex();
+
+		// analyzer for tokenizing text. same analyzer should be used for indexing and searching
+		using var analyzer = new StandardAnalyzer(Version);
+		using var ixWriter = openWriterForRebuild(index, analyzer, overwrite);
+
+		foreach (var libraryBook in libraryList)
+		{
+			var doc = createBookIndexDocument(libraryBook);
+			ixWriter.AddDocument(doc);
+		}
+	}
+
+	/// <summary>
+	/// Opens the writer for a full re-index, waiting out lock conflicts and repairing an index Lucene cannot open.
+	/// </summary>
+	private IndexWriter openWriterForRebuild(Lucene.Net.Store.Directory index, StandardAnalyzer analyzer, bool overwrite)
+	{
+		// Exponential backoff for lock conflicts: 400 ms, 800 ms, 1600 ms, 3200 ms. 6.4 sec total before giving up.
+		const int maxAttempts = 5;
+		const int baseDelayMs = 400;
+		var repairsRemaining = 1;
+
+		for (var attempt = 1; ; attempt++)
 		{
 			try
 			{
-				createNewIndexCore(libraryList, overwrite);
-				return;
+				var createNewIndex = overwrite || !IndexReader.IndexExists(index);
+				return new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
 			}
-			catch (CorruptIndexException ex) when (corruptRebuildAttemptsRemaining-- > 0)
+			catch (Exception ex) when (isTransientLockConflict(ex) && attempt < maxAttempts)
 			{
-				Serilog.Log.Logger.Warning(ex, "Lucene search index corrupt at {Path}. Clearing for rebuild.", SearchEngineDirectory);
-				deleteAllSearchIndexFiles(SearchEngineDirectory);
-				attempt--;
-			}
-			catch (IOException ex) when (attempt < maxRetries - 1 && ex is not CorruptIndexException)
-			{
-				var delayMs = baseDelayMs * (1 << attempt);
-				// write.lock can be held by another process (e.g. second Libation instance, antivirus) or a prior writer that did not release. Retry after delay.
-				Serilog.Log.Logger.Warning(ex, "Search index lock conflict (attempt {Attempt}/{Max}), retrying in {Delay}ms", attempt + 1, maxRetries, delayMs);
+				var delayMs = baseDelayMs * (1 << (attempt - 1));
+				Serilog.Log.Logger.Warning(ex, "Search index lock conflict (attempt {Attempt}/{Max}), retrying in {Delay}ms", attempt, maxAttempts, delayMs);
 				Thread.Sleep(delayMs);
 			}
-			catch (UnauthorizedAccessException ex) when (attempt < maxRetries - 1)
+			catch (Exception ex) when (!isTransientLockConflict(ex) && repairsRemaining-- > 0)
 			{
-				var delayMs = baseDelayMs * (1 << attempt);
-				// Windows may report "file in use" as UnauthorizedAccessException
-				Serilog.Log.Logger.Warning(ex, "Search index lock conflict (attempt {Attempt}/{Max}), retrying in {Delay}ms", attempt + 1, maxRetries, delayMs);
-				Thread.Sleep(delayMs);
+				// Passing overwrite/create to IndexWriter does not repair an unreadable index: its IndexFileDeleter
+				// reads every segments_* file in the directory and only tolerates missing ones, so a single unreadable
+				// segments file -- even a stale one from an older commit -- keeps the whole directory unusable until it
+				// is deleted. This is a full re-index, so nothing on disk is worth preserving.
+				// warning, not error: the index is a cache of the database, so rebuilding it resolves this
+				Serilog.Log.Logger.Warning(ex, "Search index at {Path} could not be opened. Deleting it and rebuilding from the library.", SearchEngineDirectory);
+
+				if (deleteAllSearchIndexFiles(SearchEngineDirectory) is { Count: > 0 } undeletable)
+					throw new IOException($"The search index at '{SearchEngineDirectory}' is damaged and could not be deleted automatically. Close Libation, delete that folder, then restart. Undeletable file(s): {string.Join(", ", undeletable)}", ex);
+
+				// the repair, not the failed open, gets a fresh allowance of lock retries
+				attempt = 0;
 			}
 		}
 	}
 
 	/// <summary>
-	/// Lucene 3 parses <c>segments_*</c> filenames in the index directory. Cloud sync (e.g. OneDrive) can leave debris
-	/// or conflict copies whose names break that parser, throwing <see cref="ArgumentException"/> with this message shape.
-	/// Actual error is likely to be something like: Invalid or unsupported character in number, hence this string check.
-	/// <see cref="CorruptIndexException"/> (e.g. checksum mismatch in segments) is also recoverable by deleting the index and rebuilding.
+	/// True when the index could not be opened because something else is holding it -- a second Libation instance,
+	/// antivirus, a backup agent -- which is worth waiting out rather than repairing.
+	/// <see cref="LockObtainFailedException"/> derives from <see cref="IOException"/>, so a bare
+	/// <c>IOException</c> check cannot tell a lock conflict apart from a damaged index. Nor can the type alone:
+	/// Windows raises a sharing violation on the lock file before Lucene turns it into a
+	/// <see cref="LockObtainFailedException"/>, so a plain <see cref="IOException"/> naming the lock file counts
+	/// too. Matching the file name rather than the wording keeps that working on non-English Windows.
+	/// </summary>
+	private static bool isTransientLockConflict(Exception ex)
+		=> ex is LockObtainFailedException
+		|| (ex is IOException && ex.Message.Contains(IndexWriter.WRITE_LOCK_NAME, StringComparison.OrdinalIgnoreCase))
+		// Windows may report "file in use" as UnauthorizedAccessException
+		|| ex is UnauthorizedAccessException;
+
+	/// <summary>
+	/// True when Lucene cannot read the index and the only cure is deleting it and rebuilding from the database.
+	/// <list type="bullet">
+	/// <item><see cref="CorruptIndexException"/>: eg. checksum mismatch in the segments file.</item>
+	/// <item>A truncated or zero-length <c>segments_*</c> file, which Lucene 3 reports as a plain
+	/// <see cref="IOException"/> from <c>BufferedIndexInput.Refill</c> rather than as a
+	/// <see cref="CorruptIndexException"/>. Matched by message because the type is shared with
+	/// <see cref="LockObtainFailedException"/>, which must keep retrying instead.</item>
+	/// <item>Lucene 3 parses <c>segments_*</c> filenames in the index directory. Cloud sync (eg. OneDrive) can leave
+	/// debris or conflict copies whose names break that parser, throwing <see cref="ArgumentException"/> with a
+	/// message like "Invalid or unsupported character in number", hence this string check.</item>
+	/// </list>
 	/// </summary>
 	public static bool IsRecoverableCorruptIndexException(Exception ex)
 		=> ex is CorruptIndexException
+		|| (ex is IOException && !isTransientLockConflict(ex) && ex.Message.Contains("read past EOF", StringComparison.OrdinalIgnoreCase))
 		|| (ex is ArgumentException aex && aex.Message.Contains("character in number", StringComparison.OrdinalIgnoreCase));
 
-	private static void deleteAllSearchIndexFiles(string searchEngineDirectory)
+	/// <summary>
+	/// Best-effort delete of everything under the index directory. Returns the <c>segments_*</c> files that survived:
+	/// Lucene rebuilds happily in an empty directory, and ignores leftover segment data, but any segments file it
+	/// cannot read keeps the directory permanently unusable.
+	/// </summary>
+	private static List<string> deleteAllSearchIndexFiles(string searchEngineDirectory)
 	{
 		if (!System.IO.Directory.Exists(searchEngineDirectory))
-			return;
+			return [];
 
 		foreach (var file in System.IO.Directory.GetFiles(searchEngineDirectory, "*", SearchOption.AllDirectories))
 			FileUtility.TrySaferDelete(file);
@@ -147,39 +194,10 @@ public class SearchEngine
 				Serilog.Log.Logger.Warning(ex, "Could not remove search index subdirectory {Dir}", dir);
 			}
 		}
-	}
 
-	private void createNewIndexCore(List<LibraryBook> library, bool overwrite)
-	{
-		bool indexExists;
-		using (var indexProbe = getIndex())
-		{
-			try
-			{
-				indexExists = IndexReader.IndexExists(indexProbe);
-			}
-			catch (Exception ex) when (IsRecoverableCorruptIndexException(ex))
-			{
-				Serilog.Log.Logger.Warning(ex, "Lucene search index at {Path} is unreadable or corrupt (often cloud-sync debris or a partial write). Clearing it for rebuild.", SearchEngineDirectory);
-				indexExists = false;
-			}
-		}
-
-		if (!indexExists)
-			deleteAllSearchIndexFiles(SearchEngineDirectory);
-
-		// location of index/create the index
-		using var index = getIndex();
-		var createNewIndex = overwrite || !indexExists;
-
-		// analyzer for tokenizing text. same analyzer should be used for indexing and searching
-		using var analyzer = new StandardAnalyzer(Version);
-		using var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
-		foreach (var libraryBook in library)
-		{
-			var doc = createBookIndexDocument(libraryBook);
-			ixWriter.AddDocument(doc);
-		}
+		return System.IO.Directory.Exists(searchEngineDirectory)
+			? [.. System.IO.Directory.GetFiles(searchEngineDirectory, "segments*", SearchOption.AllDirectories)]
+			: [];
 	}
 
 	public SearchEngine(string? directory = null)
