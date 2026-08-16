@@ -525,6 +525,24 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 
 		try
 		{
+			// Fetched before the destination is touched. A storefront that no longer lists the title answers
+			// with an empty product, and the file already on disk is then the better of the two.
+			var item = await api.GetCatalogProductAsync(options.LibraryBook.Book.AudibleProductId, AudibleApi.CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
+
+			if (item?.SourceJson is not { } sourceJson)
+			{
+				Serilog.Log.Logger.Error("Failed to retrieve metadata from server for {@Book}.", options.LibraryBook.LogFriendly());
+				return;
+			}
+
+			if (CatalogProductIsEmpty(sourceJson))
+			{
+				Serilog.Log.Logger.Warning(
+					"Audible's catalog holds no details for {@Book}, so its metadata file was left as it was. This happens when the title is no longer listed in the storefront of the account that owns it.",
+					options.LibraryBook.LogFriendly());
+				return;
+			}
+
 			metadataPath
 				= AudibleFileStorage.Audio.GetCustomDirFilename(
 					options.LibraryBook,
@@ -535,13 +553,6 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 			if (File.Exists(metadataPath))
 				FileUtility.SaferDelete(metadataPath);
 
-			var item = await api.GetCatalogProductAsync(options.LibraryBook.Book.AudibleProductId, AudibleApi.CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
-
-			if (item?.SourceJson is not { } sourceJson)
-			{
-				Serilog.Log.Logger.Error("Failed to retrieve metadata from server for {@Book}.", options.LibraryBook.LogFriendly());
-				return;
-			}
 			sourceJson.Add(nameof(ContentMetadata.ChapterInfo), Newtonsoft.Json.Linq.JObject.FromObject(options.ContentMetadata.ChapterInfo));
 			sourceJson.Add(nameof(ContentMetadata.ContentReference), Newtonsoft.Json.Linq.JObject.FromObject(options.ContentMetadata.ContentReference));
 
@@ -558,6 +569,24 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 			throw;
 		}
 	}
+
+	/// <summary>
+	/// Whether a catalog product carries no details at all.
+	/// <para>
+	/// A storefront that no longer lists a title still answers a request for it: HTTP 200, total_results 1,
+	/// and a product holding an asin and a handful of always-returned flags. Nothing between the request and
+	/// the file notices, so a re-download of such a title used to replace a metadata file written while the
+	/// title was still listed - the only copy of that data - with the placeholder. Reported in issue #1947,
+	/// where a Canada-only title produced
+	/// <c>{"asin":"...","asset_details":[],"is_preview_enabled":false,"is_vvab":false,"rating":{...zeros...}}</c>.
+	/// </para>
+	/// <para>
+	/// Keyed off the title because every response group that returns anything descriptive returns one, and
+	/// the placeholder's own fields are Audible's to change.
+	/// </para>
+	/// </summary>
+	internal static bool CatalogProductIsEmpty(Newtonsoft.Json.Linq.JObject sourceJson)
+		=> string.IsNullOrWhiteSpace(sourceJson.Value<string>("title"));
 	#endregion
 
 	#region Macros
