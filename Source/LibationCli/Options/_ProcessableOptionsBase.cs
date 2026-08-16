@@ -123,9 +123,7 @@ public abstract class ProcessableOptionsBase : OptionsBase
 		{
 			// Read once, before the first book: a run that spends hours downloading must not start skipping
 			// titles because of failures it recorded itself a moment ago.
-			var deferrals = HonorsDeferredRetries && Processable is DownloadDecryptBook
-				? DownloadDeferrals.Load(DateTimeOffset.Now)
-				: DownloadDeferrals.None;
+			var deferrals = HonorsDeferredRetries ? DownloadDeferrals.Load(DateTimeOffset.Now) : DownloadDeferrals.None;
 
 			var libraryBooks = DbContexts.GetLibrary_Flat_NoTracking();
 			foreach (var lb in Processable.GetValidLibraryBooks(libraryBooks))

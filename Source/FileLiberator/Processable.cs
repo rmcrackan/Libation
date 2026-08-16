@@ -82,10 +82,8 @@ public abstract class Processable
 			RecordAttemptFailure(libraryBook, ex);
 			throw;
 		}
-		finally
-		{
-			GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
-		}
+
+		GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
 
 		if (status.IsSuccess && RecordsAttemptFailures)
 			DownloadAttemptFailureStore.Clear(libraryBook);

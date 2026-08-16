@@ -27,13 +27,12 @@ public class DeferredRetryOptionsTests
 		=> Assert.IsFalse(((ProcessableOptionsBase)Parse("liberate", force)!).HonorsDeferredRetries);
 
 	[TestMethod]
-	public void A_pdf_only_run_is_never_held_back()
+	[DataRow("--pdf")]
+	[DataRow("-p")]
+	public void A_pdf_only_run_is_never_held_back(string pdfOnly)
 	{
-		// The audiobook download is what Audible refused; a --pdf run makes a different request entirely, and
-		// RunAsync only consults the record for a DownloadDecryptBook.
-		var options = (LiberateOptions)Parse("liberate", "--pdf")!;
-
-		Assert.IsTrue(options.PdfOnly);
+		// The refusal recorded against a title is about its audiobook; a PDF is a different request.
+		Assert.IsFalse(((ProcessableOptionsBase)Parse("liberate", pdfOnly)!).HonorsDeferredRetries);
 	}
 
 	[TestMethod]

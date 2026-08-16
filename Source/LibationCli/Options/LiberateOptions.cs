@@ -49,8 +49,12 @@ public class LiberateOptions : ProcessableOptionsBase
 
 	#endregion
 
-	// --force means "attempt everything", which includes the titles Audible recently refused.
-	internal override bool HonorsDeferredRetries => !Force;
+	/// <summary>
+	/// --force means "attempt everything", which includes the titles Audible recently refused. A --pdf run is
+	/// never held back either: the refusal recorded against a title is about its audiobook, and a PDF is a
+	/// different request.
+	/// </summary>
+	internal override bool HonorsDeferredRetries => !Force && !PdfOnly;
 
 	protected override async Task ProcessAsync()
 	{
