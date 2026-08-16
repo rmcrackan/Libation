@@ -63,6 +63,14 @@ public class DownloadPdfPathTests
 	private string GetPath(LibraryBook libraryBook)
 		=> DownloadPdf.Create(Configuration.Instance).GetProposedDownloadFilePath(libraryBook);
 
+	/// <summary>
+	/// Every path Libation produces has been through <see cref="FileManager.LongPath"/>, which on Windows
+	/// prefixes a drive-rooted path with <c>\\?\</c> so paths past the 260 character limit work. A path this
+	/// test built itself has not. Comparing the two directly is not just a false failure on Windows: an
+	/// inequality assertion would pass on the prefix alone, whatever the directory actually was.
+	/// </summary>
+	private static string? Normalize(string? path) => ((FileManager.LongPath?)path)?.Path;
+
 	[TestMethod]
 	public void A_pdf_goes_beside_the_audio_files_already_on_disk()
 	{
@@ -75,7 +83,7 @@ public class DownloadPdfPathTests
 
 		var path = GetPath(libraryBook);
 
-		Assert.AreEqual(audioDir, Path.GetDirectoryName(path));
+		Assert.AreEqual(Normalize(audioDir), Normalize(Path.GetDirectoryName(path)));
 	}
 
 	[TestMethod]
@@ -87,8 +95,8 @@ public class DownloadPdfPathTests
 		var path = GetPath(libraryBook);
 		var directory = Path.GetDirectoryName(path)!;
 
-		Assert.AreNotEqual(booksDir, directory, "the PDF was saved loose in the Books directory");
-		Assert.AreEqual(booksDir, Path.GetDirectoryName(directory));
+		Assert.AreNotEqual(Normalize(booksDir), Normalize(directory), "the PDF was saved loose in the Books directory");
+		Assert.AreEqual(Normalize(booksDir), Normalize(Path.GetDirectoryName(directory)));
 		StringAssert.Contains(Path.GetFileName(directory), "No Audio On Disk");
 	}
 
@@ -99,7 +107,7 @@ public class DownloadPdfPathTests
 
 		var expected = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook, Configuration.Instance);
 
-		Assert.AreEqual(expected, Path.GetDirectoryName(GetPath(libraryBook)));
+		Assert.AreEqual(Normalize(expected), Normalize(Path.GetDirectoryName(GetPath(libraryBook))));
 	}
 
 	[TestMethod]
