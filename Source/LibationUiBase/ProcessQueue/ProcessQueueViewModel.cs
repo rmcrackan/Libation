@@ -63,6 +63,7 @@ public class ProcessQueueViewModel : ReactiveObject
 			var clamped = Math.Clamp(value, Configuration.MinConcurrentDownloads, Configuration.ConcurrentDownloadsHardLimit);
 			RaiseAndSetIfChanged(ref _maxConcurrentDownloads, clamped);
 			Configuration.Instance.MaxConcurrentDownloads = clamped;
+			RaisePropertyChanged(nameof(MaxAllowedConcurrentDownloads));
 		}
 	}
 	private int _maxConcurrentDownloads;
@@ -77,7 +78,16 @@ public class ProcessQueueViewModel : ReactiveObject
 
 	/// <summary>Exposed so UI controls can bind their spinner bounds rather than hardcoding them.</summary>
 	public int MinConcurrentDownloads => Configuration.MinConcurrentDownloads;
-	public int MaxAllowedConcurrentDownloads => Configuration.MaxAllowedConcurrentDownloads;
+
+	/// <summary>
+	/// The spinner's upper bound: what this machine can usefully manage, but never below what is
+	/// already stored. A spinner whose maximum sits under the stored value coerces its displayed
+	/// value down to the maximum and, being two-way, writes that back - which would overwrite an 8
+	/// chosen on a larger machine with a 2 just for opening the panel on a smaller one. Raising the
+	/// bound to meet the stored value leaves the setting alone; lowering it is still the user's to do.
+	/// </summary>
+	public int MaxAllowedConcurrentDownloads
+		=> Math.Max(Configuration.MaxAllowedConcurrentDownloads, MaxConcurrentDownloads);
 	public string? RunningTime { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public bool ProgressBarVisible { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public bool AnyCompleted => CompletedCount > 0;
