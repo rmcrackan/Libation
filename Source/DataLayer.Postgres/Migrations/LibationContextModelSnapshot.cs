@@ -201,6 +201,45 @@ namespace DataLayer.Postgres.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DataLayer.DownloadAttemptFailure", b =>
+                {
+                    b.Property<int>("DownloadAttemptFailureId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("DownloadAttemptFailureId"));
+
+                    b.Property<string>("Account")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AudibleProductId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ConsecutiveFailures")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("LastFailedAtUtcTicks")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("text");
+
+                    b.Property<long>("RetryAfterUtcTicks")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("DownloadAttemptFailureId");
+
+                    b.HasIndex("Account", "AudibleProductId")
+                        .IsUnique();
+
+                    b.ToTable("DownloadAttemptFailures");
+                });
+
             modelBuilder.Entity("DataLayer.DownloadHistory", b =>
                 {
                     b.Property<int>("DownloadHistoryId")

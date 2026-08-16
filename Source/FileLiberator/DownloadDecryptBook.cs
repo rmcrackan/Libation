@@ -28,6 +28,8 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 	public DownloadOptions.LicenseInfo? LicenseInfo { get; set; }
 
 	public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.AudioExists;
+	protected override bool RecordsAttemptFailures => true;
+
 	public override async Task CancelAsync()
 	{
 		if (abDownloader is not null) await abDownloader.CancelAsync();

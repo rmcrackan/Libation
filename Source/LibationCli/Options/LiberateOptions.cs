@@ -49,6 +49,9 @@ public class LiberateOptions : ProcessableOptionsBase
 
 	#endregion
 
+	// --force means "attempt everything", which includes the titles Audible recently refused.
+	protected override bool HonorsDeferredRetries => !Force;
+
 	protected override async Task ProcessAsync()
 	{
 		if (!RunDownloadLimit.TryCreate(LimitBooks, LimitMB, LimitGB, PdfOnly, out runLimit, out var limitError))
@@ -174,6 +177,11 @@ public class LiberateOptions : ProcessableOptionsBase
 		{
 			lb.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
 			lb.Book.UserDefinedItem.SetPdfStatus(LiberatedStatus.NotLiberated);
+
+			// The status above is set on an untracked copy, so the central clear in updateUserDefinedItem
+			// never sees it. Asking for this title is the user overriding any wait Libation was observing,
+			// and the wait must restart from the beginning if the attempt fails again.
+			DownloadAttemptFailureStore.Clear(lb);
 		}
 	}
 

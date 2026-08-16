@@ -1,5 +1,7 @@
+using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,8 +22,9 @@ internal sealed class BackupRequest
 		public static readonly SkipReason AlreadyDownloaded = new("Already downloaded");
 		public static readonly SkipReason PreviousError = new("Previously failed to download", "set the download status to 'Not Downloaded' to try again");
 		public static readonly SkipReason AbsentFromLastScan = new("Absent from your last library scan", "run Scan, or `libationcli scan`, then try again");
+		public static readonly SkipReason WaitingToRetry = new("Waiting before trying again after a recent failure", "download the title on its own to try it now");
 
-		public static readonly SkipReason[] All = [AlreadyDownloaded, PreviousError, AbsentFromLastScan];
+		public static readonly SkipReason[] All = [AlreadyDownloaded, PreviousError, AbsentFromLastScan, WaitingToRetry];
 	}
 
 	/// <summary>The titles the caller asked to back up, including the ones that cannot be queued.</summary>
@@ -30,32 +33,49 @@ internal sealed class BackupRequest
 	public int SkippedCount => RequestedCount - Queueable.Length;
 	public int Skipped(SkipReason reason) => skipped.GetValueOrDefault(reason);
 
+	/// <summary>The titles left out because Libation is waiting before attempting them again.</summary>
+	public IReadOnlyList<DeferredDownload> Deferred { get; }
+
 	private readonly Dictionary<SkipReason, int> skipped;
 
-	private BackupRequest(int requestedCount, LibraryBook[] queueable, Dictionary<SkipReason, int> skipped)
+	private BackupRequest(int requestedCount, LibraryBook[] queueable, Dictionary<SkipReason, int> skipped, IReadOnlyList<DeferredDownload> deferred)
 	{
 		RequestedCount = requestedCount;
 		Queueable = queueable;
 		this.skipped = skipped;
+		Deferred = deferred;
 	}
 
-	public static BackupRequest Create(IEnumerable<LibraryBook> libraryBooks)
+	/// <param name="deferrals">
+	/// The titles to leave alone for now. Pass <see cref="DownloadDeferrals.None"/> for a request the user
+	/// made about specific titles, which must always be attempted.
+	/// </param>
+	public static BackupRequest Create(IEnumerable<LibraryBook> libraryBooks, DownloadDeferrals? deferrals = null)
 	{
+		deferrals ??= DownloadDeferrals.None;
+
 		var requestedCount = 0;
 		var queueable = new List<LibraryBook>();
 		var skipped = new Dictionary<SkipReason, int>();
+		var deferred = new List<DeferredDownload>();
 
 		foreach (var libraryBook in libraryBooks)
 		{
 			requestedCount++;
 
-			if (GetSkipReason(libraryBook) is not SkipReason reason)
+			// A title needing only its PDF is never waited on: the audiobook download is what Audible refused.
+			if (libraryBook.NeedsBookDownload && deferrals.Find(libraryBook) is DeferredDownload waiting)
+			{
+				deferred.Add(waiting);
+				skipped[SkipReason.WaitingToRetry] = skipped.GetValueOrDefault(SkipReason.WaitingToRetry) + 1;
+			}
+			else if (GetSkipReason(libraryBook) is not SkipReason reason)
 				queueable.Add(libraryBook);
 			else
 				skipped[reason] = skipped.GetValueOrDefault(reason) + 1;
 		}
 
-		return new BackupRequest(requestedCount, [.. queueable], skipped);
+		return new BackupRequest(requestedCount, [.. queueable], skipped, deferred);
 	}
 
 	/// <summary>Null when the title can be queued. Absent outranks status: Downloadable is false either way.</summary>
@@ -88,6 +108,30 @@ internal sealed class BackupRequest
 		//the count comes before the advice so the numbers stay scannable
 		foreach (var (reason, count) in Breakdown())
 			sb.AppendLine($"{reason.Label}: {count}{(reason.Advice is "" ? "" : $"  ({reason.Advice})")}");
+
+		if (Deferred.Count > 0)
+		{
+			sb.AppendLine();
+			sb.AppendLine(BuildDeferredDetail(DateTimeOffset.Now));
+		}
+
+		return sb.ToString().TrimEnd();
+	}
+
+	/// <summary>
+	/// What Audible said about the waited-on titles and when they come back. Without this the dialog reports a
+	/// wait with no way to find out its cause short of reading the log.
+	/// </summary>
+	public string BuildDeferredDetail(DateTimeOffset now)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine("Why Libation is waiting:");
+
+		foreach (var group in Deferred.GroupBy(d => d.Kind).OrderBy(g => g.Key))
+		{
+			sb.AppendLine($"- {group.First().KindLabel} ({"title".PluralizeWithCount(group.Count())}). "
+				+ $"Next attempt {DeferredDownloadUserMessage.DescribeWhen(group.Min(d => d.RetryAfter), now)}.");
+		}
 
 		return sb.ToString().TrimEnd();
 	}

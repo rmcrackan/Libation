@@ -1,4 +1,5 @@
-﻿using DataLayer;
+﻿using ApplicationServices;
+using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
 using Dinah.Core.Net.Http;
@@ -42,6 +43,13 @@ public abstract class Processable
 	/// <returns>True == success</returns>
 	public abstract Task<StatusHandler> ProcessAsync(LibraryBook libraryBook);
 
+	/// <summary>
+	/// Whether a refusal from Audible during this step should be remembered, so a scheduled run stops asking
+	/// for the same license every time. Only the audiobook download does: it is the request Audible refuses,
+	/// and the record gates that same request.
+	/// </summary>
+	protected virtual bool RecordsAttemptFailures => false;
+
 	// when used in foreach: stateful. deferred execution
 	public IEnumerable<LibraryBook> GetValidLibraryBooks(IEnumerable<LibraryBook> library)
 		=> library.Where(libraryBook =>
@@ -62,13 +70,40 @@ public abstract class Processable
 			Account = libraryBook.Account?.ToMask() ?? "[empty]"
 		});
 
-		var status
-			= (await ProcessAsync(libraryBook))
-			?? new StatusHandler { "Processable should never return a null status" };
+		StatusHandler status;
+		try
+		{
+			status
+				= (await ProcessAsync(libraryBook))
+				?? new StatusHandler { "Processable should never return a null status" };
+		}
+		catch (Exception ex)
+		{
+			RecordAttemptFailure(libraryBook, ex);
+			throw;
+		}
+		finally
+		{
+			GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+		}
 
-		GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+		if (status.IsSuccess && RecordsAttemptFailures)
+			DownloadAttemptFailureStore.Clear(libraryBook);
 
 		return status;
+	}
+
+	/// <summary>
+	/// Recorded here rather than in each host so the CLI, the GUI queue and anything added later all remember
+	/// a refusal the same way. Failures Libation cannot attribute to Audible are left unrecorded and keep
+	/// being retried on the next run.
+	/// </summary>
+	private void RecordAttemptFailure(LibraryBook libraryBook, Exception ex)
+	{
+		if (!RecordsAttemptFailures || !DownloadFailureClassifier.TryClassify(ex, out var diagnosis))
+			return;
+
+		DownloadAttemptFailureStore.Record(libraryBook, diagnosis.Kind, diagnosis.Reason);
 	}
 
 	public async Task<StatusHandler> TryProcessAsync(LibraryBook libraryBook)
