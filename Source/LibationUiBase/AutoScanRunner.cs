@@ -16,7 +16,7 @@ public sealed class AutoScanRunner
 	private readonly Func<bool> isAutoScanEnabled;
 	private readonly Action pauseTimer;
 	private readonly Action resumeTimer;
-	private readonly Func<Task>? notifyAuthRequired;
+	private readonly Func<AuthenticationRequiredException, Task>? notifyAuthRequired;
 
 	private bool pausedForAuthentication;
 
@@ -24,7 +24,7 @@ public sealed class AutoScanRunner
 		Func<bool> isAutoScanEnabled,
 		Action pauseTimer,
 		Action resumeTimer,
-		Func<Task>? notifyAuthRequired = null)
+		Func<AuthenticationRequiredException, Task>? notifyAuthRequired = null)
 	{
 		this.isAutoScanEnabled = isAutoScanEnabled;
 		this.pauseTimer = pauseTimer;
@@ -72,7 +72,9 @@ public sealed class AutoScanRunner
 		}
 		catch (Exception ex) when (AuthenticationExceptionHelper.IsAuthenticationFailure(ex))
 		{
-			await pauseForAuthenticationAsync(ex);
+			var authEx = AuthenticationExceptionHelper.FindAuthenticationRequired(ex)
+				?? new AuthenticationRequiredException(account: null, message: ex.Message, innerException: ex);
+			await pauseForAuthenticationAsync(authEx);
 		}
 		catch (Exception ex)
 		{
@@ -80,7 +82,7 @@ public sealed class AutoScanRunner
 		}
 	}
 
-	private async Task pauseForAuthenticationAsync(Exception ex)
+	private async Task pauseForAuthenticationAsync(AuthenticationRequiredException ex)
 	{
 		if (pausedForAuthentication)
 			return;
@@ -88,9 +90,11 @@ public sealed class AutoScanRunner
 		pausedForAuthentication = true;
 		pauseTimer();
 
-		Log.Warning(ex, "Auto-scan paused: Audible login is required. Log in with Import > Scan Library to resume background scans.");
+		Log.Warning(ex,
+			"Auto-scan paused: Audible login is required for {AccountLabel}. Log in with Import > Scan Library to resume background scans.",
+			AccountCredentialStatus.FormatAccountLabel(ex.Account));
 
 		if (notifyAuthRequired is not null)
-			await notifyAuthRequired();
+			await notifyAuthRequired(ex);
 	}
 }

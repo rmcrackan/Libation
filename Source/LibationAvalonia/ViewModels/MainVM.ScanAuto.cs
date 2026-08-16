@@ -34,13 +34,12 @@ partial class MainVM
 		Configuration.Instance.PropertyChanged += startAutoScan;
 	}
 
-	private async Task notifyAutoScanAuthRequiredAsync()
+	private async Task notifyAutoScanAuthRequiredAsync(AuthenticationRequiredException ex)
 	{
 		await MessageBox.Show(
 			MainWindow,
-			"Libation could not refresh your Audible library because your login session expired.\n\n"
-			+ "Background auto-scan has been paused. Use Import > Scan Library to log in again to resume periodic scans.",
-			"Auto-scan paused - login required",
+			AutoScanAuthPrompt.FormatBody(ex),
+			AutoScanAuthPrompt.Caption,
 			MessageBoxButtons.OK,
 			MessageBoxIcon.Warning);
 	}
