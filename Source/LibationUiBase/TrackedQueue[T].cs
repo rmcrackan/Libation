@@ -164,14 +164,25 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	/// </summary>
 	public void MarkCompleted(T item)
 	{
-		int completedCount;
+		int completedCount, oldIndex, newIndex;
 		lock (lockObject)
 		{
-			_active.Remove(item);
+			var activeIndex = _active.IndexOf(item);
+			oldIndex = activeIndex >= 0 ? _completed.Count + activeIndex : -1;
+			if (activeIndex >= 0)
+				_active.RemoveAt(activeIndex);
 			_completed.Add(item);
 			completedCount = _completed.Count;
+			newIndex = completedCount - 1;
 		}
 		CompletedCountChanged?.Invoke(this, completedCount);
+
+		// One book at a time, the finishing book is always the first active one, oldIndex equals
+		// newIndex and nothing has moved. Concurrently it is normal for the second of two active
+		// books to finish first, which puts it ahead of the other in the display order. Without
+		// this a bound list keeps painting the previous order, so rows show the wrong book.
+		if (oldIndex >= 0 && oldIndex != newIndex)
+			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex));
 	}
 
 	/// <summary>
@@ -179,29 +190,46 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	/// </summary>
 	public void RemoveActive(T item)
 	{
-		int removedIndex;
+		int removedIndex, displayIndex = -1;
 		lock (lockObject)
 		{
 			removedIndex = _active.IndexOf(item);
 			if (removedIndex >= 0)
+			{
+				displayIndex = _completed.Count + removedIndex;
 				_active.RemoveAt(removedIndex);
+			}
 		}
-		if (removedIndex >= 0)
-			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, _completed.Count + removedIndex));
+		if (displayIndex >= 0)
+			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, displayIndex));
+	}
+
+	/// <summary>
+	/// The active items, copied under the lock. <see cref="Active"/> is the live list, so enumerating
+	/// it while book tasks start and finish throws; callers that need to iterate use this.
+	/// </summary>
+	public IReadOnlyList<T> GetActive()
+	{
+		lock (lockObject)
+			return _active.ToList();
 	}
 
 	/// <summary>Legacy single-item sequential accessor — kept for compatibility.</summary>
 	public void ClearCurrent()
 	{
 		T? first;
+		int displayIndex = -1;
 		lock (lockObject)
 		{
 			first = _active.FirstOrDefault();
 			if (first != null)
+			{
+				displayIndex = _completed.Count;
 				_active.Remove(first);
+			}
 		}
 		if (first != null)
-			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, first, _completed.Count));
+			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, first, displayIndex));
 	}
 
 	public void ClearQueue()
@@ -301,11 +329,22 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 		CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, QueueStartIndex + Queued.Count));
 	}
 
+	/// <summary>
+	/// A snapshot, materialised while the lock is held. Returning the lazy <c>Concat</c> meant the
+	/// enumeration ran after the lock was released, so any <c>foreach</c> or LINQ over the queue
+	/// while a book task mutated it threw <see cref="InvalidOperationException"/>. That was
+	/// unreachable while every mutation happened on the UI thread; concurrent processing makes it
+	/// reachable, and it is the same failure that used to crash the visible-books menu.
+	/// </summary>
 	public IEnumerable<T> GetAllItems()
 	{
 		lock (lockObject)
 		{
-			return _completed.Concat(_active).Concat(Queued);
+			var snapshot = new List<T>(_completed.Count + _active.Count + Queued.Count);
+			snapshot.AddRange(_completed);
+			snapshot.AddRange(_active);
+			snapshot.AddRange(Queued);
+			return snapshot;
 		}
 	}
 
