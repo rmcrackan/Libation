@@ -392,7 +392,8 @@ public abstract class Templates
 
 	#region Tag Formatters
 
-	private static string? GetTitleShort(string? title)
+	/// <summary>Backs the <c>&lt;title short&gt;</c> tag. Public so the search index can flag the titles it shortens.</summary>
+	public static string? GetTitleShort(string? title)
 		=> title != null && title.IndexOf(':') is var i && i >= 0
 			? title[..i]
 			: title;

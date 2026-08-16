@@ -33,6 +33,14 @@ public class SearchEngine
 		return authors.Intersect(narrators).Any();
 	}
 
+	/// <summary>
+	/// True when <c>&lt;title short&gt;</c> cuts the title itself rather than merely dropping Audible's subtitle
+	/// field. Audible ships plenty of titles with a colon in them, and those are the ones where shortening loses
+	/// something the user may need: "Omnibus: Volume One" and "Omnibus: Volume Two" both shorten to "Omnibus".
+	/// </summary>
+	private static bool titleIsShortened(Book book)
+		=> LibationFileManager.Templates.Templates.GetTitleShort(book.Title) != book.Title;
+
 	// use these common fields in the "all" default search field
 	public static IndexRuleCollection FieldIndexRules { get; } = new IndexRuleCollection
 		{
@@ -60,6 +68,8 @@ public class SearchEngine
 			{ FieldType.Bool, lb => lb.Book.IsEpisodeChild().ToString(), "Podcast", "Podcasts", "IsPodcast", "Episode", "Episodes", "IsEpisode" },
 			{ FieldType.Bool, lb => lb.AbsentFromLastScan.ToString(), "AbsentFromLastScan", "Absent" },
 			{ FieldType.Bool, lb => (!string.IsNullOrWhiteSpace(lb.Book.SeriesNames())).ToString(), "IsInSeries", "InSeries" },
+			{ FieldType.Bool, lb => (!string.IsNullOrWhiteSpace(lb.Book.Subtitle)).ToString(), "HasSubtitle", "HasSubtitles" },
+			{ FieldType.Bool, lb => titleIsShortened(lb.Book).ToString(), "TitleHasColon", "ColonInTitle" },
 			{ FieldType.Bool, lb => lb.Book.UserDefinedItem.IsFinished.ToString(), nameof(UserDefinedItem.IsFinished), "Finished", "IsFinished" },
 			{ FieldType.Bool, lb => lb.IsAudiblePlus.ToString(), nameof(LibraryBook.IsAudiblePlus), "AudiblePlus", "Plus" },
             // all numbers are padded to 8 char.s

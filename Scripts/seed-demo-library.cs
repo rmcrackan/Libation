@@ -3,7 +3,8 @@
 using Microsoft.Data.Sqlite;
 using System.Text.Json;
 
-// Seeds a Libation library with one book per Liberate-column state, for manual UI testing.
+// Seeds a Libation library with one book per Liberate-column state, plus a few titles that
+// subtitle removal changes, for manual UI testing.
 //
 //   dotnet run Scripts/seed-demo-library.cs [--clean] [path-to-Libation-files-folder]
 //
@@ -76,9 +77,9 @@ foreach (var book in books)
 		insert into Books
 		 (AudibleProductId, ContentType, Description, IsAbridged, IsSpatial, LengthInMinutes,
 		  Locale, Rating_OverallRating, Rating_PerformanceRating, Rating_StoryRating, Subtitle, Title)
-		values ($asin, $contentType, 'Seeded by seed-demo-library.cs', 0, 0, 600, 'us', 0, 0, 0, '', $title)
+		values ($asin, $contentType, 'Seeded by seed-demo-library.cs', 0, 0, 600, 'us', 0, 0, 0, $subtitle, $title)
 		""",
-		("$asin", book.Asin), ("$contentType", book.ContentType), ("$title", book.Title));
+		("$asin", book.Asin), ("$contentType", book.ContentType), ("$title", book.Title), ("$subtitle", book.Subtitle));
 
 	var bookId = Scalar("select BookId from Books where AudibleProductId = $asin", ("$asin", book.Asin));
 
@@ -263,6 +264,27 @@ static List<DemoBook> BuildDemoBooks()
 			Expectation: expectation,
 			IsAbsent: true));
 
+	// Titles that subtitle removal changes. <title short> stops at the first colon, so it cuts a colon in
+	// Audible's own title just as readily as it drops Audible's subtitle field, and the grid's Title column
+	// shows both the same way. The HasSubtitle and TitleHasColon filters are the only way to tell them apart.
+	foreach (var (title, subtitle, match) in new[]
+	{
+		("A Book Series Omnibus", "Volume One", "HasSubtitle"),
+		("A Book Series Omnibus", "Volume Two", "HasSubtitle"),
+		("Star Trek: The Next Generation", "", "TitleHasColon"),
+		("Dune: Book One", "The Graphic Novel", "both HasSubtitle and TitleHasColon"),
+	})
+		books.Add(new DemoBook(
+			Asin: $"{AsinPrefix}{++n:000}",
+			Title: title,
+			ContentType: Product,
+			BookStatus: NotLiberated,
+			PdfStatus: null,
+			IsPlus: false,
+			NeedsPartialDownload: false,
+			Expectation: $"red lamp; filter match: {match}",
+			Subtitle: subtitle));
+
 	return books;
 }
 
@@ -373,4 +395,5 @@ record DemoBook(
 	string Expectation,
 	string? SeriesAsin = null,
 	string? SeriesOrder = null,
-	bool IsAbsent = false);
+	bool IsAbsent = false,
+	string Subtitle = "");
