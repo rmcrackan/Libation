@@ -85,6 +85,71 @@ public class SerilogConfigurationTests
 	}
 
 	[TestMethod]
+	public void EnsureSerilogConfig_default_rolls_the_log_on_size()
+	{
+		var config = Configuration.CreateMockInstance();
+
+		config.EnsureSerilogConfig();
+
+		var args = (JObject)((JObject)config.GetObject("Serilog")!).SelectToken("$.WriteTo[0].Args")!;
+		Assert.AreEqual(Configuration.LogFileSizeLimitBytes, args["fileSizeLimitBytes"]!.Value<long>());
+		Assert.IsTrue(args["rollOnFileSizeLimit"]!.Value<bool>());
+		Assert.AreEqual(Configuration.LogRetainedFileCountLimit, args["retainedFileCountLimit"]!.Value<int>());
+
+		config.ValidateSerilogConfiguration();
+	}
+
+	[TestMethod]
+	public void EnsureSerilogConfig_adds_size_rolling_to_an_existing_config()
+	{
+		// Existing installs kept the pre-13.7.9 default: monthly rolling only, which let a single
+		// month's log grow past the point where it can be attached to a bug report.
+		var config = Configuration.CreateMockInstance();
+		config.SetNonString(CreateSerilog("File"), "Serilog");
+
+		config.EnsureSerilogConfig();
+
+		var args = (JObject)((JObject)config.GetObject("Serilog")!).SelectToken("$.WriteTo[0].Args")!;
+		Assert.AreEqual(Configuration.LogFileSizeLimitBytes, args["fileSizeLimitBytes"]!.Value<long>());
+		Assert.IsTrue(args["rollOnFileSizeLimit"]!.Value<bool>());
+		Assert.AreEqual(Configuration.LogRetainedFileCountLimit, args["retainedFileCountLimit"]!.Value<int>());
+		// the migration must not disturb what the user already had
+		Assert.AreEqual("Month", args["rollingInterval"]!.Value<string>());
+	}
+
+	[TestMethod]
+	public void EnsureSerilogConfig_keeps_hand_tuned_size_rolling_args()
+	{
+		var config = Configuration.CreateMockInstance();
+		var serilog = CreateSerilog("File");
+		var existingArgs = (JObject)serilog.SelectToken("$.WriteTo[0].Args")!;
+		existingArgs["fileSizeLimitBytes"] = 1234;
+		existingArgs["rollOnFileSizeLimit"] = false;
+		existingArgs["retainedFileCountLimit"] = 3;
+		config.SetNonString(serilog, "Serilog");
+
+		config.EnsureSerilogConfig();
+
+		var args = (JObject)((JObject)config.GetObject("Serilog")!).SelectToken("$.WriteTo[0].Args")!;
+		Assert.AreEqual(1234, args["fileSizeLimitBytes"]!.Value<long>());
+		Assert.IsFalse(args["rollOnFileSizeLimit"]!.Value<bool>());
+		Assert.AreEqual(3, args["retainedFileCountLimit"]!.Value<int>());
+	}
+
+	[TestMethod]
+	public void EnsureSerilogConfig_leaves_a_non_File_sink_alone()
+	{
+		var config = Configuration.CreateMockInstance();
+		config.SetNonString(CreateSerilog("Console"), "Serilog");
+
+		config.EnsureSerilogConfig();
+
+		var args = (JObject)((JObject)config.GetObject("Serilog")!).SelectToken("$.WriteTo[0].Args")!;
+		Assert.IsNull(args["fileSizeLimitBytes"]);
+		Assert.IsNull(args["rollOnFileSizeLimit"]);
+	}
+
+	[TestMethod]
 	public void Validate_rejects_invalid_MinimumLevel()
 	{
 		var config = Configuration.CreateMockInstance();

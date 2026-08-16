@@ -49,6 +49,13 @@ public class LiberateOptions : ProcessableOptionsBase
 
 	#endregion
 
+	/// <summary>
+	/// --force means "attempt everything", which includes the titles Audible recently refused. A --pdf run is
+	/// never held back either: the refusal recorded against a title is about its audiobook, and a PDF is a
+	/// different request.
+	/// </summary>
+	internal override bool HonorsDeferredRetries => !Force && !PdfOnly;
+
 	protected override async Task ProcessAsync()
 	{
 		if (!RunDownloadLimit.TryCreate(LimitBooks, LimitMB, LimitGB, PdfOnly, out runLimit, out var limitError))
@@ -71,9 +78,21 @@ public class LiberateOptions : ProcessableOptionsBase
 		else
 		{
 			var isTargetedRun = GetProductIds().Any();
-			await RunAsync(GetProcessable(), lb => PrepareBookForLiberate(lb, isTargetedRun));
+
+			await RunAsync(
+				GetProcessable(),
+				lb => PrepareBookForLiberate(lb, isTargetedRun),
+				bulkFollowUp: BackFillsPdfs ? CreateProcessable<DownloadPdf>() : null);
 		}
 	}
+
+	/// <summary>
+	/// Whether this run also picks up titles that need nothing but their PDF. The verb is "book and pdf
+	/// backups", but the main pass only selects titles that need downloading, so on its own it never reaches
+	/// one whose audio it already has. A --pdf run selects those titles to begin with, and a run that names
+	/// its titles re-downloads them and gets their PDFs from that.
+	/// </summary>
+	internal bool BackFillsPdfs => !PdfOnly && !GetProductIds().Any();
 
 	private async Task LiberateFromLicense(string licPath)
 	{
@@ -174,6 +193,11 @@ public class LiberateOptions : ProcessableOptionsBase
 		{
 			lb.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
 			lb.Book.UserDefinedItem.SetPdfStatus(LiberatedStatus.NotLiberated);
+
+			// The status above is set on an untracked copy, so the central clear in updateUserDefinedItem
+			// never sees it. Asking for this title is the user overriding any wait Libation was observing,
+			// and the wait must restart from the beginning if the attempt fails again.
+			DownloadAttemptFailureStore.Clear(lb);
 		}
 	}
 

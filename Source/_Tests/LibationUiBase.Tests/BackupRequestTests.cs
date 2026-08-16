@@ -1,3 +1,4 @@
+using ApplicationServices;
 using DataLayer;
 using LibationUiBase.ProcessQueue;
 
@@ -109,5 +110,101 @@ public class BackupRequestTests
 			LibraryBook("GONE", absentFromLastScan: true)]);
 
 		Assert.AreEqual("already downloaded: 2, absent from your last library scan: 1", request.BuildSkippedLogSummary());
+	}
+
+	private static DownloadDeferrals Deferring(
+		LibraryBook libraryBook,
+		DownloadFailureKind kind = DownloadFailureKind.LicenseDenied,
+		int hoursUntilRetry = 20)
+		=> DownloadDeferrals.Create([
+			new DeferredDownload(
+				libraryBook.Account,
+				libraryBook.Book.AudibleProductId,
+				kind,
+				ConsecutiveFailures: 1,
+				LastFailedAt: DateTimeOffset.Now,
+				RetryAfter: DateTimeOffset.Now.AddHours(hoursUntilRetry),
+				Reason: "Ownership: not owned")]);
+
+	[TestMethod]
+	public void a_title_being_waited_on_is_not_queued()
+	{
+		var waiting = LibraryBook("REFUSED");
+
+		var request = BackupRequest.Create([waiting, LibraryBook("NEW")], Deferring(waiting));
+
+		CollectionAssert.AreEqual(new[] { "NEW" }, request.Queueable.Select(lb => lb.Book.AudibleProductId).ToList());
+		Assert.AreEqual(1, request.Skipped(BackupRequest.SkipReason.WaitingToRetry));
+		Assert.AreEqual(1, request.Deferred.Count);
+	}
+
+	[TestMethod]
+	public void no_title_is_waited_on_when_no_deferrals_are_supplied()
+	{
+		// The default is what a request about specific titles passes: an explicit ask is always attempted.
+		var waiting = LibraryBook("REFUSED");
+
+		var request = BackupRequest.Create([waiting]);
+
+		Assert.AreEqual(1, request.Queueable.Length);
+		Assert.AreEqual(0, request.Deferred.Count);
+	}
+
+	[TestMethod]
+	public void a_title_needing_only_its_pdf_is_never_waited_on()
+	{
+		// The audiobook download is what Audible refused; the PDF is a different request.
+		var pdfOnly = MockLibraryBook
+			.CreateBook(title: "PDFONLY", bookStatus: LiberatedStatus.Liberated)
+			.WithPdfStatus(LiberatedStatus.NotLiberated);
+
+		var request = BackupRequest.Create([pdfOnly], Deferring(pdfOnly));
+
+		Assert.AreEqual(1, request.Queueable.Length);
+		Assert.AreEqual(0, request.Deferred.Count);
+	}
+
+	[TestMethod]
+	public void an_already_downloaded_title_is_reported_as_such_rather_than_as_waiting()
+	{
+		var done = LibraryBook("DONE", LiberatedStatus.Liberated);
+
+		var request = BackupRequest.Create([done], Deferring(done));
+
+		Assert.AreEqual(1, request.Skipped(BackupRequest.SkipReason.AlreadyDownloaded));
+		Assert.AreEqual(0, request.Skipped(BackupRequest.SkipReason.WaitingToRetry));
+	}
+
+	[TestMethod]
+	public void nothing_queued_body_says_why_libation_is_waiting_and_for_how_long()
+	{
+		var waiting = LibraryBook("REFUSED");
+
+		var request = BackupRequest.Create([waiting], Deferring(waiting));
+		var body = request.BuildNothingQueuedBody();
+
+		StringAssert.Contains(body, "Waiting before trying again after a recent failure: 1");
+		StringAssert.Contains(body, "download the title on its own to try it now");
+		StringAssert.Contains(body, "Audible denied a download license (1 title)");
+		StringAssert.Contains(body, "Next attempt in about 20 hours");
+	}
+
+	[TestMethod]
+	public void the_waiting_detail_groups_titles_by_reason()
+	{
+		var refused = LibraryBook("REFUSED");
+		var preorder = LibraryBook("PREORDER");
+		var now = DateTimeOffset.Now;
+
+		var request = BackupRequest.Create(
+			[refused, preorder],
+			DownloadDeferrals.Create([
+				new DeferredDownload(refused.Account, "REFUSED", DownloadFailureKind.LicenseDenied, 2, now, now.AddDays(3), null),
+				new DeferredDownload(preorder.Account, "PREORDER", DownloadFailureKind.AssetUnavailable, 1, now, now.AddHours(6), null)]));
+
+		var detail = request.BuildDeferredDetail(now);
+
+		StringAssert.Contains(detail, "Audible denied a download license (1 title). Next attempt in about 3 days");
+		StringAssert.Contains(detail, "Audible has no downloadable audio yet (1 title). Next attempt in about 6 hours");
 	}
 }

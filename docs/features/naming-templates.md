@@ -8,6 +8,12 @@ File and Folder names can be customized using Libation's built-in tag template n
 
 These templates apply to both GUI and CLI.
 
+::: tip Keep `<id>` somewhere in your templates
+Libation finds a title's existing files by looking for its ASIN in the path. Drop `<id>` from both the folder
+and the file template and Libation can no longer recognise its own output, so a later PDF, cover or metadata
+download cannot be placed beside the audiobook it belongs to, and the grid cannot tell that a file is present.
+:::
+
 ## Template Tags
 
 These are the naming template tags currently supported by Libation.

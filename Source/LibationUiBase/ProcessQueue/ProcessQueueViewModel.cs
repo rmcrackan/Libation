@@ -241,7 +241,9 @@ public class ProcessQueueViewModel : ReactiveObject
 		}
 		else
 		{
-			var request = BackupRequest.Create(libraryBooks);
+			// Titles Audible recently refused are left out of a multi-book request but never out of a
+			// single-title one: picking one title is the user overriding the wait.
+			var request = BackupRequest.Create(libraryBooks, DownloadDeferrals.Load(DateTimeOffset.Now));
 
 			if (request.Queueable.Length == 0)
 			{
@@ -268,6 +270,9 @@ public class ProcessQueueViewModel : ReactiveObject
 					request.SkippedCount,
 					request.RequestedCount,
 					request.BuildSkippedLogSummary());
+
+			if (request.Deferred.Count > 0)
+				AddQueueLogEntry(request.BuildDeferredDetail(DateTimeOffset.Now));
 
 			// May no-op when free space is unknown (common on UNC); see DiskSpaceBackupPreflight.
 			if (!await DiskSpaceBackupPreflight.ConfirmBulkBackupAsync(request.Queueable.Length, config, backupQueueAlreadyRunning: Running))

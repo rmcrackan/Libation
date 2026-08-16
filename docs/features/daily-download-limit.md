@@ -71,3 +71,7 @@ Containers have no settings dialog, so add the keys to the `Settings.json` you m
 `DailyDownloadLimit` accepts `NoLimit`, `PlusOnly` or `AllBooks`, and `DailyDownloadLimitUnit` accepts `Books`, `MB` or `GB`. Download counts are kept in Libation's database, so they survive container restarts as long as your database is on a mounted volume, as it is in the standard setup.
 
 A container that liberates on a schedule combines well with a limit: each run downloads what it may and stops, and the next run continues where it left off.
+
+## When a license is denied anyway
+
+If Audible refuses a license despite the limit, Libation waits before asking about that title again instead of re-requesting it on every run. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads).

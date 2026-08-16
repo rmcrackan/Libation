@@ -579,12 +579,18 @@ public static class LibraryCommands
 				return 0;
 
 			int qtyChanges;
+			var statusChanged = new List<LibraryBook>();
 			using (var context = DbContexts.GetContext())
 			{
 				// Entry() instead of Attach() due to possible stack overflow with large tables
 				foreach (var book in nonNullBooks)
 				{
+					var statusBefore = book.Book.UserDefinedItem.BookStatus;
+
 					action?.Invoke(book.Book.UserDefinedItem);
+
+					if (book.Book.UserDefinedItem.BookStatus != statusBefore)
+						statusChanged.Add(book);
 
 					var udiEntity = context.Entry(book.Book.UserDefinedItem);
 
@@ -596,7 +602,16 @@ public static class LibraryCommands
 				qtyChanges = context.SaveChanges();
 			}
 			if (qtyChanges > 0)
+			{
+				// Changing a title's download status is the user saying they want a different outcome for it,
+				// so drop any wait Libation was observing before attempting it again. Compared against the
+				// previous value rather than acting on every call: editing tags or a rating must not quietly
+				// put a title Audible just refused back into the next scheduled run.
+				foreach (var book in statusChanged)
+					DownloadAttemptFailureStore.Clear(book);
+
 				BookUserDefinedItemCommitted?.Invoke(null, nonNullBooks);
+			}
 
 			return qtyChanges;
 		}

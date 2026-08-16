@@ -106,7 +106,9 @@ public class MockLibraryBook : LibraryBook
 			localeName);
 
 		lastDlFormat ??= new AudioFormat(Codec.AAC_LC, 128, 44100, 2);
-		lastDlVersion ??= new Version(13, 0);
+		// Three fields, like a real Libation version: Extensions.ToVersionString formats to at least three,
+		// so a two-field default throws as soon as anything renders a naming template for a mock book.
+		lastDlVersion ??= new Version(13, 0, 0);
 		book.UserDefinedItem.SetLastDownloaded(lastDlVersion, lastDlFormat, "1");
 		book.UserDefinedItem.PdfStatus = pdfStatus;
 		book.UserDefinedItem.BookStatus = bookStatus;
