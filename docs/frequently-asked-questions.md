@@ -111,6 +111,6 @@ Libation no longer requests spatial/Atmos from Audible (see [Spatial Audio, Dolb
 
 For spatial files you already have, see [Playing spatial files you already have](./advanced/spatial-audio.md#playing-spatial-files-you-already-have) and [Supported Media Players](./features/audio-file-formats.md#supported-media-players).
 
-## Does Libation work with books from Audible Standard?
+### Does Libation work with books from Audible Standard?
 
-Yes, at least while the subscription is active. Not yet tested without a subscription.
+Yes, while the subscription is active. After the subscription becomes inactive, Libation cannot get a license and so does not download those books.
