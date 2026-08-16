@@ -96,10 +96,17 @@ public static class DeferredDownloadUserMessage
 	{
 		var wait = when - now;
 
-		return wait <= TimeSpan.Zero ? "on the next run"
-			: wait < TimeSpan.FromHours(1) ? $"in about {"minute".PluralizeWithCount(Math.Max(1, (int)wait.TotalMinutes))}"
-			: wait < TimeSpan.FromDays(1) ? $"in about {"hour".PluralizeWithCount((int)Math.Round(wait.TotalHours))}"
-			: $"in about {"day".PluralizeWithCount((int)Math.Round(wait.TotalDays))} ({when.ToLocalTime():d})";
+		if (wait <= TimeSpan.Zero)
+			return "on the next run";
+		if (wait < TimeSpan.FromHours(1))
+			return $"in about {"minute".PluralizeWithCount(Math.Max(1, (int)wait.TotalMinutes))}";
+
+		// Rounded first, so a wait of exactly one day does not read as 24 hours or 23, depending on how long
+		// the run took to reach this line.
+		var hours = (int)Math.Round(wait.TotalHours);
+		return hours < 24
+			? $"in about {"hour".PluralizeWithCount(hours)}"
+			: $"in about {"day".PluralizeWithCount((int)Math.Round(hours / 24d))} ({when.ToLocalTime():d})";
 	}
 
 	private static IEnumerable<IGrouping<DownloadFailureKind, DeferredDownload>> GroupByKind(IEnumerable<DeferredDownload> deferred)
