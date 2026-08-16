@@ -22,7 +22,19 @@ public partial class Configuration
 	public bool SerilogInitialized { get; private set; }
 
 	/// <summary>
-	/// Create default Serilog config if missing, and migrate legacy ZipFile sink to File.
+	/// Size at which the log rolls to a new file. Deliberately well under GitHub's 25 MB attachment limit so
+	/// the current log can always be attached to a bug report.
+	/// </summary>
+	public const long LogFileSizeLimitBytes = 10 * 1024 * 1024;
+
+	/// <summary>
+	/// How many log files to keep. With <see cref="LogFileSizeLimitBytes"/> this caps the logs at about 200 MB.
+	/// </summary>
+	public const int LogRetainedFileCountLimit = 20;
+
+	/// <summary>
+	/// Create default Serilog config if missing, and bring an existing one up to date: migrate the legacy
+	/// ZipFile sink to File, attach <see cref="FileSinkHook"/>, and add size-based rolling.
 	/// Must run before <see cref="ValidateSerilogConfiguration"/> / <see cref="ConfigureLogging"/>.
 	/// </summary>
 	public void EnsureSerilogConfig()
@@ -43,6 +55,8 @@ public partial class Configuration
 					fileSinkArgs["hooks"] = hooks;
 					fileChanged = true;
 				}
+
+				fileChanged |= AddSizeRollingArgs(fileSinkArgs);
 			}
 
 			if (fileChanged)
@@ -62,22 +76,7 @@ public partial class Configuration
 					new JObject
 					{
 						{ "Name", "File" },
-						{ "Args",
-							new JObject
-							{
-								// for this sink to work, a path must be provided. we override this below
-								{ "path", Path.Combine(LibationFiles.Location, "Log.log") },
-								{ "rollingInterval", "Month" },
-								// Serilog template formatting examples
-								// - default:                    "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
-								//   output example:             2019-11-26 08:48:40.224 -05:00 [DBG] Begin Libation
-								// - with class and method info: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}";
-								//   output example:             2019-11-26 08:48:40.224 -05:00 [DBG] (at LibationWinForms.Program.init()) Begin Libation
-								// {Properties:j} needed for expanded exception logging
-								{ "outputTemplate", "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception} {Properties:j}" },
-								{ "hooks", typeof(FileSinkHook).AssemblyQualifiedName }, // for FileSinkHook
-							}
-						}
+						{ "Args", CreateDefaultFileSinkArgs() }
 					}
 				}
 			},
@@ -86,6 +85,59 @@ public partial class Configuration
 			{ "Enrich", new JArray{ "WithCaller", "WithExceptionDetails" } },
 		};
 		SetNonString(serilogObj, "Serilog");
+	}
+
+	private JObject CreateDefaultFileSinkArgs()
+	{
+		var args = new JObject
+		{
+			// for this sink to work, a path must be provided. we override this below
+			{ "path", Path.Combine(LibationFiles.Location, "Log.log") },
+			{ "rollingInterval", "Month" },
+			// Serilog template formatting examples
+			// - default:                    "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+			//   output example:             2019-11-26 08:48:40.224 -05:00 [DBG] Begin Libation
+			// - with class and method info: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}";
+			//   output example:             2019-11-26 08:48:40.224 -05:00 [DBG] (at LibationWinForms.Program.init()) Begin Libation
+			// {Properties:j} needed for expanded exception logging
+			{ "outputTemplate", "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception} {Properties:j}" },
+			{ "hooks", typeof(FileSinkHook).AssemblyQualifiedName }, // for FileSinkHook
+		};
+
+		AddSizeRollingArgs(args);
+		return args;
+	}
+
+	/// <summary>
+	/// Adds the size-based rolling arguments a monthly rolling interval does not provide on its own.
+	/// <para>
+	/// Without these, Serilog's own defaults apply: one file per month, no size roll, and a 1 GB ceiling
+	/// after which the sink silently stops writing. A busy install (many accounts, a scan every hour) can
+	/// reach tens of MB in a month, past the point where the log can be attached to a bug report.
+	/// </para>
+	/// <para>
+	/// Only absent keys are filled in, so a hand-tuned config is left alone.
+	/// </para>
+	/// </summary>
+	/// <returns>True when something was added.</returns>
+	private static bool AddSizeRollingArgs(JObject fileSinkArgs)
+	{
+		var changed = false;
+
+		changed |= AddIfMissing("fileSizeLimitBytes", LogFileSizeLimitBytes);
+		changed |= AddIfMissing("rollOnFileSizeLimit", true);
+		changed |= AddIfMissing("retainedFileCountLimit", LogRetainedFileCountLimit);
+
+		return changed;
+
+		bool AddIfMissing(string name, JToken value)
+		{
+			if (fileSinkArgs[name] is not null)
+				return false;
+
+			fileSinkArgs[name] = value;
+			return true;
+		}
 	}
 
 	public void ConfigureLogging()

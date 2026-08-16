@@ -153,7 +153,7 @@ The docker image supports an optional database mount location defined by `LIBATI
 LibationCli already writes a `LogYYYYMM.log` file (rolling monthly) using the same logging setup as the desktop apps — no extra configuration is required to generate it. However, in the docker image the log is written to an internal path (`/config-internal`) that isn't persisted or mounted by any of the examples above, so it disappears when the container is removed. To keep it around, use one of the following:
 
 - **Mount the internal config path**, e.g. add `-v /opt/libation/logs:/config-internal` to your `docker run` command. Note that this directory also holds the staged copies of `AccountsSettings.json`/`Settings.json` and the database symlink, which are regenerated from `/config`/`/db` on every container start.
-- **Point the log file at an already-mounted directory** by adding a `Serilog` section to your `Settings.json` (in your `/config` volume) with a `File` sink `path` pointing somewhere persisted, such as `/data/Log.log`. If `Settings.json` already contains a `Serilog` section, Libation uses it as-is instead of generating its own default:
+- **Point the log file at an already-mounted directory** by adding a `Serilog` section to your `Settings.json` (in your `/config` volume) with a `File` sink `path` pointing somewhere persisted, such as `/data/Log.log`. Libation uses an existing `Serilog` section as-is apart from filling in the size-rolling arguments described below when they are missing:
 
   ```json
   "Serilog": {
@@ -164,6 +164,9 @@ LibationCli already writes a `LogYYYYMM.log` file (rolling monthly) using the sa
         "Args": {
           "path": "/data/Log.log",
           "rollingInterval": "Month",
+          "fileSizeLimitBytes": 10485760,
+          "rollOnFileSizeLimit": true,
+          "retainedFileCountLimit": 20,
           "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception} {Properties:j}",
           "hooks": "LibationFileManager.FileSinkHook, LibationFileManager, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
         }
@@ -179,6 +182,23 @@ LibationCli already writes a `LogYYYYMM.log` file (rolling monthly) using the sa
     ]
   }
   ```
+
+### Log size
+
+The log rolls on **both** the calendar month and file size: a new file is started every 10 MB
+(`Log202608.log`, `Log202608_001.log`, ...) and the 20 newest files are kept, so the logs stay
+around 200 MB at most and any single file is small enough to attach to a bug report.
+
+A frequent cron schedule and many accounts is what makes this matter: every run logs a startup
+block and every account's library scan logs a line per page of results, so several runs an hour
+across a dozen-plus accounts produces several MB a day. `rollingInterval` alone does not bound
+that — before this was the default, a single month's log could reach tens of MB, and Serilog's own
+1 GB ceiling would eventually stop it logging altogether until the month rolled over.
+
+To change any of it, set `fileSizeLimitBytes`, `rollOnFileSizeLimit` or `retainedFileCountLimit`
+yourself in `Settings.json`; Libation only fills in the ones you leave out. Lowering
+`MinimumLevel` is not an option (`Information` is the lowest that still records what a bug report
+needs), but a smaller `retainedFileCountLimit` bounds total disk use.
 
 ## Getting Help
 
