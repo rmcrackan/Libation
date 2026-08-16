@@ -33,6 +33,14 @@ public class SearchEngine
 		return authors.Intersect(narrators).Any();
 	}
 
+	/// <summary>
+	/// True when <c>&lt;title short&gt;</c> cuts the title itself rather than merely dropping Audible's subtitle
+	/// field. Audible ships plenty of titles with a colon in them, and those are the ones where shortening loses
+	/// something the user may need: "Omnibus: Volume One" and "Omnibus: Volume Two" both shorten to "Omnibus".
+	/// </summary>
+	private static bool titleIsShortened(Book book)
+		=> LibationFileManager.Templates.Templates.GetTitleShort(book.Title) != book.Title;
+
 	// use these common fields in the "all" default search field
 	public static IndexRuleCollection FieldIndexRules { get; } = new IndexRuleCollection
 		{
@@ -60,6 +68,8 @@ public class SearchEngine
 			{ FieldType.Bool, lb => lb.Book.IsEpisodeChild().ToString(), "Podcast", "Podcasts", "IsPodcast", "Episode", "Episodes", "IsEpisode" },
 			{ FieldType.Bool, lb => lb.AbsentFromLastScan.ToString(), "AbsentFromLastScan", "Absent" },
 			{ FieldType.Bool, lb => (!string.IsNullOrWhiteSpace(lb.Book.SeriesNames())).ToString(), "IsInSeries", "InSeries" },
+			{ FieldType.Bool, lb => (!string.IsNullOrWhiteSpace(lb.Book.Subtitle)).ToString(), "HasSubtitle", "HasSubtitles" },
+			{ FieldType.Bool, lb => titleIsShortened(lb.Book).ToString(), "TitleHasColon", "ColonInTitle" },
 			{ FieldType.Bool, lb => lb.Book.UserDefinedItem.IsFinished.ToString(), nameof(UserDefinedItem.IsFinished), "Finished", "IsFinished" },
 			{ FieldType.Bool, lb => lb.IsAudiblePlus.ToString(), nameof(LibraryBook.IsAudiblePlus), "AudiblePlus", "Plus" },
             // all numbers are padded to 8 char.s
@@ -76,6 +86,45 @@ public class SearchEngine
 	};
 	#endregion
 
+	/// <summary>
+	/// Bump this whenever <see cref="FieldIndexRules"/> changes. A document only holds the fields that existed when
+	/// it was written, and nothing else invalidates the index on disk, so an index built by an older Libation
+	/// answers a query about a newly added field with silence rather than an error.
+	/// </summary>
+	public const int SchemaVersion = 1;
+	private const string SCHEMA_VERSION_FILE = "schema-version.txt";
+
+	/// <summary>True when the index on disk was written from a different field list than the current one.</summary>
+	public bool IsIndexSchemaOutdated()
+	{
+		try
+		{
+			var file = Path.Combine(SearchEngineDirectory, SCHEMA_VERSION_FILE);
+			return !File.Exists(file)
+				|| !int.TryParse(File.ReadAllText(file).Trim(), out var version)
+				|| version != SchemaVersion;
+		}
+		catch (Exception ex)
+		{
+			// an unreadable marker is not worth rebuilding over: the fields that were there yesterday still work
+			Serilog.Log.Logger.Warning(ex, "Could not read the search index schema version in {Path}", SearchEngineDirectory);
+			return false;
+		}
+	}
+
+	private void recordSchemaVersion()
+	{
+		try
+		{
+			File.WriteAllText(Path.Combine(SearchEngineDirectory, SCHEMA_VERSION_FILE), SchemaVersion.ToString());
+		}
+		catch (Exception ex)
+		{
+			// the index itself is fine; the only cost is rebuilding it again next session
+			Serilog.Log.Logger.Warning(ex, "Could not record the search index schema version in {Path}", SearchEngineDirectory);
+		}
+	}
+
 	#region create and update index
 	/// <summary>create new. ie: full re-index</summary>
 	public void CreateNewIndex(IEnumerable<LibraryBook> library, bool overwrite = true)
@@ -83,17 +132,20 @@ public class SearchEngine
 		var libraryList = library.ToList();
 
 		// location of index/create the index
-		using var index = getIndex();
-
+		using (var index = getIndex())
 		// analyzer for tokenizing text. same analyzer should be used for indexing and searching
-		using var analyzer = new StandardAnalyzer(Version);
-		using var ixWriter = openWriterForRebuild(index, analyzer, overwrite);
-
-		foreach (var libraryBook in libraryList)
+		using (var analyzer = new StandardAnalyzer(Version))
+		using (var ixWriter = openWriterForRebuild(index, analyzer, overwrite))
 		{
-			var doc = createBookIndexDocument(libraryBook);
-			ixWriter.AddDocument(doc);
+			foreach (var libraryBook in libraryList)
+			{
+				var doc = createBookIndexDocument(libraryBook);
+				ixWriter.AddDocument(doc);
+			}
 		}
+
+		// after the writer has committed, so a rebuild that dies part way through is not recorded as current
+		recordSchemaVersion();
 	}
 
 	/// <summary>

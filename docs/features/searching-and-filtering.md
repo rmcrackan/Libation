@@ -54,6 +54,26 @@ I tagged autobiographies as auto_bio and biographies written by someone else as 
 ![Search example: [bio]](../images/SearchExampleBio.png)
 ![Search example: [auto_bio]](../images/SearchExampleAutoBio.png)
 
+## Subtitles and short titles
+
+The `<title short>` tag keeps everything before the first colon, which is what keeps the default folder name short. That is usually what you want, but not always. "A Book Series Omnibus: Volume One" and "A Book Series Omnibus: Volume Two" both shorten to "A Book Series Omnibus", so the two books land in the same folder and can no longer be told apart by name.
+
+A colon is not something you can search for: the search engine throws punctuation away when it indexes your library, and Lucene reads a colon in a query as the separator between a field and its value. Two boolean fields find these books instead.
+
+| Field                            | Matches                                                                                                       |
+|----------------------------------|---------------------------------------------------------------------------------------------------------------|
+| `HasSubtitle` (`HasSubtitles`)   | Audible sent a separate subtitle, which every title tag except `<title>` leaves out                            |
+| `TitleHasColon` (`ColonInTitle`) | Audible's title itself contains a colon, so `<title short>` cuts into the title rather than dropping a subtitle |
+
+Some searches worth keeping as quick filters:
+
+- `TitleHasColon` - every book whose title `<title short>` cuts
+- `TitleHasColon AND -IsLiberated` - the same, limited to books you have not downloaded yet
+- `HasSubtitle OR TitleHasColon` - everything shortening changes in any way
+- `-HasSubtitle AND -TitleHasColon` - the books shortening cannot change
+
+Once you can see the affected books, you can decide what to do about them. If the only problem is colons inside Audible's titles, switching `<title short>` to `<audible title>` in Settings > Download/Decrypt fixes every one of them at once: it still leaves out Audible's subtitle, but it never cuts the title. If instead two books share a title and differ only by subtitle, use `<title>` for those books, or keep `<id>` in the template so their names stay unique. Either way, filter to the books you want handled differently, liberate them with one template, then restore your usual template for the rest.
+
 ## Filters
 
 If you have a search you want to save, click Add To Quick Filters to save it in your Quick Filters list. To use it again, select it from the Quick Filters list.

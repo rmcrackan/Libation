@@ -65,6 +65,11 @@ public class FormatSearchQuery
 	[DataRow("1 to 10", "00000001.00 TO 00000010.00")]
 	[DataRow("19990101 to 20001231", "19990101.00 TO 20001231.00")]
 
+	// subtitle keywords are bool fields, not text fields
+	[DataRow("HasSubtitle", "hassubtitle:True")]
+	[DataRow("-TitleHasColon", "-titlehascolon:True")]
+	[DataRow("HasSubtitle OR TitleHasColon", "hassubtitle:True OR titlehascolon:True")]
+
 	// field to lowercase
 	[DataRow("Author:Doyle", "author:Doyle")]
 	// bool field to lowercase

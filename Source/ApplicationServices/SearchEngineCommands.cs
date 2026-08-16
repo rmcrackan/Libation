@@ -18,11 +18,40 @@ public static class SearchEngineCommands
 		e.Search(searchString)
 	);
 
+	private static bool schemaChecked;
+
+	/// <summary>
+	/// A search field only exists in documents written after it was added, and nothing in Libation invalidates the
+	/// index when the field list changes, so an index left over from an older version quietly finds nothing for a
+	/// new field. Rebuilding once per session after an upgrade keeps the Filter Options list honest.
+	/// </summary>
+	private static void rebuildIfSchemaOutdated(SearchEngine engine)
+	{
+		if (schemaChecked)
+			return;
+		schemaChecked = true;
+
+		try
+		{
+			if (!engine.IsIndexSchemaOutdated())
+				return;
+
+			Log.Information("The search index was built from an older set of search fields. Rebuilding it.");
+			fullReIndex(engine);
+		}
+		catch (Exception ex)
+		{
+			// searching a stale index is better than not searching at all
+			Log.Warning(ex, "Could not rebuild the search index for the current set of search fields.");
+		}
+	}
+
 	private static T performSafeQuery<T>(Func<SearchEngine, T> func)
 	{
 		lock (IndexLock)
 		{
 			var engine = new SearchEngine();
+			rebuildIfSchemaOutdated(engine);
 			try
 			{
 				return func(engine);

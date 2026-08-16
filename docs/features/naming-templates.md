@@ -67,6 +67,8 @@ These tags will be replaced in the template with the audiobook's values.
 
 To change how these properties are displayed, [read about custom formatters](#tag-formatters)
 
+`<title short>` stops at the first colon wherever that colon came from, so it also cuts titles such as "Star Trek: The Next Generation" that Audible sent without a subtitle. `<audible title>` leaves out Audible's subtitle without cutting the title. To see which of your books are affected either way, filter on `HasSubtitle` and `TitleHasColon`; see [searching and filtering](searching-and-filtering.md#subtitles-and-short-titles).
+
 ### Conditional Tags
 
 Anything between the opening tag (`<tagname->`) and closing tag (`<-tagname>`) will only appear in the name if the condition evaluates to true.
