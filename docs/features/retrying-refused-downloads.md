@@ -65,8 +65,9 @@ appearing to have forgotten it.
 "Waiting before trying again after a recent failure", with what Audible said and when each comes back. A
 single-title download is never held back.
 
-`--pdf` runs are never held back either: the refusal is about the audiobook, and a PDF is a different
-request.
+A `--pdf` run is never held back: asking for PDFs specifically is an explicit request. A plain run does hold
+back the PDF of a title it is waiting on, though, because Libation fetches a PDF through the same license
+request as the audiobook — asking for one would reproduce the refusal it is waiting out.
 
 ## Relationship to marking a book as an error
 
