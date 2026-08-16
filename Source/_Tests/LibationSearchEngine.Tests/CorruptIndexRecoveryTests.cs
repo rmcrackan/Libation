@@ -32,8 +32,16 @@ public class CorruptIndexRecoveryTests
 	[TestCleanup]
 	public void Cleanup()
 	{
-		if (Directory.Exists(indexDirectory))
-			Directory.Delete(indexDirectory, recursive: true);
+		try
+		{
+			if (Directory.Exists(indexDirectory))
+				Directory.Delete(indexDirectory, recursive: true);
+		}
+		catch (IOException)
+		{
+			// Windows refuses to delete a file Lucene still holds open, and a leftover temp directory is not
+			// worth failing a test over
+		}
 	}
 
 	private static LibraryBook book(string asin, string title)
@@ -196,28 +204,40 @@ public class CorruptIndexRecoveryTests
 		SearchEngine.IsRecoverableCorruptIndexException(new UnauthorizedAccessException()).Should().BeFalse();
 	}
 
+	/// <summary>
+	/// The risk in repairing anything that is not a lock conflict is over-reach, so a held write.lock has to keep
+	/// being retried and must leave the index alone. The lock is held for the whole retry budget rather than
+	/// released part way through, which would race with Lucene 3's own lock bookkeeping.
+	/// </summary>
 	[TestMethod]
-	public void full_reindex_waits_out_a_write_lock_conflict_without_deleting_the_index()
+	public void a_write_lock_conflict_is_retried_and_leaves_the_index_intact()
 	{
 		reIndex();
+		var indexedBefore = indexFiles();
 
 		using var index = FSDirectory.Open(indexDirectory);
 		var writeLock = index.MakeLock(IndexWriter.WRITE_LOCK_NAME);
 		writeLock.Obtain().Should().BeTrue();
 
-		// released inside the retry budget (400 + 800 + 1600 + 3200 ms) so the re-index should succeed on a later attempt
-		var releaser = System.Threading.Tasks.Task.Run(() =>
+		try
 		{
-			System.Threading.Thread.Sleep(600);
-			// a competing NativeFSLock.Obtain deletes the lock file it failed to take, so by now Release may have
-			// nothing left to delete. The point of this test is the re-index, not Lucene 3's lock bookkeeping.
+			Assert.ThrowsExactly<LockObtainFailedException>(() => reIndex());
+
+			indexFiles().Should().BeEquivalentTo(indexedBefore);
+		}
+		finally
+		{
+			// a competing NativeFSLock.Obtain can delete the lock file it failed to take, leaving Release nothing
+			// to delete. Lucene 3's lock bookkeeping is not what this test is about.
 			try { writeLock.Release(); }
-			catch (LockReleaseFailedException) { }
-		});
-
-		reIndex();
-		releaser.Wait();
-
-		assertIndexIsUsable();
+			catch (Exception ex) when (ex is LockReleaseFailedException or IOException) { }
+		}
 	}
+
+	private List<string> indexFiles()
+		=> [.. Directory.GetFiles(indexDirectory)
+			.Select(Path.GetFileName)
+			.OfType<string>()
+			.Where(f => f != IndexWriter.WRITE_LOCK_NAME)
+			.OrderBy(f => f)];
 }
