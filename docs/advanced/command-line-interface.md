@@ -160,6 +160,10 @@ If Audiobookshelf auto-upload is enabled in Settings, `liberate` also uploads ea
 
 Titles Audible has recently refused a license for are left out of the run and reported as one summary, rather than being requested again every time. This matters most for a scheduled run. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads); naming an ASIN or passing `--force` overrides it.
 
+The run covers both halves of "book and pdf backups": titles that need downloading, and titles whose audio you already have but whose PDF is missing. Before 13.7.9 it only did the first, so `liberate --pdf` was the only way to get a PDF for a title downloaded earlier.
+
+Audiobookshelf auto-upload is not part of that second half. It runs when a title is liberated, so a run that only back-fills a PDF does not upload; use `abs upload` to send titles liberated earlier.
+
 ## Upload Already-Liberated Books to Audiobookshelf
 
 Auto-upload only runs at the moment a book is liberated. Use `abs upload` to send books liberated earlier, using the files already on disk. Nothing is re-downloaded.
@@ -189,6 +193,10 @@ Titles already on the server are skipped. The run ends with a summary of uploade
 libationcli liberate --pdf
 libationcli liberate -p
 ```
+
+Downloads nothing but PDFs, and never downloads an audiobook. A plain `liberate` covers the same titles, so this is for when you want only the PDFs.
+
+A PDF is saved beside its audiobook, or in the folder the [folder template](/docs/features/naming-templates) names for that title when Libation cannot find the audio files. Before 13.7.9 the second case put the PDF directly in your Books directory.
 
 ## Re-Liberate a Single Book
 

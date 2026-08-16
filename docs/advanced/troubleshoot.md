@@ -193,6 +193,21 @@ After a refusal Libation waits before asking about that title again, so you see 
 
 Attach your log file when opening a GitHub issue.
 
+## PDFs are missing, or land loose in the Books directory
+
+Both were fixed in 13.7.9.
+
+**`libationcli liberate` downloaded no PDFs.** A plain run only looked at titles that needed an audiobook, so a title whose audio was already downloaded was never reached and its PDF was never fetched. `libationcli liberate --pdf` was the only way to get them. A plain run now covers both. If your library predates the fix, one `libationcli liberate` (or **Liberate** \> **Begin Book and PDF Backups** in the app) collects the PDFs you are missing.
+
+**PDFs went into the Books directory instead of the book's folder.** Libation saves a PDF beside its audiobook, which it locates by looking for the title's ASIN in the file path. When that lookup found nothing it fell back to the Books directory itself. It now falls back to the folder the [folder template](/docs/features/naming-templates) names for that title.
+
+The lookup finds nothing in two situations, and the second is worth checking:
+
+1. The audio files are not on this machine — the title is marked downloaded but the files live elsewhere, or were deleted.
+2. **Your folder and file templates have no `<id>` tag.** Then no file Libation writes has the ASIN in its path, so Libation cannot recognise its own output for any title. Add `<id>` back in Settings \> Download/Decrypt; the defaults are `<title short> [<id>]` for folders and `<title> [<id>]` for files. This also explains PDFs with no ASIN in the name: the file name comes from your file template.
+
+Already-misplaced PDFs are not moved. Move them into their book folders yourself, or set the affected titles' PDF status to Not Downloaded and download them again.
+
 ## The log file is too large to attach to a bug report
 
 From 13.7.9 the log rolls every 10 MB as well as every month, keeping the 20 newest files, so the current
