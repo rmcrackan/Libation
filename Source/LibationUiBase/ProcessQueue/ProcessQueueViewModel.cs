@@ -133,18 +133,6 @@ public class ProcessQueueViewModel : ReactiveObject
 	private void AddQueueLogEntry(string logMessage)
 		=> Invoke(() => LogEntries.Add(new(DateTime.Now, logMessage.Trim())));
 
-	/// <summary>
-	/// Clears the queue and cancels the book being processed. Also ends a pause on the daily download limit,
-	/// which is why both UIs call this instead of manipulating the queue directly.
-	/// </summary>
-	public async Task CancelAllAsync()
-	{
-		cancelAllRequested = true;
-		Queue.ClearQueue();
-		if (Queue.Current is ProcessBookViewModel current)
-			await current.CancelAsync();
-	}
-
 	#region Add Books to Queue
 
 	public async Task<bool> QueueDownloadPdfAsync(IList<LibraryBook> libraryBooks, Configuration? config = null)
@@ -528,7 +516,10 @@ public class ProcessQueueViewModel : ReactiveObject
 	/// <summary>Moves the book being held back to the end of the queue without counting it as completed.</summary>
 	private void RequeueLast(ProcessBookViewModel book)
 	{
-		Queue.ClearCurrent();
+		// Removes this book, not the first active one. ClearCurrent() drops Active[0], which with
+		// several books in flight is some other book's download: deferring the second of three
+		// active books would silently evict the first instead.
+		Queue.RemoveActive(book);
 		Queue.Enqueue([book]);
 	}
 
@@ -578,12 +569,23 @@ public class ProcessQueueViewModel : ReactiveObject
 	/// A book that has already finished processing and so does not need cancelling - typically
 	/// the one whose result triggered the abort.
 	/// </param>
+	/// <summary>
+	/// Clears the queue and cancels every book currently downloading. Also ends a pause on the daily
+	/// download limit, which is why both UIs call this instead of manipulating the queue directly.
+	/// </summary>
+	/// <param name="except">
+	/// A book calling this from its own completion path (abort, disk full). It has already finished
+	/// and must not be asked to cancel itself.
+	/// </param>
 	public async Task CancelAllAsync(ProcessBookViewModel? except = null)
 	{
+		// Still set here, not only in the sequential path this replaced: a queue paused on the daily
+		// download limit is waiting inside WaitForDailyLimitAsync and this flag is how it learns to stop.
+		cancelAllRequested = true;
 		Queue.ClearQueue();
 
 		// Snapshot before cancelling: Active is mutated as each book unwinds.
-		var inFlight = Queue.Active.Where(b => b != except).ToArray();
+		var inFlight = Queue.GetActive().Where(b => b != except).ToArray();
 
 		await Task.WhenAll(inFlight.Select(b => b.CancelAsync()));
 	}
@@ -608,6 +610,9 @@ public class ProcessQueueViewModel : ReactiveObject
 			var _resultLock = new object();
 			using var abortCts = new CancellationTokenSource();
 			var activeTasks = new HashSet<Task>();
+			// Bounds the daily-limit deferral rotation, so a book can never be shuffled to the back
+			// forever. Counted since the last book that actually started, not since the run began.
+			int consecutiveDeferrals = 0;
 
 			using var counterTimer = new Timer(_ => RunningTime = timeToStr(DateTime.Now - startingTime), null, 0, 500);
 
@@ -707,6 +712,32 @@ public class ProcessQueueViewModel : ReactiveObject
 
 				if (Queue.TryDequeueNext(out var nextBook))
 				{
+					// Checked as a book is about to start rather than at queueing time, so the queue keeps
+					// its contents and the user can raise or turn off the limit mid-run. It belongs in this
+					// single dispatch loop and not inside the book task: the gate decides whether a book may
+					// start at all, and a per-book wait would have every blocked book polling at once.
+					// Books already in flight keep running while the loop is held here.
+					var gate = await WaitForDailyLimitAsync(nextBook, consecutiveDeferrals);
+
+					if (gate is DailyLimitGate.Defer)
+					{
+						consecutiveDeferrals++;
+						RequeueLast(nextBook);
+						continue;
+					}
+
+					if (gate is DailyLimitGate.Cancelled)
+					{
+						Serilog.Log.Logger.Information("Queue was cancelled while waiting on the daily download limit.");
+						nextBook.Result = ProcessBookResult.Cancelled;
+						nextBook.Status = ProcessBookStatus.Cancelled;
+						// The sequential loop left this to the next MoveNext(). Nothing moves this book
+						// off the active list now, so it is retired here.
+						Queue.MarkCompleted(nextBook);
+						continue;
+					}
+
+					consecutiveDeferrals = 0;
 					activeTasks.Add(ProcessBookAsync(nextBook));
 					continue;
 				}
