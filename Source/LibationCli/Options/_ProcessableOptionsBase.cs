@@ -90,7 +90,17 @@ public abstract class ProcessableOptionsBase : OptionsBase
 	/// </summary>
 	internal virtual bool HonorsDeferredRetries => false;
 
-	protected async Task RunAsync(Processable Processable, Action<LibraryBook>? config = null, Action<string>? notFound = null)
+	/// <param name="bulkFollowUp">
+	/// A second pass over the library, run after <paramref name="Processable"/>, for the titles that pass its
+	/// own Validate but were not selected by the first. <c>liberate</c> uses this to back-fill PDFs for titles
+	/// whose audio it already has: the first pass only selects titles that need downloading, so on its own it
+	/// never reaches a title that needs nothing but its PDF.
+	/// <para>
+	/// Bulk runs only. A run that names its titles already gets every step each title needs, because the first
+	/// pass re-downloads a named title and its PDF follows from that.
+	/// </para>
+	/// </param>
+	protected async Task RunAsync(Processable Processable, Action<LibraryBook>? config = null, Action<string>? notFound = null, Processable? bulkFollowUp = null)
 	{
 		var skippedForDailyLimit = 0;
 		var deferredThisRun = new List<DeferredDownload>();
@@ -107,7 +117,7 @@ public abstract class ProcessableOptionsBase : OptionsBase
 			{
 				if (DbContexts.GetLibraryBook_Flat_NoTracking(asin, caseSensative: false) is LibraryBook lb)
 				{
-					if (!await ProcessOrStopAsync(lb, true))
+					if (!await ProcessOrStopAsync(Processable, lb, true))
 						break;
 				}
 				else
@@ -126,6 +136,8 @@ public abstract class ProcessableOptionsBase : OptionsBase
 			var deferrals = HonorsDeferredRetries ? DownloadDeferrals.Load(DateTimeOffset.Now) : DownloadDeferrals.None;
 
 			var libraryBooks = DbContexts.GetLibrary_Flat_NoTracking();
+			var attempted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
 			foreach (var lb in Processable.GetValidLibraryBooks(libraryBooks))
 			{
 				if (deferrals.Find(lb) is DeferredDownload deferred)
@@ -138,8 +150,25 @@ public abstract class ProcessableOptionsBase : OptionsBase
 					continue;
 				}
 
-				if (!await ProcessOrStopAsync(lb, false))
+				attempted.Add(lb.Book.AudibleProductId);
+
+				if (!await ProcessOrStopAsync(Processable, lb, false))
 					break;
+			}
+
+			// Skipped when the first pass stopped early, so a run cut short by its download limit does not
+			// carry on doing other work. Titles the first pass attempted are excluded by product id rather
+			// than by asking Validate again, so a step that failed a moment ago is not immediately retried.
+			if (bulkFollowUp is not null && !runLimitReached)
+			{
+				foreach (var lb in bulkFollowUp.GetValidLibraryBooks(libraryBooks))
+				{
+					if (attempted.Contains(lb.Book.AudibleProductId))
+						continue;
+
+					if (!await ProcessOrStopAsync(bulkFollowUp, lb, false))
+						break;
+				}
 			}
 		}
 
@@ -170,7 +199,7 @@ public abstract class ProcessableOptionsBase : OptionsBase
 
 		// False ends the run. The limit is checked here rather than at the top of the run so that a run whose
 		// books happen to end exactly at the limit says nothing: nothing was cut short.
-		async Task<bool> ProcessOrStopAsync(LibraryBook libraryBook, bool validate)
+		async Task<bool> ProcessOrStopAsync(Processable processable, LibraryBook libraryBook, bool validate)
 		{
 			if (runLimit is not null && runLimit.TryStop(out var stopMessage))
 			{
@@ -182,14 +211,14 @@ public abstract class ProcessableOptionsBase : OptionsBase
 
 			config?.Invoke(libraryBook);
 
-			if (IsSkippedByDailyLimit(Processable, libraryBook))
+			if (IsSkippedByDailyLimit(processable, libraryBook))
 			{
 				skippedForDailyLimit++;
 				return true;
 			}
 
 			runLimit?.Attempting(libraryBook.Book.AudibleProductId);
-			await ProcessOneAsync(Processable, libraryBook, validate);
+			await ProcessOneAsync(processable, libraryBook, validate);
 			return true;
 		}
 	}

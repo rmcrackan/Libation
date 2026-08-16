@@ -78,9 +78,21 @@ public class LiberateOptions : ProcessableOptionsBase
 		else
 		{
 			var isTargetedRun = GetProductIds().Any();
-			await RunAsync(GetProcessable(), lb => PrepareBookForLiberate(lb, isTargetedRun));
+
+			await RunAsync(
+				GetProcessable(),
+				lb => PrepareBookForLiberate(lb, isTargetedRun),
+				bulkFollowUp: BackFillsPdfs ? CreateProcessable<DownloadPdf>() : null);
 		}
 	}
+
+	/// <summary>
+	/// Whether this run also picks up titles that need nothing but their PDF. The verb is "book and pdf
+	/// backups", but the main pass only selects titles that need downloading, so on its own it never reaches
+	/// one whose audio it already has. A --pdf run selects those titles to begin with, and a run that names
+	/// its titles re-downloads them and gets their PDFs from that.
+	/// </summary>
+	internal bool BackFillsPdfs => !PdfOnly && !GetProductIds().Any();
 
 	private async Task LiberateFromLicense(string licPath)
 	{
