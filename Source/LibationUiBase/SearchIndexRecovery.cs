@@ -12,7 +12,7 @@ public static class SearchIndexRecovery
 
 	public const string ManualRecoveryInstructions
 		= "Libation could not update its search index, and could not repair it automatically. "
-		+ "Your library itself is fine -- only searching and filtering are affected.\n\n"
+		+ "Your library itself is fine; only searching and filtering are affected.\n\n"
 		+ "To fix it by hand:\n"
 		+ "1. In Settings, click 'Open log folder'\n"
 		+ "2. Close Libation\n"

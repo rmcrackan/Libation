@@ -59,19 +59,27 @@ public class ApiExtended
 		{
 			if (!allowInteractiveLogin || LoginChoiceFactory is null)
 			{
+				// an account that was never logged in needs a first login, not a renewal, and saying so saves the
+				// user hunting for an expired session that never existed
+				var missingCredentials = AccountCredentialStatus.LooksLikeMissingCredentials(account);
+
 				Serilog.Log.Logger.Error(ex,
-					"Stored credentials could not be used and interactive login is not available. {@DebugInfo}",
+					missingCredentials
+						? "Stored credentials are missing or incomplete and interactive login is not available. {@DebugInfo}"
+						: "Stored credentials could not be used and interactive login is not available. {@DebugInfo}",
 					new
 					{
 						Account = account.MaskedLogEntry ?? "[null]",
 						LocaleName = locale.Name,
 						AllowInteractiveLogin = allowInteractiveLogin,
-						LoginChoiceFactorySet = LoginChoiceFactory is not null
+						LoginChoiceFactorySet = LoginChoiceFactory is not null,
+						LooksLikeMissingCredentials = missingCredentials
 					});
 
 				throw new AuthenticationRequiredException(
 					account,
-					message: $"Stored credentials for '{account.AccountId}' could not be used"
+					message: $"Stored credentials for '{account.AccountId}' "
+						+ (missingCredentials ? "are missing or incomplete" : "could not be used")
 						+ (LoginChoiceFactory is null
 							? " and interactive login is not available in this context (CLI/Docker)."
 							: " and interactive login was not allowed.")

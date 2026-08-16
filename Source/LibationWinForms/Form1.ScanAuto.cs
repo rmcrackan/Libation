@@ -39,26 +39,25 @@ public partial class Form1
 		Configuration.Instance.PropertyChanged += Configuration_PropertyChanged;
 	}
 
-	private void notifyAutoScanAuthRequired()
+	private void notifyAutoScanAuthRequired(AuthenticationRequiredException ex)
 	{
 		MessageBox.Show(
 			this,
-			"Libation could not refresh your Audible library because your login session expired.\n\n"
-			+ "Background auto-scan has been paused. Use Import > Scan Library to log in again to resume periodic scans.",
-			"Auto-scan paused - login required",
+			AutoScanAuthPrompt.FormatBody(ex),
+			AutoScanAuthPrompt.Caption,
 			MessageBoxButtons.OK,
 			MessageBoxIcon.Warning);
 	}
 
-	private Task notifyAutoScanAuthRequiredAsync()
+	private Task notifyAutoScanAuthRequiredAsync(AuthenticationRequiredException ex)
 	{
 		if (InvokeRequired)
 		{
-			Invoke(notifyAutoScanAuthRequired);
+			Invoke(() => notifyAutoScanAuthRequired(ex));
 			return Task.CompletedTask;
 		}
 
-		notifyAutoScanAuthRequired();
+		notifyAutoScanAuthRequired(ex);
 		return Task.CompletedTask;
 	}
 
