@@ -322,6 +322,26 @@ public partial class ProductsDisplay : UserControl
 		});
 
 		#endregion
+		#region Set PDF status, without touching the audiobook
+
+		if (ctx.ShowPdfStatusItems)
+		{
+			args.ContextMenuItems.Add(new MenuItem()
+			{
+				Header = ctx.SetPdfDownloadedText,
+				IsEnabled = ctx.SetPdfDownloadedEnabled,
+				Command = ReactiveCommand.Create(ctx.SetPdfDownloaded)
+			});
+
+			args.ContextMenuItems.Add(new MenuItem()
+			{
+				Header = ctx.SetPdfNotDownloadedText,
+				IsEnabled = ctx.SetPdfNotDownloadedEnabled,
+				Command = ReactiveCommand.Create(ctx.SetPdfNotDownloaded)
+			});
+		}
+
+		#endregion
 		#region Locate file (Single book only)
 
 		if (entries.Length == 1 && entries[0] is LibraryBookEntry entry)

@@ -162,6 +162,28 @@ public partial class ProductsDisplay : UserControl
 		ctxMenu.Items.Add(setNotDownloadMenuItem);
 
 		#endregion
+		#region Set PDF status, without touching the audiobook
+
+		if (ctx.ShowPdfStatusItems)
+		{
+			var setPdfDownloadMenuItem = new ToolStripMenuItem()
+			{
+				Text = ctx.SetPdfDownloadedText,
+				Enabled = ctx.SetPdfDownloadedEnabled
+			};
+			setPdfDownloadMenuItem.Click += (_, _) => ctx.SetPdfDownloaded();
+			ctxMenu.Items.Add(setPdfDownloadMenuItem);
+
+			var setPdfNotDownloadMenuItem = new ToolStripMenuItem()
+			{
+				Text = ctx.SetPdfNotDownloadedText,
+				Enabled = ctx.SetPdfNotDownloadedEnabled
+			};
+			setPdfNotDownloadMenuItem.Click += (_, _) => ctx.SetPdfNotDownloaded();
+			ctxMenu.Items.Add(setPdfNotDownloadMenuItem);
+		}
+
+		#endregion
 		#region Locate file (Single book only)
 
 		if (entries.Length == 1 && entries[0] is LibraryBookEntry entry)
