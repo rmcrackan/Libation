@@ -142,6 +142,25 @@ public class CorruptIndexRecoveryTests
 		assertIndexIsUsable();
 	}
 
+	/// <summary>
+	/// A garbled segments.gen sends Lucene looking for an absurd generation, and Lucene 3's base-36 filename
+	/// formatter overruns its buffer on the way. Damage does not always announce itself as an IOException.
+	/// </summary>
+	[TestMethod]
+	public void full_reindex_repairs_a_segments_gen_pointing_at_a_bogus_generation()
+	{
+		reIndex();
+		var gen = Path.Combine(indexDirectory, "segments.gen");
+		// format(int) then the generation as a long, written twice; corrupt the high bytes of both copies
+		var bytes = File.ReadAllBytes(gen);
+		bytes[7] = 0x63;
+		bytes[15] = 0x63;
+		File.WriteAllBytes(gen, bytes);
+
+		reIndex();
+		assertIndexIsUsable();
+	}
+
 	[TestMethod]
 	public void search_repairs_a_zero_length_segments_file()
 	{
