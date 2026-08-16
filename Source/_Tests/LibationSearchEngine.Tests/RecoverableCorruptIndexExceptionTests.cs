@@ -50,4 +50,29 @@ public class RecoverableCorruptIndexExceptionTests
 		var ex = new InvalidOperationException("something else");
 		Assert.IsFalse(SearchEngine.IsRecoverableCorruptIndexException(ex));
 	}
+
+	[TestMethod]
+	public void TryFindSearchIndexFailure_finds_nested_read_past_EOF()
+	{
+		var inner = new IOException("read past EOF");
+		var outer = new Exception("Error importing library", inner);
+
+		Assert.IsTrue(SearchEngine.TryFindSearchIndexFailure(outer, out var found));
+		Assert.AreSame(inner, found);
+	}
+
+	[TestMethod]
+	public void TryFindSearchIndexFailure_ignores_unrelated_exceptions()
+	{
+		var ex = new InvalidOperationException("not an index problem");
+		Assert.IsFalse(SearchEngine.TryFindSearchIndexFailure(ex, out var found));
+		Assert.IsNull(found);
+	}
+
+	[TestMethod]
+	public void ManualIndexRecoveryInstructions_mentions_SearchEngine_folder()
+	{
+		StringAssert.Contains(SearchEngine.ManualIndexRecoveryInstructions, "SearchEngine");
+		StringAssert.Contains(SearchEngine.ManualIndexRecoveryInstructions, "Open log folder");
+	}
 }

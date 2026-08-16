@@ -105,6 +105,14 @@ public partial class Form1
 					NonJsonResponseExceptionExtensions.LibraryScanFailedCaption,
 					htmlEx);
 			}
+			else if (SearchIndexRecovery.TryFindFailure(ex, out var indexEx) && indexEx is not null)
+			{
+				MessageBoxLib.ShowAdminAlert(
+					this,
+					SearchIndexRecovery.ManualRecoveryInstructions,
+					SearchIndexRecovery.Caption,
+					indexEx);
+			}
 			else
 			{
 				MessageBoxLib.ShowAdminAlert(

@@ -95,12 +95,23 @@ public class SearchEngine
 				createNewIndexCore(libraryList, overwrite);
 				return;
 			}
-			catch (Exception ex) when (IsRecoverableCorruptIndexException(ex) && corruptRebuildAttemptsRemaining > 0)
+			catch (Exception ex) when (IsRecoverableCorruptIndexException(ex))
 			{
-				corruptRebuildAttemptsRemaining--;
-				Serilog.Log.Logger.Warning(ex, "Lucene search index corrupt at {Path}. Clearing for rebuild.", SearchEngineDirectory);
-				deleteAllSearchIndexFiles(SearchEngineDirectory);
-				attempt--;
+				if (corruptRebuildAttemptsRemaining > 0)
+				{
+					corruptRebuildAttemptsRemaining--;
+					Serilog.Log.Logger.Warning(ex, "Lucene search index corrupt at {Path}. Clearing for rebuild.", SearchEngineDirectory);
+					deleteAllSearchIndexFiles(SearchEngineDirectory);
+					attempt--;
+					continue;
+				}
+
+				Serilog.Log.Logger.Error(ex,
+					"Lucene search index at {Path} remains unreadable after rebuild attempts. "
+					+ "Close Libation, delete the SearchEngine folder in your Libation files directory "
+					+ "(Settings > Open log folder), restart Libation, and scan again.",
+					SearchEngineDirectory);
+				throw;
 			}
 			catch (IOException ex) when (attempt < maxRetries - 1 && !IsRecoverableCorruptIndexException(ex))
 			{
@@ -117,6 +128,47 @@ public class SearchEngine
 				Thread.Sleep(delayMs);
 			}
 		}
+	}
+
+	/// <summary>
+	/// User-facing steps when automatic SearchEngine rebuild fails. Safe to show in message boxes.
+	/// </summary>
+	public const string ManualIndexRecoveryInstructions
+		= "Libation's search index appears corrupted and could not be rebuilt automatically.\n\n"
+		+ "1. Open Settings and click 'Open log folder'\n"
+		+ "2. Close Libation\n"
+		+ "3. Delete the SearchEngine folder in that directory\n"
+		+ "4. Restart Libation and scan again";
+
+	/// <summary>
+	/// True when <paramref name="ex"/> or an inner exception is a Lucene search-index failure that
+	/// may need the manual SearchEngine-folder recovery steps.
+	/// </summary>
+	public static bool TryFindSearchIndexFailure(Exception ex, out Exception? indexException)
+	{
+		for (var current = ex; current is not null; current = current.InnerException)
+		{
+			if (IsRecoverableCorruptIndexException(current)
+				|| (current is IOException
+					&& current.StackTrace is { } stack
+					&& stack.Contains("LibationSearchEngine", StringComparison.Ordinal)))
+			{
+				indexException = current;
+				return true;
+			}
+		}
+
+		if (ex is AggregateException aggregate)
+		{
+			foreach (var inner in aggregate.InnerExceptions)
+			{
+				if (TryFindSearchIndexFailure(inner, out indexException))
+					return true;
+			}
+		}
+
+		indexException = null;
+		return false;
 	}
 
 	/// <summary>

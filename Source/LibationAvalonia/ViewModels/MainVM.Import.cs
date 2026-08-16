@@ -240,6 +240,14 @@ public partial class MainVM
 					NonJsonResponseExceptionExtensions.LibraryScanFailedCaption,
 					htmlEx);
 			}
+			else if (SearchIndexRecovery.TryFindFailure(ex, out var indexEx) && indexEx is not null)
+			{
+				await MessageBox.ShowAdminAlert(
+					MainWindow,
+					SearchIndexRecovery.ManualRecoveryInstructions,
+					SearchIndexRecovery.Caption,
+					indexEx);
+			}
 			else
 			{
 				await MessageBox.ShowAdminAlert(
