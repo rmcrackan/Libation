@@ -341,10 +341,27 @@ public static class LibationScaffolding
 	private static void wireUpSystemEvents(Configuration configuration)
 	{
 		LibraryCommands.LibrarySizeChanged += (_, libraryBooks)
-			=> SearchEngineCommands.FullReIndex(libraryBooks);
+			=> updateSearchIndex(() => SearchEngineCommands.FullReIndex(libraryBooks));
 
 		LibraryCommands.BookUserDefinedItemCommitted += (_, books)
-			=> SearchEngineCommands.UpdateBooks(books);
+			=> updateSearchIndex(() => SearchEngineCommands.UpdateBooks(books));
+	}
+
+	/// <summary>
+	/// The search index is a cache derived from the database, and these events fire after the database change is
+	/// already committed. Letting a search index failure escape would report a successful scan as a failed import and
+	/// would stop the remaining event handlers -- the ones that refresh the grid and the backup counts -- from running.
+	/// </summary>
+	private static void updateSearchIndex(Action update)
+	{
+		try
+		{
+			update();
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Failed to update the search index. Library changes are saved; search and filter results may be stale until the next update succeeds.");
+		}
 	}
 
 	public static VersionCheckResult GetLatestRelease()
