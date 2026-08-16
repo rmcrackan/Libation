@@ -158,6 +158,8 @@ libationcli liberate
 
 If Audiobookshelf auto-upload is enabled in Settings, `liberate` also uploads each liberated book after download/decrypt (and PDF). See [Audiobookshelf Auto-Upload](/docs/features/audiobookshelf). The separate `convert` command does not upload. To upload books that were already liberated, use [`abs upload`](#upload-already-liberated-books-to-audiobookshelf).
 
+Titles Audible has recently refused a license for are left out of the run and reported as one summary, rather than being requested again every time. This matters most for a scheduled run. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads); naming an ASIN or passing `--force` overrides it.
+
 ## Upload Already-Liberated Books to Audiobookshelf
 
 Auto-upload only runs at the moment a book is liberated. Use `abs upload` to send books liberated earlier, using the files already on disk. Nothing is re-downloaded.
@@ -205,6 +207,8 @@ libationcli liberate --id B017V4IM1G
 libationcli liberate --force
 libationcli liberate -f
 ```
+
+`--force` also attempts the titles Audible recently refused, which a plain run leaves alone. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads).
 
 ## Limit How Much One Run Downloads
 

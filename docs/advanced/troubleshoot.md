@@ -6,7 +6,7 @@
 
 **Common causes:**
 - `TokenStorageMethod` mistyped (canonical values are `Encrypted` and `Plaintext` - casing variants like `PlainText` are accepted, but unknown spellings are not)
-- `Serilog.WriteTo` missing, empty, or malformed (not an array of objects with `Name`). Hand-edited custom sink names are allowed; legacy `ZipFile` is migrated to `File` automatically
+- `Serilog.WriteTo` missing, empty, or malformed (not an array of objects with `Name`). Hand-edited custom sink names are allowed; legacy `ZipFile` is migrated to `File` automatically, and a `File` sink missing the size-rolling arguments has them filled in
 - `Serilog.MinimumLevel` set to a value that is not a Serilog level
 
 **Fix:** Edit `Settings.json` in your Libation Files directory to a valid value and restart. Do not delete the whole file unless it is corrupt JSON.
@@ -187,5 +187,22 @@ These errors come from Audible refusing to grant a download license. Common caus
 1. **Temporary Audible outage or Plus throttling** -- wait 24 to 48 hours and try again. See the [FAQ](/docs/frequently-asked-questions).
 2. **Title requires Widevine** -- some Plus titles no longer download as AAXC; enable **Use Widevine DRM** in Settings and re-add your account if prompted. See [issue #1580](https://github.com/rmcrackan/Libation/issues/1580).
 3. **Spatial / Dolby Atmos requested (older Libation versions)** -- Audible now requires Widevine L1 for many spatial titles. Libation 13.1.3+ no longer offers spatial download. See [Spatial Audio & DRM](/docs/advanced/spatial-audio).
+4. **You no longer have rights to the title** -- it was returned, it left the Plus catalog, or the account that owned it is no longer active. Check the title in the Audible app or website.
+
+After a refusal Libation waits before asking about that title again, so you see the explanation once rather than on every run. It attempts the title again by itself; to try it sooner, name it (`libationcli liberate <ASIN>`) or set its download status to Not Downloaded. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads).
 
 Attach your log file when opening a GitHub issue.
+
+## The log file is too large to attach to a bug report
+
+From 13.7.9 the log rolls every 10 MB as well as every month, keeping the 20 newest files, so the current
+`LogYYYYMM.log` is always small enough to upload. Existing installs pick this up on the next start: Libation
+fills in the size-rolling settings your `Settings.json` is missing without touching anything you set yourself.
+
+Before that, `rollingInterval: "Month"` was the only rolling rule, so one file grew for the whole month --
+tens of MB for an install with several accounts scanned on a frequent schedule, and Serilog's own 1 GB
+ceiling would eventually stop it logging at all until the month rolled over.
+
+If a single file is still too large for what you need, lower `fileSizeLimitBytes` (and, for total disk use,
+`retainedFileCountLimit`) in the `File` sink's `Args` in `Settings.json`. See [Docker -
+Logging](/docs/installation/docker#logging) for the full sink configuration.

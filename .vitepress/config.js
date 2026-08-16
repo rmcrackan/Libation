@@ -100,6 +100,10 @@ export default defineConfig({
           },
           { text: "Naming Templates", link: "/docs/features/naming-templates" },
           {
+            text: "Retrying Refused Downloads",
+            link: "/docs/features/retrying-refused-downloads",
+          },
+          {
             text: "Searching & Filtering",
             link: "/docs/features/searching-and-filtering",
           },
