@@ -137,12 +137,17 @@ public class SearchEngine
 	}
 
 	/// <summary>
-	/// True when the index could not be opened because something else is holding it, which is worth waiting out.
+	/// True when the index could not be opened because something else is holding it -- a second Libation instance,
+	/// antivirus, a backup agent -- which is worth waiting out rather than repairing.
 	/// <see cref="LockObtainFailedException"/> derives from <see cref="IOException"/>, so a bare
-	/// <c>IOException</c> check cannot tell a lock conflict apart from a damaged index.
+	/// <c>IOException</c> check cannot tell a lock conflict apart from a damaged index. Nor can the type alone:
+	/// Windows raises a sharing violation on the lock file before Lucene turns it into a
+	/// <see cref="LockObtainFailedException"/>, so a plain <see cref="IOException"/> naming the lock file counts
+	/// too. Matching the file name rather than the wording keeps that working on non-English Windows.
 	/// </summary>
 	private static bool isTransientLockConflict(Exception ex)
 		=> ex is LockObtainFailedException
+		|| (ex is IOException && ex.Message.Contains(IndexWriter.WRITE_LOCK_NAME, StringComparison.OrdinalIgnoreCase))
 		// Windows may report "file in use" as UnauthorizedAccessException
 		|| ex is UnauthorizedAccessException;
 

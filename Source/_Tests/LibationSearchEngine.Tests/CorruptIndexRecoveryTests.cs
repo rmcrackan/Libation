@@ -202,6 +202,13 @@ public class CorruptIndexRecoveryTests
 	{
 		SearchEngine.IsRecoverableCorruptIndexException(new LockObtainFailedException("Lock obtain timed out")).Should().BeFalse();
 		SearchEngine.IsRecoverableCorruptIndexException(new UnauthorizedAccessException()).Should().BeFalse();
+
+		// Windows raises the sharing violation on the lock file before Lucene can turn it into a
+		// LockObtainFailedException, so this arrives as a plain IOException. Mistaking it for corruption would
+		// delete the index the other holder is using.
+		SearchEngine.IsRecoverableCorruptIndexException(
+			new IOException(@"The process cannot access the file 'C:\Users\me\Libation\SearchEngine\write.lock' because it is being used by another process."))
+			.Should().BeFalse();
 	}
 
 	/// <summary>
@@ -221,8 +228,11 @@ public class CorruptIndexRecoveryTests
 
 		try
 		{
-			Assert.ThrowsExactly<LockObtainFailedException>(() => reIndex());
+			// Linux surfaces this as Lucene's LockObtainFailedException, Windows as a sharing violation on the
+			// lock file. Either way it must not be read as corruption, and the index must survive.
+			var ex = Assert.Throws<IOException>(() => reIndex());
 
+			SearchEngine.IsRecoverableCorruptIndexException(ex).Should().BeFalse();
 			indexFiles().Should().BeEquivalentTo(indexedBefore);
 		}
 		finally
