@@ -431,22 +431,28 @@ public partial class Configuration
 	public const int DefaultConcurrentDownloads = 3;
 
 	/// <summary>
-	/// The highest <see cref="MaxConcurrentDownloads"/> can go on this machine.
+	/// The highest <see cref="MaxConcurrentDownloads"/> is worth running on this machine, for use as
+	/// the bound on a spinner. Deliberately <em>not</em> applied to the stored value: a setting saved
+	/// on an eight-core desktop must survive being opened on a two-core laptop or in a container and
+	/// come back intact, rather than being silently rewritten to what that machine could manage.
 	/// </summary>
 	/// <remarks>
-	/// Processor count is deliberately <em>not</em> the default. Downloading is bound by Audible's
-	/// license throttling rather than by local CPU, so core count says nothing about how many
-	/// concurrent downloads will succeed - it only bounds how many decrypts can usefully run at
-	/// once. It is therefore used as a ceiling and nothing more.
+	/// Processor count is also not the default. Downloading is bound by Audible's license throttling
+	/// rather than by local CPU, so core count says nothing about how many concurrent downloads will
+	/// succeed - it only bounds how many decrypts can usefully run at once.
 	/// </remarks>
 	public static int MaxAllowedConcurrentDownloads
 		=> Math.Clamp(Environment.ProcessorCount, MinConcurrentDownloads, ConcurrentDownloadsHardLimit);
 
+	/// <summary>
+	/// What the user asked for, bounded only by what is meaningful anywhere - never by the machine
+	/// that happens to be reading it. See <see cref="MaxAllowedConcurrentDownloads"/>.
+	/// </summary>
 	[Description("Maximum number of books to download and decrypt simultaneously. Set to 1 to download one book at a time.")]
 	public int MaxConcurrentDownloads
 	{
-		get => Math.Clamp(GetNonString(defaultValue: DefaultConcurrentDownloads), MinConcurrentDownloads, MaxAllowedConcurrentDownloads);
-		set => SetNonString(Math.Clamp(value, MinConcurrentDownloads, MaxAllowedConcurrentDownloads));
+		get => Math.Clamp(GetNonString(defaultValue: DefaultConcurrentDownloads), MinConcurrentDownloads, ConcurrentDownloadsHardLimit);
+		set => SetNonString(Math.Clamp(value, MinConcurrentDownloads, ConcurrentDownloadsHardLimit));
 	}
 
 	[Description("Global download speed limit in bytes per second.")]

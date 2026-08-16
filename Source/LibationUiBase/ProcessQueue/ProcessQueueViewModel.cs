@@ -41,7 +41,9 @@ public class ProcessQueueViewModel : ReactiveObject
 		Queue.QueuedCountChanged += Queue_QueuedCountChanged;
 		Queue.CompletedCountChanged += Queue_CompletedCountChanged;
 		SpeedLimit = Configuration.Instance.DownloadSpeedLimit / 1024m / 1024;
-		MaxConcurrentDownloads = Configuration.Instance.MaxConcurrentDownloads;
+		// Assigned to the field, not through the property: constructing the view model must not write
+		// the setting back, or opening the queue on a smaller machine would overwrite what the user chose.
+		_maxConcurrentDownloads = Configuration.Instance.MaxConcurrentDownloads;
 		AutoScrollQueue = Configuration.Instance.AutoScrollQueue;
 	}
 
@@ -55,14 +57,22 @@ public class ProcessQueueViewModel : ReactiveObject
 	/// </summary>
 	public int MaxConcurrentDownloads
 	{
-		get => field;
+		get => _maxConcurrentDownloads;
 		set
 		{
-			var clamped = Math.Clamp(value, Configuration.MinConcurrentDownloads, Configuration.MaxAllowedConcurrentDownloads);
-			RaiseAndSetIfChanged(ref field, clamped);
+			var clamped = Math.Clamp(value, Configuration.MinConcurrentDownloads, Configuration.ConcurrentDownloadsHardLimit);
+			RaiseAndSetIfChanged(ref _maxConcurrentDownloads, clamped);
 			Configuration.Instance.MaxConcurrentDownloads = clamped;
 		}
 	}
+	private int _maxConcurrentDownloads;
+
+	/// <summary>
+	/// How many books actually run at once: what the user asked for, held down to what this machine
+	/// can usefully manage. Applied here, at the point of use, so the stored setting is left alone.
+	/// </summary>
+	private int EffectiveConcurrentDownloads
+		=> Math.Clamp(MaxConcurrentDownloads, Configuration.MinConcurrentDownloads, Configuration.MaxAllowedConcurrentDownloads);
 	public bool AutoScrollQueue { get => field; set { RaiseAndSetIfChanged(ref field, value); Configuration.Instance.AutoScrollQueue = value; } }
 
 	/// <summary>Exposed so UI controls can bind their spinner bounds rather than hardcoding them.</summary>
@@ -690,7 +700,18 @@ public class ProcessQueueViewModel : ReactiveObject
 
 			while (true)
 			{
-				activeTasks.RemoveWhere(t => t.IsCompleted);
+				// A faulted book task is dropped here, before the closing WhenAll could rethrow it, so
+				// its exception has to be observed on the way out or it is lost. ProcessOneAsync can
+				// throw out of its finally via GetFailureActionAsync; in the sequential loop that
+				// reached the outer catch and was logged, and it still should be.
+				activeTasks.RemoveWhere(t =>
+				{
+					if (!t.IsCompleted)
+						return false;
+					if (t.IsFaulted)
+						Serilog.Log.Logger.Error(t.Exception, "A book failed to process and did not report a result");
+					return true;
+				});
 
 				// Captured before the queue is inspected. If a book is enqueued between the
 				// TryDequeueNext below and the wait at the bottom of the loop, this task is
@@ -704,7 +725,7 @@ public class ProcessQueueViewModel : ReactiveObject
 				}
 
 				// If at capacity, wait for a slot to open before trying to dequeue more
-				if (activeTasks.Count >= MaxConcurrentDownloads)
+				if (activeTasks.Count >= EffectiveConcurrentDownloads)
 				{
 					await Task.WhenAny(activeTasks);
 					continue;

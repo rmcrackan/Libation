@@ -413,9 +413,7 @@ public class ProcessBookViewModel : ReactiveObject
 			Configuration.BadBookAction.Abort => DialogResult.Abort,
 			Configuration.BadBookAction.Retry => DialogResult.Retry,
 			Configuration.BadBookAction.Ignore => DialogResult.Ignore,
-			Configuration.BadBookAction.Ask or _ => _badBookSession?.Override is Configuration.BadBookAction sessionOverride
-				? ToDialogResult(sessionOverride)
-				: await ShowRetryDialogAsync(libraryBook)
+			Configuration.BadBookAction.Ask or _ => await AskBadBookActionAsync(libraryBook)
 		};
 
 		if (dialogResult == SkipResult)
@@ -427,6 +425,34 @@ public class ProcessBookViewModel : ReactiveObject
 		return dialogResult is SkipResult ? ProcessBookResult.FailedSkip
 			 : dialogResult is DialogResult.Abort ? ProcessBookResult.FailedAbort
 			 : ProcessBookResult.FailedRetry;
+	}
+
+	/// <summary>
+	/// Asks the user what to do with a failed book, at most one dialog at a time. Without the gate,
+	/// three books failing together put three modals on screen racing to set the same session
+	/// override, and the user answers a question two of them no longer needed to ask.
+	/// </summary>
+	private async Task<DialogResult> AskBadBookActionAsync(LibraryBook libraryBook)
+	{
+		if (_badBookSession is null)
+			return await ShowRetryDialogAsync(libraryBook);
+
+		if (_badBookSession.Override is Configuration.BadBookAction alreadyAnswered)
+			return ToDialogResult(alreadyAnswered);
+
+		await _badBookSession.DialogGate.WaitAsync();
+		try
+		{
+			// Re-checked after the wait: the book ahead of us may have answered "apply to all".
+			if (_badBookSession.Override is Configuration.BadBookAction answeredWhileWaiting)
+				return ToDialogResult(answeredWhileWaiting);
+
+			return await ShowRetryDialogAsync(libraryBook);
+		}
+		finally
+		{
+			_badBookSession.DialogGate.Release();
+		}
 	}
 
 	protected async Task<DialogResult> ShowRetryDialogAsync(LibraryBook libraryBook)
