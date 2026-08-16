@@ -110,3 +110,7 @@ No. **Use Widevine DRM** unlocks **Request xHE-AAC Codec** for higher-bitrate st
 Libation no longer requests spatial/Atmos from Audible (see [Spatial Audio, Dolby Atmos, and Widevine DRM](./advanced/spatial-audio.md)). Books you liberated before 13.1.3 may be E-AC-3 or AC-4; newer downloads are stereo unless you kept older files.
 
 For spatial files you already have, see [Playing spatial files you already have](./advanced/spatial-audio.md#playing-spatial-files-you-already-have) and [Supported Media Players](./features/audio-file-formats.md#supported-media-players).
+
+## Does Libation work with books from Audible Standard?
+
+Yes, at least while the subscription is active. Not yet tested without a subscription.
