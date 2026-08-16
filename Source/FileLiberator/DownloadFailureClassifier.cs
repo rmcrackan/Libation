@@ -46,18 +46,20 @@ public static class DownloadFailureClassifier
 		};
 
 	/// <summary>
-	/// Audible attaches a rejection reason per validation type. <c>GenericError</c> is Audible declining to
-	/// say why, which in practice means an outage or throttling rather than a decision about the title; the
-	/// GUI already treats it that way when it offers guidance. Anything else names an eligibility problem
-	/// with the account or the title, which will not change within the hour.
+	/// Audible attaches a rejection reason per validation type it ran. <c>GenericError</c> is Audible
+	/// declining to say why, which in practice means an outage or throttling rather than a decision about the
+	/// title; the GUI already reads it that way when it chooses which guidance to offer. Anything else names
+	/// an eligibility problem with the account or the title, which will not change within the hour. Saying
+	/// nothing at all is also treated as an outage: a refusal with no stated reason is not a settled one.
 	/// </summary>
 	private static DownloadFailureDiagnosis ClassifyLicenseDenial(ContentLicenseDeniedException ex)
 	{
 		LicenseDenialReason?[] reasons = [ex.Ownership, ex.AYCL, ex.Membership, ex.Client];
 
+		var stated = reasons.Where(r => !string.IsNullOrWhiteSpace(r?.RejectionReason)).ToArray();
 		var looksLikeOutage
-			= ex.AYCL?.RejectionReason is null or RejectionReason.GenericError
-			|| reasons.Any(r => r?.RejectionReason is RejectionReason.GenericError);
+			= stated.Length == 0
+			|| stated.Any(r => r!.RejectionReason is RejectionReason.GenericError);
 
 		return new DownloadFailureDiagnosis(
 			looksLikeOutage ? DownloadFailureKind.ServiceInterruption : DownloadFailureKind.LicenseDenied,

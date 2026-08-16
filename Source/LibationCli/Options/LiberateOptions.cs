@@ -50,7 +50,7 @@ public class LiberateOptions : ProcessableOptionsBase
 	#endregion
 
 	// --force means "attempt everything", which includes the titles Audible recently refused.
-	protected override bool HonorsDeferredRetries => !Force;
+	internal override bool HonorsDeferredRetries => !Force;
 
 	protected override async Task ProcessAsync()
 	{

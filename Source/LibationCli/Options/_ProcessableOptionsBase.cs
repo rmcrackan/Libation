@@ -88,7 +88,7 @@ public abstract class ProcessableOptionsBase : OptionsBase
 	/// Whether this run should leave alone the titles Audible recently refused. False for a run that names
 	/// its titles or passes --force: an explicit request is always attempted.
 	/// </summary>
-	protected virtual bool HonorsDeferredRetries => false;
+	internal virtual bool HonorsDeferredRetries => false;
 
 	protected async Task RunAsync(Processable Processable, Action<LibraryBook>? config = null, Action<string>? notFound = null)
 	{

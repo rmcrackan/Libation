@@ -37,9 +37,12 @@ public static class DownloadRetryBackoff
 			? found
 			: schedule[DownloadFailureKind.ServiceInterruption];
 
-		// Doubling in ticks would overflow long before the cap matters, so count the doublings first.
-		var doublings = Math.Clamp(consecutiveFailures - 1, 0, 30);
-		var wait = first * Math.Pow(2, doublings);
+		// Doubled one step at a time and stopped at the cap: first * 2^n overflows a TimeSpan long before a
+		// plausible failure count, let alone the absurd ones a corrupt row could hold.
+		var doublings = Math.Max(0, consecutiveFailures - 1);
+		var wait = first;
+		for (var i = 0; i < doublings && wait < max; i++)
+			wait += wait;
 
 		return wait > max ? max : wait;
 	}
