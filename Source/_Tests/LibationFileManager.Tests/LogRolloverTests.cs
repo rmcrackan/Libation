@@ -46,7 +46,7 @@ public class LogRolloverTests
 		}
 	}
 
-	/// <summary>The pre-13.7.9 default: a monthly rolling interval and nothing about size.</summary>
+	/// <summary>The pre-13.7.10 default: a monthly rolling interval and nothing about size.</summary>
 	private JObject LegacySerilogConfig(long? fileSizeLimitBytes = null)
 	{
 		var args = new JObject

@@ -195,7 +195,7 @@ Attach your log file when opening a GitHub issue.
 
 ## PDFs are missing, or land loose in the Books directory
 
-Both were fixed in 13.7.9.
+Both were fixed in 13.7.10.
 
 **`libationcli liberate` downloaded no PDFs.** A plain run only looked at titles that needed an audiobook, so a title whose audio was already downloaded was never reached and its PDF was never fetched. `libationcli liberate --pdf` was the only way to get them. A plain run now covers both. If your library predates the fix, one `libationcli liberate` (or **Liberate** \> **Begin Book and PDF Backups** in the app) collects the PDFs you are missing.
 
@@ -210,7 +210,7 @@ Already-misplaced PDFs are not moved. Move them into their book folders yourself
 
 ## The log file is too large to attach to a bug report
 
-From 13.7.9 the log rolls every 10 MB as well as every month, keeping the 20 newest files, so the current
+From 13.7.10 the log rolls every 10 MB as well as every month, keeping the 20 newest files, so the current
 `LogYYYYMM.log` is always small enough to upload. Existing installs pick this up on the next start: Libation
 fills in the size-rolling settings your `Settings.json` is missing without touching anything you set yourself.
 

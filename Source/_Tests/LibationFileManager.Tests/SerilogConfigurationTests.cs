@@ -102,7 +102,7 @@ public class SerilogConfigurationTests
 	[TestMethod]
 	public void EnsureSerilogConfig_adds_size_rolling_to_an_existing_config()
 	{
-		// Existing installs kept the pre-13.7.9 default: monthly rolling only, which let a single
+		// Existing installs kept the pre-13.7.10 default: monthly rolling only, which let a single
 		// month's log grow past the point where it can be attached to a bug report.
 		var config = Configuration.CreateMockInstance();
 		config.SetNonString(CreateSerilog("File"), "Serilog");
