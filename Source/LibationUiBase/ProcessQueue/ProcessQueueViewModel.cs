@@ -102,8 +102,9 @@ public class ProcessQueueViewModel : ReactiveObject
 				: 0;
 
 			config.DownloadSpeedLimit = (long)(_speedLimit * 1024 * 1024);
-			// Apply to all currently active books
-			foreach (var activeBook in Queue.Active.OfType<ProcessBookViewModel>())
+			// Apply to all currently active books. Over a copy: the speed limit is changed from the UI
+			// thread while book tasks start and finish, and Active is the live list.
+			foreach (var activeBook in Queue.GetActive().OfType<ProcessBookViewModel>())
 				activeBook.Configuration.DownloadSpeedLimit = config.DownloadSpeedLimit;
 
 			SpeedLimitIncrement = _speedLimit > 100 ? 10
