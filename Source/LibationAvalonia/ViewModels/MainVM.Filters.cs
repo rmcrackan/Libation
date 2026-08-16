@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using LibationFileManager;
+using LibationUiBase;
 using LibationUiBase.Forms;
 using ReactiveUI;
 using System;
@@ -56,22 +57,42 @@ partial class MainVM
 	public async Task EditQuickFiltersAsync() => await new LibationAvalonia.Dialogs.EditQuickFilters().ShowDialog(MainWindow);
 	public async Task PerformFilter(QuickFilters.NamedFilter? namedFilter)
 	{
-		SelectedNamedFilter = namedFilter;
 		var tryFilter = namedFilter?.Filter;
+
+		var failure = await applyFilterAsync(namedFilter);
+		if (failure is null)
+			return;
+
+		Serilog.Log.Logger.Error(failure, "Error performing filtering. {@namedFilter} {@lastGoodFilter}", namedFilter, lastGoodFilter);
+
+		if (SearchIndexRecovery.IsIndexUnavailable(failure))
+			await MessageBox.Show(SearchIndexRecovery.ManualRecoveryInstructions, SearchIndexRecovery.Caption, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+		else
+			await MessageBox.Show($"Bad filter string: \"{tryFilter}\"\r\n\r\n{failure.Message}", "Bad filter string", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+		// Restore the last filter that worked, then give up on filtering entirely. Recursing into PerformFilter
+		// here never terminated when the search index rather than the query was at fault, because that fails for
+		// every filter including the one being restored. An empty filter never reaches the search engine.
+		if (lastGoodSearch.Length > 0 && await applyFilterAsync(lastGoodFilter) is null)
+			return;
+
+		await applyFilterAsync(new(string.Empty, null));
+	}
+
+	/// <summary>Applies a filter, returning the exception that stopped it, or null when it worked.</summary>
+	private async Task<Exception?> applyFilterAsync(QuickFilters.NamedFilter? namedFilter)
+	{
+		SelectedNamedFilter = namedFilter;
 
 		try
 		{
-			await ProductsDisplay.Filter(tryFilter);
+			await ProductsDisplay.Filter(namedFilter?.Filter);
 			lastGoodSearch = namedFilter?.Filter ?? "";
+			return null;
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Error(ex, "Error performing filtering. {@namedFilter} {@lastGoodFilter}", namedFilter, lastGoodFilter);
-			await MessageBox.Show($"Bad filter string: \"{tryFilter}\"\r\n\r\n{ex.Message}", "Bad filter string", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-			// re-apply last good filter
-			namedFilter = (namedFilter ?? new(string.Empty, null)) with { Filter = lastGoodSearch };
-			await PerformFilter(namedFilter);
+			return ex;
 		}
 	}
 

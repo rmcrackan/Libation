@@ -125,7 +125,8 @@ public class SearchEngine
 				// reads every segments_* file in the directory and only tolerates missing ones, so a single unreadable
 				// segments file -- even a stale one from an older commit -- keeps the whole directory unusable until it
 				// is deleted. This is a full re-index, so nothing on disk is worth preserving.
-				Serilog.Log.Logger.Error(ex, "Search index at {Path} could not be opened. Deleting it and rebuilding from the library.", SearchEngineDirectory);
+				// warning, not error: the index is a cache of the database, so rebuilding it resolves this
+				Serilog.Log.Logger.Warning(ex, "Search index at {Path} could not be opened. Deleting it and rebuilding from the library.", SearchEngineDirectory);
 
 				if (deleteAllSearchIndexFiles(SearchEngineDirectory) is { Count: > 0 } undeletable)
 					throw new IOException($"The search index at '{SearchEngineDirectory}' is damaged and could not be deleted automatically. Close Libation, delete that folder, then restart. Undeletable file(s): {string.Join(", ", undeletable)}", ex);
