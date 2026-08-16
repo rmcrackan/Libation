@@ -136,10 +136,21 @@ public abstract class ProcessableOptionsBase : OptionsBase
 			var deferrals = HonorsDeferredRetries ? DownloadDeferrals.Load(DateTimeOffset.Now) : DownloadDeferrals.None;
 
 			var libraryBooks = DbContexts.GetLibrary_Flat_NoTracking();
-			var attempted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+			// Titles the follow-up pass must leave alone: the ones the first pass attempted, and the ones it
+			// deliberately did not. Recorded by product id rather than re-derived, because neither question
+			// can be answered from a title's state afterwards - a step that just failed still validates, and
+			// a title being waited on looks like any other title that needs downloading.
+			//
+			// The deferred half matters as much as the attempted half: a PDF is fetched through the same
+			// license request as the audiobook, so following a refusal with a PDF request would reproduce,
+			// through the PDF, exactly the per-run refusal the wait exists to stop.
+			var settledByFirstPass = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
 			foreach (var lb in Processable.GetValidLibraryBooks(libraryBooks))
 			{
+				settledByFirstPass.Add(lb.Book.AudibleProductId);
+
 				if (deferrals.Find(lb) is DeferredDownload deferred)
 				{
 					deferredThisRun.Add(deferred);
@@ -150,20 +161,17 @@ public abstract class ProcessableOptionsBase : OptionsBase
 					continue;
 				}
 
-				attempted.Add(lb.Book.AudibleProductId);
-
 				if (!await ProcessOrStopAsync(Processable, lb, false))
 					break;
 			}
 
 			// Skipped when the first pass stopped early, so a run cut short by its download limit does not
-			// carry on doing other work. Titles the first pass attempted are excluded by product id rather
-			// than by asking Validate again, so a step that failed a moment ago is not immediately retried.
+			// carry on doing other work.
 			if (bulkFollowUp is not null && !runLimitReached)
 			{
 				foreach (var lb in bulkFollowUp.GetValidLibraryBooks(libraryBooks))
 				{
-					if (attempted.Contains(lb.Book.AudibleProductId))
+					if (settledByFirstPass.Contains(lb.Book.AudibleProductId))
 						continue;
 
 					if (!await ProcessOrStopAsync(bulkFollowUp, lb, false))

@@ -21,10 +21,12 @@ public class DownloadPdf : Processable, IProcessable<DownloadPdf>
 	public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
 	{
 		OnBegin(libraryBook);
+		string? createdDirectory = null;
 
 		try
 		{
 			var proposedDownloadFilePath = GetProposedDownloadFilePath(libraryBook);
+			createdDirectory = createDirectoryFor(proposedDownloadFilePath);
 			var actualDownloadedFilePath = await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
 			var result = verifyDownload(actualDownloadedFilePath);
 
@@ -49,12 +51,41 @@ public class DownloadPdf : Processable, IProcessable<DownloadPdf>
 		}
 		finally
 		{
+			removeIfLeftEmpty(createdDirectory);
 			OnCompleted(libraryBook);
 		}
 	}
 
+	/// <summary>The directory this run had to create, or null when it was already there.</summary>
+	private static string? createDirectoryFor(string filePath)
+	{
+		if (Path.GetDirectoryName(filePath) is not string directory || Directory.Exists(directory))
+			return null;
+
+		Directory.CreateDirectory(directory);
+		return directory;
+	}
+
 	/// <summary>
-	/// Beside the book's audio files, in the folder the naming templates put that book in.
+	/// A PDF-only download is the one case that has to make the book's folder before it has anything to put
+	/// in it. Without this, every failed download would leave an empty folder in the library.
+	/// </summary>
+	private static void removeIfLeftEmpty(string? directory)
+	{
+		try
+		{
+			if (directory is not null && Directory.Exists(directory) && !Directory.EnumerateFileSystemEntries(directory).Any())
+				Directory.Delete(directory);
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Debug(ex, "Could not remove the empty folder left by a failed PDF download: {directory}", directory);
+		}
+	}
+
+	/// <summary>
+	/// Beside the book's audio files, in the folder the naming templates put that book in. The directory may
+	/// not exist yet; see <see cref="createDirectoryFor"/>.
 	/// <para>
 	/// The audio file is looked up first so a PDF joins the files already on disk even if they were named by
 	/// an older template or moved by hand. That lookup matches on the product id appearing in the path, so it
@@ -71,9 +102,6 @@ public class DownloadPdf : Processable, IProcessable<DownloadPdf>
 		var destinationDir
 			= Path.GetDirectoryName(AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId))
 			?? AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook, Configuration);
-
-		// Nothing else creates it on the PDF-only path, where the book has no folder yet.
-		Directory.CreateDirectory(destinationDir);
 
 		return AudibleFileStorage.Audio.GetCustomDirFilename(libraryBook, destinationDir, extension);
 	}

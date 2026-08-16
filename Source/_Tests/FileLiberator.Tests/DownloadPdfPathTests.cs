@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FileLiberator.Tests;
 
@@ -102,13 +103,29 @@ public class DownloadPdfPathTests
 	}
 
 	[TestMethod]
-	public void The_folder_is_created_so_the_download_has_somewhere_to_land()
+	public async Task A_failed_download_leaves_no_empty_folder_behind()
 	{
-		var libraryBook = BookWithPdf("Folder Gets Created");
-
+		// A PDF-only download is the one case that has to make the book's folder before it has anything to
+		// put in it, and this download fails: there is no account for the book's locale.
+		var libraryBook = BookWithPdf("Download Will Fail");
 		var directory = Path.GetDirectoryName(GetPath(libraryBook))!;
 
-		Assert.IsTrue(Directory.Exists(directory), $"{directory} was not created");
+		var status = await DownloadPdf.Create(Configuration.Instance).ProcessAsync(libraryBook);
+
+		Assert.IsFalse(status.IsSuccess);
+		Assert.IsFalse(Directory.Exists(directory), $"{directory} was left behind");
+	}
+
+	[TestMethod]
+	public async Task A_failed_download_leaves_an_existing_folder_alone()
+	{
+		var libraryBook = BookWithPdf("Folder Already There");
+		var directory = Path.GetDirectoryName(GetPath(libraryBook))!;
+		Directory.CreateDirectory(directory);
+
+		await DownloadPdf.Create(Configuration.Instance).ProcessAsync(libraryBook);
+
+		Assert.IsTrue(Directory.Exists(directory), "a folder this run did not create was removed");
 	}
 
 	[TestMethod]
