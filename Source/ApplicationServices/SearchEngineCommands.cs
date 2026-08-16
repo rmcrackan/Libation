@@ -44,8 +44,40 @@ public static class SearchEngineCommands
 
 	public static event EventHandler? SearchEngineUpdated;
 
+	/// <summary>
+	/// Occurs when the index could not be updated even after automatic repair, so it needs the user's help.
+	/// </summary>
+	public static event EventHandler<Exception>? UpdateFailed;
+
 	#region Update
 	private static bool isUpdating;
+
+	/// <summary>Updates the index after books were added to or removed from the library.</summary>
+	public static void OnLibrarySizeChanged(List<LibraryBook> libraryBooks)
+		=> tryUpdate(() => FullReIndex(libraryBooks));
+
+	/// <summary>Updates the index after book details, tags or statuses were committed.</summary>
+	public static void OnBookUserDefinedItemCommitted(IEnumerable<LibraryBook> books)
+		=> tryUpdate(() => UpdateBooks(books));
+
+	/// <summary>
+	/// The database change that triggers an update is committed before the update runs, and this index is derived
+	/// from that database, so a failure here is reported instead of propagated. Letting it escape reported a
+	/// successful scan as "Error importing library", and, since this is the first subscriber to those events,
+	/// stopped the handlers that refresh the grid and the backup counts from running at all.
+	/// </summary>
+	private static void tryUpdate(Action update)
+	{
+		try
+		{
+			update();
+		}
+		catch (Exception ex)
+		{
+			Log.Error(ex, "Failed to update the search index. Library changes are saved; search and filter results may be stale until the next update succeeds.");
+			UpdateFailed?.Invoke(null, ex);
+		}
+	}
 
 	public static void UpdateBooks(IEnumerable<LibraryBook> books)
 	{
