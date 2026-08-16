@@ -54,6 +54,38 @@ I tagged autobiographies as auto_bio and biographies written by someone else as 
 ![Search example: [bio]](../images/SearchExampleBio.png)
 ![Search example: [auto_bio]](../images/SearchExampleAutoBio.png)
 
+## Subtitles and short titles
+
+The `<title short>` tag keeps everything before the first colon, which is what keeps the default folder name short. That is usually what you want, but not always. "A Book Series Omnibus: Volume One" and "A Book Series Omnibus: Volume Two" both shorten to "A Book Series Omnibus", so the two books land in the same folder and can no longer be told apart by name.
+
+A colon is not something you can search for: the search engine throws punctuation away when it indexes your library, and Lucene reads a colon in a query as the separator between a field and its value. Two boolean fields find these books instead.
+
+| Field                            | Matches                                                                                                       |
+|----------------------------------|---------------------------------------------------------------------------------------------------------------|
+| `HasSubtitle` (`HasSubtitles`)   | Audible sent a separate subtitle, which every title tag except `<title>` leaves out                            |
+| `TitleHasColon` (`ColonInTitle`) | Audible's title itself contains a colon, so `<title short>` cuts into the title rather than dropping a subtitle |
+
+Some searches worth keeping as quick filters:
+
+- `TitleHasColon` - every book whose title `<title short>` cuts
+- `TitleHasColon AND -IsLiberated` - the same, limited to books you have not downloaded yet
+- `HasSubtitle OR TitleHasColon` - everything shortening changes in any way
+- `-HasSubtitle AND -TitleHasColon` - the books shortening cannot change
+
+If these fields find nothing at all, your search index was built before they existed. Scanning your library rebuilds it, as does closing Libation and deleting the `SearchEngine` folder in your Libation files folder. The index is only a cache of your library, so deleting it is safe.
+
+Once you can see the affected books, you can decide what to do about them. If the only problem is colons inside Audible's titles, switching `<title short>` to `<audible title>` in Settings > Download/Decrypt fixes every one of them at once: it still leaves out Audible's subtitle, but it never cuts the title. If instead two books share a title and differ only by subtitle, use `<title>` for those books, or keep `<id>` in the template so their names stay unique. Either way, filter to the books you want handled differently, liberate them with one template, then restore your usual template for the rest.
+
+### Auditing titles in a spreadsheet
+
+The filter tells you which books are shortened. It cannot tell you which ones actually collide, and a colon on its own is harmless - the damage is done when two books end up with the same name. Export (Export in the menu bar) writes `Title` and `Subtitle` as separate columns, where `Title` is Audible's title exactly as `<title short>` sees it, so a spreadsheet can answer the question the filter cannot.
+
+Put this beside the Title column to see the name each book would be shortened to, then use `COUNTIF` on the result to find the ones that repeat:
+
+`=LEFT(A2, IFERROR(FIND(":", A2) - 1, LEN(A2)))`
+
+To carry the result back into Libation, paste the affected ids into the filter box joined by OR, eg. `id:B015D78L0U OR id:B01LYFDNZM`, which selects exactly those books in the grid.
+
 ## Filters
 
 If you have a search you want to save, click Add To Quick Filters to save it in your Quick Filters list. To use it again, select it from the Quick Filters list.
