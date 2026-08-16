@@ -39,14 +39,15 @@ public static class AudioFileStorageExt
 	}
 
 	/// <summary>
-	/// PDF: audio file does not exist
+	/// A file name from the file template, directly under the Books directory rather than in the book's own
+	/// folder. Only the "save a copy of the cover art" dialogs use this, and only for the name they suggest.
 	/// </summary>
 	public static string GetBooksDirectoryFilename(this AudioFileStorage _, LibraryBook libraryBook, string extension, bool returnFirstExisting = false)
 		=> AudibleFileStorage.BooksDirectory is { } books ? Templates.File.GetFilename(libraryBook.ToDto(), books, extension, null, returnFirstExisting)
 		: throw new InvalidOperationException("Books directory is not set.");
 
 	/// <summary>
-	/// PDF: audio file already exists
+	/// A file name from the file template, in a directory the caller has already chosen.
 	/// </summary>
 	public static string GetCustomDirFilename(this AudioFileStorage _, LibraryBook libraryBook, string dirFullPath, string extension, MultiConvertFileProperties? partProperties = null, bool returnFirstExisting = false)
 		=> partProperties is null ? Templates.File.GetFilename(libraryBook.ToDto(), dirFullPath, extension, returnFirstExisting: returnFirstExisting)

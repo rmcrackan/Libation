@@ -24,7 +24,7 @@ public class DownloadPdf : Processable, IProcessable<DownloadPdf>
 
 		try
 		{
-			var proposedDownloadFilePath = getProposedDownloadFilePath(libraryBook);
+			var proposedDownloadFilePath = GetProposedDownloadFilePath(libraryBook);
 			var actualDownloadedFilePath = await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
 			var result = verifyDownload(actualDownloadedFilePath);
 
@@ -53,16 +53,29 @@ public class DownloadPdf : Processable, IProcessable<DownloadPdf>
 		}
 	}
 
-	private static string getProposedDownloadFilePath(LibraryBook libraryBook)
+	/// <summary>
+	/// Beside the book's audio files, in the folder the naming templates put that book in.
+	/// <para>
+	/// The audio file is looked up first so a PDF joins the files already on disk even if they were named by
+	/// an older template or moved by hand. That lookup matches on the product id appearing in the path, so it
+	/// finds nothing for a library whose folder and file templates omit <c>&lt;id&gt;</c>, and nothing for a
+	/// book marked downloaded whose files are not on this machine. Falling back to the folder template rather
+	/// than to the Books directory itself keeps those PDFs with their book instead of loose in the library
+	/// root, where they also risk colliding with each other.
+	/// </para>
+	/// </summary>
+	internal string GetProposedDownloadFilePath(LibraryBook libraryBook)
 	{
 		var extension = Path.GetExtension(getdownloadUrl(libraryBook)) ?? ".pdf";
 
-		// if audio file exists, get it's dir. else return base Book dir
-		var existingPath = Path.GetDirectoryName(AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId));
-		if (existingPath is not null)
-			return AudibleFileStorage.Audio.GetCustomDirFilename(libraryBook, existingPath, extension);
+		var destinationDir
+			= Path.GetDirectoryName(AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId))
+			?? AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook, Configuration);
 
-		return AudibleFileStorage.Audio.GetBooksDirectoryFilename(libraryBook, extension);
+		// Nothing else creates it on the PDF-only path, where the book has no folder yet.
+		Directory.CreateDirectory(destinationDir);
+
+		return AudibleFileStorage.Audio.GetCustomDirFilename(libraryBook, destinationDir, extension);
 	}
 
 	private static string? getdownloadUrl(LibraryBook libraryBook)
