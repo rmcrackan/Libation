@@ -1,3 +1,4 @@
+using Dinah.Core.Security;
 using AssertionHelper;
 using AudibleApi;
 using AudibleApi.Authorization;
@@ -21,7 +22,7 @@ public class AccountCredentialStatusTests
 			new AdpToken("{enc:abcdefg}{key:1234}{iv:56789}{name:QURQVG9rZW5FbmNyeXB0aW9uS2V5}{serial:Mg==}"),
 			new AccessToken("Atna|_CHAR_ACCESS_", new DateTime(2200, 1, 1, 12, 0, 0, DateTimeKind.Utc)),
 			new RefreshToken("Atnr|_CHAR_REFRESH_"),
-			new List<KeyValuePair<string, string?>> { new("session-id", "cookie-value") },
+			new List<KeyValuePair<string, SecretString>> { new("session-id", "cookie-value") },
 			deviceSerialNumber: "device-serial",
 			deviceType: "device-type",
 			amazonAccountId: "amzn-account",

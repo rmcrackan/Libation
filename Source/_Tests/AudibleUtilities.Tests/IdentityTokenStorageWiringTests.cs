@@ -307,7 +307,7 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 			new AdpToken(SampleAdpToken),
 			new AccessToken(SampleAccessToken, SampleExpires),
 			new RefreshToken(SampleRefreshToken),
-			new List<KeyValuePair<string, string?>> { new(SampleCookieName, SampleCookieValue) },
+			new List<KeyValuePair<string, SecretString>> { new(SampleCookieName, SampleCookieValue) },
 			deviceSerialNumber: "device-serial",
 			deviceType: "device-type",
 			amazonAccountId: "amzn-account",

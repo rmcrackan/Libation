@@ -2,6 +2,7 @@
 using AudibleApi.Authorization;
 using AudibleApi.Cryptography;
 using Dinah.Core;
+using Dinah.Core.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -208,7 +209,7 @@ public partial class Mkb79Auth
 
 		var authorize = new Authorize(Locale);
 		var newToken = await authorize.RefreshAccessTokenAsync(refreshToken);
-		AccessToken = newToken.TokenValue;
+		AccessToken = newToken.Reveal();
 		AccessTokenExpires = newToken.Expires;
 
 		var api = new Api(this);
@@ -226,7 +227,7 @@ public partial class Mkb79Auth
 			adpToken,
 			newToken,
 			refreshToken,
-			WebsiteCookies?.Select(c => new KeyValuePair<string, string?>(c.Key, c.Value)),
+			WebsiteCookies?.Select(c => new KeyValuePair<string, SecretString>(c.Key, c.Value)),
 			DeviceSerialNumber,
 			DeviceType,
 			AmazonAccountId,
@@ -239,9 +240,9 @@ public partial class Mkb79Auth
 	public static Mkb79Auth FromAccount(Account account)
 		=> new()
 		{
-			AccessToken = account.IdentityTokens?.ExistingAccessToken.TokenValue,
+			AccessToken = account.IdentityTokens?.ExistingAccessToken.Reveal(),
 			ActivationBytes = string.IsNullOrEmpty(account.DecryptKey) ? null : account.DecryptKey,
-			AdpToken = account.IdentityTokens?.AdpToken?.Value,
+			AdpToken = account.IdentityTokens?.AdpToken?.Reveal(),
 			CustomerInfo = new CustomerInfo
 			{
 				AccountPool = "Amazon",
@@ -256,13 +257,14 @@ public partial class Mkb79Auth
 				DeviceSerialNumber = account.IdentityTokens?.DeviceSerialNumber,
 				DeviceType = account.IdentityTokens?.DeviceType,
 			},
-			DevicePrivateKey = account.IdentityTokens?.PrivateKey?.Value,
+			DevicePrivateKey = account.IdentityTokens?.PrivateKey?.Reveal(),
 			AccessTokenExpires = account.IdentityTokens?.ExistingAccessToken.Expires ?? default,
 			LocaleCode = account.Locale?.CountryCode,
 			WithUsername = account.Locale?.WithUsername ?? false,
-			RefreshToken = account.IdentityTokens?.RefreshToken?.Value,
-			StoreAuthenticationCookie = account.IdentityTokens?.StoreAuthenticationCookie,
-			WebsiteCookies = new(account.IdentityTokens?.Cookies ?? []),
+			RefreshToken = account.IdentityTokens?.RefreshToken?.Reveal(),
+			StoreAuthenticationCookie = account.IdentityTokens?.StoreAuthenticationCookie.Reveal(),
+			WebsiteCookies = new(account.IdentityTokens?.Cookies
+				.Select(c => new KeyValuePair<string, string?>(c.Key, c.Value.Reveal())) ?? []),
 		};
 }
 

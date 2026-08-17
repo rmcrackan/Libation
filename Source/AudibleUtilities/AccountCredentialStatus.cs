@@ -18,7 +18,7 @@ public static class AccountCredentialStatus
 			return false;
 
 		// without a refresh token there is nothing to renew from, so this needs a fresh login rather than a retry
-		return string.IsNullOrWhiteSpace(tokens.RefreshToken?.Value);
+		return string.IsNullOrWhiteSpace(tokens.RefreshToken?.Reveal());
 	}
 
 	/// <summary>
