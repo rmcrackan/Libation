@@ -289,9 +289,27 @@ public class PersistentDictionary : IJsonBackedDictionary
 	/// Replaces the settings file in one step, so a concurrent reader - including one in another
 	/// Libation process - sees either the whole old file or the whole new one. Mirrors how
 	/// <see cref="Dinah.Core.IO.JsonFilePersister{T}"/> saves AccountsSettings.json.
+	/// <para/>
+	/// Windows refuses to rename over a file while someone else holds a handle to it, and the CLI,
+	/// another GUI instance or a virus scanner can all hold Settings.json for a moment, so retry
+	/// before giving up and letting the caller see the failure.
 	/// </summary>
 	private void writeFileContents(string contents)
-		=> AtomicFileWriter.WriteAllText(Filepath, contents, validateJsonTempFile);
+	{
+		const int attempts = 5;
+		for (var attempt = 1; ; attempt++)
+		{
+			try
+			{
+				AtomicFileWriter.WriteAllText(Filepath, contents, validateJsonTempFile);
+				return;
+			}
+			catch (Exception ex) when (attempt < attempts && ex is IOException or UnauthorizedAccessException)
+			{
+				Thread.Sleep(20 * attempt);
+			}
+		}
+	}
 
 	/// <summary>Throws before the temp file replaces the real one, leaving the real one untouched.</summary>
 	private static void validateJsonTempFile(string tempPath)

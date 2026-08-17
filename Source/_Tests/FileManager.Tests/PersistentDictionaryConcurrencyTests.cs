@@ -200,10 +200,17 @@ public class PersistentDictionaryConcurrencyTests
 	/// The lock cannot reach a second process - the GUI and the CLI share one Settings.json - so a
 	/// write must never leave the file truncated. Reading it straight off disk, bypassing the
 	/// dictionary, stands in for that outside reader.
+	/// <para/>
+	/// Unix only. These readers hold a handle almost continuously, and Windows denies a rename over
+	/// an open file however generously the reader shares it, so on Windows this would test the
+	/// retry in <c>writeFileContents</c> rather than the atomicity of the write.
 	/// </summary>
 	[TestMethod]
 	public void ExternalReaderNeverSeesAPartiallyWrittenFile()
 	{
+		if (Environment.OSVersion.Platform != PlatformID.Unix)
+			Assert.Inconclusive($"Skipped because OS is not {PlatformID.Unix}.");
+
 		var file = createSettingsFile();
 		try
 		{
@@ -258,6 +265,57 @@ public class PersistentDictionaryConcurrencyTests
 		finally
 		{
 			deleteSettingsFile(file);
+		}
+	}
+
+	/// <summary>
+	/// Windows denies a rename over a file another handle holds open, and the CLI, a second GUI or a
+	/// virus scanner can all do that for a moment, so a write has to outlast a brief denial. Revoking
+	/// write permission on the containing directory reproduces that denial portably.
+	/// </summary>
+	[TestMethod]
+	public void Write_SurvivesATemporarilyUnwritableDirectory()
+	{
+		if (!OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS())
+			Assert.Inconclusive("Skipped because revoking directory write permission needs unix file modes.");
+
+		var file = createSettingsFile();
+		var directory = Path.GetDirectoryName(file)!;
+		var original = File.GetUnixFileMode(directory);
+		try
+		{
+			var dictionary = new PersistentDictionary(file);
+			File.SetUnixFileMode(directory, UnixFileMode.UserRead | UnixFileMode.UserExecute);
+
+			if (canCreateFileIn(directory))
+				Assert.Inconclusive("Skipped because this user can write to a read-only directory (running as root?).");
+
+			// shorter than the retry budget in writeFileContents
+			using var restore = new Timer(_ => File.SetUnixFileMode(directory, original), null, dueTime: 50, period: Timeout.Infinite);
+
+			dictionary.SetString("WrittenDespiteTheOutage", "value");
+
+			Assert.AreEqual("value", new PersistentDictionary(file).GetString("WrittenDespiteTheOutage"));
+		}
+		finally
+		{
+			try { File.SetUnixFileMode(directory, original); } catch { /* ignore */ }
+			deleteSettingsFile(file);
+		}
+	}
+
+	private static bool canCreateFileIn(string directory)
+	{
+		var probe = Path.Combine(directory, Guid.NewGuid().ToString("N"));
+		try
+		{
+			File.WriteAllText(probe, "");
+			File.Delete(probe);
+			return true;
+		}
+		catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+		{
+			return false;
 		}
 	}
 
