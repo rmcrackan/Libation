@@ -163,10 +163,12 @@ public partial class Configuration
 			 .ReadFrom.Configuration(configuration, readerOptions)
 			 .Destructure.ByTransforming<LongPath>(lp => lp.Path)
 			 .Destructure.With<LogFileFilter>()
-			 // last lines of defense for structured logging: a masked identity instead of the object, and a
-			 // secret that renders as its shape instead of its contents
+			 // protection: without this, an ILogMasked logged as {@Account} is written out property by property
 			 .Destructure.With<MaskedLogEntryPolicy>()
-			 .Destructure.ByTransforming<SecretString>(secret => secret.ToString())
+			 // legibility rather than protection. A SecretString is already safe wherever it lands - it has no
+			 // public member holding the value - but asking Serilog to take one apart yields
+			 // {"HasValue":true,"$type":"SecretString"} instead of the length, so tell Serilog to leave it whole.
+			 .Destructure.AsScalar<SecretString>()
 			 .CreateLogger();
 		SerilogInitialized = true;
 	}
