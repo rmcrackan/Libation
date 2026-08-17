@@ -19,6 +19,8 @@ public class GridContextMenu
 	public string LiberateEpisodesText => $"{Accelerator}Liberate All Episodes";
 	public string SetDownloadedText => $"Set Download status to '{Accelerator}Downloaded'";
 	public string SetNotDownloadedText => $"Set Download status to '{Accelerator}Not Downloaded'";
+	public string SetPdfDownloadedText => "Set PDF status to 'Downloaded'";
+	public string SetPdfNotDownloadedText => "Set PDF status to 'Not Downloaded'";
 	public string RemoveText => $"{Accelerator}Remove from library";
 	public string RemoveFromAudibleText => $"Remove Plus {(GridEntries.Count(e => e.LibraryBook.IsAudiblePlus) == 1 ? "Book" : "Books")} from Audible Library";
 	public string LocateFileText => $"{Accelerator}Locate file...";
@@ -39,6 +41,19 @@ public class GridContextMenu
 	public bool LiberateEpisodesEnabled => GridEntries.OfType<SeriesEntry>().Any(sEntry => sEntry.Children.Any(c => c.Liberate?.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload));
 	public bool SetDownloadedEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus != LiberatedStatus.Liberated || ge.Liberate?.IsSeries is true);
 	public bool SetNotDownloadedEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated || ge.Liberate?.IsSeries is true);
+
+	/// <summary>
+	/// Whether to offer the PDF status on its own. The pair above deliberately moves both statuses together,
+	/// which left a user who wanted only the PDF back with no way to say so: resetting a title's PDF also
+	/// queued its audiobook for a fresh download, and that download rewrote the title's other files. Offered
+	/// only for a selection that has a PDF, since for anything else the pair above is already audio-only.
+	/// </summary>
+	public bool ShowPdfStatusItems => PdfItems.Any();
+	public bool SetPdfDownloadedEnabled => PdfItems.Any(udi => udi.PdfStatus != LiberatedStatus.Liberated);
+	public bool SetPdfNotDownloadedEnabled => PdfItems.Any(udi => udi.PdfStatus != LiberatedStatus.NotLiberated);
+
+	private IEnumerable<UserDefinedItem> PdfItems
+		=> LibraryBookEntries.Select(ge => ge.Book?.UserDefinedItem).OfType<UserDefinedItem>().Where(udi => udi.Book.HasPdf);
 	public bool ConvertToMp3Enabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
 	public bool DownloadBookEnabled => LibraryBookEntries.Any(ge => ge.LibraryBook.NeedsBookDownload || ge.LibraryBook.NeedsPdfDownload);
 	public bool DownloadAsChaptersEnabled => LibraryBookEntries.Any(ge => ge.Book?.UserDefinedItem.BookStatus is not LiberatedStatus.Error);
@@ -83,6 +98,20 @@ public class GridContextMenu
 				udi.BookStatus = LiberatedStatus.NotLiberated;
 				if (udi.Book.HasPdf)
 					udi.SetPdfStatus(LiberatedStatus.NotLiberated);
+			});
+	}
+
+	public void SetPdfDownloaded() => setPdfStatus(LiberatedStatus.Liberated);
+
+	public void SetPdfNotDownloaded() => setPdfStatus(LiberatedStatus.NotLiberated);
+
+	private void setPdfStatus(LiberatedStatus pdfStatus)
+	{
+		LibraryBookEntries.Select(e => e.LibraryBook)
+			.UpdateUserDefinedItemAsync(udi =>
+			{
+				if (udi.Book.HasPdf)
+					udi.SetPdfStatus(pdfStatus);
 			});
 	}
 

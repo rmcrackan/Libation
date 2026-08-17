@@ -1,7 +1,9 @@
 ﻿using ApplicationServices;
 using DataLayer;
+using Dinah.Core;
 using Dinah.Core.ErrorHandling;
 using Dinah.Core.Net.Http;
+using FileManager;
 using LibationFileManager;
 using System;
 using System.IO;
@@ -32,10 +34,18 @@ public class DownloadPdf : Processable, IProcessable<DownloadPdf>
 
 			if (result.IsSuccess)
 			{
+				OnFileCreated(libraryBook, actualDownloadedFilePath);
 				SetFileTime(libraryBook, actualDownloadedFilePath);
 				if (Path.GetDirectoryName(actualDownloadedFilePath) is string outputDir)
 					SetDirectoryTime(libraryBook, outputDir);
 			}
+			else
+			{
+				// Keeping it would leave a file in the library that is not the supplement, under a name that
+				// says it is, and would stop the folder cleanup below from running.
+				FileUtility.SaferDelete(actualDownloadedFilePath);
+			}
+
 			await libraryBook.UpdatePdfStatusAsync(result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated);
 
 			return result;
@@ -119,16 +129,51 @@ public class DownloadPdf : Processable, IProcessable<DownloadPdf>
 		var client = new HttpClient();
 
 		var actualDownloadedFilePath = await client.DownloadFileAsync(downloadUrl, proposedDownloadFilePath, progress);
-		OnFileCreated(libraryBook, actualDownloadedFilePath);
 
 		OnStatusUpdate(actualDownloadedFilePath);
 		return actualDownloadedFilePath;
 	}
 
-	private static StatusHandler verifyDownload(string actualDownloadedFilePath)
-		=> !File.Exists(actualDownloadedFilePath)
-		? new StatusHandler { "Downloaded PDF cannot be found" }
-		: new StatusHandler();
+	/// <summary>
+	/// That the file exists says only that the server sent a body, and an Audible error is a 200 with a JSON
+	/// body like any other response. Dinah's downloader renames by Content-Disposition, so such a body lands
+	/// in the book's folder under whatever Audible called it and the title is recorded as having its PDF.
+	/// <para>
+	/// A supplement is whatever its URL says it is, usually a PDF and occasionally an archive, so only a file
+	/// named .pdf is held to the PDF header. Everything else is checked for the one thing no supplement of
+	/// any kind starts with: the opening character of a JSON or markup document.
+	/// </para>
+	/// </summary>
+	internal static StatusHandler verifyDownload(string actualDownloadedFilePath)
+	{
+		if (!File.Exists(actualDownloadedFilePath))
+			return new StatusHandler { "Downloaded PDF cannot be found" };
+
+		var firstBytes = readFirstBytes(actualDownloadedFilePath);
+
+		if (firstBytes.Length == 0)
+			return new StatusHandler { "Downloaded PDF is empty" };
+
+		if (Path.GetExtension(actualDownloadedFilePath).EqualsInsensitive(".pdf")
+			&& !firstBytes.AsSpan().StartsWith("%PDF"u8))
+			return new StatusHandler { "What Audible returned is not a PDF. Nothing was saved; the PDF is still marked as not downloaded." };
+
+		if (firstBytes[0] is (byte)'{' or (byte)'[' or (byte)'<')
+			return new StatusHandler { "Audible returned a document instead of the supplement. Nothing was saved; the PDF is still marked as not downloaded." };
+
+		return new StatusHandler();
+	}
+
+	/// <summary>Enough to recognise a file signature, and past a byte-order mark if the body carries one.</summary>
+	private static byte[] readFirstBytes(string path)
+	{
+		var buffer = new byte[8];
+
+		using var stream = File.OpenRead(path);
+		var read = buffer[..stream.ReadAtLeast(buffer, buffer.Length, throwOnEndOfStream: false)];
+
+		return read.AsSpan().StartsWith("\uFEFF"u8) ? read[3..] : read;
+	}
 
 	public static DownloadPdf Create(Configuration config) => new() { Configuration = config };
 	private DownloadPdf() { }
