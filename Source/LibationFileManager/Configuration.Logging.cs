@@ -1,5 +1,4 @@
 ﻿using Dinah.Core.Logging;
-using Dinah.Core.Security;
 using FileManager;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -163,12 +162,10 @@ public partial class Configuration
 			 .ReadFrom.Configuration(configuration, readerOptions)
 			 .Destructure.ByTransforming<LongPath>(lp => lp.Path)
 			 .Destructure.With<LogFileFilter>()
-			 // protection: without this, an ILogMasked logged as {@Account} is written out property by property
+			 // without this, an ILogMasked logged as {@Account} is written out property by property.
+			 // SecretString needs no counterpart here: it reports its own redaction from a property, so a
+			 // destructured secret carries its shape with nothing registered.
 			 .Destructure.With<MaskedLogEntryPolicy>()
-			 // legibility rather than protection. A SecretString is already safe wherever it lands - it has no
-			 // public member holding the value - but asking Serilog to take one apart yields
-			 // {"HasValue":true,"$type":"SecretString"} instead of the length, so tell Serilog to leave it whole.
-			 .Destructure.AsScalar<SecretString>()
 			 .CreateLogger();
 		SerilogInitialized = true;
 	}

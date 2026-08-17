@@ -95,8 +95,8 @@ public class MaskedLogEntryLoggingTests
 	}
 
 	/// <summary>
-	/// Destructured on purpose. Without the transform a secret renders as an empty structure - safe, but it says
-	/// nothing, and the shape is the whole point of the redaction.
+	/// Destructured on purpose, and with nothing registered for it: SecretString reports its own redaction from a
+	/// property, so the shape survives being taken apart.
 	/// </summary>
 	[TestMethod]
 	public void a_destructured_secret_is_written_as_its_shape()
