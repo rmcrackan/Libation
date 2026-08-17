@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Versioning;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -276,9 +277,23 @@ public class PersistentDictionaryConcurrencyTests
 	[TestMethod]
 	public void Write_SurvivesATemporarilyUnwritableDirectory()
 	{
+		// Assert.Inconclusive is not [DoesNotReturn], so return explicitly or the body below still
+		// looks reachable on Windows to the platform compatibility analyzer
 		if (!OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS())
+		{
 			Assert.Inconclusive("Skipped because revoking directory write permission needs unix file modes.");
+			return;
+		}
 
+		writeSurvivesATemporarilyUnwritableDirectory();
+	}
+
+	// the attributes, rather than a guard, are what let the restore callback below use unix file modes:
+	// platform narrowing from an OperatingSystem.IsX() check does not reach inside a lambda
+	[SupportedOSPlatform("linux")]
+	[SupportedOSPlatform("macos")]
+	private static void writeSurvivesATemporarilyUnwritableDirectory()
+	{
 		var file = createSettingsFile();
 		var directory = Path.GetDirectoryName(file)!;
 		var original = File.GetUnixFileMode(directory);
