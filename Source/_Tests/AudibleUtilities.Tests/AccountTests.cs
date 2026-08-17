@@ -1,4 +1,5 @@
 ﻿using AssertionHelper;
+using Dinah.Core.Security;
 using AudibleApi;
 using AudibleApi.Authorization;
 using AudibleApi.Cryptography;
@@ -675,7 +676,7 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 			new AdpToken(SampleAdpToken),
 			new AccessToken(SampleAccessToken, SampleExpires),
 			new RefreshToken(SampleRefreshToken),
-			new List<KeyValuePair<string, string?>> { new("session-id", "cookie-secret-value") },
+			new List<KeyValuePair<string, SecretString>> { new("session-id", "cookie-secret-value") },
 			deviceSerialNumber: "device-serial",
 			deviceType: "device-type",
 			amazonAccountId: "amzn-account",

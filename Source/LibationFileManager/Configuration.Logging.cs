@@ -162,6 +162,10 @@ public partial class Configuration
 			 .ReadFrom.Configuration(configuration, readerOptions)
 			 .Destructure.ByTransforming<LongPath>(lp => lp.Path)
 			 .Destructure.With<LogFileFilter>()
+			 // without this, an ILogMasked logged as {@Account} is written out property by property.
+			 // SecretString needs no counterpart here: it reports its own redaction from a property, so a
+			 // destructured secret carries its shape with nothing registered.
+			 .Destructure.With<MaskedLogEntryPolicy>()
 			 .CreateLogger();
 		SerilogInitialized = true;
 	}

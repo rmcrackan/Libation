@@ -76,9 +76,10 @@ public class ApiExtended
 						LooksLikeMissingCredentials = missingCredentials
 					});
 
+				// masked: this message is logged verbatim, both as {Exception} and as ExceptionDetail.Message
 				throw new AuthenticationRequiredException(
 					account,
-					message: $"Stored credentials for '{account.AccountId}' "
+					message: $"Stored credentials for {account.MaskedLogEntry} "
 						+ (missingCredentials ? "are missing or incomplete" : "could not be used")
 						+ (LoginChoiceFactory is null
 							? " and interactive login is not available in this context (CLI/Docker)."

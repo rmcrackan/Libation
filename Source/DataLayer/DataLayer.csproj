@@ -11,8 +11,8 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Dinah.Core" Version="10.2.1.1" />
-    <PackageReference Include="Dinah.EntityFrameworkCore" Version="10.2.1.1" />
+    <PackageReference Include="Dinah.Core" Version="10.2.3.1" />
+    <PackageReference Include="Dinah.EntityFrameworkCore" Version="10.2.2.1" />
 	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.7">

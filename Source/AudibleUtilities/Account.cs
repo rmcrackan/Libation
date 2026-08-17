@@ -1,13 +1,16 @@
 ﻿using AudibleApi;
 using AudibleApi.Authorization;
 using Dinah.Core;
+using Dinah.Core.Security;
+using LibationFileManager;
 using Newtonsoft.Json;
 using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics;
 
 namespace AudibleUtilities;
 
-public class Account : IUpdatable
+[DebuggerDisplay("{AccountId,nq} - {Locale}")]
+public class Account : IUpdatable, ILogMasked
 {
 	public event EventHandler? Updated;
 	private void update(object? sender = null, EventArgs? e = null)
@@ -46,15 +49,18 @@ public class Account : IUpdatable
 		}
 	}
 
-	/// <summary>aka: activation bytes</summary>
-	[AllowNull]
-	public string? DecryptKey
+	/// <summary>
+	/// aka: activation bytes. A <see cref="SecretString"/> so that no reflective dump - Serilog's structured
+	/// logging, or Serilog.Exceptions walking a logged exception - can reach the value. Persists as the same
+	/// bare JSON string it always did.
+	/// </summary>
+	public SecretString DecryptKey
 	{
 		get => field;
 		set
 		{
-			var v = (value ?? "").Trim();
-			if (v == field)
+			var v = (value.Reveal() ?? "").Trim();
+			if (v == field.Reveal())
 				return;
 			field = v;
 			update();
@@ -88,7 +94,12 @@ public class Account : IUpdatable
 		AccountId = ArgumentValidator.EnsureNotNullOrWhiteSpace(accountId, nameof(accountId)).Trim();
 	}
 
-	public override string ToString() => $"{AccountId} - {Locale?.Name ?? "[empty]"}";
+	/// <summary>
+	/// Masked, because this is what interpolation and non-destructured logging reach for. Use
+	/// <see cref="AccountCredentialStatus.FormatAccountLabel"/> for dialogs shown to the account's owner, and see
+	/// the DebuggerDisplay above for the unmasked form while debugging.
+	/// </summary>
+	public override string ToString() => MaskedLogEntry;
 
 	public string MaskedLogEntry => @$"AccountId={mask(AccountId)}|AccountName={mask(AccountName)}|Locale={Locale?.Name ?? "[empty]"}";
 	private static string mask(string? str)
