@@ -52,10 +52,10 @@
 					</Border>
 					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="*,Auto,Auto,Auto">
 						<Button Name="cancelAllBtn" Grid.Column="0" FontSize="12" HorizontalAlignment="Left" Click="CancelAllBtn_Click">Cancel All</Button>
-						<StackPanel Orientation="Horizontal" Grid.Column="1" Margin="0,0,10,0" VerticalAlignment="Center">
+						<StackPanel Orientation="Horizontal" Grid.Column="1" Margin="0,0,6,0" VerticalAlignment="Center">
 							<CheckBox
 								FontSize="12"
-								Margin="0,0,10,0"
+								Margin="0,0,6,0"
 								VerticalAlignment="Center"
 								IsChecked="{Binding AutoScrollQueue, Mode=TwoWay}"
 								ToolTip.Tip="Keep active downloads scrolled into view."
@@ -63,7 +63,7 @@
 							<TextBlock Margin="0,0,6,0" FontSize="11" Text="At&#xA;once" VerticalAlignment="Center" />
 							<NumericUpDown
 								Classes="SmallNumericUpDown"
-								MinWidth="90"
+								MinWidth="72"
 								FontSize="12"
 								HorizontalContentAlignment="Center"
 								VerticalContentAlignment="Center"
@@ -75,7 +75,7 @@
 								Increment="1"
 								FormatString="0" />
 						</StackPanel>
-						<StackPanel Orientation="Horizontal" Grid.Column="2" Margin="0,0,10,0" >
+						<StackPanel Orientation="Horizontal" Grid.Column="2" Margin="0,0,6,0" >
 							<StackPanel.Styles>
 								<Style Selector="NumericUpDown#PART_Spinner">
 									<Setter Property="Background" Value="Black"/>
@@ -84,7 +84,7 @@
 							<TextBlock Margin="0,0,6,0" FontSize="11" Text="DL&#xA;Limit" VerticalAlignment="Center" />
 							<NumericUpDown
 								Classes="SmallNumericUpDown"
-								MinWidth="100"
+								MinWidth="86"
 								FontSize="12"
 								HorizontalContentAlignment="Center"
 								VerticalContentAlignment="Center"

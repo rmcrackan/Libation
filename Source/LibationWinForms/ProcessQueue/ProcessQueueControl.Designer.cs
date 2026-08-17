@@ -45,6 +45,7 @@
 			this.autoScrollChk = new System.Windows.Forms.CheckBox();
 			this.concurrencyLbl = new System.Windows.Forms.Label();
 			this.concurrencyNum = new System.Windows.Forms.NumericUpDown();
+			this.queueSettingsTable = new System.Windows.Forms.TableLayoutPanel();
 			this.label1 = new System.Windows.Forms.Label();
 			this.numericUpDown1 = new LibationWinForms.ProcessQueue.NumericUpDownSuffix();
 			this.btnCleanFinished = new System.Windows.Forms.Button();
@@ -63,6 +64,7 @@
 			this.panel1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.concurrencyNum)).BeginInit();
+			this.queueSettingsTable.SuspendLayout();
 			this.tabPage2.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.logDGV)).BeginInit();
 			this.panel2.SuspendLayout();
@@ -161,11 +163,7 @@
 			// 
 			this.panel1.BackColor = System.Drawing.SystemColors.Control;
 			this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.panel1.Controls.Add(this.autoScrollChk);
-			this.panel1.Controls.Add(this.concurrencyLbl);
-			this.panel1.Controls.Add(this.concurrencyNum);
-			this.panel1.Controls.Add(this.label1);
-			this.panel1.Controls.Add(this.numericUpDown1);
+			this.panel1.Controls.Add(this.queueSettingsTable);
 			this.panel1.Controls.Add(this.btnCleanFinished);
 			this.panel1.Controls.Add(this.cancelAllBtn);
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -174,13 +172,35 @@
 			this.panel1.Size = new System.Drawing.Size(390, 52);
 			this.panel1.TabIndex = 2;
 			//
+			// queueSettingsTable
+			//
+			this.queueSettingsTable.ColumnCount = 3;
+			this.queueSettingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+			this.queueSettingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
+			this.queueSettingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 90F));
+			this.queueSettingsTable.Controls.Add(this.autoScrollChk, 0, 0);
+			this.queueSettingsTable.SetRowSpan(this.autoScrollChk, 2);
+			this.queueSettingsTable.Controls.Add(this.concurrencyLbl, 1, 0);
+			this.queueSettingsTable.Controls.Add(this.concurrencyNum, 2, 0);
+			this.queueSettingsTable.Controls.Add(this.label1, 1, 1);
+			this.queueSettingsTable.Controls.Add(this.numericUpDown1, 2, 1);
+			this.queueSettingsTable.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.queueSettingsTable.Location = new System.Drawing.Point(78, 0);
+			this.queueSettingsTable.Name = "queueSettingsTable";
+			this.queueSettingsTable.Padding = new System.Windows.Forms.Padding(6, 0, 6, 0);
+			this.queueSettingsTable.RowCount = 2;
+			this.queueSettingsTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+			this.queueSettingsTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+			this.queueSettingsTable.Size = new System.Drawing.Size(220, 50);
+			this.queueSettingsTable.TabIndex = 9;
+			//
 			// autoScrollChk
 			//
-			this.autoScrollChk.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Top;
+			this.autoScrollChk.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.autoScrollChk.AutoSize = true;
 			this.autoScrollChk.Checked = true;
 			this.autoScrollChk.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.autoScrollChk.Location = new System.Drawing.Point(82, 5);
+			this.autoScrollChk.Margin = new System.Windows.Forms.Padding(3, 3, 12, 3);
 			this.autoScrollChk.Name = "autoScrollChk";
 			this.autoScrollChk.TabIndex = 6;
 			this.autoScrollChk.Text = "Auto-scroll";
@@ -188,42 +208,41 @@
 			//
 			// concurrencyLbl
 			//
-			this.concurrencyLbl.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Top;
-			this.concurrencyLbl.AutoSize = true;
-			this.concurrencyLbl.Location = new System.Drawing.Point(172, 7);
+			this.concurrencyLbl.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			this.concurrencyLbl.AutoSize = false;
 			this.concurrencyLbl.Name = "concurrencyLbl";
-			this.concurrencyLbl.Size = new System.Drawing.Size(54, 15);
+			this.concurrencyLbl.Size = new System.Drawing.Size(64, 21);
+			this.concurrencyLbl.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this.concurrencyLbl.TabIndex = 7;
 			this.concurrencyLbl.Text = "At once:";
 			//
 			// concurrencyNum
 			//
-			this.concurrencyNum.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Top;
-			this.concurrencyNum.Location = new System.Drawing.Point(230, 3);
+			this.concurrencyNum.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.concurrencyNum.Name = "concurrencyNum";
-			this.concurrencyNum.Size = new System.Drawing.Size(45, 23);
+			this.concurrencyNum.Size = new System.Drawing.Size(84, 23);
 			this.concurrencyNum.TabIndex = 8;
 			//
 			// label1
 			//
-			this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(148, 30);
+			this.label1.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			this.label1.AutoSize = false;
 			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(54, 15);
+			this.label1.Size = new System.Drawing.Size(64, 21);
+			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this.label1.TabIndex = 5;
 			this.label1.Text = "DL Limit:";
 			//
 			// numericUpDown1
 			//
-			this.numericUpDown1.Anchor = System.Windows.Forms.AnchorStyles.Right;
+			this.numericUpDown1.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.numericUpDown1.DecimalPlaces = 1;
 			this.numericUpDown1.Increment = new decimal(new int[] {
             1,
             0,
             0,
             65536});
-			this.numericUpDown1.Location = new System.Drawing.Point(208, 26);
+
 			this.numericUpDown1.Maximum = new decimal(new int[] {
             999,
             0,
@@ -244,7 +263,7 @@
 			//
 			// btnCleanFinished
 			//
-			this.btnCleanFinished.Anchor = System.Windows.Forms.AnchorStyles.Right | System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom;
+			this.btnCleanFinished.Dock = System.Windows.Forms.DockStyle.Right;
 			this.btnCleanFinished.Location = new System.Drawing.Point(298, 0);
 			this.btnCleanFinished.Name = "btnCleanFinished";
 			this.btnCleanFinished.Size = new System.Drawing.Size(90, 50);
@@ -255,7 +274,7 @@
 			//
 			// cancelAllBtn
 			//
-			this.cancelAllBtn.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom;
+			this.cancelAllBtn.Dock = System.Windows.Forms.DockStyle.Left;
 			this.cancelAllBtn.Location = new System.Drawing.Point(0, 0);
 			this.cancelAllBtn.Name = "cancelAllBtn";
 			this.cancelAllBtn.Size = new System.Drawing.Size(78, 50);
@@ -371,6 +390,8 @@
 			this.panel1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.concurrencyNum)).EndInit();
+			this.queueSettingsTable.ResumeLayout(false);
+			this.queueSettingsTable.PerformLayout();
 			this.tabPage2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.logDGV)).EndInit();
 			this.panel2.ResumeLayout(false);
@@ -405,5 +426,6 @@
 		private System.Windows.Forms.CheckBox autoScrollChk;
 		private System.Windows.Forms.Label concurrencyLbl;
 		private System.Windows.Forms.NumericUpDown concurrencyNum;
+		private System.Windows.Forms.TableLayoutPanel queueSettingsTable;
 	}
 }
