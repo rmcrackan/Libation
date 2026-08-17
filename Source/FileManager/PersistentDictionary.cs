@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading;
 
 namespace FileManager;
 
@@ -15,6 +16,12 @@ public class PersistentDictionary : IJsonBackedDictionary
 	// optimize for strings. expectation is most settings will be strings and a rare exception will be something else
 	private Dictionary<string, string?> stringCache { get; } = new();
 	private Dictionary<string, object?> objectCache { get; } = new();
+
+	// Configuration.Instance is a process-wide singleton whose properties are read and written from
+	// the UI thread, BackgroundWorker callbacks and download workers simultaneously. Every cache and
+	// file access below must be serialized: unsynchronized Dictionary writes corrupt the cache, and
+	// unsynchronized file access lets a reader observe a half-written file.
+	private Lock locker { get; } = new();
 
 	public PersistentDictionary(string filepath, bool isReadOnly = false)
 	{
@@ -36,32 +43,48 @@ public class PersistentDictionary : IJsonBackedDictionary
 	[return: NotNullIfNotNull(nameof(defaultValue))]
 	public string? GetString(string propertyName, string? defaultValue = null)
 	{
-		if (!stringCache.ContainsKey(propertyName))
+		lock (locker)
 		{
-			var jObject = readFile();
-			if (jObject.ContainsKey(propertyName))
-				stringCache[propertyName] = jObject[propertyName]?.Value<string>();
-			else
-				stringCache[propertyName] = defaultValue;
-		}
+			if (!stringCache.ContainsKey(propertyName))
+			{
+				var jObject = readFile();
+				if (jObject.ContainsKey(propertyName))
+					stringCache[propertyName] = jObject[propertyName]?.Value<string>();
+				else
+					stringCache[propertyName] = defaultValue;
+			}
 
-		return stringCache[propertyName];
+			return stringCache[propertyName];
+		}
 	}
 
 	[return: NotNullIfNotNull(nameof(defaultValue))]
 	public T? GetNonString<T>(string propertyName, T? defaultValue = default)
 	{
-		var obj = GetObject(propertyName);
-
-		if (obj is null)
+		object? obj;
+		lock (locker)
 		{
-			objectCache[propertyName] = defaultValue;
-			return defaultValue;
+			obj = getObject(propertyName);
+
+			if (obj is null)
+			{
+				objectCache[propertyName] = defaultValue;
+				return defaultValue;
+			}
 		}
+
+		// UpCast can throw InvalidConfigurationValueException. Do it outside the lock: it neither
+		// reads nor writes the cache, and callers turn the exception into a user-facing error.
 		return IJsonBackedDictionary.UpCast<T>(obj, propertyName);
 	}
 
 	public object? GetObject(string propertyName)
+	{
+		lock (locker)
+			return getObject(propertyName);
+	}
+
+	private object? getObject(string propertyName)
 	{
 		if (!objectCache.ContainsKey(propertyName))
 		{
@@ -76,47 +99,68 @@ public class PersistentDictionary : IJsonBackedDictionary
 
 	public string? GetStringFromJsonPath(string jsonPath)
 	{
-		if (!stringCache.ContainsKey(jsonPath))
+		lock (locker)
 		{
-			try
+			if (!stringCache.ContainsKey(jsonPath))
 			{
-				var jObject = readFile();
-				var token = jObject.SelectToken(jsonPath);
-				if (token is null)
+				try
+				{
+					var jObject = readFile();
+					var token = jObject.SelectToken(jsonPath);
+					if (token is null)
+						return null;
+					stringCache[jsonPath] = token.Value<string>();
+				}
+				catch
+				{
 					return null;
-				stringCache[jsonPath] = token.Value<string>();
+				}
 			}
-			catch
-			{
-				return null;
-			}
-		}
 
-		return stringCache[jsonPath];
+			return stringCache[jsonPath];
+		}
 	}
 
-	public bool Exists(string propertyName) => readFile().ContainsKey(propertyName);
+	public bool Exists(string propertyName)
+	{
+		lock (locker)
+			return readFile().ContainsKey(propertyName);
+	}
 
-	private object locker { get; } = new object();
 	public void SetString(string propertyName, string? newValue)
 	{
-		// only do this check in string cache, NOT object cache
-		if (stringCache.ContainsKey(propertyName) && stringCache[propertyName] == newValue)
-			return;
+		bool written;
+		lock (locker)
+		{
+			// only do this check in string cache, NOT object cache
+			if (stringCache.ContainsKey(propertyName) && stringCache[propertyName] == newValue)
+				return;
 
-		// set cache
-		stringCache[propertyName] = newValue;
+			// set cache
+			stringCache[propertyName] = newValue;
 
-		writeFile(propertyName, newValue);
+			written = writeFile(propertyName, newValue);
+		}
+
+		if (written)
+			logConfigChanged(propertyName, newValue);
 	}
 
 	public void SetNonString(string propertyName, object? newValue)
 	{
-		// set cache
-		objectCache[propertyName] = newValue;
+		bool written;
+		JToken parsedNewValue;
+		lock (locker)
+		{
+			// set cache
+			objectCache[propertyName] = newValue;
 
-		var parsedNewValue = JToken.Parse(JsonConvert.SerializeObject(newValue));
-		writeFile(propertyName, parsedNewValue);
+			parsedNewValue = JToken.Parse(JsonConvert.SerializeObject(newValue));
+			written = writeFile(propertyName, parsedNewValue);
+		}
+
+		if (written)
+			logConfigChanged(propertyName, parsedNewValue.ToString());
 	}
 
 	public bool RemoveProperty(string propertyName)
@@ -148,30 +192,32 @@ public class PersistentDictionary : IJsonBackedDictionary
 		return success;
 	}
 
-	private void writeFile(string propertyName, JToken? newValue)
+	/// <summary>Caller must hold <see cref="locker"/>.</summary>
+	/// <returns>The file was rewritten</returns>
+	private bool writeFile(string propertyName, JToken? newValue)
 	{
 		if (IsReadOnly)
-			return;
+			return false;
 
 		// write new setting to file
-		lock (locker)
-		{
-			var jObject = readFile();
-			var startContents = JsonConvert.SerializeObject(jObject, Formatting.Indented);
+		var jObject = readFile();
+		var startContents = JsonConvert.SerializeObject(jObject, Formatting.Indented);
 
-			jObject[propertyName] = newValue;
-			var endContents = JsonConvert.SerializeObject(jObject, Formatting.Indented);
+		jObject[propertyName] = newValue;
+		var endContents = JsonConvert.SerializeObject(jObject, Formatting.Indented);
 
-			if (startContents == endContents)
-				return;
+		if (startContents == endContents)
+			return false;
 
-			File.WriteAllText(Filepath, endContents);
-		}
+		File.WriteAllText(Filepath, endContents);
+		return true;
+	}
 
+	private static void logConfigChanged(string propertyName, string? newValue)
+	{
 		try
 		{
-			var str = formatValueForLog(newValue?.ToString());
-			Serilog.Log.Logger.Information("Config changed. {@DebugInfo}", new { propertyName, newValue = str });
+			Serilog.Log.Logger.Information("Config changed. {@DebugInfo}", new { propertyName, newValue = formatValueForLog(newValue) });
 		}
 		catch { }
 	}
@@ -185,19 +231,17 @@ public class PersistentDictionary : IJsonBackedDictionary
 
 		var path = $"{jsonPath}.{propertyName}";
 
-		{
-			// only do this check in string cache, NOT object cache
-			if (stringCache.ContainsKey(path) && stringCache[path] == newValue)
-				return false;
-
-			// set cache
-			stringCache[path] = newValue;
-		}
-
 		try
 		{
 			lock (locker)
 			{
+				// only do this check in string cache, NOT object cache
+				if (stringCache.ContainsKey(path) && stringCache[path] == newValue)
+					return false;
+
+				// set cache
+				stringCache[path] = newValue;
+
 				var jObject = readFile();
 				var token = jObject.SelectToken(jsonPath);
 				if (token is null || token[propertyName] is null)
@@ -237,6 +281,7 @@ public class PersistentDictionary : IJsonBackedDictionary
 		: value.Length > 100 ? $"[Length={value.Length}] {value[0..50]}...{value[^50..^0]}"
 		: value;
 
+	/// <summary>Caller must hold <see cref="locker"/>.</summary>
 	private JObject readFile()
 	{
 		if (!File.Exists(Filepath))
@@ -273,5 +318,9 @@ public class PersistentDictionary : IJsonBackedDictionary
 		File.WriteAllText(Filepath, "{}");
 	}
 
-	public JObject GetJObject() => readFile();
+	public JObject GetJObject()
+	{
+		lock (locker)
+			return readFile();
+	}
 }
