@@ -95,7 +95,7 @@ public sealed class AutoScanRunner
 		// masked, not the label the dialog uses: log files get attached to public issue reports
 		Log.Warning(ex,
 			"Auto-scan paused: Audible login is required for {Account}. Log in with Import > Scan Library to resume background scans.",
-			ex.Account?.MaskedLogEntry ?? "[unknown account]");
+			ex.AccountInfo?.MaskedLogEntry ?? "[unknown account]");
 
 		if (notifyAuthRequired is not null)
 			await notifyAuthRequired(ex);

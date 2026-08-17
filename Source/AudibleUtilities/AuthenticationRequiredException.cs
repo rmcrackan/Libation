@@ -6,9 +6,14 @@ namespace AudibleUtilities;
 /// </summary>
 public sealed class AuthenticationRequiredException : Exception
 {
-	public Account? Account { get; }
+	/// <summary>
+	/// A log-safe summary rather than the <see cref="Account"/> itself. Serilog.Exceptions reflects over every
+	/// public property of a logged exception, so holding the live account published its address - and would have
+	/// published its activation bytes - into logs people attach to public issue reports.
+	/// </summary>
+	public AccountSummary? AccountInfo { get; }
 
 	public AuthenticationRequiredException(Account? account, string? message = null, Exception? innerException = null)
 		: base(message ?? "Audible authentication is required.", innerException)
-		=> Account = account;
+		=> AccountInfo = AccountSummary.From(account);
 }

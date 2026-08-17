@@ -12,8 +12,10 @@ public static class AutoScanAuthPrompt
 	{
 		ArgumentNullException.ThrowIfNull(ex);
 
-		var account = AccountCredentialStatus.FormatAccountLabel(ex.Account);
-		var cause = AccountCredentialStatus.LooksLikeMissingCredentials(ex.Account)
+		// the owner is looking at their own screen, so the dialog names the account in full. the log gets
+		// ex.AccountInfo.MaskedLogEntry instead
+		var account = ex.AccountInfo?.RevealOwnerFacingLabel() ?? "an Audible account";
+		var cause = ex.AccountInfo?.LooksLikeMissingCredentials ?? true
 			? "that account has never been logged in, or its stored credentials are missing"
 			: "the stored login for that account expired";
 

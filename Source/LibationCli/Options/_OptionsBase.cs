@@ -77,6 +77,11 @@ public abstract class OptionsBase
 				return;
 			}
 
+			// the exception message names the account masked, because it gets logged. stderr is not teed into
+			// Serilog, so this is the one place the owner can be told which account in full.
+			if (AuthenticationExceptionHelper.FindAuthenticationRequired(ex)?.AccountInfo is { } accountInfo)
+				Console.Error.WriteLine($"Audible login is required for {accountInfo.RevealOwnerFacingLabel()}.");
+
 			PrintVerbUsage(
 				"ERROR",
 				"=====",
