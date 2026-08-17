@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dinah.Core" Version="10.2.3.1" />
+    <PackageReference Include="Dinah.Core" Version="10.2.4.1" />
     <PackageReference Include="Polly" Version="8.6.6" />
   </ItemGroup>
 
