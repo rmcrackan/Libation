@@ -14,7 +14,6 @@ using Serilog.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography;
 
 namespace AudibleUtilities.Tests;
@@ -169,87 +168,6 @@ public class AccountMasking
 	}
 }
 
-/// <summary>
-/// A guard against the next exception type reintroducing this. Serilog.Exceptions walks the public property
-/// graph of whatever exception it is handed, to a default depth of 10, so no exception may be able to reach an
-/// account or an identity that way.
-/// </summary>
-[TestClass]
-public class ExceptionsCannotReachAnAccount
-{
-	private static readonly Type[] Forbidden =
-	[
-		typeof(Account),
-		typeof(AccountsSettings),
-		typeof(Identity),
-		typeof(AccessToken),
-		typeof(RefreshToken),
-		typeof(AdpToken),
-		typeof(PrivateKey)
-	];
-
-	[TestMethod]
-	public void no_exception_type_exposes_one_through_its_public_properties()
-	{
-		// the assemblies this test project can see. Account and the authentication exception live in the first.
-		var assemblies = new[]
-		{
-			typeof(Account).Assembly,
-			typeof(Configuration).Assembly,
-			typeof(FileManager.LongPath).Assembly
-		};
-
-		var exceptionTypes = assemblies
-			.SelectMany(a => a.GetTypes())
-			.Where(t => typeof(Exception).IsAssignableFrom(t))
-			.ToArray();
-
-		Assert.IsTrue(exceptionTypes.Length > 0, "found no exception types to check");
-
-		foreach (var exceptionType in exceptionTypes)
-		{
-			var path = findForbidden(exceptionType, depth: 0, [], []);
-			Assert.IsNull(path, $"{exceptionType.Name} can reach a secret-bearing type through public properties: {path}");
-		}
-	}
-
-	private static string? findForbidden(Type type, int depth, HashSet<Type> visited, List<string> trail)
-	{
-		if (depth > 10 || !visited.Add(type))
-			return null;
-
-		foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-		{
-			if (property.GetIndexParameters().Length > 0)
-				continue;
-
-			var propertyType = unwrap(property.PropertyType);
-			var step = trail.Append($"{type.Name}.{property.Name}").ToList();
-
-			if (Forbidden.Contains(propertyType))
-				return string.Join(" -> ", step);
-
-			if (propertyType.Assembly == typeof(Account).Assembly || propertyType.Assembly == typeof(Identity).Assembly)
-			{
-				var found = findForbidden(propertyType, depth + 1, visited, step);
-				if (found is not null)
-					return found;
-			}
-		}
-
-		return null;
-	}
-
-	/// <summary>Collections and nullables hide the interesting type one level down.</summary>
-	private static Type unwrap(Type type)
-	{
-		if (type.IsArray)
-			return unwrap(type.GetElementType()!);
-
-		if (!type.IsGenericType)
-			return type;
-
-		var arguments = type.GetGenericArguments();
-		return arguments.Length == 1 ? unwrap(arguments[0]) : type;
-	}
-}
+// The guard that no exception type can reach an Account lives in LibationUiBase.Tests
+// (ExceptionsCannotReachAnAccount): a test only sees the assemblies its own project references, and that one
+// reaches ApplicationServices, FileLiberator, and DataLayer as well as these.

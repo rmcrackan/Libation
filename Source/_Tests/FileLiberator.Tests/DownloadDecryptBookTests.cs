@@ -3,7 +3,15 @@ using AudibleApi.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 
-[assembly: Parallelize]
+// Deliberately not [assembly: Parallelize]. Classes here reach for state that is process-wide by nature - the
+// Configuration singleton, the LIBATION_FILES_DIR environment variable, and AudibleFileStorage's static file
+// cache - so running two of them at once means one swapping the config or deleting its temp directory while
+// another is enumerating it. That surfaced as seven failures in a Windows CI leg, all thrown from a
+// TestInitialize rather than an assertion, on a path no test in the failing class had created.
+//
+// Opting out per class was the previous arrangement and it does not hold: three classes carried
+// [DoNotParallelize] while two others touching the same state did not, and nothing points that out to whoever
+// adds the sixth. Those attributes are kept below as a statement of intent should this ever come back.
 
 namespace FileLiberator.Tests;
 
