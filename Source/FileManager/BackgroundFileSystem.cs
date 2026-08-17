@@ -85,8 +85,18 @@ public class BackgroundFileSystem : IDisposable
 	}
 	private void Stop()
 	{
-		//Stop raising events
-		fileSystemWatcher?.Dispose();
+		//Stop raising events. Detach first so a handler cannot run after this returns, and clear the field so a
+		//second Stop() is harmless.
+		var watcher = fileSystemWatcher;
+		fileSystemWatcher = null;
+		if (watcher is not null)
+		{
+			watcher.Created -= FileSystemWatcher_Changed;
+			watcher.Deleted -= FileSystemWatcher_Changed;
+			watcher.Renamed -= FileSystemWatcher_Changed;
+			watcher.Error -= FileSystemWatcher_Error;
+			watcher.Dispose();
+		}
 
 		try
 		{
@@ -99,8 +109,12 @@ public class BackgroundFileSystem : IDisposable
 		//Wait for background scanner to terminate before reinitializing.
 		backgroundScanner?.Wait();
 
-		//Dispose of directoryChangesEvents after backgroundScanner exists.
-		directoryChangesEvents?.Dispose();
+		//Dispose of directoryChangesEvents after backgroundScanner exists. Clear the field first so a late event
+		//has nothing to add to. CompleteAdding has to have happened while it was still set, or the scanner would
+		//still be blocked waiting for it.
+		var events = directoryChangesEvents;
+		directoryChangesEvents = null;
+		events?.Dispose();
 
 		lock (fsCacheLocker)
 			fsCache.Clear();
@@ -113,7 +127,18 @@ public class BackgroundFileSystem : IDisposable
 
 	private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e)
 	{
-		directoryChangesEvents?.Add(e);
+		try
+		{
+			directoryChangesEvents?.Add(e);
+		}
+		// Stop() completes and disposes the collection, but events the OS had already buffered still arrive after
+		// that. On Windows they arrive on a native completion callback, where an exception does not fail a call -
+		// it takes the process down. Dropping them is correct: whoever called Stop() is either reinitializing,
+		// which rebuilds the cache from disk, or disposing.
+		//
+		// Covers both ways the collection refuses: completed for additions, and disposed, whose
+		// ObjectDisposedException derives from this.
+		catch (InvalidOperationException) { }
 	}
 
 	#region Background Thread
