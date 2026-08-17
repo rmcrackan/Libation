@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace FileManager.Tests;
@@ -188,6 +189,71 @@ public class PersistentDictionaryConcurrencyTests
 					}
 				});
 			}
+		}
+		finally
+		{
+			deleteSettingsFile(file);
+		}
+	}
+
+	/// <summary>
+	/// The lock cannot reach a second process - the GUI and the CLI share one Settings.json - so a
+	/// write must never leave the file truncated. Reading it straight off disk, bypassing the
+	/// dictionary, stands in for that outside reader.
+	/// </summary>
+	[TestMethod]
+	public void ExternalReaderNeverSeesAPartiallyWrittenFile()
+	{
+		var file = createSettingsFile();
+		try
+		{
+			var dictionary = new PersistentDictionary(file);
+
+			// a payload big enough that a non-atomic write has a window to be caught mid-flight
+			var padding = new string('x', 64 * 1024);
+			var done = false;
+
+			runConcurrently(thread =>
+			{
+				if (thread == 0)
+				{
+					try
+					{
+						for (var i = 0; i < Keys; i++)
+							dictionary.SetString("Padded", $"{padding}{i}");
+					}
+					finally
+					{
+						Volatile.Write(ref done, true);
+					}
+					return;
+				}
+
+				while (!Volatile.Read(ref done))
+				{
+					string contents;
+					try
+					{
+						// share the file the way a cooperative outside reader would, so an atomic
+						// replace is never blocked by this test
+						using var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+						using var reader = new StreamReader(stream);
+						contents = reader.ReadToEnd();
+					}
+					catch (IOException)
+					{
+						// a sharing violation is the OS refusing the read, not a corrupt file
+						continue;
+					}
+
+					Assert.IsFalse(string.IsNullOrWhiteSpace(contents), "read an empty Settings.json mid-write");
+					// throws JsonReaderException on a truncated file
+					Assert.IsNotNull(JsonConvert.DeserializeObject<JObject>(contents));
+				}
+			});
+
+			// no temp files left behind
+			Assert.AreEqual(1, Directory.GetFiles(Path.GetDirectoryName(file)!).Length);
 		}
 		finally
 		{

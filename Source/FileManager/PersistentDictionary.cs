@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Dinah.Core.IO;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,9 @@ public class PersistentDictionary : IJsonBackedDictionary
 	// the UI thread, BackgroundWorker callbacks and download workers simultaneously. Every cache and
 	// file access below must be serialized: unsynchronized Dictionary writes corrupt the cache, and
 	// unsynchronized file access lets a reader observe a half-written file.
+	// This lock cannot reach a second process (the GUI and the CLI share Settings.json), which is why
+	// every write goes through AtomicFileWriter: an outside reader sees either the old file or the new
+	// one, never a truncated one.
 	private Lock locker { get; } = new();
 
 	public PersistentDictionary(string filepath, bool isReadOnly = false)
@@ -182,7 +186,7 @@ public class PersistentDictionary : IJsonBackedDictionary
 
 				var endContents = JsonConvert.SerializeObject(jObject, Formatting.Indented);
 
-				File.WriteAllText(Filepath, endContents);
+				writeFileContents(endContents);
 				success = true;
 			}
 			Serilog.Log.Logger.Information("Removed property. {propertyName}", propertyName);
@@ -209,7 +213,7 @@ public class PersistentDictionary : IJsonBackedDictionary
 		if (startContents == endContents)
 			return false;
 
-		File.WriteAllText(Filepath, endContents);
+		writeFileContents(endContents);
 		return true;
 	}
 
@@ -252,7 +256,7 @@ public class PersistentDictionary : IJsonBackedDictionary
 					return false;
 
 				token[propertyName] = newValue;
-				File.WriteAllText(Filepath, JsonConvert.SerializeObject(jObject, Formatting.Indented));
+				writeFileContents(JsonConvert.SerializeObject(jObject, Formatting.Indented));
 			}
 		}
 		catch (Exception exDebug)
@@ -280,6 +284,23 @@ public class PersistentDictionary : IJsonBackedDictionary
 		: string.IsNullOrWhiteSpace(value) ? $"[whitespace. Length={value.Length}]"
 		: value.Length > 100 ? $"[Length={value.Length}] {value[0..50]}...{value[^50..^0]}"
 		: value;
+
+	/// <summary>
+	/// Replaces the settings file in one step, so a concurrent reader - including one in another
+	/// Libation process - sees either the whole old file or the whole new one. Mirrors how
+	/// <see cref="Dinah.Core.IO.JsonFilePersister{T}"/> saves AccountsSettings.json.
+	/// </summary>
+	private void writeFileContents(string contents)
+		=> AtomicFileWriter.WriteAllText(Filepath, contents, validateJsonTempFile);
+
+	/// <summary>Throws before the temp file replaces the real one, leaving the real one untouched.</summary>
+	private static void validateJsonTempFile(string tempPath)
+	{
+		var contents = File.ReadAllText(tempPath);
+		if (string.IsNullOrWhiteSpace(contents))
+			throw new JsonSerializationException($"Refusing to write an empty settings file to {tempPath}");
+		JToken.Parse(contents);
+	}
 
 	/// <summary>Caller must hold <see cref="locker"/>.</summary>
 	private JObject readFile()
@@ -315,7 +336,7 @@ public class PersistentDictionary : IJsonBackedDictionary
 
 	private void createNewFile()
 	{
-		File.WriteAllText(Filepath, "{}");
+		writeFileContents("{}");
 	}
 
 	public JObject GetJObject()
