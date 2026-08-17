@@ -44,9 +44,10 @@ public class GridContextMenu
 
 	/// <summary>
 	/// Whether to offer the PDF status on its own. The pair above deliberately moves both statuses together,
-	/// which left a user who wanted only the PDF back with no way to say so: resetting a title's PDF also
-	/// queued its audiobook for a fresh download, and that download rewrote the title's other files. Offered
-	/// only for a selection that has a PDF, since for anything else the pair above is already audio-only.
+	/// so resetting a title's PDF from here also queues its audiobook for a fresh download. The only PDF-only
+	/// control was the bulk one under Visible Books, which applies to everything on screen, leaving no way to
+	/// say it about one title. Offered only for a selection that has a PDF, since for anything else the pair
+	/// above is already audio-only.
 	/// </summary>
 	public bool ShowPdfStatusItems => PdfItems.Any();
 	public bool SetPdfDownloadedEnabled => PdfItems.Any(udi => udi.PdfStatus != LiberatedStatus.Liberated);
