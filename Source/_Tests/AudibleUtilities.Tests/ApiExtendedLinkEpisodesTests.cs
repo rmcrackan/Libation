@@ -68,7 +68,7 @@ public class LinkEpisodesToSeries
 			episode("EP2", "Episode two", "SHOW", 2)
 		};
 
-		var unlinked = ApiExtended.LinkEpisodesToSeries(items);
+		var unlinked = ApiExtended.LinkEpisodesToSeries(items).Unlinked;
 
 		Assert.AreEqual(0, unlinked.Count);
 		Assert.AreEqual(3, items.Count);
@@ -88,7 +88,7 @@ public class LinkEpisodesToSeries
 			book("BOOK")
 		};
 
-		var unlinked = ApiExtended.LinkEpisodesToSeries(items);
+		var unlinked = ApiExtended.LinkEpisodesToSeries(items).Unlinked;
 
 		CollectionAssert.AreEqual(new[] { "EP2" }, unlinked.Select(i => i.Asin).ToList());
 		CollectionAssert.AreEqual(new[] { "BOOK" }, items.Select(i => i.Asin).ToList());
@@ -105,7 +105,7 @@ public class LinkEpisodesToSeries
 			episode("EP3", "Episode three", "SHOW", 3)
 		};
 
-		var unlinked = ApiExtended.LinkEpisodesToSeries(items);
+		var unlinked = ApiExtended.LinkEpisodesToSeries(items).Unlinked;
 
 		CollectionAssert.AreEqual(new[] { "EP2" }, unlinked.Select(i => i.Asin).ToList());
 		CollectionAssert.AreEquivalent(new[] { "SHOW", "EP1", "EP3" }, items.Select(i => i.Asin).ToList());
@@ -119,7 +119,7 @@ public class LinkEpisodesToSeries
 
 		var items = new List<Item> { seasonItem, episode("EP1", "Episode one", "SEASON", 1) };
 
-		var unlinked = ApiExtended.LinkEpisodesToSeries(items);
+		var unlinked = ApiExtended.LinkEpisodesToSeries(items).Unlinked;
 
 		// The episode has nothing to link to, so it is dropped. The season itself is left alone here;
 		// it is filtered out of the scan earlier for being neither a series parent nor an episode.
@@ -133,7 +133,7 @@ public class LinkEpisodesToSeries
 	{
 		var items = new List<Item> { book("BOOK1"), book("BOOK2") };
 
-		var unlinked = ApiExtended.LinkEpisodesToSeries(items);
+		var unlinked = ApiExtended.LinkEpisodesToSeries(items).Unlinked;
 
 		Assert.AreEqual(0, unlinked.Count);
 		Assert.AreEqual(2, items.Count);
@@ -144,7 +144,7 @@ public class LinkEpisodesToSeries
 	{
 		var items = new List<Item> { show("SHOW", "My Show", "EP1") };
 
-		var unlinked = ApiExtended.LinkEpisodesToSeries(items);
+		var unlinked = ApiExtended.LinkEpisodesToSeries(items).Unlinked;
 
 		Assert.AreEqual(0, unlinked.Count);
 		Assert.AreEqual("SHOW", items.Single().Series!.Single().Asin);
@@ -161,10 +161,47 @@ public class LinkEpisodesToSeries
 			episode("EP1", "Episode one", "SHOW", 1)
 		};
 
-		var unlinked = ApiExtended.LinkEpisodesToSeries(items);
+		var unlinked = ApiExtended.LinkEpisodesToSeries(items).Unlinked;
 
 		Assert.AreEqual(0, unlinked.Count);
 		Assert.AreEqual(3, items.Count);
+	}
+
+	[TestMethod]
+	public void a_series_parent_with_no_episodes_is_reported_as_childless()
+	{
+		// Audible labels some ordinary audiobooks this way; they import as podcast series and cannot be downloaded.
+		var items = new List<Item> { show("SHOW", "Mislabelled audiobook", "EP1"), book("BOOK") };
+
+		var result = ApiExtended.LinkEpisodesToSeries(items);
+
+		Assert.AreEqual(0, result.Unlinked.Count);
+		CollectionAssert.AreEqual(new[] { "SHOW" }, result.ChildlessParents.Select(i => i.Asin).ToList());
+	}
+
+	[TestMethod]
+	public void a_series_parent_with_episodes_is_not_reported_as_childless()
+	{
+		var items = new List<Item>
+		{
+			show("SHOW", "My Show", "EP1"),
+			episode("EP1", "Episode one", "SHOW", 1)
+		};
+
+		var result = ApiExtended.LinkEpisodesToSeries(items);
+
+		Assert.AreEqual(0, result.ChildlessParents.Count);
+	}
+
+	[TestMethod]
+	public void a_dropped_parent_is_not_also_reported_as_childless()
+	{
+		// A season container is removed as unlinked; reporting it twice would be noise.
+		var items = new List<Item> { season("SEASON", "SHOW", "EP1") };
+
+		var result = ApiExtended.LinkEpisodesToSeries(items);
+
+		Assert.AreEqual(0, result.ChildlessParents.Count);
 	}
 
 	[TestMethod]
@@ -172,9 +209,10 @@ public class LinkEpisodesToSeries
 	{
 		var items = new List<Item>();
 
-		var unlinked = ApiExtended.LinkEpisodesToSeries(items);
+		var result = ApiExtended.LinkEpisodesToSeries(items);
 
-		Assert.AreEqual(0, unlinked.Count);
+		Assert.AreEqual(0, result.Unlinked.Count);
+		Assert.AreEqual(0, result.ChildlessParents.Count);
 		Assert.AreEqual(0, items.Count);
 	}
 }

@@ -350,7 +350,8 @@ public partial class ProductsGrid : UserControl
 		var allEntries = bindingList.AllItems().BookEntries().ToDictionarySafe(b => b.AudibleProductId);
 		var seriesEntries = bindingList.AllItems().SeriesEntries().ToList();
 		var parentedEpisodes = dbBooks.ParentedEpisodes().ToHashSet();
-		var orphanedEpisodes = dbBooks.FindOrphanedEpisodes().ToHashSet();
+		//Same query that builds the initial grid, so the two paths agree on what is a top-level row.
+		var standaloneBooks = dbBooks.StandaloneBooks().ToHashSet();
 
 		//Get the UI thread's synchronization context and set it on the current thread to ensure
 		//it's available for creation of new IGridEntry items during upsert
@@ -362,7 +363,7 @@ public partial class ProductsGrid : UserControl
 		{
 			var existingEntry = allEntries.TryGetValue(libraryBook.Book.AudibleProductId, out var e) ? e : null;
 
-			if (libraryBook.Book.IsProduct() || orphanedEpisodes.Contains(libraryBook))
+			if (standaloneBooks.Contains(libraryBook))
 			{
 				// An episode can become orphaned when its parent is removed. Move it out from under
 				// the old parent and keep it visible as a standalone row.

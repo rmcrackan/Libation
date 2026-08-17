@@ -172,7 +172,8 @@ public class ProductsDisplayViewModel : ViewModelBase
 		var allEntries = SOURCE.BookEntries().ToDictionarySafe(b => b.AudibleProductId);
 		var seriesEntries = SOURCE.SeriesEntries().ToList();
 		var parentedEpisodes = dbBooks.ParentedEpisodes().ToHashSet();
-		var orphanedEpisodes = dbBooks.FindOrphanedEpisodes().ToHashSet();
+		//Same query that builds the initial grid, so the two paths agree on what is a top-level row.
+		var standaloneBooks = dbBooks.StandaloneBooks().ToHashSet();
 
 		await Dispatcher.UIThread.InvokeAsync(() =>
 		{
@@ -180,7 +181,7 @@ public class ProductsDisplayViewModel : ViewModelBase
 			{
 				var existingEntry = allEntries.TryGetValue(libraryBook.Book.AudibleProductId, out var e) ? e : null;
 
-				if (libraryBook.Book.IsProduct() || orphanedEpisodes.Contains(libraryBook))
+				if (standaloneBooks.Contains(libraryBook))
 				{
 					// An episode can become orphaned when its parent is removed. Move it out from under
 					// the old parent and keep it visible as a standalone row.

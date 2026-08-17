@@ -109,14 +109,24 @@ public static class LibraryBookQueries
 					.Select(ge => ge.Book.AudibleProductId), ge => ge.Book.AudibleProductId);
 
 		/// <summary>
-		/// Books displayed as top-level rows: ordinary products plus episodes whose series parent
-		/// is not in the database. Showing orphaned episodes here keeps a successfully imported
-		/// title discoverable instead of silently hiding it from both grids.
+		/// Episode parents with no episodes in the library. A grid shows a parent only as the header of
+		/// its children, so one with no children is drawn nowhere. Audible sometimes labels an ordinary
+		/// audiobook as a podcast series, and such a book would otherwise be impossible to find.
+		/// </summary>
+		public IEnumerable<LibraryBook> ChildlessEpisodeParents()
+			=> libraryBooks
+				.Where(lb => lb.Book.IsEpisodeParent() && !libraryBooks.FindChildren(lb).Any());
+
+		/// <summary>
+		/// Books displayed as top-level rows: ordinary products, episodes whose series parent is not in
+		/// the database, and parents with no episodes. Showing the latter two keeps a successfully
+		/// imported title discoverable instead of silently hiding it from both grids.
 		/// </summary>
 		public IEnumerable<LibraryBook> StandaloneBooks()
 			=> libraryBooks
 				.Where(lb => lb.Book.IsProduct())
-				.Concat(libraryBooks.FindOrphanedEpisodes());
+				.Concat(libraryBooks.FindOrphanedEpisodes())
+				.Concat(libraryBooks.ChildlessEpisodeParents());
 
 		public IEnumerable<LibraryBook> FindChildren(LibraryBook parent)
 			=> libraryBooks.Where(lb => lb.Book.IsEpisodeChild() && lb.HasSeriesId(parent.Book.AudibleProductId));

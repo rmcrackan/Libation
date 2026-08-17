@@ -73,6 +73,39 @@ public class StandaloneBooksTests
 	}
 
 	[TestMethod]
+	public void childless_episode_parent_is_standalone()
+	{
+		// A grid only draws a parent as the header of its children, so a childless one appears nowhere.
+		var parent = libraryBook("SHOW", ContentType.Parent, "SHOW");
+
+		var standalone = new[] { parent }.StandaloneBooks().ToList();
+
+		CollectionAssert.AreEqual(new[] { "SHOW" }, standalone.Select(lb => lb.Book.AudibleProductId).ToList());
+	}
+
+	[TestMethod]
+	public void episode_parent_with_children_is_not_standalone()
+	{
+		var parent = libraryBook("SHOW", ContentType.Parent, "SHOW");
+		var child = libraryBook("CHILD", ContentType.Episode, "SHOW");
+
+		var standalone = new[] { parent, child }.StandaloneBooks().ToList();
+
+		Assert.AreEqual(0, standalone.Count);
+	}
+
+	[TestMethod]
+	public async Task grid_entries_include_childless_parent_as_a_standalone_row()
+	{
+		var parent = libraryBook("SHOW", ContentType.Parent, "SHOW");
+
+		SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
+		var entries = await LibraryBookEntry.GetAllProductsAsync([parent]);
+
+		CollectionAssert.AreEqual(new[] { "SHOW" }, entries.Select(entry => entry.AudibleProductId).ToList());
+	}
+
+	[TestMethod]
 	public async Task grid_entries_include_orphaned_episode_as_a_standalone_row()
 	{
 		var parent = libraryBook("SHOW", ContentType.Parent, "SHOW");

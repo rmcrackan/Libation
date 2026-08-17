@@ -228,12 +228,23 @@ public class ApiExtended
 
 		//Name the casualties: an unlinked episode silently vanishes from the library, and without this
 		//there is nothing in the log to explain why.
-		var orphans = LinkEpisodesToSeries(items).Select(describe).Distinct().ToList();
+		var linkResult = LinkEpisodesToSeries(items);
+		var orphans = linkResult.Unlinked.Select(describe).Distinct().ToList();
 		if (orphans.Count > 0)
 			Serilog.Log.Logger.Warning(
 				"{orphansRemoved} podcast episodes were not imported because their series parent was missing from this scan. {@DebugInfo}",
 				orphans.Count,
 				new { Orphans = orphans.Take(MaxLoggedTitles).ToList(), Truncated = orphans.Count > MaxLoggedTitles });
+
+		//Audible labels these as podcast series, so they import as parents: not downloadable, and filtered out
+		//of the counts and the search index. An audiobook labelled this way by mistake would otherwise go
+		//missing with no explanation, so name them.
+		var childlessParents = linkResult.ChildlessParents.Select(describe).Distinct().ToList();
+		if (childlessParents.Count > 0)
+			Serilog.Log.Logger.Warning(
+				"{childlessParentCount} titles are series parents with no episodes in this scan. They import as podcast series, which cannot be downloaded. {@DebugInfo}",
+				childlessParents.Count,
+				new { ChildlessParents = childlessParents.Take(MaxLoggedTitles).ToList(), Truncated = childlessParents.Count > MaxLoggedTitles });
 
 		sw.Stop();
 		totalTime += sw.Elapsed;
@@ -244,6 +255,7 @@ public class ApiExtended
 			LibraryItems = libraryItemCount,
 			EpisodesFetched = allEps.Count,
 			OrphanedEpisodesDropped = orphans.Count,
+			ChildlessSeriesParents = childlessParents.Count,
 			ImportEpisodes = importEpisodes,
 			EpisodeItemsExcluded = episodeItemsExcluded,
 			ImportPlusTitles = importPlusTitles,
@@ -261,26 +273,44 @@ public class ApiExtended
 		static string describe(Item item) => $"[{item.Asin}] {item.Title}";
 	}
 
+	/// <summary>Outcome of <see cref="LinkEpisodesToSeries"/>.</summary>
+	/// <param name="Unlinked">Episodes and parents removed for having no series to belong to.</param>
+	/// <param name="ChildlessParents">
+	/// Items Audible reports as series parents that have no episodes in the scan. Libation imports these as
+	/// <c>ContentType.Parent</c>, which is not downloadable and is hidden wherever parents are filtered out,
+	/// so a mislabelled audiobook lands here and becomes hard to find.
+	/// </param>
+	public sealed record EpisodeLinkResult(List<Item> Unlinked, List<Item> ChildlessParents);
+
 	/// <summary>
 	/// Set <see cref="Item.Series"/> on every series parent in <paramref name="items"/> and on the episodes
 	/// belonging to it, then drop the episodes and parents left unlinked. An episode is left unlinked when
 	/// its parent is not among <paramref name="items"/>, which happens when Audible omits the parent from a
 	/// catalog response or when the parent is a container Libation does not treat as a series (e.g. a season).
 	/// </summary>
-	/// <returns>The unlinked items removed from <paramref name="items"/>.</returns>
-	public static List<Item> LinkEpisodesToSeries(List<Item> items)
+	public static EpisodeLinkResult LinkEpisodesToSeries(List<Item> items)
 	{
 		ArgumentValidator.EnsureNotNull(items, nameof(items));
 
+		var childlessParents = new List<Item>();
+
 		foreach (var parent in items.Where(i => i.IsSeriesParent))
 		{
-			var children = items.Where(i => i.IsEpisodes && i.Relationships?.Any(r => r.Asin == parent.Asin) is true);
+			var children = items.Where(i => i.IsEpisodes && i.Relationships?.Any(r => r.Asin == parent.Asin) is true).ToList();
+
+			if (children.Count == 0)
+				childlessParents.Add(parent);
+
 			SetSeries(parent, children);
 		}
 
 		var unlinked = items.Where(isUnlinked).ToList();
 		items.RemoveAll(isUnlinked);
-		return unlinked;
+
+		//A parent removed as unlinked is already reported as unlinked; don't report it twice.
+		childlessParents.RemoveAll(unlinked.Contains);
+
+		return new EpisodeLinkResult(unlinked, childlessParents);
 
 		static bool isUnlinked(Item item) => (item.IsEpisodes || item.IsSeriesParent) && item.Series is null;
 	}
