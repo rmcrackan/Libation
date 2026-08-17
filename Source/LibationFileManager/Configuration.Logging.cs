@@ -1,4 +1,5 @@
 ﻿using Dinah.Core.Logging;
+using Dinah.Core.Security;
 using FileManager;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -162,6 +163,10 @@ public partial class Configuration
 			 .ReadFrom.Configuration(configuration, readerOptions)
 			 .Destructure.ByTransforming<LongPath>(lp => lp.Path)
 			 .Destructure.With<LogFileFilter>()
+			 // last lines of defense for structured logging: a masked identity instead of the object, and a
+			 // secret that renders as its shape instead of its contents
+			 .Destructure.With<MaskedLogEntryPolicy>()
+			 .Destructure.ByTransforming<SecretString>(secret => secret.ToString())
 			 .CreateLogger();
 		SerilogInitialized = true;
 	}

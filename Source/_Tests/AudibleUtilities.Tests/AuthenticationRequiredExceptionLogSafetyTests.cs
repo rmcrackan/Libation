@@ -3,7 +3,10 @@ using AudibleApi.Authorization;
 using AudibleApi.Cryptography;
 using AudibleUtilities;
 using Dinah.Core.Security;
+using LibationFileManager;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -129,6 +132,44 @@ public class AuthenticationRequiredExceptionLogSafety
 }
 
 /// <summary>
+/// The paths that do not involve an exception at all: interpolating an account, and persisting its activation
+/// bytes.
+/// </summary>
+[TestClass]
+public class AccountMasking
+{
+	[TestMethod]
+	public void interpolating_an_account_is_masked()
+	{
+		var account = new Account("jade@example.com") { AccountName = "Jade" };
+
+		var interpolated = $"{account}";
+
+		Assert.AreEqual(account.MaskedLogEntry, interpolated);
+		Assert.IsFalse(interpolated.Contains("jade@example.com", StringComparison.Ordinal));
+		Assert.IsFalse(interpolated.Contains("Jade", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
+	public void an_account_declares_itself_maskable_for_serilog()
+		=> Assert.IsInstanceOfType<ILogMasked>(new Account("jade@example.com"));
+
+	/// <summary>
+	/// DecryptKey became a SecretString, which would serialize as an object and lose the value if the converter
+	/// were not doing its job. Existing settings files have to keep loading, and keep the shape they had.
+	/// </summary>
+	[TestMethod]
+	public void the_activation_bytes_still_persist_as_a_bare_string()
+	{
+		var json = JsonConvert.SerializeObject(new Account("jade@example.com") { DecryptKey = "1a2b3c4d" });
+
+		var decryptKey = JObject.Parse(json)["DecryptKey"]!;
+		Assert.AreEqual(JTokenType.String, decryptKey.Type);
+		Assert.AreEqual("1a2b3c4d", decryptKey.ToObject<string>());
+	}
+}
+
+/// <summary>
 /// A guard against the next exception type reintroducing this. Serilog.Exceptions walks the public property
 /// graph of whatever exception it is handed, to a default depth of 10, so no exception may be able to reach an
 /// account or an identity that way.
@@ -154,7 +195,7 @@ public class ExceptionsCannotReachAnAccount
 		var assemblies = new[]
 		{
 			typeof(Account).Assembly,
-			typeof(LibationFileManager.Configuration).Assembly,
+			typeof(Configuration).Assembly,
 			typeof(FileManager.LongPath).Assembly
 		};
 

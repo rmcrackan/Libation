@@ -241,7 +241,7 @@ public partial class Mkb79Auth
 		=> new()
 		{
 			AccessToken = account.IdentityTokens?.ExistingAccessToken.Reveal(),
-			ActivationBytes = string.IsNullOrEmpty(account.DecryptKey) ? null : account.DecryptKey,
+			ActivationBytes = account.DecryptKey.HasValue ? account.DecryptKey.Reveal() : null,
 			AdpToken = account.IdentityTokens?.AdpToken?.Reveal(),
 			CustomerInfo = new CustomerInfo
 			{
