@@ -2,6 +2,7 @@
 using Avalonia.Threading;
 using DataLayer;
 using LibationFileManager;
+using LibationUiBase;
 using ReactiveUI;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -16,6 +17,43 @@ partial class MainVM
 	public string BookBackupsToolStripText { get; private set; } = "Begin Book and PDF Backups: 0";
 	/// <summary> The "Begin PDF Only Backup" menu item header text </summary>
 	public string PdfBackupsToolStripText { get; private set; } = "Begin PDF Only Backups: 0";
+
+	/// <summary> How many books are in the trash, where nothing else on screen would reveal them </summary>
+	public int BooksInTrash
+	{
+		get => field;
+		private set
+		{
+			this.RaiseAndSetIfChanged(ref field, value);
+			this.RaisePropertyChanged(nameof(TrashBinMenuText));
+			this.RaisePropertyChanged(nameof(TrashBinStatusText));
+			this.RaisePropertyChanged(nameof(TrashBinStatusVisible));
+			RaiseGettingStartedChanged();
+		}
+	}
+
+	public string TrashBinMenuText => TrashBinUi.MenuText(BooksInTrash);
+	public string TrashBinStatusText => TrashBinUi.StatusText(BooksInTrash);
+	public bool TrashBinStatusVisible => TrashBinUi.ShowStatus(BooksInTrash);
+	public string TrashBinStatusToolTip => TrashBinUi.StatusToolTip;
+
+	/// <summary>
+	/// Re-read the trash count. Kept off <see cref="LibraryCommands.GetCounts"/> on purpose: that also runs
+	/// against the visible subset on every filter change, where a database round trip would be wasted work.
+	/// </summary>
+	public async Task RefreshBooksInTrashAsync()
+	{
+		try
+		{
+			var count = await Task.Run(DbContexts.GetTrashedBookCount);
+			await Dispatcher.UIThread.InvokeAsync(() => BooksInTrash = count);
+		}
+		catch (System.Exception ex)
+		{
+			//A stale count must not take down the window that displays it.
+			Serilog.Log.Logger.Error(ex, "Failed to count books in the trash");
+		}
+	}
 
 	/// <summary> The user's library statistics </summary>
 	public LibraryCommands.LibraryStats? LibraryStats
@@ -37,6 +75,9 @@ partial class MainVM
 
 			this.RaisePropertyChanged(nameof(BookBackupsToolStripText));
 			this.RaisePropertyChanged(nameof(PdfBackupsToolStripText));
+
+			//Whether the library is empty is only known once these counts have been taken.
+			RaiseGettingStartedChanged();
 		}
 	}
 

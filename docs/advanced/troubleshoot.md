@@ -34,6 +34,38 @@ Audible returned an HTML page instead of JSON. Common causes: transient outage, 
 3. Disable VPN/proxy and scan again.
 4. Remove and re-add the account in Libation.
 
+## A book in my Audible library is missing from Libation
+
+Work down this list. The first two account for most reports, and neither leaves any trace in the log.
+
+1. **Check the trash bin.** Removing a book from Libation hides it from the grid, from search results and
+   from the status bar counts, so it looks exactly like a book that was never imported. The status bar shows
+   a count when the trash is not empty, and **Settings > Trash Bin** has a search box. See
+   [Trash Bin](/docs/features/trash-bin).
+2. **Clear any filter.** A Quick Filter set as the default is applied at startup, so the grid can open
+   already filtered. Empty the search box and click **Filter**.
+3. **Check what you are importing.** In **Settings > Import**, "Import episodes" and "Import Audible Plus
+   books" each exclude titles from every scan. Both are recorded near the top of the log:
+   `"ImportEpisodes":true,"ImportPlusTitles":true`.
+4. **Scan again.** Audible occasionally leaves titles out of a scan. Libation re-requests what it notices
+   missing, but a title absent from the library listing itself cannot be recovered until Audible sends it.
+5. **Read the scan summary in the log.** Every scan ends with a tally, and anything Libation dropped is named
+   just above it:
+
+```
+Library scan tally. {"LibraryItems":434,"EpisodesFetched":1724,"OrphanedEpisodesDropped":15,
+                     "ImportEpisodes":true,"EpisodeItemsExcluded":0,
+                     "ImportPlusTitles":true,"PlusTitlesExcluded":0,"ItemsToImport":2143}
+```
+
+`PlusTitlesExcluded` or `EpisodeItemsExcluded` above zero means a setting from step 3 is dropping titles.
+An `Audible did not return ... catalog products` warning means Audible sent an incomplete response even after
+Libation asked again. `podcast episodes were not imported because their series parent was missing` names each
+episode that was dropped.
+
+If the title is still missing after all of that, open a bug report with the log and say which title it is -
+the ASIN if you have it, from the book's Audible URL.
+
 ## Failed to decrypt ExistingAccessToken (Docker finds no new books)
 
 **Symptoms:** The Windows (or other desktop) app shows your full library and new titles, but Docker / Linux finds no new books after you copy `AccountsSettings.json` from that machine. Container or `Libation.log` output includes `Failed to decrypt ExistingAccessToken`.

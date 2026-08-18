@@ -101,6 +101,8 @@ public class Account : IUpdatable, ILogMasked
 	/// </summary>
 	public override string ToString() => MaskedLogEntry;
 
+	/// <summary>Derived from the fields above, so persisting it would only add a stale copy of them.</summary>
+	[JsonIgnore]
 	public string MaskedLogEntry => @$"AccountId={mask(AccountId)}|AccountName={mask(AccountName)}|Locale={Locale?.Name ?? "[empty]"}";
 	private static string mask(string? str)
 		=> str is null ? "[null]"

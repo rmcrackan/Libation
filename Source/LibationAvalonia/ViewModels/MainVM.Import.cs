@@ -56,6 +56,7 @@ public partial class MainVM
 			this.RaisePropertyChanged(nameof(AnyAccounts));
 			this.RaisePropertyChanged(nameof(OneAccount));
 			this.RaisePropertyChanged(nameof(MultipleAccounts));
+			RaiseGettingStartedChanged();
 		}
 	}
 
@@ -191,6 +192,7 @@ public partial class MainVM
 		this.RaisePropertyChanged(nameof(ActivelyScanning));
 		this.RaisePropertyChanged(nameof(RemoveMenuItemsEnabled));
 		this.RaisePropertyChanged(nameof(ScanningText));
+		RaiseGettingStartedChanged();
 	}
 
 	private async Task scanLibrariesRemovedBooks(params Account[] accounts)

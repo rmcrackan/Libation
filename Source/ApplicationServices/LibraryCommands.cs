@@ -63,13 +63,24 @@ public static class LibraryCommands
 			try
 			{
 				logTime($"pre {nameof(scanAccountsAsync)} all");
-				var libraryItems = await scanAccountsAsync(accounts, libraryOptions, allowInteractiveLogin: true);
+				var scan = await scanAccountsAsync(accounts, libraryOptions, allowInteractiveLogin: true);
 				logTime($"post {nameof(scanAccountsAsync)} all");
 
+				var libraryItems = scan.Items;
 				var totalCount = libraryItems.Count;
 				Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 
-				return existingLibrary.Where(b => !libraryItems.Any(i => i.DtoItem.Asin == b.Book.AudibleProductId)).ToList();
+				var existing = existingLibrary?.ToList() ?? [];
+
+				EnsureScanCanIdentifyInactiveBooks(totalCount, existing.Count, scan.FailedAccounts);
+
+				var inactive = existing.Where(b => !libraryItems.Any(i => i.DtoItem.Asin == b.Book.AudibleProductId)).ToList();
+
+				Log.Logger.Information(
+					"Books absent from the library scan. {@DebugInfo}",
+					new { InactiveCount = inactive.Count, CandidateCount = existing.Count, ScannedCount = totalCount });
+
+				return inactive;
 			}
 			catch (AudibleApi.Authentication.LoginFailedException lfEx)
 			{
@@ -108,6 +119,22 @@ public static class LibraryCommands
 		}
 	}
 
+	/// <summary>
+	/// Refuse to call anything "no longer in your library" from a scan that could not see the whole library.
+	/// Importing tolerates a partial scan because it only adds and updates; removal cannot, because a book
+	/// missing from one bad scan is indistinguishable from a book the user no longer owns.
+	/// </summary>
+	/// <exception cref="LibraryScanIncompleteException">The scan cannot support that decision.</exception>
+	public static void EnsureScanCanIdentifyInactiveBooks(int scannedItemCount, int existingBookCount, IReadOnlyCollection<string>? failedAccounts)
+	{
+		if (failedAccounts?.Count > 0)
+			throw LibraryScanIncompleteException.ForFailedAccounts(failedAccounts);
+
+		// An account whose every book vanished at once is a broken scan, not an emptied library.
+		if (scannedItemCount == 0 && existingBookCount > 0)
+			throw LibraryScanIncompleteException.ForEmptyScan(existingBookCount);
+	}
+
 	#region FULL LIBRARY scan and import
 	public static Task<(int totalCount, int newCount)> ImportAccountAsync(params Account[]? accounts)
 		=> ImportAccountAsync(accounts, allowInteractiveLogin: true);
@@ -140,7 +167,8 @@ public static class LibraryCommands
 						| LibraryOptions.ResponseGroupOptions.IsFinished,
 					ImageSizes = LibraryOptions.ImageSizeOptions._500 | LibraryOptions.ImageSizeOptions._1215
 				};
-				var importItems = await scanAccountsAsync(accounts, libraryOptions, allowInteractiveLogin);
+				//Importing only adds and updates, so a partially scanned library is still worth importing.
+				var importItems = (await scanAccountsAsync(accounts, libraryOptions, allowInteractiveLogin)).Items;
 				logTime($"post {nameof(scanAccountsAsync)} all");
 
 				var totalCount = importItems.Count;
@@ -276,9 +304,18 @@ public static class LibraryCommands
 		return null;
 	}
 
-	private static async Task<List<ImportItem>> scanAccountsAsync(Account[] accounts, LibraryOptions libraryOptions, bool allowInteractiveLogin)
+	/// <summary>Outcome of scanning one or more accounts.</summary>
+	/// <param name="Items">Everything the accounts that did scan returned.</param>
+	/// <param name="FailedAccounts">
+	/// Accounts that could not be scanned. Their books are absent from <paramref name="Items"/> for that reason
+	/// alone, so a caller deciding what to remove must not treat the result as the whole library.
+	/// </param>
+	private sealed record ScanResult(List<ImportItem> Items, IReadOnlyCollection<string> FailedAccounts);
+
+	private static async Task<ScanResult> scanAccountsAsync(Account[] accounts, LibraryOptions libraryOptions, bool allowInteractiveLogin)
 	{
 		var tasks = new List<Task<List<ImportItem>>>();
+		var failedAccounts = new List<string>();
 
 		await using LogArchiver? archiver
 			 = Log.Logger.IsDebugEnabled()
@@ -305,13 +342,14 @@ public static class LibraryCommands
 			{
 				//Catch to allow other accounts to continue scanning.
 				Log.Logger.Error(ex, "Failed to scan account");
+				failedAccounts.Add(account.MaskedLogEntry ?? account.AccountId ?? "[unknown account]");
 			}
 		}
 
 		// import library in parallel
 		var arrayOfLists = await Task.WhenAll(tasks);
 		var importItems = arrayOfLists.SelectMany(a => a).ToList();
-		return importItems;
+		return new ScanResult(importItems, failedAccounts);
 	}
 
 	private static async Task<List<ImportItem>> scanAccountAsync(ApiExtended apiExtended, Account account, LibraryOptions libraryOptions, LogArchiver? archiver)
@@ -405,13 +443,39 @@ public static class LibraryCommands
 	#endregion
 
 	#region remove/restore books
+
+	/// <summary>
+	/// Record every change to the trash. Removal is a soft delete, so a book can leave the library and sit
+	/// out of sight indefinitely; without this the log cannot say when that happened or how much is in there.
+	/// </summary>
+	private static void logTrashChange(string action, int qtyChanges)
+	{
+		if (qtyChanges < 1)
+			return;
+
+		try
+		{
+			Log.Logger.Information("Trash bin changed. {@DebugInfo}", new
+			{
+				Action = action,
+				Books = qtyChanges,
+				BooksInTrash = DbContexts.GetTrashedBookCount()
+			});
+		}
+		catch (Exception ex)
+		{
+			//The change itself already succeeded. Never fail it over a log line.
+			Log.Logger.Warning(ex, "Trash bin changed ({action}, {qtyChanges}) but the trash count could not be read", action, qtyChanges);
+		}
+	}
+
 	public static Task<int> RemoveBooksAsync(this IEnumerable<LibraryBook?>? idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
 	private static int removeBooks(IEnumerable<LibraryBook?>? removeLibraryBooks)
 	{
 		if (removeLibraryBooks is null || !removeLibraryBooks.Any())
 			return 0;
 
-		return DoDbSizeChangeOperation(ctx =>
+		var qtyChanges = DoDbSizeChangeOperation(ctx =>
 		{
 			// Entry() NoTracking entities before SaveChanges()
 			foreach (var lb in removeLibraryBooks.OfType<LibraryBook>())
@@ -420,6 +484,9 @@ public static class LibraryCommands
 				ctx.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 			}
 		});
+
+		logTrashChange("Moved to trash", qtyChanges);
+		return qtyChanges;
 	}
 
 	public static Task<int> RestoreBooksAsync(this IEnumerable<LibraryBook> idsToRemove) => Task.Run(() => restoreBooks(idsToRemove));
@@ -429,7 +496,7 @@ public static class LibraryCommands
 			return 0;
 		try
 		{
-			return DoDbSizeChangeOperation(ctx =>
+			var qtyChanges = DoDbSizeChangeOperation(ctx =>
 			{
 				// Entry() NoTracking entities before SaveChanges()
 				foreach (var lb in libraryBooks)
@@ -438,6 +505,9 @@ public static class LibraryCommands
 					ctx.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				}
 			});
+
+			logTrashChange("Restored from trash", qtyChanges);
+			return qtyChanges;
 		}
 		catch (Exception ex)
 		{
@@ -453,11 +523,14 @@ public static class LibraryCommands
 			return 0;
 		try
 		{
-			return DoDbSizeChangeOperation(ctx =>
+			var qtyChanges = DoDbSizeChangeOperation(ctx =>
 				{
 					ctx.LibraryBooks.RemoveRange(libraryBooks.OfType<LibraryBook>());
 					ctx.Books.RemoveRange(libraryBooks.OfType<LibraryBook>().Select(lb => lb.Book));
 				});
+
+			logTrashChange("Permanently deleted", qtyChanges);
+			return qtyChanges;
 		}
 		catch (Exception ex)
 		{

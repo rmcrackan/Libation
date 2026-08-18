@@ -64,7 +64,7 @@
 					<NativeMenuItem Command="{Binding ShowAccountsAsync}" Header="Accounts..." Gesture="{OnPlatform macOS='⌘+.'}" />
 					<NativeMenuItem Command="{Binding ShowSettingsAsync}" Header="Settings..." Gesture="{OnPlatform macOS='⌘+,'}" />
 					<NativeMenuItemSeparator />
-					<NativeMenuItem Command="{Binding ShowTrashBinAsync}" Header="Trash Bin" Gesture="{OnPlatform macOS='alt+⌘+T'}" />
+					<NativeMenuItem Command="{Binding ShowTrashBinAsync}" Header="{Binding TrashBinMenuText}" Gesture="{OnPlatform macOS='alt+⌘+T'}" />
 					<NativeMenuItem Command="{Binding LaunchHangover}" Header="Launch Hangover" />
 					<NativeMenuItemSeparator />
 					<NativeMenuItem Command="{Binding StartWalkthroughAsync}" Header="Take a Guided Tour of Libation" />
@@ -151,7 +151,7 @@
 					<MenuItem Name="accountsToolStripMenuItem" Command="{Binding ShowAccountsAsync}" Header="_Accounts..." InputGesture="ctrl+shift+A"/>
 					<MenuItem Name="basicSettingsToolStripMenuItem" Command="{Binding ShowSettingsAsync}" Header="_Settings..." InputGesture="ctrl+P" />
 					<Separator />
-					<MenuItem Command="{Binding ShowTrashBinAsync}" Header="Trash Bin" />
+					<MenuItem Command="{Binding ShowTrashBinAsync}" Header="{Binding TrashBinMenuText}" />
 					<MenuItem Command="{Binding LaunchHangover}" Header="Launch _Hangover" />
 					<Separator />
 					<MenuItem Command="{Binding ShowFindBetterQualityBooksAsync}" Header="Scan for Better Quality Audiobooks"  ToolTip.Tip="{Binding FindBetterQualityBooksTip}"/>
@@ -241,18 +241,105 @@
 				</SplitView.Pane>
 
 				<!-- Product Display Grid -->
-				<views:ProductsDisplay
-					Name="productsDisplay"
-					DataContext="{Binding ProductsDisplay, Mode=OneTime}"						
-					LiberateClicked="ProductsDisplay_LiberateClicked"
-					TagsButtonClicked="ProductsDisplay_TagsButtonClicked"
-					LiberateSeriesClicked="ProductsDisplay_LiberateSeriesClicked"
-					ConvertToMp3Clicked="ProductsDisplay_ConvertToMp3Clicked" />				
+				<Panel>
+					<views:ProductsDisplay
+						Name="productsDisplay"
+						DataContext="{Binding ProductsDisplay, Mode=OneTime}"						
+						LiberateClicked="ProductsDisplay_LiberateClicked"
+						TagsButtonClicked="ProductsDisplay_TagsButtonClicked"
+						LiberateSeriesClicked="ProductsDisplay_LiberateSeriesClicked"
+						ConvertToMp3Clicked="ProductsDisplay_ConvertToMp3Clicked" />
+
+					<!-- A filter that matched nothing. A trashed book is filtered out of the library and out of
+					     the search index, so searching for one looks the same as searching for a book that was
+					     never imported. Say so here rather than leaving the grid silently blank. -->
+					<StackPanel
+						IsVisible="{Binding NoMatchesVisible}"
+						HorizontalAlignment="Center"
+						VerticalAlignment="Center"
+						Spacing="10">
+						<TextBlock
+							FontSize="16"
+							HorizontalAlignment="Center"
+							Foreground="{DynamicResource SystemBaseMediumColor}"
+							Text="{Binding NoMatchesText}" />
+						<StackPanel
+							IsVisible="{Binding NoMatchesTrashHintVisible}"
+							Orientation="Horizontal"
+							HorizontalAlignment="Center"
+							Spacing="10">
+							<TextBlock
+								FontSize="16"
+								VerticalAlignment="Center"
+								Text="{Binding NoMatchesTrashHintText}" />
+							<Button
+								Padding="10,4"
+								VerticalAlignment="Center"
+								Command="{Binding ShowTrashBinAsync}"
+								Content="Open Trash Bin" />
+						</StackPanel>
+					</StackPanel>
+
+					<!-- Nothing in the library at all. An empty library has two causes with different next
+					     steps, so this offers the one that applies rather than the same advice to everybody. -->
+					<StackPanel
+						IsVisible="{Binding GettingStartedVisible}"
+						HorizontalAlignment="Center"
+						VerticalAlignment="Center"
+						Spacing="10">
+						<TextBlock
+							FontSize="18"
+							HorizontalAlignment="Center"
+							Text="{Binding GettingStartedHeadline}" />
+						<TextBlock
+							FontSize="14"
+							HorizontalAlignment="Center"
+							Foreground="{DynamicResource SystemBaseMediumColor}"
+							Text="{Binding GettingStartedDetail}" />
+						<StackPanel
+							Orientation="Horizontal"
+							HorizontalAlignment="Center"
+							Spacing="10">
+							<Button
+								Padding="14,5"
+								IsVisible="{Binding GettingStartedAddAccountVisible}"
+								Command="{Binding AddAccountsAsync}"
+								Content="Add Account" />
+							<Button
+								Padding="14,5"
+								IsVisible="{Binding GettingStartedScanVisible}"
+								Command="{Binding GettingStartedScanAsync}"
+								Content="Scan Library" />
+							<Button
+								Padding="14,5"
+								Command="{Binding StartWalkthroughAsync}"
+								Content="Take a Guided Tour" />
+						</StackPanel>
+
+						<!-- The books are not gone, they are in the trash. Saying so keeps the headline above
+						     from reading as though they were never there. -->
+						<StackPanel
+							IsVisible="{Binding GettingStartedTrashVisible}"
+							Orientation="Horizontal"
+							HorizontalAlignment="Center"
+							Spacing="10">
+							<TextBlock
+								FontSize="14"
+								VerticalAlignment="Center"
+								Text="{Binding GettingStartedTrashText}" />
+							<Button
+								Padding="10,4"
+								VerticalAlignment="Center"
+								Command="{Binding ShowTrashBinAsync}"
+								Content="Open Trash Bin" />
+						</StackPanel>
+					</StackPanel>
+				</Panel>
 			</SplitView>
 		</Border>
 			
 		<!-- Bottom Status Strip -->
-		<Grid Grid.Row="3" Margin="8" VerticalAlignment="Bottom" ColumnDefinitions="Auto,Auto,*,Auto">
+		<Grid Grid.Row="3" Margin="8" VerticalAlignment="Bottom" ColumnDefinitions="Auto,Auto,*,Auto,Auto">
 			<Grid.Styles>
 				<Style Selector="ProgressBar:horizontal">
 					<Setter Property="MinWidth" Value="100" />
@@ -261,7 +348,12 @@
 			<TextBlock FontSize="14" Grid.Column="0" Text="Upgrading:" VerticalAlignment="Center" IsVisible="{Binding DownloadProgress, Converter={x:Static ObjectConverters.IsNotNull}}" />
 			<ProgressBar Grid.Column="1" Margin="5,0,10,0" VerticalAlignment="Stretch" Width="100" Value="{Binding DownloadProgress, TargetNullValue=0}" IsVisible="{Binding DownloadProgress, Converter={x:Static ObjectConverters.IsNotNull}}"/>
 			<TextBlock FontSize="14" Grid.Column="2" Text="{Binding VisibleCountText}" VerticalAlignment="Center" />
-			<TextBlock FontSize="14" Grid.Column="3" Text="{Binding LibraryStats?.StatusString}" VerticalAlignment="Center" />		
+			<Button FontSize="14" Grid.Column="3" Margin="0,0,16,0" Padding="8,2" VerticalAlignment="Center"
+					Command="{Binding ShowTrashBinAsync}"
+					Content="{Binding TrashBinStatusText}"
+					ToolTip.Tip="{Binding TrashBinStatusToolTip}"
+					IsVisible="{Binding TrashBinStatusVisible}" />
+			<TextBlock FontSize="14" Grid.Column="4" Text="{Binding LibraryStats?.StatusString}" VerticalAlignment="Center" />		
 		</Grid>
 	</Grid>
 </Window>

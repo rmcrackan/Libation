@@ -215,6 +215,7 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 
 		vm.BindToGridTask = Task.WhenAll(
 			vm.SetBackupCountsAsync(initialLibrary),
+			vm.RefreshBooksInTrashAsync(),
 			Task.Run(() => vm.ProductsDisplay.BindToGridAsync(initialLibrary)));
 
 		await vm.BindToGridTask;

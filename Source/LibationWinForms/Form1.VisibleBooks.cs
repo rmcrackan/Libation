@@ -172,6 +172,8 @@ public partial class Form1
 
 	private async void productsDisplay_VisibleCountChanged(object sender, int qty)
 	{
+		visibleCount = qty;
+
 		// bottom-left visible count
 		visibleCountLbl.Format(qty);
 

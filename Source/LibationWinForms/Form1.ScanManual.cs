@@ -33,6 +33,8 @@ public partial class Form1
 		scanLibraryOfAllAccountsToolStripMenuItem.Visible = count > 1;
 		scanLibraryOfSomeAccountsToolStripMenuItem.Visible = count > 1;
 
+		setAnyAccounts(count > 0);
+
 		removeLibraryBooksToolStripMenuItem.Visible = count > 0;
 		removeSomeAccountsToolStripMenuItem.Visible = count > 1;
 		removeAllAccountsToolStripMenuItem.Visible = count > 1;

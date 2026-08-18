@@ -16,9 +16,15 @@ public partial class Form1
 		beginPdfBackupsToolStripMenuItem.Format(0);
 
 		LibraryCommands.LibrarySizeChanged += setBackupCounts;
+		LibraryCommands.LibrarySizeChanged += (_, _) => refreshBooksInTrash();
 		//Pass null to the runner to get the whole library.
 		LibraryCommands.BookUserDefinedItemCommitted += (_, _)
 			=> setBackupCounts(null, null);
+
+		trashBinLbl.Text = "";
+		trashBinLbl.Visible = false;
+		trashBinLbl.ToolTipText = LibationUiBase.TrashBinUi.StatusToolTip;
+		refreshBooksInTrash();
 
 		updateCountsBw.DoWork += UpdateCountsBw_DoWork;
 		// Register the error logger first so a failed count is logged exactly once, before the
@@ -28,6 +34,34 @@ public partial class Form1
 		updateCountsBw.RunWorkerCompleted += updateBottomStats;
 		updateCountsBw.RunWorkerCompleted += update_BeginBookBackups_menuItem;
 		updateCountsBw.RunWorkerCompleted += udpate_BeginPdfOnlyBackups_menuItem;
+	}
+
+	/// <summary>
+	/// Re-read the trash count and show it only when there is something in there. Kept off
+	/// <see cref="LibraryCommands.GetCounts"/> on purpose: that also runs against the visible subset on
+	/// every filter change, where a database round trip would be wasted work.
+	/// </summary>
+	private async void refreshBooksInTrash()
+	{
+		int booksInTrash;
+		try
+		{
+			booksInTrash = await System.Threading.Tasks.Task.Run(DbContexts.GetTrashedBookCount);
+		}
+		catch (System.Exception ex)
+		{
+			//A stale count must not take down the window that displays it.
+			Serilog.Log.Logger.Error(ex, "Failed to count books in the trash");
+			return;
+		}
+
+		statusStrip1.UIThreadAsync(() =>
+		{
+			trashBinLbl.Text = LibationUiBase.TrashBinUi.StatusText(booksInTrash);
+			trashBinLbl.Visible = LibationUiBase.TrashBinUi.ShowStatus(booksInTrash);
+			openTrashBinToolStripMenuItem.Text = LibationUiBase.TrashBinUi.MenuText(booksInTrash);
+			setBooksInTrash(booksInTrash);
+		});
 	}
 
 	/// <summary>
@@ -74,6 +108,11 @@ public partial class Form1
 	{
 		var libraryStats = getLibraryStats(e);
 		statusStrip1.UIThreadAsync(() => backupsCountsLbl.Text = libraryStats?.StatusString ?? "ERROR GETTING STATUS");
+
+		//Whether the library is empty is only known once these counts have been taken, which is also what
+		//keeps the getting-started panel off screen while a full library is still loading.
+		if (libraryStats is not null)
+			this.UIThreadAsync(() => setLibraryIsEmpty(!libraryStats.HasBookResults));
 	}
 
 	// update 'begin book and pdf backups' menu item

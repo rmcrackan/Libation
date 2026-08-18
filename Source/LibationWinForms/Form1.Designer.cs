@@ -79,11 +79,19 @@
 			this.upgradeLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.visibleCountLbl = new LibationWinForms.FormattableToolStripStatusLabel();
             this.springLbl = new System.Windows.Forms.ToolStripStatusLabel();
+            this.trashBinLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.backupsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.addQuickFilterBtn = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.panel1 = new System.Windows.Forms.Panel();
             this.productsDisplay = new LibationWinForms.GridView.ProductsDisplay();
+            this.noMatchesPanel = new System.Windows.Forms.Panel();
+            this.noMatchesLbl = new System.Windows.Forms.Label();
+            this.noMatchesTrashLink = new System.Windows.Forms.LinkLabel();
+            this.emptyLibraryLbl = new System.Windows.Forms.Label();
+            this.emptyLibraryActionLink = new System.Windows.Forms.LinkLabel();
+            this.emptyLibraryTourLink = new System.Windows.Forms.LinkLabel();
+            this.emptyLibraryTrashLink = new System.Windows.Forms.LinkLabel();
             this.toggleQueueHideBtn = new System.Windows.Forms.Button();
             this.doneRemovingBtn = new System.Windows.Forms.Button();
             this.removeBooksBtn = new System.Windows.Forms.Button();
@@ -95,6 +103,7 @@
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.noMatchesPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // filterHelpBtn
@@ -446,6 +455,7 @@
             this.upgradePb,
 			this.visibleCountLbl,
             this.springLbl,
+            this.trashBinLbl,
             this.backupsCountsLbl});
             this.statusStrip1.Location = new System.Drawing.Point(0, 618);
             this.statusStrip1.Name = "statusStrip1";
@@ -478,6 +488,14 @@
             this.springLbl.Name = "springLbl";
             this.springLbl.Size = new System.Drawing.Size(511, 17);
             this.springLbl.Spring = true;
+            // 
+            // trashBinLbl
+            // 
+            this.trashBinLbl.Name = "trashBinLbl";
+            this.trashBinLbl.IsLink = true;
+            this.trashBinLbl.Margin = new System.Windows.Forms.Padding(0, 3, 16, 2);
+            this.trashBinLbl.Visible = false;
+            this.trashBinLbl.Click += new System.EventHandler(this.trashBinLbl_Click);
             // 
             // backupsCountsLbl
             // 
@@ -520,6 +538,7 @@
             // panel1
             // 
             this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panel1.Controls.Add(this.noMatchesPanel);
             this.panel1.Controls.Add(this.productsDisplay);
             this.panel1.Controls.Add(this.toggleQueueHideBtn);
             this.panel1.Controls.Add(this.doneRemovingBtn);
@@ -552,6 +571,81 @@
             this.productsDisplay.LiberateSeriesClicked += new System.EventHandler<LibationUiBase.GridView.SeriesEntry>(this.ProductsDisplay_LiberateSeriesClicked);
             this.productsDisplay.ConvertToMp3Clicked += ProductsDisplay_ConvertToMp3Clicked;
             this.productsDisplay.InitialLoaded += new System.EventHandler(this.productsDisplay_InitialLoaded);
+            // 
+            // noMatchesPanel
+            // 
+            this.noMatchesPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.noMatchesPanel.Controls.Add(this.emptyLibraryTrashLink);
+            this.noMatchesPanel.Controls.Add(this.emptyLibraryTourLink);
+            this.noMatchesPanel.Controls.Add(this.emptyLibraryActionLink);
+            this.noMatchesPanel.Controls.Add(this.emptyLibraryLbl);
+            this.noMatchesPanel.Controls.Add(this.noMatchesTrashLink);
+            this.noMatchesPanel.Controls.Add(this.noMatchesLbl);
+            this.noMatchesPanel.Location = new System.Drawing.Point(15, 36);
+            this.noMatchesPanel.Name = "noMatchesPanel";
+            this.noMatchesPanel.Padding = new System.Windows.Forms.Padding(0, 90, 0, 0);
+            this.noMatchesPanel.Size = new System.Drawing.Size(999, 555);
+            this.noMatchesPanel.TabIndex = 10;
+            this.noMatchesPanel.Visible = false;
+            // 
+            // noMatchesLbl
+            // 
+            this.noMatchesLbl.Dock = System.Windows.Forms.DockStyle.Top;
+            this.noMatchesLbl.Name = "noMatchesLbl";
+            this.noMatchesLbl.Size = new System.Drawing.Size(999, 32);
+            this.noMatchesLbl.TabIndex = 0;
+            this.noMatchesLbl.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // noMatchesTrashLink
+            // 
+            this.noMatchesTrashLink.Dock = System.Windows.Forms.DockStyle.Top;
+            this.noMatchesTrashLink.Name = "noMatchesTrashLink";
+            this.noMatchesTrashLink.Size = new System.Drawing.Size(999, 28);
+            this.noMatchesTrashLink.TabIndex = 1;
+            this.noMatchesTrashLink.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.noMatchesTrashLink.Visible = false;
+            this.noMatchesTrashLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.noMatchesTrashLink_LinkClicked);
+            // 
+            // emptyLibraryLbl
+            // 
+            this.emptyLibraryLbl.Dock = System.Windows.Forms.DockStyle.Top;
+            this.emptyLibraryLbl.Name = "emptyLibraryLbl";
+            this.emptyLibraryLbl.Size = new System.Drawing.Size(999, 56);
+            this.emptyLibraryLbl.TabIndex = 2;
+            this.emptyLibraryLbl.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.emptyLibraryLbl.Visible = false;
+            // 
+            // emptyLibraryActionLink
+            // 
+            this.emptyLibraryActionLink.Dock = System.Windows.Forms.DockStyle.Top;
+            this.emptyLibraryActionLink.Name = "emptyLibraryActionLink";
+            this.emptyLibraryActionLink.Size = new System.Drawing.Size(999, 28);
+            this.emptyLibraryActionLink.TabIndex = 3;
+            this.emptyLibraryActionLink.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.emptyLibraryActionLink.Visible = false;
+            this.emptyLibraryActionLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.emptyLibraryActionLink_LinkClicked);
+            // 
+            // emptyLibraryTourLink
+            // 
+            this.emptyLibraryTourLink.Dock = System.Windows.Forms.DockStyle.Top;
+            this.emptyLibraryTourLink.Name = "emptyLibraryTourLink";
+            this.emptyLibraryTourLink.Size = new System.Drawing.Size(999, 28);
+            this.emptyLibraryTourLink.TabIndex = 4;
+            this.emptyLibraryTourLink.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.emptyLibraryTourLink.Visible = false;
+            this.emptyLibraryTourLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.emptyLibraryTourLink_LinkClicked);
+            // 
+            // emptyLibraryTrashLink
+            // 
+            this.emptyLibraryTrashLink.Dock = System.Windows.Forms.DockStyle.Top;
+            this.emptyLibraryTrashLink.Name = "emptyLibraryTrashLink";
+            this.emptyLibraryTrashLink.Size = new System.Drawing.Size(999, 28);
+            this.emptyLibraryTrashLink.TabIndex = 5;
+            this.emptyLibraryTrashLink.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.emptyLibraryTrashLink.Visible = false;
+            this.emptyLibraryTrashLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.emptyLibraryTrashLink_LinkClicked);
             // 
             // toggleQueueHideBtn
             // 
@@ -647,6 +741,7 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            this.noMatchesPanel.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);
@@ -660,6 +755,7 @@
 		private System.Windows.Forms.ToolStripStatusLabel springLbl;
 		private LibationWinForms.FormattableToolStripStatusLabel visibleCountLbl;
 		private System.Windows.Forms.ToolStripMenuItem liberateToolStripMenuItem;
+		private System.Windows.Forms.ToolStripStatusLabel trashBinLbl;
 		private System.Windows.Forms.ToolStripStatusLabel backupsCountsLbl;
 		private LibationWinForms.FormattableToolStripMenuItem beginBookBackupsToolStripMenuItem;
 		private LibationWinForms.FormattableToolStripMenuItem beginPdfBackupsToolStripMenuItem;
@@ -706,6 +802,13 @@
 		private System.Windows.Forms.SplitContainer splitContainer1;
 		private LibationWinForms.ProcessQueue.ProcessQueueControl processBookQueue1;
 		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.Panel noMatchesPanel;
+		private System.Windows.Forms.Label noMatchesLbl;
+		private System.Windows.Forms.LinkLabel noMatchesTrashLink;
+		private System.Windows.Forms.Label emptyLibraryLbl;
+		private System.Windows.Forms.LinkLabel emptyLibraryActionLink;
+		private System.Windows.Forms.LinkLabel emptyLibraryTourLink;
+		private System.Windows.Forms.LinkLabel emptyLibraryTrashLink;
 		private System.Windows.Forms.Button toggleQueueHideBtn;
 		public LibationWinForms.GridView.ProductsDisplay productsDisplay;
 		private System.Windows.Forms.Button removeBooksBtn;

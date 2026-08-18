@@ -33,6 +33,8 @@ public partial class Form1
 			= (accountsLength == 1)
 			? "Scanning..."
 			: $"Scanning {accountsLength} accounts...";
+
+		refreshGridEmptyState();
 	}
 
 	private void LibraryCommands_ScanEnd(object? sender, int newCount)
@@ -51,5 +53,8 @@ public partial class Form1
 		scanLibraryOfSomeAccountsToolStripMenuItem.Enabled = true;
 
 		this.scanningToolStripMenuItem.Visible = false;
+
+		//"No books yet" would be answering a question the scan was already answering.
+		refreshGridEmptyState();
 	}
 }

@@ -14,7 +14,14 @@ public partial class Form1
 		=> await productsDisplay.RemoveCheckedBooksAsync();
 
 	private void openTrashBinToolStripMenuItem_Click(object sender, EventArgs e)
-		=> new TrashBinDialog().ShowDialog(this);
+	{
+		new TrashBinDialog().ShowDialog(this);
+		//Restoring or permanently deleting inside the dialog changes the count behind it.
+		refreshBooksInTrash();
+	}
+
+	private void trashBinLbl_Click(object sender, EventArgs e)
+		=> openTrashBinToolStripMenuItem_Click(sender, e);
 
 	private void doneRemovingBtn_Click(object sender, EventArgs e)
 	{

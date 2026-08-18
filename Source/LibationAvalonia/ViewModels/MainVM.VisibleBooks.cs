@@ -37,7 +37,15 @@ partial class MainVM
 		_visibleCount = visibleCount;
 		this.RaisePropertyChanged(nameof(VisibleCountText));
 		this.RaisePropertyChanged(nameof(VisibleCountMenuItemText));
+		updateNoMatchesVisible();
 	}
+
+	/// <summary>
+	/// An empty grid only needs explaining when a filter emptied it. Mutually exclusive with the
+	/// getting-started panel, which stands down while a filter is applied.
+	/// </summary>
+	private void updateNoMatchesVisible()
+		=> NoMatchesVisible = _visibleCount == 0 && HasActiveFilter;
 
 	private void setVisibleNotLiberatedCount(int visibleNotLiberated)
 	{

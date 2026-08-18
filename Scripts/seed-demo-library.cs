@@ -97,12 +97,13 @@ foreach (var book in books)
 	Execute(
 		"""
 		insert into LibraryBooks (BookId, AbsentFromLastScan, Account, DateAdded, IncludedUntil, IsAudiblePlus, IsDeleted)
-		values ($bookId, $isAbsent, 'demo@example.com', '2026-08-13 00:00:00', $includedUntil, $isPlus, 0)
+		values ($bookId, $isAbsent, 'demo@example.com', '2026-08-13 00:00:00', $includedUntil, $isPlus, $isDeleted)
 		""",
 		("$bookId", bookId),
 		("$isAbsent", book.IsAbsent ? 1 : 0),
 		("$includedUntil", book.IsPlus ? "2027-01-31 00:00:00" : (object)DBNull.Value),
-		("$isPlus", book.IsPlus ? 1 : 0));
+		("$isPlus", book.IsPlus ? 1 : 0),
+		("$isDeleted", book.IsDeleted ? 1 : 0));
 
 	Execute(
 		"insert into BookContributor (BookId, ContributorId, Role, [Order]) values ($bookId, $contributorId, 1, 0)",
@@ -148,8 +149,22 @@ if (partials.Count > 0)
 
 Console.WriteLine();
 Console.WriteLine("Start Libation and sort by Title. Expected Liberate column, top to bottom:");
-foreach (var book in books)
+foreach (var book in books.Where(b => !b.IsDeleted))
 	Console.WriteLine($"  {book.Title,-46} {book.Expectation}");
+
+var trashed = books.Where(b => b.IsDeleted).ToList();
+if (trashed.Count > 0)
+{
+	Console.WriteLine();
+	Console.WriteLine($"{trashed.Count} seeded book(s) are in the trash, so they are NOT in the grid:");
+	foreach (var book in trashed)
+		Console.WriteLine($"  {book.Title,-46} {book.Expectation}");
+	Console.WriteLine();
+	Console.WriteLine("  - the status bar should end with a clickable \"N in trash\"");
+	Console.WriteLine("  - Settings > Trash Bin should carry the same count");
+	Console.WriteLine("  - filtering for  Trashed  should find nothing and offer to open the trash bin");
+}
+
 Console.WriteLine();
 Console.WriteLine("Do not click the stoplights: these books are not real and cannot be downloaded.");
 return 0;
@@ -263,6 +278,42 @@ static List<DemoBook> BuildDemoBooks()
 			NeedsPartialDownload: false,
 			Expectation: expectation,
 			IsAbsent: true));
+
+	// Books in the trash. Removal is a soft delete, and a trashed book is filtered out of the grid, the
+	// search index and every status count at once, so nothing on screen distinguishes one from a book that
+	// was never imported. These rows are how that is checked: they must stay out of the grid while the
+	// status bar, the Settings > Trash Bin menu item and the empty-search hint all account for them.
+	foreach (var (label, bookStatus, isPlus, expectation) in new (string, int, bool, string)[]
+	{
+		("purchased", NotLiberated, false, "in the trash bin only, red lamp there"),
+		("PLUS", Liberated, true, "in the trash bin only, green lamp with badge there"),
+	})
+		books.Add(new DemoBook(
+			Asin: $"{AsinPrefix}{++n:000}",
+			Title: $"{n:00} Trashed | {label}",
+			ContentType: Product,
+			BookStatus: bookStatus,
+			PdfStatus: null,
+			IsPlus: isPlus,
+			NeedsPartialDownload: false,
+			Expectation: expectation,
+			IsDeleted: true));
+
+	// A trashed episode whose parent is still in the library. The trash bin asks for every parent, not just
+	// deleted ones, so this should appear nested under the series there while the series keeps its other
+	// episodes in the main grid.
+	books.Add(new DemoBook(
+		Asin: $"{AsinPrefix}{++n:000}",
+		Title: $"{n:00} Demo Series - episode 3 (trashed)",
+		ContentType: Episode,
+		BookStatus: NotLiberated,
+		PdfStatus: null,
+		IsPlus: false,
+		NeedsPartialDownload: false,
+		Expectation: "nested under Demo Series in the trash bin, absent from the grid",
+		SeriesAsin: seriesAsin,
+		SeriesOrder: "3",
+		IsDeleted: true));
 
 	// Titles that subtitle removal changes. <title short> stops at the first colon, so it cuts a colon in
 	// Audible's own title just as readily as it drops Audible's subtitle field, and the grid's Title column
@@ -396,4 +447,5 @@ record DemoBook(
 	string? SeriesAsin = null,
 	string? SeriesOrder = null,
 	bool IsAbsent = false,
-	string Subtitle = "");
+	string Subtitle = "",
+	bool IsDeleted = false);
