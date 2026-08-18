@@ -8,10 +8,20 @@ using System.Threading.Tasks;
 
 namespace LibationUiBase;
 
+/// <summary>Whether Libation may replace its own install files, and what to say when it may not.</summary>
+internal readonly record struct UpgradeCapability(bool CapUpgrade, string? Reason, string? Summary);
+
 public class UpgradeEventArgs
 {
 	public required UpgradeProperties UpgradeProperties { get; init; }
 	public bool CapUpgrade { get; internal init; }
+	/// <summary>Why Libation cannot install this upgrade itself, to show in place of the update prompt. Null when it can.</summary>
+	public string? UpgradeUnavailableReason { get; internal init; }
+	/// <summary>
+	/// The same thing in one line, for Classic, whose dialog has a single line of room above the
+	/// release notes. Null when Libation can install the upgrade.
+	/// </summary>
+	public string? UpgradeUnavailableSummary { get; internal init; }
 	private bool _ignore = false;
 	private bool _installUpgrade = true;
 	public bool Ignore
@@ -182,6 +192,17 @@ public class MockUpgrader : UpgraderBase
 
 public abstract class UpgraderBase
 {
+	internal const string ApplicationControlUpgradeMessage =
+		$"""
+		A new version is available, but Libation cannot install it itself: Smart App Control is On for this PC, and it blocks files Windows does not recognise. Replacing Libation's files in place is what leaves it unable to start.
+
+		Download the release below and install it yourself. If Windows blocks that too, see:
+		{StartupAssemblyBootstrap.TroubleshootApplicationControlUrl}
+		""";
+
+	internal const string ApplicationControlUpgradeSummary =
+		"Libation cannot install this update while Smart App Control is On.";
+
 	public event EventHandler? DownloadBegin;
 	public event EventHandler<DownloadProgress>? DownloadProgress;
 	public event EventHandler<bool>? DownloadCompleted;
@@ -192,6 +213,18 @@ public abstract class UpgraderBase
 		=> UpgradeFailed?.Invoke(this, (message + Environment.NewLine + Environment.NewLine + ex?.Message).Trim());
 	protected abstract Task<VersionCheckResult> CheckForUpgradeAsync();
 	protected abstract Task<string?> DownloadUpgradeAsync(UpgradeProperties upgradeProperties);
+
+	/// <summary>
+	/// Whether Libation may replace its own install files, and what to show instead of the update
+	/// prompt when it may not. An overlay upgrade writes files Windows has never seen, and
+	/// Application Control blocks unsigned files it does not recognise, so upgrading in place under
+	/// enforcement is what turns a working install into one that cannot start.
+	/// Kept separate from the upgrade flow so the enforcing case is testable away from Windows.
+	/// </summary>
+	internal static UpgradeCapability ResolveUpgradeCapability(bool platformCanUpgrade, bool applicationControlEnforcing)
+		=> applicationControlEnforcing
+			? new(false, ApplicationControlUpgradeMessage, ApplicationControlUpgradeSummary)
+			: new(platformCanUpgrade, null, null);
 
 	/// <summary>Check for upgrade and invoke <paramref name="upgradeAvailableHandler"/> if an update is available. Returns the check outcome so the UI can show "up to date", "update available", or "unable to determine".</summary>
 	public async Task<VersionCheckResult> CheckForUpgradeAsync(Func<UpgradeEventArgs, Task> upgradeAvailableHandler)
@@ -214,10 +247,18 @@ public abstract class UpgraderBase
 			if (!interop.CanUpgrade)
 				Serilog.Log.Logger.Information("Can't perform upgrade automatically");
 
+			var applicationControlBlocksUpgrade = ApplicationControlPolicy.IsEnforcing;
+			if (applicationControlBlocksUpgrade)
+				Serilog.Log.Logger.Information("Windows Application Control is enforcing. Offering the download instead of an in-app upgrade.");
+
+			var capability = ResolveUpgradeCapability(interop.CanUpgrade, applicationControlBlocksUpgrade);
+
 			var upgradeEventArgs = new UpgradeEventArgs
 			{
 				UpgradeProperties = upgradeProperties,
-				CapUpgrade = interop.CanUpgrade
+				CapUpgrade = capability.CapUpgrade,
+				UpgradeUnavailableReason = capability.Reason,
+				UpgradeUnavailableSummary = capability.Summary,
 			};
 
 			await upgradeAvailableHandler(upgradeEventArgs);
@@ -226,6 +267,14 @@ public abstract class UpgraderBase
 				config.SetString(upgradeProperties.LatestRelease.ToString(), ignoreUpgrade);
 
 			if (!upgradeEventArgs.InstallUpgrade) return result;
+
+			// A second stop, because a UI that ignores CapUpgrade must not be able to start an
+			// upgrade that ends with Libation unable to start.
+			if (applicationControlBlocksUpgrade)
+			{
+				Serilog.Log.Logger.Information("Skipped the in-app upgrade to {LatestRelease}: Windows Application Control is enforcing.", upgradeProperties.LatestRelease);
+				return result;
+			}
 
 			//Download the upgrade file in the background,
 			DownloadBegin?.Invoke(this, EventArgs.Empty);

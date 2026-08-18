@@ -16,14 +16,25 @@ public partial class UpgradeNotificationDialog : Form
 		this.SetLibationIcon();
 	}
 
-	public UpgradeNotificationDialog(UpgradeProperties upgradeProperties) : this()
+	public UpgradeNotificationDialog(UpgradeProperties upgradeProperties, bool canUpgrade = true, string? upgradeUnavailableSummary = null) : this()
 	{
 		Text = $"Libation version {upgradeProperties.LatestRelease.ToVersionString()} is now available.";
 		PackageUrl = upgradeProperties.ZipUrl;
 		packageDlLink.Text = upgradeProperties.ZipName;
 		releaseNotesTbox.Text = upgradeProperties.Notes;
 
-		Shown += (_, _) => yesBtn.Focus();
+		if (!canUpgrade)
+		{
+			// Without a Yes button this is a notice, so it must stop asking a question that no
+			// longer has an answer. Both labels take one line before the release notes box begins,
+			// which is why this takes the one-line summary and not the full explanation.
+			promptLbl.Text = "There is a new version available.";
+			promptDetailLbl.Text = upgradeUnavailableSummary ?? "Libation cannot install this update itself. Use the download link below.";
+			yesBtn.Visible = false;
+			noBtn.Text = "OK";
+		}
+
+		Shown += (_, _) => (canUpgrade ? yesBtn : noBtn).Focus();
 	}
 
 	private void PackageDlLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

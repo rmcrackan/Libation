@@ -13,7 +13,7 @@ public static class StartupAssemblyBootstrap
 {
 	public const string EntityFrameworkCoreSqliteAssemblyFileName = "Microsoft.EntityFrameworkCore.Sqlite.dll";
 	public const int ApplicationControlBlockedHResult = unchecked((int)0x800711C7);
-	private const string TroubleshootApplicationControlUrl = "https://getlibation.com/docs/advanced/troubleshoot#windows-smart-app-control-and-in-app-upgrades";
+	public const string TroubleshootApplicationControlUrl = "https://getlibation.com/docs/advanced/troubleshoot#windows-smart-app-control-and-in-app-upgrades";
 	internal const string TroubleshootIncompleteUpgradeUrl = "https://getlibation.com/docs/advanced/troubleshoot#windows-incomplete-in-app-upgrade";
 
 	/// <summary>
@@ -94,14 +94,41 @@ public static class StartupAssemblyBootstrap
 
 			Your library database, accounts, and settings are stored separately and should be unaffected.
 
-			To check whether this is Smart App Control, open Settings -> Privacy & Security -> Windows Security -> App & browser control -> Smart App Control settings. Only the On setting blocks anything; Evaluation observes without blocking.
-
-			If it is On, turning it off is one way out, but Windows cannot turn it back on again without a reset or reinstall. Check the page below for the current options before you change anything. If it is already off, the block comes from a policy set by whoever manages this PC.
+			{DescribeApplicationControlState(ApplicationControlPolicy.GetState())}
 
 			More help:
 			{TroubleshootApplicationControlUrl}
 			""";
 	}
+
+	/// <summary>
+	/// Says what Smart App Control is set to when we could read it, and how to look it up when we
+	/// could not. Only enforcement is worth acting on, so the other states point elsewhere rather
+	/// than inviting someone to turn off a setting that is not the cause.
+	/// </summary>
+	public static string DescribeApplicationControlState(ApplicationControlState state)
+		=> state switch
+		{
+			ApplicationControlState.Enforcing =>
+				"""
+				Smart App Control is On for this PC, which is what blocked the file.
+
+				Turning it off is one way out, but Windows cannot turn it back on again without a reset or reinstall. Check the page below for the current options before you change anything.
+				""",
+
+			ApplicationControlState.Evaluation =>
+				"Smart App Control is in Evaluation mode for this PC, and that mode never blocks anything, so the block is coming from another Application Control policy, normally one set by whoever manages this PC.",
+
+			ApplicationControlState.Off =>
+				"Smart App Control is off for this PC, so the block is coming from another Application Control policy, normally one set by whoever manages this PC.",
+
+			_ =>
+				"""
+				To check whether this is Smart App Control, open Settings -> Privacy & Security -> Windows Security -> App & browser control -> Smart App Control settings. Only the On setting blocks anything; Evaluation observes without blocking.
+
+				If it is On, turning it off is one way out, but Windows cannot turn it back on again without a reset or reinstall. Check the page below for the current options before you change anything. If it is already off, the block comes from a policy set by whoever manages this PC.
+				""",
+		};
 
 	public static bool IsApplicationControlBlockedAssembly(Exception ex)
 	{
@@ -250,7 +277,7 @@ public static class StartupAssemblyBootstrap
 
 			Install folder:
 			{Configuration.ProcessDirectory}
-
+			{DescribeCloudSyncedInstall(CloudSyncedFolders.GetSyncStatus(Configuration.ProcessDirectory))}
 			Your library database, accounts, and settings are stored separately and should be unaffected.
 
 			To recover:
@@ -262,6 +289,18 @@ public static class StartupAssemblyBootstrap
 			More help:
 			{TroubleshootIncompleteUpgradeUrl}
 			""";
+	}
+
+	/// <summary>
+	/// Blank unless the install sits in a cloud sync folder, where sync can undo part of an overlay
+	/// upgrade on its own. Carries its own blank lines so the surrounding message reads the same either way.
+	/// </summary>
+	public static string DescribeCloudSyncedInstall(CloudSyncStatus syncStatus)
+	{
+		if (!syncStatus.IsSynced)
+			return string.Empty;
+
+		return $"{Environment.NewLine}This install is inside {syncStatus.Description}. Sync clients replace and restore files underneath Libation, which can undo part of an upgrade by itself. Install to an ordinary local folder instead.{Environment.NewLine}";
 	}
 
 	private static bool ContainsLibationUiBaseReference(string? text)

@@ -28,8 +28,6 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.Windows.Forms.Label label1;
-			System.Windows.Forms.Label label2;
 			System.Windows.Forms.GroupBox groupBox1;
 			System.Windows.Forms.LinkLabel linkLabel3;
 			System.Windows.Forms.LinkLabel linkLabel2;
@@ -39,8 +37,8 @@
 			this.dontRemindBtn = new System.Windows.Forms.Button();
 			this.yesBtn = new System.Windows.Forms.Button();
 			this.noBtn = new System.Windows.Forms.Button();
-			label1 = new System.Windows.Forms.Label();
-			label2 = new System.Windows.Forms.Label();
+			this.promptLbl = new System.Windows.Forms.Label();
+			this.promptDetailLbl = new System.Windows.Forms.Label();
 			groupBox1 = new System.Windows.Forms.GroupBox();
 			linkLabel3 = new System.Windows.Forms.LinkLabel();
 			linkLabel2 = new System.Windows.Forms.LinkLabel();
@@ -48,25 +46,26 @@
 			groupBox1.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// label1
+			// promptLbl
 			// 
-			label1.AutoSize = true;
-			label1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			label1.Location = new System.Drawing.Point(12, 9);
-			label1.Name = "label1";
-			label1.Size = new System.Drawing.Size(416, 21);
-			label1.TabIndex = 0;
-			label1.Text = "There is a new version available. Would you like to update?";
+			this.promptLbl.AutoSize = true;
+			this.promptLbl.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			this.promptLbl.Location = new System.Drawing.Point(12, 9);
+			this.promptLbl.Name = "promptLbl";
+			this.promptLbl.Size = new System.Drawing.Size(416, 21);
+			this.promptLbl.TabIndex = 0;
+			this.promptLbl.Text = "There is a new version available. Would you like to update?";
 			// 
-			// label2
+			// promptDetailLbl
 			// 
-			label2.AutoSize = true;
-			label2.Location = new System.Drawing.Point(12, 39);
-			label2.Name = "label2";
-			label2.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
-			label2.Size = new System.Drawing.Size(327, 25);
-			label2.TabIndex = 1;
-			label2.Text = "After you close Libation, the upgrade will start automatically.";
+			this.promptDetailLbl.AutoSize = true;
+			this.promptDetailLbl.Location = new System.Drawing.Point(12, 39);
+			this.promptDetailLbl.MaximumSize = new System.Drawing.Size(531, 0);
+			this.promptDetailLbl.Name = "promptDetailLbl";
+			this.promptDetailLbl.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
+			this.promptDetailLbl.Size = new System.Drawing.Size(327, 25);
+			this.promptDetailLbl.TabIndex = 1;
+			this.promptDetailLbl.Text = "After you close Libation, the upgrade will start automatically.";
 			// 
 			// groupBox1
 			// 
@@ -191,8 +190,8 @@
 			this.Controls.Add(this.yesBtn);
 			this.Controls.Add(this.dontRemindBtn);
 			this.Controls.Add(groupBox1);
-			this.Controls.Add(label2);
-			this.Controls.Add(label1);
+			this.Controls.Add(this.promptDetailLbl);
+			this.Controls.Add(this.promptLbl);
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.MinimumSize = new System.Drawing.Size(460, 420);
@@ -213,5 +212,7 @@
 		private System.Windows.Forms.Button dontRemindBtn;
 		private System.Windows.Forms.Button yesBtn;
 		private System.Windows.Forms.Button noBtn;
+		private System.Windows.Forms.Label promptLbl;
+		private System.Windows.Forms.Label promptDetailLbl;
 	}
 }
