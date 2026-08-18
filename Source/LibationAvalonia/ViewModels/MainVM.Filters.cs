@@ -1,3 +1,4 @@
+using ApplicationServices;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
@@ -88,6 +89,7 @@ partial class MainVM
 		{
 			await ProductsDisplay.Filter(namedFilter?.Filter);
 			lastGoodSearch = namedFilter?.Filter ?? "";
+			await RefreshNoMatchesStateAsync(namedFilter?.Filter);
 			return null;
 		}
 		catch (Exception ex)
@@ -95,6 +97,36 @@ partial class MainVM
 			return ex;
 		}
 	}
+
+	/// <summary>
+	/// A trashed book is filtered out of the library and out of the search index, so searching for one looks
+	/// exactly like searching for a book that was never imported. When a filter matches nothing, say whether
+	/// the thing being looked for is sitting in the trash.
+	/// </summary>
+	private async Task RefreshNoMatchesStateAsync(string? searchString)
+	{
+		NoMatchesText = TrashBinUi.NoMatchesText(searchString);
+
+		//Only meaningful once the library itself has come up empty.
+		if (_visibleCount > 0 || string.IsNullOrWhiteSpace(searchString))
+		{
+			NoMatchesTrashHintVisible = false;
+			return;
+		}
+
+		var matches = await Task.Run(() => TrashBinSearch.Search(searchString));
+
+		NoMatchesTrashHintText = TrashBinUi.NoMatchesTrashHintText(matches.Count);
+		NoMatchesTrashHintVisible = matches.Count > 0;
+	}
+
+	/// <summary> Shown over the grid when a filter matches nothing </summary>
+	public string NoMatchesText { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "";
+	/// <summary> Follow-up naming matches that are in the trash </summary>
+	public string NoMatchesTrashHintText { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "";
+	public bool NoMatchesTrashHintVisible { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
+	/// <summary> The grid is empty because of a filter, not because the library is empty </summary>
+	public bool NoMatchesVisible { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 
 	private void updateFiltersMenu(object? _ = null, object? __ = null)
 	{

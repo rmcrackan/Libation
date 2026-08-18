@@ -442,13 +442,39 @@ public static class LibraryCommands
 	#endregion
 
 	#region remove/restore books
+
+	/// <summary>
+	/// Record every change to the trash. Removal is a soft delete, so a book can leave the library and sit
+	/// out of sight indefinitely; without this the log cannot say when that happened or how much is in there.
+	/// </summary>
+	private static void logTrashChange(string action, int qtyChanges)
+	{
+		if (qtyChanges < 1)
+			return;
+
+		try
+		{
+			Log.Logger.Information("Trash bin changed. {@DebugInfo}", new
+			{
+				Action = action,
+				Books = qtyChanges,
+				BooksInTrash = DbContexts.GetTrashedBookCount()
+			});
+		}
+		catch (Exception ex)
+		{
+			//The change itself already succeeded. Never fail it over a log line.
+			Log.Logger.Warning(ex, "Trash bin changed ({action}, {qtyChanges}) but the trash count could not be read", action, qtyChanges);
+		}
+	}
+
 	public static Task<int> RemoveBooksAsync(this IEnumerable<LibraryBook?>? idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
 	private static int removeBooks(IEnumerable<LibraryBook?>? removeLibraryBooks)
 	{
 		if (removeLibraryBooks is null || !removeLibraryBooks.Any())
 			return 0;
 
-		return DoDbSizeChangeOperation(ctx =>
+		var qtyChanges = DoDbSizeChangeOperation(ctx =>
 		{
 			// Entry() NoTracking entities before SaveChanges()
 			foreach (var lb in removeLibraryBooks.OfType<LibraryBook>())
@@ -457,6 +483,9 @@ public static class LibraryCommands
 				ctx.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 			}
 		});
+
+		logTrashChange("Moved to trash", qtyChanges);
+		return qtyChanges;
 	}
 
 	public static Task<int> RestoreBooksAsync(this IEnumerable<LibraryBook> idsToRemove) => Task.Run(() => restoreBooks(idsToRemove));
@@ -466,7 +495,7 @@ public static class LibraryCommands
 			return 0;
 		try
 		{
-			return DoDbSizeChangeOperation(ctx =>
+			var qtyChanges = DoDbSizeChangeOperation(ctx =>
 			{
 				// Entry() NoTracking entities before SaveChanges()
 				foreach (var lb in libraryBooks)
@@ -475,6 +504,9 @@ public static class LibraryCommands
 					ctx.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				}
 			});
+
+			logTrashChange("Restored from trash", qtyChanges);
+			return qtyChanges;
 		}
 		catch (Exception ex)
 		{
@@ -490,11 +522,14 @@ public static class LibraryCommands
 			return 0;
 		try
 		{
-			return DoDbSizeChangeOperation(ctx =>
+			var qtyChanges = DoDbSizeChangeOperation(ctx =>
 				{
 					ctx.LibraryBooks.RemoveRange(libraryBooks.OfType<LibraryBook>());
 					ctx.Books.RemoveRange(libraryBooks.OfType<LibraryBook>().Select(lb => lb.Book));
 				});
+
+			logTrashChange("Permanently deleted", qtyChanges);
+			return qtyChanges;
 		}
 		catch (Exception ex)
 		{

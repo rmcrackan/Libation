@@ -241,13 +241,45 @@
 				</SplitView.Pane>
 
 				<!-- Product Display Grid -->
-				<views:ProductsDisplay
-					Name="productsDisplay"
-					DataContext="{Binding ProductsDisplay, Mode=OneTime}"						
-					LiberateClicked="ProductsDisplay_LiberateClicked"
-					TagsButtonClicked="ProductsDisplay_TagsButtonClicked"
-					LiberateSeriesClicked="ProductsDisplay_LiberateSeriesClicked"
-					ConvertToMp3Clicked="ProductsDisplay_ConvertToMp3Clicked" />				
+				<Panel>
+					<views:ProductsDisplay
+						Name="productsDisplay"
+						DataContext="{Binding ProductsDisplay, Mode=OneTime}"						
+						LiberateClicked="ProductsDisplay_LiberateClicked"
+						TagsButtonClicked="ProductsDisplay_TagsButtonClicked"
+						LiberateSeriesClicked="ProductsDisplay_LiberateSeriesClicked"
+						ConvertToMp3Clicked="ProductsDisplay_ConvertToMp3Clicked" />
+
+					<!-- A filter that matched nothing. A trashed book is filtered out of the library and out of
+					     the search index, so searching for one looks the same as searching for a book that was
+					     never imported. Say so here rather than leaving the grid silently blank. -->
+					<StackPanel
+						IsVisible="{Binding NoMatchesVisible}"
+						HorizontalAlignment="Center"
+						VerticalAlignment="Center"
+						Spacing="10">
+						<TextBlock
+							FontSize="16"
+							HorizontalAlignment="Center"
+							Foreground="{DynamicResource SystemBaseMediumColor}"
+							Text="{Binding NoMatchesText}" />
+						<StackPanel
+							IsVisible="{Binding NoMatchesTrashHintVisible}"
+							Orientation="Horizontal"
+							HorizontalAlignment="Center"
+							Spacing="10">
+							<TextBlock
+								FontSize="16"
+								VerticalAlignment="Center"
+								Text="{Binding NoMatchesTrashHintText}" />
+							<Button
+								Padding="10,4"
+								VerticalAlignment="Center"
+								Command="{Binding ShowTrashBinAsync}"
+								Content="Open Trash Bin" />
+						</StackPanel>
+					</StackPanel>
+				</Panel>
 			</SplitView>
 		</Border>
 			

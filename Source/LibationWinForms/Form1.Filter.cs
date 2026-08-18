@@ -1,6 +1,9 @@
-﻿using LibationUiBase;
+﻿using ApplicationServices;
+using Dinah.Core.Threading;
+using LibationUiBase;
 using LibationWinForms.Dialogs;
 using System;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LibationWinForms;
@@ -59,6 +62,7 @@ public partial class Form1
 		{
 			productsDisplay.Filter(filterString);
 			lastGoodFilter = filterString;
+			refreshNoMatchesState(filterString);
 			return null;
 		}
 		catch (Exception ex)
@@ -66,6 +70,46 @@ public partial class Form1
 			return ex;
 		}
 	}
+
+	private int visibleCount;
+
+	/// <summary>
+	/// A trashed book is filtered out of the library and out of the search index, so searching for one looks
+	/// exactly like searching for a book that was never imported. When a filter matches nothing, say whether
+	/// the thing being looked for is sitting in the trash.
+	/// </summary>
+	private async void refreshNoMatchesState(string? filterString)
+	{
+		var noMatches = visibleCount == 0 && !string.IsNullOrWhiteSpace(filterString);
+
+		this.UIThreadSync(() =>
+		{
+			noMatchesLbl.Text = TrashBinUi.NoMatchesText(filterString);
+			noMatchesTrashLink.Visible = false;
+			noMatchesPanel.Visible = noMatches;
+			if (noMatches)
+				noMatchesPanel.BringToFront();
+		});
+
+		if (!noMatches)
+			return;
+
+		var matches = await Task.Run(() => TrashBinSearch.Search(filterString));
+		if (matches.Count == 0)
+			return;
+
+		this.UIThreadSync(() =>
+		{
+			noMatchesTrashLink.Text = $"{TrashBinUi.NoMatchesTrashHintText(matches.Count)}  Open Trash Bin";
+			noMatchesTrashLink.LinkArea = new LinkArea(
+				noMatchesTrashLink.Text.Length - "Open Trash Bin".Length,
+				"Open Trash Bin".Length);
+			noMatchesTrashLink.Visible = true;
+		});
+	}
+
+	private void noMatchesTrashLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		=> openTrashBinToolStripMenuItem_Click(sender, e);
 
 	public SearchSyntaxDialog ShowSearchSyntaxDialog()
 	{

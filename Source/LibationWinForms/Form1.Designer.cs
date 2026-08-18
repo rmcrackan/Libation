@@ -85,6 +85,9 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.panel1 = new System.Windows.Forms.Panel();
             this.productsDisplay = new LibationWinForms.GridView.ProductsDisplay();
+            this.noMatchesPanel = new System.Windows.Forms.Panel();
+            this.noMatchesLbl = new System.Windows.Forms.Label();
+            this.noMatchesTrashLink = new System.Windows.Forms.LinkLabel();
             this.toggleQueueHideBtn = new System.Windows.Forms.Button();
             this.doneRemovingBtn = new System.Windows.Forms.Button();
             this.removeBooksBtn = new System.Windows.Forms.Button();
@@ -96,6 +99,7 @@
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.noMatchesPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // filterHelpBtn
@@ -530,6 +534,7 @@
             // panel1
             // 
             this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panel1.Controls.Add(this.noMatchesPanel);
             this.panel1.Controls.Add(this.productsDisplay);
             this.panel1.Controls.Add(this.toggleQueueHideBtn);
             this.panel1.Controls.Add(this.doneRemovingBtn);
@@ -562,6 +567,38 @@
             this.productsDisplay.LiberateSeriesClicked += new System.EventHandler<LibationUiBase.GridView.SeriesEntry>(this.ProductsDisplay_LiberateSeriesClicked);
             this.productsDisplay.ConvertToMp3Clicked += ProductsDisplay_ConvertToMp3Clicked;
             this.productsDisplay.InitialLoaded += new System.EventHandler(this.productsDisplay_InitialLoaded);
+            // 
+            // noMatchesPanel
+            // 
+            this.noMatchesPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.noMatchesPanel.Controls.Add(this.noMatchesTrashLink);
+            this.noMatchesPanel.Controls.Add(this.noMatchesLbl);
+            this.noMatchesPanel.Location = new System.Drawing.Point(15, 36);
+            this.noMatchesPanel.Name = "noMatchesPanel";
+            this.noMatchesPanel.Padding = new System.Windows.Forms.Padding(0, 90, 0, 0);
+            this.noMatchesPanel.Size = new System.Drawing.Size(999, 555);
+            this.noMatchesPanel.TabIndex = 10;
+            this.noMatchesPanel.Visible = false;
+            // 
+            // noMatchesLbl
+            // 
+            this.noMatchesLbl.Dock = System.Windows.Forms.DockStyle.Top;
+            this.noMatchesLbl.Name = "noMatchesLbl";
+            this.noMatchesLbl.Size = new System.Drawing.Size(999, 32);
+            this.noMatchesLbl.TabIndex = 0;
+            this.noMatchesLbl.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // noMatchesTrashLink
+            // 
+            this.noMatchesTrashLink.Dock = System.Windows.Forms.DockStyle.Top;
+            this.noMatchesTrashLink.Name = "noMatchesTrashLink";
+            this.noMatchesTrashLink.Size = new System.Drawing.Size(999, 28);
+            this.noMatchesTrashLink.TabIndex = 1;
+            this.noMatchesTrashLink.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.noMatchesTrashLink.Visible = false;
+            this.noMatchesTrashLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.noMatchesTrashLink_LinkClicked);
             // 
             // toggleQueueHideBtn
             // 
@@ -657,6 +694,7 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            this.noMatchesPanel.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);
@@ -717,6 +755,9 @@
 		private System.Windows.Forms.SplitContainer splitContainer1;
 		private LibationWinForms.ProcessQueue.ProcessQueueControl processBookQueue1;
 		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.Panel noMatchesPanel;
+		private System.Windows.Forms.Label noMatchesLbl;
+		private System.Windows.Forms.LinkLabel noMatchesTrashLink;
 		private System.Windows.Forms.Button toggleQueueHideBtn;
 		public LibationWinForms.GridView.ProductsDisplay productsDisplay;
 		private System.Windows.Forms.Button removeBooksBtn;
