@@ -74,6 +74,9 @@ partial class MainVM
 
 			this.RaisePropertyChanged(nameof(BookBackupsToolStripText));
 			this.RaisePropertyChanged(nameof(PdfBackupsToolStripText));
+
+			//Whether the library is empty is only known once these counts have been taken.
+			RaiseGettingStartedChanged();
 		}
 	}
 

@@ -62,7 +62,7 @@ public partial class Form1
 		{
 			productsDisplay.Filter(filterString);
 			lastGoodFilter = filterString;
-			refreshNoMatchesState(filterString);
+			refreshGridEmptyState(filterString);
 			return null;
 		}
 		catch (Exception ex)
@@ -72,44 +72,85 @@ public partial class Form1
 	}
 
 	private int visibleCount;
+	private bool libraryIsEmpty;
+	private bool anyAccounts;
 
 	/// <summary>
-	/// A trashed book is filtered out of the library and out of the search index, so searching for one looks
-	/// exactly like searching for a book that was never imported. When a filter matches nothing, say whether
-	/// the thing being looked for is sitting in the trash.
+	/// Decide which explanation the empty grid should carry, if any. An empty library takes precedence over
+	/// an empty filter result: "no books match" is true but useless when there are no books at all.
 	/// </summary>
-	private async void refreshNoMatchesState(string? filterString)
+	private async void refreshGridEmptyState(string? filterString)
 	{
-		var noMatches = visibleCount == 0 && !string.IsNullOrWhiteSpace(filterString);
+		var gettingStarted = libraryIsEmpty && !LibraryCommands.Scanning;
+		var noMatches = !gettingStarted && visibleCount == 0 && !string.IsNullOrWhiteSpace(filterString);
 
 		this.UIThreadSync(() =>
 		{
-			noMatchesLbl.Text = TrashBinUi.NoMatchesText(filterString);
+			emptyLibraryLbl.Text = $"{GridEmptyStateUi.EmptyLibraryHeadline(anyAccounts)}\r\n{GridEmptyStateUi.EmptyLibraryDetail(anyAccounts)}";
+			emptyLibraryActionLink.Text = anyAccounts ? GridEmptyStateUi.ScanLibraryButton : GridEmptyStateUi.AddAccountButton;
+			emptyLibraryTourLink.Text = GridEmptyStateUi.TakeTheTourButton;
+			emptyLibraryLbl.Visible = gettingStarted;
+			emptyLibraryActionLink.Visible = gettingStarted;
+			emptyLibraryTourLink.Visible = gettingStarted;
+
+			noMatchesLbl.Text = GridEmptyStateUi.NoMatchesText(filterString);
+			noMatchesLbl.Visible = noMatches;
 			noMatchesTrashLink.Visible = false;
-			noMatchesPanel.Visible = noMatches;
-			if (noMatches)
+
+			noMatchesPanel.Visible = gettingStarted || noMatches;
+			if (noMatchesPanel.Visible)
 				noMatchesPanel.BringToFront();
 		});
 
 		if (!noMatches)
 			return;
 
+		// A trashed book is filtered out of the library and out of the search index, so searching for one
+		// looks exactly like searching for a book that was never imported. Say when that is what happened.
 		var matches = await Task.Run(() => TrashBinSearch.Search(filterString));
 		if (matches.Count == 0)
 			return;
 
 		this.UIThreadSync(() =>
 		{
-			noMatchesTrashLink.Text = $"{TrashBinUi.NoMatchesTrashHintText(matches.Count)}  Open Trash Bin";
+			noMatchesTrashLink.Text = $"{GridEmptyStateUi.NoMatchesTrashHintText(matches.Count)}  {GridEmptyStateUi.OpenTrashBinButton}";
 			noMatchesTrashLink.LinkArea = new LinkArea(
-				noMatchesTrashLink.Text.Length - "Open Trash Bin".Length,
-				"Open Trash Bin".Length);
+				noMatchesTrashLink.Text.Length - GridEmptyStateUi.OpenTrashBinButton.Length,
+				GridEmptyStateUi.OpenTrashBinButton.Length);
 			noMatchesTrashLink.Visible = true;
 		});
 	}
 
 	private void noMatchesTrashLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		=> openTrashBinToolStripMenuItem_Click(sender, e);
+
+	private void emptyLibraryActionLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+	{
+		// Adding an account comes first; telling someone without one to scan is a dead end.
+		if (anyAccounts)
+			scanLibraryOfAllAccountsToolStripMenuItem_Click(sender, e);
+		else
+			noAccountsYetAddAccountToolStripMenuItem_Click(sender, e);
+	}
+
+	private void emptyLibraryTourLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		=> tourToolStripMenuItem_Click(sender, e);
+
+	/// <summary>Re-evaluate against the filter already applied, for changes that came from somewhere else.</summary>
+	private void refreshGridEmptyState() => refreshGridEmptyState(lastGoodFilter);
+
+	/// <summary>Whether the library has any books at all, from the counts that were just taken.</summary>
+	private void setLibraryIsEmpty(bool isEmpty)
+	{
+		libraryIsEmpty = isEmpty;
+		refreshGridEmptyState();
+	}
+
+	private void setAnyAccounts(bool any)
+	{
+		anyAccounts = any;
+		refreshGridEmptyState();
+	}
 
 	public SearchSyntaxDialog ShowSearchSyntaxDialog()
 	{

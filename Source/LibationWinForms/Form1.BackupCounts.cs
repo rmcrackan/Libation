@@ -107,6 +107,11 @@ public partial class Form1
 	{
 		var libraryStats = getLibraryStats(e);
 		statusStrip1.UIThreadAsync(() => backupsCountsLbl.Text = libraryStats?.StatusString ?? "ERROR GETTING STATUS");
+
+		//Whether the library is empty is only known once these counts have been taken, which is also what
+		//keeps the getting-started panel off screen while a full library is still loading.
+		if (libraryStats is not null)
+			this.UIThreadAsync(() => setLibraryIsEmpty(!libraryStats.HasBookResults));
 	}
 
 	// update 'begin book and pdf backups' menu item

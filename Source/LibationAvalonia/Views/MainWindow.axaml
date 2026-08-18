@@ -279,6 +279,43 @@
 								Content="Open Trash Bin" />
 						</StackPanel>
 					</StackPanel>
+
+					<!-- Nothing in the library at all. An empty library has two causes with different next
+					     steps, so this offers the one that applies rather than the same advice to everybody. -->
+					<StackPanel
+						IsVisible="{Binding GettingStartedVisible}"
+						HorizontalAlignment="Center"
+						VerticalAlignment="Center"
+						Spacing="10">
+						<TextBlock
+							FontSize="18"
+							HorizontalAlignment="Center"
+							Text="{Binding GettingStartedHeadline}" />
+						<TextBlock
+							FontSize="14"
+							HorizontalAlignment="Center"
+							Foreground="{DynamicResource SystemBaseMediumColor}"
+							Text="{Binding GettingStartedDetail}" />
+						<StackPanel
+							Orientation="Horizontal"
+							HorizontalAlignment="Center"
+							Spacing="10">
+							<Button
+								Padding="14,5"
+								IsVisible="{Binding GettingStartedAddAccountVisible}"
+								Command="{Binding AddAccountsAsync}"
+								Content="Add Account" />
+							<Button
+								Padding="14,5"
+								IsVisible="{Binding GettingStartedScanVisible}"
+								Command="{Binding GettingStartedScanAsync}"
+								Content="Scan Library" />
+							<Button
+								Padding="14,5"
+								Command="{Binding StartWalkthroughAsync}"
+								Content="Take a Guided Tour" />
+						</StackPanel>
+					</StackPanel>
 				</Panel>
 			</SplitView>
 		</Border>

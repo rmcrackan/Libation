@@ -105,10 +105,11 @@ partial class MainVM
 	/// </summary>
 	private async Task RefreshNoMatchesStateAsync(string? searchString)
 	{
-		NoMatchesText = TrashBinUi.NoMatchesText(searchString);
+		NoMatchesText = GridEmptyStateUi.NoMatchesText(searchString);
 
-		//Only meaningful once the library itself has come up empty.
-		if (_visibleCount > 0 || string.IsNullOrWhiteSpace(searchString))
+		//Only meaningful once the grid has come up empty for a filter, and not when the library is empty:
+		//"no books match" is true but useless when there are no books at all.
+		if (_visibleCount > 0 || string.IsNullOrWhiteSpace(searchString) || GettingStartedVisible)
 		{
 			NoMatchesTrashHintVisible = false;
 			return;
@@ -116,7 +117,7 @@ partial class MainVM
 
 		var matches = await Task.Run(() => TrashBinSearch.Search(searchString));
 
-		NoMatchesTrashHintText = TrashBinUi.NoMatchesTrashHintText(matches.Count);
+		NoMatchesTrashHintText = GridEmptyStateUi.NoMatchesTrashHintText(matches.Count);
 		NoMatchesTrashHintVisible = matches.Count > 0;
 	}
 
@@ -127,6 +128,41 @@ partial class MainVM
 	public bool NoMatchesTrashHintVisible { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	/// <summary> The grid is empty because of a filter, not because the library is empty </summary>
 	public bool NoMatchesVisible { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
+
+	#region Getting started
+
+	/// <summary>
+	/// The grid is empty because there is nothing in the library at all. Held back until
+	/// <see cref="LibraryStats"/> has been counted at least once, which is what keeps "Add your Audible
+	/// account" off the screen during the moment between the window appearing and a full library loading.
+	/// Also held back mid-scan, where "no books yet" would be answering a question already being answered.
+	/// </summary>
+	public bool GettingStartedVisible => !ActivelyScanning && LibraryStats is { HasBookResults: false };
+
+	public string GettingStartedHeadline => GridEmptyStateUi.EmptyLibraryHeadline(AnyAccounts);
+	public string GettingStartedDetail => GridEmptyStateUi.EmptyLibraryDetail(AnyAccounts);
+
+	/// <summary>Adding an account comes first; telling someone without one to scan is a dead end.</summary>
+	public bool GettingStartedAddAccountVisible => !AnyAccounts;
+	public bool GettingStartedScanVisible => AnyAccounts;
+
+	internal void RaiseGettingStartedChanged()
+	{
+		this.RaisePropertyChanged(nameof(GettingStartedVisible));
+		this.RaisePropertyChanged(nameof(GettingStartedHeadline));
+		this.RaisePropertyChanged(nameof(GettingStartedDetail));
+		this.RaisePropertyChanged(nameof(GettingStartedAddAccountVisible));
+		this.RaisePropertyChanged(nameof(GettingStartedScanVisible));
+		updateNoMatchesVisible();
+	}
+
+	/// <summary>
+	/// Scan whatever accounts exist. The button only shows when there is at least one, and an empty library
+	/// is a case where every account is worth scanning, so this does not need the menu's one/many split.
+	/// </summary>
+	public async Task GettingStartedScanAsync() => await ScanAllAccountsAsync();
+
+	#endregion
 
 	private void updateFiltersMenu(object? _ = null, object? __ = null)
 	{

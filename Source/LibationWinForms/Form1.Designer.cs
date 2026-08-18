@@ -88,6 +88,9 @@
             this.noMatchesPanel = new System.Windows.Forms.Panel();
             this.noMatchesLbl = new System.Windows.Forms.Label();
             this.noMatchesTrashLink = new System.Windows.Forms.LinkLabel();
+            this.emptyLibraryLbl = new System.Windows.Forms.Label();
+            this.emptyLibraryActionLink = new System.Windows.Forms.LinkLabel();
+            this.emptyLibraryTourLink = new System.Windows.Forms.LinkLabel();
             this.toggleQueueHideBtn = new System.Windows.Forms.Button();
             this.doneRemovingBtn = new System.Windows.Forms.Button();
             this.removeBooksBtn = new System.Windows.Forms.Button();
@@ -573,6 +576,9 @@
             this.noMatchesPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.noMatchesPanel.Controls.Add(this.emptyLibraryTourLink);
+            this.noMatchesPanel.Controls.Add(this.emptyLibraryActionLink);
+            this.noMatchesPanel.Controls.Add(this.emptyLibraryLbl);
             this.noMatchesPanel.Controls.Add(this.noMatchesTrashLink);
             this.noMatchesPanel.Controls.Add(this.noMatchesLbl);
             this.noMatchesPanel.Location = new System.Drawing.Point(15, 36);
@@ -599,6 +605,35 @@
             this.noMatchesTrashLink.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.noMatchesTrashLink.Visible = false;
             this.noMatchesTrashLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.noMatchesTrashLink_LinkClicked);
+            // 
+            // emptyLibraryLbl
+            // 
+            this.emptyLibraryLbl.Dock = System.Windows.Forms.DockStyle.Top;
+            this.emptyLibraryLbl.Name = "emptyLibraryLbl";
+            this.emptyLibraryLbl.Size = new System.Drawing.Size(999, 56);
+            this.emptyLibraryLbl.TabIndex = 2;
+            this.emptyLibraryLbl.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.emptyLibraryLbl.Visible = false;
+            // 
+            // emptyLibraryActionLink
+            // 
+            this.emptyLibraryActionLink.Dock = System.Windows.Forms.DockStyle.Top;
+            this.emptyLibraryActionLink.Name = "emptyLibraryActionLink";
+            this.emptyLibraryActionLink.Size = new System.Drawing.Size(999, 28);
+            this.emptyLibraryActionLink.TabIndex = 3;
+            this.emptyLibraryActionLink.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.emptyLibraryActionLink.Visible = false;
+            this.emptyLibraryActionLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.emptyLibraryActionLink_LinkClicked);
+            // 
+            // emptyLibraryTourLink
+            // 
+            this.emptyLibraryTourLink.Dock = System.Windows.Forms.DockStyle.Top;
+            this.emptyLibraryTourLink.Name = "emptyLibraryTourLink";
+            this.emptyLibraryTourLink.Size = new System.Drawing.Size(999, 28);
+            this.emptyLibraryTourLink.TabIndex = 4;
+            this.emptyLibraryTourLink.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.emptyLibraryTourLink.Visible = false;
+            this.emptyLibraryTourLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.emptyLibraryTourLink_LinkClicked);
             // 
             // toggleQueueHideBtn
             // 
@@ -758,6 +793,9 @@
 		private System.Windows.Forms.Panel noMatchesPanel;
 		private System.Windows.Forms.Label noMatchesLbl;
 		private System.Windows.Forms.LinkLabel noMatchesTrashLink;
+		private System.Windows.Forms.Label emptyLibraryLbl;
+		private System.Windows.Forms.LinkLabel emptyLibraryActionLink;
+		private System.Windows.Forms.LinkLabel emptyLibraryTourLink;
 		private System.Windows.Forms.Button toggleQueueHideBtn;
 		public LibationWinForms.GridView.ProductsDisplay productsDisplay;
 		private System.Windows.Forms.Button removeBooksBtn;
