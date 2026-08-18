@@ -41,14 +41,11 @@ partial class MainVM
 	}
 
 	/// <summary>
-	/// An empty grid only needs explaining when a filter emptied it. An empty library speaks for itself
-	/// through the getting-started panel, which takes precedence.
+	/// An empty grid only needs explaining when a filter emptied it. Mutually exclusive with the
+	/// getting-started panel, which stands down while a filter is applied.
 	/// </summary>
 	private void updateNoMatchesVisible()
-		=> NoMatchesVisible
-			= _visibleCount == 0
-			&& !string.IsNullOrWhiteSpace(SelectedNamedFilter?.Filter)
-			&& !GettingStartedVisible;
+		=> NoMatchesVisible = _visibleCount == 0 && HasActiveFilter;
 
 	private void setVisibleNotLiberatedCount(int visibleNotLiberated)
 	{

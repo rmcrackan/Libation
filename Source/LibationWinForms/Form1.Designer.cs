@@ -91,6 +91,7 @@
             this.emptyLibraryLbl = new System.Windows.Forms.Label();
             this.emptyLibraryActionLink = new System.Windows.Forms.LinkLabel();
             this.emptyLibraryTourLink = new System.Windows.Forms.LinkLabel();
+            this.emptyLibraryTrashLink = new System.Windows.Forms.LinkLabel();
             this.toggleQueueHideBtn = new System.Windows.Forms.Button();
             this.doneRemovingBtn = new System.Windows.Forms.Button();
             this.removeBooksBtn = new System.Windows.Forms.Button();
@@ -576,6 +577,7 @@
             this.noMatchesPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.noMatchesPanel.Controls.Add(this.emptyLibraryTrashLink);
             this.noMatchesPanel.Controls.Add(this.emptyLibraryTourLink);
             this.noMatchesPanel.Controls.Add(this.emptyLibraryActionLink);
             this.noMatchesPanel.Controls.Add(this.emptyLibraryLbl);
@@ -634,6 +636,16 @@
             this.emptyLibraryTourLink.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.emptyLibraryTourLink.Visible = false;
             this.emptyLibraryTourLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.emptyLibraryTourLink_LinkClicked);
+            // 
+            // emptyLibraryTrashLink
+            // 
+            this.emptyLibraryTrashLink.Dock = System.Windows.Forms.DockStyle.Top;
+            this.emptyLibraryTrashLink.Name = "emptyLibraryTrashLink";
+            this.emptyLibraryTrashLink.Size = new System.Drawing.Size(999, 28);
+            this.emptyLibraryTrashLink.TabIndex = 5;
+            this.emptyLibraryTrashLink.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.emptyLibraryTrashLink.Visible = false;
+            this.emptyLibraryTrashLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.emptyLibraryTrashLink_LinkClicked);
             // 
             // toggleQueueHideBtn
             // 
@@ -796,6 +808,7 @@
 		private System.Windows.Forms.Label emptyLibraryLbl;
 		private System.Windows.Forms.LinkLabel emptyLibraryActionLink;
 		private System.Windows.Forms.LinkLabel emptyLibraryTourLink;
+		private System.Windows.Forms.LinkLabel emptyLibraryTrashLink;
 		private System.Windows.Forms.Button toggleQueueHideBtn;
 		public LibationWinForms.GridView.ProductsDisplay productsDisplay;
 		private System.Windows.Forms.Button removeBooksBtn;

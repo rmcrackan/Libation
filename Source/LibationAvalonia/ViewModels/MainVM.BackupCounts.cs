@@ -28,6 +28,7 @@ partial class MainVM
 			this.RaisePropertyChanged(nameof(TrashBinMenuText));
 			this.RaisePropertyChanged(nameof(TrashBinStatusText));
 			this.RaisePropertyChanged(nameof(TrashBinStatusVisible));
+			RaiseGettingStartedChanged();
 		}
 	}
 

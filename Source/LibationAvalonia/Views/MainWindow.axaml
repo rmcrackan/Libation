@@ -315,6 +315,24 @@
 								Command="{Binding StartWalkthroughAsync}"
 								Content="Take a Guided Tour" />
 						</StackPanel>
+
+						<!-- The books are not gone, they are in the trash. Saying so keeps the headline above
+						     from reading as though they were never there. -->
+						<StackPanel
+							IsVisible="{Binding GettingStartedTrashVisible}"
+							Orientation="Horizontal"
+							HorizontalAlignment="Center"
+							Spacing="10">
+							<TextBlock
+								FontSize="14"
+								VerticalAlignment="Center"
+								Text="{Binding GettingStartedTrashText}" />
+							<Button
+								Padding="10,4"
+								VerticalAlignment="Center"
+								Command="{Binding ShowTrashBinAsync}"
+								Content="Open Trash Bin" />
+						</StackPanel>
 					</StackPanel>
 				</Panel>
 			</SplitView>

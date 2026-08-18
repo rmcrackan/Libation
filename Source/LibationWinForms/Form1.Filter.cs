@@ -74,6 +74,7 @@ public partial class Form1
 	private int visibleCount;
 	private bool libraryIsEmpty;
 	private bool anyAccounts;
+	private int booksInTrash;
 
 	/// <summary>
 	/// Decide which explanation the empty grid should carry, if any. An empty library takes precedence over
@@ -81,8 +82,10 @@ public partial class Form1
 	/// </summary>
 	private async void refreshGridEmptyState(string? filterString)
 	{
-		var gettingStarted = libraryIsEmpty && !LibraryCommands.Scanning;
-		var noMatches = !gettingStarted && visibleCount == 0 && !string.IsNullOrWhiteSpace(filterString);
+		// Someone searching is not someone getting started, so a filter always answers for itself.
+		var hasFilter = !string.IsNullOrWhiteSpace(filterString);
+		var gettingStarted = libraryIsEmpty && !hasFilter && !LibraryCommands.Scanning;
+		var noMatches = hasFilter && visibleCount == 0;
 
 		this.UIThreadSync(() =>
 		{
@@ -92,6 +95,12 @@ public partial class Form1
 			emptyLibraryLbl.Visible = gettingStarted;
 			emptyLibraryActionLink.Visible = gettingStarted;
 			emptyLibraryTourLink.Visible = gettingStarted;
+
+			// The books are not gone, they are in the trash. Saying so keeps the headline above from
+			// reading as though they were never there.
+			emptyLibraryTrashLink.Visible = gettingStarted && booksInTrash > 0;
+			if (emptyLibraryTrashLink.Visible)
+				SetTrashLink(emptyLibraryTrashLink, GridEmptyStateUi.EmptyLibraryTrashHintText(booksInTrash));
 
 			noMatchesLbl.Text = GridEmptyStateUi.NoMatchesText(filterString);
 			noMatchesLbl.Visible = noMatches;
@@ -113,12 +122,18 @@ public partial class Form1
 
 		this.UIThreadSync(() =>
 		{
-			noMatchesTrashLink.Text = $"{GridEmptyStateUi.NoMatchesTrashHintText(matches.Count)}  {GridEmptyStateUi.OpenTrashBinButton}";
-			noMatchesTrashLink.LinkArea = new LinkArea(
-				noMatchesTrashLink.Text.Length - GridEmptyStateUi.OpenTrashBinButton.Length,
-				GridEmptyStateUi.OpenTrashBinButton.Length);
+			SetTrashLink(noMatchesTrashLink, GridEmptyStateUi.NoMatchesTrashHintText(matches.Count));
 			noMatchesTrashLink.Visible = true;
 		});
+	}
+
+	/// <summary>Sentence plus a trailing "Open Trash Bin" link, which is the clickable part.</summary>
+	private static void SetTrashLink(LinkLabel link, string sentence)
+	{
+		link.Text = $"{sentence}  {GridEmptyStateUi.OpenTrashBinButton}";
+		link.LinkArea = new LinkArea(
+			link.Text.Length - GridEmptyStateUi.OpenTrashBinButton.Length,
+			GridEmptyStateUi.OpenTrashBinButton.Length);
 	}
 
 	private void noMatchesTrashLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -151,6 +166,15 @@ public partial class Form1
 		anyAccounts = any;
 		refreshGridEmptyState();
 	}
+
+	private void setBooksInTrash(int count)
+	{
+		booksInTrash = count;
+		refreshGridEmptyState();
+	}
+
+	private void emptyLibraryTrashLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		=> openTrashBinToolStripMenuItem_Click(sender, e);
 
 	public SearchSyntaxDialog ShowSearchSyntaxDialog()
 	{

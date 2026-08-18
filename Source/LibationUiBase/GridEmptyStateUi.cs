@@ -43,6 +43,15 @@ public static class GridEmptyStateUi
 			? "Scan your Audible account to bring your books in."
 			: "Add your Audible account, then scan your library to bring your books in.";
 
+	/// <summary>
+	/// Books in the trash while the library itself is empty. Without this the headline above reads as though
+	/// the books were never there, when in fact they are one click away.
+	/// </summary>
+	public static string EmptyLibraryTrashHintText(int booksInTrash)
+		=> booksInTrash == 1
+			? "1 book is in the trash."
+			: $"{booksInTrash} books are in the trash.";
+
 	public const string AddAccountButton = "Add Account";
 	public const string ScanLibraryButton = "Scan Library";
 

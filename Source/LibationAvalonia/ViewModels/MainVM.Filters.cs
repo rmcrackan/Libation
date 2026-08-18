@@ -20,7 +20,17 @@ partial class MainVM
 	private QuickFilters.NamedFilter? lastGoodFilter => new(lastGoodSearch, null);
 
 	/// <summary> Library filterting query </summary>
-	public QuickFilters.NamedFilter? SelectedNamedFilter { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = new(string.Empty, null);
+	public QuickFilters.NamedFilter? SelectedNamedFilter
+	{
+		get => field;
+		set
+		{
+			this.RaiseAndSetIfChanged(ref field, value);
+			//Which explanation the empty grid carries depends on whether a filter is applied.
+			this.RaisePropertyChanged(nameof(HasActiveFilter));
+			RaiseGettingStartedChanged();
+		}
+	} = new(string.Empty, null);
 	public AvaloniaList<Control> QuickFilterMenuItems { get; } = new();
 	/// <summary> Indicates if the first quick filter is the default filter </summary>
 	public bool FirstFilterIsDefault { get => field; set => QuickFilters.UseDefault = this.RaiseAndSetIfChanged(ref field, value); }
@@ -107,9 +117,9 @@ partial class MainVM
 	{
 		NoMatchesText = GridEmptyStateUi.NoMatchesText(searchString);
 
-		//Only meaningful once the grid has come up empty for a filter, and not when the library is empty:
-		//"no books match" is true but useless when there are no books at all.
-		if (_visibleCount > 0 || string.IsNullOrWhiteSpace(searchString) || GettingStartedVisible)
+		//Search the trash whenever a filter emptied the grid, including when the library itself is empty:
+		//someone who trashed everything and then searched for one of those books is exactly who needs telling.
+		if (_visibleCount > 0 || string.IsNullOrWhiteSpace(searchString))
 		{
 			NoMatchesTrashHintVisible = false;
 			return;
@@ -131,13 +141,20 @@ partial class MainVM
 
 	#region Getting started
 
+	/// <summary>A filter is applied, so an empty grid is the filter's doing rather than the library's.</summary>
+	public bool HasActiveFilter => !string.IsNullOrWhiteSpace(SelectedNamedFilter?.Filter);
+
 	/// <summary>
 	/// The grid is empty because there is nothing in the library at all. Held back until
 	/// <see cref="LibraryStats"/> has been counted at least once, which is what keeps "Add your Audible
 	/// account" off the screen during the moment between the window appearing and a full library loading.
-	/// Also held back mid-scan, where "no books yet" would be answering a question already being answered.
+	/// Also held back mid-scan, where "no books yet" would be answering a question already being answered,
+	/// and while a filter is applied, because someone searching is not someone getting started.
 	/// </summary>
-	public bool GettingStartedVisible => !ActivelyScanning && LibraryStats is { HasBookResults: false };
+	public bool GettingStartedVisible
+		=> !ActivelyScanning
+		&& !HasActiveFilter
+		&& LibraryStats is { HasBookResults: false };
 
 	public string GettingStartedHeadline => GridEmptyStateUi.EmptyLibraryHeadline(AnyAccounts);
 	public string GettingStartedDetail => GridEmptyStateUi.EmptyLibraryDetail(AnyAccounts);
@@ -146,6 +163,13 @@ partial class MainVM
 	public bool GettingStartedAddAccountVisible => !AnyAccounts;
 	public bool GettingStartedScanVisible => AnyAccounts;
 
+	/// <summary>
+	/// An empty library whose books are all in the trash. "Libation is empty" would be wrong on its own:
+	/// the books are not gone, they are one click away.
+	/// </summary>
+	public bool GettingStartedTrashVisible => BooksInTrash > 0;
+	public string GettingStartedTrashText => GridEmptyStateUi.EmptyLibraryTrashHintText(BooksInTrash);
+
 	internal void RaiseGettingStartedChanged()
 	{
 		this.RaisePropertyChanged(nameof(GettingStartedVisible));
@@ -153,6 +177,8 @@ partial class MainVM
 		this.RaisePropertyChanged(nameof(GettingStartedDetail));
 		this.RaisePropertyChanged(nameof(GettingStartedAddAccountVisible));
 		this.RaisePropertyChanged(nameof(GettingStartedScanVisible));
+		this.RaisePropertyChanged(nameof(GettingStartedTrashVisible));
+		this.RaisePropertyChanged(nameof(GettingStartedTrashText));
 		updateNoMatchesVisible();
 	}
 

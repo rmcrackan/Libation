@@ -60,6 +60,7 @@ public partial class Form1
 			trashBinLbl.Text = LibationUiBase.TrashBinUi.StatusText(booksInTrash);
 			trashBinLbl.Visible = LibationUiBase.TrashBinUi.ShowStatus(booksInTrash);
 			openTrashBinToolStripMenuItem.Text = LibationUiBase.TrashBinUi.MenuText(booksInTrash);
+			setBooksInTrash(booksInTrash);
 		});
 	}
 
