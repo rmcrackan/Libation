@@ -16,14 +16,24 @@ public partial class UpgradeNotificationDialog : Form
 		this.SetLibationIcon();
 	}
 
-	public UpgradeNotificationDialog(UpgradeProperties upgradeProperties) : this()
+	public UpgradeNotificationDialog(UpgradeProperties upgradeProperties, bool canUpgrade = true, string? upgradeUnavailableReason = null) : this()
 	{
 		Text = $"Libation version {upgradeProperties.LatestRelease.ToVersionString()} is now available.";
 		PackageUrl = upgradeProperties.ZipUrl;
 		packageDlLink.Text = upgradeProperties.ZipName;
 		releaseNotesTbox.Text = upgradeProperties.Notes;
 
-		Shown += (_, _) => yesBtn.Focus();
+		if (!canUpgrade)
+		{
+			// Without a Yes button the dialog is a notice, so it must not keep asking a question
+			// that no longer has an answer.
+			promptLbl.Text = "There is a new version available.";
+			promptDetailLbl.Text = upgradeUnavailableReason ?? "Libation cannot install this upgrade itself.";
+			yesBtn.Visible = false;
+			noBtn.Text = "OK";
+		}
+
+		Shown += (_, _) => (canUpgrade ? yesBtn : noBtn).Focus();
 	}
 
 	private void PackageDlLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

@@ -30,13 +30,13 @@ public partial class UpgradeNotificationDialog : DialogWindow
 		ControlToFocusOnShow = btnYes;
 	}
 
-	public UpgradeNotificationDialog(UpgradeProperties upgradeProperties, bool canUpgrade) : this()
+	public UpgradeNotificationDialog(UpgradeProperties upgradeProperties, bool canUpgrade, string? upgradeUnavailableReason = null) : this()
 	{
 		Title = $"Libation version {upgradeProperties.LatestRelease.ToVersionString()} is now available.";
 		PackageUrl = upgradeProperties.ZipUrl;
 		DownloadLinkText = upgradeProperties.ZipName;
 		ReleaseNotes = upgradeProperties.Notes;
-		TopMessage = canUpgrade ? UpdateMessage : "";
+		TopMessage = canUpgrade ? UpdateMessage : upgradeUnavailableReason ?? "";
 		OkText = canUpgrade ? "Yes" : "OK";
 		DataContext = this;
 	}

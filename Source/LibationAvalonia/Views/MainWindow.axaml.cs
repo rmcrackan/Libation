@@ -263,7 +263,7 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 #pragma warning disable CS8321 // Local function is declared but never used
 		async Task upgradeAvailable(LibationUiBase.UpgradeEventArgs e)
 		{
-			var notificationResult = await new UpgradeNotificationDialog(e.UpgradeProperties, e.CapUpgrade).ShowDialogAsync(this);
+			var notificationResult = await new UpgradeNotificationDialog(e.UpgradeProperties, e.CapUpgrade, e.UpgradeUnavailableReason).ShowDialogAsync(this);
 
 			e.Ignore = notificationResult == DialogResult.Ignore;
 			e.InstallUpgrade = notificationResult == DialogResult.OK;
