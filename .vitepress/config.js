@@ -111,6 +111,7 @@ export default defineConfig({
             text: "Easy guide to searching",
             link: "/docs/features/lucene",
           },
+          { text: "Trash Bin", link: "/docs/features/trash-bin" },
         ],
       },
       {
