@@ -13,7 +13,7 @@ public partial class Form1
 #pragma warning disable CS8321 // Local function is declared but never used
 		async Task upgradeAvailable(UpgradeEventArgs e)
 		{
-			var notificationResult = await new UpgradeNotificationDialog(e.UpgradeProperties, e.CapUpgrade, e.UpgradeUnavailableReason).ShowDialogAsync(this);
+			var notificationResult = await new UpgradeNotificationDialog(e.UpgradeProperties, e.CapUpgrade, e.UpgradeUnavailableSummary).ShowDialogAsync(this);
 
 			e.Ignore = notificationResult == DialogResult.Ignore;
 			e.InstallUpgrade = notificationResult == DialogResult.Yes;

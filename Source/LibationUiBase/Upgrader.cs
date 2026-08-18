@@ -8,12 +8,20 @@ using System.Threading.Tasks;
 
 namespace LibationUiBase;
 
+/// <summary>Whether Libation may replace its own install files, and what to say when it may not.</summary>
+internal readonly record struct UpgradeCapability(bool CapUpgrade, string? Reason, string? Summary);
+
 public class UpgradeEventArgs
 {
 	public required UpgradeProperties UpgradeProperties { get; init; }
 	public bool CapUpgrade { get; internal init; }
 	/// <summary>Why Libation cannot install this upgrade itself, to show in place of the update prompt. Null when it can.</summary>
 	public string? UpgradeUnavailableReason { get; internal init; }
+	/// <summary>
+	/// The same thing in one line, for Classic, whose dialog has a single line of room above the
+	/// release notes. Null when Libation can install the upgrade.
+	/// </summary>
+	public string? UpgradeUnavailableSummary { get; internal init; }
 	private bool _ignore = false;
 	private bool _installUpgrade = true;
 	public bool Ignore
@@ -186,11 +194,14 @@ public abstract class UpgraderBase
 {
 	internal const string ApplicationControlUpgradeMessage =
 		$"""
-		A new version is available, but Libation cannot install it itself: Smart App Control is on for this PC, and it blocks files Windows does not recognise. Replacing Libation's files in place is what leaves it unable to start.
+		A new version is available, but Libation cannot install it itself: Smart App Control is On for this PC, and it blocks files Windows does not recognise. Replacing Libation's files in place is what leaves it unable to start.
 
 		Download the release below and install it yourself. If Windows blocks that too, see:
 		{StartupAssemblyBootstrap.TroubleshootApplicationControlUrl}
 		""";
+
+	internal const string ApplicationControlUpgradeSummary =
+		"Libation cannot install this update while Smart App Control is On.";
 
 	public event EventHandler? DownloadBegin;
 	public event EventHandler<DownloadProgress>? DownloadProgress;
@@ -210,10 +221,10 @@ public abstract class UpgraderBase
 	/// enforcement is what turns a working install into one that cannot start.
 	/// Kept separate from the upgrade flow so the enforcing case is testable away from Windows.
 	/// </summary>
-	internal static (bool CapUpgrade, string? UnavailableReason) ResolveUpgradeCapability(bool platformCanUpgrade, bool applicationControlEnforcing)
+	internal static UpgradeCapability ResolveUpgradeCapability(bool platformCanUpgrade, bool applicationControlEnforcing)
 		=> applicationControlEnforcing
-			? (false, ApplicationControlUpgradeMessage)
-			: (platformCanUpgrade, null);
+			? new(false, ApplicationControlUpgradeMessage, ApplicationControlUpgradeSummary)
+			: new(platformCanUpgrade, null, null);
 
 	/// <summary>Check for upgrade and invoke <paramref name="upgradeAvailableHandler"/> if an update is available. Returns the check outcome so the UI can show "up to date", "update available", or "unable to determine".</summary>
 	public async Task<VersionCheckResult> CheckForUpgradeAsync(Func<UpgradeEventArgs, Task> upgradeAvailableHandler)
@@ -240,13 +251,14 @@ public abstract class UpgraderBase
 			if (applicationControlBlocksUpgrade)
 				Serilog.Log.Logger.Information("Windows Application Control is enforcing. Offering the download instead of an in-app upgrade.");
 
-			var (capUpgrade, unavailableReason) = ResolveUpgradeCapability(interop.CanUpgrade, applicationControlBlocksUpgrade);
+			var capability = ResolveUpgradeCapability(interop.CanUpgrade, applicationControlBlocksUpgrade);
 
 			var upgradeEventArgs = new UpgradeEventArgs
 			{
 				UpgradeProperties = upgradeProperties,
-				CapUpgrade = capUpgrade,
-				UpgradeUnavailableReason = unavailableReason,
+				CapUpgrade = capability.CapUpgrade,
+				UpgradeUnavailableReason = capability.Reason,
+				UpgradeUnavailableSummary = capability.Summary,
 			};
 
 			await upgradeAvailableHandler(upgradeEventArgs);

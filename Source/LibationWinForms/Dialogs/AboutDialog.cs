@@ -71,7 +71,7 @@ public partial class AboutDialog : Form
 
 		Task OnUpgradeAvailable(UpgradeEventArgs e)
 		{
-			var notificationResult = new UpgradeNotificationDialog(e.UpgradeProperties, e.CapUpgrade, e.UpgradeUnavailableReason).ShowDialog(this);
+			var notificationResult = new UpgradeNotificationDialog(e.UpgradeProperties, e.CapUpgrade, e.UpgradeUnavailableSummary).ShowDialog(this);
 
 			e.Ignore = notificationResult == DialogResult.Ignore;
 			e.InstallUpgrade = notificationResult == DialogResult.Yes;
