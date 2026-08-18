@@ -14,7 +14,7 @@ public static class StartupAssemblyBootstrap
 	public const string EntityFrameworkCoreSqliteAssemblyFileName = "Microsoft.EntityFrameworkCore.Sqlite.dll";
 	public const int ApplicationControlBlockedHResult = unchecked((int)0x800711C7);
 	private const string TroubleshootApplicationControlUrl = "https://getlibation.com/docs/advanced/troubleshoot#windows-smart-app-control-and-in-app-upgrades";
-	internal const string TroubleshootIncompleteUpgradeUrl = "https://getlibation.com/docs/advanced/troubleshoot#windows-smart-app-control-and-in-app-upgrades";
+	internal const string TroubleshootIncompleteUpgradeUrl = "https://getlibation.com/docs/advanced/troubleshoot#windows-incomplete-in-app-upgrade";
 
 	/// <summary>
 	/// Registers <see cref="InteropFactory"/> assembly resolution and verifies required install-folder assemblies exist.
@@ -75,12 +75,14 @@ public static class StartupAssemblyBootstrap
 		{Path.Combine(Configuration.ProcessDirectory, EntityFrameworkCoreSqliteAssemblyFileName)}
 		""";
 
+	// Release status, such as code signing progress, belongs in the linked docs rather than here:
+	// this string ships frozen in each build and cannot be corrected after release.
 	public static string GetApplicationControlBlockedMessage(Exception? ex = null)
 	{
 		var blockedFile = TryGetBlockedAssemblyPath(ex) ?? "(unknown)";
 
 		return $"""
-			Windows blocked Libation from loading a required file in its install folder. This often happens after an in-app upgrade when Smart App Control or another Application Control policy is enabled.
+			Windows blocked Libation from loading a required file in its install folder. An Application Control policy, usually Smart App Control, is refusing to run it.
 
 			Blocked file:
 			{blockedFile}
@@ -88,15 +90,13 @@ public static class StartupAssemblyBootstrap
 			Install folder:
 			{Configuration.ProcessDirectory}
 
+			Smart App Control runs only code that Microsoft's reputation service recognises or that is signed with a trusted certificate. Libation's Windows builds are not signed yet. Windows offers no way to allow a single app through, so reinstalling to another folder and unblocking the files do not help.
+
 			Your library database, accounts, and settings are stored separately and should be unaffected.
 
-			To recover:
-			1. Quit Libation completely.
-			2. Download the latest release zip from GitHub and extract it to a new folder (do not copy files on top of the old install).
-			3. Run Libation from the new folder.
+			To check whether this is Smart App Control, open Settings -> Privacy & Security -> Windows Security -> App & browser control -> Smart App Control settings. Only the On setting blocks anything; Evaluation observes without blocking.
 
-			If Windows still blocks the app, review Smart App Control under Windows Security -> App & browser control, or run this in PowerShell (replace the path if needed):
-			Unblock-File -Path '{Configuration.ProcessDirectory}\*' -Recurse
+			If it is On, turning it off is one way out, but Windows cannot turn it back on again without a reset or reinstall. Check the page below for the current options before you change anything. If it is already off, the block comes from a policy set by whoever manages this PC.
 
 			More help:
 			{TroubleshootApplicationControlUrl}
@@ -255,11 +255,11 @@ public static class StartupAssemblyBootstrap
 
 			To recover:
 			1. Quit Libation completely.
-			2. Download the latest release zip from GitHub.
-			3. Extract it to a new folder (do not copy files on top of the old install).
-			4. Run Libation from the new folder.
+			2. Download the latest release from GitHub. The setup.exe installer is the easiest option.
+			3. If you use the zip instead, extract it to a new folder (do not copy files on top of the old install).
+			4. Run Libation from the new install.
 
-			If Windows Smart App Control blocked updated files, see:
+			More help:
 			{TroubleshootIncompleteUpgradeUrl}
 			""";
 	}

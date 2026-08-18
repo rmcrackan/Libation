@@ -148,6 +148,47 @@ public class InstallUpgradeManagerTests
 		StringAssert.Contains(message.Body, "LibationUiBase");
 	}
 
+	[TestMethod]
+	public void GetStartupFailureMessage_names_the_blocked_file_and_explains_the_missing_signature()
+	{
+		var ex = new FileLoadException(
+			"An Application Control policy has blocked this file. (0x800711C7)",
+			@"C:\Libation\Serilog.Settings.Configuration.dll");
+
+		Assert.IsTrue(StartupAssemblyBootstrap.IsApplicationControlBlockedAssembly(ex));
+
+		var message = StartupAssemblyBootstrap.GetStartupFailureMessage(ex);
+
+		Assert.IsNotNull(message);
+		Assert.AreEqual("Libation blocked by Windows security", message.Title);
+		StringAssert.Contains(message.Body, @"C:\Libation\Serilog.Settings.Configuration.dll");
+		StringAssert.Contains(message.Body, "Smart App Control");
+		StringAssert.Contains(message.Body, "not signed");
+	}
+
+	// Unblock-File takes no -Recurse argument, and Smart App Control gates on the signature
+	// rather than on Mark-of-the-Web, so telling users to unblock the folder sent them after a
+	// command that both fails to run and cannot fix the block. See issue #1967.
+	[TestMethod]
+	public void GetApplicationControlBlockedMessage_does_not_suggest_unblocking_the_install_folder()
+	{
+		var body = StartupAssemblyBootstrap.GetApplicationControlBlockedMessage();
+
+		Assert.IsFalse(body.Contains("Unblock-File", StringComparison.OrdinalIgnoreCase));
+	}
+
+	[TestMethod]
+	public void Startup_messages_link_to_their_own_docs_sections()
+	{
+		StringAssert.Contains(
+			StartupAssemblyBootstrap.GetIncompleteUpgradeFailureMessage(),
+			"troubleshoot#windows-incomplete-in-app-upgrade");
+
+		StringAssert.Contains(
+			StartupAssemblyBootstrap.GetApplicationControlBlockedMessage(),
+			"troubleshoot#windows-smart-app-control-and-in-app-upgrades");
+	}
+
 	private void WriteInstallFile(string fileName, string contents)
 		=> File.WriteAllText(Path.Combine(_installDir, fileName), contents);
 
