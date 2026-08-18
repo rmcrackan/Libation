@@ -87,6 +87,20 @@ if (root["Accounts"] is not JArray accounts)
 	root["Accounts"] = accounts;
 }
 
+/// <summary>
+/// Whether this script wrote the account, decided from its id rather than a marker property.
+/// </summary>
+/// <remarks>
+/// A property would be tidier but does not survive: AudibleUtilities.Account serializes exactly five members
+/// and has no [JsonExtensionData], so Newtonsoft ignores an extra property on the way in and never writes it
+/// back out. Verified by adding one and renaming the account in the app - the save dropped it. Anything that
+/// dirties an account does the same, including a token refresh during a scan, and --clean would then leave
+/// demo accounts behind with no way to find them. Giving the shipping Account class a demo flag to serve a
+/// dev script is not a trade worth making.
+///
+/// The id is the right anchor instead: it is immutable, always persisted, and example.com is reserved by
+/// RFC 2606, so no real Audible login can collide with it.
+/// </remarks>
 static bool IsDemo(JToken account)
 	=> account["AccountId"]?.Value<string>() is string id
 	&& id.StartsWith(DemoAccountPrefix, StringComparison.OrdinalIgnoreCase)

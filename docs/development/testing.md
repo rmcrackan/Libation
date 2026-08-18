@@ -162,6 +162,12 @@ Real accounts in the file are left alone, and `--clean` only removes the account
 whose id matches `demo*@example.com`. Even so, this writes to the file holding your Audible tokens, so on a
 machine with a real account signed in, back that file up first.
 
+The id is what identifies them, rather than a marker property, because a marker does not survive. `Account`
+serializes a fixed set of members and has no `[JsonExtensionData]`, so anything that dirties an account -
+renaming it, or a token refresh during a scan - rewrites the file without the extra property, and `--clean`
+would no longer recognize its own accounts. An id is immutable and always persisted, and `example.com` is
+reserved by RFC 2606 so no real Audible login can collide with it.
+
 The tokens are written as plaintext rather than reaching for the OS secret store, which a test script has no
 business touching. Libation reads either, whatever **Settings > Important > Token storage** is set to.
 
