@@ -110,10 +110,12 @@ Windows can move itself from Evaluation to On on its own, which is why Libation 
 
 Windows has no way to allow a single app through Smart App Control. Microsoft's guidance is to turn it off or to ask the developer to sign the app. Reinstalling, extracting to a different folder, and unblocking files all leave the signature missing, so none of them help.
 
-That leaves two real options: turn Smart App Control off, or run Libation on a machine that does not have it on.
+That leaves three options: wait for signed builds, run Libation on a machine that does not have Smart App Control on, or turn Smart App Control off.
+
+Code signing is in progress. Libation has applied to the [SignPath Foundation](https://signpath.io/), which signs open source projects for free. Signed builds run under Smart App Control with nothing to change on your side. The application has to be approved first, so there is no date for it; watch the [releases page](https://github.com/rmcrackan/Libation/releases). Signing will not silence every Windows warning at once, because SmartScreen keeps warning about new downloads until they earn a reputation, signed or not.
 
 > [!WARNING] Turning Smart App Control off cannot be undone
-> Windows will not turn Smart App Control back on without a reset or reinstall. An earlier version of this page suggested disabling it temporarily and re-enabling it afterwards. That is not possible; ignore that advice if you saw it.
+> Windows will not turn Smart App Control back on without a reset or reinstall, so weigh that against simply waiting. An earlier version of this page suggested disabling it temporarily and re-enabling it afterwards. That is not possible; ignore that advice if you saw it.
 
 **If it is already Off**
 

@@ -75,6 +75,8 @@ public static class StartupAssemblyBootstrap
 		{Path.Combine(Configuration.ProcessDirectory, EntityFrameworkCoreSqliteAssemblyFileName)}
 		""";
 
+	// Release status, such as code signing progress, belongs in the linked docs rather than here:
+	// this string ships frozen in each build and cannot be corrected after release.
 	public static string GetApplicationControlBlockedMessage(Exception? ex = null)
 	{
 		var blockedFile = TryGetBlockedAssemblyPath(ex) ?? "(unknown)";
@@ -94,7 +96,7 @@ public static class StartupAssemblyBootstrap
 
 			To check whether this is Smart App Control, open Settings -> Privacy & Security -> Windows Security -> App & browser control -> Smart App Control settings. Only the On setting blocks anything; Evaluation observes without blocking.
 
-			If it is On, you can turn it off, but be aware that Windows cannot turn it back on again without a reset or reinstall. If it is already off, the block comes from a policy set by whoever manages this PC.
+			If it is On, turning it off is one way out, but Windows cannot turn it back on again without a reset or reinstall. Check the page below for the current options before you change anything. If it is already off, the block comes from a policy set by whoever manages this PC.
 
 			More help:
 			{TroubleshootApplicationControlUrl}
