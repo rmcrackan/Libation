@@ -11,6 +11,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -673,7 +674,12 @@ public static class LibraryCommands
 		}
 	}
 
-	public static LibraryStats GetCounts(IEnumerable<LibraryBook>? libraryBooks = null)
+	/// <param name="requestedBy">
+	/// Names the caller in the log. Both UIs count the whole library and the visible subset as the
+	/// library loads, and the two produce identical lines whenever no filter is applied, so without
+	/// this there is no way to tell which set a given count describes.
+	/// </param>
+	public static LibraryStats GetCounts(IEnumerable<LibraryBook>? libraryBooks = null, [CallerMemberName] string requestedBy = "")
 	{
 		libraryBooks ??= DbContexts.GetLibrary_Flat_NoTracking();
 
@@ -689,7 +695,7 @@ public static class LibraryCommands
 		var booksError = results.Count(r => r.status == LiberatedStatus.Error);
 		var booksUnavailable = results.Count(r => r.absent && r.status is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload);
 
-		Log.Logger.Information("Book counts. {@DebugInfo}", new { total = results.Count, booksFullyBackedUp, booksDownloadedOnly, booksNoProgress, booksError, booksUnavailable });
+		Log.Logger.Information("Book counts for {RequestedBy}. {@DebugInfo}", requestedBy, new { total = results.Count, booksFullyBackedUp, booksDownloadedOnly, booksNoProgress, booksError, booksUnavailable });
 
 		var pdfResults = libraryBooks
 			.AsParallel()
@@ -701,7 +707,7 @@ public static class LibraryCommands
 		var pdfsNotDownloaded = pdfResults.Count(r => !r.absent && r.status == LiberatedStatus.NotLiberated);
 		var pdfsUnavailable = pdfResults.Count(r => r.absent && r.status == LiberatedStatus.NotLiberated);
 
-		Log.Logger.Information("PDF counts. {@DebugInfo}", new { total = pdfResults.Count, pdfsDownloaded, pdfsNotDownloaded, pdfsUnavailable });
+		Log.Logger.Information("PDF counts for {RequestedBy}. {@DebugInfo}", requestedBy, new { total = pdfResults.Count, pdfsDownloaded, pdfsNotDownloaded, pdfsUnavailable });
 
 		return new(booksFullyBackedUp, booksDownloadedOnly, booksNoProgress, booksError, booksUnavailable, pdfsDownloaded, pdfsNotDownloaded, pdfsUnavailable, libraryBooks);
 	}
