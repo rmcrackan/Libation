@@ -59,7 +59,7 @@ Forgetting the `--` is the usual reason a flag appears to be ignored.
 
 Fills a Libation library with fake books covering every icon the grid's **Liberate** column can draw, so a change to those icons can be checked at a glance instead of by hunting for a real book in the right state.
 
-It seeds the full stoplight matrix - each lamp color, each PDF state, purchased and Audible Plus - plus both error icons and a podcast series with episodes. On success it prints a row-by-row list of what each seeded row should look like, so sort the grid by **Title** and read down.
+It seeds the full stoplight matrix - each lamp color, each PDF state, purchased and Audible Plus - plus both error icons, a podcast series with episodes, books missing from the last scan, and books in the trash. On success it prints a row-by-row list of what each seeded row should look like, so sort the grid by **Title** and read down.
 
 Run Libation once first so the database exists, and close it before seeding:
 
@@ -84,6 +84,28 @@ Both commands are safe to re-run. Seeding skips books that are already present, 
 ::: warning
 The seeded books are not real, so do not click their stoplights - that queues a download which cannot succeed. Expanding a seeded series row is fine.
 :::
+
+#### Books in the trash
+
+Three of the seeded books are in the trash, and they are the only ones that will not be in the grid. Removal is a soft delete: `GetLibrary()` filters `IsDeleted` out, which takes a trashed book out of the grid, out of the search index and out of every status count at once. Nothing then distinguishes it from a book that was never imported, which is what made [#1925](https://github.com/rmcrackan/Libation/issues/1925) take a week to answer. These rows are how the affordances that fixed that are checked.
+
+The script prints them under their own heading, along with what should account for them:
+
+```
+3 seeded book(s) are in the trash, so they are NOT in the grid:
+  28 Trashed | purchased                         in the trash bin only, red lamp there
+  29 Trashed | PLUS                              in the trash bin only, green lamp with badge there
+  30 Demo Series - episode 3 (trashed)           nested under Demo Series in the trash bin, absent from the grid
+```
+
+Four things to check, none of which needs a real Audible account:
+
+- The status bar ends with a clickable **3 in trash**, which opens the trash bin. It disappears entirely once the trash is empty.
+- **Settings > Trash Bin** reads `Trash Bin (3)`.
+- Filtering for `Trashed` matches nothing in the library, so the grid says so and offers to open the trash bin. That hint only appears when the same filter matches something in the trash, so filtering for a word that is in neither place gives the plain "no books match" message.
+- The trashed episode is nested under **Demo Series** inside the trash bin, even though the series itself is not deleted. `GetDeletedLibraryBooks` asks for every parent rather than only deleted ones, so an episode can still be shown beneath its series there. The series keeps its other two episodes in the main grid.
+
+Restoring a book from the trash puts it straight back in the grid and drops the count, so the same three rows can be used more than once. Re-run the script to put them back.
 
 #### Why some states cannot be seeded with SQL alone
 
