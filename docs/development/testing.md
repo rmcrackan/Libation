@@ -116,6 +116,61 @@ Two of the Liberate icons are not stored in the database at all, which is worth 
 
 One more trap, in the grid rather than the database: a podcast's series is identified by the **parent book's own ASIN**, not by an arbitrary series id, and `SeriesEntry.GetAllSeriesEntriesAsync` discards any series whose children it cannot match. Point the episodes at a different series id and the parent row disappears from the grid with no error.
 
+### seed-demo-accounts.cs
+
+Adds fake Audible accounts to `AccountsSettings.json`, so the parts of Libation that only appear once an
+account exists can be reached without signing in to Audible.
+
+Quite a lot is gated on the account count, and it is not one switch but two - nothing, one, or several:
+
+| Accounts | What appears |
+|----------|--------------|
+| none | **Import > No accounts yet. Add Account...**, and an empty library offers **Add Account** |
+| one | **Import > Scan Library** and **Remove Library Books**, and an empty library offers **Scan Library** |
+| two or more | **Scan Library of All / Some Accounts** and the matching **Remove Books from...** items |
+
+Run Libation once first so the file exists, and close it before seeding - Libation reads the file at startup
+and writes it back on save, so a running app would overwrite whatever the script wrote.
+
+```bash
+# one account
+dotnet run Scripts/seed-demo-accounts.cs
+```
+
+```bash
+# three, for the multi-account menus
+dotnet run Scripts/seed-demo-accounts.cs -- --count 3
+```
+
+Remove them again:
+
+```bash
+dotnet run Scripts/seed-demo-accounts.cs -- --clean
+```
+
+The first seeded account is `demo@example.com`, which is deliberately the same account
+`seed-demo-library.cs` assigns its books to, so seeding both describes one library rather than two unrelated
+ones.
+
+::: warning
+The tokens are structurally valid but meaningless. Libation will count these accounts, list them and enable
+everything gated on having one, but any scan or download attempt is refused by Audible. Do not use them to
+test scanning.
+:::
+
+Real accounts in the file are left alone, and `--clean` only removes the accounts the script added - the ones
+whose id matches `demo*@example.com`. Even so, this writes to the file holding your Audible tokens, so on a
+machine with a real account signed in, back that file up first.
+
+The tokens are written as plaintext rather than reaching for the OS secret store, which a test script has no
+business touching. Libation reads either, whatever **Settings > Important > Token storage** is set to.
+
+::: tip
+The `#:package AudibleApi@...` version at the top of the script needs to stay in step with the `AudibleApi`
+reference in `Source/AudibleUtilities/AudibleUtilities.csproj`, so the JSON it writes stays the shape the app
+expects to read.
+:::
+
 ### seed-download-history.cs
 
 Fills the `DownloadHistory` table with fake completed downloads, so the [daily download limit](/docs/features/daily-download-limit) can be tested without downloading anything. Start Libation once first so the table exists.

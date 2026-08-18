@@ -4,6 +4,7 @@ Developer utilities. None of these ship in a Libation install - they exist only 
 
 | Script | Purpose | Documented in |
 |--------|---------|---------------|
+| `seed-demo-accounts.cs` | Seed fake Audible accounts, to reach what is gated on having one without signing in | [Testing Changes](https://getlibation.com/docs/development/testing) |
 | `seed-demo-library.cs` | Seed a library covering every Liberate-column icon, for manual UI testing | [Testing Changes](https://getlibation.com/docs/development/testing) |
 | `seed-download-history.cs` | Seed completed downloads so the daily download limit can be tested without downloading | [Testing Changes](https://getlibation.com/docs/development/testing) |
 | `Bundle_Debian.sh` | Build the Linux `.deb` package | Used by `.github/workflows/build-linux.yml` |
