@@ -768,5 +768,67 @@ BxlXqPnQ4mG66oqSFQgDEmFdMhRb2of6xL1gYYL62C80G2T7QtmPfSab
 		tokens.RefreshToken.Value.Should().Be(SampleRefreshToken);
 	}
 }
+
+/// <summary>
+/// AccountsSettings.json should hold an account's state and nothing derived from it. A computed property
+/// without <see cref="JsonIgnore"/> is written out silently, and then sits in the file going stale.
+/// </summary>
+[TestClass]
+public class SerializedShape : AccountsTestBase
+{
+	private static JObject SerializeOneAccount()
+	{
+		var settings = new AccountsSettings();
+		settings.Add(new Account("user@example.com") { AccountName = "Main" });
+
+		return (JObject)JObject.Parse(settings.ToJson())["Accounts"]![0]!;
+	}
+
+	[TestMethod]
+	public void MaskedLogEntry_is_not_persisted()
+		=> SerializeOneAccount().ContainsKey(nameof(Account.MaskedLogEntry)).Should().BeFalse();
+
+	[TestMethod]
+	public void Locale_is_not_persisted()
+		=> SerializeOneAccount().ContainsKey(nameof(Account.Locale)).Should().BeFalse();
+
+	[TestMethod]
+	public void only_an_accounts_own_state_is_persisted()
+	{
+		// Fails when a property is added without deciding whether it belongs in the file.
+		CollectionAssert.AreEquivalent(
+			new[] { "AccountId", "AccountName", "LibraryScan", "DecryptKey", "IdentityTokens" },
+			SerializeOneAccount().Properties().Select(p => p.Name).ToArray());
+	}
+
+	[TestMethod]
+	public void a_stray_property_from_an_older_file_is_dropped_on_the_next_save()
+	{
+		// Files written before MaskedLogEntry was ignored still carry it. Loading must not choke on it,
+		// and saving must not preserve it.
+		var withStray = """
+			{
+			  "Accounts": [
+			    {
+			      "AccountId": "user@example.com",
+			      "AccountName": "Main",
+			      "LibraryScan": true,
+			      "DecryptKey": "",
+			      "IdentityTokens": null,
+			      "MaskedLogEntry": "AccountId=u**r|AccountName=M**n|Locale=[empty]"
+			    }
+			  ],
+			  "Cdm": null
+			}
+			""";
+
+		var loaded = AccountsSettings.FromJson(withStray);
+		loaded.BeNotNull();
+		loaded.Accounts.Count.Should().Be(1);
+		loaded.Accounts[0].AccountId.Should().Be("user@example.com");
+
+		JObject.Parse(loaded.ToJson())["Accounts"]![0]!["MaskedLogEntry"].Should().BeNull();
+	}
+}
 #pragma warning restore CS8981
 
