@@ -277,7 +277,7 @@ public static class StartupAssemblyBootstrap
 
 			Install folder:
 			{Configuration.ProcessDirectory}
-			{DescribeCloudSyncedInstall()}
+			{DescribeCloudSyncedInstall(CloudSyncedFolders.GetSyncStatus(Configuration.ProcessDirectory))}
 			Your library database, accounts, and settings are stored separately and should be unaffected.
 
 			To recover:
@@ -295,12 +295,12 @@ public static class StartupAssemblyBootstrap
 	/// Blank unless the install sits in a cloud sync folder, where sync can undo part of an overlay
 	/// upgrade on its own. Carries its own blank lines so the surrounding message reads the same either way.
 	/// </summary>
-	private static string DescribeCloudSyncedInstall()
+	public static string DescribeCloudSyncedInstall(CloudSyncStatus syncStatus)
 	{
-		if (CloudSyncedFolders.FindSyncRootContaining(Configuration.ProcessDirectory) is not string syncRoot)
+		if (!syncStatus.IsSynced)
 			return string.Empty;
 
-		return $"{Environment.NewLine}This install is inside a cloud sync folder ({syncRoot}). Sync clients replace and restore files underneath Libation, which can undo part of an upgrade by itself. Install to an ordinary local folder instead.{Environment.NewLine}";
+		return $"{Environment.NewLine}This install is inside {syncStatus.Description}. Sync clients replace and restore files underneath Libation, which can undo part of an upgrade by itself. Install to an ordinary local folder instead.{Environment.NewLine}";
 	}
 
 	private static bool ContainsLibationUiBaseReference(string? text)

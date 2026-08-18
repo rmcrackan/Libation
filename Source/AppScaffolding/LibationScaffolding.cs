@@ -309,7 +309,7 @@ public static class LibationScaffolding
 			// of these three, and none of them is visible anywhere else in a bug report.
 			InstallFolder = Configuration.ProcessDirectory,
 			ApplicationControl = ApplicationControlPolicy.GetState(),
-			CloudSyncRoot = CloudSyncedFolders.FindSyncRootContaining(Configuration.ProcessDirectory),
+			InstallFolderCloudSync = CloudSyncedFolders.GetSyncStatus(Configuration.ProcessDirectory),
 			Mode = mode,
 			LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
 			LogLevel_Debug_Enabled = Log.Logger.IsDebugEnabled(),
