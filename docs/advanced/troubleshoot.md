@@ -134,7 +134,7 @@ If Libation reports that an in-app upgrade did not replace every install file, o
 
 Install Libation to a normal local path, not inside OneDrive, Dropbox, or a similar synced folder. The `*-setup.exe` installer does this for you by installing under `%LocalAppData%`.
 
-Sync clients replace files with placeholders, restore old copies, and leave conflict copies behind. In an install folder that breaks in-app upgrades and, when it happens to the search index, corrupts it.
+Sync clients replace files with placeholders, restore old copies, and leave conflict copies behind. Inside an install folder that breaks in-app upgrades, and inside your Libation data folder it can corrupt the search index.
 
 ### Hangover (Windows)
 
