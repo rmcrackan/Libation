@@ -25,11 +25,14 @@ Nearly 100% of the difference is look and feel -- it's a matter of preference.
 
 Do not install to `Program Files`. Read-only install folders break configuration and in-app updates.
 
-**Portable (advanced):** download the `.zip` instead, extract to a folder you can write to, and run `Libation.exe` from that folder. Zips are also what the in-app updater uses when you choose to upgrade from inside Libation.
+**Portable (advanced):** download the `.zip` instead, extract to a folder you can write to, and run `Libation.exe` from that folder. Zips are also what the in-app updater uses when you choose to upgrade from inside Libation. Extract to a normal local path, not inside OneDrive or another synced folder - see [Troubleshooting](/docs/advanced/troubleshoot#windows-cloud-sync-install).
 
 Chardonnay is available for x64 and arm64. Classic is x64 only.
 
 Requires 64-bit Windows 10 or later. Older versions of Windows are not supported.
+
+> [!WARNING] Smart App Control blocks Libation
+> Libation's Windows builds are not code-signed, so Windows may warn that they are unsafe. If **Smart App Control** is turned on it blocks Libation outright, and Windows offers no way to allow a single app through. See [Troubleshooting](/docs/advanced/troubleshoot#windows-smart-app-control-and-in-app-upgrades).
 
 - [Linux](./installation/linux.md) (if you use **Snap**, read the [Snap](./installation/linux.md#snap) section after each refresh so `appsettings.json` and `LibationFiles` stay on the same revision)
 - [MacOS](./installation/mac.md)

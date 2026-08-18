@@ -78,38 +78,63 @@ Platform-specific steps: [Windows](#hangover-windows) · [macOS](#hangover-macos
 
 ## Windows
 
-### Smart App Control and in-app upgrades {#windows-smart-app-control-and-in-app-upgrades}
+### Smart App Control blocks Libation {#windows-smart-app-control-and-in-app-upgrades}
 
-After accepting an in-app update, Libation may fail to restart with an error like:
+Libation fails to start, or fails part way through, with an error like:
 
 `An Application Control policy has blocked this file. (0x800711C7)`
 
-Windows **Smart App Control** (and similar Application Control policies on recent Windows 11 builds) can block DLLs that were just written when the in-app upgrader overlays a new release onto your existing install folder. The blocked path is usually under your **Libation install folder** (where `Libation.exe` lives), not your user data folder (`%UserProfile%\Libation`).
+**Cause:** Libation's Windows builds are not code-signed. Smart App Control runs code only when Microsoft's cloud reputation service recognises it or when it carries a signature from a trusted certificate authority, so it blocks Libation's files. The blocked path is a file in your **Libation install folder** (where `Libation.exe` lives), not your user data folder (`%UserProfile%\Libation`), and it is often a third-party library rather than a Libation one.
+
+An in-app upgrade frequently triggers the first block, because the upgrader writes fresh files that have no reputation yet.
 
 **Symptoms**
 
-- Fatal crash immediately after an in-app upgrade (Chardonnay / Avalonia).
+- Fatal crash on start, often right after an in-app upgrade (Chardonnay / Avalonia).
 - Classic may start but library import or database access fails with the same `0x800711C7` message on a `.dll` in the install folder.
 - Windows Security may also warn about an unsigned library.
 
-**Fix (recommended)**
+**Check which mode Smart App Control is in**
+
+Open **Settings** -> **Privacy & Security** -> **Windows Security** -> **App & browser control** -> **Smart App Control settings**.
+
+| Mode | Blocks Libation? |
+|------|------------------|
+| Off | No |
+| Evaluation | No. This mode observes only; it never blocks anything |
+| On | Yes |
+
+Windows can move itself from Evaluation to On on its own, which is why Libation can work one day and be blocked the next without you changing anything.
+
+**If it is On**
+
+Windows has no way to allow a single app through Smart App Control. Microsoft's guidance is to turn it off or to ask the developer to sign the app. Reinstalling, extracting to a different folder, and unblocking files all leave the signature missing, so none of them help.
+
+That leaves two real options: turn Smart App Control off, or run Libation on a machine that does not have it on.
+
+> [!WARNING] Turning Smart App Control off cannot be undone
+> Windows will not turn Smart App Control back on without a reset or reinstall. An earlier version of this page suggested disabling it temporarily and re-enabling it afterwards. That is not possible; ignore that advice if you saw it.
+
+**If it is already Off**
+
+Then the block comes from a different Application Control or Device Guard policy, normally one set by whoever manages the PC. Ask them to allow Libation.
+
+Reports: [#1873](https://github.com/rmcrackan/Libation/issues/1873), [#1876](https://github.com/rmcrackan/Libation/issues/1876), [#1967](https://github.com/rmcrackan/Libation/issues/1967).
+
+### Recover from an incomplete in-app upgrade {#windows-incomplete-in-app-upgrade}
+
+If Libation reports that an in-app upgrade did not replace every install file, or fails to load a component after an upgrade, the install folder holds a mix of old and new files. This is a different problem from a Smart App Control block, and reinstalling does fix it.
 
 1. Quit Libation completely.
-2. Download the latest [release zip](https://github.com/rmcrackan/Libation/releases/latest) from GitHub.
-3. Extract to a **new folder** (for example `C:\Apps\Libation`). Do **not** copy new files on top of the old install folder.
-4. Run `Libation.exe` from the new folder. Your library database, accounts, and settings in `%UserProfile%\Libation` (or the path in `appsettings.json` -> `LibationFiles`) are separate and should still work.
+2. Download the latest [release](https://github.com/rmcrackan/Libation/releases/latest) from GitHub. The `*-setup.exe` installer is the easiest option.
+3. If you use the zip instead, extract it to a **new folder** (for example `C:\Apps\Libation`). Do **not** copy new files on top of the old install folder.
+4. Run Libation from the new install. Your library database, accounts, and settings in `%UserProfile%\Libation` (or the path in `appsettings.json` -> `LibationFiles`) are separate and should still work.
 
-**If Windows still blocks the new install**
+### Libation installed in OneDrive or another synced folder {#windows-cloud-sync-install}
 
-1. Open **Windows Security** -> **App & browser control** and review **Smart App Control** (Evaluation or On modes are the usual trigger).
-2. In PowerShell, unblock the install folder (adjust the path):
+Install Libation to a normal local path, not inside OneDrive, Dropbox, or a similar synced folder. The `*-setup.exe` installer does this for you by installing under `%LocalAppData%`.
 
-   ```powershell
-   Unblock-File -Path 'C:\Apps\Libation\*' -Recurse
-   ```
-
-3. Avoid running Libation from cloud-sync folders (OneDrive, etc.) if you can; use a normal local path for the install folder.
-4. If needed, turn Smart App Control off temporarily, install from the [standalone setup](https://github.com/rmcrackan/Libation/releases/latest) (override Windows' "potentially unsafe" warning if prompted), and run Libation once. Some users report that Libation keeps working after turning Smart App Control back on. [#1876](https://github.com/rmcrackan/Libation/issues/1876), [#1873](https://github.com/rmcrackan/Libation/issues/1873).
+Sync clients replace files with placeholders, restore old copies, and leave conflict copies behind. In an install folder that breaks in-app upgrades and, when it happens to the search index, corrupts it.
 
 ### Hangover (Windows)
 
