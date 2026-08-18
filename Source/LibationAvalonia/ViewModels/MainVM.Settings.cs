@@ -26,7 +26,12 @@ partial class MainVM
 	public Task ShowAboutAsync() => new LibationAvalonia.Dialogs.AboutDialog().ShowDialog(MainWindow);
 	public Task ShowAccountsAsync() => new LibationAvalonia.Dialogs.AccountsDialog().ShowDialog(MainWindow);
 	public Task ShowSettingsAsync() => new LibationAvalonia.Dialogs.SettingsDialog().ShowDialog(MainWindow);
-	public Task ShowTrashBinAsync() => new LibationAvalonia.Dialogs.TrashBinDialog().ShowDialog(MainWindow);
+	public async Task ShowTrashBinAsync()
+	{
+		await new LibationAvalonia.Dialogs.TrashBinDialog().ShowDialog(MainWindow);
+		//Restoring or permanently deleting inside the dialog changes the count behind it.
+		await RefreshBooksInTrashAsync();
+	}
 	public Task ShowFindBetterQualityBooksAsync() => new LibationAvalonia.Dialogs.FindBetterQualityBooksDialog().ShowDialog(MainWindow);
 
 	private async Task LaunchHangoverAsync()

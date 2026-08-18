@@ -79,6 +79,7 @@
 			this.upgradeLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.visibleCountLbl = new LibationWinForms.FormattableToolStripStatusLabel();
             this.springLbl = new System.Windows.Forms.ToolStripStatusLabel();
+            this.trashBinLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.backupsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.addQuickFilterBtn = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -446,6 +447,7 @@
             this.upgradePb,
 			this.visibleCountLbl,
             this.springLbl,
+            this.trashBinLbl,
             this.backupsCountsLbl});
             this.statusStrip1.Location = new System.Drawing.Point(0, 618);
             this.statusStrip1.Name = "statusStrip1";
@@ -478,6 +480,14 @@
             this.springLbl.Name = "springLbl";
             this.springLbl.Size = new System.Drawing.Size(511, 17);
             this.springLbl.Spring = true;
+            // 
+            // trashBinLbl
+            // 
+            this.trashBinLbl.Name = "trashBinLbl";
+            this.trashBinLbl.IsLink = true;
+            this.trashBinLbl.Margin = new System.Windows.Forms.Padding(0, 3, 16, 2);
+            this.trashBinLbl.Visible = false;
+            this.trashBinLbl.Click += new System.EventHandler(this.trashBinLbl_Click);
             // 
             // backupsCountsLbl
             // 
@@ -660,6 +670,7 @@
 		private System.Windows.Forms.ToolStripStatusLabel springLbl;
 		private LibationWinForms.FormattableToolStripStatusLabel visibleCountLbl;
 		private System.Windows.Forms.ToolStripMenuItem liberateToolStripMenuItem;
+		private System.Windows.Forms.ToolStripStatusLabel trashBinLbl;
 		private System.Windows.Forms.ToolStripStatusLabel backupsCountsLbl;
 		private LibationWinForms.FormattableToolStripMenuItem beginBookBackupsToolStripMenuItem;
 		private LibationWinForms.FormattableToolStripMenuItem beginPdfBackupsToolStripMenuItem;

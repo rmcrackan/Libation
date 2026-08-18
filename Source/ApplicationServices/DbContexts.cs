@@ -132,6 +132,16 @@ public static class DbContexts
 		return context.GetDeletedLibraryBooks();
 	}
 
+	/// <summary>
+	/// How many <see cref="LibraryBook"/> rows are in the trash. A row count only; no entities are loaded,
+	/// so this is cheap enough to refresh whenever the library changes.
+	/// </summary>
+	public static int GetTrashedBookCount()
+	{
+		using var context = GetContext();
+		return context.GetLibraryBookCountsByTrashFlag().InTrash;
+	}
+
 	public static LibraryBook? GetLibraryBook_Flat_NoTracking(string productId, bool caseSensative = true, string? account = null)
 	{
 		using var context = GetContext();

@@ -52,6 +52,7 @@ public partial class MainVM : ViewModelBase
 
 			await Task.WhenAll(
 				SetBackupCountsAsync(fullLibrary),
+				RefreshBooksInTrashAsync(),
 				Task.Run(() => ProductsDisplay.UpdateGridAsync(fullLibrary)));
 		}
 		catch (System.Exception ex)
