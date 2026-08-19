@@ -24,6 +24,7 @@ public partial class Form1
 		trashBinLbl.Text = "";
 		trashBinLbl.Visible = false;
 		trashBinLbl.ToolTipText = LibationUiBase.TrashBinUi.StatusToolTip;
+		trashBinLbl.SetLinkLabelColors();
 		refreshBooksInTrash();
 
 		updateCountsBw.DoWork += UpdateCountsBw_DoWork;
