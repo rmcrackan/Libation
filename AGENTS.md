@@ -15,10 +15,16 @@ plus a headless CLI (`LibationCli`) that shares the same config and SQLite libra
   `dotnet restore Source/Libation.slnx`. No other setup is needed.
 - The solution file is the new XML format: `Source/Libation.slnx` (there is no classic `.sln`).
 
-### Building — Linux only builds the cross-platform projects
-- Do **not** build the whole solution on Linux. Several projects are Windows/OS-specific and will
-  not build here: `LibationWinForms`, `HangoverWinForms` (target `net10.0-windows7.0`) and the
-  `LoadByOS/{Windows,MacOS}ConfigApp` helpers.
+### Building — everything compiles on Linux, only some of it runs
+- `dotnet build Source/Libation.slnx` succeeds on Linux with 0 errors. So do
+  `LibationWinForms`, `HangoverWinForms` and the `LoadByOS/{Windows,MacOS}ConfigApp` helpers,
+  individually: they target `net10.0-windows7.0` but set `EnableWindowsTargeting`, which is what makes
+  a non-Windows SDK build them. **Always compile-check a change to the WinForms projects** — an earlier
+  version of this file said they could not be built here, and a whole PR's worth of WinForms edits went
+  out unverified on the strength of that.
+- Compiling is not running. WinForms has no Linux runtime, so behaviour and layout in
+  `LibationWinForms` / `HangoverWinForms` still need a human on Windows. Say so explicitly rather than
+  implying a WinForms change was tested.
 - Build the runnable cross-platform apps directly:
   - `dotnet build Source/LibationAvalonia/LibationAvalonia.csproj`
   - `dotnet build Source/LibationCli/LibationCli.csproj`

@@ -28,6 +28,15 @@ internal static class ThemeExtensions
 		}
 	}
 
+	extension(ToolStripLabel tsl)
+	{
+		public void SetLinkLabelColors()
+		{
+			tsl.VisitedLinkColor = VisitedLinkColor;
+			tsl.LinkColor = LinkColor;
+		}
+	}
+
 	public static Rectangle GetPrimaryScreenWorkingArea()
 		=> Screen.PrimaryScreen is not null ? Screen.PrimaryScreen.WorkingArea
 		: Screen.AllScreens.Length > 0 ? Screen.AllScreens[0].WorkingArea

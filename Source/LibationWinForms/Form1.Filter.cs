@@ -10,7 +10,14 @@ namespace LibationWinForms;
 
 public partial class Form1
 {
-	protected void Configure_Filter() { }
+	protected void Configure_Filter()
+	{
+		//Changing the theme requires a restart, so link colors are set once here rather than on every refresh.
+		noMatchesTrashLink.SetLinkLabelColors();
+		emptyLibraryActionLink.SetLinkLabelColors();
+		emptyLibraryTourLink.SetLinkLabelColors();
+		emptyLibraryTrashLink.SetLinkLabelColors();
+	}
 
 	private void filterHelpBtn_Click(object sender, EventArgs e) => ShowSearchSyntaxDialog();
 
@@ -98,16 +105,23 @@ public partial class Form1
 
 			// The books are not gone, they are in the trash. Saying so keeps the headline above from
 			// reading as though they were never there.
-			emptyLibraryTrashLink.Visible = gettingStarted && booksInTrash > 0;
-			if (emptyLibraryTrashLink.Visible)
+			//
+			// Set the text from the count rather than from reading Visible back. Control.Visible returns
+			// effective visibility, walking up the parent chain, and noMatchesPanel is still hidden until
+			// further down - so on the first transition into an empty library the read-back was false and
+			// the link kept the empty Text it has from the designer. That is why the line only appeared
+			// once something else refreshed the panel while it was already on screen.
+			if (booksInTrash > 0)
 				SetTrashLink(emptyLibraryTrashLink, GridEmptyStateUi.EmptyLibraryTrashHintText(booksInTrash));
+			emptyLibraryTrashLink.Visible = gettingStarted && booksInTrash > 0;
 
 			noMatchesLbl.Text = GridEmptyStateUi.NoMatchesText(filterString);
 			noMatchesLbl.Visible = noMatches;
 			noMatchesTrashLink.Visible = false;
 
-			noMatchesPanel.Visible = gettingStarted || noMatches;
-			if (noMatchesPanel.Visible)
+			var showPanel = gettingStarted || noMatches;
+			noMatchesPanel.Visible = showPanel;
+			if (showPanel)
 				noMatchesPanel.BringToFront();
 		});
 
