@@ -151,17 +151,19 @@ public class BackupRequestTests
 	}
 
 	[TestMethod]
-	public void a_title_needing_only_its_pdf_is_never_waited_on()
+	public void a_title_needing_only_its_pdf_is_waited_on_too()
 	{
-		// The audiobook download is what Audible refused; the PDF is a different request.
+		// A PDF is fetched through the same license request as the audiobook, so queueing this would put back
+		// to Audible the request it just refused. Libation used to wait only on titles needing their audio.
 		var pdfOnly = MockLibraryBook
 			.CreateBook(title: "PDFONLY", bookStatus: LiberatedStatus.Liberated)
 			.WithPdfStatus(LiberatedStatus.NotLiberated);
 
 		var request = BackupRequest.Create([pdfOnly], Deferring(pdfOnly));
 
-		Assert.AreEqual(1, request.Queueable.Length);
-		Assert.AreEqual(0, request.Deferred.Count);
+		Assert.AreEqual(0, request.Queueable.Length);
+		Assert.AreEqual(1, request.Skipped(BackupRequest.SkipReason.WaitingToRetry));
+		Assert.AreEqual(1, request.Deferred.Count);
 	}
 
 	[TestMethod]

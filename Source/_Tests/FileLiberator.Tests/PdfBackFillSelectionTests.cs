@@ -19,7 +19,7 @@ public class PdfBackFillSelectionTests
 		libraryBook.WithPdfStatus(pdfStatus ?? LiberatedStatus.NotLiberated);
 
 		if (hasSupplement)
-			libraryBook.Book.AddSupplementDownloadUrl("https://example.com/supplement.pdf");
+			libraryBook.Book.SetSupplementDownloadUrl("https://example.com/supplement.pdf");
 
 		return libraryBook;
 	}

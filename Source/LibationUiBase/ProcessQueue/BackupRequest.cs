@@ -63,17 +63,19 @@ internal sealed class BackupRequest
 		{
 			requestedCount++;
 
-			// A title needing only its PDF is waited on too: a PDF is fetched through the same license request
-			// as the audiobook, so a title Audible refused would be refused again for its PDF.
-			if (deferrals.Find(libraryBook) is DeferredDownload waiting)
+			// Asked before the wait, so that a title needing nothing is reported as already downloaded rather
+			// than as waiting on a record left over from when it did need something.
+			if (GetSkipReason(libraryBook) is SkipReason reason)
+				skipped[reason] = skipped.GetValueOrDefault(reason) + 1;
+			// Whatever the title needs is waited on. A PDF is fetched through the same license request as the
+			// audiobook, so a title needing only its PDF would be refused for that exactly as its audio was.
+			else if (deferrals.Find(libraryBook) is DeferredDownload waiting)
 			{
 				deferred.Add(waiting);
 				skipped[SkipReason.WaitingToRetry] = skipped.GetValueOrDefault(SkipReason.WaitingToRetry) + 1;
 			}
-			else if (GetSkipReason(libraryBook) is not SkipReason reason)
-				queueable.Add(libraryBook);
 			else
-				skipped[reason] = skipped.GetValueOrDefault(reason) + 1;
+				queueable.Add(libraryBook);
 		}
 
 		return new BackupRequest(requestedCount, [.. queueable], skipped, deferred);

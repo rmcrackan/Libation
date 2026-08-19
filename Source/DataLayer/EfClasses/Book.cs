@@ -232,18 +232,53 @@ public class Book
 	private readonly HashSet<Supplement>? _supplements;
 	public IEnumerable<Supplement> Supplements => _supplements?.ToList() ?? [];
 
-	public void AddSupplementDownloadUrl(string url)
+	/// <summary>
+	/// Records where Audible says this book's supplement can be found, replacing anything recorded before.
+	/// <para>
+	/// Audible reports one supplement per title, so this replaces rather than accumulates. It used to add, and
+	/// guarded against duplicates by comparing the incoming url to itself - which came to the same thing only
+	/// because the always-true comparison meant "this book already has a supplement", so a url that changed was
+	/// silently ignored.
+	/// </para>
+	/// </summary>
+	public void SetSupplementDownloadUrl(string url)
 	{
 		// supplements are owned by Book, so no need to Load():
 		//  Are automatically loaded, and can only be tracked by a DbContext alongside their owner.
 
 		ArgumentValidator.EnsureNotNullOrWhiteSpace(url, nameof(url));
 
-		if (_supplements?.Any(s => url.EqualsInsensitive(url)) is true)
+		if (_supplements is null)
 			return;
 
-		_supplements?.Add(new Supplement(this, url));
+		if (_supplements.Count == 1 && _supplements.First().Url.EqualsInsensitive(url))
+			return;
+
+		_supplements.Clear();
+		_supplements.Add(new Supplement(this, url));
+
+		// Only when the book had no supplement at all. A url Audible has changed says nothing about whether the
+		// file behind it is already downloaded.
 		UserDefinedItem.PdfStatus ??= LiberatedStatus.NotLiberated;
+	}
+
+	/// <summary>
+	/// Forgets that this book has a supplement, for when Audible says it has none after all.
+	/// <para>
+	/// The status goes back to null rather than to NotLiberated, because null is what "this title has no PDF"
+	/// is recorded as everywhere else: it is the state of a book that never had one, and it is what stops the
+	/// grid from showing a PDF marker and the counts from expecting one.
+	/// </para>
+	/// </summary>
+	/// <returns>Whether anything was removed.</returns>
+	public bool RemoveSupplements()
+	{
+		if (_supplements is null || _supplements.Count == 0)
+			return false;
+
+		_supplements.Clear();
+		UserDefinedItem.PdfStatus = null;
+		return true;
 	}
 	#endregion
 
