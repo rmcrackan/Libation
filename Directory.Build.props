@@ -2,4 +2,12 @@
   <PropertyGroup>
     <EnableMSTestRunner>true</EnableMSTestRunner>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The SDK supplies Microsoft.SourceLink.Common and the git tasks, which is enough to find the
+         repository but not to turn its URL into fetchable source URLs. Without a host provider every
+         project warns that the generated source link is empty and ships PDBs that cannot locate their
+         sources. -->
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.301" PrivateAssets="All" />
+  </ItemGroup>
 </Project>
