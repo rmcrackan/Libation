@@ -107,6 +107,19 @@ public class BulkRunSelectionTests
 	}
 
 	[TestMethod]
+	public async Task An_absent_title_no_pass_wanted_is_not_counted_as_skipped()
+	{
+		// Most of a large library's absent titles need nothing at all. Counting those would report thousands of
+		// skipped titles for a run that was only ever going to attempt a handful.
+		Seed("B0ABSENTDONE", absentFromLastScan: true, bookStatus: LiberatedStatus.Liberated);
+		Seed("B0ABSENTTODO", absentFromLastScan: true);
+
+		await new BulkRun().Go(NewStep(lb => !lb.Book.AudioExists));
+
+		StringAssert.Contains(Output, "Skipped 1 title absent from your last library scan");
+	}
+
+	[TestMethod]
 	public async Task The_follow_up_pass_leaves_them_alone_too()
 	{
 		// The PDF back-fill pass never looked at this, which is where 54 of the 59 titles in the report came in:

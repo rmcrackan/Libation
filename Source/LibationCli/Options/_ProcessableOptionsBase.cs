@@ -153,9 +153,16 @@ public abstract class ProcessableOptionsBase : OptionsBase
 			// and by the same rule the app's own multi-title paths use.
 			if (SkipsTitlesAbsentFromLastScan)
 			{
-				var downloadable = libraryBooks.Where(lb => lb.Downloadable).ToList();
-				skippedAsAbsent = libraryBooks.Count - downloadable.Count;
-				libraryBooks = downloadable;
+				var absent = libraryBooks.Where(lb => !lb.Downloadable).ToList();
+				libraryBooks = libraryBooks.Where(lb => lb.Downloadable).ToList();
+
+				// Counted as the titles a pass would otherwise have attempted, not as every absent title in the
+				// library. Most of a large library's absent titles need nothing at all, and counting those would
+				// put a number in front of the user that no run was ever going to act on.
+				skippedAsAbsent = Processable.GetValidLibraryBooks(absent)
+					.Concat(bulkFollowUp?.GetValidLibraryBooks(absent) ?? [])
+					.DistinctBy(lb => lb.Book.AudibleProductId, StringComparer.OrdinalIgnoreCase)
+					.Count();
 			}
 
 			// Titles the follow-up pass must leave alone, because the first pass has already dealt with them:
