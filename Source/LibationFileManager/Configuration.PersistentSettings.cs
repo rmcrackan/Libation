@@ -203,8 +203,18 @@ public partial class Configuration
 	[Description("Lame encoder target. true = Bitrate, false = Quality")]
 	public bool LameTargetBitrate { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
+	/// <summary>
+	/// Clamped to LAME's supported range: a pre-v11.6.5 or hand-edited Settings.json may hold a defined
+	/// but unsupported rate such as Hz_7350 or Hz_96000, which fails the encoder (#1116). Enum validation
+	/// alone cannot catch these because they are valid <see cref="AAXClean.SampleRate"/> members.
+	/// </summary>
 	[Description("Maximum audio sample rate")]
-	public AAXClean.SampleRate MaxSampleRate { get => GetNonString(defaultValue: AAXClean.SampleRate.Hz_44100); set => SetNonString(value); }
+	public AAXClean.SampleRate MaxSampleRate { get => clampSampleRate(GetNonString(defaultValue: AAXClean.SampleRate.Hz_44100)); set => SetNonString(clampSampleRate(value)); }
+
+	private static AAXClean.SampleRate clampSampleRate(AAXClean.SampleRate rate)
+		=> rate < AAXClean.SampleRate.Hz_8000 ? AAXClean.SampleRate.Hz_8000
+		: rate > AAXClean.SampleRate.Hz_48000 ? AAXClean.SampleRate.Hz_48000
+		: rate;
 
 	[Description("Lame encoder quality")]
 	public NAudio.Lame.EncoderQuality LameEncoderQuality { get => GetNonString(defaultValue: NAudio.Lame.EncoderQuality.High); set => SetNonString(value); }
