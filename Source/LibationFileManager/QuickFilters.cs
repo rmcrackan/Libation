@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace LibationFileManager;
 
@@ -167,7 +168,7 @@ public static class QuickFilters
 		}
 	}
 
-	private static object locker { get; } = new();
+	private static Lock locker { get; } = new();
 
 	// ONLY call this within lock()
 	private static void save(bool invokeUpdatedEvent = true)
