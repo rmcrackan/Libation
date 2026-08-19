@@ -10,7 +10,14 @@ namespace LibationWinForms;
 
 public partial class Form1
 {
-	protected void Configure_Filter() { }
+	protected void Configure_Filter()
+	{
+		//Changing the theme requires a restart, so link colors are set once here rather than on every refresh.
+		noMatchesTrashLink.SetLinkLabelColors();
+		emptyLibraryActionLink.SetLinkLabelColors();
+		emptyLibraryTourLink.SetLinkLabelColors();
+		emptyLibraryTrashLink.SetLinkLabelColors();
+	}
 
 	private void filterHelpBtn_Click(object sender, EventArgs e) => ShowSearchSyntaxDialog();
 
