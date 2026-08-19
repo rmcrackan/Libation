@@ -29,10 +29,12 @@ public class DeferredRetryOptionsTests
 	[TestMethod]
 	[DataRow("--pdf")]
 	[DataRow("-p")]
-	public void A_pdf_only_run_is_never_held_back(string pdfOnly)
+	public void A_pdf_only_run_waits_on_them_as_well(string pdfOnly)
 	{
-		// The refusal recorded against a title is about its audiobook; a PDF is a different request.
-		Assert.IsFalse(((ProcessableOptionsBase)Parse("liberate", pdfOnly)!).HonorsDeferredRetries);
+		// A PDF comes from the same license request as the audiobook, so a title Libation is waiting on would be
+		// refused for its PDF exactly as it was for its audio. This run used to be exempt, which is how issue
+		// #1973's scheduled run kept asking.
+		Assert.IsTrue(((ProcessableOptionsBase)Parse("liberate", pdfOnly)!).HonorsDeferredRetries);
 	}
 
 	[TestMethod]

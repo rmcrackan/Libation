@@ -157,10 +157,37 @@ public class BookImporter : ItemsImporterBase
 			book.ReplacePublisher(publisher);
 		}
 
-		if (item.PdfUrl is not null)
-			book.AddSupplementDownloadUrl(item.PdfUrl.ToString());
+		syncSupplement(item, book);
 
 		return book;
+	}
+
+	/// <summary>
+	/// Brings a book's supplement into line with what this scan says about it.
+	/// <para>
+	/// Only new books used to get this far, so a title that gained a PDF after it was first imported never got
+	/// one, and a title that lost its PDF went on claiming one - and, until issue #1973, went on being asked
+	/// for on every run.
+	/// </para>
+	/// <para>
+	/// A supplement is dropped only when Audible says outright that no supplement url is available. A missing
+	/// url says nothing on its own: episodes are imported from the catalog, which is never asked for
+	/// <c>pdf_url</c>, so there "no url" means "not asked" rather than "none exists". A PDF already downloaded
+	/// is left alone either way, because the file is on disk and the library should go on saying so.
+	/// </para>
+	/// </summary>
+	internal static void syncSupplement(Item item, Book book)
+	{
+		if (item.PdfUrl is not null)
+			book.SetSupplementDownloadUrl(item.PdfUrl.ToString());
+		else if (item.IsPdfUrlAvailable is false
+			&& book.UserDefinedItem.PdfStatus is not LiberatedStatus.Liberated
+			&& book.RemoveSupplements())
+		{
+			Serilog.Log.Logger.Information(
+				"Audible no longer offers a supplement for {audibleProductId}, so Libation has stopped expecting one.",
+				book.AudibleProductId);
+		}
 	}
 
 	private void updateBook(ImportItem importItem, Book book)
@@ -194,6 +221,8 @@ public class BookImporter : ItemsImporterBase
 		// 2025-07-30
 		// updateBook must update isSpatial on books which were imported before the migration which added isSpatial.
 		book.UpdateBookDetails(item.IsAbridged, item.AssetDetails?.Any(a => a.IsSpatial), item.DatePublished, item.Language);
+
+		syncSupplement(item, book);
 
 		book.UpdateProductRating(
 			(float)(item.Rating?.OverallDistribution?.AverageRating ?? 0),

@@ -45,8 +45,10 @@ public abstract class Processable
 
 	/// <summary>
 	/// Whether a refusal from Audible during this step should be remembered, so a scheduled run stops asking
-	/// for the same license every time. Only the audiobook download does: it is the request Audible refuses,
-	/// and the record gates that same request.
+	/// for the same license every time. True for the steps that request a content license - the audiobook
+	/// download and the supplement download, which make the same request - because that request is the one
+	/// Audible refuses and the one the record gates. A step that only works on files already on disk has
+	/// nothing to record.
 	/// </summary>
 	protected virtual bool RecordsAttemptFailures => false;
 

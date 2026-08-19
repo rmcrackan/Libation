@@ -65,15 +65,43 @@ appearing to have forgotten it.
 "Waiting before trying again after a recent failure", with what Audible said and when each comes back. A
 single-title download is never held back.
 
-A `--pdf` run is never held back: asking for PDFs specifically is an explicit request. A plain run does hold
-back the PDF of a title it is waiting on, though, because Libation fetches a PDF through the same license
-request as the audiobook — asking for one would reproduce the refusal it is waiting out.
+## PDFs are waited on too
+
+Libation fetches a PDF through the same license request as the audiobook, so a title Audible has refused would
+be refused again for its PDF. Everything above therefore applies to a title whose PDF is all that is missing,
+and to a `libationcli liberate --pdf` run.
+
+When a run downloads both halves of a title, the PDF comes from the license the audiobook download already
+has, so a title costs one license request however much of it Libation is fetching.
+
+## Titles absent from your last library scan
+
+Separately from any wait, a bulk run leaves alone the titles your last scan did not find — a returned title, or
+one that has left the Plus catalog. Audible will not license a title it no longer lists for the account, so
+attempting one collects a refusal and downloads nothing. The app has always worked this way; the command line
+now does too:
+
+```
+Skipped 12 titles absent from your last library scan. Audible will not license a title it no longer lists, so
+run Scan, or `libationcli scan`, then try again. To attempt them anyway: libationcli liberate --force.
+```
+
+Run a scan first if the titles should still be in your library. `libationcli liberate --force`, and naming a
+title, attempt them regardless.
+
+## When Audible has no PDF at all
+
+Some titles are listed as having a PDF that Audible will not deliver: the license comes back granted, with no
+link in it. Libation marks that title's PDF as an error and stops asking, because nothing about asking again
+would change the answer. The grid says "PDF could not be downloaded and will not be tried again", and setting
+the PDF status back to **Not Downloaded** tries once more.
 
 ## Relationship to marking a book as an error
 
 This is separate from the app's Abort / Retry / **Ignore** prompt. Choosing Ignore sets a title's download
 status to Error, which stops Libation attempting it until you change the status back yourself. That is a
-decision you make; the wait described here is automatic, temporary, and needs nothing from you.
+decision you make; the wait described here is automatic, temporary, and needs nothing from you. The PDF of a
+title Audible has none for is written off the same way, and is likewise yours to reset.
 
 ## Where it is stored
 

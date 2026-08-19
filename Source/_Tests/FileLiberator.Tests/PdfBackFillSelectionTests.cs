@@ -19,7 +19,7 @@ public class PdfBackFillSelectionTests
 		libraryBook.WithPdfStatus(pdfStatus ?? LiberatedStatus.NotLiberated);
 
 		if (hasSupplement)
-			libraryBook.Book.AddSupplementDownloadUrl("https://example.com/supplement.pdf");
+			libraryBook.Book.SetSupplementDownloadUrl("https://example.com/supplement.pdf");
 
 		return libraryBook;
 	}
@@ -30,6 +30,8 @@ public class PdfBackFillSelectionTests
 		Book("Needs Only Its Pdf", LiberatedStatus.Liberated, LiberatedStatus.NotLiberated),
 		Book("Needs Nothing", LiberatedStatus.Liberated, LiberatedStatus.Liberated),
 		Book("Has No Supplement", LiberatedStatus.Liberated, LiberatedStatus.NotLiberated, hasSupplement: false),
+		Book("Pdf Written Off", LiberatedStatus.Liberated, LiberatedStatus.Error),
+		Book("Audiobook Written Off", LiberatedStatus.Error, LiberatedStatus.Liberated),
 	];
 
 	private static string[] Selected<T>(LibraryBook[] library) where T : Processable, IProcessable<T>
@@ -63,6 +65,15 @@ public class PdfBackFillSelectionTests
 	[TestMethod]
 	public void A_title_whose_pdf_is_already_downloaded_is_never_selected()
 		=> Assert.IsFalse(Selected<DownloadPdf>(Library()).Contains("Needs Nothing"));
+
+	[TestMethod]
+	public void Each_step_leaves_alone_what_it_has_written_off()
+	{
+		// Error means "don't retry" for either half. The audiobook step has always honoured it through
+		// AudioExists; the PDF step selected on PdfExists, which does not, so it asked Audible again every run.
+		Assert.IsFalse(Selected<DownloadPdf>(Library()).Contains("Pdf Written Off"));
+		Assert.IsFalse(Selected<DownloadDecryptBook>(Library()).Contains("Audiobook Written Off"));
+	}
 
 	[TestMethod]
 	public void Together_the_two_steps_cover_every_title_that_needs_anything()

@@ -56,7 +56,7 @@ public class DownloadPdfPathTests
 	private static LibraryBook BookWithPdf(string title)
 	{
 		var libraryBook = MockLibraryBook.CreateBook(title: title, subtitle: "", bookStatus: LiberatedStatus.Liberated);
-		libraryBook.Book.AddSupplementDownloadUrl("https://example.com/supplement.pdf");
+		libraryBook.Book.SetSupplementDownloadUrl("https://example.com/supplement.pdf");
 		return libraryBook;
 	}
 
@@ -163,7 +163,7 @@ public class DownloadPdfPathTests
 	public void The_extension_follows_the_supplement_url()
 	{
 		var libraryBook = MockLibraryBook.CreateBook(title: "Zip Supplement", subtitle: "", bookStatus: LiberatedStatus.Liberated);
-		libraryBook.Book.AddSupplementDownloadUrl("https://example.com/supplement.zip");
+		libraryBook.Book.SetSupplementDownloadUrl("https://example.com/supplement.zip");
 
 		Assert.AreEqual(".zip", Path.GetExtension(GetPath(libraryBook)));
 	}

@@ -21,7 +21,7 @@ internal sealed class BackupRequest
 	{
 		public static readonly SkipReason AlreadyDownloaded = new("Already downloaded");
 		public static readonly SkipReason PreviousError = new("Previously failed to download", "set the download status to 'Not Downloaded' to try again");
-		public static readonly SkipReason AbsentFromLastScan = new("Absent from your last library scan", "run Scan, or `libationcli scan`, then try again");
+		public static readonly SkipReason AbsentFromLastScan = new(AbsentFromLastScanUserMessage.Label, AbsentFromLastScanUserMessage.Advice);
 		public static readonly SkipReason WaitingToRetry = new("Waiting before trying again after a recent failure", "download the title on its own to try it now");
 
 		public static readonly SkipReason[] All = [AlreadyDownloaded, PreviousError, AbsentFromLastScan, WaitingToRetry];
@@ -63,16 +63,19 @@ internal sealed class BackupRequest
 		{
 			requestedCount++;
 
-			// A title needing only its PDF is never waited on: the audiobook download is what Audible refused.
-			if (libraryBook.NeedsBookDownload && deferrals.Find(libraryBook) is DeferredDownload waiting)
+			// Asked before the wait, so that a title needing nothing is reported as already downloaded rather
+			// than as waiting on a record left over from when it did need something.
+			if (GetSkipReason(libraryBook) is SkipReason reason)
+				skipped[reason] = skipped.GetValueOrDefault(reason) + 1;
+			// Whatever the title needs is waited on. A PDF is fetched through the same license request as the
+			// audiobook, so a title needing only its PDF would be refused for that exactly as its audio was.
+			else if (deferrals.Find(libraryBook) is DeferredDownload waiting)
 			{
 				deferred.Add(waiting);
 				skipped[SkipReason.WaitingToRetry] = skipped.GetValueOrDefault(SkipReason.WaitingToRetry) + 1;
 			}
-			else if (GetSkipReason(libraryBook) is not SkipReason reason)
-				queueable.Add(libraryBook);
 			else
-				skipped[reason] = skipped.GetValueOrDefault(reason) + 1;
+				queueable.Add(libraryBook);
 		}
 
 		return new BackupRequest(requestedCount, [.. queueable], skipped, deferred);

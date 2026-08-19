@@ -51,10 +51,16 @@ public class LiberateOptions : ProcessableOptionsBase
 
 	/// <summary>
 	/// --force means "attempt everything", which includes the titles Audible recently refused. A --pdf run is
-	/// never held back either: the refusal recorded against a title is about its audiobook, and a PDF is a
-	/// different request.
+	/// held back like any other: a PDF is fetched through the same license request as the audiobook, so a title
+	/// Libation is waiting on would be refused for its PDF exactly as it was for its audio.
 	/// </summary>
-	internal override bool HonorsDeferredRetries => !Force && !PdfOnly;
+	internal override bool HonorsDeferredRetries => !Force;
+
+	/// <summary>
+	/// Audible will not license a title the last scan did not find, so a bulk run has nothing to gain by asking.
+	/// --force means "attempt everything"; a run that names its titles never reaches the bulk selection at all.
+	/// </summary>
+	internal override bool SkipsTitlesAbsentFromLastScan => !Force;
 
 	protected override async Task ProcessAsync()
 	{
@@ -186,6 +192,37 @@ public class LiberateOptions : ProcessableOptionsBase
 	private Processable GetProcessable(DownloadOptions.LicenseInfo? licenseInfo = null)
 		=> PdfOnly ? CreateProcessable<DownloadPdf>() : CreateBackupBook(licenseInfo);
 
+	/// <summary>
+	/// Runs the steps that follow a book download for the same title. Reached through the audiobook step's
+	/// Completed event, which fires whether or not the download worked, so what follows has to decide for
+	/// itself whether there is anything left to do.
+	/// </summary>
+	private void OnBookProcessed(DownloadPdf downloadPdf, UploadToAudiobookshelf uploadToAudiobookshelf, object? sender, LibraryBook libraryBook)
+	{
+		// The supplement is fetched from the license the audiobook download used - the same request, asked once.
+		// A step that obtained no license attempted nothing worth following up: asking for one here would put a
+		// second identical request to Audible, and where the first was refused, collect a second refusal.
+		if (sender is ILicensedDownload { ObtainedLicense: DownloadOptions.LicenseInfo license }
+			&& downloadPdf.Validate(libraryBook))
+		{
+			downloadPdf.LicenseInfo = license;
+			try
+			{
+				// Through the shared per-book handling so a refusal is recorded and reported the same way here
+				// as in a bulk pass. Run as sync for easy exception catching; this is fast anyway.
+				ProcessOneAsync(downloadPdf, libraryBook, validate: false).GetAwaiter().GetResult();
+			}
+			finally
+			{
+				// Processable instances are reused across books, so a license left behind would be applied to
+				// the next title, which it is not for.
+				downloadPdf.LicenseInfo = null;
+			}
+		}
+
+		uploadToAudiobookshelf.TryProcessAsync(libraryBook).GetAwaiter().GetResult();
+	}
+
 	private void PrepareBookForLiberate(LibraryBook lb, bool isTargetedRun)
 	{
 		// Targeted runs (explicit ASIN/id) always re-download. --force is for re-downloading the whole library.
@@ -201,20 +238,14 @@ public class LiberateOptions : ProcessableOptionsBase
 		}
 	}
 
-	private static Processable CreateBackupBook(DownloadOptions.LicenseInfo? licenseInfo)
+	private Processable CreateBackupBook(DownloadOptions.LicenseInfo? licenseInfo)
 	{
 		var downloadPdf = CreateProcessable<DownloadPdf>();
 		var uploadToAudiobookshelf = CreateProcessable<UploadToAudiobookshelf>();
 
 		// Chain pdf download and audiobookshelf upload on DownloadDecryptBook.Completed
-		void onDownloadDecryptBookCompleted(object? sender, LibraryBook e)
-		{
-			// this is fast anyway. run as sync for easy exception catching
-			downloadPdf.TryProcessAsync(e).GetAwaiter().GetResult();
-			uploadToAudiobookshelf.TryProcessAsync(e).GetAwaiter().GetResult();
-		}
-
-		var downloadDecryptBook = CreateProcessable<DownloadDecryptBook>(onDownloadDecryptBookCompleted);
+		var downloadDecryptBook = CreateProcessable<DownloadDecryptBook>(
+			(sender, e) => OnBookProcessed(downloadPdf, uploadToAudiobookshelf, sender, e));
 		downloadDecryptBook.LicenseInfo = licenseInfo;
 		return downloadDecryptBook;
 	}

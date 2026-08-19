@@ -16,16 +16,17 @@ using System.Threading.Tasks;
 
 namespace FileLiberator;
 
-public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptBook>
+public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptBook>, ILicensedDownload
 {
 	public override string Name => "Download & Decrypt";
 	private CancellationTokenSource? cancellationTokenSource;
 	private AudiobookDownloadBase? abDownloader;
 
-	/// <summary>
-	/// Optional override to supply license info directly instead of querying the api based on Configuration options
-	/// </summary>
+	/// <inheritdoc/>
 	public DownloadOptions.LicenseInfo? LicenseInfo { get; set; }
+
+	/// <inheritdoc/>
+	public DownloadOptions.LicenseInfo? ObtainedLicense { get; private set; }
 
 	public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.AudioExists;
 	protected override bool RecordsAttemptFailures => true;
@@ -41,6 +42,7 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 		OnBegin(libraryBook);
 		cancellationTokenSource = new CancellationTokenSource();
 		var cancellationToken = cancellationTokenSource.Token;
+		ObtainedLicense = null;
 
 		try
 		{
@@ -54,6 +56,11 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 			//Processable instances are reusable, so don't set LicenseInfo
 			//override from within a DownloadDecryptBook instance.
 			var license = LicenseInfo ?? await DownloadOptions.GetDownloadLicenseAsync(api, libraryBook, Configuration, cancellationToken);
+
+			// Published before the download begins so the supplement step gets it even from a run that fails
+			// later on: what it needs is the license, and this one is already granted.
+			ObtainedLicense = license;
+
 			using var downloadOptions = DownloadOptions.BuildDownloadOptions(libraryBook, Configuration, license);
 			var result = await DownloadAudiobookAsync(api, downloadOptions, cancellationToken);
 

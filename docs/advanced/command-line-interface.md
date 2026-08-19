@@ -158,9 +158,11 @@ libationcli liberate
 
 If Audiobookshelf auto-upload is enabled in Settings, `liberate` also uploads each liberated book after download/decrypt (and PDF). See [Audiobookshelf Auto-Upload](/docs/features/audiobookshelf). The separate `convert` command does not upload. To upload books that were already liberated, use [`abs upload`](#upload-already-liberated-books-to-audiobookshelf).
 
-Titles Audible has recently refused a license for are left out of the run and reported as one summary, rather than being requested again every time. This matters most for a scheduled run. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads); naming an ASIN or passing `--force` overrides it.
+Titles Audible has recently refused a license for are left out of the run and reported as one summary, rather than being requested again every time. So are the titles your last library scan did not find, which Audible will not license either. This matters most for a scheduled run. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads); naming an ASIN or passing `--force` overrides both.
 
 The run covers both halves of "book and pdf backups": titles that need downloading, and titles whose audio you already have but whose PDF is missing. Before 13.7.9 it only did the first, so `liberate --pdf` was the only way to get a PDF for a title downloaded earlier.
+
+A title's PDF comes from the same license as its audiobook, so a run that fetches both asks Audible for one license, not two.
 
 Audiobookshelf auto-upload is not part of that second half. It runs when a title is liberated, so a run that only back-fills a PDF does not upload; use `abs upload` to send titles liberated earlier.
 
@@ -198,6 +200,8 @@ Downloads nothing but PDFs, and never downloads an audiobook. A plain `liberate`
 
 A PDF is saved beside its audiobook, or in the folder the [folder template](/docs/features/naming-templates) names for that title when Libation cannot find the audio files. Before 13.7.9 the second case put the PDF directly in your Books directory.
 
+Fetching a PDF is a license request like any other, so this run leaves alone the same titles a plain `liberate` does: those absent from your last scan, and those Audible recently refused.
+
 ## Re-Liberate a Single Book
 
 After Audible updates a title (or to replace a bad file), re-download just that book. Naming an ASIN always re-downloads it, even if it is already liberated:
@@ -216,7 +220,7 @@ libationcli liberate --force
 libationcli liberate -f
 ```
 
-`--force` also attempts the titles Audible recently refused, which a plain run leaves alone. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads).
+`--force` also attempts the titles a plain run leaves alone: those Audible recently refused, and those absent from your last library scan. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads).
 
 ## Limit How Much One Run Downloads
 

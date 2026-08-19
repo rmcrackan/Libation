@@ -157,6 +157,10 @@ public class ProcessBookViewModel : ReactiveObject
 			{
 				var processable = CurrentProcessable;
 				result = await ExecuteProcessableAsync(processable);
+
+				if (processable is ILicensedDownload { ObtainedLicense: { } license })
+					obtainedLicense = license;
+
 				UnlinkProcessable(processable);
 				NextProcessable();
 
@@ -290,9 +294,22 @@ public class ProcessBookViewModel : ReactiveObject
 
 	private ProcessBookViewModel AddProcessable<T>() where T : Processable, IProcessable<T>
 	{
-		Processes.Enqueue(() => T.Create(Configuration));
+		Processes.Enqueue(() =>
+		{
+			var processable = T.Create(Configuration);
+
+			// Each step is created as it is reached, so by now an earlier step has published whatever license
+			// it obtained. Handing it on is what keeps a title to one license request per run.
+			if (processable is ILicensedDownload licensed)
+				licensed.LicenseInfo = obtainedLicense;
+
+			return processable;
+		});
 		return this;
 	}
+
+	/// <summary>The license an earlier step for this book obtained, for the steps that follow it to reuse.</summary>
+	private DownloadOptions.LicenseInfo? obtainedLicense;
 
 	public override string ToString() => LibraryBook.ToString();
 
