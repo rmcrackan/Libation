@@ -107,7 +107,17 @@ public class BackgroundFileSystem : IDisposable
 		catch (ObjectDisposedException) { }
 
 		//Wait for background scanner to terminate before reinitializing.
-		backgroundScanner?.Wait();
+		try
+		{
+			backgroundScanner?.Wait();
+		}
+		// A scanner that died still has to be waited on, but its failure is not this caller's to raise: Stop() is
+		// reached from Refresh() and from Dispose(), neither of which has anything to do with whatever went wrong,
+		// and both of which are about to replace the scanner anyway.
+		catch (AggregateException ex)
+		{
+			Serilog.Log.Logger.Error(ex, "The file cache's background scanner had already stopped on an error.");
+		}
 
 		//Dispose of directoryChangesEvents after backgroundScanner exists. Clear the field first so a late event
 		//has nothing to add to. CompleteAdding has to have happened while it was still set, or the scanner would
@@ -146,8 +156,19 @@ public class BackgroundFileSystem : IDisposable
 	{
 		while (directoryChangesEvents?.TryTake(out var change, -1) is true)
 		{
-			lock (fsCacheLocker)
-				UpdateLocalCache(change);
+			try
+			{
+				lock (fsCacheLocker)
+					UpdateLocalCache(change);
+			}
+			// One path this cannot read must not end the scan. An exception here used to be terminal twice over:
+			// it stopped the cache tracking anything further, and it was stored on the task, so the next Stop()
+			// rethrew it as an AggregateException at whoever had called Refresh() - a caller with nothing to do
+			// with the file that went missing.
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Debug(ex, "Could not apply a file system change to the file cache: {@DebugText}", new { change.ChangeType, change.FullPath });
+			}
 		}
 	}
 
@@ -181,12 +202,34 @@ public class BackgroundFileSystem : IDisposable
 	{
 		path = path.LongPathName;
 		//Temporary files created when updating the db will disappear before their attributes can be read.
-		if (Path.GetFileName(path).Contains("LibationContext.db") || !File.Exists(path) && !Directory.Exists(path))
+		if (Path.GetFileName(path).Contains("LibationContext.db"))
 			return;
-		if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
+
+		// Whether it exists and what it is were two questions, and the answer to the first could stop being true
+		// before the second was asked: a download's temp file, or a folder the user has just moved or deleted, is
+		// gone by the time its attributes are read. One question instead, and its failure means the same thing
+		// the existence check meant - there is nothing here to add.
+		if (TryGetAttributes(path) is not FileAttributes attributes)
+			return;
+
+		if (attributes.HasFlag(FileAttributes.Directory))
 			AddUniqueFiles(SafestEnumerateFiles(path));
 		else
 			AddUniqueFile(path);
+	}
+
+	/// <returns>What the path is, or null when it cannot be read and so has nothing to add.</returns>
+	internal static FileAttributes? TryGetAttributes(LongPath path)
+	{
+		try
+		{
+			return File.GetAttributes(path);
+		}
+		catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+		{
+			Serilog.Log.Logger.Debug(ex, "Nothing to add to the file cache for {@DebugText}", new { path = (string)path });
+			return null;
+		}
 	}
 
 	private IEnumerable<LongPath> SafestEnumerateFiles(string path)

@@ -103,3 +103,132 @@ public class DisposeWhileEventsAreArriving
 		return false;
 	}
 }
+
+/// <summary>
+/// A second failure mode in the same class, from a CI run where all three Windows legs failed and the other six
+/// passed: every test in FileLiberator.Tests' PDF path suite failed in TestInitialize with an AggregateException
+/// wrapping <c>FileNotFoundException: Could not find file ...</c>, naming a path none of those tests had
+/// anything to do with. The watcher had raised Created for a folder an earlier test's cleanup then deleted; the
+/// scanner asked whether it existed, was told yes, asked what it was, and got an exception. That killed the
+/// scanner and was stored on its task, and the next Stop() - reached from AudibleFileStorage.Audio.Refresh() by
+/// way of Dispose() - rethrew it at that caller.
+/// <para>
+/// The trigger is a disagreement between Exists and GetAttributes over a long <c>\\?\</c> path, which cannot be
+/// staged on the platform these tests usually run on. So the guard itself is asserted directly, and the rest
+/// covers what the death cost: a cache that stops tracking, and an exception handed to an unrelated caller.
+/// </para>
+/// </summary>
+[TestClass]
+[DoNotParallelize]
+public class PathsThatVanishBeforeTheyAreRead
+{
+	private string tempDir = string.Empty;
+
+	[TestInitialize]
+	public void Initialize()
+	{
+		tempDir = Path.Combine(Path.GetTempPath(), $"libation-bfs-vanishing-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDir);
+	}
+
+	[TestCleanup]
+	public void Cleanup()
+	{
+		try
+		{
+			Directory.Delete(tempDir, recursive: true);
+		}
+		catch (IOException)
+		{
+			// A leftover temp directory is not worth failing a test over.
+		}
+	}
+
+	/// <summary>Creates a batch of files and deletes the tree while their events are still queued.</summary>
+	private void ChurnVanishingFiles()
+	{
+		for (var batch = 0; batch < 5; batch++)
+		{
+			var directory = Path.Combine(tempDir, $"vanishing-{batch}");
+			Directory.CreateDirectory(directory);
+
+			for (var i = 0; i < 40; i++)
+				File.WriteAllText(Path.Combine(directory, $"book-{i}.m4b"), "audio");
+
+			// No wait: the scanner should reach these paths after they have gone.
+			Directory.Delete(directory, recursive: true);
+		}
+	}
+
+	[TestMethod]
+	public void a_path_that_is_not_there_reads_as_nothing_rather_than_throwing()
+	{
+		// The fix, on its own terms. Asking what a path is used to be allowed to throw, on the strength of having
+		// asked a moment earlier whether it was there.
+		Assert.IsNull(BackgroundFileSystem.TryGetAttributes(Path.Combine(tempDir, "never-existed.m4b")));
+		Assert.IsNull(BackgroundFileSystem.TryGetAttributes(Path.Combine(tempDir, "no", "such", "folder", "book.m4b")));
+	}
+
+	[TestMethod]
+	public void a_path_that_is_there_still_reads_as_what_it_is()
+	{
+		var file = Path.Combine(tempDir, "real.m4b");
+		File.WriteAllText(file, "audio");
+
+		Assert.IsFalse(BackgroundFileSystem.TryGetAttributes(file)!.Value.HasFlag(FileAttributes.Directory));
+		Assert.IsTrue(BackgroundFileSystem.TryGetAttributes(tempDir)!.Value.HasFlag(FileAttributes.Directory));
+	}
+
+	[TestMethod]
+	public void the_scanner_keeps_going_after_a_path_it_cannot_read()
+	{
+		using var sut = new BackgroundFileSystem(tempDir, "*.*", SearchOption.AllDirectories);
+
+		ChurnVanishingFiles();
+
+		// The scanner is still doing its job, which is what dying used to cost: the first unreadable path ended
+		// the loop, and every later change to the Books directory went unnoticed for the rest of the session.
+		File.WriteAllText(Path.Combine(tempDir, "survivor.m4b"), "audio");
+
+		var found = WaitFor(() => sut.FindFile(new Regex(@"survivor\.m4b$")) is not null);
+		Assert.IsTrue(found, "the scanner stopped tracking changes after a path it could not read");
+	}
+
+	[TestMethod]
+	public void disposing_afterwards_does_not_hand_the_failure_to_the_caller()
+	{
+		// This is the CI stack: Refresh() found the Books directory changed, disposed the old file system, and
+		// Stop() waited on a scanner that had already faulted.
+		var sut = new BackgroundFileSystem(tempDir, "*.*", SearchOption.AllDirectories);
+
+		ChurnVanishingFiles();
+
+		sut.Dispose();
+	}
+
+	[TestMethod]
+	public void a_file_that_outlives_its_event_is_still_tracked()
+	{
+		// The guard must not have been widened into ignoring everything: what is really there still lands.
+		using var sut = new BackgroundFileSystem(tempDir, "*.*", SearchOption.AllDirectories);
+
+		var directory = Path.Combine(tempDir, "kept");
+		Directory.CreateDirectory(directory);
+		File.WriteAllText(Path.Combine(directory, "kept.m4b"), "audio");
+
+		var found = WaitFor(() => sut.FindFile(new Regex(@"kept\.m4b$")) is not null);
+		Assert.IsTrue(found, "a file that was never deleted did not reach the cache");
+	}
+
+	private static bool WaitFor(Func<bool> condition, int timeoutMs = 5000)
+	{
+		for (var waited = 0; waited < timeoutMs; waited += 50)
+		{
+			if (condition())
+				return true;
+			Thread.Sleep(50);
+		}
+
+		return false;
+	}
+}
