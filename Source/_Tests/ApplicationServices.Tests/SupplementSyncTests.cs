@@ -1,10 +1,11 @@
 using AudibleApi.Common;
 using DataLayer;
+using DtoImporterService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
 
-namespace DtoImporterService.Tests;
+namespace ApplicationServices.Tests;
 
 /// <summary>
 /// What a scan does to the record of a book's supplement. Reported in issue #1973: three titles Audible has no
