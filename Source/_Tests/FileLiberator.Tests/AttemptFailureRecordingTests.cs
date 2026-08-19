@@ -7,6 +7,7 @@ using LibationFileManager;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace FileLiberator.Tests;
@@ -61,7 +62,7 @@ public class AttemptFailureRecordingTests
 			=> Throw is null ? Task.FromResult(new StatusHandler()) : throw Throw;
 	}
 
-	/// <summary>Stands in for the PDF or mp3 steps, which never request an audiobook license.</summary>
+	/// <summary>Stands in for the mp3 and Audiobookshelf steps, which never request a license.</summary>
 	private sealed class FakeOtherStep : Processable
 	{
 		public override string Name => nameof(FakeOtherStep);
@@ -156,10 +157,10 @@ public class AttemptFailureRecordingTests
 	}
 
 	[TestMethod]
-	public async Task A_step_other_than_the_audiobook_download_records_nothing()
+	public async Task A_step_that_asks_Audible_for_nothing_records_nothing()
 	{
-		// A PDF download hits the same license endpoint, but the wait gates the audiobook request, so letting
-		// the PDF write to the same record would hold back a title whose audio was never refused.
+		// Converting to mp3 and uploading work on the files already on disk. There is no request for a record to
+		// gate, so a failure there says nothing about whether Audible would refuse the title.
 		var book = Book();
 		var processable = new FakeOtherStep { Configuration = Configuration.Instance, Throw = Denied() };
 
@@ -167,6 +168,22 @@ public class AttemptFailureRecordingTests
 
 		Assert.IsNull(Deferred(book));
 	}
+
+	[TestMethod]
+	public void The_supplement_download_remembers_a_refusal_as_the_audiobook_download_does()
+	{
+		// Both request the same content license, so a refusal of one is a refusal of the other. Until issue
+		// #1973 the PDF step recorded nothing, and a scheduled run asked again every 15 minutes.
+		Assert.IsTrue(RecordsAttemptFailures<DownloadPdf>());
+		Assert.IsTrue(RecordsAttemptFailures<DownloadDecryptBook>());
+		Assert.IsFalse(RecordsAttemptFailures<ConvertToMp3>());
+		Assert.IsFalse(RecordsAttemptFailures<UploadToAudiobookshelf>());
+	}
+
+	private static bool RecordsAttemptFailures<T>() where T : Processable, IProcessable<T>
+		=> (bool)typeof(Processable)
+			.GetProperty(nameof(RecordsAttemptFailures), BindingFlags.NonPublic | BindingFlags.Instance)!
+			.GetValue(T.Create(Configuration.Instance))!;
 
 	[TestMethod]
 	public async Task A_step_that_fails_validation_records_nothing()

@@ -176,7 +176,7 @@ public class BookImporter : ItemsImporterBase
 	/// is left alone either way, because the file is on disk and the library should go on saying so.
 	/// </para>
 	/// </summary>
-	private static void syncSupplement(Item item, Book book)
+	internal static void syncSupplement(Item item, Book book)
 	{
 		if (item.PdfUrl is not null)
 			book.SetSupplementDownloadUrl(item.PdfUrl.ToString());
