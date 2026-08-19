@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MSTest" Version="4.2.2" />
+    <PackageReference Include="MSTest" Version="4.3.3" />
   </ItemGroup>
 
   <ItemGroup>
