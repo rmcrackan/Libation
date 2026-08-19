@@ -13,44 +13,80 @@ using System.Threading.Tasks;
 
 namespace FileLiberator;
 
-public class DownloadPdf : Processable, IProcessable<DownloadPdf>
+public class DownloadPdf : Processable, IProcessable<DownloadPdf>, ILicensedDownload
 {
 	public override string Name => "Download Pdf";
+
+	/// <summary>
+	/// A supplement is delivered through a content license, the same request the audiobook download makes, so
+	/// a refusal of one is a refusal of the other and belongs in the record that keeps a scheduled run from
+	/// asking again.
+	/// </summary>
+	protected override bool RecordsAttemptFailures => true;
+
+	/// <inheritdoc/>
+	public DownloadOptions.LicenseInfo? LicenseInfo { get; set; }
+
+	/// <inheritdoc/>
+	public DownloadOptions.LicenseInfo? ObtainedLicense { get; private set; }
+
+	/// <summary>
+	/// A title Audible has a supplement for, whose supplement is not downloaded and was not written off. The
+	/// status check matches <see cref="DataLayer.LibraryBookQueries.NeedsPdfDownload"/>, and treats
+	/// <see cref="LiberatedStatus.Error"/> as "don't retry" exactly as the audiobook download does through
+	/// <c>AudioExists</c>.
+	/// </summary>
 	public override bool Validate(LibraryBook libraryBook)
 		=> !string.IsNullOrWhiteSpace(getdownloadUrl(libraryBook))
-		&& !libraryBook.Book.PdfExists;
+		&& libraryBook.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated;
 
 	public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
 	{
 		OnBegin(libraryBook);
 		string? createdDirectory = null;
+		ObtainedLicense = null;
 
 		try
 		{
+			// A license this run already holds is used as it is. Requesting another would repeat the request
+			// the audiobook download just made, which is what filled the log in issue #1973.
+			var carriedLicense = LicenseInfo;
+			var license = carriedLicense ?? await requestLicenseAsync(libraryBook);
+			ObtainedLicense = license;
+
+			if (license.PdfUrl is not string downloadUrl)
+				return await noSupplementAvailableAsync(libraryBook);
+
 			var proposedDownloadFilePath = GetProposedDownloadFilePath(libraryBook);
 			createdDirectory = createDirectoryFor(proposedDownloadFilePath);
-			var actualDownloadedFilePath = await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
-			var result = verifyDownload(actualDownloadedFilePath);
 
-			if (result.IsSuccess)
+			var result = await downloadAndVerifyAsync(libraryBook, downloadUrl, proposedDownloadFilePath);
+
+			// Audible's download links are signed and expire, and a carried license was granted before an
+			// audiobook download that may have taken hours. One fresh license is worth trying before the
+			// title is reported as failed; a license requested moments ago would only fail the same way.
+			if (!result.IsSuccess && carriedLicense is not null)
 			{
-				OnFileCreated(libraryBook, actualDownloadedFilePath);
-				SetFileTime(libraryBook, actualDownloadedFilePath);
-				if (Path.GetDirectoryName(actualDownloadedFilePath) is string outputDir)
-					SetDirectoryTime(libraryBook, outputDir);
-			}
-			else
-			{
-				// Keeping it would leave a file in the library that is not the supplement, under a name that
-				// says it is, and would stop the folder cleanup below from running.
-				FileUtility.SaferDelete(actualDownloadedFilePath);
+				Serilog.Log.Logger.Information(
+					"Requesting a new license to fetch the supplement of {libraryBook}: the one from its audiobook download did not work.",
+					libraryBook.LogFriendly());
+
+				license = await requestLicenseAsync(libraryBook);
+				ObtainedLicense = license;
+
+				if (license.PdfUrl is not string freshDownloadUrl)
+					return await noSupplementAvailableAsync(libraryBook);
+
+				result = await downloadAndVerifyAsync(libraryBook, freshDownloadUrl, proposedDownloadFilePath);
 			}
 
 			await libraryBook.UpdatePdfStatusAsync(result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated);
 
 			return result;
 		}
-		catch (Exception ex)
+		// Refusals are left to reach ProcessSingleAsync, which records them for every step alike. Everything
+		// else is still swallowed here, which is what stopped a missing PDF from taking the app down with it.
+		catch (Exception ex) when (DownloadFailureClassifier.Classify(ex) is null)
 		{
 			Serilog.Log.Logger.Error(ex, "Error downloading PDF");
 
@@ -64,6 +100,75 @@ public class DownloadPdf : Processable, IProcessable<DownloadPdf>
 			removeIfLeftEmpty(createdDirectory);
 			OnCompleted(libraryBook);
 		}
+	}
+
+	private async Task<DownloadOptions.LicenseInfo> requestLicenseAsync(LibraryBook libraryBook)
+	{
+		var api = await libraryBook.GetApiAsync();
+		return await DownloadOptions.GetSupplementLicenseAsync(api, libraryBook, Configuration);
+	}
+
+	/// <summary>
+	/// Audible granted a license and it carried no supplement link, which is Audible saying this title has no
+	/// PDF to give. Written off the way the audiobook download writes off a title it should not attempt again:
+	/// <see cref="LiberatedStatus.Error"/> means "don't retry" for a supplement exactly as it does for audio,
+	/// and the same controls - a forced or named <c>liberate</c> run, Set PDF Not Downloaded - set it back.
+	/// <para>
+	/// Reported as a completed step and not as a failure. Nothing went wrong and nothing is left to attempt, and
+	/// a failure here would put the queue's Abort / Retry / Ignore question to the user about a book whose audio
+	/// is fine.
+	/// </para>
+	/// </summary>
+	private async Task<StatusHandler> noSupplementAvailableAsync(LibraryBook libraryBook)
+	{
+		const string explanation = "Audible has no PDF for this title, although the library listing says it has one. "
+			+ "Its PDF will not be asked for again; set the PDF status back to Not Downloaded to try once more.";
+
+		Serilog.Log.Logger.Information(
+			"Audible granted a license for {libraryBook} that carried no supplement link, so it has no PDF to download. {explanation}",
+			libraryBook.LogFriendly(),
+			explanation);
+
+		OnStatusUpdate(explanation);
+		await libraryBook.UpdatePdfStatusAsync(LiberatedStatus.Error);
+
+		return new StatusHandler();
+	}
+
+	/// <summary>
+	/// Fetches the supplement and keeps it only if what came back is one. A transport failure is reported as a
+	/// failed status rather than thrown, so that a license worth retrying still gets retried.
+	/// </summary>
+	private async Task<StatusHandler> downloadAndVerifyAsync(LibraryBook libraryBook, string downloadUrl, string proposedDownloadFilePath)
+	{
+		string actualDownloadedFilePath;
+		try
+		{
+			actualDownloadedFilePath = await downloadPdfAsync(downloadUrl, proposedDownloadFilePath);
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Error downloading PDF");
+			return new StatusHandler { $"Error downloading PDF. See log for details. Error summary: {ex.Message}" };
+		}
+
+		var result = verifyDownload(actualDownloadedFilePath);
+
+		if (result.IsSuccess)
+		{
+			OnFileCreated(libraryBook, actualDownloadedFilePath);
+			SetFileTime(libraryBook, actualDownloadedFilePath);
+			if (Path.GetDirectoryName(actualDownloadedFilePath) is string outputDir)
+				SetDirectoryTime(libraryBook, outputDir);
+		}
+		else
+		{
+			// Keeping it would leave a file in the library that is not the supplement, under a name that
+			// says it is, and would stop the folder cleanup in ProcessAsync from running.
+			FileUtility.SaferDelete(actualDownloadedFilePath);
+		}
+
+		return result;
 	}
 
 	/// <summary>The directory this run had to create, or null when it was already there.</summary>
@@ -119,11 +224,8 @@ public class DownloadPdf : Processable, IProcessable<DownloadPdf>
 	private static string? getdownloadUrl(LibraryBook libraryBook)
 		=> libraryBook?.Book?.Supplements?.FirstOrDefault()?.Url;
 
-	private async Task<string> downloadPdfAsync(LibraryBook libraryBook, string proposedDownloadFilePath)
+	private async Task<string> downloadPdfAsync(string downloadUrl, string proposedDownloadFilePath)
 	{
-		var api = await libraryBook.GetApiAsync();
-		var downloadUrl = await api.GetPdfDownloadLinkAsync(libraryBook.Book.AudibleProductId);
-
 		var progress = new Progress<DownloadProgress>(OnStreamingProgressChanged);
 
 		var client = new HttpClient();

@@ -778,7 +778,9 @@ public static class LibraryCommands
 
 		var pdfsDownloaded = pdfResults.Count(r => r.status == LiberatedStatus.Liberated);
 		var pdfsNotDownloaded = pdfResults.Count(r => !r.absent && r.status == LiberatedStatus.NotLiberated);
-		var pdfsUnavailable = pdfResults.Count(r => r.absent && r.status == LiberatedStatus.NotLiberated);
+		// Error means Audible has a supplement listed for the title but will not deliver one, so the count it
+		// belongs in is the one for PDFs Libation cannot get. Without this such a title is in no count at all.
+		var pdfsUnavailable = pdfResults.Count(r => r.status == LiberatedStatus.Error || (r.absent && r.status == LiberatedStatus.NotLiberated));
 
 		Log.Logger.Information("PDF counts for {RequestedBy}. {@DebugInfo}", requestedBy, new { total = pdfResults.Count, pdfsDownloaded, pdfsNotDownloaded, pdfsUnavailable });
 

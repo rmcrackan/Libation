@@ -56,13 +56,16 @@ public partial class DownloadOptions : IDownloadOptions, IDisposable
 
 		ArgumentValidator.EnsureNotNull(licInfo, nameof(licInfo));
 
-		if (licInfo.ContentMetadata.ContentUrl?.OfflineUrl is not string licUrl)
+		if (licInfo.ContentMetadata is not AudibleApi.Common.ContentMetadata contentMetadata)
+			throw new InvalidDataException("Content license doesn't contain content metadata");
+
+		if (contentMetadata.ContentUrl?.OfflineUrl is not string licUrl)
 			throw new InvalidDataException("Content license doesn't contain an offline Url");
 
 		DownloadUrl = licUrl;
 		DecryptionKeys = licInfo.DecryptionKeys;
 		DrmType = licInfo.DrmType;
-		ContentMetadata = licInfo.ContentMetadata;
+		ContentMetadata = contentMetadata;
 		InputType
 		= licInfo.DrmType is AudibleApi.Common.DrmType.Widevine ? AAXClean.FileType.Dash
 		: licInfo.DrmType is AudibleApi.Common.DrmType.Adrm && licInfo.DecryptionKeys?.Length == 1 && licInfo.DecryptionKeys[0].KeyPart1.Length == 4 && licInfo.DecryptionKeys[0].KeyPart2 is null ? AAXClean.FileType.Aax

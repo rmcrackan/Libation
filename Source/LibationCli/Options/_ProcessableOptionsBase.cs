@@ -90,6 +90,17 @@ public abstract class ProcessableOptionsBase : OptionsBase
 	/// </summary>
 	internal virtual bool HonorsDeferredRetries => false;
 
+	/// <summary>
+	/// Whether a bulk run should leave alone the titles the last library scan did not find, which is what every
+	/// multi-title path in the app already does through <see cref="DataLayer.LibraryBookQueries.Downloadable"/>.
+	/// <para>
+	/// False by default: convert-to-mp3 and the Audiobookshelf upload work on the files already on disk, and a
+	/// title being absent from Audible says nothing about those. Only a verb that asks Audible for something has
+	/// anything to gain by skipping them.
+	/// </para>
+	/// </summary>
+	internal virtual bool SkipsTitlesAbsentFromLastScan => false;
+
 	/// <param name="bulkFollowUp">
 	/// A second pass over the library, run after <paramref name="Processable"/>, for the titles that pass its
 	/// own Validate but were not selected by the first. <c>liberate</c> uses this to back-fill PDFs for titles
@@ -103,6 +114,7 @@ public abstract class ProcessableOptionsBase : OptionsBase
 	protected async Task RunAsync(Processable Processable, Action<LibraryBook>? config = null, Action<string>? notFound = null, Processable? bulkFollowUp = null)
 	{
 		var skippedForDailyLimit = 0;
+		var skippedAsAbsent = 0;
 		var deferredThisRun = new List<DeferredDownload>();
 		var runLimitReached = false;
 
@@ -137,29 +149,29 @@ public abstract class ProcessableOptionsBase : OptionsBase
 
 			var libraryBooks = DbContexts.GetLibrary_Flat_NoTracking();
 
-			// Titles the follow-up pass must leave alone: the ones the first pass attempted, and the ones it
-			// deliberately did not. Recorded by product id rather than re-derived, because neither question
-			// can be answered from a title's state afterwards - a step that just failed still validates, and
-			// a title being waited on looks like any other title that needs downloading.
-			//
-			// The deferred half matters as much as the attempted half: a PDF is fetched through the same
-			// license request as the audiobook, so following a refusal with a PDF request would reproduce,
-			// through the PDF, exactly the per-run refusal the wait exists to stop.
+			// Filtered once, ahead of both passes, so the two agree about which titles this run may attempt -
+			// and by the same rule the app's own multi-title paths use.
+			if (SkipsTitlesAbsentFromLastScan)
+			{
+				var downloadable = libraryBooks.Where(lb => lb.Downloadable).ToList();
+				skippedAsAbsent = libraryBooks.Count - downloadable.Count;
+				libraryBooks = downloadable;
+			}
+
+			// Titles the follow-up pass must leave alone, because the first pass has already dealt with them:
+			// the ones it attempted, whose own steps followed on from the attempt, and the ones it left waiting,
+			// which are counted and explained once here rather than again below. Recorded by product id rather
+			// than re-derived, because neither question can be answered from a title's state afterwards - a step
+			// that just failed still validates, and a title being waited on looks like any other title that
+			// needs downloading.
 			var settledByFirstPass = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
 			foreach (var lb in Processable.GetValidLibraryBooks(libraryBooks))
 			{
 				settledByFirstPass.Add(lb.Book.AudibleProductId);
 
-				if (deferrals.Find(lb) is DeferredDownload deferred)
-				{
-					deferredThisRun.Add(deferred);
-					Serilog.Log.Logger.Information(
-						"Not attempting {libraryBook} yet. {@DebugInfo}",
-						lb.LogFriendly(),
-						new { deferred.Kind, deferred.ConsecutiveFailures, deferred.Reason, RetryAfter = deferred.RetryAfter.ToLocalTime() });
+				if (IsDeferred(lb))
 					continue;
-				}
 
 				if (!await ProcessOrStopAsync(Processable, lb, false))
 					break;
@@ -171,13 +183,36 @@ public abstract class ProcessableOptionsBase : OptionsBase
 			{
 				foreach (var lb in bulkFollowUp.GetValidLibraryBooks(libraryBooks))
 				{
-					if (settledByFirstPass.Contains(lb.Book.AudibleProductId))
+					// The follow-up pass waits on a refused title just as the first does. It fetches a PDF,
+					// which comes from the same license request the audiobook does, so a title being waited on
+					// would be refused here for the reason the wait exists to stop asking about.
+					if (settledByFirstPass.Contains(lb.Book.AudibleProductId) || IsDeferred(lb))
 						continue;
 
 					if (!await ProcessOrStopAsync(bulkFollowUp, lb, false))
 						break;
 				}
 			}
+
+			bool IsDeferred(LibraryBook libraryBook)
+			{
+				if (deferrals.Find(libraryBook) is not DeferredDownload deferred)
+					return false;
+
+				deferredThisRun.Add(deferred);
+				Serilog.Log.Logger.Information(
+					"Not attempting {libraryBook} yet. {@DebugInfo}",
+					libraryBook.LogFriendly(),
+					new { deferred.Kind, deferred.ConsecutiveFailures, deferred.Reason, RetryAfter = deferred.RetryAfter.ToLocalTime() });
+				return true;
+			}
+		}
+
+		if (skippedAsAbsent > 0)
+		{
+			var summary = AbsentFromLastScanUserMessage.BuildCliSkippedSummary(skippedAsAbsent);
+			Console.WriteLine(summary);
+			Serilog.Log.Logger.Information(summary);
 		}
 
 		if (deferredThisRun.Count > 0)

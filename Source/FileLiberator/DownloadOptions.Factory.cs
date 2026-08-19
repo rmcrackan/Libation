@@ -25,10 +25,17 @@ public partial class DownloadOptions
 	public static async Task<LicenseInfo> GetDownloadLicenseAsync(Api api, LibraryBook libraryBook, Configuration config, CancellationToken token)
 	{
 		var license = await ChooseContent(api, libraryBook, config, token);
+
+		// Only the audiobook download needs this. A granted license always carries it, and a supplement is
+		// fetched from the same license without ever looking at it, so the requirement belongs here rather
+		// than in LicenseInfo.
+		if (license.ContentMetadata is not ContentMetadata contentMetadata)
+			throw new InvalidDataException($"Content license contains no content metadata for asin: [{libraryBook.Book.AudibleProductId}]");
+
 		Serilog.Log.Logger.Debug("Content License {@License}", new
 		{
 			license.DrmType,
-			license.ContentMetadata.ContentReference
+			contentMetadata.ContentReference
 		});
 
 		token.ThrowIfCancellationRequested();
@@ -40,8 +47,8 @@ public partial class DownloadOptions
 		var metadata = await api.GetContentMetadataAsync(
 		   libraryBook.Book.AudibleProductId,
 		   license.DrmType,
-		   license.ContentMetadata.ContentReference.Acr,
-		   license.ContentMetadata.ContentReference.FileVersion);
+		   contentMetadata.ContentReference.Acr,
+		   contentMetadata.ContentReference.FileVersion);
 
 		if (metadata is null)
 		{
@@ -49,19 +56,19 @@ public partial class DownloadOptions
 			{
 				libraryBook.Book.AudibleProductId,
 				license.DrmType,
-				license.ContentMetadata.ContentReference.Acr,
-				license.ContentMetadata.ContentReference.FileVersion
+				contentMetadata.ContentReference.Acr,
+				contentMetadata.ContentReference.FileVersion
 			});
 		}
-		else if (metadata.ContentReference != license.ContentMetadata.ContentReference)
+		else if (metadata.ContentReference != contentMetadata.ContentReference)
 		{
 			Serilog.Log.Logger.Warning("Metadata ContentReference does not match License ContentReference with drm_type = {DrmType}. {@Metadata}. {@License} ",
 			license.DrmType,
 			metadata.ContentReference,
-			license.ContentMetadata.ContentReference);
+			contentMetadata.ContentReference);
 		}
 		else
-			license.ContentMetadata.ChapterInfo = metadata.ChapterInfo;
+			contentMetadata.ChapterInfo = metadata.ChapterInfo;
 
 		token.ThrowIfCancellationRequested();
 		return license;
@@ -70,31 +77,52 @@ public partial class DownloadOptions
 	public class LicenseInfo
 	{
 		public DrmType DrmType { get; set; }
-		public ContentMetadata ContentMetadata { get; set; }
+		public ContentMetadata? ContentMetadata { get; set; }
 		public KeyData[]? DecryptionKeys { get; set; }
 
+		/// <summary>
+		/// Where Audible says this title's supplement can be fetched from, or null when it says the title has
+		/// none. The license request asks for it (<c>response_groups</c> includes <c>pdf_url</c>), so carrying
+		/// it here is what lets one license serve both the audiobook and the PDF.
+		/// </summary>
+		public string? PdfUrl { get; set; }
+
 		[JsonConstructor]
-		private LicenseInfo()
-		{
-			ContentMetadata = null!;
-		}
+		private LicenseInfo() { }
 
 		public static LicenseInfo Create(ContentLicense license, IEnumerable<KeyData>? keys = null)
 		{
 			ArgumentNullException.ThrowIfNull(license, nameof(license));
-			ArgumentNullException.ThrowIfNull(license.ContentMetadata, nameof(license.ContentMetadata));
 
 			return new LicenseInfo
 			{
 				DrmType = license.DrmType,
 				ContentMetadata = license.ContentMetadata,
-				DecryptionKeys = keys?.ToArray() ?? ToKeys(license.Voucher)
+				DecryptionKeys = keys?.ToArray() ?? ToKeys(license.Voucher),
+				PdfUrl = license.PdfUrl
 			};
 		}
 
 		private static KeyData[]? ToKeys(VoucherDtoV10? voucher)
 			=> voucher?.Key is null ? null : [new KeyData(voucher.Key, voucher.Iv)];
 	}
+
+	/// <summary>
+	/// Requests a plain content license, without the Widevine negotiation and the chapter-metadata correction
+	/// that <see cref="GetDownloadLicenseAsync"/> layers on for the audiobook download.
+	/// <para>
+	/// A supplement needs nothing from a license but its <see cref="LicenseInfo.PdfUrl"/>, and asking for the
+	/// same license the audiobook download asks for is what makes one license usable by both steps.
+	/// </para>
+	/// </summary>
+	public static async Task<LicenseInfo> GetSupplementLicenseAsync(Api api, LibraryBook libraryBook, Configuration config)
+	{
+		var license = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, ChooseQuality(config));
+		return LicenseInfo.Create(license);
+	}
+
+	private static DownloadQuality ChooseQuality(Configuration config)
+		=> config.FileDownloadQuality == Configuration.DownloadQuality.Normal ? DownloadQuality.Normal : DownloadQuality.High;
 
 	private static async Task<LicenseInfo> ChooseContent(Api api, LibraryBook libraryBook, Configuration config, CancellationToken token)
 	{
@@ -107,7 +135,7 @@ public partial class DownloadOptions
 			config.SpatialAudioCodec
 		});
 
-		var dlQuality = config.FileDownloadQuality == Configuration.DownloadQuality.Normal ? DownloadQuality.Normal : DownloadQuality.High;
+		var dlQuality = ChooseQuality(config);
 
 		bool canUseWidevine = api.SupportsWidevine();
 		if (!config.UseWidevine || !canUseWidevine || await Cdm.GetCdmAsync() is not Cdm cdm)
@@ -181,9 +209,12 @@ public partial class DownloadOptions
 	/// </summary>
 	public static DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, LicenseInfo licInfo)
 	{
+		if (licInfo.ContentMetadata?.ChapterInfo is not ChapterInfo chapterInfo)
+			throw new InvalidDataException($"Content license contains no chapter info for asin: [{libraryBook.Book.AudibleProductId}]");
+
 		var titleConcat = config.CombineNestedChapterTitles ? ": " : null;
 		var chapters
-			= flattenChapters(licInfo.ContentMetadata.ChapterInfo.Chapters, titleConcat)
+			= flattenChapters(chapterInfo.Chapters, titleConcat)
 			.OrderBy(c => c.StartOffsetMs)
 			.ToList();
 
@@ -191,7 +222,7 @@ public partial class DownloadOptions
 			combineCredits(chapters);
 
 		if (config.StripAudibleBrandAudio)
-			stripBranding(chapters, licInfo.ContentMetadata.ChapterInfo.BrandIntroDurationMs, licInfo.ContentMetadata.ChapterInfo.BrandOutroDurationMs);
+			stripBranding(chapters, chapterInfo.BrandIntroDurationMs, chapterInfo.BrandOutroDurationMs);
 
 		if (config.SplitFilesByChapter)
 			combineShortChapters(chapters, config.MinimumFileDuration * 1000);
@@ -199,7 +230,7 @@ public partial class DownloadOptions
 		var dlOptions = new DownloadOptions(config, libraryBook, licInfo)
 		{
 			ChapterInfo = new Mpeg4Lib.ChapterInfo(TimeSpan.FromMilliseconds(chapters[0].StartOffsetMs)),
-			RuntimeLength = TimeSpan.FromMilliseconds(licInfo.ContentMetadata.ChapterInfo.RuntimeLengthMs),
+			RuntimeLength = TimeSpan.FromMilliseconds(chapterInfo.RuntimeLengthMs),
 		};
 
 		//Build AAXClean.ChapterInfo
