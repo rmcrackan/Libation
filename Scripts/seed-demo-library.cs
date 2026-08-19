@@ -14,6 +14,9 @@ using System.Text.Json;
 // Reproducing every icon by hand is tedious, and two of them are not database state at all:
 // the yellow lamp means "a partial download is sitting on disk", so this writes placeholder
 // .aaxc files as well.
+//
+// Writing rows directly also leaves Libation's search index stale, which makes every filter on the
+// seeded books come back empty, so this deletes the index and lets Libation rebuild it.
 
 const int NotLiberated = 0, Liberated = 1, Error = 2;
 const int Product = 1, Episode = 2, Parent = 4;
@@ -52,6 +55,7 @@ if (clean)
 		File.Delete(partial);
 
 	Console.WriteLine($"Removed {removed} demo book(s) and their placeholder downloads.");
+	InvalidateSearchIndex();
 	return 0;
 }
 
@@ -136,6 +140,7 @@ foreach (var book in books)
 
 transaction.Commit();
 Console.WriteLine($"Added {added} book(s).");
+InvalidateSearchIndex();
 
 if (partials.Count > 0)
 {
@@ -147,6 +152,8 @@ if (partials.Count > 0)
 	Console.WriteLine($"Wrote {partials.Count} placeholder download(s) to {inProgress}");
 }
 
+Console.WriteLine();
+Console.WriteLine("Filtering covers these books. Try  HasSubtitle ,  TitleHasColon , or  Trashed  for no matches.");
 Console.WriteLine();
 Console.WriteLine("Start Libation and sort by Title. Expected Liberate column, top to bottom:");
 foreach (var book in books.Where(b => !b.IsDeleted))
@@ -396,6 +403,31 @@ string DownloadsInProgress()
 	}
 
 	return Path.Combine(inProgress, "DownloadsInProgress");
+}
+
+/// <summary>Delete the Lucene index so Libation rebuilds it from the database.</summary>
+/// <remarks>
+/// This script writes rows straight to SQLite, which leaves the index untouched, so every filter on the
+/// main grid came back empty no matter what had been seeded. Libation treats a missing index as a full
+/// re-index rather than an error, so deleting the folder is enough: the first search rebuilds it from the
+/// library, and the rebuild excludes trashed books the same way the grid does.
+/// </remarks>
+void InvalidateSearchIndex()
+{
+	var searchEngine = Path.Combine(libationFiles, "SearchEngine");
+	if (!Directory.Exists(searchEngine))
+		return;
+
+	try
+	{
+		Directory.Delete(searchEngine, recursive: true);
+		Console.WriteLine("Deleted the search index. Libation rebuilds it on the first search or filter.");
+	}
+	catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+	{
+		Console.Error.WriteLine($"Could not delete the search index at {searchEngine}: {ex.Message}");
+		Console.Error.WriteLine("Close Libation and delete that folder by hand, or filtering will not find the seeded books.");
+	}
 }
 
 /// <summary>Look up a row's id by its Audible id, inserting it first if it isn't there yet.</summary>

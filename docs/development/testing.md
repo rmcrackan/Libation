@@ -85,6 +85,16 @@ Both commands are safe to re-run. Seeding skips books that are already present, 
 The seeded books are not real, so do not click their stoplights - that queues a download which cannot succeed. Expanding a seeded series row is fine.
 :::
 
+#### The search index
+
+The script writes rows straight to SQLite, which leaves Libation's Lucene index untouched, so seeded books were invisible to every search and filter until the index caught up. That made the empty-grid states impossible to test properly: with nothing findable, every filter produced **No books match**, whether or not that was the right answer.
+
+So the script deletes the `SearchEngine` folder in your Libation files directory and lets Libation rebuild it. That is not a workaround for a bug - a missing index is a state Libation already handles. `SearchEngineCommands.performSafeQuery` catches the `FileNotFoundException`, runs a full re-index from the database, and retries the query, so the first search after seeding rebuilds and returns the seeded books.
+
+The rebuild reads `GetLibrary_Flat_NoTracking`, which filters on `IsDeleted`, so trashed books stay out of the index exactly as they do in a normal Libation session. Filtering for `Trashed` therefore finds nothing in the grid while the trash bin still holds three matches - which is the state the empty-search trash hint needs.
+
+If the folder cannot be deleted, the script says so and carries on rather than failing. That normally means Libation is still open; close it and delete the folder by hand.
+
 #### Books in the trash
 
 Three of the seeded books are in the trash, and they are the only ones that will not be in the grid. Removal is a soft delete: `GetLibrary()` filters `IsDeleted` out, which takes a trashed book out of the grid, out of the search index and out of every status count at once. Nothing then distinguishes it from a book that was never imported, which is what made [#1925](https://github.com/rmcrackan/Libation/issues/1925) take a week to answer. These rows are how the affordances that fixed that are checked.
