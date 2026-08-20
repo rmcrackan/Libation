@@ -38,6 +38,15 @@ public class ProcessQueueViewModel : ReactiveObject
 
 	public ProcessQueueViewModel()
 	{
+		// The queue is mutated from book threads and read by index from the UI thread, so its
+		// notifications have to arrive on the UI thread in the order the queue actually changed.
+		// alwaysInvoke: true is the part that matters - it makes BeginInvoke post unconditionally.
+		// A plain invoker runs inline when it is already on the UI thread, which would let a
+		// UI-thread mutation deliver ahead of notifications a book thread posted earlier.
+		// Null context means nobody is bound to this queue anyway; delivery stays inline.
+		if (SynchronizationContext.Current is not null)
+			Queue.NotificationInvoker = new Dinah.Core.Threading.SynchronizeInvoker(alwaysInvoke: true);
+
 		Queue.QueuedCountChanged += Queue_QueuedCountChanged;
 		Queue.CompletedCountChanged += Queue_CompletedCountChanged;
 		SpeedLimit = Configuration.Instance.DownloadSpeedLimit / 1024m / 1024;

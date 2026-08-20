@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -42,6 +43,111 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	private readonly List<T> _completed = new();
 	private readonly object lockObject = new();
 	private int QueueStartIndex => Completed.Count + _active.Count;
+
+	#region Notification dispatch
+
+	/*
+	 * Indices are only meaningful against the state they were computed from, so an index-based
+	 * consumer can only follow the queue if it is told about mutations in the order they happened.
+	 *
+	 * Computing an index under lockObject and raising the event after releasing it does not give
+	 * that: a second item can complete in the gap, and with two Move events in flight the one
+	 * raised second can be delivered first. A bound list then reorders rows against a state that
+	 * never existed - a duplicated row and a lost one. The gap is not tight, either, because
+	 * MarkCompleted raises CompletedCountChanged first and its handler walks Completed twice
+	 * before the Move goes out.
+	 *
+	 * So mutators append their notifications to _pending while they still hold lockObject, and
+	 * delivery happens afterwards under dispatchLock. Whoever reaches dispatchLock first drains
+	 * everything that is pending, so mutation order is delivery order no matter which thread does
+	 * the delivering.
+	 *
+	 * Nothing is ever raised while lockObject is held. The UI thread reads Count, IndexOf and the
+	 * indexer from inside these handlers - Avalonia's binding and WinForms' DoVirtualScroll both
+	 * do - and those take lockObject, so raising under it would deadlock a book thread against
+	 * the UI thread.
+	 */
+
+	private enum NotificationKind { CompletedCount, QueuedCount, Collection }
+
+	private readonly record struct Notification(NotificationKind Kind, int Count, NotifyCollectionChangedEventArgs? Args);
+
+	private readonly List<Notification> _pending = new();
+	private readonly object dispatchLock = new();
+
+	/// <summary>
+	/// Marshals notifications onto the UI thread. Must post rather than run inline - see
+	/// <see cref="NotificationInvoker"/> - and must never be a blocking <c>Invoke</c>, which would
+	/// deadlock against a UI thread waiting on <see cref="lockObject"/>.
+	/// </summary>
+	/// <remarks>
+	/// Null delivers inline on the mutating thread. That is the default because
+	/// <see cref="TrackedQueue{T}"/> is a plain data structure with no thread of its own, and it is
+	/// what the tests rely on to assert immediately after a mutation.
+	/// <para>
+	/// Whatever is assigned here must post unconditionally, including from the UI thread itself.
+	/// An invoker that runs inline when it is already on the right thread lets a UI-thread mutation
+	/// deliver ahead of notifications a book thread posted earlier, which is the reordering this
+	/// exists to prevent. <c>Dinah.Core.Threading.SynchronizeInvoker</c> does that when constructed
+	/// with <c>alwaysInvoke: true</c>.
+	/// </para>
+	/// </remarks>
+	public ISynchronizeInvoke? NotificationInvoker { get; set; }
+
+	/// <summary>Call while holding <see cref="lockObject"/>.</summary>
+	private void Pend(int completedCount) => _pending.Add(new(NotificationKind.CompletedCount, completedCount, null));
+
+	/// <summary>Call while holding <see cref="lockObject"/>.</summary>
+	private void PendQueued(int queuedCount) => _pending.Add(new(NotificationKind.QueuedCount, queuedCount, null));
+
+	/// <summary>Call while holding <see cref="lockObject"/>.</summary>
+	private void Pend(NotifyCollectionChangedEventArgs args) => _pending.Add(new(NotificationKind.Collection, 0, args));
+
+	/// <summary>Call only after <see cref="lockObject"/> has been released.</summary>
+	private void DispatchPending()
+	{
+		lock (dispatchLock)
+		{
+			while (true)
+			{
+				Notification[] batch;
+				lock (lockObject)
+				{
+					if (_pending.Count == 0)
+						return;
+					batch = _pending.ToArray();
+					_pending.Clear();
+				}
+
+				var invoker = NotificationInvoker;
+				if (invoker is null)
+					Deliver(batch);
+				else
+					invoker.BeginInvoke((Action)(() => Deliver(batch)), null);
+			}
+		}
+	}
+
+	private void Deliver(Notification[] batch)
+	{
+		foreach (var notification in batch)
+		{
+			switch (notification.Kind)
+			{
+				case NotificationKind.CompletedCount:
+					CompletedCountChanged?.Invoke(this, notification.Count);
+					break;
+				case NotificationKind.QueuedCount:
+					QueuedCountChanged?.Invoke(this, notification.Count);
+					break;
+				default:
+					CollectionChanged?.Invoke(this, notification.Args!);
+					break;
+			}
+		}
+	}
+
+	#endregion
 
 	public T this[int index]
 	{
@@ -96,44 +202,42 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 
 	public bool RemoveQueued(T item)
 	{
-		int queuedCount, queueIndex;
+		bool removed;
 
 		lock (lockObject)
 		{
-			queueIndex = Queued.IndexOf(item);
-			if (queueIndex >= 0)
+			int queueIndex = Queued.IndexOf(item);
+			removed = queueIndex >= 0;
+			if (removed)
+			{
 				Queued.RemoveAt(queueIndex);
-			queuedCount = Queued.Count;
+				PendQueued(Queued.Count);
+				Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, QueueStartIndex + queueIndex));
+			}
 		}
 
-		if (queueIndex >= 0)
-		{
-			QueuedCountChanged?.Invoke(this, queuedCount);
-			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, QueueStartIndex + queueIndex));
-			return true;
-		}
-		return false;
+		DispatchPending();
+		return removed;
 	}
 
 	public bool RemoveCompleted(T item)
 	{
-		int completedCount, completedIndex;
+		bool removed;
 
 		lock (lockObject)
 		{
-			completedIndex = _completed.IndexOf(item);
-			if (completedIndex >= 0)
+			int completedIndex = _completed.IndexOf(item);
+			removed = completedIndex >= 0;
+			if (removed)
+			{
 				_completed.RemoveAt(completedIndex);
-			completedCount = _completed.Count;
+				Pend(_completed.Count);
+				Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, completedIndex));
+			}
 		}
 
-		if (completedIndex >= 0)
-		{
-			CompletedCountChanged?.Invoke(this, completedCount);
-			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, completedIndex));
-			return true;
-		}
-		return false;
+		DispatchPending();
+		return removed;
 	}
 
 	/// <summary>
@@ -142,7 +246,6 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	/// </summary>
 	public bool TryDequeueNext([MaybeNullWhen(false)] out T item)
 	{
-		int queuedCount;
 		lock (lockObject)
 		{
 			if (Queued.Count == 0)
@@ -153,36 +256,46 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 			item = Queued[0];
 			Queued.RemoveAt(0);
 			_active.Add(item);
-			queuedCount = Queued.Count;
+			PendQueued(Queued.Count);
 		}
-		QueuedCountChanged?.Invoke(this, queuedCount);
+		DispatchPending();
 		return true;
 	}
 
 	/// <summary>
 	/// Moves an active item into Completed when its processing succeeds or fails normally.
 	/// </summary>
+	/// <remarks>
+	/// An item that is not active is not completed either. Appending it to <see cref="Completed"/>
+	/// anyway would change <see cref="Count"/> with no <see cref="CollectionChanged"/> at all,
+	/// which desynchronises every bound list silently - worse than the caller's own mistake.
+	/// </remarks>
 	public void MarkCompleted(T item)
 	{
-		int completedCount, oldIndex, newIndex;
 		lock (lockObject)
 		{
 			var activeIndex = _active.IndexOf(item);
-			oldIndex = activeIndex >= 0 ? _completed.Count + activeIndex : -1;
-			if (activeIndex >= 0)
-				_active.RemoveAt(activeIndex);
-			_completed.Add(item);
-			completedCount = _completed.Count;
-			newIndex = completedCount - 1;
-		}
-		CompletedCountChanged?.Invoke(this, completedCount);
+			if (activeIndex < 0)
+			{
+				Serilog.Log.Logger.Error("MarkCompleted called on an item that is not active: {Item}", item);
+				return;
+			}
 
-		// One book at a time, the finishing book is always the first active one, oldIndex equals
-		// newIndex and nothing has moved. Concurrently it is normal for the second of two active
-		// books to finish first, which puts it ahead of the other in the display order. Without
-		// this a bound list keeps painting the previous order, so rows show the wrong book.
-		if (oldIndex >= 0 && oldIndex != newIndex)
-			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex));
+			int oldIndex = _completed.Count + activeIndex;
+			_active.RemoveAt(activeIndex);
+			_completed.Add(item);
+			int newIndex = _completed.Count - 1;
+
+			Pend(_completed.Count);
+
+			// One book at a time, the finishing book is always the first active one, oldIndex equals
+			// newIndex and nothing has moved. Concurrently it is normal for the second of two active
+			// books to finish first, which puts it ahead of the other in the display order. Without
+			// this a bound list keeps painting the previous order, so rows show the wrong book.
+			if (oldIndex != newIndex)
+				Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex));
+		}
+		DispatchPending();
 	}
 
 	/// <summary>
@@ -190,18 +303,17 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	/// </summary>
 	public void RemoveActive(T item)
 	{
-		int removedIndex, displayIndex = -1;
 		lock (lockObject)
 		{
-			removedIndex = _active.IndexOf(item);
+			int removedIndex = _active.IndexOf(item);
 			if (removedIndex >= 0)
 			{
-				displayIndex = _completed.Count + removedIndex;
+				int displayIndex = _completed.Count + removedIndex;
 				_active.RemoveAt(removedIndex);
+				Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, displayIndex));
 			}
 		}
-		if (displayIndex >= 0)
-			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, displayIndex));
+		DispatchPending();
 	}
 
 	/// <summary>
@@ -217,52 +329,49 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	/// <summary>Legacy single-item sequential accessor — kept for compatibility.</summary>
 	public void ClearCurrent()
 	{
-		T? first;
-		int displayIndex = -1;
 		lock (lockObject)
 		{
-			first = _active.FirstOrDefault();
+			var first = _active.FirstOrDefault();
 			if (first != null)
 			{
-				displayIndex = _completed.Count;
+				int displayIndex = _completed.Count;
 				_active.Remove(first);
+				Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, first, displayIndex));
 			}
 		}
-		if (first != null)
-			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, first, displayIndex));
+		DispatchPending();
 	}
 
 	public void ClearQueue()
 	{
-		List<T> queuedItems;
 		lock (lockObject)
 		{
-			queuedItems = Queued.ToList();
+			var queuedItems = Queued.ToList();
 			Queued.Clear();
+			PendQueued(0);
+			Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, queuedItems, QueueStartIndex));
 		}
-		QueuedCountChanged?.Invoke(this, 0);
-		CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, queuedItems, QueueStartIndex));
+		DispatchPending();
 	}
 
 	public void ClearCompleted()
 	{
-		List<T> completedItems;
 		lock (lockObject)
 		{
-			completedItems = _completed.ToList();
+			var completedItems = _completed.ToList();
 			_completed.Clear();
+			Pend(0);
+			Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, completedItems, 0));
 		}
-		CompletedCountChanged?.Invoke(this, 0);
-		CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, completedItems, 0));
+		DispatchPending();
 	}
 
 	public void MoveQueuePosition(T item, QueuePosition requestedPosition)
 	{
-		int oldIndex, newIndex;
 		lock (lockObject)
 		{
-			oldIndex = Queued.IndexOf(item);
-			newIndex = requestedPosition switch
+			int oldIndex = Queued.IndexOf(item);
+			int newIndex = requestedPosition switch
 			{
 				QueuePosition.First => 0,
 				QueuePosition.OneUp => oldIndex - 1,
@@ -275,8 +384,9 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 
 			Queued.RemoveAt(oldIndex);
 			Queued.Insert(newIndex, item);
+			Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, QueueStartIndex + newIndex, QueueStartIndex + oldIndex));
 		}
-		CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, QueueStartIndex + newIndex, QueueStartIndex + oldIndex));
+		DispatchPending();
 	}
 
 	/// <summary>
@@ -285,48 +395,41 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	/// </summary>
 	public bool MoveNext()
 	{
-		T? oldActive;
-		int completedCount = 0, queuedCount = 0;
-		bool completedChanged = false;
 		try
 		{
 			lock (lockObject)
 			{
-				oldActive = _active.FirstOrDefault();
+				var oldActive = _active.FirstOrDefault();
 				if (oldActive != null)
 				{
 					_active.Remove(oldActive);
 					_completed.Add(oldActive);
-					completedCount = _completed.Count;
-					completedChanged = true;
+					Pend(_completed.Count);
 				}
 				if (Queued.Count == 0)
 					return false;
 				var next = Queued[0];
 				Queued.RemoveAt(0);
 				_active.Add(next);
-				queuedCount = Queued.Count;
+				PendQueued(Queued.Count);
 				return true;
 			}
 		}
 		finally
 		{
-			if (completedChanged)
-				CompletedCountChanged?.Invoke(this, completedCount);
-			QueuedCountChanged?.Invoke(this, queuedCount);
+			DispatchPending();
 		}
 	}
 
 	public void Enqueue(IList<T> item)
 	{
-		int queueCount;
 		lock (lockObject)
 		{
 			Queued.AddRange(item);
-			queueCount = Queued.Count;
+			PendQueued(Queued.Count);
+			Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, QueueStartIndex + Queued.Count));
 		}
-		QueuedCountChanged?.Invoke(this, queueCount);
-		CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, QueueStartIndex + Queued.Count));
+		DispatchPending();
 	}
 
 	/// <summary>
