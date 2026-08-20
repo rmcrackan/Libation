@@ -51,11 +51,16 @@ internal partial class ProcessQueueControl : UserControl
 		if (!ViewModel.AutoScrollQueue) return;
 		Invoke(() =>
 		{
-			// Pin the first active download to the top so all parallel in-progress items are visible.
-			int firstActiveIndex = ViewModel.Queue.Completed.Count;
-			if (firstActiveIndex < ViewModel.Queue.Count)
-				virtualFlowControl2.ScrollToTop(firstActiveIndex);
+			if (ViewModel.Queue?.IndexOf(e) is int newtBookIndex && newtBookIndex > 0 && itemIsVisible(newtBookIndex - 1))
+			{
+				// Only scroll the new item into view if the previous item is visible.
+				// This allows users to scroll through the queue without being interrupted.
+				virtualFlowControl2.ScrollIntoView(newtBookIndex);
+			}
 		});
+
+		bool itemIsVisible(int newtBookIndex)
+			=> virtualFlowControl2.FirstRealizedIndex <= newtBookIndex && virtualFlowControl2.LastRealizedIndex >= newtBookIndex;
 	}
 
 	private void LogEntries_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

@@ -113,6 +113,9 @@ public partial class ProcessQueueControl : UserControl
 
 	private void Book_ProcessStart(object? sender, ProcessBookViewModel e)
 	{
+		// The checkbox gates the same logic in both UIs, so auto-scroll means one thing.
+		if (sender is ProcessQueueViewModel vm && !vm.AutoScrollQueue) return;
+
 		Dispatcher.UIThread.Invoke(() =>
 		{
 			if (Queue?.IndexOf(e) is int newtBookIndex && newtBookIndex > 0 && QueueListControl.Presenter?.Panel is VirtualizingStackPanel panel && itemIsVisible(newtBookIndex - 1, panel))
