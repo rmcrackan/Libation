@@ -265,16 +265,35 @@ public class ProcessBookViewModel : ReactiveObject
 		return result;
 	}
 
+	/// <summary>
+	/// Cancels this book's running step, if it has one. Safe to call on a book that has already
+	/// finished processing.
+	/// </summary>
+	/// <remarks>
+	/// Reads the <see cref="_currentProcessable"/> field rather than <see cref="CurrentProcessable"/>.
+	/// The property is lazy - <c>_currentProcessable ??= Processes.Dequeue().Invoke()</c> - so on a
+	/// book that has run its last step the field is null and <see cref="Processes"/> is empty, and
+	/// reading it throws "Queue empty.". That is not a narrow race: every book waiting in the bad
+	/// book dialog is in exactly that state, because <c>ProcessOneAsync</c> reaches the dialog from
+	/// its <c>finally</c> after the processable loop has drained. Reading the field also avoids
+	/// dequeuing from a non-thread-safe <see cref="Queue{T}"/> on the cancelling thread while the
+	/// book's own loop is reading it.
+	/// </remarks>
 	public async Task CancelAsync()
 	{
+		// Deliberately the field, not the property. See remarks.
+		var processable = _currentProcessable;
+		if (processable is not AudioDecodable audioDecodable)
+			return;
+
 		try
 		{
-			if (CurrentProcessable is AudioDecodable audioDecodable)
-				await audioDecodable.CancelAsync();
+			await audioDecodable.CancelAsync();
 		}
 		catch (Exception ex)
 		{
-			LogError($"{CurrentProcessable.Name}:  Error while cancelling", ex);
+			// Not CurrentProcessable.Name - that would throw a second time, out of the catch.
+			LogError($"{audioDecodable.Name}:  Error while cancelling", ex);
 		}
 	}
 

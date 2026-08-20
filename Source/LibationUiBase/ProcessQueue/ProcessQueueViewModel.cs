@@ -579,21 +579,20 @@ public class ProcessQueueViewModel : ReactiveObject
 	public event EventHandler<ProcessBookViewModel>? ProcessEnd;
 
 	/// <summary>
-	/// Stops the queue and cancels everything still in flight.
-	/// </summary>
-	/// <remarks>
-	/// <see cref="TrackedQueue{T}.ClearQueue"/> only prevents new work from starting. With
-	/// parallel downloads there may be several books already running, and those keep going
-	/// until they are cancelled individually.
-	/// </remarks>
-	/// <param name="except">
-	/// A book that has already finished processing and so does not need cancelling - typically
-	/// the one whose result triggered the abort.
-	/// </param>
-	/// <summary>
 	/// Clears the queue and cancels every book currently downloading. Also ends a pause on the daily
 	/// download limit, which is why both UIs call this instead of manipulating the queue directly.
 	/// </summary>
+	/// <remarks>
+	/// <see cref="TrackedQueue{T}.ClearQueue"/> only prevents new work from starting. With parallel
+	/// downloads there may be several books already running, and those keep going until they are
+	/// cancelled individually.
+	/// <para>
+	/// Each cancellation is isolated. This runs from the queue loop's abort and disk full paths, so
+	/// a single book throwing here would surface through <see cref="Task.WhenAll(Task[])"/>, take
+	/// <c>QueueLoop</c> out through its outer catch, and leave the remaining books running
+	/// unsupervised with the progress bar still on screen.
+	/// </para>
+	/// </remarks>
 	/// <param name="except">
 	/// A book calling this from its own completion path (abort, disk full). It has already finished
 	/// and must not be asked to cancel itself.
@@ -608,7 +607,20 @@ public class ProcessQueueViewModel : ReactiveObject
 		// Snapshot before cancelling: Active is mutated as each book unwinds.
 		var inFlight = Queue.GetActive().Where(b => b != except).ToArray();
 
-		await Task.WhenAll(inFlight.Select(b => b.CancelAsync()));
+		await Task.WhenAll(inFlight.Select(CancelOneAsync));
+
+		static async Task CancelOneAsync(ProcessBookViewModel book)
+		{
+			try
+			{
+				await book.CancelAsync();
+			}
+			catch (Exception ex)
+			{
+				// One book failing to cancel must not abandon the rest of the list.
+				Serilog.Log.Logger.Error(ex, "Error while cancelling {Book}", book.LibraryBook.LogFriendly());
+			}
+		}
 	}
 
 	private async Task QueueLoop()
