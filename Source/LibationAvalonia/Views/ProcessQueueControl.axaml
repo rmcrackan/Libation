@@ -50,34 +50,27 @@
 							</ItemsControl>
 						</ScrollViewer>
 					</Border>
-					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="*,Auto,Auto">
-						<Button Name="cancelAllBtn" Grid.Column="0" FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Stretch" Click="CancelAllBtn_Click">Cancel All</Button>
-						<!-- Two rows rather than one long line: four groups side by side needed more width
-						     than the queue panel has, and Clear Finished was the one pushed off the end. -->
-						<Grid Grid.Column="1" Margin="6,0,6,0" VerticalAlignment="Center"
-						      ColumnDefinitions="Auto,Auto,Auto" RowDefinitions="Auto,Auto">
-							<Grid.Styles>
-								<Style Selector="NumericUpDown#PART_Spinner">
-									<Setter Property="Background" Value="Black"/>
-								</Style>
-								<Style Selector="TextBlock.settingLabel">
-									<Setter Property="FontSize" Value="11" />
-									<Setter Property="Margin" Value="0,0,6,0" />
-									<Setter Property="VerticalAlignment" Value="Center" />
-									<Setter Property="HorizontalAlignment" Value="Right" />
-								</Style>
-							</Grid.Styles>
-							<CheckBox
-								Grid.Column="0" Grid.Row="0" Grid.RowSpan="2"
-								FontSize="12"
-								Margin="0,0,10,0"
-								VerticalAlignment="Center"
-								IsChecked="{Binding AutoScrollQueue, Mode=TwoWay}"
-								ToolTip.Tip="Keep active downloads scrolled into view."
-								Content="Auto-scroll" />
-							<TextBlock Grid.Column="1" Grid.Row="0" Classes="settingLabel" Text="At once" />
+					<!-- The pane is a fixed 400px, which is not enough for the settings and both buttons
+					     on one line - Cancel All was the one that got clipped, down to "Ca". The two
+					     spinners get a full-width row of their own, and the buttons sit under them in
+					     Auto columns so that neither can be squeezed by whatever is beside it. -->
+					<Grid Grid.Column="0" Grid.Row="1" RowDefinitions="Auto,*">
+						<Grid.Styles>
+							<Style Selector="NumericUpDown#PART_Spinner">
+								<Setter Property="Background" Value="Black"/>
+							</Style>
+							<Style Selector="TextBlock.settingLabel">
+								<Setter Property="FontSize" Value="11" />
+								<Setter Property="Margin" Value="0,0,6,0" />
+								<Setter Property="VerticalAlignment" Value="Center" />
+								<Setter Property="HorizontalAlignment" Value="Right" />
+							</Style>
+						</Grid.Styles>
+						<Grid Grid.Row="0" Margin="0,0,0,4" VerticalAlignment="Center"
+						      ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+							<TextBlock Grid.Column="0" Classes="settingLabel" Text="At once" />
 							<NumericUpDown
-								Grid.Column="2" Grid.Row="0"
+								Grid.Column="1"
 								Classes="SmallNumericUpDown"
 								MinWidth="86"
 								FontSize="12"
@@ -89,9 +82,9 @@
 								Maximum="{Binding MaxAllowedConcurrentDownloads}"
 								Increment="1"
 								FormatString="0" />
-							<TextBlock Grid.Column="1" Grid.Row="1" Classes="settingLabel" Text="DL Limit" />
+							<TextBlock Grid.Column="3" Classes="settingLabel" Text="DL Limit" />
 							<NumericUpDown
-								Grid.Column="2" Grid.Row="1"
+								Grid.Column="4"
 								Classes="SmallNumericUpDown"
 								MinWidth="86"
 								FontSize="12"
@@ -104,7 +97,18 @@
 								Increment="{Binding SpeedLimitIncrement}"
 								Maximum="999" />
 						</Grid>
-						<Button Grid.Column="2" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Stretch" Click="ClearFinishedBtn_Click">Clear Finished</Button>
+						<Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto">
+							<Button Name="cancelAllBtn" Grid.Column="0" FontSize="12" VerticalAlignment="Stretch" Click="CancelAllBtn_Click">Cancel All</Button>
+							<CheckBox
+								Grid.Column="1"
+								FontSize="12"
+								Margin="10,0,10,0"
+								VerticalAlignment="Center"
+								IsChecked="{Binding AutoScrollQueue, Mode=TwoWay}"
+								ToolTip.Tip="Keep active downloads scrolled into view."
+								Content="Auto-scroll" />
+							<Button Grid.Column="3" FontSize="12" VerticalAlignment="Stretch" Click="ClearFinishedBtn_Click">Clear Finished</Button>
+						</Grid>
 					</Grid>
 				</Grid>
 			</TabItem>
