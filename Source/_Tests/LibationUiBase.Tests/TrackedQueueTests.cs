@@ -1,4 +1,5 @@
 using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace LibationUiBase.Tests;
 
@@ -194,5 +195,149 @@ public class TrackedQueueTests
 
 		CollectionAssert.AreEqual(new[] { a, c, b }, queue.ToList());
 		CollectionAssert.AreEqual(new[] { a, c }, queue.GetActive().ToList());
+	}
+
+	[TestMethod]
+	public void completing_a_book_that_is_not_active_changes_nothing()
+	{
+		Book a = new("A"), b = new("B");
+		var queue = QueueOf(a, b);
+		queue.TryDequeueNext(out _);
+
+		int collectionChanges = 0;
+		queue.CollectionChanged += (_, _) => collectionChanges++;
+		var counts = new List<int>();
+		queue.CompletedCountChanged += (_, count) => counts.Add(count);
+
+		// B is still queued, so it has not completed. Appending it to Completed anyway would move
+		// Count with no CollectionChanged at all, which desynchronises a bound list silently.
+		queue.MarkCompleted(b);
+
+		Assert.AreEqual(2, queue.Count);
+		CollectionAssert.AreEqual(new[] { a, b }, queue.ToList());
+		Assert.AreEqual(0, collectionChanges);
+		Assert.AreEqual(0, counts.Count);
+	}
+
+	/// <summary>
+	/// Stands in for the UI thread. <see cref="BeginInvoke"/> only queues, so a test decides when
+	/// delivery happens and can assert that nothing was delivered inline.
+	/// </summary>
+	private sealed class QueuingInvoker : ISynchronizeInvoke
+	{
+		private readonly Queue<Action> _posted = new();
+
+		/// <summary>Always true, which is what makes the real invoker post rather than run inline.</summary>
+		public bool InvokeRequired => true;
+
+		public IAsyncResult BeginInvoke(Delegate method, object?[]? args)
+		{
+			lock (_posted)
+				_posted.Enqueue(() => method.DynamicInvoke(args));
+			return NotDelivered.Instance;
+		}
+
+		/// <summary>Runs what has been posted, in the order it was posted, on the calling thread.</summary>
+		public int Drain()
+		{
+			int delivered = 0;
+			while (true)
+			{
+				Action next;
+				lock (_posted)
+				{
+					if (_posted.Count == 0)
+						return delivered;
+					next = _posted.Dequeue();
+				}
+				next();
+				delivered++;
+			}
+		}
+
+		public object? EndInvoke(IAsyncResult result) => throw new NotSupportedException();
+
+		// A blocking Invoke from inside TrackedQueue's lock would deadlock against a UI thread
+		// waiting on that same lock. Nothing may reach this.
+		public object? Invoke(Delegate method, object?[]? args)
+			=> throw new NotSupportedException("TrackedQueue must post its notifications, never block on them.");
+
+		private sealed class NotDelivered : IAsyncResult
+		{
+			public static readonly NotDelivered Instance = new();
+			public object? AsyncState => null;
+			public WaitHandle AsyncWaitHandle => throw new NotSupportedException();
+			public bool CompletedSynchronously => false;
+			public bool IsCompleted => false;
+		}
+	}
+
+	[TestMethod]
+	public void notifications_are_posted_and_never_delivered_inline()
+	{
+		Book a = new("A"), b = new("B");
+		var invoker = new QueuingInvoker();
+		var queue = QueueOf(a, b);
+		queue.NotificationInvoker = invoker;
+		queue.TryDequeueNext(out _);
+		queue.TryDequeueNext(out _);
+
+		var moves = RecordMoves(queue);
+		queue.MarkCompleted(b);
+
+		// Called straight from this thread and still nothing has run. An invoker that delivered
+		// inline when it was already on the UI thread would let a UI-thread mutation jump ahead of
+		// notifications a book thread posted earlier.
+		Assert.AreEqual(0, moves.Count);
+
+		invoker.Drain();
+
+		Assert.AreEqual(1, moves.Count);
+		Assert.AreSame(b, moves[0].Item);
+		Assert.AreEqual(1, moves[0].OldIndex);
+		Assert.AreEqual(0, moves[0].NewIndex);
+	}
+
+	[TestMethod]
+	public void concurrent_completions_reach_a_bound_list_in_the_order_they_happened()
+	{
+		// The ordering this pins down is only reachable through the posted path, which is the one
+		// the app runs and the one the inline tests above never touch.
+		for (int run = 0; run < 50; run++)
+		{
+			Book[] books = [new("A"), new("B"), new("C"), new("D")];
+			var invoker = new QueuingInvoker();
+			var queue = QueueOf(books);
+			queue.NotificationInvoker = invoker;
+			for (int i = 0; i < books.Length; i++)
+				queue.TryDequeueNext(out _);
+
+			// A list that only ever sees CollectionChanged, as a bound UI list does.
+			var bound = queue.ToList();
+			queue.CollectionChanged += (_, e) =>
+			{
+				if (e.Action is not NotifyCollectionChangedAction.Move || e.NewItems?[0] is not Book moved)
+					return;
+				bound.RemoveAt(e.OldStartingIndex);
+				bound.Insert(e.NewStartingIndex, moved);
+			};
+
+			// Dedicated threads rather than the pool: the barrier needs all four running at once,
+			// and a pool that injects threads slowly would stall instead of racing.
+			using var allReady = new Barrier(books.Length);
+			var threads = books
+				.Select(book => new Thread(() => { allReady.SignalAndWait(); queue.MarkCompleted(book); }))
+				.ToArray();
+
+			foreach (var thread in threads)
+				thread.Start();
+			foreach (var thread in threads)
+				thread.Join();
+
+			// Delivery happens here, on one thread, exactly as the UI thread would run it.
+			invoker.Drain();
+
+			CollectionAssert.AreEqual(queue.ToList(), bound, $"run {run}");
+		}
 	}
 }
