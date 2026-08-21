@@ -1,4 +1,4 @@
-using ApplicationServices;
+﻿using ApplicationServices;
 using DataLayer;
 using FileLiberator;
 using LibationFileManager;
@@ -129,6 +129,14 @@ public class ProcessQueueViewModel : ReactiveObject
 	public decimal SpeedLimitIncrement { get; private set; }
 
 	private decimal _speedLimit;
+	/// <summary>
+	/// The sequential loop also re-read this from each book as that book started
+	/// (<c>SpeedLimit = nextBook.Configuration.DownloadSpeedLimit / 1024m / 1024</c>), which kept the
+	/// displayed number in step when only one book could be downloading. With several running there is
+	/// no single book to read it back from, and doing so would have whichever book happened to start
+	/// last overwrite what the user had just typed. The setter is now the only writer: it stores the
+	/// value once and pushes it out to every active book.
+	/// </summary>
 	public decimal SpeedLimit
 	{
 		get => _speedLimit;
@@ -573,9 +581,9 @@ public class ProcessQueueViewModel : ReactiveObject
 	/// <summary>Moves the book being held back to the end of the queue without counting it as completed.</summary>
 	private void RequeueLast(ProcessBookViewModel book)
 	{
-		// Removes this book, not the first active one. ClearCurrent() drops Active[0], which with
-		// several books in flight is some other book's download: deferring the second of three
-		// active books would silently evict the first instead.
+		// Removes this book by identity, not whichever happens to be first. With several books in
+		// flight the first active one is some other book's download, so deferring the second of three
+		// would silently evict the first instead.
 		Queue.RemoveActive(book);
 		Queue.Enqueue([book]);
 	}
@@ -688,6 +696,20 @@ public class ProcessQueueViewModel : ReactiveObject
 
 			using var counterTimer = new Timer(_ => RunningTime = timeToStr(DateTime.Now - startingTime), null, 0, 500);
 
+			// True for the one book that gets to tear the queue down, false for every book that arrives
+			// after it. Written under the lock and read by the dispatch loop without it, hence the
+			// volatile write.
+			bool ClaimAbort()
+			{
+				lock (resultLock)
+				{
+					if (aborted)
+						return false;
+					Volatile.Write(ref aborted, true);
+					return true;
+				}
+			}
+
 			async Task ProcessBookAsync(ProcessBookViewModel book)
 			{
 				Serilog.Log.Logger.Information("Begin processing queued item: '{item_LibraryBook}'", book.LibraryBook);
@@ -718,26 +740,6 @@ public class ProcessQueueViewModel : ReactiveObject
 
 					if (result == ProcessBookResult.FailedAbort)
 					{
-						// Same reasoning: several books can run out of disk at once.
-						if (tearsDownTheQueue)
-							await CancelAllAsync(book);
-			// True for the one book that gets to tear the queue down, false for every book that arrives
-			// after it. Written under the lock and read by the dispatch loop without it, hence the
-			// volatile write.
-			bool ClaimAbort()
-			{
-				lock (resultLock)
-				{
-					if (aborted)
-						return false;
-					Volatile.Write(ref aborted, true);
-					return true;
-				}
-			}
-
-					}
-					else if (result == ProcessBookResult.DiskFull)
-					{
 						if (tearsDownTheQueue)
 							await CancelAllAsync(book);
 						else
@@ -747,6 +749,12 @@ public class ProcessQueueViewModel : ReactiveObject
 							book.Result = ProcessBookResult.Cancelled;
 							book.Status = ProcessBookStatus.Cancelled;
 						}
+					}
+					else if (result == ProcessBookResult.DiskFull)
+					{
+						// Same reasoning: several books can run out of disk at once.
+						if (tearsDownTheQueue)
+							await CancelAllAsync(book);
 						bool show;
 						lock (resultLock) { show = !shownDiskFullMessage; shownDiskFullMessage = true; }
 						if (show)
@@ -847,8 +855,8 @@ public class ProcessQueueViewModel : ReactiveObject
 						Serilog.Log.Logger.Information("Queue was cancelled while waiting on the daily download limit.");
 						nextBook.Result = ProcessBookResult.Cancelled;
 						nextBook.Status = ProcessBookStatus.Cancelled;
-						// The sequential loop left this to the next MoveNext(). Nothing moves this book
-						// off the active list now, so it is retired here.
+						// The sequential loop retired this book on its next step. A dispatch loop has no
+						// such step, so nothing else would take it off the active list - it is retired here.
 						Queue.MarkCompleted(nextBook);
 						continue;
 					}
@@ -887,6 +895,10 @@ public class ProcessQueueViewModel : ReactiveObject
 		}
 		finally
 		{
+			// Scoped to the run, not to the drain. A queue parked in WaitForDailyLimitAsync only
+			// re-reads this every DailyLimitPollInterval, so clearing it when the last cancellation
+			// settles would let the gate wake up, see false, and resume the book just cancelled.
+			cancelAllRequested = false;
 			DiskSpaceBackupPreflight.ResetBulkPreflightForQueueRun();
 		}
 
@@ -895,7 +907,3 @@ public class ProcessQueueViewModel : ReactiveObject
 			: $"{time.TotalHours:F0}:{time:mm\\:ss}";
 	}
 }
-			// Scoped to the run, not to the drain. A queue parked in WaitForDailyLimitAsync only
-			// re-reads this every DailyLimitPollInterval, so clearing it when the last cancellation
-			// settles would let the gate wake up, see false, and resume the book just cancelled.
-			cancelAllRequested = false;

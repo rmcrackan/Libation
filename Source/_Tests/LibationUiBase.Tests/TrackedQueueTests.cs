@@ -183,7 +183,8 @@ public class TrackedQueueTests
 	public void deferring_an_active_book_sends_it_to_the_back_and_leaves_the_others_running()
 	{
 		// What the daily download limit does when it holds a book back: the book being deferred is
-		// removed and re-queued. ClearCurrent() would have dropped A, some other book's download.
+		// removed by identity and re-queued. Removing whichever was first would have dropped A, some
+		// other book's download.
 		Book a = new("A"), b = new("B"), c = new("C");
 		var queue = QueueOf(a, b, c);
 		queue.TryDequeueNext(out _);

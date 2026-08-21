@@ -79,13 +79,13 @@ public partial class ProcessQueueControl : UserControl
 			};
 
 			vm.Queue.Enqueue(testList);
-			vm.Queue.MoveNext();
-			vm.Queue.MoveNext();
-			vm.Queue.MoveNext();
-			vm.Queue.MoveNext();
-			vm.Queue.MoveNext();
-			vm.Queue.MoveNext();
-			vm.Queue.MoveNext();
+
+			// Six completed, one active, one still queued - the mix this preview exists to show.
+			// Driven through the same calls the queue loop makes, rather than the sequential
+			// MoveNext() that used to live here for this one caller.
+			for (int i = 0; i < 6 && vm.Queue.TryDequeueNext(out var finished); i++)
+				vm.Queue.MarkCompleted(finished);
+			vm.Queue.TryDequeueNext(out _);
 			return;
 		}
 #endif

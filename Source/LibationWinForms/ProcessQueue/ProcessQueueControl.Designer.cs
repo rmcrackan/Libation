@@ -171,9 +171,9 @@
 			this.panel1.Name = "panel1";
 			this.panel1.Size = new System.Drawing.Size(390, 52);
 			this.panel1.TabIndex = 2;
-			//
+			// 
 			// queueSettingsTable
-			//
+			// 
 			this.queueSettingsTable.ColumnCount = 3;
 			this.queueSettingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
 			this.queueSettingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
@@ -193,9 +193,9 @@
 			this.queueSettingsTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
 			this.queueSettingsTable.Size = new System.Drawing.Size(220, 50);
 			this.queueSettingsTable.TabIndex = 9;
-			//
+			// 
 			// autoScrollChk
-			//
+			// 
 			this.autoScrollChk.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.autoScrollChk.AutoSize = true;
 			this.autoScrollChk.Checked = true;
@@ -205,9 +205,9 @@
 			this.autoScrollChk.TabIndex = 6;
 			this.autoScrollChk.Text = "Auto-scroll";
 			this.autoScrollChk.UseVisualStyleBackColor = true;
-			//
+			// 
 			// concurrencyLbl
-			//
+			// 
 			this.concurrencyLbl.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			this.concurrencyLbl.AutoSize = false;
 			this.concurrencyLbl.Name = "concurrencyLbl";
@@ -215,16 +215,16 @@
 			this.concurrencyLbl.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this.concurrencyLbl.TabIndex = 7;
 			this.concurrencyLbl.Text = "At once:";
-			//
+			// 
 			// concurrencyNum
-			//
+			// 
 			this.concurrencyNum.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.concurrencyNum.Name = "concurrencyNum";
 			this.concurrencyNum.Size = new System.Drawing.Size(84, 23);
 			this.concurrencyNum.TabIndex = 8;
-			//
+			// 
 			// label1
-			//
+			// 
 			this.label1.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			this.label1.AutoSize = false;
 			this.label1.Name = "label1";
@@ -232,9 +232,9 @@
 			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this.label1.TabIndex = 5;
 			this.label1.Text = "DL Limit:";
-			//
+			// 
 			// numericUpDown1
-			//
+			// 
 			this.numericUpDown1.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.numericUpDown1.DecimalPlaces = 1;
 			this.numericUpDown1.Increment = new decimal(new int[] {
@@ -260,9 +260,9 @@
             0,
             0});
 			this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
-			//
+			// 
 			// btnCleanFinished
-			//
+			// 
 			this.btnCleanFinished.Dock = System.Windows.Forms.DockStyle.Right;
 			this.btnCleanFinished.Location = new System.Drawing.Point(298, 0);
 			this.btnCleanFinished.Name = "btnCleanFinished";
@@ -271,9 +271,9 @@
 			this.btnCleanFinished.Text = "Clear Finished";
 			this.btnCleanFinished.UseVisualStyleBackColor = true;
 			this.btnCleanFinished.Click += new System.EventHandler(this.btnClearFinished_Click);
-			//
+			// 
 			// cancelAllBtn
-			//
+			// 
 			this.cancelAllBtn.Dock = System.Windows.Forms.DockStyle.Left;
 			this.cancelAllBtn.Location = new System.Drawing.Point(0, 0);
 			this.cancelAllBtn.Name = "cancelAllBtn";

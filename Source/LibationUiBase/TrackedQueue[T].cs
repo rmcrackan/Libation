@@ -33,9 +33,6 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	public event EventHandler<int>? QueuedCountChanged;
 	public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
-	/// <summary>Returns the first active item for backward compatibility (e.g. speed limit display).</summary>
-	public T? Current => _active.FirstOrDefault();
-	public IReadOnlyList<T> Active => _active;
 	public IReadOnlyList<T> Completed => _completed;
 	private List<T> Queued { get; } = new();
 
@@ -317,29 +314,13 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	}
 
 	/// <summary>
-	/// The active items, copied under the lock. <see cref="Active"/> is the live list, so enumerating
+	/// The active items, copied under the lock. The backing list is live, so enumerating
 	/// it while book tasks start and finish throws; callers that need to iterate use this.
 	/// </summary>
 	public IReadOnlyList<T> GetActive()
 	{
 		lock (lockObject)
 			return _active.ToList();
-	}
-
-	/// <summary>Legacy single-item sequential accessor — kept for compatibility.</summary>
-	public void ClearCurrent()
-	{
-		lock (lockObject)
-		{
-			var first = _active.FirstOrDefault();
-			if (first != null)
-			{
-				int displayIndex = _completed.Count;
-				_active.Remove(first);
-				Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, first, displayIndex));
-			}
-		}
-		DispatchPending();
 	}
 
 	public void ClearQueue()
@@ -387,38 +368,6 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 			Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, QueueStartIndex + newIndex, QueueStartIndex + oldIndex));
 		}
 		DispatchPending();
-	}
-
-	/// <summary>
-	/// Legacy sequential MoveNext — completes the first active item and dequeues the next.
-	/// Only valid when at most one item is active at a time.
-	/// </summary>
-	public bool MoveNext()
-	{
-		try
-		{
-			lock (lockObject)
-			{
-				var oldActive = _active.FirstOrDefault();
-				if (oldActive != null)
-				{
-					_active.Remove(oldActive);
-					_completed.Add(oldActive);
-					Pend(_completed.Count);
-				}
-				if (Queued.Count == 0)
-					return false;
-				var next = Queued[0];
-				Queued.RemoveAt(0);
-				_active.Add(next);
-				PendQueued(Queued.Count);
-				return true;
-			}
-		}
-		finally
-		{
-			DispatchPending();
-		}
 	}
 
 	public void Enqueue(IList<T> item)
