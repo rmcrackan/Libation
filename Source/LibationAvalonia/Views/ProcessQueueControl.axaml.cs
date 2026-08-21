@@ -155,8 +155,8 @@ public partial class ProcessQueueControl : UserControl
 
 	public async void CancelAllBtn_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{
-		// Cancels every active book, not just Current - with parallel downloads there
-		// can be several running at once.
+		// Cancels every active book, not just the first one - with parallel downloads
+		// there can be several running at once.
 		if (_viewModel is ProcessQueueViewModel vm)
 			await vm.CancelAllAsync();
 	}

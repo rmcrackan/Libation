@@ -431,10 +431,11 @@ public partial class Configuration
 	public const int DefaultConcurrentDownloads = 3;
 
 	/// <summary>
-	/// The highest <see cref="MaxConcurrentDownloads"/> is worth running on this machine, for use as
-	/// the bound on a spinner. Deliberately <em>not</em> applied to the stored value: a setting saved
-	/// on an eight-core desktop must survive being opened on a two-core laptop or in a container and
-	/// come back intact, rather than being silently rewritten to what that machine could manage.
+	/// The highest <see cref="MaxConcurrentDownloads"/> is worth running on this machine. Applied only
+	/// where it bites - when the queue decides how many books to start - and deliberately <em>not</em>
+	/// to the stored value or to any spinner's bound: a setting saved on an eight-core desktop must
+	/// survive being opened on a two-core laptop or in a container and come back intact, rather than
+	/// being silently rewritten to what that machine could manage.
 	/// </summary>
 	/// <remarks>
 	/// Processor count is also not the default. Downloading is bound by Audible's license throttling

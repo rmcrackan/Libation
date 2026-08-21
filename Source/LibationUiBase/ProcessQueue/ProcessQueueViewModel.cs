@@ -152,8 +152,8 @@ public class ProcessQueueViewModel : ReactiveObject
 				: 0;
 
 			config.DownloadSpeedLimit = (long)(_speedLimit * 1024 * 1024);
-			// Apply to all currently active books. Over a copy: the speed limit is changed from the UI
-			// thread while book tasks start and finish, and Active is the live list.
+			// Apply to all currently active books. Over a copy, because the speed limit is changed from
+			// the UI thread while book tasks start and finish, which mutates the queue's active list.
 			foreach (var activeBook in Queue.GetActive().OfType<ProcessBookViewModel>())
 				activeBook.Configuration.DownloadSpeedLimit = config.DownloadSpeedLimit;
 
@@ -717,10 +717,12 @@ public class ProcessQueueViewModel : ReactiveObject
 
 				var result = await ProcessBookHandler(book);
 
-				// Claimed before the queue is touched, and before the logging. Only the book that
-				// actually answered Abort tears the queue down: Abort is a session-wide override now, so
-				// every book in flight arrives here - directly or by inheriting that answer - and each one
-				// re-entering CancelAllAsync would have every book asking every other book to cancel.
+				// Claimed before the queue is touched, and before the logging. Exactly one book tears the
+				// queue down: Abort is a session-wide override now, so every book in flight arrives here -
+				// directly or by inheriting that answer - and each one re-entering CancelAllAsync would
+				// have every book asking every other book to cancel. The winner is whichever book reaches
+				// this line first, not necessarily the one whose dialog was answered; they are
+				// interchangeable here, and racing to identify the answering book would buy nothing.
 				// Claiming this early also keeps the window small in which the loop can start another
 				// book, which would then outlive the abort by starting after CancelAllAsync snapshots
 				// what to cancel.
@@ -744,8 +746,8 @@ public class ProcessQueueViewModel : ReactiveObject
 							await CancelAllAsync(book);
 						else
 						{
-							// Inherited the abort rather than answering it. It was cancelled by the book
-							// that did, and that is what it should report.
+							// Inherited the abort rather than triggering the teardown. It was cancelled by
+							// the book that did, and that is what it should report.
 							book.Result = ProcessBookResult.Cancelled;
 							book.Status = ProcessBookStatus.Cancelled;
 						}

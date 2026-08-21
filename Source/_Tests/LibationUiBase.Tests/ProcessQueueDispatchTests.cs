@@ -70,14 +70,18 @@ public class ProcessQueueDispatchTests
 		public Task<ProcessBookResult> Handle(ProcessBookViewModel book)
 		{
 			var asin = book.LibraryBook.Book.AudibleProductId.ToString()!;
-			Started.Enqueue(asin);
 
+			// Count first, then publish. WaitForStarted polls Started, so enqueuing before the
+			// counter moves lets a test wake up in the gap and assert a HighWaterMark that is one
+			// short of the books it just waited for.
 			lock (countLock)
 			{
 				running++;
 				if (running > HighWaterMark)
 					HighWaterMark = running;
 			}
+
+			Started.Enqueue(asin);
 
 			return GateFor(asin).Task.ContinueWith(t =>
 			{
