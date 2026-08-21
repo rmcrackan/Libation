@@ -23,6 +23,7 @@ Learn about Libation's powerful features:
 - **[Audiobookshelf Auto-Upload](/docs/features/audiobookshelf)** - Optionally upload liberated books to Audiobookshelf
 - **[Daily Download Limit](/docs/features/daily-download-limit)** - Optionally pace your downloads over a rolling 24 hours
 - **[Naming Templates](/docs/features/naming-templates)** - Customize how your audiobook files are named
+- **[Parallel Downloads](/docs/features/parallel-downloads)** - Download and decrypt several audiobooks at once
 - **[Searching & Filtering](/docs/features/searching-and-filtering)** - Find and organize your audiobooks
 - **[Easy guide to searching](/docs/features/lucene)** - Tutorial for search queries
 
