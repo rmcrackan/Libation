@@ -337,6 +337,21 @@ public class ProcessQueueDispatchTests
 	}
 
 	[TestMethod]
+	public async Task cancelling_a_book_with_nothing_running_still_records_the_cancellation()
+	{
+		var book = Book("A");
+		Assert.IsFalse(book.CancellationRequested);
+
+		// Nothing has started, so there is no step to cancel - and that is the case that matters. A
+		// book held at the daily download limit is in exactly this state, and the gate reads this to
+		// decide whether to resume it. Recording it on the book rather than on the queue is what
+		// stops a later AddToQueue withdrawing the cancellation while the book is still parked.
+		await book.CancelAsync();
+
+		Assert.IsTrue(book.CancellationRequested);
+	}
+
+	[TestMethod]
 	public void the_hint_says_what_the_machine_will_do_and_is_silent_when_it_can_keep_up()
 	{
 		var queue = new ProcessQueueViewModel { MaxConcurrentDownloads = 8, MachineCeilingOverride = 2 };

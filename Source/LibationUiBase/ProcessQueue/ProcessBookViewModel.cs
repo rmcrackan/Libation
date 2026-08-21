@@ -265,6 +265,21 @@ public class ProcessBookViewModel : ReactiveObject
 		return result;
 	}
 
+	private volatile bool cancellationRequested;
+
+	/// <summary>
+	/// Whether cancellation has been asked for on this book, whether or not there was anything
+	/// running to cancel at the time.
+	/// </summary>
+	/// <remarks>
+	/// A book held at the daily download limit has been taken off the queue but has not started a
+	/// step, so <see cref="CancelAsync"/> finds nothing to call and the book carries on waiting.
+	/// This is how the gate learns to stop rather than resume it. Per book rather than per queue on
+	/// purpose: a queue-wide flag has to be cleared again at some point, and whatever clears it can
+	/// un-cancel a book that is still parked - which is the same bug in a different place.
+	/// </remarks>
+	public bool CancellationRequested => cancellationRequested;
+
 	/// <summary>
 	/// Cancels this book's running step, if it has one. Safe to call on a book that has already
 	/// finished processing.
@@ -281,6 +296,10 @@ public class ProcessBookViewModel : ReactiveObject
 	/// </remarks>
 	public async Task CancelAsync()
 	{
+		// Recorded before the early return, because the case where there is nothing to cancel is the
+		// one that matters. See CancellationRequested.
+		cancellationRequested = true;
+
 		// Deliberately the field, not the property. See remarks.
 		var processable = _currentProcessable;
 		if (processable is not AudioDecodable audioDecodable)

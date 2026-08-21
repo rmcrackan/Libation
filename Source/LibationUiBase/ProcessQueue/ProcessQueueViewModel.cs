@@ -32,8 +32,6 @@ public class ProcessQueueViewModel : ReactiveObject
 	public Task? QueueRunner { get; private set; }
 	public bool Running => !QueueRunner?.IsCompleted ?? false;
 
-	/// <summary>Set by <see cref="CancelAllAsync"/>; watched by the daily download limit wait loop.</summary>
-	private volatile bool cancelAllRequested;
 	private bool dailyLimitMessageShownThisRun;
 
 	/// <summary>
@@ -476,10 +474,6 @@ public class ProcessQueueViewModel : ReactiveObject
 	/// </summary>
 	internal void AddToQueue(IList<ProcessBookViewModel> pbook)
 	{
-		// Queueing more work withdraws an earlier Cancel All, which may still be settling on the book it
-		// cancelled. Otherwise these new books would inherit that cancellation at the daily-limit gate.
-		cancelAllRequested = false;
-
 		foreach (var book in pbook)
 			book.LogWritten += ProcessBook_LogWritten;
 
@@ -539,7 +533,11 @@ public class ProcessQueueViewModel : ReactiveObject
 
 		while (true)
 		{
-			if (cancelAllRequested)
+			// This book's own cancellation, not a queue-wide flag. Cancel All reaches a parked book
+			// through ProcessBookViewModel.CancelAsync like any other active book, so nothing has to
+			// be set here and cleared later - and books queued while this one is being cancelled
+			// cannot withdraw its cancellation on their way in.
+			if (nextBook.CancellationRequested)
 			{
 				nextBook.StatusOverride = null;
 				return DailyLimitGate.Cancelled;
@@ -633,8 +631,8 @@ public class ProcessQueueViewModel : ReactiveObject
 	public event EventHandler<ProcessBookViewModel>? ProcessEnd;
 
 	/// <summary>
-	/// Clears the queue and cancels every book currently downloading. Also ends a pause on the daily
-	/// download limit, which is why both UIs call this instead of manipulating the queue directly.
+	/// Clears the queue and cancels every book currently downloading, including one held at the daily
+	/// download limit - which is why both UIs call this instead of manipulating the queue directly.
 	/// </summary>
 	/// <remarks>
 	/// <see cref="TrackedQueue{T}.ClearQueue"/> only prevents new work from starting. With parallel
@@ -653,9 +651,6 @@ public class ProcessQueueViewModel : ReactiveObject
 	/// </param>
 	public async Task CancelAllAsync(ProcessBookViewModel? except = null)
 	{
-		// Still set here, not only in the sequential path this replaced: a queue paused on the daily
-		// download limit is waiting inside WaitForDailyLimitAsync and this flag is how it learns to stop.
-		cancelAllRequested = true;
 		Queue.ClearQueue();
 
 		// Snapshot before cancelling: Active is mutated as each book unwinds.
@@ -907,10 +902,6 @@ public class ProcessQueueViewModel : ReactiveObject
 		}
 		finally
 		{
-			// Scoped to the run, not to the drain. A queue parked in WaitForDailyLimitAsync only
-			// re-reads this every DailyLimitPollInterval, so clearing it when the last cancellation
-			// settles would let the gate wake up, see false, and resume the book just cancelled.
-			cancelAllRequested = false;
 			DiskSpaceBackupPreflight.ResetBulkPreflightForQueueRun();
 		}
 
