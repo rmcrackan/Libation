@@ -81,7 +81,9 @@ public class ProcessQueueViewModel : ReactiveObject
 			var clamped = Math.Clamp(value, Configuration.MinConcurrentDownloads, Configuration.ConcurrentDownloadsHardLimit);
 			RaiseAndSetIfChanged(ref _maxConcurrentDownloads, clamped);
 			Configuration.Instance.MaxConcurrentDownloads = clamped;
-			RaisePropertyChanged(nameof(MaxAllowedConcurrentDownloads));
+			// The bound is constant now; what changes with the setting is whether this machine can
+			// keep up with it.
+			RaisePropertyChanged(nameof(ConcurrencyHint));
 		}
 	}
 	private int _maxConcurrentDownloads;
@@ -98,14 +100,26 @@ public class ProcessQueueViewModel : ReactiveObject
 	public int MinConcurrentDownloads => Configuration.MinConcurrentDownloads;
 
 	/// <summary>
-	/// The spinner's upper bound: what this machine can usefully manage, but never below what is
-	/// already stored. A spinner whose maximum sits under the stored value coerces its displayed
-	/// value down to the maximum and, being two-way, writes that back - which would overwrite an 8
-	/// chosen on a larger machine with a 2 just for opening the panel on a smaller one. Raising the
-	/// bound to meet the stored value leaves the setting alone; lowering it is still the user's to do.
+	/// The spinner's upper bound: the flat hard limit, so both UIs agree and the bound is the same
+	/// number on every machine. Bounding it by machine capability instead makes the control lie in two
+	/// directions at once - a spinner whose maximum sits under the stored value coerces its display
+	/// down and, being two-way, writes that back, so opening the panel on a smaller machine would
+	/// overwrite an 8 chosen on a larger one; while raising the bound to meet the stored value leaves
+	/// a stored 8 showing 8 on a two-core box that will only ever run 2. Capability is applied where
+	/// it actually bites, in <see cref="EffectiveConcurrentDownloads"/>, and <see cref="ConcurrencyHint"/>
+	/// says so on screen rather than leaving the two to disagree in silence.
 	/// </summary>
-	public int MaxAllowedConcurrentDownloads
-		=> Math.Max(Configuration.MaxAllowedConcurrentDownloads, MaxConcurrentDownloads);
+	public int MaxAllowedConcurrentDownloads => Configuration.ConcurrentDownloadsHardLimit;
+
+	/// <summary>
+	/// Sits beside the spinner when this machine cannot deliver the number the user chose, and is
+	/// null when it can. Closes the gap left by bounding the control at the hard limit: the setting
+	/// keeps saying what was asked for, and this says what will happen.
+	/// </summary>
+	public string? ConcurrencyHint
+		=> EffectiveConcurrentDownloads < MaxConcurrentDownloads
+			? $"({EffectiveConcurrentDownloads} on this machine)"
+			: null;
 	public string? RunningTime { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public bool ProgressBarVisible { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public bool AnyCompleted => CompletedCount > 0;

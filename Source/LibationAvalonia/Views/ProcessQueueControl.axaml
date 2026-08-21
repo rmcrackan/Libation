@@ -82,6 +82,18 @@
 								Maximum="{Binding MaxAllowedConcurrentDownloads}"
 								Increment="1"
 								FormatString="0" />
+							<!-- Sits in the spare column between the two spinners, and only when this machine
+							     cannot keep up with the number chosen. -->
+							<TextBlock
+								Grid.Column="2"
+								Classes="settingLabel"
+								HorizontalAlignment="Left"
+								Margin="6,0,6,0"
+								Opacity="0.7"
+								TextTrimming="CharacterEllipsis"
+								ToolTip.Tip="Fewer books download at once than the number chosen, because this machine has fewer processors to decrypt them."
+								IsVisible="{Binding ConcurrencyHint, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+								Text="{Binding ConcurrencyHint}" />
 							<TextBlock Grid.Column="3" Classes="settingLabel" Text="DL Limit" />
 							<NumericUpDown
 								Grid.Column="4"
