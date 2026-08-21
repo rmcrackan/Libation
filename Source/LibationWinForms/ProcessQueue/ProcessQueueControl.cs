@@ -38,11 +38,20 @@ internal partial class ProcessQueueControl : UserControl
 		ViewModel.PropertyChanged += ProcessQueue_PropertyChanged;
 		ViewModel.LogEntries.CollectionChanged += LogEntries_CollectionChanged;
 		ViewModel.ProcessStart += Book_ProcessStart;
+		autoScrollChk.CheckedChanged += (s, e) => ViewModel.AutoScrollQueue = autoScrollChk.Checked;
+
+		concurrencyNum.Minimum = ViewModel.MinConcurrentDownloads;
+		// The flat hard limit, not this machine's capability - the same bound Chardonnay uses. A
+		// maximum below the stored value would coerce the display down and write it back, losing an 8
+		// chosen elsewhere just for opening the panel here.
+		concurrencyNum.Maximum = ViewModel.MaxAllowedConcurrentDownloads;
+		concurrencyNum.ValueChanged += (s, e) => ViewModel.MaxConcurrentDownloads = (int)concurrencyNum.Value;
 		ProcessQueue_PropertyChanged(this, new PropertyChangedEventArgs(null));
 	}
 
 	private void Book_ProcessStart(object? sender, ProcessBookViewModel e)
 	{
+		if (!ViewModel.AutoScrollQueue) return;
 		Invoke(() =>
 		{
 			if (ViewModel.Queue?.IndexOf(e) is int newtBookIndex && newtBookIndex > 0 && itemIsVisible(newtBookIndex - 1))
@@ -131,7 +140,31 @@ internal partial class ProcessQueueControl : UserControl
 			numericUpDown1.Increment = ViewModel.SpeedLimitIncrement;
 			numericUpDown1.DecimalPlaces = ViewModel.SpeedLimit >= 10 ? 0 : ViewModel.SpeedLimit >= 1 ? 1 : 2;
 		}
+		if (e.PropertyName is null or nameof(ViewModel.AutoScrollQueue))
+			autoScrollChk.Checked = ViewModel.AutoScrollQueue;
+		if (e.PropertyName is null or nameof(ViewModel.MaxConcurrentDownloads))
+			concurrencyNum.Value = ViewModel.MaxConcurrentDownloads;
+		if (e.PropertyName is null or nameof(ViewModel.ConcurrencyHint))
+			setConcurrencyHint();
+
+		// The settings table is full at three columns and the panel has no width to spare, so this
+		// says what Chardonnay says in its spare column, in a tooltip instead of another label.
+		void setConcurrencyHint()
+		{
+			const string what = "How many books download and decrypt at the same time. 1 downloads one at a time.";
+			concurrencyHintToolTip.SetToolTip(
+				concurrencyNum,
+				ViewModel.ConcurrencyHint is string hint
+					? $"{what}\r\nOnly {hint.Trim('(', ')')} - this machine has fewer processors to decrypt them."
+					: what);
+		}
 	}
+
+	/// <summary>
+	/// Carries <see cref="ProcessQueueViewModel.ConcurrencyHint"/>. Built here rather than in the
+	/// designer to keep the generated file out of the diff.
+	/// </summary>
+	private readonly ToolTip concurrencyHintToolTip = new();
 
 	/// <summary>
 	/// View notified the model that a button was clicked

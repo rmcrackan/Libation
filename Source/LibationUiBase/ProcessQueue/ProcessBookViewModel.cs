@@ -269,16 +269,54 @@ public class ProcessBookViewModel : ReactiveObject
 		return result;
 	}
 
+	private volatile bool cancellationRequested;
+
+	/// <summary>
+	/// Whether cancellation has been asked for on this book, whether or not there was anything
+	/// running to cancel at the time.
+	/// </summary>
+	/// <remarks>
+	/// A book held at the daily download limit has been taken off the queue but has not started a
+	/// step, so <see cref="CancelAsync"/> finds nothing to call and the book carries on waiting.
+	/// This is how the gate learns to stop rather than resume it. Per book rather than per queue on
+	/// purpose: a queue-wide flag has to be cleared again at some point, and whatever clears it can
+	/// un-cancel a book that is still parked - which is the same bug in a different place.
+	/// </remarks>
+	public bool CancellationRequested => cancellationRequested;
+
+	/// <summary>
+	/// Cancels this book's running step, if it has one. Safe to call on a book that has already
+	/// finished processing.
+	/// </summary>
+	/// <remarks>
+	/// Reads the <see cref="_currentProcessable"/> field rather than <see cref="CurrentProcessable"/>.
+	/// The property is lazy - <c>_currentProcessable ??= Processes.Dequeue().Invoke()</c> - so on a
+	/// book that has run its last step the field is null and <see cref="Processes"/> is empty, and
+	/// reading it throws "Queue empty.". That is not a narrow race: every book waiting in the bad
+	/// book dialog is in exactly that state, because <c>ProcessOneAsync</c> reaches the dialog from
+	/// its <c>finally</c> after the processable loop has drained. Reading the field also avoids
+	/// dequeuing from a non-thread-safe <see cref="Queue{T}"/> on the cancelling thread while the
+	/// book's own loop is reading it.
+	/// </remarks>
 	public async Task CancelAsync()
 	{
+		// Recorded before the early return, because the case where there is nothing to cancel is the
+		// one that matters. See CancellationRequested.
+		cancellationRequested = true;
+
+		// Deliberately the field, not the property. See remarks.
+		var processable = _currentProcessable;
+		if (processable is not AudioDecodable audioDecodable)
+			return;
+
 		try
 		{
-			if (CurrentProcessable is AudioDecodable audioDecodable)
-				await audioDecodable.CancelAsync();
+			await audioDecodable.CancelAsync();
 		}
 		catch (Exception ex)
 		{
-			LogError($"{CurrentProcessable.Name}:  Error while cancelling", ex);
+			// Not CurrentProcessable.Name - that would throw a second time, out of the catch.
+			LogError($"{audioDecodable.Name}:  Error while cancelling", ex);
 		}
 	}
 
@@ -430,9 +468,7 @@ public class ProcessBookViewModel : ReactiveObject
 			Configuration.BadBookAction.Abort => DialogResult.Abort,
 			Configuration.BadBookAction.Retry => DialogResult.Retry,
 			Configuration.BadBookAction.Ignore => DialogResult.Ignore,
-			Configuration.BadBookAction.Ask or _ => _badBookSession?.Override is Configuration.BadBookAction sessionOverride
-				? ToDialogResult(sessionOverride)
-				: await ShowRetryDialogAsync(libraryBook)
+			Configuration.BadBookAction.Ask or _ => await AskBadBookActionAsync(libraryBook)
 		};
 
 		if (dialogResult == SkipResult)
@@ -444,6 +480,34 @@ public class ProcessBookViewModel : ReactiveObject
 		return dialogResult is SkipResult ? ProcessBookResult.FailedSkip
 			 : dialogResult is DialogResult.Abort ? ProcessBookResult.FailedAbort
 			 : ProcessBookResult.FailedRetry;
+	}
+
+	/// <summary>
+	/// Asks the user what to do with a failed book, at most one dialog at a time. Without the gate,
+	/// three books failing together put three modals on screen racing to set the same session
+	/// override, and the user answers a question two of them no longer needed to ask.
+	/// </summary>
+	private async Task<DialogResult> AskBadBookActionAsync(LibraryBook libraryBook)
+	{
+		if (_badBookSession is null)
+			return await ShowRetryDialogAsync(libraryBook);
+
+		if (_badBookSession.Override is Configuration.BadBookAction alreadyAnswered)
+			return ToDialogResult(alreadyAnswered);
+
+		await _badBookSession.DialogGate.WaitAsync();
+		try
+		{
+			// Re-checked after the wait: the book ahead of us may have answered "apply to all".
+			if (_badBookSession.Override is Configuration.BadBookAction answeredWhileWaiting)
+				return ToDialogResult(answeredWhileWaiting);
+
+			return await ShowRetryDialogAsync(libraryBook);
+		}
+		finally
+		{
+			_badBookSession.DialogGate.Release();
+		}
 	}
 
 	protected async Task<DialogResult> ShowRetryDialogAsync(LibraryBook libraryBook)
@@ -486,7 +550,11 @@ public class ProcessBookViewModel : ReactiveObject
 		{
 			var result = await BadBookActionDialogBase.Show(skipDialogText, "Skip this book?");
 
-			if (result.ApplyToAll)
+			// Abort is a statement about the run, not about this one book, so it becomes the session
+			// answer whether or not "apply to all" was checked. Without this a user who aborts with
+			// several books in flight is asked the same question again by every one of them, and the
+			// run they just stopped keeps prompting.
+			if (result.ApplyToAll || result.Action is DialogResult.Abort)
 				_badBookSession?.Override = ToBadBookAction(result.Action);
 
 			if (result.RememberInSettings)
