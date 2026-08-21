@@ -514,7 +514,11 @@ public class ProcessBookViewModel : ReactiveObject
 		{
 			var result = await BadBookActionDialogBase.Show(skipDialogText, "Skip this book?");
 
-			if (result.ApplyToAll)
+			// Abort is a statement about the run, not about this one book, so it becomes the session
+			// answer whether or not "apply to all" was checked. Without this a user who aborts with
+			// several books in flight is asked the same question again by every one of them, and the
+			// run they just stopped keeps prompting.
+			if (result.ApplyToAll || result.Action is DialogResult.Abort)
 				_badBookSession?.Override = ToBadBookAction(result.Action);
 
 			if (result.RememberInSettings)

@@ -36,6 +36,15 @@ public class ProcessQueueViewModel : ReactiveObject
 	private volatile bool cancelAllRequested;
 	private bool dailyLimitMessageShownThisRun;
 
+	/// <summary>
+	/// The single call the dispatch loop makes into a book. Replaced in tests by a fake that finishes
+	/// on command, which is what lets the loop itself - the capacity cap, the enqueue signal, the
+	/// abort drain - be driven without downloading anything. A seam rather than a refactor: the loop
+	/// is unchanged and this is the only line that knows how a book is processed.
+	/// </summary>
+	internal Func<ProcessBookViewModel, Task<ProcessBookResult>> ProcessBookHandler { get; set; }
+		= book => book.ProcessOneAsync();
+
 	public ProcessQueueViewModel()
 	{
 		// The queue is mutated from book threads and read by index from the UI thread, so its
@@ -429,7 +438,11 @@ public class ProcessQueueViewModel : ReactiveObject
 			=> new ProcessBookViewModel(entry, config, _badBookSession).AddConvertToMp3();
 	}
 
-	private void AddToQueue(IList<ProcessBookViewModel> pbook)
+	/// <summary>
+	/// Internal rather than private so the dispatch loop can be started from a test with books it
+	/// controls, without going through the queueing dialogs on the way in.
+	/// </summary>
+	internal void AddToQueue(IList<ProcessBookViewModel> pbook)
 	{
 		// Queueing more work withdraws an earlier Cancel All, which may still be settling on the book it
 		// cancelled. Otherwise these new books would inherit that cancellation at the daily-limit gate.
@@ -645,12 +658,16 @@ public class ProcessQueueViewModel : ReactiveObject
 			ProgressBarVisible = true;
 			var startingTime = DateTime.Now;
 
-			// Shared state written from parallel book tasks — protected by _resultLock
+			// Shared state written from parallel book tasks — protected by resultLock
 			bool shownLicenseGuidanceMessage = false;
 			bool shownWidevineGuidanceMessage = false;
 			bool shownDiskFullMessage = false;
-			var _resultLock = new object();
-			using var abortCts = new CancellationTokenSource();
+			var resultLock = new object();
+			// A plain flag, not a CancellationTokenSource: nothing here is cancellable by token. The
+			// book tasks are stopped by CancelAllAsync; this only tells the dispatch loop to stop
+			// starting new ones. Written from book tasks and read by the loop, hence Volatile — a
+			// captured local lives on the closure, so it can be passed by ref but not marked volatile.
+			bool aborted = false;
 			var activeTasks = new HashSet<Task>();
 			// Bounds the daily-limit deferral rotation, so a book can never be shuffled to the back
 			// forever. Counted since the last book that actually started, not since the run began.
@@ -663,7 +680,18 @@ public class ProcessQueueViewModel : ReactiveObject
 				Serilog.Log.Logger.Information("Begin processing queued item: '{item_LibraryBook}'", book.LibraryBook);
 				ProcessStart?.Invoke(this, book);
 
-				var result = await book.ProcessOneAsync();
+				var result = await ProcessBookHandler(book);
+
+				// Claimed before the queue is touched, and before the logging. Only the book that
+				// actually answered Abort tears the queue down: Abort is a session-wide override now, so
+				// every book in flight arrives here - directly or by inheriting that answer - and each one
+				// re-entering CancelAllAsync would have every book asking every other book to cancel.
+				// Claiming this early also keeps the window small in which the loop can start another
+				// book, which would then outlive the abort by starting after CancelAllAsync snapshots
+				// what to cancel.
+				bool tearsDownTheQueue
+					= (result is ProcessBookResult.FailedAbort or ProcessBookResult.DiskFull)
+					&& ClaimAbort();
 
 				Serilog.Log.Logger.Information("Completed processing: '{item_LibraryBook}' result: {result}", book.LibraryBook, result);
 
@@ -677,15 +705,37 @@ public class ProcessQueueViewModel : ReactiveObject
 
 					if (result == ProcessBookResult.FailedAbort)
 					{
-						abortCts.Cancel();
-						await CancelAllAsync(book);
+						// Same reasoning: several books can run out of disk at once.
+						if (tearsDownTheQueue)
+							await CancelAllAsync(book);
+			// True for the one book that gets to tear the queue down, false for every book that arrives
+			// after it. Written under the lock and read by the dispatch loop without it, hence the
+			// volatile write.
+			bool ClaimAbort()
+			{
+				lock (resultLock)
+				{
+					if (aborted)
+						return false;
+					Volatile.Write(ref aborted, true);
+					return true;
+				}
+			}
+
 					}
 					else if (result == ProcessBookResult.DiskFull)
 					{
-						abortCts.Cancel();
-						await CancelAllAsync(book);
+						if (tearsDownTheQueue)
+							await CancelAllAsync(book);
+						else
+						{
+							// Inherited the abort rather than answering it. It was cancelled by the book
+							// that did, and that is what it should report.
+							book.Result = ProcessBookResult.Cancelled;
+							book.Status = ProcessBookStatus.Cancelled;
+						}
 						bool show;
-						lock (_resultLock) { show = !shownDiskFullMessage; shownDiskFullMessage = true; }
+						lock (resultLock) { show = !shownDiskFullMessage; shownDiskFullMessage = true; }
 						if (show)
 							await MessageBoxBase.Show(
 								DiskFullUserMessage.BuildQueueStoppedBody(),
@@ -701,7 +751,7 @@ public class ProcessQueueViewModel : ReactiveObject
 						|| (result == ProcessBookResult.LicenseDenied && book.LibraryBook.IsAudiblePlus))
 					{
 						bool show;
-						lock (_resultLock) { show = !shownLicenseGuidanceMessage; shownLicenseGuidanceMessage = true; }
+						lock (resultLock) { show = !shownLicenseGuidanceMessage; shownLicenseGuidanceMessage = true; }
 						if (show)
 						{
 							var body = result == ProcessBookResult.LicenseDeniedPossibleOutage
@@ -717,7 +767,7 @@ public class ProcessQueueViewModel : ReactiveObject
 					else if (result == ProcessBookResult.WidevineRecommended)
 					{
 						bool show;
-						lock (_resultLock) { show = !shownWidevineGuidanceMessage; shownWidevineGuidanceMessage = true; }
+						lock (resultLock) { show = !shownWidevineGuidanceMessage; shownWidevineGuidanceMessage = true; }
 						if (show)
 							await MessageBoxBase.Show(
 								WidevineRecommendationUserMessage.BuildDialogBody(book.LibraryBook.Book.TitleWithSubtitle),
@@ -750,7 +800,7 @@ public class ProcessQueueViewModel : ReactiveObject
 				// already completed and the wait returns immediately rather than missing it.
 				var enqueued = WaitForEnqueueAsync();
 
-				if (abortCts.IsCancellationRequested)
+				if (Volatile.Read(ref aborted))
 				{
 					await Task.WhenAll(activeTasks);
 					break;
