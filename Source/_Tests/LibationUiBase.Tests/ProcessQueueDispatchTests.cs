@@ -118,10 +118,16 @@ public class ProcessQueueDispatchTests
 		}
 	}
 
+	/// <param name="atOnce">
+	/// The setting under test. Machine capability is pinned to the same number, because the loop
+	/// clamps the setting by it: left to <see cref="Environment.ProcessorCount"/>, a test asking for
+	/// three books at once would quietly start two on a small CI runner, wait out its patience and
+	/// fail - having measured the runner rather than the loop.
+	/// </param>
 	private static (ProcessQueueViewModel Queue, FakeBooks Books) NewQueue(int atOnce)
 	{
 		var books = new FakeBooks();
-		var queue = new ProcessQueueViewModel { MaxConcurrentDownloads = atOnce };
+		var queue = new ProcessQueueViewModel { MaxConcurrentDownloads = atOnce, MachineCeilingOverride = atOnce };
 		queue.ProcessBookHandler = books.Handle;
 		return (queue, books);
 	}
@@ -303,5 +309,41 @@ public class ProcessQueueDispatchTests
 		await RunToCompletion(queue);
 		Assert.AreEqual(0, queue.QueuedCount, "Cancel All left books queued.");
 		Assert.AreEqual(2, books.Started.Count, "Cancel All did not stop new books from starting.");
+	}
+
+	[TestMethod]
+	public async Task a_machine_smaller_than_the_setting_holds_the_loop_down_without_changing_the_setting()
+	{
+		var books = new FakeBooks();
+		var queue = new ProcessQueueViewModel { MaxConcurrentDownloads = 8, MachineCeilingOverride = 2 };
+		queue.ProcessBookHandler = books.Handle;
+
+		queue.AddToQueue([Book("A"), Book("B"), Book("C"), Book("D")]);
+
+		await books.WaitForStarted(2);
+		await Task.Delay(100);
+		Assert.AreEqual(2, books.Started.Count, "The machine ceiling did not hold the loop down.");
+
+		// The whole point of clamping here rather than on the way in: what the user asked for
+		// survives being opened on a machine that cannot deliver it.
+		Assert.AreEqual(8, queue.MaxConcurrentDownloads, "The stored setting was rewritten to what the machine could manage.");
+
+		books.FinishAll("A", "B");
+		await books.WaitForStarted(4);
+		books.FinishAll("C", "D");
+
+		await RunToCompletion(queue);
+		Assert.AreEqual(2, books.HighWaterMark, "More books ran at once than the machine allows.");
+	}
+
+	[TestMethod]
+	public void the_hint_says_what_the_machine_will_do_and_is_silent_when_it_can_keep_up()
+	{
+		var queue = new ProcessQueueViewModel { MaxConcurrentDownloads = 8, MachineCeilingOverride = 2 };
+		Assert.AreEqual("(2 on this machine)", queue.ConcurrencyHint);
+
+		// Nothing to say once the machine can deliver what was asked for.
+		queue.MachineCeilingOverride = 10;
+		Assert.IsNull(queue.ConcurrencyHint);
 	}
 }

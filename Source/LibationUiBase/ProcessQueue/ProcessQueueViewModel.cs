@@ -89,11 +89,21 @@ public class ProcessQueueViewModel : ReactiveObject
 	private int _maxConcurrentDownloads;
 
 	/// <summary>
+	/// What this machine can usefully manage. Overridable so that tests of the dispatch loop pin it
+	/// instead of inheriting the host's core count - otherwise a test asking for three books at once
+	/// passes on a developer's machine and fails on a two-core CI runner, having tested the runner
+	/// rather than the loop.
+	/// </summary>
+	internal int? MachineCeilingOverride { get; set; }
+
+	private int MachineCeiling => MachineCeilingOverride ?? Configuration.MaxAllowedConcurrentDownloads;
+
+	/// <summary>
 	/// How many books actually run at once: what the user asked for, held down to what this machine
 	/// can usefully manage. Applied here, at the point of use, so the stored setting is left alone.
 	/// </summary>
 	private int EffectiveConcurrentDownloads
-		=> Math.Clamp(MaxConcurrentDownloads, Configuration.MinConcurrentDownloads, Configuration.MaxAllowedConcurrentDownloads);
+		=> Math.Clamp(MaxConcurrentDownloads, Configuration.MinConcurrentDownloads, MachineCeiling);
 	public bool AutoScrollQueue { get => field; set { RaiseAndSetIfChanged(ref field, value); Configuration.Instance.AutoScrollQueue = value; } }
 
 	/// <summary>Exposed so UI controls can bind their spinner bounds rather than hardcoding them.</summary>
