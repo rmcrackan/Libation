@@ -652,7 +652,6 @@ public class ProcessQueueViewModel : ReactiveObject
 			Serilog.Log.Logger.Information("Begin processing queue");
 
 			_badBookSession.Reset();
-			cancelAllRequested = false;
 			dailyLimitMessageShownThisRun = false;
 			RunningTime = string.Empty;
 			ProgressBarVisible = true;
@@ -882,3 +881,7 @@ public class ProcessQueueViewModel : ReactiveObject
 			: $"{time.TotalHours:F0}:{time:mm\\:ss}";
 	}
 }
+			// Scoped to the run, not to the drain. A queue parked in WaitForDailyLimitAsync only
+			// re-reads this every DailyLimitPollInterval, so clearing it when the last cancellation
+			// settles would let the gate wake up, see false, and resume the book just cancelled.
+			cancelAllRequested = false;
