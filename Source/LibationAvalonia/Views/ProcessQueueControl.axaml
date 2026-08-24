@@ -83,7 +83,10 @@
 								Increment="1"
 								FormatString="0" />
 							<!-- Sits in the spare column between the two spinners, and only when this machine
-							     cannot keep up with the number chosen. -->
+							     cannot keep up with the number chosen. That column is whatever the two
+							     spinners leave, so the hint is kept short enough to fit it with room over
+							     rather than sized to it - see ProcessQueueViewModel.ConcurrencyHint. The
+							     trimming below is a backstop, not the plan. -->
 							<TextBlock
 								Grid.Column="2"
 								Classes="settingLabel"

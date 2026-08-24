@@ -361,7 +361,7 @@ public class ProcessQueueDispatchTests
 	public void the_hint_says_what_the_machine_will_do_and_is_silent_when_it_can_keep_up()
 	{
 		var queue = new ProcessQueueViewModel { MaxConcurrentDownloads = 8, MachineCeilingOverride = 2 };
-		Assert.AreEqual("(2 on this machine)", queue.ConcurrencyHint);
+		Assert.AreEqual("(2 at a time)", queue.ConcurrencyHint);
 
 		// Nothing to say once the machine can deliver what was asked for.
 		queue.MachineCeilingOverride = 10;

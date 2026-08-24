@@ -22,7 +22,7 @@ If you are seeing license denials, lowering this number is the first thing to tr
 
 Downloading is limited by Audible, but decrypting is limited by your processor. On a machine with fewer processors than the number you chose, Libation runs fewer books at once — your setting is kept as you left it, so moving the same configuration to a larger machine picks up where you meant it to.
 
-When the two differ, Libation says so next to the setting: Chardonnay shows a note reading **(2 on this machine)**, and Classic puts the same thing in the control's tooltip.
+When the two differ, Libation says so next to the setting: Chardonnay shows a note reading **(2 at a time)**, and Classic puts the same thing in the control's tooltip.
 
 ## Auto-scroll
 

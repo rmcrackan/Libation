@@ -124,9 +124,16 @@ public class ProcessQueueViewModel : ReactiveObject
 	/// null when it can. Closes the gap left by bounding the control at the hard limit: the setting
 	/// keeps saying what was asked for, and this says what will happen.
 	/// </summary>
+	/// <remarks>
+	/// Kept short on purpose. It lives in whatever width is left beside the spinners on a 400px
+	/// pane, and the longer wording it replaced ("on this machine") fit on some machines and
+	/// ellipsed to "(4 on this machi..." on others - which left it existing only in the tooltip on
+	/// exactly the machines it was written for. The reason it is smaller than the setting is what
+	/// the tooltip is for; the number is what has to be legible.
+	/// </remarks>
 	public string? ConcurrencyHint
 		=> EffectiveConcurrentDownloads < MaxConcurrentDownloads
-			? $"({EffectiveConcurrentDownloads} on this machine)"
+			? $"({EffectiveConcurrentDownloads} at a time)"
 			: null;
 	public string? RunningTime { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public bool ProgressBarVisible { get => field; set => RaiseAndSetIfChanged(ref field, value); }
