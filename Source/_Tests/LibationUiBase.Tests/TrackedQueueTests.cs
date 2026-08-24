@@ -17,6 +17,15 @@ public class TrackedQueueTests
 		public override string ToString() => Id;
 	}
 
+	private static readonly TimeSpan Patience = TimeSpan.FromSeconds(10);
+
+	/// <summary>
+	/// Deliberately far longer than <see cref="Patience"/>. If delivery is ever serialised by
+	/// something a second thread can block behind again, the test has to fail on that thread's join
+	/// rather than have the two time out together and pass by luck.
+	/// </summary>
+	private static readonly TimeSpan HandlerHold = TimeSpan.FromMinutes(1);
+
 	private static TrackedQueue<Book> QueueOf(params Book[] books)
 	{
 		var queue = new TrackedQueue<Book>();
@@ -340,5 +349,48 @@ public class TrackedQueueTests
 
 			CollectionAssert.AreEqual(queue.ToList(), bound, $"run {run}");
 		}
+	}
+
+	[TestMethod]
+	public void a_mutation_is_not_blocked_behind_a_handler_that_is_still_running()
+	{
+		Book a = new("A"), b = new("B"), c = new("C");
+		var queue = QueueOf(a, b, c);
+		queue.TryDequeueNext(out _);
+		queue.TryDequeueNext(out _);
+
+		// No invoker, so notifications are delivered inline on the mutating thread. That is the case
+		// this is about: with one assigned, delivery is posted and returns immediately.
+		Assert.IsNull(queue.NotificationInvoker);
+
+		using var handlerRunning = new ManualResetEventSlim();
+		using var otherThreadDone = new ManualResetEventSlim();
+
+		int delivered = 0;
+		queue.CompletedCountChanged += (_, _) =>
+		{
+			Interlocked.Increment(ref delivered);
+			// Stands in for WinForms' RefreshDisplay, which blocks on the UI thread. While delivery
+			// was serialised by a lock, a book thread sat in here holding it and the UI thread's own
+			// mutation could never get in to release it - each waiting on the other.
+			handlerRunning.Set();
+			otherThreadDone.Wait(HandlerHold);
+		};
+
+		var delivering = new Thread(() => queue.MarkCompleted(a)) { IsBackground = true };
+		delivering.Start();
+		Assert.IsTrue(handlerRunning.Wait(Patience), "The handler never ran.");
+
+		var other = new Thread(() => { queue.MarkCompleted(b); otherThreadDone.Set(); }) { IsBackground = true };
+		other.Start();
+
+		Assert.IsTrue(other.Join(Patience), "A mutation blocked behind a delivery already in flight.");
+		Assert.IsTrue(delivering.Join(Patience), "The delivering thread never finished.");
+
+		// Returning without delivering is not the same as dropping it: the second thread left its
+		// notification for the first to pick up on its next pass, and the first did.
+		Assert.AreEqual(2, Volatile.Read(ref delivered), "The mutation that did not deliver its own notification lost it.");
+		CollectionAssert.AreEqual(new[] { a, b }, queue.Completed.ToList());
+		CollectionAssert.AreEqual(new[] { a, b, c }, queue.ToList());
 	}
 }

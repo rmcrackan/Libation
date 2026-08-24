@@ -55,9 +55,20 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	 * before the Move goes out.
 	 *
 	 * So mutators append their notifications to _pending while they still hold lockObject, and
-	 * delivery happens afterwards under dispatchLock. Whoever reaches dispatchLock first drains
-	 * everything that is pending, so mutation order is delivery order no matter which thread does
-	 * the delivering.
+	 * delivery happens afterwards. One thread at a time claims the pending list and drains it, so
+	 * mutation order is delivery order no matter which thread does the delivering.
+	 *
+	 * The claim is a flag rather than a second lock. A lock held across delivery is a lock a
+	 * handler can block behind: with NotificationInvoker null, Deliver runs inline on the mutating
+	 * thread, and WinForms' RefreshDisplay blocks on the UI thread - so a book thread delivering
+	 * inline would sit inside the lock while the UI thread it is waiting for blocks trying to
+	 * enter that same lock to deliver its own mutation. A thread that finds _draining set returns
+	 * immediately instead, leaving its notifications for the draining thread to pick up on its
+	 * next pass. Nothing waits, so nothing deadlocks.
+	 *
+	 * The flag also stops a handler that mutates the queue from delivering its own notification
+	 * ahead of the rest of the batch it is standing in: a lock is reentrant on the same thread,
+	 * and this is not.
 	 *
 	 * Nothing is ever raised while lockObject is held. The UI thread reads Count, IndexOf and the
 	 * indexer from inside these handlers - Avalonia's binding and WinForms' DoVirtualScroll both
@@ -70,7 +81,13 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	private readonly record struct Notification(NotificationKind Kind, int Count, NotifyCollectionChangedEventArgs? Args);
 
 	private readonly List<Notification> _pending = new();
-	private readonly object dispatchLock = new();
+
+	/// <summary>
+	/// Set by whichever thread is currently delivering. Guarded by <see cref="lockObject"/>, and
+	/// claimed in the same critical section that takes the batch, so only one thread is ever inside
+	/// <see cref="Deliver"/>. See the note above for why this is a flag and not a lock.
+	/// </summary>
+	private bool _draining;
 
 	/// <summary>
 	/// Marshals notifications onto the UI thread. Must post rather than run inline - see
@@ -103,24 +120,36 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	/// <summary>Call only after <see cref="lockObject"/> has been released.</summary>
 	private void DispatchPending()
 	{
-		lock (dispatchLock)
+		while (true)
 		{
-			while (true)
+			Notification[] batch;
+			lock (lockObject)
 			{
-				Notification[] batch;
-				lock (lockObject)
-				{
-					if (_pending.Count == 0)
-						return;
-					batch = _pending.ToArray();
-					_pending.Clear();
-				}
+				// Checked before the emptiness check, and only ever cleared with the lock held, so a
+				// set flag means the draining thread has not yet made its next pass over _pending -
+				// which is what makes it safe to leave without delivering.
+				if (_draining)
+					return;
+				if (_pending.Count == 0)
+					return;
 
+				batch = _pending.ToArray();
+				_pending.Clear();
+				_draining = true;
+			}
+
+			try
+			{
 				var invoker = NotificationInvoker;
 				if (invoker is null)
 					Deliver(batch);
 				else
 					invoker.BeginInvoke((Action)(() => Deliver(batch)), null);
+			}
+			finally
+			{
+				lock (lockObject)
+					_draining = false;
 			}
 		}
 	}
