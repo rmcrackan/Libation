@@ -16,11 +16,12 @@ public class Contributor
 
 	// id.s
 	// ----
-	// https://www.audible.com/author/Neil-Gaiman/B000AQ01G2 == https://www.audible.com/author/B000AQ01G2
+	// the name in the path is decorative; the id is what resolves it. Both of these reach the same page:
+	//   https://www.audible.com/author/Robert-Bevan/B0EXAMPLE1 == https://www.audible.com/author/B0EXAMPLE1
 	//     goes to summary page
-	//     at bottom "See all titles by Neil Gaiman" goes to https://www.audible.com/search?searchAuthor=Neil+Gaiman
+	//     at bottom "See all titles by Robert Bevan" goes to https://www.audible.com/search?searchAuthor=Robert+Bevan
 	// some authors have no id. simply goes to https://www.audible.com/search?searchAuthor=Rufus+Fears
-	// all narrators have no id: https://www.audible.com/search?searchNarrator=Neil+Gaiman
+	// all narrators have no id: https://www.audible.com/search?searchNarrator=Robert+Bevan
 
 	internal int ContributorId { get; private set; }
 	public string Name { get; private set; }
