@@ -130,6 +130,20 @@ public class NumericTitleTests
 		search("LengthInMinutes:[600 TO 900]").Should().BeEquivalentTo([ORWELL, PETERS, FOURTEEN_HOURS]);
 		search("LengthInMinutes:[1 to 400]").Should().BeEquivalentTo([CLARKE, SHORT]);
 		search("Hours:[10 TO 20]").Should().BeEquivalentTo([ORWELL, PETERS, FOURTEEN_HOURS]);
+
+		//curly braces exclude the bounds, and have to be recognised as a range the same way
+		search("LengthInMinutes:{675 TO 1984}").Should().BeEquivalentTo([PETERS, FOURTEEN_HOURS]);
+	}
+
+	/// <summary>
+	/// A wildcard reaches a numeric title too, which it could not while the number was being padded:
+	/// "title:19*" went looking for "00000019.00*".
+	/// </summary>
+	[TestMethod]
+	public void a_wildcard_works_on_a_numeric_title()
+	{
+		search("title:19*").Should().BeEquivalentTo([ORWELL]);
+		search("title:20*").Should().BeEquivalentTo([CLARKE]);
 	}
 
 	/// <summary>A bare number combines with the rest of the syntax without dragging its expansion along.</summary>
