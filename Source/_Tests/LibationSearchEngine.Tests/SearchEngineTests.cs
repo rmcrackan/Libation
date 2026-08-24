@@ -62,8 +62,25 @@ public class FormatSearchQuery
 	[DataRow("[tags][israted]", "tags:tags tags:israted ")]
 
 	// numbers with "to". TO all caps, numbers [8.2] format
-	[DataRow("1 to 10", "00000001.00 TO 00000010.00")]
-	[DataRow("19990101 to 20001231", "19990101.00 TO 20001231.00")]
+	[DataRow("1 to 10", "(1 OR 00000001.00) TO (10 OR 00000010.00)")]
+	[DataRow("19990101 to 20001231", "(19990101 OR 19990101.00) TO (20001231 OR 20001231.00)")]
+
+	// a number field is indexed zero-padded so a range sorts, so its values are padded to match
+	[DataRow("LengthInMinutes:600", "lengthinminutes:00000600.00")]
+	[DataRow("Rating:[1 to 5]", "rating:[00000001.00 TO 00000005.00]")]
+	[DataRow("DatePublished:19990101", "datepublished:19990101.00")]
+	// every other field is indexed as written, so padding its values found nothing
+	[DataRow("title:1984", "title:1984")]
+	[DataRow("title:\"2001 a space odyssey\"", "title:\"2001 a space odyssey\"")]
+	[DataRow("[14]", "tags:14 ")]
+	// no field named, so the default field holds both spellings and both are searched
+	[DataRow("14", "(14 OR 00000014.00)")]
+	[DataRow("-1984", "-(1984 OR 00001984.00)")]
+	[DataRow("1984 AND liberated", "(1984 OR 00001984.00) AND liberated:True")]
+	// a bare range still needs the padded spelling, and cannot hold a disjunction
+	[DataRow("[1 to 10]", "[00000001.00 TO 00000010.00]")]
+	// nor can a phrase, which is text
+	[DataRow("\"2001 a space odyssey\"", "\"2001 a space odyssey\"")]
 
 	// subtitle keywords are bool fields, not text fields
 	[DataRow("HasSubtitle", "hassubtitle:True")]
@@ -75,6 +92,20 @@ public class FormatSearchQuery
 	// bool field to lowercase
 	[DataRow("IsRated", "israted:True")]
 	[DataRow("-isRATED", "-israted:True")]
+
+	// a value which happens to be named like a search field stays a value. Lucene cannot parse a second
+	// colon, so "title:absent" used to throw rather than search titles for the word
+	[DataRow("title:absent", "title:absent")]
+	[DataRow("Title:Absent", "title:Absent")]
+	[DataRow("category:podcast", "category:podcast")]
+	[DataRow("author:plus", "author:plus")]
+	[DataRow("title:\"absent friends\"", "title:\"absent friends\"")]
+	[DataRow("-title:absent", "-title:absent")]
+	// a bool field keeps its own handling, including a value that is not a bool
+	[DataRow("israted:absent", "israted:absent")]
+	// only the term right after the colon is a value. The next one is a field again
+	[DataRow("title:absent absent", "title:absent absent:True")]
+	[DataRow("title:absent AND liberated", "title:absent AND liberated:True")]
 
 	public void FormattingTest(string input, string output)
 	{

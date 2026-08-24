@@ -54,6 +54,22 @@ I tagged autobiographies as auto_bio and biographies written by someone else as 
 ![Search example: [bio]](../images/SearchExampleBio.png)
 ![Search example: [auto_bio]](../images/SearchExampleAutoBio.png)
 
+## When a search term could mean two things
+
+Some of what you type is read as a field rather than as the words themselves, because that is usually what you meant. Naming the field settles it.
+
+A word that is also a search field means the field. Typing `absent` finds the books Audible no longer lists, not books with "absent" in the title, and the same goes for `podcast`, `finished`, `spatial` and the rest. The [?] button lists every one of them, which is the quickest way to check whether a word you want to search for is also a keyword.
+
+- `absent` - books missing from your last scan
+- `title:absent` - books with "absent" in the title
+- `title:absent AND -absent` - the word, on books that are still listed
+
+A number is searched as both text and a number at once, because a number can be a title or a length, a rating or a date. `1984` finds Orwell's novel and every book 1984 minutes long; `14` finds Peter Clines' novel and everything fourteen minutes or fourteen hours long. Name the field to get one or the other.
+
+- `1984` - the novel, and anything that measures 1984
+- `title:1984` - only the novel
+- `length:1984` - only books 1984 minutes long
+
 ## Subtitles and short titles
 
 The `<title short>` tag keeps everything before the first colon, which is what keeps the default folder name short. That is usually what you want, but not always. "A Book Series Omnibus: Volume One" and "A Book Series Omnibus: Volume Two" both shorten to "A Book Series Omnibus", so the two books land in the same folder and can no longer be told apart by name.

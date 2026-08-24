@@ -1,48 +1,61 @@
 # Lucene Query Syntax
 
-Lucene has a custom query syntax for querying its indexes. Here are some query examples demonstrating the query syntax.
+Libation's search box takes a Lucene query. Simple searches need none of this - type a few words and press enter - but the full syntax is there when you want it.
+
+The examples below use Libation's own fields. Click the [?] button beside the search box for the complete list, along with the synonyms for each: `author` and `authors` both work, as do `length`, `minutes` and `lengthinminutes`.
 
 ## Keyword matching
 
-Search for word "foo" in the title field.
+Search the title for the word "hound".
 
-`title:foo`
+`title:hound`
 
-Search for phrase "foo bar" in the title field.
+Search the title for the phrase "sign of the four". Without the quotes these would be four separate words, and a book whose title contains any of them would match.
 
-`title:"foo bar"`
+`title:"sign of the four"`
 
-Search for phrase "foo bar" in the title field AND the phrase "quick fox" in the body field.
+Search for books Neil Gaiman wrote and also narrated. Without `AND` you would get everything he wrote plus everything anyone narrated of their own.
 
-`title:"foo bar" AND body:"quick fox"`
+`author:gaiman AND narrator:gaiman`
 
-Search for either the phrase "foo bar" in the title field AND the phrase "quick fox" in the body field, or the word "fox" in the title field.
+Group terms with parentheses to combine `AND` and `OR` in one query.
 
-`(title:"foo bar" AND body:"quick fox") OR title:fox`
+`(author:doyle AND narrator:fry) OR title:gods`
 
-Search for word "foo" and not "bar" in the title field.
+Search for books by Doyle that Fry did not narrate. `-` and `NOT` mean the same thing.
 
-`title:foo -title:bar`
+`author:doyle -narrator:fry`
+
+Exclude a group of alternatives at once.
+
+`-(narrator:fry OR narrator:jacobi)`
 
 ## Wildcard matching
 
-Search for any word that starts with "foo" in the title field.
+Any word in the title starting with "scar", which finds "Scarlet".
 
-`title:foo*`
+`title:scar*`
 
-Search for any word that starts with "foo" and ends with bar in the title field.
+`*` also works inside a word. This finds "Jacobi".
 
-`title:foo*bar`
+`narrator:j*bi`
 
-Note that Lucene doesn't support using a * symbol as the first character of a search.
+Lucene does not allow `*` or `?` as the first character of a search, so `title:*hound` is an error rather than a search.
 
 ## Range searches
 
-Range Queries allow one to match documents whose field(s) values are between the lower and upper bound specified by the Range Query. Range Queries can be inclusive or exclusive of the upper and lower bounds. Sorting is done lexicographically.
+A range matches every value between a lower and an upper bound. Square brackets include the bounds and curly braces exclude them, so a book of exactly 290 minutes matches the first of these but not the second.
 
+`length:[290 TO 397]`
 
-`mod_date:[20020101 TO 20030101]`
+`length:{290 TO 397}`
+
+Dates are written as yyyymmdd.
+
+`datepublished:[20200101 TO 20231231]`
+
+Lucene sorts a range lexicographically rather than numerically, which would put 9 after 100. Libation stores its numbers zero-padded so that they sort correctly and pads whatever you type to match, so type the number you mean and ignore this.
 
 ---
 
-The above guide was helpfully provided by https://supermind.org
+The structure of the above guide was helpfully provided by https://supermind.org

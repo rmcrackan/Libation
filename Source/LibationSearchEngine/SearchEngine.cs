@@ -407,17 +407,7 @@ public class SearchEngine
 		using var searcher = new IndexSearcher(index);
 		var query = analyzer.GetQuery(defaultField, searchString);
 
-		// lucene doesn't allow only negations. eg this returns nothing:
-		//     -tags:hidden
-		// work arounds: https://kb.ucla.edu/articles/pure-negation-query-in-lucene
-		// HOWEVER, doing this to any other type of query can cause EVERYTHING to be a match unless "Occur" is carefully set
-		// this should really check that all leaf nodes are MUST_NOT
-		if (query is BooleanQuery boolQuery)
-		{
-			var occurs = getOccurs_recurs(boolQuery);
-			if (occurs.Any() && occurs.All(o => o == Occur.MUST_NOT))
-				boolQuery.Add(new MatchAllDocsQuery(), Occur.MUST);
-		}
+		allowPureNegation(query);
 
 		var docs = searcher
 			.Search(query, searcher.MaxDoc + 1)
@@ -429,19 +419,35 @@ public class SearchEngine
 		return new SearchResultSet(queryString, docs);
 	}
 
-	private IEnumerable<Occur> getOccurs_recurs(BooleanQuery query)
+	/// <summary>
+	/// Gives every all-negative <see cref="BooleanQuery"/> in the tree something positive to subtract from.
+	/// Lucene matches nothing for a query that only excludes, so <c>-tags:hidden</c> needs a
+	/// <see cref="MatchAllDocsQuery"/> added alongside it.
+	/// <para>
+	/// Whether a query needs one is decided by its own clauses and nothing deeper. Judging it by every
+	/// clause in the tree read <c>-(tags:hidden OR tags:archived)</c> as mixed, because of the two SHOULD
+	/// clauses inside the negation, and returned nothing at all. Recursing also reaches a parenthesized
+	/// negation used as a subquery, as in <c>(-tags:hidden) AND (-tags:archived)</c>, where each group
+	/// matches nothing on its own and so the whole query did too.
+	/// </para>
+	/// <para>
+	/// Adding one anywhere else would make everything a match, so recurse first and test afterwards: the
+	/// clause added to a subquery must not be counted when deciding about its parent.
+	/// </para>
+	/// </summary>
+	/// <seealso href="https://kb.ucla.edu/articles/pure-negation-query-in-lucene"/>
+	private static void allowPureNegation(Query query)
 	{
-		var returnList = new List<Occur>();
+		if (query is not BooleanQuery boolQuery)
+			return;
 
-		foreach (var clause in query)
-		{
-			returnList.Add(clause.Occur);
+		var clauses = boolQuery.ToList();
 
-			if (clause.Query is BooleanQuery boolQuery)
-				returnList.AddRange(getOccurs_recurs(boolQuery));
-		}
+		foreach (var clause in clauses)
+			allowPureNegation(clause.Query);
 
-		return returnList;
+		if (clauses.Count > 0 && clauses.TrueForAll(c => c.Occur == Occur.MUST_NOT))
+			boolQuery.Add(new MatchAllDocsQuery(), Occur.MUST);
 	}
 
 	private void displayResults(SearchResultSet docs)
