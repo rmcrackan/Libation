@@ -74,6 +74,12 @@ Some searches worth keeping as quick filters:
 
 If these fields find nothing at all, your search index was built before they existed. Scanning your library rebuilds it, as does closing Libation and deleting the `SearchEngine` folder in your Libation files folder. The index is only a cache of your library, so deleting it is safe.
 
+## When a field finds nothing but its negation works
+
+A field that finds nothing while `-field` appears to work perfectly means the index is missing books rather than getting the field wrong. Filtering keeps the grid rows the query returned, and `-field` asks for every book in the index, so a book the index never received cannot be found by `field` and is quietly dropped by `-field` - which looks the same as `-field` doing its job. The two halves of a stale field would instead disagree the other way: `field` would find nothing and `-field` would show your whole library.
+
+Libation compares the index against your library the first time you filter after starting up, and rebuilds it when it is short, so this normally repairs itself. If it persists, close Libation, delete the `SearchEngine` folder in your Libation files folder, and start again. Your log will say which books could not be indexed.
+
 Once you can see the affected books, you can decide what to do about them. If the only problem is colons inside Audible's titles, switching `<title short>` to `<audible title>` in Settings > Download/Decrypt fixes every one of them at once: it still leaves out Audible's subtitle, but it never cuts the title. If instead two books share a title and differ only by subtitle, use `<title>` for those books, or keep `<id>` in the template so their names stay unique. Either way, filter to the books you want handled differently, liberate them with one template, then restore your usual template for the rest.
 
 ### Auditing titles in a spreadsheet

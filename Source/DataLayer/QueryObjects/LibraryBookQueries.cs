@@ -69,6 +69,17 @@ public static class LibraryBookQueries
 			.getLibrary()
 			.ToList();
 
+		/// <summary>
+		/// How many books a full search re-index writes: the same rows as
+		/// <see cref="GetLibrary_Flat_NoTracking"/> without the podcast parents, which are stripped before
+		/// indexing. A row count only; no entities are loaded, so this is cheap enough to check the index against.
+		/// </summary>
+		public int GetIndexableBookCount()
+			=> context
+			.LibraryBooks
+			.AsNoTracking()
+			.Count(lb => !lb.IsDeleted && lb.Book.ContentType != ContentType.Parent);
+
 		/// <summary>Counts <see cref="LibraryBook"/> rows by <see cref="LibraryBook.IsDeleted"/> (no related entities loaded).</summary>
 		public (int NotInTrash, int InTrash) GetLibraryBookCountsByTrashFlag()
 		{

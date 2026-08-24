@@ -88,7 +88,14 @@ public class SearchEngine
 
 	#region create and update index
 	/// <summary>create new. ie: full re-index</summary>
-	public void CreateNewIndex(IEnumerable<LibraryBook> library, bool overwrite = true)
+	/// <returns>How many books could not be indexed, and so cannot be found by search or filter.</returns>
+	/// <remarks>
+	/// One book is not allowed to cost the rest their place in the index. Disposing the writer commits
+	/// whatever it already holds, so letting a single bad book escape the loop used to leave a silently
+	/// truncated index behind: every book after the failure was missing from it, and a missing book is
+	/// worse than an unsearchable one, because a negated filter drops it from the grid entirely.
+	/// </remarks>
+	public int CreateNewIndex(IEnumerable<LibraryBook> library, bool overwrite = true)
 	{
 		var libraryList = library.ToList();
 
@@ -99,10 +106,58 @@ public class SearchEngine
 		using var analyzer = new StandardAnalyzer(Version);
 		using var ixWriter = openWriterForRebuild(index, analyzer, overwrite);
 
+		var failures = 0;
+
 		foreach (var libraryBook in libraryList)
 		{
-			var doc = createBookIndexDocument(libraryBook);
-			ixWriter.AddDocument(doc);
+			try
+			{
+				var doc = createBookIndexDocument(libraryBook);
+				ixWriter.AddDocument(doc);
+			}
+			catch (Exception ex)
+			{
+				failures++;
+				Serilog.Log.Logger.Error(ex, "Could not add {Book} to the search index. It will not be found by search or filter, and a negated filter will hide it.", describeForLog(libraryBook));
+			}
+		}
+
+		return failures;
+	}
+
+	/// <summary>Name a book for a log line without risking a second exception from the book that just threw.</summary>
+	private static string describeForLog(LibraryBook libraryBook)
+	{
+		try
+		{
+			return libraryBook?.Book?.AudibleProductId ?? "a book with no product id";
+		}
+		catch
+		{
+			return "an unreadable book";
+		}
+	}
+
+	/// <summary>
+	/// How many books the index holds, or -1 when there is no index to read. Every write to the index is a
+	/// full rebuild, so this should always equal the number of books a rebuild would write; when it is short,
+	/// the missing books are invisible to search and are hidden from the grid by any negated filter.
+	/// </summary>
+	public int GetIndexedBookCount()
+	{
+		try
+		{
+			using var index = getIndex();
+			if (!IndexReader.IndexExists(index))
+				return -1;
+
+			using var reader = IndexReader.Open(index, readOnly: true);
+			return reader.NumDocs();
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Debug(ex, "Could not count the documents in the search index");
+			return -1;
 		}
 	}
 
