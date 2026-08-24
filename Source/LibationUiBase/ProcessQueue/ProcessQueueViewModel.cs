@@ -296,12 +296,25 @@ public class ProcessQueueViewModel : ReactiveObject
 				MessageBoxIcon.Error);
 			return false;
 		}
-		else if (AudibleFileStorage.BooksDirectory is null)
+		else if (AudibleFileStorage.BooksDirectory is not FileManager.LongPath booksDirectory)
 		{
 			Serilog.Log.Logger.Error("Failed to create books directory: {booksDir}", config.Books?.Path);
 			await MessageBoxBase.Show(
 				$"Libation was unable to create the \"Books location\" folder at:\n{config.Books}\n\nPlease change the Books location in the settings menu.",
 				"Failed to Create Books Directory",
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Error);
+			return false;
+		}
+		// A removable or failing drive can still answer that it is a directory while every read of it fails, so
+		// existing is not the same as usable. Without this the download would begin against an unreadable folder
+		// and fail book by book, and Libation would report the library as having nothing downloaded.
+		else if (!FileManager.FileUtility.CanEnumerate(booksDirectory))
+		{
+			Serilog.Log.Logger.Error("Books directory exists but cannot be read: {booksDir}", (string)booksDirectory);
+			await MessageBoxBase.Show(
+				$"Libation was unable to read the \"Books location\" folder at:\n{booksDirectory}\n\nIf it is on a removable or network drive, check that the drive is connected and working. Otherwise, change the Books location in the settings menu.",
+				"Unable to Read Books Directory",
 				MessageBoxButtons.OK,
 				MessageBoxIcon.Error);
 			return false;
