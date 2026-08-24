@@ -18,6 +18,11 @@ internal static partial class QuerySanitizer
 		.Select(n => n.ToLowerInvariant())
 		.ToHashSet();
 
+	private static readonly HashSet<string> numberTerms
+		= SearchEngine.FieldIndexRules.NumberFieldNames
+		.Select(n => n.ToLowerInvariant())
+		.ToHashSet();
+
 	private static readonly HashSet<string> fieldTerms
 		= SearchEngine.FieldIndexRules
 		.SelectMany(r => r.FieldNames)
@@ -45,8 +50,8 @@ internal static partial class QuerySanitizer
 		using var tokenStream = analyzer.TokenStream(SearchEngine.ALL, new System.IO.StringReader(searchString));
 
 		var partList = new List<string>();
-		int previousEndOffset = 0;
-		bool previousIsBool = false, previousIsTags = false, previousIsAsin = false, previousIsField = false;
+		int previousEndOffset = 0, rangeDepth = 0;
+		bool previousIsBool = false, previousIsTags = false, previousIsAsin = false, previousIsField = false, previousIsNumberField = false, inPhrase = false;
 
 		while (tokenStream.IncrementToken())
 		{
@@ -54,6 +59,16 @@ internal static partial class QuerySanitizer
 			var offset = tokenStream.GetAttribute<IOffsetAttribute>();
 
 			var betweenTokens = searchString.Substring(previousEndOffset, offset.StartOffset - previousEndOffset);
+
+			//Neither a range nor a phrase can hold the "(x OR y)" a bare number expands to below, so keep
+			//track of the punctuation that opens one. The analyzer throws punctuation away, which is why
+			//this reads the untokenized text between the tokens rather than the tokens themselves.
+			foreach (var c in betweenTokens)
+			{
+				if (c is '[' or '{') rangeDepth++;
+				else if (c is ']' or '}') rangeDepth = System.Math.Max(0, rangeDepth - 1);
+				else if (c is '"') inPhrase = !inPhrase;
+			}
 
 			//A colon right after a field name makes this term that field's value, whatever it is called.
 			//Plenty of field names are ordinary words a title or a category can contain, and without this
@@ -96,8 +111,25 @@ internal static partial class QuerySanitizer
 			}
 			else if (double.TryParse(term, out var num))
 			{
-				//Term is a number so pad it with zeros
-				partList.Add(num.ToLuceneString());
+				//Which spelling of a number to search for depends on what it is being compared against.
+				//A number field is indexed zero-padded so that a range sorts correctly; every other field
+				//is indexed as written. Padding regardless meant "title:1984" looked for "00001984.00" in
+				//the titles and found nothing, and a bare "1984" could never find the novel.
+				var padded = num.ToLuceneString();
+				var asWritten = searchString.Substring(offset.StartOffset, offset.EndOffset - offset.StartOffset);
+
+				if (isFieldValue)
+					partList.Add(previousIsNumberField ? padded : asWritten);
+				else if (rangeDepth > 0)
+					//Only the padded spelling sorts, and a range is numeric by nature
+					partList.Add(padded);
+				else if (inPhrase)
+					//A phrase is text by nature
+					partList.Add(asWritten);
+				else
+					//No field was named, so this searches the default field, which holds both spellings:
+					//the novel's title as written, and every number field padded. Search for both.
+					partList.Add($"({asWritten} OR {padded})");
 			}
 			else if (!isFieldValue && fieldTerms.Contains(term))
 			{
@@ -107,6 +139,7 @@ internal static partial class QuerySanitizer
 				previousIsBool = boolTerms.Contains(term);
 				previousIsAsin = idTerms.Contains(term);
 				previousIsTags = term == SearchEngine.TAGS;
+				previousIsNumberField = numberTerms.Contains(term);
 				previousIsField = true;
 			}
 			else
