@@ -2,6 +2,7 @@ using FileManager;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -101,6 +102,82 @@ public class DisposeWhileEventsAreArriving
 		}
 
 		return false;
+	}
+}
+
+/// <summary>
+/// From issue #1984, where a Books folder on a failing USB drive closed Libation on every launch. This type is
+/// constructed from the static initializer of <c>AudibleFileStorage</c>, and the runtime caches a failed static
+/// initializer for the life of the process: anything that escapes here is rethrown at every later caller that
+/// so much as asks where the Books folder is, including the startup logging that runs before the window opens.
+/// So construction has to survive a root directory it cannot read, however it cannot read it.
+/// </summary>
+[TestClass]
+[DoNotParallelize]
+public class WhenTheRootDirectoryCannotBeRead
+{
+	private string tempDir = string.Empty;
+
+	[TestInitialize]
+	public void Initialize()
+	{
+		tempDir = Path.Combine(Path.GetTempPath(), $"libation-bfs-unreadable-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDir);
+	}
+
+	[TestCleanup]
+	public void Cleanup()
+	{
+		try
+		{
+			if (!OperatingSystem.IsWindows() && Directory.Exists(tempDir))
+				File.SetUnixFileMode(tempDir, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+			Directory.Delete(tempDir, recursive: true);
+		}
+		catch (IOException)
+		{
+			// A leftover temp directory is not worth failing a test over.
+		}
+	}
+
+	[TestMethod]
+	public void a_root_that_is_not_there_is_reported_rather_than_thrown()
+	{
+		using var sut = new BackgroundFileSystem(Path.Combine(tempDir, "no-such-folder"), "*.*", SearchOption.AllDirectories);
+
+		Assert.IsNull(sut.RootDirectory, "a root that cannot be used is dropped, so the owner rebuilds this when it can");
+		Assert.IsNull(sut.FindFile(new Regex(".*")));
+	}
+
+	[TestMethod]
+	public void a_root_that_refuses_to_be_read_costs_the_cache_and_nothing_else()
+	{
+		// Assert.Inconclusive is not [DoesNotReturn], so return explicitly or the body below still
+		// looks reachable on Windows to the platform compatibility analyzer
+		if (!OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS())
+		{
+			Assert.Inconclusive("Skipped because revoking directory read permission needs unix file modes.");
+			return;
+		}
+		if (Environment.IsPrivilegedProcess)
+		{
+			Assert.Inconclusive("Skipped because root may read a directory with no permissions, so there is nothing to refuse.");
+			return;
+		}
+
+		aRootThatRefusesToBeRead(tempDir);
+	}
+
+	[SupportedOSPlatform("linux")]
+	[SupportedOSPlatform("macos")]
+	private static void aRootThatRefusesToBeRead(string directory)
+	{
+		File.WriteAllText(Path.Combine(directory, "book.m4b"), "audio");
+		File.SetUnixFileMode(directory, UnixFileMode.None);
+
+		using var sut = new BackgroundFileSystem(directory, "*.*", SearchOption.AllDirectories);
+
+		Assert.IsNull(sut.FindFile(new Regex(@"book\.m4b$")), "nothing can be read, so nothing is found");
 	}
 }
 

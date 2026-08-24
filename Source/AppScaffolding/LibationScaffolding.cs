@@ -289,11 +289,20 @@ public static class LibationScaffolding
 		// begin logging session with a form feed
 		Log.Logger.Information("\r\n\f");
 
+		// -1 means the count could not be taken. Listing a directory no longer throws when it stops being
+		// readable partway through, so an incomplete walk has to be asked about rather than caught: a count
+		// that silently means "as many as I managed to read" is worse than no count in a bug report.
 		static int fileCount(FileManager.LongPath? longPath)
 		{
 			if (longPath is null)
 				return -1;
-			try { return FileManager.FileUtility.SaferEnumerateFiles(longPath).Count(); }
+
+			var complete = true;
+			try
+			{
+				var count = FileManager.FileUtility.SaferEnumerateFiles(longPath, onIncomplete: _ => complete = false).Count();
+				return complete ? count : -1;
+			}
 			catch { return -1; }
 		}
 
