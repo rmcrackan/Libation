@@ -245,12 +245,16 @@ public class ProcessQueueDispatchTests
 		await RunToCompletion(queue);
 
 		Assert.AreEqual(1, books.Started.Count, "A queued book started after the abort.");
-		Assert.AreEqual(0, queue.QueuedCount, "The abort left books on the queue.");
+		// The queue itself, not the view model's QueuedCount mirror. That mirror arrives through the
+		// posted path, and the bare SynchronizationContext installed in TestInitialize posts to the
+		// thread pool - so reading it here raced delivery and failed most runs. A is the only book
+		// left on the board: it completed, and the abort cleared B and C without starting them.
+		Assert.AreEqual(1, queue.Queue.Count, "The abort left books on the queue.");
 		Assert.IsFalse(queue.ProgressBarVisible, "The loop exited without clearing the progress bar.");
 	}
 
 	[TestMethod]
-	public async Task only_the_book_that_aborted_reports_an_abort_and_the_rest_report_cancelled()
+	public async Task only_one_book_reports_an_abort_and_the_rest_report_cancelled()
 	{
 		var (queue, books) = NewQueue(atOnce: 3);
 
@@ -307,7 +311,9 @@ public class ProcessQueueDispatchTests
 		await cancelling;
 
 		await RunToCompletion(queue);
-		Assert.AreEqual(0, queue.QueuedCount, "Cancel All left books queued.");
+		// See the abort test: QueuedCount is the posted mirror and races delivery. A and B are the
+		// only books left on the board; Cancel All took C and D off it before either could start.
+		Assert.AreEqual(2, queue.Queue.Count, "Cancel All left books queued.");
 		Assert.AreEqual(2, books.Started.Count, "Cancel All did not stop new books from starting.");
 	}
 
