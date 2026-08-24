@@ -22,10 +22,16 @@ namespace SaferEnumerateFilesTests;
 [TestClass]
 public class WhenADirectoryStopsBeingReadablePartwayThrough
 {
+	// Relative, and built with Path.Combine, so the separators are whatever this platform uses. LongPath
+	// rewrites '/' to '\' on Windows, which is not what any of these tests are about.
+	private static readonly LongPath BooksDirectory = "books";
+	private static readonly LongPath FirstFile = Path.Combine("books", "first.m4b");
+	private static readonly LongPath SecondFile = Path.Combine("books", "second.m4b");
+
 	private static IEnumerable<LongPath> TwoFilesThenFails(Exception failure)
 	{
-		yield return (LongPath)"/books/first.m4b";
-		yield return (LongPath)"/books/second.m4b";
+		yield return FirstFile;
+		yield return SecondFile;
 		throw failure;
 	}
 
@@ -36,12 +42,12 @@ public class WhenADirectoryStopsBeingReadablePartwayThrough
 		var found = new List<LongPath>();
 
 		found.AddRange(FileUtility.IterateSafely(
-			() => TwoFilesThenFails(new IOException("Input/output error : '/Volumes/NO NAME/Audible audiobooks'")),
-			(LongPath)"/Volumes/NO NAME/Audible audiobooks"));
+			() => TwoFilesThenFails(new IOException("Input/output error")),
+			BooksDirectory));
 
 		CollectionAssert.AreEqual(
-			new[] { "/books/first.m4b", "/books/second.m4b" },
-			found.Select(f => (string)f).ToArray(),
+			new[] { FirstFile, SecondFile },
+			found,
 			"everything read before the failure is still good, and still worth returning");
 	}
 
@@ -51,7 +57,7 @@ public class WhenADirectoryStopsBeingReadablePartwayThrough
 		Exception? reported = null;
 		var failure = new IOException("Input/output error");
 
-		FileUtility.IterateSafely(() => TwoFilesThenFails(failure), (LongPath)"/books", ex => reported = ex).ToList();
+		FileUtility.IterateSafely(() => TwoFilesThenFails(failure), BooksDirectory, ex => reported = ex).ToList();
 
 		Assert.AreSame(failure, reported);
 	}
@@ -61,7 +67,7 @@ public class WhenADirectoryStopsBeingReadablePartwayThrough
 	{
 		var reported = false;
 
-		FileUtility.IterateSafely(() => new[] { (LongPath)"/books/only.m4b" }, (LongPath)"/books", _ => reported = true).ToList();
+		FileUtility.IterateSafely(() => new[] { FirstFile }, BooksDirectory, _ => reported = true).ToList();
 
 		Assert.IsFalse(reported);
 	}
@@ -74,7 +80,7 @@ public class WhenADirectoryStopsBeingReadablePartwayThrough
 
 		var found = FileUtility.IterateSafely(
 			() => throw new IOException("Input/output error"),
-			(LongPath)"/books",
+			BooksDirectory,
 			ex => reported = ex).ToList();
 
 		Assert.AreEqual(0, found.Count);
@@ -86,7 +92,7 @@ public class WhenADirectoryStopsBeingReadablePartwayThrough
 	{
 		var found = FileUtility.IterateSafely(
 			() => TwoFilesThenFails(new DirectoryNotFoundException()),
-			(LongPath)"/books").ToList();
+			BooksDirectory).ToList();
 
 		Assert.AreEqual(2, found.Count);
 	}
@@ -96,7 +102,7 @@ public class WhenADirectoryStopsBeingReadablePartwayThrough
 	{
 		var found = FileUtility.IterateSafely(
 			() => TwoFilesThenFails(new UnauthorizedAccessException()),
-			(LongPath)"/books").ToList();
+			BooksDirectory).ToList();
 
 		Assert.AreEqual(2, found.Count);
 	}
@@ -110,7 +116,7 @@ public class WhenADirectoryStopsBeingReadablePartwayThrough
 	{
 		var found = FileUtility.IterateSafely(
 			() => TwoFilesThenFails(new InvalidOperationException("a real bug")),
-			(LongPath)"/books");
+			BooksDirectory);
 
 		Assert.ThrowsExactly<InvalidOperationException>(() => found.ToList());
 	}
