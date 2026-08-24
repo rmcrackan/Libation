@@ -264,8 +264,11 @@ public class ProcessQueueDispatchTests
 		queue.AddToQueue([a, b, c]);
 		await books.WaitForStarted(3);
 
-		// All three inherit the abort, which is what a session-wide Abort answer produces. Only the
-		// first through gets to tear the queue down; the others were cancelled by it.
+		// No dialog was answered here - this is Bad Book set to Abort in settings, where every book
+		// that fails aborts on its own account. Nobody is the one the user was asked about, so the
+		// first book through tears the queue down and keeps the abort; the others were cancelled by it.
+		Assert.IsNull(queue.BadBookSession.AbortOriginator);
+
 		books.Finish("A", ProcessBookResult.FailedAbort);
 		books.Finish("B", ProcessBookResult.FailedAbort);
 		books.Finish("C", ProcessBookResult.FailedAbort);
@@ -276,6 +279,36 @@ public class ProcessQueueDispatchTests
 		var cancelled = new[] { a, b, c }.Count(x => x.Result is ProcessBookResult.Cancelled);
 		Assert.AreEqual(1, aborted, "More than one book claimed the abort.");
 		Assert.AreEqual(2, cancelled, "Books that inherited the abort should report as cancelled.");
+	}
+
+	[TestMethod]
+	public async Task the_book_the_user_aborted_reports_the_abort_whichever_book_tears_the_queue_down()
+	{
+		var (queue, books) = NewQueue(atOnce: 3);
+
+		var a = Book("A");
+		var b = Book("B");
+		var c = Book("C");
+		queue.AddToQueue([a, b, c]);
+		await books.WaitForStarted(3);
+
+		// C is the book the user was looking at when they answered Abort. A and B inherit that answer
+		// through the session override, which is what puts all three here reporting FailedAbort.
+		queue.BadBookSession.AbortOriginator = c;
+
+		// A finishes first and so claims the teardown. Nothing below depends on it winning - that race
+		// is what made the old status arbitrary - but this is the ordering that used to leave the row
+		// the user actually aborted saying "Cancelled" while A's said "Error, Abort".
+		books.Finish("A", ProcessBookResult.FailedAbort);
+		await Task.Delay(50);
+		books.Finish("B", ProcessBookResult.FailedAbort);
+		books.Finish("C", ProcessBookResult.FailedAbort);
+
+		await RunToCompletion(queue);
+
+		Assert.AreEqual(ProcessBookResult.FailedAbort, c.Result, "The book the user aborted did not report the abort.");
+		Assert.AreEqual(ProcessBookResult.Cancelled, a.Result, "A book that inherited the abort reported it as its own.");
+		Assert.AreEqual(ProcessBookResult.Cancelled, b.Result, "A book that inherited the abort reported it as its own.");
 	}
 
 	[TestMethod]

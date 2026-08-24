@@ -29,6 +29,13 @@ public class ProcessQueueViewModel : ReactiveObject
 	public ObservableCollection<LogEntry> LogEntries { get; } = new();
 	public TrackedQueue<ProcessBookViewModel> Queue { get; } = new();
 	private readonly BadBookSessionContext _badBookSession = new();
+
+	/// <summary>
+	/// Internal rather than private so a test can stand in for a user having answered the bad book
+	/// dialog, which the dispatch tests otherwise never reach - their books finish on command instead
+	/// of failing their way into it.
+	/// </summary>
+	internal BadBookSessionContext BadBookSession => _badBookSession;
 	public Task? QueueRunner { get; private set; }
 	public bool Running => !QueueRunner?.IsCompleted ?? false;
 
@@ -756,10 +763,21 @@ public class ProcessQueueViewModel : ReactiveObject
 					{
 						if (tearsDownTheQueue)
 							await CancelAllAsync(book);
-						else
+
+						// Tearing the queue down and reporting the abort are separate jobs, and only the
+						// first one is indifferent to which book does it. The status left on a row is read
+						// afterwards by someone who remembers which book they were asked about, so the
+						// abort belongs to the book they answered for - not to whichever book happened to
+						// reach the teardown first, which put "Cancelled" on the row they aborted and
+						// "Error, Abort" on an unrelated one. With no dialog in play (Bad Book set to
+						// Abort in settings) nobody answered anything, and the book that claimed the
+						// teardown keeps the abort as before.
+						var originator = _badBookSession.AbortOriginator;
+						var reportsTheAbort = originator is null ? tearsDownTheQueue : ReferenceEquals(originator, book);
+
+						if (!reportsTheAbort)
 						{
-							// Inherited the abort rather than triggering the teardown. It was cancelled by
-							// the book that did, and that is what it should report.
+							// Cancelled by the abort rather than the cause of it.
 							book.Result = ProcessBookResult.Cancelled;
 							book.Status = ProcessBookStatus.Cancelled;
 						}

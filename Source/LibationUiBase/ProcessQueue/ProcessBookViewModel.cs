@@ -533,6 +533,14 @@ public class ProcessBookViewModel : ReactiveObject
 		{
 			var result = await BadBookActionDialogBase.Show(skipDialogText, "Skip this book?");
 
+			// This is the book the user was looking at when they said stop, so this is the book whose
+			// row should say so afterwards. Every other book in flight inherits the answer through
+			// Override below and was cancelled by it, which is a different thing and should read as
+			// one. Written before Override, not after: a book reading Override and racing ahead to
+			// the queue loop must not find the originator still unset and conclude there wasn't one.
+			if (result.Action is DialogResult.Abort && _badBookSession is not null)
+				_badBookSession.AbortOriginator = this;
+
 			// Abort is a statement about the run, not about this one book, so it becomes the session
 			// answer whether or not "apply to all" was checked. Without this a user who aborts with
 			// several books in flight is asked the same question again by every one of them, and the
