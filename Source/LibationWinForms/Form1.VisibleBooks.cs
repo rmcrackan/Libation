@@ -35,7 +35,7 @@ public partial class Form1
 	{
 		try
 		{
-			setLiberatedVisibleMenuItemCore();
+			setLiberatedVisibleMenuItemCore(visible);
 		}
 		// Both callers are async void event handlers, where a failure is not a faulted task anyone awaits but
 		// an unhandled exception that closes Libation. Counting these books reads the file system, which can
@@ -47,7 +47,11 @@ public partial class Form1
 		}
 	}
 
-	private void setLiberatedVisibleMenuItemCore()
+	/// <param name="visible">
+	/// The books to count, which every caller reads off the grid on the UI thread before handing the counting
+	/// to a thread pool thread. This runs on that thread, so reaching for the grid here instead would race.
+	/// </param>
+	private void setLiberatedVisibleMenuItemCore(List<DataLayer.LibraryBook>? visible)
 	{
 		//Assume that all calls to update arrive in order,
 		//Only display results of the latest book count.
