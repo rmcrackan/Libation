@@ -25,6 +25,7 @@ public class NumericTitleTests
 	private const string CLARKE = "B02001SPACE";
 	private const string LONG = "B0LONGBOOK1";
 	private const string SHORT = "B0SHORTBOK1";
+	private const string FOURTEEN_HOURS = "B0HOUND0001";
 
 	private string indexDirectory = null!;
 
@@ -59,12 +60,13 @@ public class NumericTitleTests
 	}
 
 	/// <summary>
-	/// Three novels whose titles are numbers, and two books whose lengths collide with those numbers, so a
-	/// test cannot pass by finding the right book for the wrong reason.
+	/// Three novels whose titles are numbers, and three books that match those same numbers through a number
+	/// field instead, so a test cannot pass by finding the right book for the wrong reason. Both
+	/// <c>LengthInMinutes</c> and <c>Hours</c> are indexed, and both are covered.
 	/// <para>
-	/// The lengths are picked to avoid a second such coincidence. <c>Hours</c> is indexed as well as
-	/// <c>LengthInMinutes</c>, so at 866 minutes "14" found the novel through its 14-hour running time and
-	/// passed even against the padding bug. Nothing here is 14 or 1984 hours long.
+	/// The novels' own lengths avoid the collision on purpose. At 866 minutes "14" was found through its
+	/// fourteen-hour running time and the test passed even against the padding bug, which is what
+	/// <see cref="FOURTEEN_HOURS"/> is here to cover deliberately rather than by accident.
 	/// </para>
 	/// </summary>
 	private static readonly List<LibraryBook> library =
@@ -73,7 +75,8 @@ public class NumericTitleTests
 		book(PETERS, "14", lengthInMinutes: 780),
 		book(CLARKE, "2001: A Space Odyssey", lengthInMinutes: 397),
 		book(LONG, "Sign of the Four", lengthInMinutes: 1984),
-		book(SHORT, "A Study in Scarlet", lengthInMinutes: 14)
+		book(SHORT, "A Study in Scarlet", lengthInMinutes: 14),
+		book(FOURTEEN_HOURS, "The Hound of the Baskervilles", lengthInMinutes: 14 * 60)
 	];
 
 	private string[] search(string query)
@@ -88,24 +91,27 @@ public class NumericTitleTests
 		=> CollectionAssert.Contains(search(query), expected);
 
 	/// <summary>
-	/// And still finds the book whose length is that number, which is all it could find before. The default
-	/// field holds both spellings, so this is a union rather than a choice between the two.
+	/// Nothing a bare number used to find is given up for it. The number fields were all it could match
+	/// before, and it still matches every one of them: the default field holds both spellings of a number,
+	/// so searching for both is a union rather than a choice between them.
 	/// </summary>
 	[TestMethod]
-	public void a_bare_number_still_finds_the_number_fields_too()
+	public void a_bare_number_adds_the_title_to_what_it_already_found()
 	{
+		//14 hours and 14 minutes both still match, and now so does the novel
+		search("14").Should().BeEquivalentTo([PETERS, SHORT, FOURTEEN_HOURS]);
 		search("1984").Should().BeEquivalentTo([ORWELL, LONG]);
-		search("14").Should().BeEquivalentTo([PETERS, SHORT]);
 	}
 
-	/// <summary>Naming the field says which of the two is wanted, and neither answer is padded wrongly.</summary>
+	/// <summary>Naming the field says which of them is wanted, and no answer is padded wrongly.</summary>
 	[TestMethod]
-	public void naming_the_field_picks_one_of_the_two()
+	public void naming_the_field_picks_one_of_them()
 	{
 		search("title:1984").Should().BeEquivalentTo([ORWELL]);
 		search("LengthInMinutes:1984").Should().BeEquivalentTo([LONG]);
 		search("title:14").Should().BeEquivalentTo([PETERS]);
 		search("LengthInMinutes:14").Should().BeEquivalentTo([SHORT]);
+		search("Hours:14").Should().BeEquivalentTo([FOURTEEN_HOURS]);
 	}
 
 	/// <summary>A numeric title inside a phrase or beside other words is text too.</summary>
@@ -121,9 +127,9 @@ public class NumericTitleTests
 	[TestMethod]
 	public void number_ranges_still_sort()
 	{
-		search("LengthInMinutes:[600 TO 900]").Should().BeEquivalentTo([ORWELL, PETERS]);
+		search("LengthInMinutes:[600 TO 900]").Should().BeEquivalentTo([ORWELL, PETERS, FOURTEEN_HOURS]);
 		search("LengthInMinutes:[1 to 400]").Should().BeEquivalentTo([CLARKE, SHORT]);
-		search("Hours:[10 TO 20]").Should().BeEquivalentTo([ORWELL, PETERS]);
+		search("Hours:[10 TO 20]").Should().BeEquivalentTo([ORWELL, PETERS, FOURTEEN_HOURS]);
 	}
 
 	/// <summary>A bare number combines with the rest of the syntax without dragging its expansion along.</summary>
@@ -131,6 +137,6 @@ public class NumericTitleTests
 	public void a_bare_number_combines_with_other_terms()
 	{
 		search("1984 AND title:sign").Should().BeEquivalentTo([LONG]);
-		search("-1984").Should().BeEquivalentTo([PETERS, CLARKE, SHORT]);
+		search("-1984").Should().BeEquivalentTo([PETERS, CLARKE, SHORT, FOURTEEN_HOURS]);
 	}
 }
