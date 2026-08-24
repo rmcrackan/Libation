@@ -76,6 +76,22 @@ public class FormatSearchQuery
 	[DataRow("IsRated", "israted:True")]
 	[DataRow("-isRATED", "-israted:True")]
 
+	// a value which happens to be named like a search field stays a value. Lucene cannot parse a second
+	// colon, so "title:absent" used to throw rather than search titles for the word
+	[DataRow("title:absent", "title:absent")]
+	[DataRow("Title:Absent", "title:Absent")]
+	[DataRow("category:podcast", "category:podcast")]
+	[DataRow("author:plus", "author:plus")]
+	[DataRow("title:\"absent friends\"", "title:\"absent friends\"")]
+	[DataRow("-title:absent", "-title:absent")]
+	// a bool field keeps its own handling, including a value that is not a bool
+	[DataRow("israted:absent", "israted:absent")]
+	// only the term right after the colon is a value. The next one is a field again
+	[DataRow("title:absent absent", "title:absent absent:True")]
+	[DataRow("title:absent AND liberated", "title:absent AND liberated:True")]
+	// a number after a field is still padded, which is how the number fields are indexed
+	[DataRow("LengthInMinutes:600", "lengthinminutes:00000600.00")]
+
 	public void FormattingTest(string input, string output)
 	{
 		CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;

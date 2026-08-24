@@ -46,14 +46,23 @@ internal static partial class QuerySanitizer
 
 		var partList = new List<string>();
 		int previousEndOffset = 0;
-		bool previousIsBool = false, previousIsTags = false, previousIsAsin = false;
+		bool previousIsBool = false, previousIsTags = false, previousIsAsin = false, previousIsField = false;
 
 		while (tokenStream.IncrementToken())
 		{
 			var term = tokenStream.GetAttribute<ITermAttribute>().Term;
 			var offset = tokenStream.GetAttribute<IOffsetAttribute>();
 
-			if (previousIsBool && !bool.TryParse(term, out _))
+			var betweenTokens = searchString.Substring(previousEndOffset, offset.StartOffset - previousEndOffset);
+
+			//A colon right after a field name makes this term that field's value, whatever it is called.
+			//Plenty of field names are ordinary words a title or a category can contain, and without this
+			//they were read as a second field name: "title:absent" became "title:absent:True", which Lucene
+			//cannot parse at all. The bool, ASIN and tag fields have their own handling below, which runs
+			//first and stays in charge of its own value.
+			var isFieldValue = previousIsField && betweenTokens.StartsWith(':');
+
+			if (previousIsBool && !isFieldValue && !bool.TryParse(term, out _))
 			{
 				//The previous term was a boolean tag and this term is NOT a bool value
 				//Add the default ":True" bool and continue parsing the current term
@@ -62,7 +71,9 @@ internal static partial class QuerySanitizer
 			}
 
 			//Add all text between the current token and the previous token
-			partList.Add(searchString.Substring(previousEndOffset, offset.StartOffset - previousEndOffset));
+			partList.Add(betweenTokens);
+
+			previousIsField = false;
 
 			if (previousIsBool)
 			{
@@ -88,7 +99,7 @@ internal static partial class QuerySanitizer
 				//Term is a number so pad it with zeros
 				partList.Add(num.ToLuceneString());
 			}
-			else if (fieldTerms.Contains(term))
+			else if (!isFieldValue && fieldTerms.Contains(term))
 			{
 				//Term is a defined search field, add it.
 				//The StandardAnalyzer already converts all terms to lowercase
@@ -96,6 +107,7 @@ internal static partial class QuerySanitizer
 				previousIsBool = boolTerms.Contains(term);
 				previousIsAsin = idTerms.Contains(term);
 				previousIsTags = term == SearchEngine.TAGS;
+				previousIsField = true;
 			}
 			else
 			{
