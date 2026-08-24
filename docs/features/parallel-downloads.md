@@ -26,7 +26,7 @@ When the two differ, Libation says so next to the setting: Chardonnay shows a no
 
 ## Auto-scroll
 
-The **Auto-scroll** checkbox keeps newly started downloads in view as the queue advances. It only scrolls when you were already looking at the bottom of the queue, so scrolling up to read something further back is not interrupted by the next book starting. Unchecking it stops the queue scrolling on its own entirely.
+The **Auto-scroll** checkbox keeps newly started downloads in view as the queue advances. It only scrolls when the book above the new one is already on screen, so scrolling away to read something elsewhere in the queue is not interrupted by the next book starting. Unchecking it stops the queue scrolling on its own entirely.
 
 ## Stopping a run
 

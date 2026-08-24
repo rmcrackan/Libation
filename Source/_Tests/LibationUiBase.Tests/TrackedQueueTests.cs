@@ -208,6 +208,33 @@ public class TrackedQueueTests
 	}
 
 	[TestMethod]
+	public void enqueuing_reports_the_books_it_added_and_where_they_start()
+	{
+		// Both halves of the Add event were wrong. The index was taken after the range was added, so
+		// it landed past the end by the size of the batch; and an IList<T> binds the changedItem
+		// overload, so the event named the list itself as the one thing added.
+		Book a = new("A"), b = new("B"), c = new("C"), d = new("D");
+		var queue = QueueOf(a, b);
+		queue.TryDequeueNext(out _);
+		queue.MarkCompleted(a);
+		queue.TryDequeueNext(out _);
+
+		NotifyCollectionChangedEventArgs? add = null;
+		queue.CollectionChanged += (_, e) =>
+		{
+			if (e.Action is NotifyCollectionChangedAction.Add)
+				add = e;
+		};
+
+		queue.Enqueue([c, d]);
+
+		Assert.IsNotNull(add);
+		CollectionAssert.AreEqual(new[] { c, d }, add.NewItems);
+		Assert.AreEqual(2, add.NewStartingIndex);
+		Assert.AreEqual(queue.IndexOf(c), add.NewStartingIndex);
+	}
+
+	[TestMethod]
 	public void completing_a_book_that_is_not_active_changes_nothing()
 	{
 		Book a = new("A"), b = new("B");

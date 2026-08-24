@@ -109,10 +109,10 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	public ISynchronizeInvoke? NotificationInvoker { get; set; }
 
 	/// <summary>Call while holding <see cref="lockObject"/>.</summary>
-	private void Pend(int completedCount) => _pending.Add(new(NotificationKind.CompletedCount, completedCount, null));
+	private void PendCompletedCount(int completedCount) => _pending.Add(new(NotificationKind.CompletedCount, completedCount, null));
 
 	/// <summary>Call while holding <see cref="lockObject"/>.</summary>
-	private void PendQueued(int queuedCount) => _pending.Add(new(NotificationKind.QueuedCount, queuedCount, null));
+	private void PendQueuedCount(int queuedCount) => _pending.Add(new(NotificationKind.QueuedCount, queuedCount, null));
 
 	/// <summary>Call while holding <see cref="lockObject"/>.</summary>
 	private void Pend(NotifyCollectionChangedEventArgs args) => _pending.Add(new(NotificationKind.Collection, 0, args));
@@ -237,7 +237,7 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 			if (removed)
 			{
 				Queued.RemoveAt(queueIndex);
-				PendQueued(Queued.Count);
+				PendQueuedCount(Queued.Count);
 				Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, QueueStartIndex + queueIndex));
 			}
 		}
@@ -257,7 +257,7 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 			if (removed)
 			{
 				_completed.RemoveAt(completedIndex);
-				Pend(_completed.Count);
+				PendCompletedCount(_completed.Count);
 				Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, completedIndex));
 			}
 		}
@@ -282,7 +282,7 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 			item = Queued[0];
 			Queued.RemoveAt(0);
 			_active.Add(item);
-			PendQueued(Queued.Count);
+			PendQueuedCount(Queued.Count);
 		}
 		DispatchPending();
 		return true;
@@ -298,29 +298,35 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	/// </remarks>
 	public void MarkCompleted(T item)
 	{
+		bool wasActive;
 		lock (lockObject)
 		{
 			var activeIndex = _active.IndexOf(item);
-			if (activeIndex < 0)
+			wasActive = activeIndex >= 0;
+
+			if (wasActive)
 			{
-				Serilog.Log.Logger.Error("MarkCompleted called on an item that is not active: {Item}", item);
-				return;
+				int oldIndex = _completed.Count + activeIndex;
+				_active.RemoveAt(activeIndex);
+				_completed.Add(item);
+				int newIndex = _completed.Count - 1;
+
+				PendCompletedCount(_completed.Count);
+
+				// One book at a time, the finishing book is always the first active one, oldIndex equals
+				// newIndex and nothing has moved. Concurrently it is normal for the second of two active
+				// books to finish first, which puts it ahead of the other in the display order. Without
+				// this a bound list keeps painting the previous order, so rows show the wrong book.
+				if (oldIndex != newIndex)
+					Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex));
 			}
-
-			int oldIndex = _completed.Count + activeIndex;
-			_active.RemoveAt(activeIndex);
-			_completed.Add(item);
-			int newIndex = _completed.Count - 1;
-
-			Pend(_completed.Count);
-
-			// One book at a time, the finishing book is always the first active one, oldIndex equals
-			// newIndex and nothing has moved. Concurrently it is normal for the second of two active
-			// books to finish first, which puts it ahead of the other in the display order. Without
-			// this a bound list keeps painting the previous order, so rows show the wrong book.
-			if (oldIndex != newIndex)
-				Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex));
 		}
+
+		// Outside the lock: a sink can be slow, and the UI thread takes this lock on every read of
+		// Count, IndexOf and the indexer.
+		if (!wasActive)
+			Serilog.Log.Logger.Error("MarkCompleted called on an item that is not active: {Item}", item);
+
 		DispatchPending();
 	}
 
@@ -358,7 +364,7 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 		{
 			var queuedItems = Queued.ToList();
 			Queued.Clear();
-			PendQueued(0);
+			PendQueuedCount(0);
 			Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, queuedItems, QueueStartIndex));
 		}
 		DispatchPending();
@@ -370,7 +376,7 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 		{
 			var completedItems = _completed.ToList();
 			_completed.Clear();
-			Pend(0);
+			PendCompletedCount(0);
 			Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, completedItems, 0));
 		}
 		DispatchPending();
@@ -403,9 +409,18 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	{
 		lock (lockObject)
 		{
-			Queued.AddRange(item);
-			PendQueued(Queued.Count);
-			Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, QueueStartIndex + Queued.Count));
+			// Copied, and held as List<T> rather than IList<T>: only the non-generic IList reaches the
+			// changedItems overload below. Handed an IList<T> the compiler picks changedItem instead,
+			// and the event then describes the list itself as the single item added.
+			var added = item.ToList();
+
+			Queued.AddRange(added);
+			PendQueuedCount(Queued.Count);
+
+			// Where the new items start, which is where the queue ended before they were added. Taken
+			// after the range is added, the index lands past the end by the size of the batch.
+			int addedAt = QueueStartIndex + Queued.Count - added.Count;
+			Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, added, addedAt));
 		}
 		DispatchPending();
 	}
