@@ -100,6 +100,10 @@ export default defineConfig({
           },
           { text: "Naming Templates", link: "/docs/features/naming-templates" },
           {
+            text: "Parallel Downloads",
+            link: "/docs/features/parallel-downloads",
+          },
+          {
             text: "Retrying Refused Downloads",
             link: "/docs/features/retrying-refused-downloads",
           },

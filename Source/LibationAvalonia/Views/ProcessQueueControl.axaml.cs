@@ -79,13 +79,13 @@ public partial class ProcessQueueControl : UserControl
 			};
 
 			vm.Queue.Enqueue(testList);
-			vm.Queue.MoveNext();
-			vm.Queue.MoveNext();
-			vm.Queue.MoveNext();
-			vm.Queue.MoveNext();
-			vm.Queue.MoveNext();
-			vm.Queue.MoveNext();
-			vm.Queue.MoveNext();
+
+			// Six completed, one active, one still queued - the mix this preview exists to show.
+			// Driven through the same calls the queue loop makes, rather than the sequential
+			// MoveNext() that used to live here for this one caller.
+			for (int i = 0; i < 6 && vm.Queue.TryDequeueNext(out var finished); i++)
+				vm.Queue.MarkCompleted(finished);
+			vm.Queue.TryDequeueNext(out _);
 			return;
 		}
 #endif
@@ -113,6 +113,9 @@ public partial class ProcessQueueControl : UserControl
 
 	private void Book_ProcessStart(object? sender, ProcessBookViewModel e)
 	{
+		// The checkbox gates the same logic in both UIs, so auto-scroll means one thing.
+		if (sender is ProcessQueueViewModel vm && !vm.AutoScrollQueue) return;
+
 		Dispatcher.UIThread.Invoke(() =>
 		{
 			if (Queue?.IndexOf(e) is int newtBookIndex && newtBookIndex > 0 && QueueListControl.Presenter?.Panel is VirtualizingStackPanel panel && itemIsVisible(newtBookIndex - 1, panel))
@@ -152,6 +155,8 @@ public partial class ProcessQueueControl : UserControl
 
 	public async void CancelAllBtn_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{
+		// Cancels every active book, not just the first one - with parallel downloads
+		// there can be several running at once.
 		if (_viewModel is ProcessQueueViewModel vm)
 			await vm.CancelAllAsync();
 	}
