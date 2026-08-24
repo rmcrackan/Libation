@@ -409,9 +409,18 @@ public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionC
 	{
 		lock (lockObject)
 		{
-			Queued.AddRange(item);
+			// Copied, and held as List<T> rather than IList<T>: only the non-generic IList reaches the
+			// changedItems overload below. Handed an IList<T> the compiler picks changedItem instead,
+			// and the event then describes the list itself as the single item added.
+			var added = item.ToList();
+
+			Queued.AddRange(added);
 			PendQueuedCount(Queued.Count);
-			Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, QueueStartIndex + Queued.Count));
+
+			// Where the new items start, which is where the queue ended before they were added. Taken
+			// after the range is added, the index lands past the end by the size of the batch.
+			int addedAt = QueueStartIndex + Queued.Count - added.Count;
+			Pend(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, added, addedAt));
 		}
 		DispatchPending();
 	}
