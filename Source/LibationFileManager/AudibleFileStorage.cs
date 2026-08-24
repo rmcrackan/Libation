@@ -219,8 +219,26 @@ public class AudioFileStorage : AudibleFileStorage
 		=> GetFilePathsCustom(productId).FirstOrDefault();
 
 	private static BackgroundFileSystem? newBookDirectoryFiles()
-		=> BooksDirectory is LongPath books ? new BackgroundFileSystem(books, "*.*", SearchOption.AllDirectories)
-		: null;
+	{
+		try
+		{
+			return BooksDirectory is LongPath books
+				? new BackgroundFileSystem(books, "*.*", SearchOption.AllDirectories)
+				: null;
+		}
+		// The first call here comes from the static initializer of AudibleFileStorage, by way of the Audio
+		// field. The runtime caches a failed initializer and rethrows it at every later reader of the type, so
+		// one unreadable Books directory would cost the process every path that touches BooksDirectory - down
+		// to the startup logging, which is where a failing USB drive turned into a crash on launch that
+		// outlasted the drive itself. See issue #1984. Files are still found without this cache, through
+		// FilePathCache and direct existence checks.
+		catch (Exception ex)
+		{
+			try { Serilog.Log.Error(ex, "Could not build the Books directory file cache. Book files will be located without it."); }
+			catch { }
+			return null;
+		}
+	}
 
 	protected override List<LongPath> GetFilePathsCustom(string productId)
 	{

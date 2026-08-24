@@ -263,8 +263,10 @@ public static class FileUtility
 	/// <param name="rootPath">Starting directory</param>
 	/// <param name="patternMatch">Filename pattern match</param>
 	/// <param name="searchOption">Search subdirectories or only top level directory for files</param>
+	/// <param name="onIncomplete">Called with the reason when the walk ends early, so a caller that must not
+	/// mistake a truncated list for an empty directory can tell the difference.</param>
 	/// <returns>List of files</returns>
-	public static IEnumerable<LongPath> SaferEnumerateFiles(LongPath path, string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+	public static IEnumerable<LongPath> SaferEnumerateFiles(LongPath path, string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly, Action<Exception>? onIncomplete = null)
 	{
 		var enumOptions = new EnumerationOptions
 		{
@@ -273,7 +275,101 @@ public static class FileUtility
 			ReturnSpecialDirectories = false,
 			MatchType = MatchType.Simple
 		};
-		return Directory.EnumerateFiles(path.Path, searchPattern, enumOptions).Select(p => (LongPath)p);
+		return IterateSafely(
+			() => Directory.EnumerateFiles(path.Path, searchPattern, enumOptions).Select(p => (LongPath)p),
+			path,
+			onIncomplete);
+	}
+
+	/// <summary>
+	/// Walks a file system sequence so that a directory which stops being readable partway through ends the walk
+	/// instead of throwing at whoever is consuming it.
+	/// <para>
+	/// <see cref="EnumerationOptions.IgnoreInaccessible"/> only forgives permissions. A disconnected or failing
+	/// volume raises an I/O error from the enumerator itself, and because enumeration is lazy that error is
+	/// raised wherever the sequence is finally walked - which is past any try/catch the caller wrapped around
+	/// the call that produced it. Libation lost a whole session that way: a Books folder on a USB drive that
+	/// started returning I/O errors took down the file cache, the type initializer that builds it, and with it
+	/// every subsequent launch. See issue #1984.
+	/// </para>
+	/// </summary>
+	internal static IEnumerable<LongPath> IterateSafely(Func<IEnumerable<LongPath>> getSequence, LongPath path, Action<Exception>? onIncomplete = null)
+	{
+		IEnumerator<LongPath> enumerator;
+		try
+		{
+			//Opening the directory is itself a read, and fails the same way.
+			enumerator = getSequence().GetEnumerator();
+		}
+		catch (Exception ex) when (IsUnreadable(ex))
+		{
+			ReportIncomplete(ex, path, onIncomplete);
+			yield break;
+		}
+
+		try
+		{
+			while (true)
+			{
+				LongPath current;
+				try
+				{
+					if (!enumerator.MoveNext())
+						break;
+					current = enumerator.Current;
+				}
+				catch (Exception ex) when (IsUnreadable(ex))
+				{
+					//Whatever has already been read is still good and still worth returning.
+					ReportIncomplete(ex, path, onIncomplete);
+					break;
+				}
+
+				yield return current;
+			}
+		}
+		finally
+		{
+			enumerator.Dispose();
+		}
+	}
+
+	private static bool IsUnreadable(Exception ex)
+		=> ex is IOException or UnauthorizedAccessException or System.Security.SecurityException;
+
+	private static void ReportIncomplete(Exception ex, LongPath path, Action<Exception>? onIncomplete)
+	{
+		try
+		{
+			//A directory that has simply gone is routine: temp folders are created and cleaned up under a scan
+			//all the time. A directory that is there and cannot be read is worth seeing in a bug report.
+			if (ex is DirectoryNotFoundException)
+				Serilog.Log.Logger.Debug(ex, "Stopped listing files in a directory that is no longer there: {@DebugText}", new { path = (string)path });
+			else
+				Serilog.Log.Logger.Warning(ex, "Could not finish listing files. The results are incomplete: {@DebugText}", new { path = (string)path });
+		}
+		catch { /* logging must not be the thing that breaks a file listing */ }
+
+		onIncomplete?.Invoke(ex);
+	}
+
+	/// <summary>
+	/// Whether a directory can actually be read, as opposed to merely existing. A removable drive that has been
+	/// pulled, and a failing one, can both still answer that they are a directory while every read of them fails.
+	/// </summary>
+	public static bool CanEnumerate(LongPath path)
+	{
+		var readable = true;
+
+		//The first entry is enough. A volume that cannot be read fails on the first attempt, and this must not
+		//pay for walking a whole library to answer the question.
+		foreach (var _ in IterateSafely(
+			() => Directory.EnumerateFileSystemEntries(path.Path).Select(p => (LongPath)p),
+			path,
+			_ => readable = false))
+			break;
+
+		return readable;
 	}
 
 	/// <summary>

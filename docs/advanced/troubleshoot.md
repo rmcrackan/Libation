@@ -17,6 +17,20 @@ NTFS filesystems (Windows, and NTFS-formatted external drives on Linux or Mac) d
 
 **Fix:** Add or edit `ReplacementCharacters` in `Settings.json` on your config volume (or Libation files directory) so colons are replaced before download. The `HiFi_NTFS` example includes a colon replacement. See [Command Line Interface - Set custom replacement characters](/docs/advanced/command-line-interface#set-custom-replacement-characters).
 
+## 'Input/output error' on the Books folder (removable or failing drive)
+
+**Symptoms:** Downloads that were working start failing one after another, and the log fills with `System.IO.IOException: Input/output error` naming paths under your Books location. On a removable drive the folder often still appears to be there, because the mount point answers even though nothing on it can be read.
+
+**Cause:** The drive itself, not Libation. A USB drive that has been pulled, is failing, or has gone to sleep reports an I/O error for every read. Libation now reports the folder as unreadable and carries on. Older versions closed with a fatal error instead, and kept closing on launch until the Books location was changed ([#1984](https://github.com/rmcrackan/Libation/issues/1984)).
+
+**What to try:**
+
+1. Eject and reconnect the drive, then check it with your OS disk tool (**Disk Utility** on macOS, `chkdsk` on Windows, `fsck` on Linux).
+2. Keep the **in-progress / temporary** location in **Settings > Download/Decrypt** on your internal disk even when Books lives on an external drive. It is written to constantly during a download, so it is the first thing to fail.
+3. If Libation cannot start while the drive is disconnected, set `Books` in `Settings.json` back to a folder on your internal disk.
+
+Books already downloaded to the drive are unaffected; Libation finds them again once the drive is readable.
+
 ## SQLite Error 10: 'disk I/O error'.
 
 There are two possible causes of this error.

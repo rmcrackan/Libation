@@ -69,19 +69,33 @@ public class BackgroundFileSystem : IDisposable
 			fsCache.AddRange(SafestEnumerateFiles(RootDirectory));
 		}
 
-		directoryChangesEvents = new BlockingCollection<FileSystemEventArgs>();
-		fileSystemWatcher = new FileSystemWatcher(RootDirectory)
+		try
 		{
-			IncludeSubdirectories = true,
-			EnableRaisingEvents = true
-		};
-		fileSystemWatcher.Created += FileSystemWatcher_Changed;
-		fileSystemWatcher.Deleted += FileSystemWatcher_Changed;
-		fileSystemWatcher.Renamed += FileSystemWatcher_Changed;
-		fileSystemWatcher.Error += FileSystemWatcher_Error;
+			directoryChangesEvents = new BlockingCollection<FileSystemEventArgs>();
+			fileSystemWatcher = new FileSystemWatcher(RootDirectory)
+			{
+				IncludeSubdirectories = true,
+				EnableRaisingEvents = true
+			};
+			fileSystemWatcher.Created += FileSystemWatcher_Changed;
+			fileSystemWatcher.Deleted += FileSystemWatcher_Changed;
+			fileSystemWatcher.Renamed += FileSystemWatcher_Changed;
+			fileSystemWatcher.Error += FileSystemWatcher_Error;
 
-		backgroundScanner = new Task(BackgroundScanner);
-		backgroundScanner.Start();
+			backgroundScanner = new Task(BackgroundScanner);
+			backgroundScanner.Start();
+		}
+		// Watching a directory fails for the same reasons reading one does, and a removable drive can be pulled
+		// between the listing above and this. Constructing this type happens inside the static initializer that
+		// builds the Books file cache, and the runtime caches a failed initializer for the life of the process:
+		// one throw here would be rethrown at every later reader of the Books directory. Give up the live
+		// updates instead. Dropping RootDirectory has the owner rebuild this once the directory works again.
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Could not watch a directory for changes, so its file cache was abandoned: {@DebugText}", new { path = (string?)RootDirectory });
+			Stop();
+			RootDirectory = null;
+		}
 	}
 	private void Stop()
 	{
