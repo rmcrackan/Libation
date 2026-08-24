@@ -23,6 +23,7 @@ public static class SearchEngineCommands
 		lock (IndexLock)
 		{
 			var engine = new SearchEngine();
+			repairShortIndex(engine);
 			try
 			{
 				return func(engine);
@@ -38,6 +39,59 @@ public static class SearchEngineCommands
 				fullReIndex(engine);
 				return func(engine);
 			}
+		}
+	}
+
+	/// <summary>Set once the index has been measured against the library, so the check costs one query per run.</summary>
+	private static bool indexCounted;
+
+	/// <summary>
+	/// Rebuilds an index that holds fewer books than the library does.
+	/// <para>
+	/// A book the index never received is not merely unsearchable. Filtering intersects the grid with the
+	/// query's hits, so a positive term such as <c>Absent</c> cannot return it, while the negated <c>-Absent</c>
+	/// resolves to "every document in the index" and therefore drops it from the grid - which looks exactly
+	/// like the negated filter working correctly. Reported as issue #1989.
+	/// </para>
+	/// <para>
+	/// Nothing else notices: the index is only ever written as a whole, and <see cref="tryUpdate"/>
+	/// deliberately swallows a rebuild that fails so a bad index cannot fail a good scan. A short index
+	/// therefore stays short until something happens to change the library again.
+	/// </para>
+	/// </summary>
+	private static void repairShortIndex(SearchEngine engine)
+	{
+		if (indexCounted)
+			return;
+
+		// before the work, not after: a check that throws must not run on every query for the rest of the session
+		indexCounted = true;
+
+		try
+		{
+			var indexed = engine.GetIndexedBookCount();
+
+			// no index yet, or one too damaged to read. Both already have their own recovery.
+			if (indexed < 0)
+				return;
+
+			var expected = DbContexts.GetIndexableBookCount();
+
+			// more documents than books is stale rather than harmful: an extra document matches no grid row.
+			if (indexed >= expected)
+				return;
+
+			Log.Warning("The search index holds {Indexed} of {Expected} books. Rebuilding it: search cannot find the rest, and a negated filter hides them.", indexed, expected);
+
+			var failures = fullReIndex(engine);
+
+			if (failures > 0)
+				Log.Error("{Failures} book(s) could not be added to the search index. Search cannot find them, and a negated filter hides them.", failures);
+		}
+		catch (Exception ex)
+		{
+			// Searching with a short index still beats not searching at all.
+			Log.Error(ex, "Could not check the search index against the library.");
 		}
 	}
 	#endregion
@@ -92,7 +146,7 @@ public static class SearchEngineCommands
 		}
 	}
 
-	public static void FullReIndex() => performSafeCommand(fullReIndex);
+	public static void FullReIndex() => performSafeCommand(e => fullReIndex(e));
 	public static void FullReIndex(List<LibraryBook> libraryBooks)
 		=> performSafeCommand(se => fullReIndex(se, libraryBooks.WithoutParents()));
 
@@ -147,13 +201,15 @@ public static class SearchEngineCommands
 		}
 	}
 
-	private static void fullReIndex(SearchEngine engine)
+	/// <returns>How many books could not be indexed.</returns>
+	private static int fullReIndex(SearchEngine engine)
 	{
 		var library = DbContexts.GetLibrary_Flat_NoTracking();
-		fullReIndex(engine, library);
+		return fullReIndex(engine, library);
 	}
 
-	private static void fullReIndex(SearchEngine engine, IEnumerable<LibraryBook> libraryBooks)
+	/// <returns>How many books could not be indexed.</returns>
+	private static int fullReIndex(SearchEngine engine, IEnumerable<LibraryBook> libraryBooks)
 	=> engine.CreateNewIndex(libraryBooks);
 	#endregion
 }

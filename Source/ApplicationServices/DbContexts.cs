@@ -132,6 +132,13 @@ public static class DbContexts
 		return context.GetDeletedLibraryBooks();
 	}
 
+	/// <summary>How many books belong in the search index. A row count only; no entities are loaded.</summary>
+	public static int GetIndexableBookCount()
+	{
+		using var context = GetContext();
+		return context.GetIndexableBookCount();
+	}
+
 	/// <summary>
 	/// How many <see cref="LibraryBook"/> rows are in the trash. A row count only; no entities are loaded,
 	/// so this is cheap enough to refresh whenever the library changes.
