@@ -14,13 +14,13 @@ Search the title for the phrase "sign of the four". Without the quotes these wou
 
 `title:"sign of the four"`
 
-Search for books Neil Gaiman wrote and also narrated. Without `AND` you would get everything he wrote plus everything anyone narrated of their own.
+Search for books Stephen Fry wrote and also narrated. Without `AND` you would get everything he wrote plus everything anyone narrated of their own.
 
-`author:gaiman AND narrator:gaiman`
+`author:fry AND narrator:fry`
 
 Group terms with parentheses to combine `AND` and `OR` in one query.
 
-`(author:doyle AND narrator:fry) OR title:gods`
+`(author:doyle AND narrator:fry) OR title:mythos`
 
 Search for books by Doyle that Fry did not narrate. `-` and `NOT` mean the same thing.
 
@@ -28,7 +28,7 @@ Search for books by Doyle that Fry did not narrate. `-` and `NOT` mean the same 
 
 Exclude a group of alternatives at once.
 
-`-(narrator:fry OR narrator:jacobi)`
+`-(title:hound OR title:study)`
 
 ## Wildcard matching
 

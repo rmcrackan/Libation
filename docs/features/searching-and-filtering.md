@@ -45,9 +45,9 @@ If you only want to see potter except for Harry Potter. You can also use "-" ins
 ![Search example: "potter NOT harry"](../images/SearchExamplePotterNotHarry.png)
 ![Search example: "potter -harry"](../images/SearchExamplePotterNotHarry2.png)
 
-To see only books written by Neil Gaiman where he also narrates his own book. (If you don't include AND, you'll see everything written by Neil Gaiman and also all books in your library which are self-narrated.)
+To see only books written by Stephen Fry where he also narrates his own book. (If you don't include AND, you'll see everything written by Stephen Fry and also all books in your library which are self-narrated.)
 
-![Search example: author:gaiman AND authornarrated](../images/SearchExampleGaimanAuthorNarrated.png)
+`author:fry AND authornarrated`
 
 I tagged autobiographies as auto_bio and biographies written by someone else as bio. I can get only autobiographies with \[auto_bio\] or get both by searching \[bio\]
 
