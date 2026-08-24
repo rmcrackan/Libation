@@ -71,7 +71,7 @@
 					FontSize="12"
 					VerticalAlignment="Top"
 					Margin="10,10,0,0"
-					Text="To download again next time: change to Not Downloaded&#xA;To not download: change to Downloaded" />
+					Text="To download again next time: change to Download Pending&#xA;To not download: change to Downloaded" />
 
 				<Grid Margin="0,10,0,5" ColumnDefinitions="Auto,Auto,50,Auto,Auto,*">
 					

@@ -42,8 +42,8 @@ again:
 - `libationcli liberate <ASIN>` — naming a title always attempts it.
 - `libationcli liberate --force` — attempts everything, including the refused titles.
 - In the app, selecting a single title and downloading it.
-- Setting a title's download status to **Not Downloaded** (grid context menu, book details, or
-  `libationcli set-status`).
+- Marking a title **Download Pending** (previously "Not Downloaded") from the grid context menu, book
+  details, or `libationcli set-status`.
 - A successful download, which forgets the title's history entirely.
 
 ## What you see
@@ -93,8 +93,8 @@ title, attempt them regardless.
 
 Some titles are listed as having a PDF that Audible will not deliver: the license comes back granted, with no
 link in it. Libation marks that title's PDF as an error and stops asking, because nothing about asking again
-would change the answer. The grid says "PDF could not be downloaded and will not be tried again", and setting
-the PDF status back to **Not Downloaded** tries once more.
+would change the answer. The grid says "PDF could not be downloaded and will not be tried again", and marking
+the PDF **Download Pending** tries once more.
 
 ## Relationship to marking a book as an error
 

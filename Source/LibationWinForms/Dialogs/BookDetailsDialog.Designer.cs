@@ -142,15 +142,15 @@
 			// 
 			pdfLiberatedCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			pdfLiberatedCb.FormattingEnabled = true;
-			pdfLiberatedCb.Location = new System.Drawing.Point(244, 86);
+			pdfLiberatedCb.Location = new System.Drawing.Point(259, 86);
 			pdfLiberatedCb.Name = "pdfLiberatedCb";
-			pdfLiberatedCb.Size = new System.Drawing.Size(121, 23);
+			pdfLiberatedCb.Size = new System.Drawing.Size(150, 23);
 			pdfLiberatedCb.TabIndex = 4;
 			// 
 			// pdfLiberatedLbl
 			// 
 			pdfLiberatedLbl.AutoSize = true;
-			pdfLiberatedLbl.Location = new System.Drawing.Point(210, 89);
+			pdfLiberatedLbl.Location = new System.Drawing.Point(225, 89);
 			pdfLiberatedLbl.Name = "pdfLiberatedLbl";
 			pdfLiberatedLbl.Size = new System.Drawing.Size(28, 15);
 			pdfLiberatedLbl.TabIndex = 3;
@@ -162,7 +162,7 @@
 			bookLiberatedCb.FormattingEnabled = true;
 			bookLiberatedCb.Location = new System.Drawing.Point(47, 86);
 			bookLiberatedCb.Name = "bookLiberatedCb";
-			bookLiberatedCb.Size = new System.Drawing.Size(121, 23);
+			bookLiberatedCb.Size = new System.Drawing.Size(150, 23);
 			bookLiberatedCb.TabIndex = 2;
 			// 
 			// bookLiberatedLbl
@@ -181,7 +181,7 @@
 			liberatedDescLbl.Name = "liberatedDescLbl";
 			liberatedDescLbl.Size = new System.Drawing.Size(312, 30);
 			liberatedDescLbl.TabIndex = 0;
-			liberatedDescLbl.Text = "To download again next time: change to Not Downloaded\r\nTo not download: change to Downloaded";
+			liberatedDescLbl.Text = "To download again next time: change to Download Pending\r\nTo not download: change to Downloaded";
 			// 
 			// audibleLink
 			// 

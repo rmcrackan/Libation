@@ -15,10 +15,10 @@ namespace LibationCli;
 public class SetDownloadStatusOptions : OptionsBase
 {
 	//https://github.com/commandlineparser/commandline/wiki/Option-Groups
-	[Option(shortName: 'd', longName: "downloaded", Group = "Download Status", HelpText = "set download status to 'Downloaded'")]
+	[Option(shortName: 'd', longName: "downloaded", Group = "Download Status", HelpText = "if the audio file can be found, mark the book 'Downloaded'")]
 	public bool SetDownloaded { get; set; }
 
-	[Option(shortName: 'n', longName: "not-downloaded", Group = "Download Status", HelpText = "set download status to 'Not Downloaded'")]
+	[Option(shortName: 'n', longName: "not-downloaded", Group = "Download Status", HelpText = "if the audio file cannot be found, mark the book 'Download Pending' (previously 'Not Downloaded')")]
 	public bool SetNotDownloaded { get; set; }
 
 	[Option('f', "force", HelpText = "Set the download status regardless of whether the book's audio file can be found. Only one download status option may be used with this option.")]

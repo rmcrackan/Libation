@@ -112,7 +112,7 @@ public class DownloadPdf : Processable, IProcessable<DownloadPdf>, ILicensedDown
 	/// Audible granted a license and it carried no supplement link, which is Audible saying this title has no
 	/// PDF to give. Written off the way the audiobook download writes off a title it should not attempt again:
 	/// <see cref="LiberatedStatus.Error"/> means "don't retry" for a supplement exactly as it does for audio,
-	/// and the same controls - a forced or named <c>liberate</c> run, Set PDF Not Downloaded - set it back.
+	/// and the same controls - a forced or named <c>liberate</c> run, Mark PDF as Download Pending - set it back.
 	/// <para>
 	/// Reported as a completed step and not as a failure. Nothing went wrong and nothing is left to attempt, and
 	/// a failure here would put the queue's Abort / Retry / Ignore question to the user about a book whose audio
@@ -122,7 +122,7 @@ public class DownloadPdf : Processable, IProcessable<DownloadPdf>, ILicensedDown
 	private async Task<StatusHandler> noSupplementAvailableAsync(LibraryBook libraryBook)
 	{
 		const string explanation = "Audible has no PDF for this title, although the library listing says it has one. "
-			+ "Its PDF will not be asked for again; set the PDF status back to Not Downloaded to try once more.";
+			+ "Its PDF will not be asked for again; mark the PDF 'Download Pending' to try once more.";
 
 		Serilog.Log.Logger.Information(
 			"Audible granted a license for {libraryBook} that carried no supplement link, so it has no PDF to download. {explanation}",

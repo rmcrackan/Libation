@@ -18,7 +18,7 @@
 		<TextBlock
 			Grid.ColumnSpan="2"
 			Margin="10"
-			Text="To download again next time: change to Not Downloaded&#xa;To not download: change to Downloaded"/>
+			Text="To download again next time: change to Download Pending&#xa;To not download: change to Downloaded"/>
 		
 		<StackPanel
 			Margin="10,0"

@@ -327,7 +327,7 @@ public class ProcessQueueViewModel : ReactiveObject
 			{
 				await MessageBoxBase.Show(
 					"Libation could not queue a download for this title.\n\n"
-					+ "If it should be downloadable: confirm it is not already liberated, try \"Set download status\" to Not downloaded, or check whether a library scan is required.",
+					+ "If it should be downloadable: confirm it is not already liberated, try marking it \"Download Pending\", or check whether a library scan is required.",
 					"Download not queued",
 					MessageBoxButtons.OK,
 					MessageBoxIcon.Information);

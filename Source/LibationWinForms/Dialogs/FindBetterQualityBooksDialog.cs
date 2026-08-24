@@ -158,8 +158,8 @@ public partial class FindBetterQualityBooksDialog : Form
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Error(ex, "Failed to mark books as Not Liberated");
-			MessageBox.Show(this, "An error occurred while marking books as Not Liberated. Please see the logs for more information.", "Error Marking Books", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			Serilog.Log.Error(ex, "Failed to mark books as Download Pending");
+			MessageBox.Show(this, "An error occurred while marking books as Download Pending. Please see the logs for more information.", "Error Marking Books", MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
 		finally
 		{

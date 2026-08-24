@@ -60,7 +60,7 @@ public class BulkSetDownloadStatus
 
 			if (books2change.Any())
 				actionSets.Add((
-					$"{"book".PluralizeWithCount(books2change.Count)} to 'Not Downloaded'",
+					$"{"book".PluralizeWithCount(books2change.Count)} to 'Download Pending'",
 					LiberatedStatus.NotLiberated,
 					books2change));
 		}

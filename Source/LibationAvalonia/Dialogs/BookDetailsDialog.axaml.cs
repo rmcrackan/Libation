@@ -147,7 +147,7 @@ public partial class BookDetailsDialog : DialogWindow
 				var status = libraryBook.Book.UserDefinedItem.BookStatus;
 
 				BookLiberatedItems.Add(new() { Status = LiberatedStatus.Liberated, Text = "Downloaded" });
-				BookLiberatedItems.Add(new() { Status = LiberatedStatus.NotLiberated, Text = "Not Downloaded" });
+				BookLiberatedItems.Add(new() { Status = LiberatedStatus.NotLiberated, Text = "Download Pending" });
 
 				if (status == LiberatedStatus.Error)
 					BookLiberatedItems.Add(new() { Status = LiberatedStatus.Error, Text = "Error" });
@@ -162,7 +162,7 @@ public partial class BookDetailsDialog : DialogWindow
 				if (status is not null)
 				{
 					PdfLiberatedItems.Add(new() { Status = LiberatedStatus.Liberated, Text = "Downloaded" });
-					PdfLiberatedItems.Add(new() { Status = LiberatedStatus.NotLiberated, Text = "Not Downloaded" });
+					PdfLiberatedItems.Add(new() { Status = LiberatedStatus.NotLiberated, Text = "Download Pending" });
 
 					PdfLiberatedSelectedItem = PdfLiberatedItems.SingleOrDefault(s => s.Status == status);
 				}
