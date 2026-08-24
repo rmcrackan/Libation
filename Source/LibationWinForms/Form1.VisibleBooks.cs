@@ -29,6 +29,22 @@ public partial class Form1
 	private static DateTime lastVisibleCountUpdated;
 	void setLiberatedVisibleMenuItem()
 	{
+		try
+		{
+			setLiberatedVisibleMenuItemCore();
+		}
+		// Both callers are async void event handlers, where a failure is not a faulted task anyone awaits but
+		// an unhandled exception that closes Libation. Counting these books reads the file system, which can
+		// fail at any moment for reasons that have nothing to do with the app - a Books folder on a drive that
+		// was just unplugged is enough. A stale number above a menu item is not worth the session.
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Error counting the visible books which are not yet liberated");
+		}
+	}
+
+	private void setLiberatedVisibleMenuItemCore()
+	{
 		//Assume that all calls to update arrive in order,
 		//Only display results of the latest book count.
 		var updaterTime = lastVisibleCountUpdated = DateTime.UtcNow;

@@ -199,8 +199,19 @@ partial class MainVM
 
 	private async Task setLiberatedVisibleMenuItemAsync()
 	{
-		var visible = ProductsDisplay.GetVisibleBookEntries();
-		var libraryStats = await Task.Run(() => LibraryCommands.GetCounts(visible));
-		await Dispatcher.UIThread.InvokeAsync(() => setVisibleNotLiberatedCount(libraryStats.PendingBooks));
+		try
+		{
+			var visible = ProductsDisplay.GetVisibleBookEntries();
+			var libraryStats = await Task.Run(() => LibraryCommands.GetCounts(visible));
+			await Dispatcher.UIThread.InvokeAsync(() => setVisibleNotLiberatedCount(libraryStats.PendingBooks));
+		}
+		// Every caller is an async void event handler, where a failure is not a faulted task anyone awaits but
+		// an unhandled exception that closes Libation. Counting these books reads the file system, which can
+		// fail at any moment for reasons that have nothing to do with the app - a Books folder on a drive that
+		// was just unplugged is enough. A stale number above a menu item is not worth the session.
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Error counting the visible books which are not yet liberated");
+		}
 	}
 }
