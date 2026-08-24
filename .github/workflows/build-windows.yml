@@ -66,10 +66,20 @@ jobs:
             "-p:PublishReadyToRun=${{ inputs.publish-r2r }}",
             "-p:SelfContained=true")            
           
-          dotnet publish "Libation${{ matrix.ui }}/Libation${{ matrix.ui }}.csproj" $PUBLISH_ARGS
-          dotnet publish "LoadByOS/WindowsConfigApp/WindowsConfigApp.csproj" $PUBLISH_ARGS
-          dotnet publish "LibationCli/LibationCli.csproj" $PUBLISH_ARGS
-          dotnet publish "Hangover${{ matrix.ui }}/Hangover${{ matrix.ui }}.csproj" $PUBLISH_ARGS
+          # PowerShell does not stop at a native command that fails, and the step is judged by the exit code
+          # of the last one, so a publish that fails anywhere but the end passes as a green build. That is not
+          # hypothetical: LibationWinForms failed to compile for a while and every run stayed green, uploading
+          # a Libation-Classic zip with no Libation.exe in it. Check each one.
+          $projects = @(
+            "Libation${{ matrix.ui }}/Libation${{ matrix.ui }}.csproj",
+            "LoadByOS/WindowsConfigApp/WindowsConfigApp.csproj",
+            "LibationCli/LibationCli.csproj",
+            "Hangover${{ matrix.ui }}/Hangover${{ matrix.ui }}.csproj")
+          
+          foreach ($project in $projects) {
+            dotnet publish "$project" $PUBLISH_ARGS
+            if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed for $project" }
+          }
 
       - name: Zip artifact
         id: zip
@@ -81,6 +91,11 @@ jobs:
             "WindowsConfigApp.deps.json")
           
           foreach ($file in $delfiles){ if (test-path $file){ Remove-Item $file } }
+          
+          # Both UIs publish as Libation.exe. upload-artifact's if-no-files-found only proves the zip exists,
+          # which it does whether or not the app is inside it, so say outright that it has to be.
+          if (-not (Test-Path "Libation.exe")) { throw "Libation.exe is missing from the publish output" }
+          
           $artifact="${{ matrix.artifact_stem }}.${{ inputs.libation-version }}-windows-${{ matrix.release_name }}-${{ matrix.architecture }}.zip"
           "artifact=$artifact" >> $env:GITHUB_OUTPUT
           Compress-Archive -Path * -DestinationPath "$artifact"
