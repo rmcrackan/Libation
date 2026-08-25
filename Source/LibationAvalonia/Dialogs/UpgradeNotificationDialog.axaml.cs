@@ -14,6 +14,7 @@ public partial class UpgradeNotificationDialog : DialogWindow
 	public string? ReleaseNotes { get; }
 	public string? OkText { get; }
 	private string? PackageUrl { get; }
+	private bool CanUpgrade { get; } = true;
 	public UpgradeNotificationDialog()
 	{
 		if (Design.IsDesignMode)
@@ -33,6 +34,7 @@ public partial class UpgradeNotificationDialog : DialogWindow
 	public UpgradeNotificationDialog(UpgradeProperties upgradeProperties, bool canUpgrade, string? upgradeUnavailableReason = null) : this()
 	{
 		Title = $"Libation version {upgradeProperties.LatestRelease.ToVersionString()} is now available.";
+		CanUpgrade = canUpgrade;
 		PackageUrl = upgradeProperties.ZipUrl;
 		DownloadLinkText = upgradeProperties.ZipName;
 		ReleaseNotes = upgradeProperties.Notes;
@@ -41,7 +43,11 @@ public partial class UpgradeNotificationDialog : DialogWindow
 		DataContext = this;
 	}
 
-	public void OK_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e) => Close(DialogResult.OK);
+	// When Libation cannot install the upgrade itself, this button reads "OK" and the dialog is a
+	// notice with a download link. Reporting OK there would be read as "yes, install it", starting a
+	// download and an install that was never on offer, so acknowledging a notice closes and no more.
+	public void OK_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		=> Close(CanUpgrade ? DialogResult.OK : DialogResult.Cancel);
 	public void DontRemind_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e) => Close(DialogResult.Ignore);
 	public void Download_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
 		=> Go.To.Url(PackageUrl);

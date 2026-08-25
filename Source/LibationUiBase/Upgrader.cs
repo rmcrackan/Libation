@@ -227,6 +227,15 @@ public abstract class UpgraderBase
 			: new(platformCanUpgrade, null, null);
 
 	/// <summary>
+	/// Whether the flow may go on to download and install. The dialog's answer is not enough on its
+	/// own: when Libation cannot install the upgrade itself, the prompt is a notice with a download
+	/// link, so a UI that reports acceptance anyway must not be able to start an install that was
+	/// never on offer - or, under Application Control, one that leaves Libation unable to start.
+	/// </summary>
+	internal static bool MayInstallUpgrade(bool userAccepted, bool capUpgrade)
+		=> userAccepted && capUpgrade;
+
+	/// <summary>
 	/// The check both GUIs run when their main window opens, skipped when the user has turned off
 	/// <see cref="Configuration.CheckForUpgradesAtStartup"/>. Only this automatic check is optional:
 	/// the About window's "Check for Upgrade" button asks for a check outright and calls
@@ -283,13 +292,14 @@ public abstract class UpgraderBase
 			if (upgradeEventArgs.Ignore)
 				config.SetString(upgradeProperties.LatestRelease.ToString(), ignoreUpgrade);
 
-			if (!upgradeEventArgs.InstallUpgrade) return result;
-
-			// A second stop, because a UI that ignores CapUpgrade must not be able to start an
-			// upgrade that ends with Libation unable to start.
-			if (applicationControlBlocksUpgrade)
+			if (!MayInstallUpgrade(upgradeEventArgs.InstallUpgrade, capability.CapUpgrade))
 			{
-				Serilog.Log.Logger.Information("Skipped the in-app upgrade to {LatestRelease}: Windows Application Control is enforcing.", upgradeProperties.LatestRelease);
+				if (upgradeEventArgs.InstallUpgrade)
+					Serilog.Log.Logger.Information(
+						"Skipped the in-app upgrade to {LatestRelease}: {Reason}.",
+						upgradeProperties.LatestRelease,
+						applicationControlBlocksUpgrade ? "Windows Application Control is enforcing" : "this install cannot upgrade itself");
+
 				return result;
 			}
 

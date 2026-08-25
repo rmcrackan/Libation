@@ -51,4 +51,24 @@ public class UpgradeCapabilityTests
 		Assert.IsNull(capability.Reason);
 		Assert.IsNull(capability.Summary);
 	}
+
+	[TestMethod]
+	public void An_accepted_upgrade_installs_when_the_platform_can()
+		=> Assert.IsTrue(UpgraderBase.MayInstallUpgrade(userAccepted: true, capUpgrade: true));
+
+	// Chardonnay's prompt relabels its button to "OK" when Libation cannot install the upgrade
+	// itself, but still reported acceptance, so acknowledging a download-link notice began a
+	// download and an install that was never on offer and could only fail.
+	[TestMethod]
+	public void Acceptance_is_not_enough_when_libation_cannot_install_the_upgrade()
+		=> Assert.IsFalse(UpgraderBase.MayInstallUpgrade(userAccepted: true, capUpgrade: false));
+
+	// InstallUpgrade defaults to true, so a UI that never answers must not be taken as a yes on a
+	// platform that cannot install.
+	[TestMethod]
+	public void Declining_never_installs()
+	{
+		Assert.IsFalse(UpgraderBase.MayInstallUpgrade(userAccepted: false, capUpgrade: true));
+		Assert.IsFalse(UpgraderBase.MayInstallUpgrade(userAccepted: false, capUpgrade: false));
+	}
 }
