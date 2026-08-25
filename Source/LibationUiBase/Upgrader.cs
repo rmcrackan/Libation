@@ -226,6 +226,23 @@ public abstract class UpgraderBase
 			? new(false, ApplicationControlUpgradeMessage, ApplicationControlUpgradeSummary)
 			: new(platformCanUpgrade, null, null);
 
+	/// <summary>
+	/// The check both GUIs run when their main window opens, skipped when the user has turned off
+	/// <see cref="Configuration.CheckForUpgradesAtStartup"/>. Only this automatic check is optional:
+	/// the About window's "Check for Upgrade" button asks for a check outright and calls
+	/// <see cref="CheckForUpgradeAsync(Func{UpgradeEventArgs, Task})"/> regardless of the setting.
+	/// </summary>
+	public async Task CheckForUpgradeAtStartupAsync(Func<UpgradeEventArgs, Task> upgradeAvailableHandler)
+	{
+		if (!Configuration.Instance.CheckForUpgradesAtStartup)
+		{
+			Serilog.Log.Logger.Information("Skipping the startup upgrade check: {Setting} is off.", nameof(Configuration.CheckForUpgradesAtStartup));
+			return;
+		}
+
+		await CheckForUpgradeAsync(upgradeAvailableHandler);
+	}
+
 	/// <summary>Check for upgrade and invoke <paramref name="upgradeAvailableHandler"/> if an update is available. Returns the check outcome so the UI can show "up to date", "update available", or "unable to determine".</summary>
 	public async Task<VersionCheckResult> CheckForUpgradeAsync(Func<UpgradeEventArgs, Task> upgradeAvailableHandler)
 	{

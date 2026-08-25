@@ -27,7 +27,7 @@ public partial class Form1
 		upgrader.UpgradeFailed += (_, message) => Invoke(() => { setProgressVisible(false); MessageBox.Show(this, message, "Upgrade Failed", MessageBoxButtons.OK, MessageBoxIcon.Error); });
 
 #if !DEBUG
-		Shown += async (_, _) => await upgrader.CheckForUpgradeAsync(upgradeAvailable);
+		Shown += async (_, _) => await upgrader.CheckForUpgradeAtStartupAsync(upgradeAvailable);
 #endif
 	}
 

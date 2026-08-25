@@ -69,21 +69,30 @@
 			</StackPanel>
 
 		</controls:GroupBox>
-		<CheckBox
+		<StackPanel
 			Grid.Row="1"
 			Margin="10,5"
-			IsEnabled="{Binding !UseWebViewSettingDisabled}"
-			IsChecked="{Binding UseWebView, Mode=TwoWay}">
-			<StackPanel>
-				<TextBlock Text="{Binding UseWebViewText}" />
-				<TextBlock
-					IsVisible="{Binding UseWebViewSettingDisabled}"
-					FontStyle="Italic"
-					Opacity="0.8"
-					Margin="0,2,0,0"
-					Text="{Binding UseWebViewSnapMessage}" />
-			</StackPanel>
-		</CheckBox>
+			Spacing="5">
+			<CheckBox
+				IsEnabled="{Binding !UseWebViewSettingDisabled}"
+				IsChecked="{Binding UseWebView, Mode=TwoWay}">
+				<StackPanel>
+					<TextBlock Text="{Binding UseWebViewText}" />
+					<TextBlock
+						IsVisible="{Binding UseWebViewSettingDisabled}"
+						FontStyle="Italic"
+						Opacity="0.8"
+						Margin="0,2,0,0"
+						Text="{Binding UseWebViewSnapMessage}" />
+				</StackPanel>
+			</CheckBox>
+
+			<CheckBox
+				IsChecked="{Binding CheckForUpgradesAtStartup, Mode=TwoWay}"
+				ToolTip.Tip="{Binding CheckForUpgradesAtStartupTip}">
+				<TextBlock Text="{Binding CheckForUpgradesAtStartupText}" />
+			</CheckBox>
+		</StackPanel>
 
 		<controls:GroupBox
 			Grid.Row="2"

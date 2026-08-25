@@ -69,6 +69,7 @@
 			absFolderLbl = new System.Windows.Forms.Label();
 			absFolderCb = new System.Windows.Forms.ComboBox();
 			tab1ImportantSettings = new System.Windows.Forms.TabPage();
+			checkForUpgradesCbox = new System.Windows.Forms.CheckBox();
 			themeLbl = new System.Windows.Forms.Label();
 			themeCb = new System.Windows.Forms.ComboBox();
 			label22 = new System.Windows.Forms.Label();
@@ -405,6 +406,16 @@
 			loggingLevelCb.Size = new System.Drawing.Size(129, 23);
 			loggingLevelCb.TabIndex = 4;
 			// 
+			// checkForUpgradesCbox
+			// 
+			checkForUpgradesCbox.AutoSize = true;
+			checkForUpgradesCbox.Location = new System.Drawing.Point(6, 569);
+			checkForUpgradesCbox.Name = "checkForUpgradesCbox";
+			checkForUpgradesCbox.Size = new System.Drawing.Size(300, 19);
+			checkForUpgradesCbox.TabIndex = 13;
+			checkForUpgradesCbox.Text = "[Check for upgrades at startup]";
+			checkForUpgradesCbox.UseVisualStyleBackColor = true;
+			// 
 			// tabControl
 			// 
 			tabControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
@@ -423,6 +434,7 @@
 			// 
 			tab1ImportantSettings.AutoScroll = true;
 			tab1ImportantSettings.BackColor = System.Drawing.SystemColors.Window;
+			tab1ImportantSettings.Controls.Add(checkForUpgradesCbox);
 			tab1ImportantSettings.Controls.Add(themeLbl);
 			tab1ImportantSettings.Controls.Add(themeCb);
 			tab1ImportantSettings.Controls.Add(label22);
@@ -1926,6 +1938,7 @@
 		private System.Windows.Forms.CheckBox createCueSheetCbox;
 		private System.Windows.Forms.CheckBox autoScanCb;
 		private System.Windows.Forms.CheckBox useWebViewCb;
+		private System.Windows.Forms.CheckBox checkForUpgradesCbox;
 		private System.Windows.Forms.CheckBox downloadCoverArtCbox;
 		private System.Windows.Forms.CheckBox autoDownloadEpisodesCb;
 		private System.Windows.Forms.CheckBox saveEpisodesToSeriesFolderCbox;
