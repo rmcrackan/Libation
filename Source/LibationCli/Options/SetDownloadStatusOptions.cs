@@ -18,8 +18,19 @@ public class SetDownloadStatusOptions : OptionsBase
 	[Option(shortName: 'd', longName: "downloaded", Group = "Download Status", HelpText = "if the audio file can be found, mark the book 'Downloaded'")]
 	public bool SetDownloaded { get; set; }
 
-	[Option(shortName: 'n', longName: "not-downloaded", Group = "Download Status", HelpText = "if the audio file cannot be found, mark the book 'Download Pending' (previously 'Not Downloaded')")]
-	public bool SetNotDownloaded { get; set; }
+	[Option(shortName: 'p', longName: "download-pending", Group = "Download Status", HelpText = "if the audio file cannot be found, mark the book 'Download Pending' (previously 'Not Downloaded')")]
+	public bool SetDownloadPending { get; set; }
+
+	/// <summary>
+	/// What <see cref="SetDownloadPending"/> was called while the status was named "Not Downloaded". Kept
+	/// working so scripts written against the old name survive the rename, and kept out of the help so the
+	/// new name is the only one offered. <see cref="SetPending"/> is what the verb acts on.
+	/// </summary>
+	[Option(shortName: 'n', longName: "not-downloaded", Group = "Download Status", Hidden = true)]
+	public bool SetNotDownloadedLegacy { get; set; }
+
+	/// <summary>Whether the run was asked for 'Download Pending', under either flag name.</summary>
+	internal bool SetPending => SetDownloadPending || SetNotDownloadedLegacy;
 
 	[Option('f', "force", HelpText = "Set the download status regardless of whether the book's audio file can be found. Only one download status option may be used with this option.")]
 	public bool Force { get; set; }
@@ -29,7 +40,7 @@ public class SetDownloadStatusOptions : OptionsBase
 
 	protected override async Task ProcessAsync()
 	{
-		if (Force && SetDownloaded && SetNotDownloaded)
+		if (Force && SetDownloaded && SetPending)
 		{
 			PrintVerbUsage("ERROR:\nWhen run with --force option, only one download status option may be used.");
 			return;
@@ -58,7 +69,7 @@ public class SetDownloadStatusOptions : OptionsBase
 		}
 		else
 		{
-			var bulkSetStatus = new BulkSetDownloadStatus(libraryBooks, SetDownloaded, SetNotDownloaded);
+			var bulkSetStatus = new BulkSetDownloadStatus(libraryBooks, SetDownloaded, SetPending);
 			await Task.Run(() => bulkSetStatus.Discover());
 			await bulkSetStatus.ExecuteAsync();
 

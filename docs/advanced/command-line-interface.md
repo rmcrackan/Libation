@@ -283,16 +283,17 @@ libationcli export -p "C:\foo\bar\my.xlsx" -x
 ## Set Download Status
 
 Set download statuses throughout library based on whether each book's audio file can be found.  
-Must include at least one flag: --downloaded , --not-downloaded.  
-`--downloaded`: If the audio file can be found, mark the book **Downloaded**.  
-`--not-downloaded`: If the audio file cannot be found, mark the book **Download Pending** (previously "Not Downloaded"). The flag name still says `not-downloaded`.  
+Must include at least one flag: --downloaded , --download-pending.  
+`-d`, `--downloaded`: If the audio file can be found, mark the book **Downloaded**.  
+`-p`, `--download-pending`: If the audio file cannot be found, mark the book **Download Pending** (previously "Not Downloaded").  
+`-n`, `--not-downloaded`: legacy alias for `--download-pending`, from when the status was called "Not Downloaded". It still works, so existing scripts keep running, but it is no longer listed in `--help`.  
 UI: Visible Books \> Set 'Downloaded' status automatically. Visible books. Prompts before saving changes  
 CLI: Full library. No prompt
 
 ```console
 libationcli set-status -d
-libationcli set-status -n
-libationcli set-status -d -n
+libationcli set-status -p
+libationcli set-status -d -p
 ```
 
 ## Get a Content License Without Downloading
