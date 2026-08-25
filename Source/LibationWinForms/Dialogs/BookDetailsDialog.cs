@@ -91,7 +91,7 @@ public partial class BookDetailsDialog : Form
 			var status = Book.UserDefinedItem.BookStatus;
 			this.bookLiberatedCb.Items.Clear();
 			this.bookLiberatedCb.Items.Add(new liberatedComboBoxItem { Status = LiberatedStatus.Liberated, Text = "Downloaded" });
-			this.bookLiberatedCb.Items.Add(new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = "Not Downloaded" });
+			this.bookLiberatedCb.Items.Add(new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = "Download Pending" });
 
 			// this should only appear if is already an error. User should not be able to set status to error, only away from error
 			if (status == LiberatedStatus.Error)
@@ -107,7 +107,7 @@ public partial class BookDetailsDialog : Form
 			if (status is not null)
 			{
 				this.pdfLiberatedCb.Items.Add(new liberatedComboBoxItem { Status = LiberatedStatus.Liberated, Text = "Downloaded" });
-				this.pdfLiberatedCb.Items.Add(new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = "Not Downloaded" });
+				this.pdfLiberatedCb.Items.Add(new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = "Download Pending" });
 
 				setDefaultComboBox(this.pdfLiberatedCb, status);
 			}

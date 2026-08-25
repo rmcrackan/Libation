@@ -27,7 +27,7 @@ public partial class LiberatedStatusBatchManualDialog : Form
 		this.SetLibationIcon();
 
 		this.bookLiberatedCb.Items.Add(new liberatedComboBoxItem { Status = LiberatedStatus.Liberated, Text = "Downloaded" });
-		this.bookLiberatedCb.Items.Add(new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = "Not Downloaded" });
+		this.bookLiberatedCb.Items.Add(new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = "Download Pending" });
 
 		this.bookLiberatedCb.SelectedIndex = 0;
 	}

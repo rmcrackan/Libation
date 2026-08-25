@@ -20,7 +20,7 @@ internal sealed class BackupRequest
 	internal sealed record SkipReason(string Label, string Advice = "")
 	{
 		public static readonly SkipReason AlreadyDownloaded = new("Already downloaded");
-		public static readonly SkipReason PreviousError = new("Previously failed to download", "set the download status to 'Not Downloaded' to try again");
+		public static readonly SkipReason PreviousError = new("Previously failed to download", "mark it 'Download Pending' to try again");
 		public static readonly SkipReason AbsentFromLastScan = new(AbsentFromLastScanUserMessage.Label, AbsentFromLastScanUserMessage.Advice);
 		public static readonly SkipReason WaitingToRetry = new("Waiting before trying again after a recent failure", "download the title on its own to try it now");
 

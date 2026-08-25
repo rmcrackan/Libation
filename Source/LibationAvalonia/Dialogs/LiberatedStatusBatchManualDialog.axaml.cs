@@ -30,7 +30,7 @@ public partial class LiberatedStatusBatchManualDialog : DialogWindow
 	public List<liberatedComboBoxItem> BookStatuses { get; } =
 	[
 		new liberatedComboBoxItem { Status = LiberatedStatus.Liberated, Text = "Downloaded" },
-		new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = "Not Downloaded" },
+		new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = "Download Pending" },
 	];
 
 	public LiberatedStatusBatchManualDialog(bool isPdf) : this()

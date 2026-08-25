@@ -148,14 +148,14 @@ public class EntryStatus : ReactiveObject, IComparable
 		{
 			LiberatedStatus.Liberated => "Liberated",
 			LiberatedStatus.PartialDownload => "File has been at least\r\npartially downloaded",
-			LiberatedStatus.NotLiberated => "Book NOT downloaded",
+			LiberatedStatus.NotLiberated => "Book download pending",
 			_ => throw new Exception("Unexpected liberation state")
 		};
 
 		string pdfState = PdfStatus switch
 		{
 			LiberatedStatus.Liberated => "\r\nPDF downloaded",
-			LiberatedStatus.NotLiberated => "\r\nPDF NOT downloaded",
+			LiberatedStatus.NotLiberated => "\r\nPDF download pending",
 			// Set when Audible granted a license carrying no PDF link, which is by far the likeliest way a
 			// title arrives here, and says more than "ERROR" about why Libation has stopped asking.
 			LiberatedStatus.Error => "\r\nPDF could not be downloaded\r\nand will not be tried again",

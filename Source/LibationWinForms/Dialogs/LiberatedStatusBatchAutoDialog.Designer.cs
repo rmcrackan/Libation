@@ -41,7 +41,7 @@
             this.setDownloadedCb.Name = "setDownloadedCb";
             this.setDownloadedCb.Size = new System.Drawing.Size(379, 19);
             this.setDownloadedCb.TabIndex = 0;
-            this.setDownloadedCb.Text = "If the audio file can be found, set download status to \'Downloaded\'";
+            this.setDownloadedCb.Text = "If the audio file can be found, mark the book \'Downloaded\'";
             this.setDownloadedCb.UseVisualStyleBackColor = true;
             // 
             // setNotDownloadedCb
@@ -51,7 +51,7 @@
             this.setNotDownloadedCb.Name = "setNotDownloadedCb";
             this.setNotDownloadedCb.Size = new System.Drawing.Size(412, 19);
             this.setNotDownloadedCb.TabIndex = 1;
-            this.setNotDownloadedCb.Text = "If the audio file cannot be found, set download status to \'Not Downloaded\'";
+            this.setNotDownloadedCb.Text = "If the audio file cannot be found, mark the book \'Download Pending\'";
             this.setNotDownloadedCb.UseVisualStyleBackColor = true;
             // 
             // okBtn

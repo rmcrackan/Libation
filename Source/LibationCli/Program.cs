@@ -44,7 +44,7 @@ class Program
 #if DEBUG
 		string input = "";
 
-		//input = "  set-status -n --force B017V4IM1G";
+		//input = "  set-status -p --force B017V4IM1G";
 		//input = "  liberate B017V4IM1G";
 		//input = "  convert B017V4IM1G";
 		//input = "  search \"-liberated\"";

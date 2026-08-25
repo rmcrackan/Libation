@@ -17,10 +17,10 @@ public class GridContextMenu
 {
 	public string CopyCellText => $"{Accelerator}Copy Cell Contents";
 	public string LiberateEpisodesText => $"{Accelerator}Liberate All Episodes";
-	public string SetDownloadedText => $"Set Download status to '{Accelerator}Downloaded'";
-	public string SetNotDownloadedText => $"Set Download status to '{Accelerator}Not Downloaded'";
-	public string SetPdfDownloadedText => "Set PDF status to 'Downloaded'";
-	public string SetPdfNotDownloadedText => "Set PDF status to 'Not Downloaded'";
+	public string SetDownloadedText => $"Mark as '{Accelerator}Downloaded'";
+	public string SetNotDownloadedText => $"Mark as 'Download {Accelerator}Pending'";
+	public string SetPdfDownloadedText => "Mark PDF as 'Downloaded'";
+	public string SetPdfNotDownloadedText => "Mark PDF as 'Download Pending'";
 	public string RemoveText => $"{Accelerator}Remove from library";
 	public string RemoveFromAudibleText => $"Remove Plus {(GridEntries.Count(e => e.LibraryBook.IsAudiblePlus) == 1 ? "Book" : "Books")} from Audible Library";
 	public string LocateFileText => $"{Accelerator}Locate file...";

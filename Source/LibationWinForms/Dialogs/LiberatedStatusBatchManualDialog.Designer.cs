@@ -41,7 +41,7 @@
             this.bookLiberatedCb.FormattingEnabled = true;
             this.bookLiberatedCb.Location = new System.Drawing.Point(52, 54);
             this.bookLiberatedCb.Name = "bookLiberatedCb";
-            this.bookLiberatedCb.Size = new System.Drawing.Size(121, 23);
+            this.bookLiberatedCb.Size = new System.Drawing.Size(150, 23);
             this.bookLiberatedCb.TabIndex = 7;
             // 
             // bookLiberatedLbl
@@ -60,8 +60,8 @@
             this.liberatedDescLbl.Name = "liberatedDescLbl";
             this.liberatedDescLbl.Size = new System.Drawing.Size(312, 30);
             this.liberatedDescLbl.TabIndex = 5;
-            this.liberatedDescLbl.Text = "To download again next time: change to Not Downloaded\r\nTo not download: change to" +
-    " Downloaded";
+            this.liberatedDescLbl.Text = "To download again next time: change to Download Pending\r\nTo not download: change t" +
+    "o Downloaded";
             // 
             // cancelBtn
             // 

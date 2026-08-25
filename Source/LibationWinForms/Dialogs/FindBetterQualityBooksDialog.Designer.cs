@@ -196,11 +196,11 @@ partial class FindBetterQualityBooksDialog
 		// btnMarkBooks
 		// 
 		btnMarkBooks.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-		btnMarkBooks.Location = new System.Drawing.Point(699, 415);
+		btnMarkBooks.Location = new System.Drawing.Point(669, 415);
 		btnMarkBooks.Name = "btnMarkBooks";
-		btnMarkBooks.Size = new System.Drawing.Size(210, 23);
+		btnMarkBooks.Size = new System.Drawing.Size(240, 23);
 		btnMarkBooks.TabIndex = 4;
-		btnMarkBooks.Text = "Mark 1,000 books as 'Not Liberated'";
+		btnMarkBooks.Text = "Mark 1,000 books as 'Download Pending'";
 		btnMarkBooks.UseVisualStyleBackColor = true;
 		btnMarkBooks.Click += btnMarkBooks_Click;
 		// 

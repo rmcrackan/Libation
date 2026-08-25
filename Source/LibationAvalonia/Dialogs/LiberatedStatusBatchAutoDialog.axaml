@@ -25,7 +25,7 @@
 
 				<TextBlock
 					TextWrapping="Wrap"
-					Text="If the audio file can be found, set download status to 'Downloaded'" />
+					Text="If the audio file can be found, mark the book 'Downloaded'" />
 			</CheckBox>
 			<CheckBox
 				Margin="0,0,0,10"
@@ -33,7 +33,7 @@
 
 				<TextBlock
 					TextWrapping="Wrap"
-					Text="If the audio file cannot be found, set download status to 'Not Downloaded'" />
+					Text="If the audio file cannot be found, mark the book 'Download Pending'" />
 			</CheckBox>
 		</StackPanel>
 		

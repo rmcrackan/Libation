@@ -262,7 +262,7 @@ These errors come from Audible refusing to grant a download license. Common caus
 3. **Spatial / Dolby Atmos requested (older Libation versions)** -- Audible now requires Widevine L1 for many spatial titles. Libation 13.1.3+ no longer offers spatial download. See [Spatial Audio & DRM](/docs/advanced/spatial-audio).
 4. **You no longer have rights to the title** -- it was returned, it left the Plus catalog, or the account that owned it is no longer active. Check the title in the Audible app or website.
 
-After a refusal Libation waits before asking about that title again, so you see the explanation once rather than on every run. It attempts the title again by itself; to try it sooner, name it (`libationcli liberate <ASIN>`) or set its download status to Not Downloaded. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads).
+After a refusal Libation waits before asking about that title again, so you see the explanation once rather than on every run. It attempts the title again by itself; to try it sooner, name it (`libationcli liberate <ASIN>`) or mark it **Download Pending** (previously "Not Downloaded"). See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads).
 
 Attach your log file when opening a GitHub issue.
 
@@ -279,7 +279,7 @@ The lookup finds nothing in two situations, and the second is worth checking:
 1. The audio files are not on this machine — the title is marked downloaded but the files live elsewhere, or were deleted.
 2. **Your folder and file templates have no `<id>` tag.** Then no file Libation writes has the ASIN in its path, so Libation cannot recognise its own output for any title. Add `<id>` back in Settings \> Download/Decrypt; the defaults are `<title short> [<id>]` for folders and `<title> [<id>]` for files. This also explains PDFs with no ASIN in the name: the file name comes from your file template.
 
-Already-misplaced PDFs are not moved. Move them into their book folders yourself, or set the affected titles' PDF status to Not Downloaded and download them again.
+Already-misplaced PDFs are not moved. Move them into their book folders yourself, or mark the affected titles' PDFs **Download Pending** and download them again.
 
 ## The log file is too large to attach to a bug report
 

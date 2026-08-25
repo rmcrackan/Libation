@@ -32,7 +32,7 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 
 		Click 'Scan Audible for Higher Quality Audio' to begin.
 
-		When done, click the 'Mark X books as Not Liberated' to allow Libation to re-download those books in the higher.
+		When done, click the 'Mark X books as Download Pending' to allow Libation to re-download those books in the higher.
 
 		Note: make sure you adjust your download quality settings before re-liberating the books.
 
@@ -50,8 +50,8 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 		{
 			RaiseAndSetIfChanged(ref field, value);
 			MarkBooksButtonText = value == 0 ? null
-				: value == 1 ? "Mark 1 book as 'Not Liberated'"
-				: $"Mark {value} books as 'Not Liberated'";
+				: value == 1 ? "Mark 1 book as 'Download Pending'"
+				: $"Mark {value} books as 'Download Pending'";
 		}
 	}
 	public bool IsScanning { get => field; set { RaiseAndSetIfChanged(ref field, value); ScanButtonText = field ? StopScanBtnText : StartScanBtnText; } }

@@ -97,9 +97,9 @@ The stoplights will tell you a title's status:
 
 - Green: downloaded and decrypted
 - Yellow: downloaded but still encrypted with DRM
-- Red: not downloaded
+- Red: download pending
 - PDF icon without arrow: downloaded
-- PDF with arrow: not downloaded
+- PDF with arrow: download pending
 - Orange plus badge in the upper-right corner: an Audible Plus title rather than one you purchased
 
 Or hover over the button to see the status.
