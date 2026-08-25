@@ -63,7 +63,7 @@ sudo dnf5 install ./libation.rpm
   ```
 Thanks to Package Forge dev [Samuel](https://github.com/Samueru-sama) for [AppImage](https://github.com/pkgforge-dev/Libation-AppImage) maintenence.
 
-When your package manager updates Libation for you, the startup update check has nothing useful to tell you. Turn off "Check for new Libation versions at startup" on the Important settings tab to stop it. Help > About still has a "Check for Upgrade" button whenever you want to look.
+When your package manager updates Libation for you, the startup update check has nothing useful to tell you. Turn off "Check for new Libation versions at startup" on the Important settings tab to stop it. Settings > About still has a "Check for Upgrade" button whenever you want to look.
 
 ### Arch Linux
 

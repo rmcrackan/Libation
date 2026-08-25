@@ -177,8 +177,8 @@ public partial class Configuration
 			Turn this off if something else keeps Libation up to
 			date, such as a package manager or an AppImage
 			updater. You can still check whenever you like:
-			Help > About has a "Check for Upgrade" button that
-			works either way.
+			Settings > About has a "Check for Upgrade" button
+			that works either way.
 			""" }
 	}.AsReadOnly();
 
