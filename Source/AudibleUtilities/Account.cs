@@ -129,10 +129,18 @@ public class Account : IUpdatable, ILogMasked
 		}
 	}
 
-	/// <summary>The additional marketplaces, resolved. Names that no longer match a known locale are dropped.</summary>
+	/// <summary>
+	/// The additional marketplaces, resolved. Names that no longer match a known locale are dropped, as is the
+	/// registered marketplace: json is applied in document order, so a file listing these before its
+	/// IdentityTokens would slip a duplicate past the check on the way in, and this marketplace would then be
+	/// scanned twice.
+	/// </summary>
 	[JsonIgnore]
 	public IReadOnlyList<Locale> AdditionalLocales
-		=> _additionalLocaleNames.Select(Localization.Get).Where(l => !string.IsNullOrEmpty(l.CountryCode)).ToList();
+		=> _additionalLocaleNames
+		.Select(Localization.Get)
+		.Where(l => !string.IsNullOrEmpty(l.CountryCode) && l.Name != Locale?.Name)
+		.ToList();
 
 	/// <summary>
 	/// Every marketplace a scan of this account should read: its own, then any extras. One account is scanned as
@@ -142,7 +150,7 @@ public class Account : IUpdatable, ILogMasked
 	public IReadOnlyList<Locale> ScanLocales
 		=> Locale is null ? AdditionalLocales : new[] { Locale }.Concat(AdditionalLocales).ToList();
 
-	/// <summary>True if <paramref name="locale"/> is this account's own marketplace or one of its extras.</summary>
+	/// <summary>True if <paramref name="localeName"/> is this account's own marketplace or one of its extras.</summary>
 	public bool HasMarketplace(string? localeName)
 		=> canonicalize(localeName) is string name
 		&& (name == Locale?.Name || _additionalLocaleNames.Contains(name));

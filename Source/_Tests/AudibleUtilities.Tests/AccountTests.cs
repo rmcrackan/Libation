@@ -793,6 +793,33 @@ public class additional_marketplaces_persistence : AccountsTestBase
 	}
 
 	/// <summary>
+	/// Newtonsoft applies values in the order the document lists them, so a file naming the marketplaces before
+	/// its IdentityTokens has no registered marketplace to compare against yet. The duplicate has to be caught
+	/// on the way out as well, or this account would scan 'canada' twice.
+	/// </summary>
+	[TestMethod]
+	public void the_registered_marketplace_is_dropped_even_when_the_file_lists_it_first()
+	{
+		var account = (JObject)JObject.Parse(OneMarketplaceFile())["Accounts"]![0]!;
+		var identity = account["IdentityTokens"]!;
+		account.Remove("IdentityTokens");
+
+		var reordered = new JObject
+		{
+			["AccountId"] = account["AccountId"],
+			["AdditionalLocaleNames"] = new JArray("canada", "us"),
+			["IdentityTokens"] = identity
+		};
+
+		var loaded = AccountsSettings
+			.FromJson(new JObject { ["Accounts"] = new JArray(reordered) }.ToString())!
+			.Accounts.Single();
+
+		loaded.ScanLocales.Select(l => l.Name).Should().BeEquivalentTo(["canada", "us"]);
+		loaded.AdditionalLocales.Select(l => l.Name).Should().BeEquivalentTo(["us"]);
+	}
+
+	/// <summary>
 	/// Encrypted tokens are bound to the marketplace they were registered with: the AES-GCM associated data is
 	/// built from Identity.LocaleName. Extra marketplaces must therefore stay out of the identity, or every
 	/// stored token would need re-encrypting.
