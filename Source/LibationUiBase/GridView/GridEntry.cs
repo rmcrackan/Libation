@@ -299,11 +299,7 @@ public abstract class GridEntry : ReactiveObject
 
 	/// <summary>This information should not change during <see cref="GridEntry"/> lifetime, so call only once.</summary>
 	private static string GetDescriptionDisplay(Book book)
-	{
-		var doc = new HtmlAgilityPack.HtmlDocument();
-		doc.LoadHtml(book?.Description?.Replace("</p> ", "\r\n\r\n</p>") ?? "");
-		return doc.DocumentNode.InnerText.Trim();
-	}
+		=> EntityExtensions.HtmlToPlainText(book?.Description, paragraphSeparator: "\r\n\r\n");
 
 	private static string TrimTextToWord(string text, int maxLength)
 	{

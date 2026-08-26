@@ -7,6 +7,7 @@ using Dinah.Core.ErrorHandling;
 using Dinah.Core.Net.Http;
 using FileManager;
 using LibationFileManager;
+using LibationFileManager.Templates;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -247,29 +248,44 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 
 		#endregion
 
-		tags.Title ??= options.LibraryBookDto.TitleWithSubtitle;
+		FillMissingTags(tags, options.LibraryBook.Book, options.LibraryBookDto, options.ContentMetadata.ContentReference, options.DrmType);
+	}
+
+	/// <summary>Audible's own format for <c>rldt</c>, which Libation matches when it supplies the tag itself.</summary>
+	private const string ReleaseDateFormat = "dd-MMM-yyyy";
+
+	/// <summary>
+	/// Audible's ADRM (.aaxc) downloads arrive with most of these tags already written; its Widevine
+	/// (DASH) downloads arrive with almost none of them, so the library's own data has to stand in.
+	/// </summary>
+	internal static void FillMissingTags(Mpeg4Lib.MetadataItems tags, Book book, LibraryBookDto dto, ContentReference contentReference, DrmType drmType)
+	{
+		tags.Title ??= dto.TitleWithSubtitle;
 		tags.Album ??= tags.Title;
-		tags.Artist ??= string.Join("; ", options.LibraryBook.Book.Authors.Select(a => a.Name));
+		tags.Artist ??= string.Join("; ", book.Authors.Select(a => a.Name));
 		tags.AlbumArtists ??= tags.Artist;
-		tags.Genres = string.Join(", ", options.LibraryBook.Book.LowestCategoryNames());
-		tags.ProductID ??= options.ContentMetadata.ContentReference.Sku;
-		tags.Comment ??= options.LibraryBook.Book.Description;
+		tags.Genres = string.Join(", ", book.LowestCategoryNames());
+		tags.ProductID ??= contentReference.Sku;
+		//Book.Description is Audible's publisher_summary verbatim, which is HTML. The .aaxc files
+		//embed the same text already flattened, so flatten it here too rather than writing markup
+		//into a tag that no player will render.
+		tags.Comment ??= book.DescriptionAsPlainText();
 		tags.LongDescription ??= tags.Comment;
-		tags.Publisher ??= options.LibraryBook.Book.Publisher;
-		tags.Narrator ??= string.Join("; ", options.LibraryBook.Book.Narrators.Select(n => n.Name));
-		tags.Asin = options.LibraryBook.Book.AudibleProductId;
-		tags.Acr = options.ContentMetadata.ContentReference.Acr;
-		tags.Version = options.ContentMetadata.ContentReference.Version;
-		if (options.LibraryBook.Book.DatePublished is DateTime pubDate)
+		tags.Publisher ??= book.Publisher;
+		tags.Narrator ??= string.Join("; ", book.Narrators.Select(n => n.Name));
+		tags.Asin = book.AudibleProductId;
+		tags.Acr = contentReference.Acr;
+		tags.Version = contentReference.Version;
+		if (book.DatePublished is DateTime pubDate)
 		{
 			tags.Year ??= pubDate.Year.ToString();
-			tags.ReleaseDate ??= pubDate.ToString("dd-MMM-yyyy");
+			tags.ReleaseDate ??= pubDate.ToString(ReleaseDateFormat);
 		}
 
 		const string tagDomain = "org.libation";
 		tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_ACR", tags.Acr);
-		tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_DRM_TYPE", options.DrmType.ToString());
-		tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_LOCALE", options.LibraryBook.Book.Locale);
+		tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_DRM_TYPE", drmType.ToString());
+		tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_LOCALE", book.Locale);
 	}
 
 	private void AaxcDownloader_RetrievedCoverArt(object? sender, byte[]? e)
