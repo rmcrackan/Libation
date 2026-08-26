@@ -272,6 +272,9 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 		//into a tag that no player will render.
 		tags.Comment ??= book.DescriptionAsPlainText();
 		tags.LongDescription ??= tags.Comment;
+		//Only the .aaxc files carry a copyright line of their own. AaxcDownloadConvertBase's fixup
+		//normalizes "(P)" to "℗" after this runs, so the catalog's wording lands the same way.
+		tags.Copyright ??= book.Copyright;
 		tags.Publisher ??= book.Publisher;
 		tags.Narrator ??= string.Join("; ", book.Narrators.Select(n => n.Name));
 		tags.Asin = book.AudibleProductId;

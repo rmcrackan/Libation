@@ -220,7 +220,9 @@ public class BookImporter : ItemsImporterBase
 		// updateBook must update language on books which were imported before the migration which added language.
 		// 2025-07-30
 		// updateBook must update isSpatial on books which were imported before the migration which added isSpatial.
-		book.UpdateBookDetails(item.IsAbridged, item.AssetDetails?.Any(a => a.IsSpatial), item.DatePublished, item.Language);
+		// 2026-08-26
+		// updateBook must update copyright on books which were imported before the migration which added copyright.
+		book.UpdateBookDetails(item.IsAbridged, item.AssetDetails?.Any(a => a.IsSpatial), item.DatePublished, item.Language, item.CopyrightString());
 
 		syncSupplement(item, book);
 
