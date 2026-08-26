@@ -1544,3 +1544,103 @@ namespace Templates_ChapterFile_Tests
 		}
 	}
 }
+
+namespace Templates_FormatStringSeparators
+{
+	/// <summary>
+	/// A directory separator written into a tag's format string asks for a directory level, exactly as
+	/// one written into the surrounding template text does. A separator arriving from the metadata is
+	/// still replaced.
+	/// </summary>
+	[TestClass]
+	public class FormatStringSeparators
+	{
+		private static readonly ReplacementCharacters Replacements = ReplacementCharacters.Default(Environment.OSVersion.Platform == PlatformID.Win32NT);
+		private static readonly string Sep = Path.DirectorySeparatorChar.ToString();
+		private static readonly string BaseDir = OperatingSystem.IsWindows() ? @"C:\base" : "/base";
+
+		private const string FormatTemplate = @"<first series[\{{N}\}\\]><title short>";
+		private const string LiteralTemplate = @"{<first series>}\<title short>";
+
+		private static readonly SeriesDto[] TwoSeries =
+			[new("Sherlock Holmes", "1", "B08376S3R2"), new("Book Collection", "1", "B000000000")];
+
+		private static string FolderPath(string template, IEnumerable<SeriesDto>? series = null)
+			=> RelativePath<Templates.FolderTemplate>(template, series);
+
+		private static string FileName(string template, IEnumerable<SeriesDto>? series = null)
+			=> RelativePath<Templates.FileTemplate>(template, series);
+
+		private static string RelativePath<T>(string template, IEnumerable<SeriesDto>? series)
+			where T : Templates, ITemplate, new()
+		{
+			var lbDto = GetLibraryBook(series ?? [new SeriesDto("Sherlock Holmes", "1", "B08376S3R2")]);
+
+			Templates.TryGetTemplate<T>(template, out var parsed).Should().BeTrue();
+
+			var path = parsed.GetFilename(lbDto, BaseDir, "", culture: null, replacements: Replacements).PathWithoutPrefix;
+			StringAssert.StartsWith(path, BaseDir + Sep);
+			return Path.GetRelativePath(BaseDir, path);
+		}
+
+		[TestMethod]
+		public void format_string_separator_creates_a_folder_level()
+			=> FolderPath(FormatTemplate).Should().Be($"{{Sherlock Holmes}}{Sep}A Study in Scarlet");
+
+		[TestMethod]
+		public void format_string_separator_matches_a_literal_one_in_a_folder()
+			=> FolderPath(FormatTemplate).Should().Be(FolderPath(LiteralTemplate));
+
+		[TestMethod]
+		public void list_separator_creates_one_folder_level_per_entry()
+			=> FolderPath(@"<series[format(\{{N}\})separator(\\)]>\<title short>", TwoSeries)
+			.Should().Be($"{{Sherlock Holmes}}{Sep}{{Book Collection}}{Sep}A Study in Scarlet");
+
+		[TestMethod]
+		public void a_missing_property_leaves_no_empty_folder_level()
+			=> FolderPath(FormatTemplate, series: []).Should().Be("A Study in Scarlet");
+
+		[TestMethod]
+		public void a_file_name_replaces_the_separator_instead_of_splitting()
+		{
+			var fileName = FileName(FormatTemplate);
+
+			fileName.Should().Be(FileName(LiteralTemplate));
+			fileName.Should().Be($"{{Sherlock Holmes}}{Replacements.ReplaceFilenameChars("\\")}A Study in Scarlet");
+			Assert.IsFalse(fileName.Contains(Sep), $"a file name must not gain a directory level: {fileName}");
+		}
+
+		[TestMethod]
+		public void a_separator_in_the_metadata_is_still_replaced()
+			=> FolderPath(FormatTemplate, [new SeriesDto("Sherlock/Holmes", "1", "id")])
+			.Should().Be($"{{Sherlock∕Holmes}}{Sep}A Study in Scarlet");
+
+		[TestMethod]
+		public void metadata_cannot_climb_out_of_the_base_directory()
+			=> FolderPath(FormatTemplate, [new SeriesDto("../../etc", "1", "id")])
+			.Should().Be($"{{..∕..∕etc}}{Sep}A Study in Scarlet");
+
+		[TestMethod]
+		public void metadata_cannot_root_the_path()
+			=> FolderPath(FormatTemplate, [new SeriesDto(@"C:\Windows", "1", "id")])
+			.Split(Sep).Should().HaveCount(2);
+
+		[TestMethod]
+		public void a_forged_separator_mark_in_the_metadata_is_dropped()
+			=> FolderPath(FormatTemplate, [new SeriesDto($"Sher{CommonFormatters.TemplateBackSlash}lock", "1", "id")])
+			.Should().Be($"{{Sherlock}}{Sep}A Study in Scarlet");
+
+		[TestMethod]
+		public void a_chapter_title_keeps_the_character_that_was_typed()
+		{
+			Templates.TryGetTemplate<Templates.ChapterTitleTemplate>(@"<first series[\{{N}\}\\]><ch title>", out var chapterTitle).Should().BeTrue();
+
+			var name = chapterTitle.GetName(GetLibraryBook(), new MultiConvertFileProperties { OutputFileName = "", PartsPosition = 1, PartsTotal = 1, Title = "chap" });
+
+			name.Should().Be(@"{Sherlock Holmes}\chap");
+			Assert.IsFalse(
+				name.Contains(CommonFormatters.TemplateBackSlash) || name.Contains(CommonFormatters.TemplateForwardSlash),
+				$"a separator mark must never reach the output: {name}");
+		}
+	}
+}

@@ -109,6 +109,69 @@ public class CommonFormattersTests
 	}
 
 	[TestMethod]
+	public void TemplateStringFormatter_MarksSeparatorsFromTheTemplate()
+	{
+		// GIVEN a template whose literal text asks for a directory level.
+		// '\' escapes the next character, so an actual separator is written '\\'.
+		var template = @"\\{AUTHOR}\\{TITLE}\\";
+		var replacements = new Dictionary<string, Func<TestClass, object?>>
+		{
+			["AUTHOR"] = obj => obj.Author,
+			["TITLE"] = obj => obj.Title
+		};
+		var testObj = new TestClass { Author = "John Doe", Title = "Test Book" };
+
+		// WHEN
+		var result = CommonFormatters.TemplateStringFormatter(testObj, template, CultureInfo.InvariantCulture, replacements);
+
+		// THEN each separator is marked so that it can outlive the file name replacement
+		var mark = CommonFormatters.TemplateBackSlash;
+		Assert.AreEqual($"{mark}John Doe{mark}Test Book{mark}", result);
+	}
+
+	[TestMethod]
+	public void TemplateStringFormatter_LeavesSeparatorsFromAValueAlone()
+	{
+		// GIVEN a value that happens to contain both slashes
+		var replacements = new Dictionary<string, Func<TestClass, object?>> { ["AUTHOR"] = obj => obj.Author };
+		var testObj = new TestClass { Author = @"AC\DC/Live" };
+
+		// WHEN
+		var result = CommonFormatters.TemplateStringFormatter(testObj, "{AUTHOR}", CultureInfo.InvariantCulture, replacements);
+
+		// THEN they stay as they are, for ReplacementCharacters to deal with
+		Assert.AreEqual(@"AC\DC/Live", result);
+	}
+
+	[TestMethod]
+	public void TemplateStringFormatter_DropsMarksForgedInAValue()
+	{
+		// GIVEN a value carrying the marks that only template text is allowed to use
+		var replacements = new Dictionary<string, Func<TestClass, object?>> { ["AUTHOR"] = obj => obj.Author };
+		var testObj = new TestClass { Author = $"AC{CommonFormatters.TemplateBackSlash}DC{CommonFormatters.TemplateForwardSlash}Live" };
+
+		// WHEN
+		var result = CommonFormatters.TemplateStringFormatter(testObj, "{AUTHOR}", CultureInfo.InvariantCulture, replacements);
+
+		// THEN the marks are dropped, so metadata cannot forge a directory level
+		Assert.AreEqual("ACDCLive", result);
+	}
+
+	[TestMethod]
+	public void ResolveSeparators_ReplacesEachMarkWithItsOwnText()
+	{
+		var marked = CommonFormatters.MarkSeparators(@"a\b/c");
+
+		Assert.AreEqual("a-b+c", CommonFormatters.ResolveSeparators(marked, "-", "+"));
+	}
+
+	[TestMethod]
+	public void MarkSeparators_LeavesOtherCharactersAlone()
+	{
+		Assert.AreEqual("a:b*c", CommonFormatters.MarkSeparators("a:b*c"));
+	}
+
+	[TestMethod]
 	public void StringFormatter_Uppercase()
 	{
 		// GIVEN
