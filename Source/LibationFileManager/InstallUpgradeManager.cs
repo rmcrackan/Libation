@@ -514,14 +514,39 @@ public static class InstallUpgradeManager
 	/// </summary>
 	private static void ReplaceInstallFile(string source, string targetPath)
 	{
+		string? displaced = null;
 		if (File.Exists(targetPath))
 		{
-			var displaced = targetPath + DisplacedFileSuffix;
+			displaced = targetPath + DisplacedFileSuffix;
 			TryDelete(displaced);
 			File.Move(targetPath, displaced, overwrite: true);
 		}
 
-		File.Copy(source, targetPath, overwrite: true);
+		try
+		{
+			File.Copy(source, targetPath, overwrite: true);
+		}
+		catch
+		{
+			// Moving the old file aside and then failing to write the new one would leave nothing at all
+			// where a file used to be. Put it back and let the caller report the failure.
+			if (displaced is not null && File.Exists(displaced) && !File.Exists(targetPath))
+				TryMove(displaced, targetPath);
+
+			throw;
+		}
+	}
+
+	private static void TryMove(string from, string to)
+	{
+		try
+		{
+			File.Move(from, to, overwrite: true);
+		}
+		catch (Exception ex)
+		{
+			StartupLog.Error(ex, $"Could not put {from} back to {to}");
+		}
 	}
 
 	/// <summary>

@@ -100,6 +100,19 @@ public class PreLoggingCrashLogTests
 		StringAssert.Contains(contents, "LibationFiles");
 	}
 
+	// The path goes straight into the crash dialog for someone to read and paste into a file browser, so it
+	// must not carry the Windows extended-length prefix. Returning the LongPath as-is put "\\?\" in front
+	// of it on Windows only, which Linux and macOS runs cannot notice.
+	[TestMethod]
+	public void The_reported_path_is_the_one_a_person_can_use()
+	{
+		var written = PreLoggingCrashLog.TryWrite(new Exception("boom"));
+
+		Assert.IsNotNull(written);
+		Assert.IsFalse(written!.StartsWith(@"\\?\"), $"reported path should not carry the extended-length prefix: {written}");
+		Assert.IsTrue(File.Exists(written), "the reported path should be usable as-is");
+	}
+
 	[TestMethod]
 	public void A_second_crash_appends_rather_than_replacing_the_first()
 	{

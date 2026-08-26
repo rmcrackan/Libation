@@ -30,6 +30,9 @@ public static class PreLoggingCrashLog
 	/// The file written, to be named in the crash dialog, or null when nothing could be written. Callers
 	/// used to tell users to attach <c>LibationCrash.log</c> unconditionally, which is the wrong file
 	/// whenever a <c>Log*.log</c> already exists, and no file at all when this returns null.
+	/// <para/>
+	/// Reported without the Windows extended-length prefix. This path is for a person to read and to paste
+	/// into Explorer, so a <c>\\?\</c> in front of it would be noise at best.
 	/// </returns>
 	public static string? TryWrite(Exception? exception, IEnumerable<(string Name, string Value)>? extraFields = null)
 	{
@@ -47,7 +50,7 @@ public static class PreLoggingCrashLog
 		foreach (var candidate in ResolveCandidateFiles())
 		{
 			if (TryAppend(candidate, record))
-				return candidate;
+				return candidate.PathWithoutPrefix;
 		}
 
 		return null;
@@ -65,7 +68,7 @@ public static class PreLoggingCrashLog
 			("OS", Describe(() => Configuration.OS.ToString())),
 			("Version", Describe(() => Configuration.LibationVersion?.ToString() ?? "[null]")),
 			("InteropFunctionsType", Describe(() => InteropFactory.InteropFunctionsType?.ToString() ?? "[null]")),
-			("LibationFiles", Describe(() => Configuration.Instance.LibationFiles.Location.Path)),
+			("LibationFiles", Describe(() => Configuration.Instance.LibationFiles.Location.PathWithoutPrefix)),
 			("Books Folder", Describe(() => Configuration.Instance.Books ?? "[null]")),
 		};
 
