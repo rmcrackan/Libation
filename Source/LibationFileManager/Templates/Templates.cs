@@ -109,7 +109,8 @@ public abstract class Templates
 	{
 		ArgumentValidator.EnsureNotNull(libraryBookDto, nameof(libraryBookDto));
 		ArgumentValidator.EnsureNotNull(multiChapProps, nameof(multiChapProps));
-		return string.Concat(NamingTemplate.Evaluate(culture, libraryBookDto, multiChapProps, new CombinedDto(libraryBookDto, multiChapProps)).Select(p => p.Value));
+		var parts = NamingTemplate.Evaluate(culture, libraryBookDto, multiChapProps, new CombinedDto(libraryBookDto, multiChapProps));
+		return RestoreSeparators(string.Concat(parts.Select(p => p.Value)));
 	}
 
 	public LongPath GetFilename(LibraryBookDto libraryBookDto, string baseDir, string fileExtension, ReplacementCharacters? replacements = null, bool returnFirstExisting = false)
@@ -141,7 +142,24 @@ public abstract class Templates
 	}
 
 	protected virtual IEnumerable<string> GetTemplatePartsStrings(List<TemplatePart> parts, ReplacementCharacters replacements)
-		=> parts.Select(p => replacements.ReplaceFilenameChars(p.Value));
+	{
+		//A single file name has no levels to create, so a separator asked for by the template is
+		//replaced just as a literal one would be.
+		var backSlash = replacements.ReplaceFilenameChars("\\");
+		var forwardSlash = replacements.ReplaceFilenameChars("/");
+
+		return parts.Select(p => CommonFormatters.ResolveSeparators(replacements.ReplaceFilenameChars(p.Value), backSlash, forwardSlash));
+	}
+
+	/// <summary>The directory separator that the template asked for, once it is time to build a path.</summary>
+	private static string ResolveToDirectorySeparator(string value)
+		=> CommonFormatters.ResolveSeparators(value, DirectorySeparator, DirectorySeparator);
+
+	/// <summary>Restore the characters the user typed, for templates whose output is metadata rather than a path.</summary>
+	private static string RestoreSeparators(string value)
+		=> CommonFormatters.ResolveSeparators(value, "\\", "/");
+
+	private static readonly string DirectorySeparator = Path.DirectorySeparatorChar.ToString();
 
 	private LongPath GetFilename(string baseDir, string fileExtension, ReplacementCharacters replacements, bool returnFirstExisting, LibraryBookDto lbDto, CultureInfo? culture,
 		MultiConvertFileProperties? multiDto = null)
@@ -414,9 +432,20 @@ public abstract class Templates
 			=> parts
 			.Select(tp => tp.TemplateTag is null
 				//FolderTemplate literals can have directory separator characters
-				? replacements.ReplacePathChars(tp.Value.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar))
+				? replacements.ReplacePathChars(NormalizeLiteralSeparators(tp.Value))
 				: replacements.ReplaceFilenameChars(tp.Value)
-			).ToList();
+			)
+			//A separator that came from a format string survives ReplaceFilenameChars as a mark, so
+			//it becomes a directory level here while one that came from the metadata stays replaced.
+			.Select(ResolveToDirectorySeparator)
+			.ToList();
+
+		/// <summary>Accept either slash as a directory separator, so the same template works on every platform.</summary>
+		private static string NormalizeLiteralSeparators(string literal)
+			=> literal
+			.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
+			.Replace('\\', Path.DirectorySeparatorChar)
+			.Replace('/', Path.DirectorySeparatorChar);
 	}
 
 	public class FileTemplate : Templates, ITemplate
@@ -449,6 +478,6 @@ public abstract class Templates
 		public static IEnumerable<TagCollection> TagCollections { get; } = chapterPropertyTags.Append(conditionalTags).Append(combinedConditionalTags);
 
 		protected override IEnumerable<string> GetTemplatePartsStrings(List<TemplatePart> parts, ReplacementCharacters replacements)
-			=> parts.Select(p => p.Value);
+			=> parts.Select(p => RestoreSeparators(p.Value));
 	}
 }

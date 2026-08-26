@@ -70,13 +70,17 @@ public static partial class CommonFormatters
 		// if this function is called from toString implementation of the IFormattable interface, we only get a IFormatProvider
 		var culture = GetCultureInfo(provider);
 		var oldUiCulture = Thread.CurrentThread.CurrentUICulture;
-		var result = CollapseSpacesAndTrimRegex().Replace(TagFormatRegex().ReplaceWithGaps(templateString, GetValueForMatchingTag, Unescape), string.Empty);
+		var result = CollapseSpacesAndTrimRegex().Replace(TagFormatRegex().ReplaceWithGaps(templateString, GetValueForMatchingTag, UnescapeGap), string.Empty);
 		Thread.CurrentThread.CurrentUICulture = oldUiCulture;
 		return result;
+
+		// Everything between the tags belongs to the template, so its separators ask for a directory level.
+		static string UnescapeGap(string gap) => MarkSeparators(Unescape(gap));
 
 		string GetValueForMatchingTag(Match m)
 		{
 			var tag = m.Groups["tag"].Value;
+			// An unrecognized tag is passed through verbatim, escapes and all, so it is left unmarked.
 			if (!replacements.TryGetValue(tag, out var getter)) return m.Value;
 
 			var lang = m.ResolveValue("lang");
@@ -91,7 +95,9 @@ public static partial class CommonFormatters
 				IFormattable formattable => formattable.ToString(format, cultureToUse),
 				_ => _StringFormatter(value?.ToString(), format, cultureToUse),
 			};
-			return formatted.IsNullOrEmpty() ? string.Empty : m.UnescapeValue("pre") + formatted + m.UnescapeValue("post");
+			return formatted.IsNullOrEmpty()
+				? string.Empty
+				: MarkSeparators(m.UnescapeValue("pre")) + RemoveSeparatorMarks(formatted) + MarkSeparators(m.UnescapeValue("post"));
 		}
 	}
 
@@ -243,6 +249,46 @@ public static partial class CommonFormatters
 	{
 		return Unescape(valueSpan, ['\'', '"']);
 	}
+
+	#region Separator marks
+
+	/*
+	 * A directory separator means different things depending on where it came from. Written into a
+	 * template it asks for a new directory level; arriving inside a book property it is just a
+	 * character that has no business in a file name. Formatters fuse both into one string, and
+	 * IFormattable.ToString cannot hand back anything richer, so the two are told apart by marking
+	 * the separators that came from the template with a private use character. Templates resolves
+	 * the marks once the property values have been through ReplacementCharacters.
+	 */
+
+	public const char TemplateBackSlash = '\uE000';
+	public const char TemplateForwardSlash = '\uE001';
+
+	/// <summary>Mark the directory separators in text taken verbatim from a template's format string.</summary>
+	public static string MarkSeparators(string? literal)
+		=> string.IsNullOrEmpty(literal)
+			? string.Empty
+			: literal.Replace('\\', TemplateBackSlash).Replace('/', TemplateForwardSlash);
+
+	/// <summary>Drop separator marks from a property value so that metadata cannot forge a directory level.</summary>
+	public static string RemoveSeparatorMarks(string? value)
+		=> string.IsNullOrEmpty(value)
+			? string.Empty
+			: value.IndexOfAny(separatorMarks) < 0
+				? value
+				: value.Replace($"{TemplateBackSlash}", "").Replace($"{TemplateForwardSlash}", "");
+
+	/// <summary>Replace separator marks with the text that each one should become.</summary>
+	public static string ResolveSeparators(string? text, string backSlash, string forwardSlash)
+		=> string.IsNullOrEmpty(text)
+			? string.Empty
+			: text.IndexOfAny(separatorMarks) < 0
+				? text
+				: text.Replace($"{TemplateBackSlash}", backSlash).Replace($"{TemplateForwardSlash}", forwardSlash);
+
+	private static readonly char[] separatorMarks = [TemplateBackSlash, TemplateForwardSlash];
+
+	#endregion
 
 	public static string Unescape(ReadOnlySpan<char> valueSpan, ReadOnlySpan<char> quoteChars, bool unquoteBackslash = true, bool unescapeDoubleQuotesInsideQuotes = true)
 	{

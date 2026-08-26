@@ -96,7 +96,8 @@ internal partial interface IListFormat<TList> where TList : IListFormat<TList>
 		if (separator is null)
 			return formattedItems;
 
-		var joined = Join(separator, formattedItems);
+		// The separator comes from the template, so its directory separators ask for a directory level.
+		var joined = Join(CommonFormatters.MarkSeparators(separator), formattedItems);
 		return joined is null ? [] : [joined];
 
 		string ItemFormatter(T n) => n.ToString(format, culture);
