@@ -22,6 +22,13 @@ public static class Extensions
 			  ?.DateTime;
 
 		/// <summary>
+		/// The book's summary with Audible's HTML markup flattened away, ready to be stored and used
+		/// as-is. See <see cref="HtmlText.ToPlainText"/>.
+		/// </summary>
+		public string PlainTextDescription()
+			=> HtmlText.ToPlainText(item.Description);
+
+		/// <summary>
 		/// The publisher's copyright line, e.g. "&#169;2024 Bentley Little (P)2025 Journalstone".
 		/// Only present when the product_details response group was requested, and often null anyway.
 		/// </summary>

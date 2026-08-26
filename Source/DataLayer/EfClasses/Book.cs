@@ -122,6 +122,13 @@ public class Book
 	public void UpdateLengthInMinutes(int lengthInMinutes)
 		=> LengthInMinutes = lengthInMinutes;
 
+	public void UpdateDescription(string? description)
+	{
+		// don't overwrite with default values
+		if (!string.IsNullOrWhiteSpace(description))
+			Description = description.Trim();
+	}
+
 	#region contributors, authors, narrators
 	internal HashSet<BookContributor> ContributorsLink { get; private set; }
 

@@ -267,10 +267,7 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 		tags.AlbumArtists ??= tags.Artist;
 		tags.Genres = string.Join(", ", book.LowestCategoryNames());
 		tags.ProductID ??= contentReference.Sku;
-		//Book.Description is Audible's publisher_summary verbatim, which is HTML. The .aaxc files
-		//embed the same text already flattened, so flatten it here too rather than writing markup
-		//into a tag that no player will render.
-		tags.Comment ??= book.DescriptionAsPlainText();
+		tags.Comment ??= book.Description;
 		tags.LongDescription ??= tags.Comment;
 		//Only the .aaxc files carry a copyright line of their own. AaxcDownloadConvertBase's fixup
 		//normalizes "(P)" to "℗" after this runs, so the catalog's wording lands the same way.

@@ -18,14 +18,12 @@ namespace FileLiberator.Tests;
 [TestClass]
 public class FillMissingTagsTests
 {
-	/// <summary>Audible's publisher_summary for the title in issue #2002, trimmed to two paragraphs.</summary>
-	private const string PublisherSummaryHtml
-		= "<p>When he was a little boy, there was a house behind Alex Lowry's house. "
-		+ "Except he was the only one who could see it.</p> "
-		+ "<p>Decades later, after the pandemic costs Alex his corporate job, he picks up work "
-		+ "delivering specialty items &amp; homebound clientele.</p>";
-
-	private const string PublisherSummaryFlattened
+	/// <summary>
+	/// The stored description for the title in issue #2002, trimmed to two paragraphs. Audible sends it
+	/// as HTML; <see cref="AudibleUtilities.HtmlText"/> flattens it on import, so by the time it reaches
+	/// a tag it is already plain text.
+	/// </summary>
+	private const string StoredDescription
 		= "When he was a little boy, there was a house behind Alex Lowry's house. "
 		+ "Except he was the only one who could see it.\n"
 		+ "Decades later, after the pandemic costs Alex his corporate job, he picks up work "
@@ -38,14 +36,14 @@ public class FillMissingTagsTests
 	#region The Widevine / DASH file: nothing embedded, everything falls back to the library
 
 	[TestMethod]
-	public void EmptyTags_DescriptionIsFlattenedToPlainText()
+	public void EmptyTags_DescriptionComesFromTheLibrary()
 	{
 		var tags = EmptyTags();
 
 		FillMissingTags(tags);
 
-		tags.Comment.Should().Be(PublisherSummaryFlattened);
-		tags.LongDescription.Should().Be(PublisherSummaryFlattened);
+		tags.Comment.Should().Be(StoredDescription);
+		tags.LongDescription.Should().Be(StoredDescription);
 	}
 
 	[TestMethod]
@@ -171,7 +169,7 @@ public class FillMissingTagsTests
 		=> MockLibraryBook.CreateBook(
 			title: "Behind",
 			subtitle: "",
-			description: PublisherSummaryHtml,
+			description: StoredDescription,
 			datePublished: datePublished,
 			copyright: CatalogCopyright)
 			.Book;
@@ -182,7 +180,7 @@ public class FillMissingTagsTests
 			new AudibleProductId("B0G2N23FC4"),
 			"Behind",
 			"",
-			PublisherSummaryHtml,
+			StoredDescription,
 			646,
 			DataLayer.ContentType.Product,
 			[new Contributor("Bentley Little", "B001IR18G4")],
