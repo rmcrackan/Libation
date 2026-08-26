@@ -337,9 +337,9 @@ public partial class AccountsDialog : Form
 				return;
 			}
 
-			if (importResult.Outcome is Mkb79ImportOutcome.DuplicateAccount && importResult.Account is { } dup)
+			if (importResult.Outcome is Mkb79ImportOutcome.DuplicateAccount && importResult.Account is not null)
 			{
-				MessageBox.Show(this, $"An account with that account id and country already exists.\r\n\r\nAccount ID: {dup.AccountId}\r\nCountry: {dup.Locale?.Name}", "Cannot Add Duplicate Account");
+				MessageBox.Show(this, Mkb79AuthImporter.DuplicateMessage(importResult), "Cannot Add Duplicate Account");
 				return;
 			}
 

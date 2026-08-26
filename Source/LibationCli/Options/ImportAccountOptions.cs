@@ -59,10 +59,8 @@ internal class ImportAccountOptions : OptionsBase
 				Console.Error.WriteLine(result.Message ?? "Invalid import file.");
 				Environment.ExitCode = (int)ExitCode.RunTimeError;
 				return;
-			case Mkb79ImportOutcome.DuplicateAccount when result.Account is { } dup:
-				Console.Error.WriteLine(
-					$"An account with that account id and country already exists.{Environment.NewLine}"
-					+ $"Account ID: {dup.AccountId}{Environment.NewLine}Country: {dup.Locale?.Name}");
+			case Mkb79ImportOutcome.DuplicateAccount when result.Account is not null:
+				Console.Error.WriteLine(Mkb79AuthImporter.DuplicateMessage(result));
 				Environment.ExitCode = (int)ExitCode.RunTimeError;
 				return;
 			case Mkb79ImportOutcome.Success when result.Account is { } account:

@@ -3,6 +3,7 @@ using AudibleUtilities;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using LibationUiBase;
 using LibationUiBase.Forms;
 using ReactiveUI;
 using System;
@@ -45,6 +46,12 @@ public partial class AccountsDialog : DialogWindow
 		public string? AccountName { get; set; }
 		public bool IsDefault => string.IsNullOrEmpty(AccountId);
 
+		/// <summary>
+		/// Marketplaces beyond <see cref="SelectedLocale"/> that this account should also scan. Edited by the
+		/// marketplaces dialog and written on save, like every other field here.
+		/// </summary>
+		public List<string> AdditionalLocaleNames { get; } = new();
+
 		public bool CanExport
 		{
 			get => field;
@@ -56,6 +63,17 @@ public partial class AccountsDialog : DialogWindow
 				? "Export account authorization to audible-cli"
 				: "Authenticate this account (e.g. library scan) before exporting to audible-cli.";
 
+		/// <summary>
+		/// Checking other marketplaces uses this account's stored credentials, so it needs the same thing an
+		/// export does: an account that has logged in at least once.
+		/// </summary>
+		public bool CanCheckMarketplaces => CanExport;
+
+		public string MarketplacesButtonText => MarketplacesUi.ButtonText(AdditionalLocaleNames.Count + 1);
+
+		public string MarketplacesButtonToolTip
+			=> CanCheckMarketplaces ? MarketplacesUi.ButtonToolTip : MarketplacesUi.NotAuthenticatedToolTip;
+
 		public AccountDto() => RefreshCanExport();
 
 		public AccountDto(Account account)
@@ -64,13 +82,28 @@ public partial class AccountsDialog : DialogWindow
 			AccountId = account.AccountId;
 			SelectedLocale = Locales.Single(l => l.Name == account.Locale?.Name);
 			AccountName = account.AccountName;
+			AdditionalLocaleNames.AddRange(account.AdditionalLocales.Select(l => l.Name));
 			RefreshCanExportFromAccount(account);
+		}
+
+		public void SetAdditionalLocaleNames(IEnumerable<string> localeNames)
+		{
+			AdditionalLocaleNames.Clear();
+			AdditionalLocaleNames.AddRange(localeNames);
+			this.RaisePropertyChanged(nameof(MarketplacesButtonText));
 		}
 
 		private void RefreshCanExportFromAccount(Account account)
 		{
 			CanExport = account.IdentityTokens?.IsValid == true;
+			RaiseDerivedFromCanExport();
+		}
+
+		private void RaiseDerivedFromCanExport()
+		{
 			this.RaisePropertyChanged(nameof(ExportButtonToolTip));
+			this.RaisePropertyChanged(nameof(CanCheckMarketplaces));
+			this.RaisePropertyChanged(nameof(MarketplacesButtonToolTip));
 		}
 
 		private void RefreshCanExport()
@@ -78,7 +111,7 @@ public partial class AccountsDialog : DialogWindow
 			if (string.IsNullOrEmpty(AccountId) || SelectedLocale is null)
 			{
 				CanExport = false;
-				this.RaisePropertyChanged(nameof(ExportButtonToolTip));
+				RaiseDerivedFromCanExport();
 				return;
 			}
 
@@ -86,7 +119,7 @@ public partial class AccountsDialog : DialogWindow
 			var account = persister.AccountsSettings.Accounts.FirstOrDefault(a =>
 				a.AccountId == AccountId && a.Locale?.Name == SelectedLocale.Name);
 			CanExport = account?.IdentityTokens?.IsValid == true;
-			this.RaisePropertyChanged(nameof(ExportButtonToolTip));
+			RaiseDerivedFromCanExport();
 		}
 	}
 
@@ -174,9 +207,9 @@ public partial class AccountsDialog : DialogWindow
 				return;
 			}
 
-			if (importResult.Outcome is Mkb79ImportOutcome.DuplicateAccount && importResult.Account is { } dup)
+			if (importResult.Outcome is Mkb79ImportOutcome.DuplicateAccount && importResult.Account is not null)
 			{
-				await MessageBox.Show(this, $"An account with that account id and country already exists.\r\n\r\nAccount ID: {dup.AccountId}\r\nCountry: {dup.Locale?.Name}", "Cannot Add Duplicate Account");
+				await MessageBox.Show(this, Mkb79AuthImporter.DuplicateMessage(importResult), "Cannot Add Duplicate Account");
 				return;
 			}
 
@@ -197,6 +230,29 @@ public partial class AccountsDialog : DialogWindow
 	{
 		if (e.Source is Button expBtn && expBtn.DataContext is AccountDto acc)
 			Export(acc);
+	}
+
+	public async void MarketplacesButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+	{
+		if (e.Source is not Button btn || btn.DataContext is not AccountDto acc)
+			return;
+
+		// the probe speaks to Audible with this account's stored credentials, so it needs the saved account,
+		// not the grid's copy of it
+		using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+		var account = persister.AccountsSettings.Accounts.FirstOrDefault(a =>
+			a.AccountId == acc.AccountId && a.Locale?.Name == acc.SelectedLocale?.Name);
+
+		if (account is null || account.IdentityTokens?.IsValid != true)
+		{
+			await MessageBox.Show(this, MarketplacesUi.NotAuthenticatedToolTip, "Account Not Authenticated");
+			return;
+		}
+
+		var dialog = new MarketplacesDialog(account, persister.AccountsSettings, acc.AdditionalLocaleNames);
+
+		if (await dialog.ShowDialog<DialogResult>(this) == DialogResult.OK)
+			acc.SetAdditionalLocaleNames(dialog.SelectedAdditionalLocaleNames);
 	}
 
 	protected override async Task SaveAndCloseAsync()
@@ -246,6 +302,7 @@ public partial class AccountsDialog : DialogWindow
 		}
 
 		// upsert each. validation occurs through Account and AccountsSettings
+		var upserted = new List<(AccountDto Dto, Account Account)>();
 		foreach (var dto in Accounts.Where(a => a.AccountId is not null))
 		{
 			var acct = accountsSettings.Upsert(dto.AccountId!, dto.SelectedLocale?.Name);
@@ -254,7 +311,15 @@ public partial class AccountsDialog : DialogWindow
 				= string.IsNullOrWhiteSpace(dto.AccountName)
 				? $"{dto.AccountId} - {dto.SelectedLocale?.Name}"
 				: dto.AccountName.Trim();
+
+			// drop every marketplace before assigning any, so that moving one from one account to another in a
+			// single sitting cannot trip the "no two accounts scan one marketplace" rule halfway through
+			acct.SetAdditionalMarketplaces([]);
+			upserted.Add((dto, acct));
 		}
+
+		foreach (var (dto, acct) in upserted)
+			acct.SetAdditionalMarketplaces(dto.AdditionalLocaleNames);
 	}
 	private async Task<bool> inputIsValid()
 	{

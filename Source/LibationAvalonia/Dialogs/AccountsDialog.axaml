@@ -87,6 +87,23 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
+				<DataGridTemplateColumn Width="Auto" Header="Marketplaces">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+
+							<Button
+								Content="{Binding MarketplacesButtonText}"
+								VerticalAlignment="Stretch"
+								HorizontalAlignment="Stretch"
+								HorizontalContentAlignment="Center"
+								IsEnabled="{Binding CanCheckMarketplaces}"
+								ToolTip.Tip="{Binding MarketplacesButtonToolTip}"
+								Click="MarketplacesButton_Clicked" />
+
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+
 				<DataGridTextColumn
 					Width="Auto"
 					Binding="{Binding AccountName, Mode=TwoWay}"

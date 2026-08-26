@@ -1,4 +1,6 @@
 using AssertionHelper;
+using AudibleApi;
+using AudibleApi.Authorization;
 using AudibleApi.Cryptography;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -64,5 +66,29 @@ public class Mkb79AuthExportTests
 		var auth = Mkb79Auth.FromJson(MinimalMkb79Json(j => j["device_private_key"] = "AAAA"));
 		auth.BeNotNull();
 		auth.ToJson().Should().Be(Serialize.ToJson(auth));
+	}
+
+	/// <summary>
+	/// The file carries one marketplace because that is all the format has room for: one locale_code beside one
+	/// device registration. Exporting an account that reads several must still name the one it is registered
+	/// with, so the file stays valid for audible-cli - which switches marketplaces from those same tokens anyway.
+	/// </summary>
+	[TestMethod]
+	public void export_names_the_registered_marketplace_and_leaves_the_additional_ones_out()
+	{
+		var account = new Account("user@example.com")
+		{
+			IdentityTokens = new Identity(Localization.Get("ca"))
+		};
+		account.AddMarketplace("us");
+
+		var jo = JObject.Parse(Mkb79Auth.FromAccount(account).ToJson());
+
+		jo["locale_code"]!.Value<string>().Should().Be("ca");
+		jo["with_username"]!.Value<bool>().Should().BeFalse();
+
+		// nothing in the format records the extra marketplace, so a re-import will not restore it
+		jo.ContainsKey("AdditionalLocaleNames").Should().BeFalse();
+		jo.Properties().Select(p => p.Name).Contains("additional_locale_codes").Should().BeFalse();
 	}
 }
