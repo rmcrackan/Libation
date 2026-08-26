@@ -40,7 +40,7 @@ public static class StartupAssemblyBootstrap
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Error(ex, "Failed while recovering from a pending in-app upgrade");
+			StartupLog.Error(ex, "Failed while recovering from a pending in-app upgrade");
 		}
 	}
 
@@ -55,7 +55,7 @@ public static class StartupAssemblyBootstrap
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Warning(ex, "Could not run install metadata sync at startup");
+			StartupLog.Warning(ex, "Could not run install metadata sync at startup");
 		}
 	}
 

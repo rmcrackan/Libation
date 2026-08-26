@@ -117,12 +117,8 @@ public static class InstallUpgradeManager
 		var pendingPath = GetPendingStatePath(installDirectory);
 		File.WriteAllText(pendingPath, JsonSerializer.Serialize(pending, JsonOptions));
 
-		Serilog.Log.Logger.Information(
-			"Prepared in-app upgrade to {TargetVersion}. Backed up {BackedUpCount} files to {BackupDirectory}. Expecting {ExpectedCount} install files to match the upgrade package.",
-			targetVersion,
-			backedUpFiles.Count,
-			backupDirectory,
-			expectedHashes.Count);
+		StartupLog.Information(
+			$"Prepared in-app upgrade to {targetVersion}. Backed up {backedUpFiles.Count} files to {backupDirectory}. Expecting {expectedHashes.Count} install files to match the upgrade package.");
 	}
 
 	/// <summary>
@@ -145,7 +141,7 @@ public static class InstallUpgradeManager
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Error(ex, "Could not read pending upgrade state at {PendingPath}. Attempting emergency rollback.", pendingPath);
+			StartupLog.Error(ex, $"Could not read pending upgrade state at {pendingPath}. Attempting emergency rollback.");
 			return RollbackAndReport(installDirectory, pendingPath, null, ["Could not read pending upgrade state."], ex.Message);
 		}
 
@@ -153,16 +149,12 @@ public static class InstallUpgradeManager
 		if (verification.Success)
 		{
 			CompleteUpgrade(installDirectory);
-			Serilog.Log.Logger.Information(
-				"In-app upgrade to {TargetVersion} verified successfully at startup.",
-				pending.TargetVersion);
+			StartupLog.Information($"In-app upgrade to {pending.TargetVersion} verified successfully at startup.");
 			return null;
 		}
 
-		Serilog.Log.Logger.Error(
-			"Incomplete in-app upgrade detected at startup. Target version {TargetVersion}. {Summary}",
-			pending.TargetVersion,
-			verification.Summary);
+		StartupLog.Error(
+			$"Incomplete in-app upgrade detected at startup. Target version {pending.TargetVersion}. {verification.Summary}");
 
 		return RollbackAndReport(installDirectory, pendingPath, pending, verification.FailedFiles, verification.Summary);
 	}
@@ -245,7 +237,7 @@ public static class InstallUpgradeManager
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Warning(ex, "Could not delete upgrade state directory {StateDirectory}", stateDirectory);
+			StartupLog.Warning(ex, $"Could not delete upgrade state directory {stateDirectory}");
 		}
 	}
 
@@ -278,11 +270,8 @@ public static class InstallUpgradeManager
 	{
 		var restoredFiles = RestoreFromBackup(installDirectory);
 
-		Serilog.Log.Logger.Error(
-			"In-app upgrade failed. Rolled back {RestoredCount} file(s) in {InstallDirectory}. {Summary}",
-			restoredFiles.Count,
-			installDirectory,
-			summary);
+		StartupLog.Error(
+			$"In-app upgrade failed. Rolled back {restoredFiles.Count} file(s) in {installDirectory}. {summary}");
 
 		try
 		{
@@ -291,7 +280,7 @@ public static class InstallUpgradeManager
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Warning(ex, "Could not delete pending upgrade state at {PendingPath}", pendingPath);
+			StartupLog.Warning(ex, $"Could not delete pending upgrade state at {pendingPath}");
 		}
 
 		var targetVersion = pending?.TargetVersion ?? "unknown";
@@ -339,7 +328,7 @@ public static class InstallUpgradeManager
 			File.Copy(backupFile, targetPath, overwrite: true);
 			restoredFiles.Add(relativePath);
 
-			Serilog.Log.Logger.Information("Upgrade rollback restored {FileName}", relativePath);
+			StartupLog.Information($"Upgrade rollback restored {relativePath}");
 		}
 
 		return restoredFiles;
@@ -357,7 +346,7 @@ public static class InstallUpgradeManager
 
 			if (entry is null)
 			{
-				Serilog.Log.Logger.Warning("Upgrade package does not contain expected file {FileName}", fileName);
+				StartupLog.Warning($"Upgrade package does not contain expected file {fileName}");
 				continue;
 			}
 

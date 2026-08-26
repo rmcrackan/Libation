@@ -67,7 +67,8 @@ public static class EssentialFileValidator
 					// ensure we can open for read and write
 				}
 
-				Log.Logger.Debug("Essential file validated: {DisplayName} at \"{Path}\"", displayName, path);
+				// A Serilog failure here would be caught below and retried as if the file itself were bad.
+				StartupLog.Debug($"Essential file validated: {displayName} at \"{path}\"");
 				return (true, null);
 			}
 			catch (Exception ex)

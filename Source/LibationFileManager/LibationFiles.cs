@@ -1,8 +1,6 @@
-﻿using Dinah.Core.Logging;
-using FileManager;
+﻿using FileManager;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Serilog;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -100,11 +98,11 @@ public class LibationFiles
 		{
 			// now it's set in the file again but no settings have moved yet
 			File.WriteAllText(AppsettingsJsonFile, endingContents);
-			Log.Logger.TryLogInformation("Libation files changed {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, pathToPersist });
+			StartupLog.Information($"Libation files changed. {AppsettingsJsonFile} {LIBATION_FILES_KEY}={pathToPersist}");
 		}
 		catch (Exception ex)
 		{
-			Log.Logger.TryLogError(ex, "Failed to change Libation files location {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, pathToPersist });
+			StartupLog.Error(ex, $"Failed to change Libation files location. {AppsettingsJsonFile} {LIBATION_FILES_KEY}={pathToPersist}");
 		}
 	}
 
@@ -125,12 +123,12 @@ public class LibationFiles
 		}
 		catch (Exception ex)
 		{
-			Log.Logger.Error(ex, "Failed to load settings file: {SettingsFile}", settingsFile);
+			StartupLog.Error(ex, $"Failed to load settings file: {settingsFile}");
 			try
 			{
-				Log.Logger.Information("Deleting invalid settings file: {SettingsFile}", settingsFile);
+				StartupLog.Information($"Deleting invalid settings file: {settingsFile}");
 				FileUtility.SaferDelete(settingsFile);
-				Log.Logger.Information("Creating a new, empty setting file: {SettingsFile}", settingsFile);
+				StartupLog.Information($"Creating a new, empty setting file: {settingsFile}");
 				try
 				{
 					File.WriteAllText(settingsFile, "{}");
@@ -138,12 +136,12 @@ public class LibationFiles
 				}
 				catch (Exception createEx)
 				{
-					Log.Logger.Error(createEx, "Failed to create new settings file: {SettingsFile}", settingsFile);
+					StartupLog.Error(createEx, $"Failed to create new settings file: {settingsFile}");
 				}
 			}
 			catch (Exception deleteEx)
 			{
-				Log.Logger.Error(deleteEx, "Failed to delete the invalid settings file: {SettingsFile}", settingsFile);
+				StartupLog.Error(deleteEx, $"Failed to delete the invalid settings file: {settingsFile}");
 			}
 
 			return false;
@@ -228,7 +226,7 @@ public class LibationFiles
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.TryLogError(ex, $"Failed to create {appsettingsFile}");
+				StartupLog.Error(ex, $"Failed to create {appsettingsFile}");
 			}
 		}
 
@@ -298,7 +296,7 @@ public class LibationFiles
 			}
 			catch (Exception e)
 			{
-				Log.Error(e, "Failed to run shell command. {@Arguments}", psi.ArgumentList);
+				StartupLog.Error(e, $"Failed to run shell command: {string.Join(' ', psi.ArgumentList)}");
 				return null;
 			}
 		}
