@@ -36,6 +36,7 @@ namespace LibationWinForms.Dialogs
             this.LibraryScan = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.AccountId = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Locale = new LocaleColumn();
+            this.Marketplaces = new MarketplacesColumn();
             this.AccountName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.importBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -79,6 +80,7 @@ namespace LibationWinForms.Dialogs
             this.LibraryScan,
             this.AccountId,
             this.Locale,
+            this.Marketplaces,
             this.AccountName});
             this.dataGridView1.Location = new System.Drawing.Point(14, 14);
             this.dataGridView1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
@@ -121,6 +123,13 @@ namespace LibationWinForms.Dialogs
             this.Locale.HeaderText = "Locale";
             this.Locale.Name = "Locale";
             this.Locale.Width = 47;
+            // 
+            // Marketplaces
+            // 
+            this.Marketplaces.HeaderText = "Marketplaces";
+            this.Marketplaces.Name = "Marketplaces";
+            this.Marketplaces.Text = "Marketplaces";
+            this.Marketplaces.Width = 90;
             // 
             // AccountName
             // 
@@ -170,6 +179,7 @@ namespace LibationWinForms.Dialogs
 		private System.Windows.Forms.DataGridViewCheckBoxColumn LibraryScan;
 		private System.Windows.Forms.DataGridViewTextBoxColumn AccountId;
 		private LocaleColumn Locale;
+		private MarketplacesColumn Marketplaces;
 		private System.Windows.Forms.DataGridViewTextBoxColumn AccountName;
 	}
 }

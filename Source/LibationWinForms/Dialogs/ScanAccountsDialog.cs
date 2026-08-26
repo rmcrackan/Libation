@@ -31,7 +31,8 @@ public partial class ScanAccountsDialog : Form
 			var item = new listItem
 			{
 				Account = account,
-				Text = $"{account.AccountName} ({account.AccountId} - {account.Locale?.Name})"
+				// lists every marketplace: one checkbox here can scan more than one
+				Text = LibationUiBase.MarketplacesUi.ScanPickerText(account)
 			};
 			this.accountsClb.Items.Add(item, account.LibraryScan);
 		}
