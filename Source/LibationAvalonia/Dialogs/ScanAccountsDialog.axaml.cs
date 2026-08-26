@@ -1,5 +1,6 @@
 using AudibleUtilities;
 using Avalonia.Collections;
+using LibationUiBase;
 using LibationUiBase.Forms;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,8 @@ public partial class ScanAccountsDialog : DialogWindow
 		{
 			Account = account;
 			IsChecked = account.LibraryScan;
-			Text = $"{account.AccountName} ({account.AccountId} - {account.Locale?.Name})";
+			// lists every marketplace: one checkbox here can scan more than one
+			Text = MarketplacesUi.ScanPickerText(account);
 		}
 		public Account Account { get; }
 		public string Text { get; }

@@ -61,9 +61,14 @@ Work down this list. The first two account for most reports, and neither leaves 
 3. **Check what you are importing.** In **Settings > Import**, "Import episodes" and "Import Audible Plus
    books" each exclude titles from every scan. Both are recorded near the top of the log:
    `"ImportEpisodes":true,"ImportPlusTitles":true`.
-4. **Scan again.** Audible occasionally leaves titles out of a scan. Libation re-requests what it notices
+4. **Check the other marketplaces.** Audible keeps a separate library per marketplace. A title bought while
+   your Amazon address was set to another country stays in that country's library, and a scan of your usual
+   marketplace will never see it. **Settings > Accounts > Marketplaces > Check other marketplaces** asks each
+   one what it holds, using the credentials you already have. See
+   [Titles bought from another country](/docs/getting-started#titles-bought-from-another-country).
+5. **Scan again.** Audible occasionally leaves titles out of a scan. Libation re-requests what it notices
    missing, but a title absent from the library listing itself cannot be recovered until Audible sends it.
-5. **Read the scan summary in the log.** Every scan ends with a tally, and anything Libation dropped is named
+6. **Read the scan summary in the log.** Every scan ends with a tally, and anything Libation dropped is named
    just above it:
 
 ```
@@ -73,6 +78,7 @@ Library scan tally. {"LibraryItems":434,"EpisodesFetched":1724,"OrphanedEpisodes
 ```
 
 `PlusTitlesExcluded` or `EpisodeItemsExcluded` above zero means a setting from step 3 is dropping titles.
+Each marketplace an account reads is scanned and tallied separately.
 An `Audible did not return ... catalog products` warning means Audible sent an incomplete response even after
 Libation asked again. `podcast episodes were not imported because their series parent was missing` names each
 episode that was dropped.

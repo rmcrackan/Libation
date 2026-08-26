@@ -1,0 +1,81 @@
+<Window
+	xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
+	d:DesignWidth="560" d:DesignHeight="520"
+	MinWidth="400" MinHeight="360"
+	Width="560" Height="520"
+	x:Class="LibationAvalonia.Dialogs.MarketplacesDialog"
+	xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
+	x:DataType="dialogs:MarketplacesDialog"
+	x:CompileBindings="True"
+	Title="Marketplaces"
+	WindowStartupLocation="CenterOwner">
+
+	<Grid
+		ColumnDefinitions="Auto,*,Auto"
+		RowDefinitions="Auto,Auto,*,Auto,Auto"
+		Margin="10">
+
+		<TextBlock
+			Grid.Row="0"
+			Grid.Column="0"
+			Grid.ColumnSpan="3"
+			TextWrapping="Wrap"
+			Text="{Binding Intro}" />
+
+		<TextBlock
+			Grid.Row="1"
+			Grid.Column="0"
+			Grid.ColumnSpan="3"
+			Margin="0,10,0,0"
+			FontWeight="Bold"
+			Text="{Binding AccountLabel}" />
+
+		<ListBox
+			Grid.Row="2"
+			Grid.Column="0"
+			Grid.ColumnSpan="3"
+			Margin="0,10"
+			Name="lbMarketplaces"
+			ItemsSource="{Binding Marketplaces}">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<CheckBox
+						IsChecked="{Binding IsChecked, Mode=TwoWay}"
+						IsEnabled="{Binding CanCheck}"
+						ToolTip.Tip="{Binding ToolTip}">
+						<TextBlock Text="{Binding Text}" />
+					</CheckBox>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+
+		<TextBlock
+			Grid.Row="3"
+			Grid.Column="0"
+			Grid.ColumnSpan="3"
+			TextWrapping="Wrap"
+			Margin="0,0,0,10"
+			Name="StatusTextBlock" />
+
+		<Button
+			Grid.Row="4"
+			Grid.Column="0"
+			Padding="20,6"
+			Name="CheckButton"
+			Content="{Binding CheckButtonText}"
+			Click="CheckButton_Clicked" />
+
+		<Button
+			Grid.Row="4"
+			Grid.Column="2"
+			Classes="SaveButton"
+			HorizontalAlignment="Right"
+			Content="Save"
+			Name="SaveButton"
+			Command="{Binding SaveAndClose}" />
+	</Grid>
+</Window>

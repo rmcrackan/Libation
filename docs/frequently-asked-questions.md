@@ -85,6 +85,16 @@ Like many countries, amazon gives South Africa it's own amazon site. [Unlike man
 
 (Not exactly a *frequently* asked question but it's come up more than once)
 
+## Some Of My Books Are Missing From The Scan
+
+If you have ever changed your Amazon address to another country to buy a title that was not sold in your own, that title is in **that country's** Audible library and has stayed there ever since. Audible keeps a separate library per marketplace, so a scan of your usual one will never see it - there is no error and no warning, the titles are simply not there.
+
+Open **Settings -> Accounts**, click **Marketplaces** on the account's row, and click **Check other marketplaces**. Libation asks every marketplace how many titles it holds using the credentials you already have - no second login - and you tick the ones to include. After that, one scan of that account covers all of them.
+
+The button is only available once the account has signed in, so run a scan first if it looks greyed out. See [Getting Started - Titles bought from another country](/docs/getting-started#titles-bought-from-another-country).
+
+If the titles are missing for some other reason, check whether they are marked [absent from your last scan](/docs/advanced/troubleshoot) instead.
+
 ## My Audible Account Is From Before Amazon - How Do I Add It?
 
 Choose a **pre-amazon** locale (US, UK, or Germany) in the region dropdown, and enter your old Audible **username** in the Audible email/login field - not an email address. Details: [Getting Started - Create Accounts](/docs/getting-started#create-accounts).

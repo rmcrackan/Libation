@@ -237,6 +237,12 @@ public partial class Mkb79Auth
 		return account;
 	}
 
+	/// <summary>
+	/// The exported file names one marketplace - the one this account is registered with - because that is all
+	/// the format holds: a single <c>locale_code</c> alongside a single device registration. audible-cli switches
+	/// marketplaces on its own from those same tokens, so nothing is lost to it. Any additional marketplaces
+	/// Libation reads for this account are its own bookkeeping and have no slot here.
+	/// </summary>
 	public static Mkb79Auth FromAccount(Account account)
 		=> new()
 		{

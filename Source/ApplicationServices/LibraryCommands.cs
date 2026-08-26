@@ -331,11 +331,22 @@ public static class LibraryCommands
 		{
 			try
 			{
-				// get APIs in serial b/c of logins. do NOT move inside of parallel (Task.WhenAll)
-				var apiExtended = await ApiExtended.CreateAsync(account, allowInteractiveLogin);
+				// An account is scanned as a unit: all of its marketplaces or none of them. A partial scan would
+				// leave the marketplaces that did not run looking empty, and AbsentFromLastScan - which is keyed
+				// by account id, not by marketplace - would mark their titles absent.
+				var accountTasks = new List<Task<List<ImportItem>>>();
 
-				// add scanAccountAsync as a TASK: do not await
-				tasks.Add(scanAccountAsync(apiExtended, account, libraryOptions, archiver));
+				// ScanLocales leads with the account's own marketplace, so any login happens once, up front
+				foreach (var locale in account.ScanLocales)
+				{
+					// get APIs in serial b/c of logins. do NOT move inside of parallel (Task.WhenAll)
+					var apiExtended = await ApiExtended.CreateAsync(account, allowInteractiveLogin, storeLocale: locale);
+
+					// add scanAccountAsync as a TASK: do not await
+					accountTasks.Add(scanAccountAsync(apiExtended, account, locale, libraryOptions, archiver));
+				}
+
+				tasks.AddRange(accountTasks);
 			}
 			catch (Exception ex) when (!allowInteractiveLogin && AuthenticationExceptionHelper.IsAuthenticationFailure(ex))
 			{
@@ -355,23 +366,29 @@ public static class LibraryCommands
 		return new ScanResult(importItems, failedAccounts);
 	}
 
-	private static async Task<List<ImportItem>> scanAccountAsync(ApiExtended apiExtended, Account account, LibraryOptions libraryOptions, LogArchiver? archiver)
+	/// <param name="locale">
+	/// The marketplace being read. Usually the account's own; for an account holding titles under a second
+	/// storefront, each of those in turn. Books are tagged with it, which is how a download later finds its way
+	/// back to the right store.
+	/// </param>
+	private static async Task<List<ImportItem>> scanAccountAsync(ApiExtended apiExtended, Account account, Locale locale, LibraryOptions libraryOptions, LogArchiver? archiver)
 	{
 		ArgumentValidator.EnsureNotNull(account, nameof(account));
-		var locale = ArgumentValidator.EnsureNotNull(account.Locale, nameof(account.Locale));
+		ArgumentValidator.EnsureNotNull(locale, nameof(locale));
 
 		Log.Logger.Information("ImportLibraryAsync. {@DebugInfo}", new
 		{
-			Account = account.MaskedLogEntry ?? "[null]"
+			Account = account.MaskedLogEntry ?? "[null]",
+			LocaleName = locale.Name
 		});
 
-		logTime($"pre scanAccountAsync {account.AccountName}");
+		logTime($"pre scanAccountAsync {account.AccountName} {locale.Name}");
 
 		try
 		{
 			var dtoItems = await apiExtended.GetLibraryValidatedAsync(libraryOptions);
 
-			logTime($"post scanAccountAsync {account.AccountName} qty: {dtoItems.Count}");
+			logTime($"post scanAccountAsync {account.AccountName} {locale.Name} qty: {dtoItems.Count}");
 
 			await logDtoItemsAsync(dtoItems);
 
@@ -388,12 +405,13 @@ public static class LibraryCommands
 		{
 			if (archiver is not null)
 			{
-				var fileName = $"{DateTime.Now:u} {account.MaskedLogEntry}.json";
+				var fileName = $"{DateTime.Now:u} {account.MaskedLogEntry} {locale.Name}.json";
 				var items = await Task.Run(() => JArray.FromObject(dtoItems.Select(i => i.SourceJson)));
 
 				var scanFile = new JObject
 				{
 					{ "Account", account.MaskedLogEntry },
+					{ "Locale", locale.Name },
 					{ "ScannedDateTime", DateTime.Now.ToString("u") },
 				};
 

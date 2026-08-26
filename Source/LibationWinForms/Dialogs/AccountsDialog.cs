@@ -1,5 +1,6 @@
 ﻿using AudibleApi;
 using AudibleUtilities;
+using LibationUiBase;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -18,6 +19,7 @@ public partial class AccountsDialog : Form
 	private const string COL_AccountId = nameof(AccountId);
 	private const string COL_AccountName = nameof(AccountName);
 	private const string COL_Locale = nameof(Locale);
+	private const string COL_Marketplaces = nameof(Marketplaces);
 
 	public AccountsDialog()
 	{
@@ -56,13 +58,19 @@ public partial class AccountsDialog : Form
 
 	private void AddAccountToGrid(Account account)
 	{
+		var additional = account.AdditionalLocales.Select(l => l.Name).ToList();
+
 		var row = dataGridView1.Rows.Add(
 			"X",
 			"Export",
 			account.LibraryScan,
 			account.AccountId,
 			account.Locale?.Name ?? "",
+			MarketplacesUi.ButtonText(additional.Count + 1),
 			account.AccountName ?? "");
+
+		// the extra marketplaces are a list, not a cell value, so the row carries them alongside its cells
+		dataGridView1.Rows[row].Tag = additional;
 
 		dataGridView1[COL_Export, row].ToolTipText = "Export account authorization to audible-cli";
 		UpdateExportCellState(dataGridView1.Rows[row]);
@@ -73,6 +81,9 @@ public partial class AccountsDialog : Form
 		e.Row.Cells[COL_Delete].Value = "X";
 		e.Row.Cells[COL_LibraryScan].Value = true;
 		e.Row.Cells[COL_Export].ReadOnly = true;
+		e.Row.Cells[COL_Marketplaces].Value = MarketplacesUi.ButtonText(1);
+		e.Row.Cells[COL_Marketplaces].ReadOnly = true;
+		e.Row.Tag = new List<string>();
 	}
 
 	private void DataGridView1_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
@@ -109,11 +120,21 @@ public partial class AccountsDialog : Form
 		if (row.IsNewRow || !dataGridView1.Columns.Contains(COL_Export))
 			return;
 
+		// checking other marketplaces speaks to Audible with this account's stored credentials, so it needs the
+		// same thing an export does: an account that has logged in at least once
 		var canExport = AccountRowCanExport(GetAccountId(row), GetLocale(row));
 		row.Cells[COL_Export].ReadOnly = !canExport;
 		row.Cells[COL_Export].ToolTipText = canExport
 			? "Export account authorization to audible-cli"
 			: "Authenticate this account (e.g. library scan) before exporting to audible-cli.";
+
+		if (!dataGridView1.Columns.Contains(COL_Marketplaces))
+			return;
+
+		row.Cells[COL_Marketplaces].ReadOnly = !canExport;
+		row.Cells[COL_Marketplaces].ToolTipText = canExport
+			? MarketplacesUi.ButtonToolTip
+			: MarketplacesUi.NotAuthenticatedToolTip;
 	}
 
 	private void DataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -137,6 +158,12 @@ public partial class AccountsDialog : Form
 						&& !row.Cells[COL_Export].ReadOnly
 						&& RowToAccountDto(row) is AccountDto accountDto)
 						Export(accountDto);
+					break;
+				case COL_Marketplaces:
+					// if final/edit row: do nothing
+					if (e.RowIndex < dgv.RowCount - 1
+						&& !row.Cells[COL_Marketplaces].ReadOnly)
+						EditMarketplaces(row);
 					break;
 					//case COL_MoveUp:
 					//	// if top: do nothing
@@ -162,7 +189,40 @@ public partial class AccountsDialog : Form
 		this.Close();
 	}
 
-	private record AccountDto(string AccountId, string? AccountName, string LocaleName, bool LibraryScan);
+	private record AccountDto(
+		string AccountId,
+		string? AccountName,
+		string LocaleName,
+		bool LibraryScan,
+		IReadOnlyList<string> AdditionalLocaleNames);
+
+	/// <summary>Opens the marketplaces dialog for one row and takes the result back into the row.</summary>
+	private void EditMarketplaces(DataGridViewRow row)
+	{
+		if (GetAccountId(row) is not string accountId || GetLocale(row) is not string localeName)
+			return;
+
+		// the probe speaks to Audible with this account's stored credentials, so it needs the saved account,
+		// not the grid's copy of it
+		using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+		var account = persister.AccountsSettings.Accounts.FirstOrDefault(a =>
+			a.AccountId == accountId && a.Locale?.Name == localeName);
+
+		if (account is null || account.IdentityTokens?.IsValid != true)
+		{
+			MessageBox.Show(this, MarketplacesUi.NotAuthenticatedToolTip, "Account Not Authenticated");
+			return;
+		}
+
+		using var dialog = new MarketplacesDialog(account, persister.AccountsSettings, GetAdditionalLocaleNames(row));
+
+		if (dialog.ShowDialog(this) != DialogResult.OK)
+			return;
+
+		var selected = dialog.SelectedAdditionalLocaleNames.ToList();
+		row.Tag = selected;
+		row.Cells[COL_Marketplaces].Value = MarketplacesUi.ButtonText(selected.Count + 1);
+	}
 
 	private void saveBtn_Click(object sender, EventArgs e)
 	{
@@ -224,6 +284,7 @@ public partial class AccountsDialog : Form
 		}
 
 		// upsert each. validation occurs through Account and AccountsSettings
+		var upserted = new List<(AccountDto Dto, Account Account)>();
 		foreach (var dto in dtos)
 		{
 			var acct = accountsSettings.Upsert(dto.AccountId, dto.LocaleName);
@@ -232,7 +293,15 @@ public partial class AccountsDialog : Form
 				= string.IsNullOrWhiteSpace(dto.AccountName)
 				? $"{dto.AccountId} - {dto.LocaleName}"
 				: dto.AccountName.Trim();
+
+			// drop every marketplace before assigning any, so that moving one from one account to another in a
+			// single sitting cannot trip the "no two accounts scan one marketplace" rule halfway through
+			acct.SetAdditionalMarketplaces([]);
+			upserted.Add((dto, acct));
 		}
+
+		foreach (var (dto, acct) in upserted)
+			acct.SetAdditionalMarketplaces(dto.AdditionalLocaleNames);
 	}
 
 	private IEnumerable<DataGridViewRow> getRows()
@@ -258,11 +327,14 @@ public partial class AccountsDialog : Form
 	private static string? GetAccountName(DataGridViewRow row)
 		=> row.Cells[COL_AccountName]?.Value as string;
 
+	private static IReadOnlyList<string> GetAdditionalLocaleNames(DataGridViewRow row)
+		=> row.Tag as List<string> ?? [];
+
 	private static AccountDto? RowToAccountDto(DataGridViewRow row)
 		=> GetAccountId(row) is string accountId
 		&& GetLocale(row) is string localeName
 		&& GetLibraryScan(row) is bool libraryScan
-		? new AccountDto(accountId, GetAccountName(row), localeName, libraryScan)
+		? new AccountDto(accountId, GetAccountName(row), localeName, libraryScan, GetAdditionalLocaleNames(row))
 		: null;
 
 	private string GetAudibleCliAppDataPath()
@@ -337,9 +409,9 @@ public partial class AccountsDialog : Form
 				return;
 			}
 
-			if (importResult.Outcome is Mkb79ImportOutcome.DuplicateAccount && importResult.Account is { } dup)
+			if (importResult.Outcome is Mkb79ImportOutcome.DuplicateAccount && importResult.Account is not null)
 			{
-				MessageBox.Show(this, $"An account with that account id and country already exists.\r\n\r\nAccount ID: {dup.AccountId}\r\nCountry: {dup.Locale?.Name}", "Cannot Add Duplicate Account");
+				MessageBox.Show(this, Mkb79AuthImporter.DuplicateMessage(importResult), "Cannot Add Duplicate Account");
 				return;
 			}
 
@@ -381,6 +453,14 @@ public partial class AccountsDialog : Form
 		}
 	}
 
+	public class MarketplacesColumn : DataGridViewButtonColumn
+	{
+		public MarketplacesColumn() : base()
+		{
+			this.CellTemplate = new MarketplacesColumnCell();
+		}
+	}
+
 	public class DeleteColumnCell : AccessibleDataGridViewButtonCell
 	{
 		public DeleteColumnCell() : base("Delete account from Libation")
@@ -397,9 +477,23 @@ public partial class AccountsDialog : Form
 		}
 	}
 
-	public class ExportColumnCell : AccessibleDataGridViewButtonCell
+	public class ExportColumnCell : DisableableButtonCell
 	{
-		public ExportColumnCell() : base("Export account to mkb79/audible-cli format")
+		public ExportColumnCell() : base("Export account to mkb79/audible-cli format") { }
+	}
+
+	public class MarketplacesColumnCell : DisableableButtonCell
+	{
+		public MarketplacesColumnCell() : base("Check which Audible marketplaces this account holds titles in") { }
+	}
+
+	/// <summary>
+	/// A button cell that looks disabled when it is. A read-only <see cref="DataGridViewButtonCell"/> still
+	/// paints as a live button, which invites a click that does nothing.
+	/// </summary>
+	public abstract class DisableableButtonCell : AccessibleDataGridViewButtonCell
+	{
+		protected DisableableButtonCell(string accessibilityName) : base(accessibilityName)
 		{
 			ToolTipText = AccessibilityName;
 		}

@@ -546,6 +546,315 @@ public class delete : AccountsTestBase
 	}
 }
 
+/// <summary>
+/// One login can hold a library in more than one marketplace - a title bought while an Amazon address was
+/// briefly set to another country lives there permanently. The account keeps a single registration and simply
+/// records the extra marketplaces it should also read.
+/// </summary>
+[TestClass]
+public class additional_marketplaces : AccountsTestBase
+{
+	private static Account registeredIn(string localeName, string accountId = "user@example.com")
+		=> new(accountId) { IdentityTokens = new Identity(Localization.Get(localeName)) };
+
+	[TestMethod]
+	public void an_account_starts_with_only_its_own_marketplace()
+	{
+		var account = registeredIn("ca");
+
+		account.AdditionalLocales.Should().HaveCount(0);
+		account.ScanLocales.Select(l => l.Name).Should().BeEquivalentTo(["canada"]);
+		account.HasMarketplace("ca").Should().BeTrue();
+		account.HasMarketplace("us").Should().BeFalse();
+	}
+
+	[TestMethod]
+	public void a_scan_reads_the_registered_marketplace_first()
+	{
+		// the registered marketplace is where a login happens, so it has to be the one scanned first
+		var account = registeredIn("ca");
+		account.AddMarketplace("us");
+
+		CollectionAssert.AreEqual(
+			new[] { "canada", "us" },
+			account.ScanLocales.Select(l => l.Name).ToArray());
+	}
+
+	[TestMethod]
+	public void the_registered_marketplace_cannot_be_added_again()
+	{
+		var account = registeredIn("ca");
+
+		account.AddMarketplace("ca").Should().BeFalse();
+		account.ScanLocales.Count.Should().Be(1);
+	}
+
+	[TestMethod]
+	public void a_marketplace_cannot_be_added_twice()
+	{
+		var account = registeredIn("ca");
+
+		account.AddMarketplace("us").Should().BeTrue();
+		account.AddMarketplace("us").Should().BeFalse();
+		account.AdditionalLocales.Count.Should().Be(1);
+	}
+
+	[TestMethod]
+	public void a_country_code_and_a_locale_name_are_the_same_marketplace()
+	{
+		// 'de' and 'germany' name one marketplace; storing both would scan it twice
+		var account = registeredIn("us");
+
+		account.AddMarketplace("de").Should().BeTrue();
+		account.AddMarketplace("germany").Should().BeFalse();
+		account.AdditionalLocales.Single().Name.Should().Be("germany");
+	}
+
+	[TestMethod]
+	public void an_unknown_marketplace_is_refused()
+	{
+		var account = registeredIn("us");
+
+		account.AddMarketplace("atlantis").Should().BeFalse();
+		account.AddMarketplace("").Should().BeFalse();
+		account.AddMarketplace(null).Should().BeFalse();
+		account.AdditionalLocales.Should().HaveCount(0);
+	}
+
+	[TestMethod]
+	public void removing_a_marketplace_leaves_the_registered_one_alone()
+	{
+		var account = registeredIn("ca");
+		account.AddMarketplace("us");
+
+		account.RemoveMarketplace("us").Should().BeTrue();
+		account.RemoveMarketplace("ca").Should().BeFalse();
+		account.ScanLocales.Select(l => l.Name).Should().BeEquivalentTo(["canada"]);
+	}
+
+	[TestMethod]
+	public void adding_a_marketplace_marks_the_settings_dirty()
+	{
+		var account = registeredIn("ca");
+		var updates = 0;
+		account.Updated += (_, _) => updates++;
+
+		account.AddMarketplace("us");
+		updates.Should().Be(1);
+
+		// no change, no save
+		account.AddMarketplace("us");
+		updates.Should().Be(1);
+	}
+
+	[TestMethod]
+	public void a_download_finds_the_account_by_the_marketplace_its_book_came_from()
+	{
+		// this is the lookup FileLiberator uses: (account id, book's marketplace) -> credentials
+		var settings = new AccountsSettings();
+		var account = registeredIn("ca");
+		settings.Add(account);
+		account.AddMarketplace("us");
+
+		settings.GetAccount("user@example.com", "us").Should().BeSameAs(account);
+		settings.GetAccount("user@example.com", "ca").Should().BeSameAs(account);
+		settings.GetAccount("user@example.com", "uk").Should().BeNull();
+	}
+
+	[TestMethod]
+	public void the_registered_account_wins_over_one_holding_the_marketplace_as_an_extra()
+	{
+		var settings = new AccountsSettings();
+		var mine = registeredIn("us", "mine@example.com");
+		var theirs = registeredIn("ca", "theirs@example.com");
+		settings.Add(mine);
+		settings.Add(theirs);
+		theirs.AddMarketplace("uk");
+
+		settings.GetAccount("mine@example.com", "us").Should().BeSameAs(mine);
+		settings.GetAccount("theirs@example.com", "uk").Should().BeSameAs(theirs);
+	}
+
+	[TestMethod]
+	public void two_rows_for_one_login_cannot_scan_the_same_marketplace()
+	{
+		// the older way to hold two marketplaces was two rows for one login. adding a marketplace that another
+		// row already scans would import it twice and leave a download two accounts to choose from.
+		var settings = new AccountsSettings();
+		var ca = registeredIn("ca");
+		var us = registeredIn("us");
+		settings.Add(ca);
+		settings.Add(us);
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => ca.AddMarketplace("us"));
+	}
+
+	[TestMethod]
+	public void a_different_login_may_scan_the_same_marketplace()
+	{
+		var settings = new AccountsSettings();
+		var mine = registeredIn("ca", "mine@example.com");
+		var theirs = registeredIn("uk", "theirs@example.com");
+		settings.Add(mine);
+		settings.Add(theirs);
+
+		mine.AddMarketplace("us");
+		theirs.AddMarketplace("us");
+
+		mine.HasMarketplace("us").Should().BeTrue();
+		theirs.HasMarketplace("us").Should().BeTrue();
+	}
+
+	[TestMethod]
+	public void a_row_registered_with_a_marketplace_blocks_another_row_from_adding_it()
+	{
+		var settings = new AccountsSettings();
+		var ca = registeredIn("ca");
+		settings.Add(ca);
+		ca.AddMarketplace("us");
+
+		// the extra marketplace is a claim as real as a registration
+		Assert.ThrowsExactly<InvalidOperationException>(() => settings.Add(registeredIn("us")));
+	}
+
+	[TestMethod]
+	public void the_account_already_scanning_a_marketplace_can_be_named()
+	{
+		var settings = new AccountsSettings();
+		var ca = registeredIn("ca");
+		ca.AccountName = "Canada";
+		settings.Add(ca);
+
+		settings.GetAccountClaimingMarketplace("user@example.com", "ca").Should().BeSameAs(ca);
+		settings.GetAccountClaimingMarketplace("user@example.com", "ca", excluding: ca).Should().BeNull();
+		settings.GetAccountClaimingMarketplace("user@example.com", "us").Should().BeNull();
+	}
+}
+
+[TestClass]
+public class additional_marketplaces_persistence : AccountsTestBase
+{
+	/// <summary>An account file exactly as it was written before additional marketplaces existed.</summary>
+	private static string OneMarketplaceFile()
+	{
+		var settings = new AccountsSettings();
+		settings.Add(new Account("user@example.com")
+		{
+			AccountName = "Main",
+			IdentityTokens = new Identity(Localization.Get("ca"))
+		});
+		return settings.ToJson();
+	}
+
+	[TestMethod]
+	public void a_file_written_before_this_feature_loads_as_a_single_marketplace_account()
+	{
+		var json = OneMarketplaceFile();
+		JObject.Parse(json)["Accounts"]![0]!["AdditionalLocaleNames"].Should().BeNull();
+
+		var loaded = AccountsSettings.FromJson(json);
+		loaded.BeNotNull();
+
+		var account = loaded.Accounts.Single();
+		account.AdditionalLocales.Should().HaveCount(0);
+		account.ScanLocales.Select(l => l.Name).Should().BeEquivalentTo(["canada"]);
+
+		// and saving it back does not introduce the property
+		JObject.Parse(loaded.ToJson())["Accounts"]![0]!["AdditionalLocaleNames"].Should().BeNull();
+	}
+
+	[TestMethod]
+	public void additional_marketplaces_survive_a_round_trip()
+	{
+		var settings = new AccountsSettings();
+		var account = new Account("user@example.com") { IdentityTokens = new Identity(Localization.Get("ca")) };
+		settings.Add(account);
+		account.AddMarketplace("us");
+		account.AddMarketplace("uk");
+
+		var reloaded = AccountsSettings.FromJson(settings.ToJson());
+		reloaded.BeNotNull();
+
+		CollectionAssert.AreEqual(
+			new[] { "canada", "us", "uk" },
+			reloaded.Accounts.Single().ScanLocales.Select(l => l.Name).ToArray());
+	}
+
+	[TestMethod]
+	public void the_registered_marketplace_is_never_duplicated_into_the_extras_by_a_hand_edited_file()
+	{
+		var jo = JObject.Parse(OneMarketplaceFile());
+		jo["Accounts"]![0]!["AdditionalLocaleNames"]
+			= new JArray("ca", "canada", "us", "us", "atlantis");
+
+		var account = AccountsSettings.FromJson(jo.ToString())!.Accounts.Single();
+
+		account.ScanLocales.Select(l => l.Name).Should().BeEquivalentTo(["canada", "us"]);
+	}
+
+	/// <summary>
+	/// Newtonsoft applies values in the order the document lists them, so a file naming the marketplaces before
+	/// its IdentityTokens has no registered marketplace to compare against yet. The duplicate has to be caught
+	/// on the way out as well, or this account would scan 'canada' twice.
+	/// </summary>
+	[TestMethod]
+	public void the_registered_marketplace_is_dropped_even_when_the_file_lists_it_first()
+	{
+		var account = (JObject)JObject.Parse(OneMarketplaceFile())["Accounts"]![0]!;
+		var identity = account["IdentityTokens"]!;
+		account.Remove("IdentityTokens");
+
+		var reordered = new JObject
+		{
+			["AccountId"] = account["AccountId"],
+			["AdditionalLocaleNames"] = new JArray("canada", "us"),
+			["IdentityTokens"] = identity
+		};
+
+		var loaded = AccountsSettings
+			.FromJson(new JObject { ["Accounts"] = new JArray(reordered) }.ToString())!
+			.Accounts.Single();
+
+		loaded.ScanLocales.Select(l => l.Name).Should().BeEquivalentTo(["canada", "us"]);
+		loaded.AdditionalLocales.Select(l => l.Name).Should().BeEquivalentTo(["us"]);
+	}
+
+	/// <summary>
+	/// Encrypted tokens are bound to the marketplace they were registered with: the AES-GCM associated data is
+	/// built from Identity.LocaleName. Extra marketplaces must therefore stay out of the identity, or every
+	/// stored token would need re-encrypting.
+	/// </summary>
+	[TestMethod]
+	public void adding_a_marketplace_leaves_the_stored_identity_untouched()
+	{
+		var settings = new AccountsSettings();
+		var account = new Account("user@example.com") { IdentityTokens = new Identity(Localization.Get("ca")) };
+		settings.Add(account);
+
+		var identityBefore = JObject.Parse(settings.ToJson())["Accounts"]![0]!["IdentityTokens"]!.ToString();
+
+		account.AddMarketplace("us");
+
+		JObject.Parse(settings.ToJson())["Accounts"]![0]!["IdentityTokens"]!.ToString()
+			.Should().Be(identityBefore);
+		account.Locale!.Name.Should().Be("canada");
+	}
+
+	/// <summary>
+	/// The identity is located in the file by account id and the identity's own LocaleName. A scan of an extra
+	/// marketplace loads the very same tokens, so the path must not follow the marketplace being read.
+	/// </summary>
+	[TestMethod]
+	public void the_identity_json_path_follows_the_registered_marketplace()
+	{
+		var account = new Account("user@example.com") { IdentityTokens = new Identity(Localization.Get("ca")) };
+		account.AddMarketplace("us");
+
+		account.GetIdentityTokensJsonPath()
+			.Should().Be(AudibleApiStorage.GetIdentityTokensJsonPath("user@example.com", "canada"));
+	}
+}
+
 // account.Id + Locale.Name -- must be unique
 [TestClass]
 public class validate : AccountsTestBase
@@ -799,6 +1108,28 @@ public class SerializedShape : AccountsTestBase
 		CollectionAssert.AreEquivalent(
 			new[] { "AccountId", "AccountName", "LibraryScan", "DecryptKey", "IdentityTokens" },
 			SerializeOneAccount().Properties().Select(p => p.Name).ToArray());
+	}
+
+	[TestMethod]
+	public void additional_marketplaces_are_written_only_when_there_are_some()
+	{
+		// An account with one marketplace - nearly every account - must serialize exactly as it did before
+		// additional marketplaces existed, so that nothing about those files changes.
+		var settings = new AccountsSettings();
+		var account = new Account("user@example.com")
+		{
+			AccountName = "Main",
+			IdentityTokens = new Identity(Localization.Get("ca"))
+		};
+		settings.Add(account);
+
+		((JObject)JObject.Parse(settings.ToJson())["Accounts"]![0]!)
+			.ContainsKey("AdditionalLocaleNames").Should().BeFalse();
+
+		account.AddMarketplace("us");
+
+		JObject.Parse(settings.ToJson())["Accounts"]![0]!["AdditionalLocaleNames"]!
+			.Values<string>().Should().BeEquivalentTo(["us"]);
 	}
 
 	[TestMethod]
