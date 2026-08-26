@@ -75,7 +75,9 @@ public static class WalkthroughMessages
 		= new("Editing Quick Filters", "From here you can edit, delete, and change the order of Quick Filters");
 
 	public static WalkthroughMessage TourFinished { get; }
-		= new("Tour Finished", "You're now ready to begin using Libation.\r\n\r\nEnjoy!");
+		= new(
+			"Tour Finished",
+			"You're now ready to begin using Libation.\r\n\r\nOne thing worth knowing: Audible keeps a separate library for each marketplace. If you have ever changed your Amazon address to another country to buy a title, it lives in that country's library and a normal scan will not find it. Settings > Accounts > Marketplaces checks the other marketplaces for you.\r\n\r\nEnjoy!");
 
 	public static WalkthroughMessage ScanProceed(int accountCount)
 	{

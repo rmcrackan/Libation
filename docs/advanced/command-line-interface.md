@@ -126,7 +126,9 @@ libationcli list-accounts
 libationcli list-accounts --bare
 ```
 
-`--bare` (`-b`) prints tab-separated values with no table: account id, name, locale, scan library (`yes` / `no`), authenticated (`yes` / `no`), for scripts and `cut` / `awk`.
+`--bare` (`-b`) prints tab-separated values with no table: account id, name, locale, scan library (`yes` / `no`), authenticated (`yes` / `no`), also-scans, for scripts and `cut` / `awk`.
+
+An account can read more than one marketplace - see [Titles bought from another country](/docs/getting-started#titles-bought-from-another-country). When any account does, the table grows an **Also scans** column listing its further marketplaces, since the single **Locale** column would otherwise misreport what a scan covers. The column is omitted when no account has any. `--bare` always emits the field, last, so a script reading the first five keeps working. Marketplaces are added from the GUI: there is no CLI verb for it.
 
 **Scan library** (`yes` / `no`) is the same checkbox as "Include in library scan?" in Accounts: it controls whether the main Libation app includes that account in automatic scans (startup / periodic scan behavior). It does **not** restrict `libationcli scan` with no arguments, which still imports from every configured account unless you pass specific account nicknames or ids.
 

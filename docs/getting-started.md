@@ -49,6 +49,14 @@ Create your account(s):
 Most people use a normal region and their Audible **email**. If your account predates Amazon and still signs in with a **username**, choose a **pre-amazon** locale and put that username in the Audible email/login field.
 :::
 
+### Titles bought from another country
+
+Audible keeps a **separate library for each marketplace**. If you have ever changed your Amazon address to another country to buy a title that was not sold in your own - a common way to get around region-locked titles - that title stayed in that country's library. Scanning your usual marketplace will never find it, and nothing in Libation will suggest it is missing.
+
+The **Marketplaces** button on each account row checks the other marketplaces for you. Your existing credentials work in all of them, so there is no second login: Libation asks each one how many titles it holds, and you tick the ones to include. From then on a scan of that account covers every marketplace you ticked, all in one go.
+
+The button becomes available once the account has signed in, so scan your library once first.
+
 ## Import Your Library
 
 Be default, Libation will periodically scan the accounts you added above with a checkbox next to them. Nothing for you to do. You can also scan manually.
