@@ -152,6 +152,84 @@ public class InstallUpgradeManagerTests
 		}
 	}
 
+	// The rollback used to restore, announce "Libation restored your previous install files" and delete the
+	// pending marker without ever reading back what it wrote. These three cover the grading that replaced
+	// that assumption, since it decides both how firmly the message pushes a reinstall and whether
+	// restarting is offered at all.
+	[TestMethod]
+	public void An_overlay_that_never_started_leaves_the_previous_version_behind()
+	{
+		WriteInstallFile("LibationUiBase.dll", "old-ui-base");
+		WriteInstallFile("LibationFileManager.dll", "old-file-manager");
+
+		var zipPath = CreateUpgradeZip(
+			("LibationUiBase.dll", "new-ui-base"),
+			("LibationFileManager.dll", "new-file-manager"));
+
+		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new Version(9, 9, 9));
+
+		// Nothing was replaced: ZipExtractor never ran.
+		var recovery = InstallUpgradeManager.RecoverPendingUpgradeIfNeeded(_installDir);
+
+		Assert.IsNotNull(recovery);
+		Assert.AreEqual(RollbackConfidence.RestoredToPreviousVersion, recovery!.Confidence);
+		Assert.IsTrue(recovery.WorthRestarting);
+		StringAssert.Contains(recovery.Message, "the version you were running before");
+	}
+
+	[TestMethod]
+	public void An_overlay_that_got_partway_leaves_a_mixed_install()
+	{
+		WriteInstallFile("LibationUiBase.dll", "old-ui-base");
+		WriteInstallFile("LibationFileManager.dll", "old-file-manager");
+
+		var zipPath = CreateUpgradeZip(
+			("LibationUiBase.dll", "new-ui-base"),
+			("LibationFileManager.dll", "new-file-manager"));
+
+		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new Version(9, 9, 9));
+
+		// One file was replaced and one was not, so the overlay was underway when it stopped. The backup
+		// covers a dozen names out of hundreds, so restoring them cannot undo what else it replaced.
+		WriteInstallFile("LibationFileManager.dll", "new-file-manager");
+
+		var recovery = InstallUpgradeManager.RecoverPendingUpgradeIfNeeded(_installDir);
+
+		Assert.IsNotNull(recovery);
+		Assert.AreEqual(RollbackConfidence.RestoredButInstallIsMixed, recovery!.Confidence);
+		Assert.IsTrue(recovery.WorthRestarting, "a mixed install still starts, so restarting stays on offer");
+		StringAssert.Contains(recovery.Message, "mixture of both versions");
+	}
+
+	[TestMethod]
+	public void A_restore_that_cannot_write_every_file_does_not_claim_success()
+	{
+		WriteInstallFile("LibationUiBase.dll", "old-ui-base");
+		WriteInstallFile("LibationFileManager.dll", "old-file-manager");
+
+		var zipPath = CreateUpgradeZip(
+			("LibationUiBase.dll", "new-ui-base"),
+			("LibationFileManager.dll", "new-file-manager"));
+
+		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new Version(9, 9, 9));
+
+		// Make one backup file unreadable so its restore fails while the other succeeds.
+		var unreadableBackup = Path.Combine(InstallUpgradeManager.GetBackupDirectory(_installDir), "LibationUiBase.dll");
+		using (var exclusive = new FileStream(unreadableBackup, FileMode.Open, FileAccess.Read, FileShare.None))
+		{
+			var recovery = InstallUpgradeManager.RecoverPendingUpgradeIfNeeded(_installDir);
+
+			Assert.IsNotNull(recovery);
+			Assert.AreEqual(RollbackConfidence.RestoreIncomplete, recovery!.Confidence);
+			Assert.IsFalse(recovery.WorthRestarting, "do not invite the user back into an install we could not finish");
+			StringAssert.Contains(recovery.Message, "could not put all of your previous install files back");
+			StringAssert.Contains(recovery.Message, "Could not be restored:");
+
+			// The file it could reach was still restored rather than abandoned.
+			Assert.AreEqual("old-file-manager", File.ReadAllText(Path.Combine(_installDir, "LibationFileManager.dll")));
+		}
+	}
+
 	[TestMethod]
 	public void A_displaced_file_is_swept_up_on_a_later_startup()
 	{

@@ -56,7 +56,7 @@ static class Program
 			// which makes this the safe place to stop. See issue #2001.
 			if (StartupAssemblyBootstrap.RecoverFromIncompleteUpgradeIfNeeded() is { } recovery)
 			{
-				MessageBox.Show(recovery.Body, recovery.Title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				ReportRecoveryAndExit(recovery);
 				return;
 			}
 
@@ -139,6 +139,30 @@ static class Program
 		form1 = new Form1();
 		form1.Load += async (_, _) => await LoadLibraryIntoFormAsync(form1, libraryLoadTask);
 		Application.Run(form1);
+	}
+
+	/// <summary>
+	/// Reports what the rollback did and, when the restored install is worth going back into, offers to
+	/// start Libation again. This process cannot carry on either way: it has already loaded the assemblies
+	/// that were just replaced on disk. See issue #2001.
+	/// </summary>
+	private static void ReportRecoveryAndExit(StartupRecoveryNotice recovery)
+	{
+		if (!recovery.OfferRestart)
+		{
+			MessageBox.Show(recovery.Body, recovery.Title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			return;
+		}
+
+		var answer = MessageBox.Show(
+			recovery.Body,
+			recovery.Title,
+			MessageBoxButtons.YesNo,
+			MessageBoxIcon.Warning,
+			MessageBoxDefaultButton.Button1);
+
+		if (answer is DialogResult.Yes)
+			InstallRelauncher.TryRelaunch();
 	}
 
 	#region Message Box Handler for LibationUiBase

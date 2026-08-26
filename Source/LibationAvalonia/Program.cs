@@ -56,11 +56,11 @@ static class Program
 			var config = LibationScaffolding.RunPreConfigMigrations();
 
 			// A rollback swaps install files out from under assemblies this process has already loaded, so
-			// it must not go on to touch the database or open a window. App shows the message and shuts
-			// down instead. See issue #2001.
-			App.StartupRecoveryMessage = StartupAssemblyBootstrap.RecoverFromIncompleteUpgradeIfNeeded();
+			// it must not go on to touch the database or open a window. App reports it and shuts down
+			// instead. See issue #2001.
+			App.StartupRecoveryNotice = StartupAssemblyBootstrap.RecoverFromIncompleteUpgradeIfNeeded();
 
-			if (App.StartupRecoveryMessage is null)
+			if (App.StartupRecoveryNotice is null)
 			{
 				// Prevent a second instance from racing on the same database, search index, and log file.
 				// Hold the lock for the whole process; skip all database access when we are not the first
@@ -77,6 +77,11 @@ static class Program
 			}
 
 			BuildAvaloniaApp()?.StartWithClassicDesktopLifetime([], ShutdownMode.OnExplicitShutdown);
+
+			// After the lifetime ends, so the new process starts into a folder this one has finished with
+			// and does not race it for the single-instance lock.
+			if (App.RestartRequested)
+				InstallRelauncher.TryRelaunch();
 		}
 		catch (Exception ex)
 		{

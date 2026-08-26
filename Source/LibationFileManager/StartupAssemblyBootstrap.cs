@@ -33,12 +33,12 @@ public static class StartupAssemblyBootstrap
 	/// <c>BadBookActionDialogBase.ShowAsyncImpl</c>.
 	/// </summary>
 	/// <returns>
-	/// The message to show when a rollback replaced install files, in which case the caller must show it and
+	/// The notice to show when a rollback replaced install files, in which case the caller must show it and
 	/// quit rather than continue. This process has already loaded the assemblies that were just swapped out
 	/// from under it, so what is in memory no longer matches what is on disk. Null when there was nothing to
 	/// recover, which is the normal case.
 	/// </returns>
-	public static FatalStartupMessage? RecoverFromIncompleteUpgradeIfNeeded()
+	public static StartupRecoveryNotice? RecoverFromIncompleteUpgradeIfNeeded()
 	{
 		try
 		{
@@ -47,9 +47,14 @@ public static class StartupAssemblyBootstrap
 				return null;
 
 			InstallUpgradeManager.TakeStartupRecoveryAlert();
-			return new FatalStartupMessage(
-				recovery.Title,
-				recovery.Message + Environment.NewLine + Environment.NewLine + "Libation will close now. Please start it again.");
+
+			var offerRestart = ShouldOfferRestart(recovery, InstallRelauncher.WasRelaunched);
+
+			return new StartupRecoveryNotice(
+				new FatalStartupMessage(
+					recovery.Title,
+					recovery.Message + Environment.NewLine + Environment.NewLine + DescribeRestart(offerRestart, recovery.Confidence)),
+				offerRestart);
 		}
 		catch (Exception ex)
 		{
@@ -57,6 +62,26 @@ public static class StartupAssemblyBootstrap
 			return null;
 		}
 	}
+
+	/// <summary>
+	/// Whether to ask the user about restarting: only for an install the rollback fully restored, and only
+	/// in a process that was not itself started by a restart. A rollback deletes the pending marker before
+	/// returning, but that delete swallows its own failure, and a marker that outlives one rollback would
+	/// otherwise let this repeat on every launch.
+	/// </summary>
+	public static bool ShouldOfferRestart(UpgradeRecoveryResult recovery, bool wasRelaunched)
+		=> recovery.WorthRestarting && !wasRelaunched;
+
+	/// <summary>
+	/// Libation has to close either way, because the files underneath it just changed. How warmly to suggest
+	/// coming straight back depends on what it found when it checked its own work.
+	/// </summary>
+	private static string DescribeRestart(bool offerRestart, RollbackConfidence confidence)
+		=> !offerRestart
+		? "Libation needs to close now."
+		: confidence is RollbackConfidence.RestoredButInstallIsMixed
+			? "Libation needs to close now. You can start it again if you would like to carry on for the moment, though a fresh install would be better.\n\nWould you like to start Libation again now?"
+			: "Libation needs to close now so it can load the files it just put back.\n\nWould you like to start Libation again now?";
 
 	private static void TrySyncWindowsInstallMetadata()
 	{

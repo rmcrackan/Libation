@@ -34,7 +34,10 @@ public class App : Application
 	/// Set by <see cref="Program"/> when startup rolled back an incomplete in-app upgrade. The restored
 	/// files on disk no longer match the assemblies this process loaded, so it shows this and quits.
 	/// </summary>
-	public static FatalStartupMessage? StartupRecoveryMessage { get; set; }
+	public static StartupRecoveryNotice? StartupRecoveryNotice { get; set; }
+
+	/// <summary>Set when the user accepted the offer to start Libation again. Read by <see cref="Program"/> after shutdown.</summary>
+	public static bool RestartRequested { get; private set; }
 	public static ChardonnayTheme? DefaultThemeColors { get; private set; }
 	public static MainWindow? MainWindow { get; private set; }
 	public static Uri AssetUriBase { get; } = new("avares://Libation/Assets/");
@@ -57,9 +60,9 @@ public class App : Application
 				MessageBox.Show(owner as Window, message, caption, buttons, icon, defaultButton, saveAndRestorePosition);
 
 			// The install folder was just rolled back underneath us. See issue #2001.
-			if (StartupRecoveryMessage is { } recovery)
+			if (StartupRecoveryNotice is { } recovery)
 			{
-				_ = ShowThenShutdownAsync(desktop, recovery.Body, recovery.Title);
+				_ = ShowRecoveryThenShutdownAsync(desktop, recovery);
 				base.OnFrameworkInitializationCompleted();
 				return;
 			}
@@ -94,6 +97,40 @@ public class App : Application
 		}
 
 		base.OnFrameworkInitializationCompleted();
+	}
+
+	/// <summary>
+	/// Reports the rollback and shuts down. When the restored install is worth going back into, the user is
+	/// asked whether to start Libation again, and <see cref="Program"/> does it after this shuts down.
+	/// </summary>
+	private static async Task ShowRecoveryThenShutdownAsync(IClassicDesktopStyleApplicationLifetime desktop, StartupRecoveryNotice recovery)
+	{
+		if (!recovery.OfferRestart)
+		{
+			await ShowThenShutdownAsync(desktop, recovery.Body, recovery.Title);
+			return;
+		}
+
+		try
+		{
+			var answer = await MessageBox.Show(
+				recovery.Body,
+				recovery.Title,
+				MessageBoxButtons.YesNo,
+				MessageBoxIcon.Warning,
+				MessageBoxDefaultButton.Button1);
+
+			RestartRequested = answer is DialogResult.Yes;
+		}
+		catch (Exception ex)
+		{
+			// Serilog is unavailable on this path, and shutting down matters more than the question.
+			StartupLog.Error(ex, "Failed to ask whether to restart after the rollback");
+		}
+		finally
+		{
+			desktop.Shutdown();
+		}
 	}
 
 	/// <summary>
