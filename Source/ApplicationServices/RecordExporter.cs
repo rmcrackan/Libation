@@ -1,6 +1,5 @@
 ﻿using AudibleApi.Common;
 using ClosedXML.Excel;
-using CsvHelper;
 using DataLayer;
 using Newtonsoft.Json.Linq;
 using System;
