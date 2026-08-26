@@ -124,7 +124,7 @@ public class BookImporter : ItemsImporterBase
 				new AudibleProductId(item.ProductId),
 				item.Title,
 				item.Subtitle,
-				item.Description,
+				item.PlainTextDescription(),
 				item.LengthInMinutes,
 				contentType,
 				authors,
@@ -161,6 +161,21 @@ public class BookImporter : ItemsImporterBase
 
 		return book;
 	}
+
+	/// <summary>
+	/// Brings a book's stored description into line with what this scan says about it.
+	/// <para>
+	/// The description used to be stored exactly as Audible sends it, which is HTML. It is flattened on the
+	/// way in now, so every book imported before that change is still holding markup and needs rewriting -
+	/// hence updating a description at all, which import never used to do.
+	/// </para>
+	/// <para>
+	/// A scan that reports no description leaves the stored one alone. Episodes are imported from the
+	/// catalog, and "no summary" there can just as easily mean the response group was not asked for.
+	/// </para>
+	/// </summary>
+	internal static void syncDescription(Item item, Book book)
+		=> book.UpdateDescription(item.PlainTextDescription());
 
 	/// <summary>
 	/// Brings a book's supplement into line with what this scan says about it.
@@ -206,6 +221,8 @@ public class BookImporter : ItemsImporterBase
 		// Update the book titles, since formatting can change
 		book.UpdateTitle(item.Title, item.Subtitle);
 
+		syncDescription(item, book);
+
 		// set/update book-specific info which may have changed
 		if (item.PictureId is not null)
 			book.PictureId = item.PictureId;
@@ -220,7 +237,9 @@ public class BookImporter : ItemsImporterBase
 		// updateBook must update language on books which were imported before the migration which added language.
 		// 2025-07-30
 		// updateBook must update isSpatial on books which were imported before the migration which added isSpatial.
-		book.UpdateBookDetails(item.IsAbridged, item.AssetDetails?.Any(a => a.IsSpatial), item.DatePublished, item.Language);
+		// 2026-08-26
+		// updateBook must update copyright on books which were imported before the migration which added copyright.
+		book.UpdateBookDetails(item.IsAbridged, item.AssetDetails?.Any(a => a.IsSpatial), item.DatePublished, item.Language, item.CopyrightString());
 
 		syncSupplement(item, book);
 

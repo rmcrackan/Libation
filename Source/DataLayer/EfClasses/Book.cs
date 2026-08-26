@@ -52,6 +52,9 @@ public class Book
 	public bool IsSpatial { get; private set; }
 	public DateTime? DatePublished { get; private set; }
 	public string? Language { get; private set; }
+	/// <summary>The publisher's copyright line. Only returned by the API's product_details response
+	/// group, and null for plenty of titles even then.</summary>
+	public string? Copyright { get; private set; }
 
 	// is owned, not optional 1:1
 	public UserDefinedItem UserDefinedItem { get; private set; }
@@ -118,6 +121,13 @@ public class Book
 
 	public void UpdateLengthInMinutes(int lengthInMinutes)
 		=> LengthInMinutes = lengthInMinutes;
+
+	public void UpdateDescription(string? description)
+	{
+		// don't overwrite with default values
+		if (!string.IsNullOrWhiteSpace(description))
+			Description = description.Trim();
+	}
 
 	#region contributors, authors, narrators
 	internal HashSet<BookContributor> ContributorsLink { get; private set; }
@@ -285,13 +295,14 @@ public class Book
 	public void UpdateProductRating(float overallRating, float performanceRating, float storyRating)
 		=> Rating.Update(overallRating, performanceRating, storyRating);
 
-	public void UpdateBookDetails(bool isAbridged, bool? isSpatial, DateTime? datePublished, string? language)
+	public void UpdateBookDetails(bool isAbridged, bool? isSpatial, DateTime? datePublished, string? language, string? copyright = null)
 	{
 		// don't overwrite with default values
 		IsAbridged |= isAbridged;
 		IsSpatial = isSpatial ?? IsSpatial;
 		DatePublished = datePublished ?? DatePublished;
 		Language = language?.Trim().FirstCharToUpper() ?? Language;
+		Copyright = copyright?.Trim() ?? Copyright;
 	}
 
 	public override string ToString() => $"[{AudibleProductId}] {TitleWithSubtitle}";

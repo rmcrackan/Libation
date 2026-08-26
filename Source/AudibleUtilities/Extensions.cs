@@ -20,5 +20,25 @@ public static class Extensions
 			  .Select(p => p.EndDate)
 			  .FirstOrDefault(end => end.HasValue && end.Value.Year is not (2099 or 9999) && end.Value.LocalDateTime >= DateTime.Now)
 			  ?.DateTime;
+
+		/// <summary>
+		/// The book's summary with Audible's HTML markup flattened away, ready to be stored and used
+		/// as-is. See <see cref="HtmlText.ToPlainText"/>.
+		/// </summary>
+		public string PlainTextDescription()
+			=> HtmlText.ToPlainText(item.Description);
+
+		/// <summary>
+		/// The publisher's copyright line, e.g. "&#169;2024 Bentley Little (P)2025 Journalstone".
+		/// Only present when the product_details response group was requested, and often null anyway.
+		/// </summary>
+		/// <remarks><see cref="Item.Copyright"/> is typed as <see cref="object"/> because Audible has
+		/// never been observed returning anything but a string or null there. Anything else is
+		/// discarded rather than stringified, so a shape we do not understand cannot reach a file tag.
+		/// </remarks>
+		public string? CopyrightString()
+			=> item.Copyright is string copyright && !string.IsNullOrWhiteSpace(copyright)
+			? copyright.Trim()
+			: null;
 	}
 }

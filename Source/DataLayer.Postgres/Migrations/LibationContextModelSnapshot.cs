@@ -17,7 +17,7 @@ namespace DataLayer.Postgres.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.7")
+                .HasAnnotation("ProductVersion", "10.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -51,6 +51,9 @@ namespace DataLayer.Postgres.Migrations
 
                     b.Property<int>("ContentType")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Copyright")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("DatePublished")
                         .HasColumnType("timestamp without time zone");
