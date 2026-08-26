@@ -47,7 +47,7 @@ We welcome contributions!
 ## Community & Support
 
 - **[Issues](https://github.com/rmcrackan/Libation/issues)**: Report bugs or request features.
-- **[PayPal](https://paypal.me/mcrackan?locale.x=en_us)**: Support the project if you find it useful.
+- **[Donate](https://getlibation.com/donate)**: Support the project if you find it useful.
 
 ## License
 
