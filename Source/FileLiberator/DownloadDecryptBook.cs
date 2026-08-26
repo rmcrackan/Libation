@@ -10,6 +10,7 @@ using LibationFileManager;
 using LibationFileManager.Templates;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -280,6 +281,23 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 		{
 			tags.Year ??= pubDate.Year.ToString();
 			tags.ReleaseDate ??= pubDate.ToString(ReleaseDateFormat);
+
+			//Audible's .aaxc files frequently carry 01-Jan-2000 where the real release date belongs.
+			//The file's own tag is otherwise the better source - it is what Audible shipped with this
+			//particular recording - so it still wins everywhere except for that one placeholder value.
+			//
+			//Only the exact sentinel is overridden, and only when the catalog disagrees with it, so a
+			//title genuinely released on 01-Jan-2000 comes out the same either way. Two broader rules
+			//were considered and rejected: always preferring the catalog date would discard Audible's
+			//date on re-releases the catalog dates wrong, and treating any year below some floor as
+			//bogus has no defensible floor, since real recordings predate 2000.
+			if (IsPlaceholderReleaseDate(tags.ReleaseDate) && pubDate.Date != PlaceholderReleaseDate)
+			{
+				tags.ReleaseDate = pubDate.ToString(ReleaseDateFormat);
+				//A file carrying the placeholder rldt carries the matching placeholder year.
+				if (tags.Year == PlaceholderReleaseDate.Year.ToString())
+					tags.Year = pubDate.Year.ToString();
+			}
 		}
 
 		const string tagDomain = "org.libation";
@@ -287,6 +305,12 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 		tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_DRM_TYPE", drmType.ToString());
 		tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_LOCALE", book.Locale);
 	}
+
+	private static readonly DateTime PlaceholderReleaseDate = new(2000, 1, 1);
+
+	internal static bool IsPlaceholderReleaseDate(string? releaseDate)
+		=> DateTime.TryParse(releaseDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed)
+		&& parsed.Date == PlaceholderReleaseDate;
 
 	private void AaxcDownloader_RetrievedCoverArt(object? sender, byte[]? e)
 	{
