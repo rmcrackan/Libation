@@ -310,6 +310,28 @@ Not all elements of a property are always present or have content. In this case,
 <!-- VitePress compiles each .md as a Vue SFC: a literal `{{` inside normal backtick `code` is treated as Vue interpolation and breaks the build. Elsewhere this doc uses backticks for inline examples; this line is HTML `code` with `v-pre` so `{{` can be written literally and still render like the other snippets, without additional hacks such as obscure invisible characters (like &#200B : 0-width space). -->
 <code v-pre>&lt;narrator[format({{F} }{({M}') '}{L})]&gt;</code> -> <code>Stephen Fry, Arthur (Conan) Doyle</code>
 
+### Directory Separators
+
+In the **Folder Template**, a directory separator starts another directory level. It works in the template text and inside a format template alike, so either of these gives you an author directory holding a title directory:
+
+`<first author>\<title short>`
+
+`<first author[{F} {L}\\]><title short>`
+
+Both `\` and `/` are accepted, on every platform. Inside a format template remember that `\` escapes the next character, so a separator has to be written `\\` there. That also lets a level appear only when the property has a value, which the surrounding template text cannot do on its own:
+
+<code v-pre>&lt;first series[\{{N}\}\\]&gt;&lt;title short&gt;</code> -> <code>{Sherlock Holmes}/A Study in Scarlet</code>
+
+A book with no series produces no empty directory level, just <code>A Study in Scarlet</code>.
+
+`separator()` behaves the same way, so a book can be filed under every one of its series at once:
+
+`<series[format({N}) separator(\\)]>\<title short>`
+
+A separator that arrives in the audiobook's own metadata is a different matter: it is not a request for a directory level, so it is replaced using your [replacement characters](/docs/advanced/command-line-interface#set-custom-replacement-characters) as any other character illegal in a file name would be. A series named `Faith/Void` therefore gives you one directory, not two.
+
+In the **File Template** and **Chapter File Template** there is no level to create, so a separator is replaced no matter where it came from.
+
 ### Checks
 
 There are two formats for checks, with slightly different syntax for specifying parameters:
