@@ -108,6 +108,12 @@ public class AccountsSettings : IUpdatable
 		account.Updated += update;
 	}
 
+	/// <summary>
+	/// The account that can speak to <paramref name="locale"/> for this login: the one registered with that
+	/// marketplace, or failing that the one carrying it as an extra marketplace. Callers hand this a book's
+	/// marketplace and get back the credentials that can license it, which is why extras have to resolve here
+	/// as well as the registered marketplace does.
+	/// </summary>
 	public Account? GetAccount(string accountId, string? locale)
 	{
 		if (locale is null)
@@ -116,9 +122,32 @@ public class AccountsSettings : IUpdatable
 		// AccountId is compared case-insensitively: Audible/library data has been observed to differ
 		// only by letter case (e.g. a stored id capitalized differently than settings), which caused
 		// spurious "No account found" failures that blocked every affected book. See issue #1931.
-		return Accounts.SingleOrDefault(a =>
+		var registered = Accounts.SingleOrDefault(a =>
 			a.AccountId.EqualsInsensitive(accountId)
 			&& a.Locale?.Name == locale);
+
+		if (registered is not null)
+			return registered;
+
+		return Accounts.FirstOrDefault(a =>
+			a.AccountId.EqualsInsensitive(accountId)
+			&& a.HasMarketplace(locale));
+	}
+
+	/// <summary>
+	/// The account already scanning <paramref name="localeName"/> for this login, if any. Adding a marketplace,
+	/// importing an audible-cli file, and probing all need to know whether a marketplace is spoken for - including
+	/// by a second row for the same login, which is how multiple marketplaces were handled before one account
+	/// could hold several.
+	/// </summary>
+	public Account? GetAccountClaimingMarketplace(string accountId, string? localeName, Account? excluding = null)
+	{
+		var name = Localization.Get(localeName).Name;
+
+		return Accounts.FirstOrDefault(a =>
+			!ReferenceEquals(a, excluding)
+			&& a.AccountId.EqualsInsensitive(accountId)
+			&& a.HasMarketplace(name));
 	}
 
 	public bool Delete(string accountId, string locale)
@@ -140,24 +169,17 @@ public class AccountsSettings : IUpdatable
 		return result;
 	}
 
+	/// <summary>
+	/// No two rows for one login may scan the same marketplace, or a scan would import it twice and a download
+	/// would have two accounts to choose from. Extra marketplaces count: claiming 'us' as an extra collides with
+	/// another row registered with 'us' just as surely as two 'us' registrations would.
+	/// </summary>
 	private void validate(Account account)
 	{
 		ArgumentValidator.EnsureNotNull(account, nameof(account));
 
-		var accountId = account.AccountId;
-		var locale = account?.IdentityTokens?.Locale?.Name;
-
-		var acct = GetAccount(accountId, locale);
-
-		// new: ok
-		if (acct is null)
-			return;
-
-		// same account instance: ok
-		if (acct == account)
-			return;
-
-		// same account id + locale, different instance: bad
-		throw new InvalidOperationException("Cannot add an account with the same account Id and Locale");
+		foreach (var locale in account.ScanLocales)
+			if (GetAccountClaimingMarketplace(account.AccountId, locale.Name, excluding: account) is not null)
+				throw new InvalidOperationException("Cannot add an account with the same account Id and Locale");
 	}
 }

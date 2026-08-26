@@ -36,7 +36,11 @@ public class ApiExtended
 	public static Task<ApiExtended> CreateAsync(Account account)
 		=> CreateAsync(account, allowInteractiveLogin: true);
 
-	public static async Task<ApiExtended> CreateAsync(Account account, bool allowInteractiveLogin)
+	/// <param name="storeLocale">
+	/// The marketplace to read, when it is not the one the account is registered with. The account's own tokens
+	/// are used either way; only the store host changes. Null means the account's own marketplace.
+	/// </param>
+	public static async Task<ApiExtended> CreateAsync(Account account, bool allowInteractiveLogin, Locale? storeLocale = null)
 	{
 		ArgumentValidator.EnsureNotNull(account, nameof(account));
 		ArgumentValidator.EnsureNotNull(account.AccountId, nameof(account.AccountId));
@@ -46,13 +50,15 @@ public class ApiExtended
 		{
 			Serilog.Log.Logger.Information("{@DebugInfo}", new
 			{
-				AccountMaskedLogEntry = account.MaskedLogEntry
+				AccountMaskedLogEntry = account.MaskedLogEntry,
+				StoreLocaleName = (storeLocale ?? locale).Name
 			});
 
 			var api = await EzApiCreator.GetApiAsync(
 					locale,
 					AudibleApiStorage.AccountsSettingsFile,
-					account.GetIdentityTokensJsonPath());
+					account.GetIdentityTokensJsonPath(),
+					storeLocale);
 			return new ApiExtended(api);
 		}
 		catch (Exception ex)
@@ -103,6 +109,15 @@ public class ApiExtended
 					locale,
 					AudibleApiStorage.AccountsSettingsFile,
 					account.GetIdentityTokensJsonPath());
+
+				// login happens against the account's own marketplace, so the api it hands back reads that one.
+				// re-create once the tokens exist if some other marketplace is the one actually wanted.
+				if (storeLocale is not null && storeLocale.Name != locale.Name)
+					api = await EzApiCreator.GetApiAsync(
+						locale,
+						AudibleApiStorage.AccountsSettingsFile,
+						account.GetIdentityTokensJsonPath(),
+						storeLocale);
 
 				return new ApiExtended(api);
 			}
