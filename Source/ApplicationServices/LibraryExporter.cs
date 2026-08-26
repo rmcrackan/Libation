@@ -1,6 +1,4 @@
 ﻿using ClosedXML.Excel;
-using CsvHelper;
-using CsvHelper.Configuration.Attributes;
 using DataLayer;
 using Newtonsoft.Json;
 using System.Collections.Generic;

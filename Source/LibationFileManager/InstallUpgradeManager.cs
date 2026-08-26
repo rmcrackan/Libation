@@ -13,13 +13,55 @@ namespace LibationFileManager;
 public readonly record struct UpgradeVerificationResult(
 	bool Success,
 	IReadOnlyList<string> FailedFiles,
-	string Summary);
+	string Summary)
+{
+	/// <summary>
+	/// Manifest files whose on-disk content did match the upgrade package. Any of these means the overlay
+	/// got at least partway through, so files outside the manifest were probably replaced too, and putting
+	/// the backed-up files back cannot return the install to a single version.
+	/// </summary>
+	public IReadOnlyList<string> MatchedFiles { get; init; } = [];
+}
+
+/// <summary>
+/// How much of the install a rollback managed to put back, which decides how firmly Libation should push
+/// the user towards a clean reinstall and whether restarting is worth offering at all.
+/// </summary>
+public enum RollbackConfidence
+{
+	/// <summary>Nothing to report: no rollback happened.</summary>
+	NotRolledBack,
+
+	/// <summary>
+	/// Every backed-up file is back, and no manifest file matched the upgrade package, so the overlay had
+	/// not begun replacing files. The install is the version that was working before.
+	/// </summary>
+	RestoredToPreviousVersion,
+
+	/// <summary>
+	/// Every backed-up file is back, but the overlay had already replaced some, so files outside the
+	/// backup set are probably still from the new version. Libation should run, but the install is mixed.
+	/// </summary>
+	RestoredButInstallIsMixed,
+
+	/// <summary>At least one file could not be put back. Nothing about this install can be trusted.</summary>
+	RestoreIncomplete,
+}
 
 public sealed record UpgradeRecoveryResult(
 	bool RolledBack,
 	string Title,
 	string Message,
-	IReadOnlyList<string> FailedFiles);
+	IReadOnlyList<string> FailedFiles)
+{
+	public RollbackConfidence Confidence { get; init; } = RollbackConfidence.NotRolledBack;
+
+	/// <summary>
+	/// Whether restarting into this install is worth offering. False when the restore left files behind,
+	/// where inviting the user back in would be inviting them into a broken install.
+	/// </summary>
+	public bool WorthRestarting => RolledBack && Confidence is not RollbackConfidence.RestoreIncomplete;
+}
 
 /// <summary>
 /// Backups, verifies, and rolls back flat zip overlay upgrades (Windows ZipExtractor flow).
@@ -30,6 +72,9 @@ public static class InstallUpgradeManager
 	public const string PendingStateFileName = "pending.json";
 	public const string BackupFolderName = "backup";
 
+	/// <summary>Suffix for a loaded assembly moved out of the way so its replacement can be written.</summary>
+	public const string DisplacedFileSuffix = ".libation-old";
+
 	public const string LibationUiBaseIntegrityTypeName = "LibationUiBase.ShowBadBookDialogAsyncDelegate";
 
 	private static readonly JsonSerializerOptions JsonOptions = new()
@@ -39,12 +84,24 @@ public static class InstallUpgradeManager
 		DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
 	};
 
+	/// <summary>
+	/// Files an overlay upgrade must have replaced for Libation to start at all, so they are both backed up
+	/// and hash-verified.
+	/// <para/>
+	/// The bottom four were added after issue #2001: Libation cannot reach its own crash dialog without
+	/// them, yet they were absent from this list, so an overlay that left a stale <c>Serilog.dll</c> behind
+	/// still passed verification and the pending marker was cleared as a success.
+	/// </summary>
 	private static readonly string[] AlwaysCriticalFileNames =
 	[
 		"LibationUiBase.dll",
 		"LibationFileManager.dll",
 		"AppScaffolding.dll",
 		"Microsoft.EntityFrameworkCore.Sqlite.dll",
+		"Serilog.dll",
+		"Dinah.Core.dll",
+		"FileManager.dll",
+		"Newtonsoft.Json.dll",
 	];
 
 	private static FatalStartupMessage? s_StartupRecoveryAlert;
@@ -117,12 +174,8 @@ public static class InstallUpgradeManager
 		var pendingPath = GetPendingStatePath(installDirectory);
 		File.WriteAllText(pendingPath, JsonSerializer.Serialize(pending, JsonOptions));
 
-		Serilog.Log.Logger.Information(
-			"Prepared in-app upgrade to {TargetVersion}. Backed up {BackedUpCount} files to {BackupDirectory}. Expecting {ExpectedCount} install files to match the upgrade package.",
-			targetVersion,
-			backedUpFiles.Count,
-			backupDirectory,
-			expectedHashes.Count);
+		StartupLog.Information(
+			$"Prepared in-app upgrade to {targetVersion}. Backed up {backedUpFiles.Count} files to {backupDirectory}. Expecting {expectedHashes.Count} install files to match the upgrade package.");
 	}
 
 	/// <summary>
@@ -132,6 +185,9 @@ public static class InstallUpgradeManager
 	public static UpgradeRecoveryResult? RecoverPendingUpgradeIfNeeded(string installDirectory)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(installDirectory);
+
+		// A previous run's rollback left these behind because it could not delete a file it still had open.
+		DeleteDisplacedFiles(installDirectory);
 
 		var pendingPath = GetPendingStatePath(installDirectory);
 		if (!File.Exists(pendingPath))
@@ -145,7 +201,7 @@ public static class InstallUpgradeManager
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Error(ex, "Could not read pending upgrade state at {PendingPath}. Attempting emergency rollback.", pendingPath);
+			StartupLog.Error(ex, $"Could not read pending upgrade state at {pendingPath}. Attempting emergency rollback.");
 			return RollbackAndReport(installDirectory, pendingPath, null, ["Could not read pending upgrade state."], ex.Message);
 		}
 
@@ -153,18 +209,20 @@ public static class InstallUpgradeManager
 		if (verification.Success)
 		{
 			CompleteUpgrade(installDirectory);
-			Serilog.Log.Logger.Information(
-				"In-app upgrade to {TargetVersion} verified successfully at startup.",
-				pending.TargetVersion);
+			StartupLog.Information($"In-app upgrade to {pending.TargetVersion} verified successfully at startup.");
 			return null;
 		}
 
-		Serilog.Log.Logger.Error(
-			"Incomplete in-app upgrade detected at startup. Target version {TargetVersion}. {Summary}",
-			pending.TargetVersion,
-			verification.Summary);
+		StartupLog.Error(
+			$"Incomplete in-app upgrade detected at startup. Target version {pending.TargetVersion}. {verification.Summary}");
 
-		return RollbackAndReport(installDirectory, pendingPath, pending, verification.FailedFiles, verification.Summary);
+		return RollbackAndReport(
+			installDirectory,
+			pendingPath,
+			pending,
+			verification.FailedFiles,
+			verification.Summary,
+			verification.MatchedFiles);
 	}
 
 	public static UpgradeVerificationResult VerifyInstallMatchesUpgrade(
@@ -178,6 +236,7 @@ public static class InstallUpgradeManager
 			return new UpgradeVerificationResult(true, [], "No pending upgrade verification manifest.");
 
 		var failedFiles = new List<string>();
+		var matchedFiles = new List<string>();
 		foreach (var (fileName, expectedHash) in expectedFileHashesSha256)
 		{
 			var installPath = Path.Combine(installDirectory, fileName);
@@ -188,7 +247,9 @@ public static class InstallUpgradeManager
 			}
 
 			var actualHash = ComputeSha256Hex(installPath);
-			if (!string.Equals(actualHash, expectedHash, StringComparison.OrdinalIgnoreCase))
+			if (string.Equals(actualHash, expectedHash, StringComparison.OrdinalIgnoreCase))
+				matchedFiles.Add(fileName);
+			else
 				failedFiles.Add($"{fileName}: on-disk content does not match upgrade package (file was not replaced)");
 		}
 
@@ -197,13 +258,13 @@ public static class InstallUpgradeManager
 			failedFiles.Add(typeCheckFailure);
 
 		if (failedFiles.Count == 0)
-			return new UpgradeVerificationResult(true, failedFiles, "Install folder matches upgrade package.");
+			return new UpgradeVerificationResult(true, failedFiles, "Install folder matches upgrade package.") { MatchedFiles = matchedFiles };
 
 		var summary =
 			$"Upgrade integrity check failed for {failedFiles.Count} item(s):{Environment.NewLine}"
 			+ string.Join(Environment.NewLine, failedFiles.Select(f => $"  - {f}"));
 
-		return new UpgradeVerificationResult(false, failedFiles, summary);
+		return new UpgradeVerificationResult(false, failedFiles, summary) { MatchedFiles = matchedFiles };
 	}
 
 	public static void RollbackAfterFailedUpgrade(string installDirectory, string reason)
@@ -235,6 +296,8 @@ public static class InstallUpgradeManager
 
 	public static void CompleteUpgrade(string installDirectory)
 	{
+		DeleteDisplacedFiles(installDirectory);
+
 		var stateDirectory = GetUpgradeStateDirectory(installDirectory);
 		if (!Directory.Exists(stateDirectory))
 			return;
@@ -245,7 +308,7 @@ public static class InstallUpgradeManager
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Warning(ex, "Could not delete upgrade state directory {StateDirectory}", stateDirectory);
+			StartupLog.Warning(ex, $"Could not delete upgrade state directory {stateDirectory}");
 		}
 	}
 
@@ -274,15 +337,15 @@ public static class InstallUpgradeManager
 		string pendingPath,
 		PendingUpgradeState? pending,
 		IReadOnlyList<string> failedFiles,
-		string summary)
+		string summary,
+		IReadOnlyList<string>? filesTheOverlayHadReplaced = null)
 	{
-		var restoredFiles = RestoreFromBackup(installDirectory);
+		var restore = RestoreFromBackup(installDirectory);
+		var confidence = GradeRollback(restore, filesTheOverlayHadReplaced);
 
-		Serilog.Log.Logger.Error(
-			"In-app upgrade failed. Rolled back {RestoredCount} file(s) in {InstallDirectory}. {Summary}",
-			restoredFiles.Count,
-			installDirectory,
-			summary);
+		StartupLog.Error(
+			$"In-app upgrade failed. Rolled back {restore.RestoredFiles.Count} file(s) in {installDirectory}, "
+			+ $"{restore.UnrestoredFiles.Count} could not be restored. Outcome: {confidence}. {summary}");
 
 		try
 		{
@@ -291,58 +354,238 @@ public static class InstallUpgradeManager
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Warning(ex, "Could not delete pending upgrade state at {PendingPath}", pendingPath);
+			StartupLog.Warning(ex, $"Could not delete pending upgrade state at {pendingPath}");
 		}
 
 		var targetVersion = pending?.TargetVersion ?? "unknown";
-		var title = "In-app upgrade failed -- Libation was restored";
+		var title = confidence is RollbackConfidence.RestoreIncomplete
+			? "In-app upgrade failed -- this install needs replacing"
+			: "In-app upgrade failed -- Libation was restored";
+
 		var message = $"""
 			Libation attempted an in-app upgrade to version {targetVersion}, but one or more install files were not updated correctly.
 
-			Libation restored your previous install files from backup so you can continue using the app.
+			{DescribeRollbackOutcome(confidence)}
 
 			Details:
 			{summary}
-
+			{DescribeUnrestoredFiles(restore.UnrestoredFiles)}
 			Install folder:
 			{installDirectory}
 
 			Your library database, accounts, and settings are stored separately and were not changed.
 
-			To upgrade safely:
-			1. Quit Libation completely.
-			2. Download the latest release zip from GitHub.
-			3. Extract it to a new folder (do not copy files on top of this install folder).
-			4. Run Libation from the new folder.
+			{DescribeRecoveryAdvice(confidence)}
 
 			More help:
 			{StartupAssemblyBootstrap.TroubleshootIncompleteUpgradeUrl}
 			""";
 
 		s_StartupRecoveryAlert = new FatalStartupMessage(title, message);
-		return new UpgradeRecoveryResult(true, title, message, failedFiles);
+		return new UpgradeRecoveryResult(true, title, message, failedFiles) { Confidence = confidence };
 	}
 
-	private static List<string> RestoreFromBackup(string installDirectory)
+	/// <summary>
+	/// A restore that could not write every file leaves an install nobody should trust. Short of that, the
+	/// question is whether the overlay had already begun replacing files: if it had, the backup covers only
+	/// the dozen names in <see cref="GetCriticalFileNames"/> out of the few hundred in the folder, so
+	/// putting those back cannot bring the install to a single version.
+	/// </summary>
+	private static RollbackConfidence GradeRollback(RestoreResult restore, IReadOnlyList<string>? filesTheOverlayHadReplaced)
+		=> restore.UnrestoredFiles.Count > 0 ? RollbackConfidence.RestoreIncomplete
+		: filesTheOverlayHadReplaced?.Count > 0 ? RollbackConfidence.RestoredButInstallIsMixed
+		: RollbackConfidence.RestoredToPreviousVersion;
+
+	private static string DescribeRollbackOutcome(RollbackConfidence confidence)
+		=> confidence switch
+		{
+			RollbackConfidence.RestoredToPreviousVersion =>
+				"Libation put your previous install files back, and checked each one afterwards. The upgrade had not started replacing files, so this install is the version you were running before.",
+
+			RollbackConfidence.RestoredButInstallIsMixed =>
+				"Libation put your previous install files back and checked each one afterwards. The upgrade had already replaced some other files though, and those are not covered by the backup, so this install is now a mixture of both versions. It should start, but installing a fresh copy is the only way to be sure of it.",
+
+			RollbackConfidence.RestoreIncomplete =>
+				"Libation could not put all of your previous install files back, so this install is incomplete. Please install a fresh copy before using Libation again.",
+
+			_ => string.Empty,
+		};
+
+	private static string DescribeUnrestoredFiles(IReadOnlyList<string> unrestoredFiles)
+		=> unrestoredFiles.Count == 0
+		? string.Empty
+		: $"""
+
+			Could not be restored:
+			{string.Join(Environment.NewLine, unrestoredFiles.Select(f => $"  - {f}"))}
+
+			""";
+
+	private static string DescribeRecoveryAdvice(RollbackConfidence confidence)
+		=> confidence is RollbackConfidence.RestoredToPreviousVersion
+		? """
+			When you next want to upgrade:
+			1. Quit Libation completely.
+			2. Download the latest release from GitHub. The setup.exe installer is the easiest option.
+			3. If you use the zip instead, extract it to a new folder (do not copy files on top of this install folder).
+			"""
+		: """
+			To get back to a clean install:
+			1. Quit Libation completely.
+			2. Download the latest release from GitHub. The setup.exe installer is the easiest option.
+			3. If you use the zip instead, extract it to a new folder (do not copy files on top of this install folder).
+			4. Run Libation from the new folder.
+			""";
+
+	private readonly record struct RestoreResult(IReadOnlyList<string> RestoredFiles, IReadOnlyList<string> UnrestoredFiles);
+
+	/// <summary>
+	/// Puts every backed-up file back, then reads each one to confirm it now matches its backup copy.
+	/// <para/>
+	/// The check is the point: the rollback used to restore, announce success and delete the pending marker
+	/// without ever looking at what it had written, so a copy that half succeeded still reported "Libation
+	/// restored your previous install files". One file failing no longer abandons the rest either.
+	/// </summary>
+	private static RestoreResult RestoreFromBackup(string installDirectory)
 	{
 		var backupDirectory = GetBackupDirectory(installDirectory);
 		var restoredFiles = new List<string>();
+		var unrestoredFiles = new List<string>();
 
 		if (!Directory.Exists(backupDirectory))
-			return restoredFiles;
+			return new RestoreResult(restoredFiles, unrestoredFiles);
 
 		foreach (var backupFile in Directory.EnumerateFiles(backupDirectory, "*", SearchOption.AllDirectories))
 		{
 			var relativePath = Path.GetRelativePath(backupDirectory, backupFile);
 			var targetPath = Path.Combine(installDirectory, relativePath);
-			Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
-			File.Copy(backupFile, targetPath, overwrite: true);
-			restoredFiles.Add(relativePath);
 
-			Serilog.Log.Logger.Information("Upgrade rollback restored {FileName}", relativePath);
+			try
+			{
+				Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
+				ReplaceInstallFile(backupFile, targetPath);
+			}
+			catch (Exception ex)
+			{
+				unrestoredFiles.Add($"{relativePath}: could not be restored ({ex.Message})");
+				StartupLog.Error(ex, $"Upgrade rollback could not restore {relativePath}");
+				continue;
+			}
+
+			if (!FilesMatch(backupFile, targetPath))
+			{
+				unrestoredFiles.Add($"{relativePath}: restored copy does not match the backup");
+				StartupLog.Error($"Upgrade rollback wrote {relativePath}, but it does not match the backup");
+				continue;
+			}
+
+			restoredFiles.Add(relativePath);
+			StartupLog.Information($"Upgrade rollback restored {relativePath}");
 		}
 
-		return restoredFiles;
+		return new RestoreResult(restoredFiles, unrestoredFiles);
+	}
+
+	private static bool FilesMatch(string left, string right)
+	{
+		try
+		{
+			return File.Exists(left)
+				&& File.Exists(right)
+				&& string.Equals(ComputeSha256Hex(left), ComputeSha256Hex(right), StringComparison.OrdinalIgnoreCase);
+		}
+		catch (Exception ex)
+		{
+			StartupLog.Warning(ex, $"Could not compare {left} with {right}");
+			return false;
+		}
+	}
+
+	/// <summary>
+	/// Puts <paramref name="source"/> at <paramref name="targetPath"/> even when this process has already
+	/// loaded the file it is replacing.
+	/// <para/>
+	/// Every backed-up file is an assembly, and by the time startup recovery runs, at least
+	/// LibationFileManager and AppScaffolding are loaded and memory-mapped. Writing over a mapped file
+	/// in place corrupts the mapping: <c>File.Copy(overwrite: true)</c> segfaulted the process outright on
+	/// Linux, and Windows denies the write, so the rollback could never finish. Renaming is permitted on
+	/// both, because .NET opens assemblies with <c>FileShare.Delete</c>, and the mapping keeps working off
+	/// the moved inode until the process exits. See issue #2001.
+	/// </summary>
+	private static void ReplaceInstallFile(string source, string targetPath)
+	{
+		string? displaced = null;
+		if (File.Exists(targetPath))
+		{
+			displaced = targetPath + DisplacedFileSuffix;
+			TryDelete(displaced);
+			File.Move(targetPath, displaced, overwrite: true);
+		}
+
+		try
+		{
+			File.Copy(source, targetPath, overwrite: true);
+		}
+		catch
+		{
+			// Moving the old file aside and then failing to write the new one would leave nothing at all
+			// where a file used to be. Put it back and let the caller report the failure.
+			if (displaced is not null && File.Exists(displaced) && !File.Exists(targetPath))
+				TryMove(displaced, targetPath);
+
+			throw;
+		}
+	}
+
+	private static void TryMove(string from, string to)
+	{
+		try
+		{
+			File.Move(from, to, overwrite: true);
+		}
+		catch (Exception ex)
+		{
+			StartupLog.Error(ex, $"Could not put {from} back to {to}");
+		}
+	}
+
+	/// <summary>
+	/// Removes the files a previous rollback moved aside. Their replacements are on disk and the process
+	/// that was holding them has exited, so nothing needs them any more.
+	/// <para/>
+	/// Top level only: every backed-up name comes from <see cref="GetCriticalFileNames"/>, which yields
+	/// bare file names, so a displaced file can only ever sit next to the executable. That keeps this cheap
+	/// enough to run on every startup, which it has to, because the rollback that creates these files also
+	/// deletes the pending marker that would otherwise signal there is cleaning up to do.
+	/// </summary>
+	private static void DeleteDisplacedFiles(string installDirectory)
+	{
+		try
+		{
+			if (!Directory.Exists(installDirectory))
+				return;
+
+			foreach (var displaced in Directory.EnumerateFiles(installDirectory, $"*{DisplacedFileSuffix}", SearchOption.TopDirectoryOnly))
+				TryDelete(displaced);
+		}
+		catch (Exception ex)
+		{
+			StartupLog.Warning(ex, $"Could not clean up displaced install files in {installDirectory}");
+		}
+	}
+
+	private static void TryDelete(string path)
+	{
+		try
+		{
+			if (File.Exists(path))
+				File.Delete(path);
+		}
+		catch (Exception ex)
+		{
+			// Still held by something, or not ours to delete. It is inert either way.
+			StartupLog.Debug(ex, $"Could not delete {path}");
+		}
 	}
 
 	private static Dictionary<string, string> BuildExpectedHashesFromZip(string upgradeBundlePath, IReadOnlyList<string> criticalFileNames)
@@ -357,7 +600,7 @@ public static class InstallUpgradeManager
 
 			if (entry is null)
 			{
-				Serilog.Log.Logger.Warning("Upgrade package does not contain expected file {FileName}", fileName);
+				StartupLog.Warning($"Upgrade package does not contain expected file {fileName}");
 				continue;
 			}
 

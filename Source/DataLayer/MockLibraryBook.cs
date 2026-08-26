@@ -89,6 +89,7 @@ public class MockLibraryBook : LibraryBook
 		bool isAbridged = false,
 		bool isSpatial = false,
 		string language = "English",
+		string? copyright = null,
 		LiberatedStatus bookStatus = LiberatedStatus.Liberated,
 		LiberatedStatus? pdfStatus = null,
 		AudioFormat? lastDlFormat = null,
@@ -113,7 +114,7 @@ public class MockLibraryBook : LibraryBook
 		book.UserDefinedItem.PdfStatus = pdfStatus;
 		book.UserDefinedItem.BookStatus = bookStatus;
 
-		book.UpdateBookDetails(isAbridged, isSpatial, datePublished ?? DateTime.Now, language);
+		book.UpdateBookDetails(isAbridged, isSpatial, datePublished ?? DateTime.Now, language, copyright);
 
 		return new MockLibraryBook(
 			book,

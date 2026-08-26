@@ -7,8 +7,10 @@ using Dinah.Core.ErrorHandling;
 using Dinah.Core.Net.Http;
 using FileManager;
 using LibationFileManager;
+using LibationFileManager.Templates;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -247,30 +249,68 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 
 		#endregion
 
-		tags.Title ??= options.LibraryBookDto.TitleWithSubtitle;
+		FillMissingTags(tags, options.LibraryBook.Book, options.LibraryBookDto, options.ContentMetadata.ContentReference, options.DrmType);
+	}
+
+	/// <summary>Audible's own format for <c>rldt</c>, which Libation matches when it supplies the tag itself.</summary>
+	private const string ReleaseDateFormat = "dd-MMM-yyyy";
+
+	/// <summary>
+	/// Audible's ADRM (.aaxc) downloads arrive with most of these tags already written; its Widevine
+	/// (DASH) downloads arrive with almost none of them, so the library's own data has to stand in.
+	/// </summary>
+	internal static void FillMissingTags(Mpeg4Lib.MetadataItems tags, Book book, LibraryBookDto dto, ContentReference contentReference, DrmType drmType)
+	{
+		tags.Title ??= dto.TitleWithSubtitle;
 		tags.Album ??= tags.Title;
-		tags.Artist ??= string.Join("; ", options.LibraryBook.Book.Authors.Select(a => a.Name));
+		tags.Artist ??= string.Join("; ", book.Authors.Select(a => a.Name));
 		tags.AlbumArtists ??= tags.Artist;
-		tags.Genres = string.Join(", ", options.LibraryBook.Book.LowestCategoryNames());
-		tags.ProductID ??= options.ContentMetadata.ContentReference.Sku;
-		tags.Comment ??= options.LibraryBook.Book.Description;
+		tags.Genres = string.Join(", ", book.LowestCategoryNames());
+		tags.ProductID ??= contentReference.Sku;
+		tags.Comment ??= book.Description;
 		tags.LongDescription ??= tags.Comment;
-		tags.Publisher ??= options.LibraryBook.Book.Publisher;
-		tags.Narrator ??= string.Join("; ", options.LibraryBook.Book.Narrators.Select(n => n.Name));
-		tags.Asin = options.LibraryBook.Book.AudibleProductId;
-		tags.Acr = options.ContentMetadata.ContentReference.Acr;
-		tags.Version = options.ContentMetadata.ContentReference.Version;
-		if (options.LibraryBook.Book.DatePublished is DateTime pubDate)
+		//Only the .aaxc files carry a copyright line of their own. AaxcDownloadConvertBase's fixup
+		//normalizes "(P)" to "℗" after this runs, so the catalog's wording lands the same way.
+		tags.Copyright ??= book.Copyright;
+		tags.Publisher ??= book.Publisher;
+		tags.Narrator ??= string.Join("; ", book.Narrators.Select(n => n.Name));
+		tags.Asin = book.AudibleProductId;
+		tags.Acr = contentReference.Acr;
+		tags.Version = contentReference.Version;
+		if (book.DatePublished is DateTime pubDate)
 		{
 			tags.Year ??= pubDate.Year.ToString();
-			tags.ReleaseDate ??= pubDate.ToString("dd-MMM-yyyy");
+			tags.ReleaseDate ??= pubDate.ToString(ReleaseDateFormat);
+
+			//Audible's .aaxc files frequently carry 01-Jan-2000 where the real release date belongs.
+			//The file's own tag is otherwise the better source - it is what Audible shipped with this
+			//particular recording - so it still wins everywhere except for that one placeholder value.
+			//
+			//Only the exact sentinel is overridden, and only when the catalog disagrees with it, so a
+			//title genuinely released on 01-Jan-2000 comes out the same either way. Two broader rules
+			//were considered and rejected: always preferring the catalog date would discard Audible's
+			//date on re-releases the catalog dates wrong, and treating any year below some floor as
+			//bogus has no defensible floor, since real recordings predate 2000.
+			if (IsPlaceholderReleaseDate(tags.ReleaseDate) && pubDate.Date != PlaceholderReleaseDate)
+			{
+				tags.ReleaseDate = pubDate.ToString(ReleaseDateFormat);
+				//A file carrying the placeholder rldt carries the matching placeholder year.
+				if (tags.Year == PlaceholderReleaseDate.Year.ToString())
+					tags.Year = pubDate.Year.ToString();
+			}
 		}
 
 		const string tagDomain = "org.libation";
 		tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_ACR", tags.Acr);
-		tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_DRM_TYPE", options.DrmType.ToString());
-		tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_LOCALE", options.LibraryBook.Book.Locale);
+		tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_DRM_TYPE", drmType.ToString());
+		tags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_LOCALE", book.Locale);
 	}
+
+	private static readonly DateTime PlaceholderReleaseDate = new(2000, 1, 1);
+
+	internal static bool IsPlaceholderReleaseDate(string? releaseDate)
+		=> DateTime.TryParse(releaseDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed)
+		&& parsed.Date == PlaceholderReleaseDate;
 
 	private void AaxcDownloader_RetrievedCoverArt(object? sender, byte[]? e)
 	{

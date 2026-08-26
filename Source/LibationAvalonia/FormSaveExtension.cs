@@ -70,7 +70,9 @@ public static class FormSaveExtension
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Error(ex, "Failed to save {form} size and location", form.GetType().Name);
+			// The crash dialog restores its own position, so this runs while the install may be broken.
+			// Logging through Serilog here took the dialog down with it. See issue #2001.
+			StartupLog.Error(ex, $"Failed to restore {form.GetType().Name} size and location");
 		}
 	}
 	public static void SaveSizeAndLocation(this Window form, Configuration config)
@@ -99,7 +101,7 @@ public static class FormSaveExtension
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Error(ex, "Failed to save {form} size and location", form.GetType().Name);
+			StartupLog.Error(ex, $"Failed to save {form.GetType().Name} size and location");
 		}
 	}
 

@@ -164,7 +164,10 @@ public static class LibraryCommands
 					| LibraryOptions.ResponseGroupOptions.ProductPlans | LibraryOptions.ResponseGroupOptions.Series
 					| LibraryOptions.ResponseGroupOptions.CategoryLadders | LibraryOptions.ResponseGroupOptions.ProductExtendedAttrs
 					| LibraryOptions.ResponseGroupOptions.PdfUrl | LibraryOptions.ResponseGroupOptions.OriginAsin
-						| LibraryOptions.ResponseGroupOptions.IsFinished,
+						| LibraryOptions.ResponseGroupOptions.IsFinished
+					//product_details is the only group that returns the copyright line, which Libation
+					//needs for Widevine downloads: those files arrive without an embedded cprt tag.
+					| LibraryOptions.ResponseGroupOptions.ProductDetails,
 					ImageSizes = LibraryOptions.ImageSizeOptions._500 | LibraryOptions.ImageSizeOptions._1215
 				};
 				//Importing only adds and updates, so a partially scanned library is still worth importing.

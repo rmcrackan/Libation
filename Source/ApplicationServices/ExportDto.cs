@@ -1,5 +1,4 @@
-﻿using CsvHelper.Configuration.Attributes;
-using DataLayer;
+﻿using DataLayer;
 using Newtonsoft.Json;
 using System;
 using System.Linq;

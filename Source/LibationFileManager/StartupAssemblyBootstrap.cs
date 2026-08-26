@@ -32,17 +32,56 @@ public static class StartupAssemblyBootstrap
 	/// Call once immediately after <c>RunPreConfigMigrations</c>, before assigning UI assembly hooks such as
 	/// <c>BadBookActionDialogBase.ShowAsyncImpl</c>.
 	/// </summary>
-	public static void RecoverFromIncompleteUpgradeIfNeeded()
+	/// <returns>
+	/// The notice to show when a rollback replaced install files, in which case the caller must show it and
+	/// quit rather than continue. This process has already loaded the assemblies that were just swapped out
+	/// from under it, so what is in memory no longer matches what is on disk. Null when there was nothing to
+	/// recover, which is the normal case.
+	/// </returns>
+	public static StartupRecoveryNotice? RecoverFromIncompleteUpgradeIfNeeded()
 	{
 		try
 		{
-			InstallUpgradeManager.RecoverPendingUpgradeIfNeeded(Configuration.ProcessDirectory);
+			var recovery = InstallUpgradeManager.RecoverPendingUpgradeIfNeeded(Configuration.ProcessDirectory);
+			if (recovery?.RolledBack != true)
+				return null;
+
+			InstallUpgradeManager.TakeStartupRecoveryAlert();
+
+			var offerRestart = ShouldOfferRestart(recovery, InstallRelauncher.WasRelaunched);
+
+			return new StartupRecoveryNotice(
+				new FatalStartupMessage(
+					recovery.Title,
+					recovery.Message + Environment.NewLine + Environment.NewLine + DescribeRestart(offerRestart, recovery.Confidence)),
+				offerRestart);
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Error(ex, "Failed while recovering from a pending in-app upgrade");
+			StartupLog.Error(ex, "Failed while recovering from a pending in-app upgrade");
+			return null;
 		}
 	}
+
+	/// <summary>
+	/// Whether to ask the user about restarting: only for an install the rollback fully restored, and only
+	/// in a process that was not itself started by a restart. A rollback deletes the pending marker before
+	/// returning, but that delete swallows its own failure, and a marker that outlives one rollback would
+	/// otherwise let this repeat on every launch.
+	/// </summary>
+	public static bool ShouldOfferRestart(UpgradeRecoveryResult recovery, bool wasRelaunched)
+		=> recovery.WorthRestarting && !wasRelaunched;
+
+	/// <summary>
+	/// Libation has to close either way, because the files underneath it just changed. How warmly to suggest
+	/// coming straight back depends on what it found when it checked its own work.
+	/// </summary>
+	private static string DescribeRestart(bool offerRestart, RollbackConfidence confidence)
+		=> !offerRestart
+		? "Libation needs to close now."
+		: confidence is RollbackConfidence.RestoredButInstallIsMixed
+			? "Libation needs to close now. You can start it again if you would like to carry on for the moment, though a fresh install would be better.\n\nWould you like to start Libation again now?"
+			: "Libation needs to close now so it can load the files it just put back.\n\nWould you like to start Libation again now?";
 
 	private static void TrySyncWindowsInstallMetadata()
 	{
@@ -55,7 +94,7 @@ public static class StartupAssemblyBootstrap
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Warning(ex, "Could not run install metadata sync at startup");
+			StartupLog.Warning(ex, "Could not run install metadata sync at startup");
 		}
 	}
 
@@ -182,7 +221,121 @@ public static class StartupAssemblyBootstrap
 	public static bool IsInstallFolderAssemblyLoadFailure(Exception ex) =>
 		IsApplicationControlBlockedAssembly(ex)
 		|| IsMissingDependencyAssembly(ex)
-		|| IsIncompleteUpgradeAssemblyFailure(ex);
+		|| IsIncompleteUpgradeAssemblyFailure(ex)
+		|| TryGetInstallAssemblyFailure(ex, out _);
+
+	/// <summary>
+	/// Finds an assembly the runtime could not bind to a usable file in the install folder, whatever the
+	/// assembly is called.
+	/// <para/>
+	/// The name-based checks above only recognise the handful of assemblies that had already caused a bug
+	/// report, so a missing <c>Serilog.dll</c> fell through all of them to a generic "fatal error" dialog
+	/// with no rollback attempted. See issue #2001.
+	/// <para/>
+	/// A stale file reports identically to an absent one: the loader says "the system cannot find the file
+	/// specified" either way, because it rejects a file whose version is below the reference and then has
+	/// nothing left to bind. The on-disk version is therefore worth reading and telling the user about.
+	/// </summary>
+	public static bool TryGetInstallAssemblyFailure(Exception? ex, out InstallAssemblyFailure? failure)
+	{
+		failure = null;
+		for (var current = ex; current is not null; current = current.InnerException)
+		{
+			if (current is AggregateException aggregate)
+			{
+				foreach (var inner in aggregate.InnerExceptions)
+				{
+					if (TryGetInstallAssemblyFailure(inner, out failure))
+						return true;
+				}
+			}
+
+			if (current is not FileNotFoundException and not FileLoadException)
+				continue;
+
+			var fileName = (current as FileNotFoundException)?.FileName ?? (current as FileLoadException)?.FileName;
+			if (!TryParseAssemblyReference(fileName, out var assemblyName, out var requestedVersion)
+				|| assemblyName is null
+				|| requestedVersion is null)
+				continue;
+
+			var path = FindInstallAssemblyPath(assemblyName);
+			var installedVersion = path is null ? null : TryReadAssemblyVersion(path);
+
+			// Present, readable and no older than the reference: this bind failed for some other reason,
+			// so leave it to a caller that knows more rather than blaming the install folder.
+			if (installedVersion is not null && installedVersion >= requestedVersion)
+				continue;
+
+			failure = new InstallAssemblyFailure(
+				assemblyName,
+				requestedVersion,
+				installedVersion,
+				path ?? Path.Combine(Configuration.ProcessDirectory, $"{assemblyName}.dll"));
+			return true;
+		}
+
+		return false;
+	}
+
+	public static string DescribeInstallAssemblyFailure(InstallAssemblyFailure failure)
+		=> failure.InstalledVersion is null
+		? $"{failure.FileName} is missing from the install folder. This build of Libation needs version {failure.RequestedVersion}."
+		: $"{failure.FileName} in the install folder is version {failure.InstalledVersion}, but this build of Libation needs version {failure.RequestedVersion}. The upgrade did not replace this file.";
+
+	/// <summary>
+	/// True only for a genuine assembly reference, which always carries a version. This keeps the check off
+	/// the <see cref="FileNotFoundException"/>s that carry a plain file path, such as the one
+	/// <see cref="ValidateEntityFrameworkCoreSqlitePresent"/> raises.
+	/// </summary>
+	private static bool TryParseAssemblyReference(string? fileName, out string? assemblyName, out Version? version)
+	{
+		assemblyName = null;
+		version = null;
+
+		if (string.IsNullOrWhiteSpace(fileName))
+			return false;
+
+		try
+		{
+			var parsed = new AssemblyName(fileName);
+			if (string.IsNullOrWhiteSpace(parsed.Name) || parsed.Version is null)
+				return false;
+
+			assemblyName = parsed.Name;
+			version = parsed.Version;
+			return true;
+		}
+		catch (Exception)
+		{
+			return false;
+		}
+	}
+
+	private static string? FindInstallAssemblyPath(string assemblyName)
+	{
+		foreach (var extension in new[] { ".dll", ".exe" })
+		{
+			var path = Path.Combine(Configuration.ProcessDirectory, assemblyName + extension);
+			if (File.Exists(path))
+				return path;
+		}
+
+		return null;
+	}
+
+	private static Version? TryReadAssemblyVersion(string path)
+	{
+		try
+		{
+			return AssemblyName.GetAssemblyName(path).Version;
+		}
+		catch (Exception)
+		{
+			// Not a managed assembly, or unreadable. Either way we cannot name a version.
+			return null;
+		}
+	}
 
 	public static FatalStartupMessage? GetStartupFailureMessage(Exception ex)
 	{
@@ -217,6 +370,14 @@ public static class StartupAssemblyBootstrap
 				GetLibraryLoadFailureMessage());
 		}
 
+		// Last, so the checks above keep naming the specific cause they recognise.
+		if (TryGetInstallAssemblyFailure(ex, out _))
+		{
+			return new FatalStartupMessage(
+				"Libation could not load a required file",
+				GetIncompleteUpgradeFailureMessage(ex));
+		}
+
 		return null;
 	}
 
@@ -249,7 +410,9 @@ public static class StartupAssemblyBootstrap
 	/// </summary>
 	public static FatalStartupMessage GetFatalStartupMessage(Exception ex, FatalStartupMessage genericFallback)
 	{
-		if (IsIncompleteUpgradeAssemblyFailure(ex))
+		// TryEmergencyRollback is a no-op without a backup folder, so it is safe to offer it to any
+		// assembly failure that points at the install folder rather than only the named ones.
+		if (IsIncompleteUpgradeAssemblyFailure(ex) || TryGetInstallAssemblyFailure(ex, out _))
 		{
 			var recovery = InstallUpgradeManager.TryEmergencyRollback(Configuration.ProcessDirectory);
 			if (recovery.RolledBack)
@@ -265,12 +428,17 @@ public static class StartupAssemblyBootstrap
 
 	public static string GetIncompleteUpgradeFailureMessage(Exception? ex = null)
 	{
-		var detail = ex?.Message;
+		// Naming the file and both versions turns an opaque loader message into something the user, and
+		// anyone reading their bug report, can act on without guessing.
+		var detail = TryGetInstallAssemblyFailure(ex, out var assemblyFailure) && assemblyFailure is not null
+			? DescribeInstallAssemblyFailure(assemblyFailure)
+			: ex?.Message;
+
 		if (string.IsNullOrWhiteSpace(detail))
 			detail = "(no additional detail)";
 
 		return $"""
-			Libation could not load a required component after an in-app upgrade. This usually means the upgrade overlay did not replace every install file.
+			Libation could not load a required file from its install folder. This usually means an in-app upgrade, or a zip extracted over an existing install, did not replace every file.
 
 			Technical detail:
 			{detail}
