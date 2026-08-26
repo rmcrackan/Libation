@@ -35,6 +35,7 @@ public class ImportantSettingsVM : ViewModelBase
 		CreationTime = DateTimeSources.SingleOrDefault(v => v.Value == config.CreationTime) ?? DateTimeSources[0];
 		LastWriteTime = DateTimeSources.SingleOrDefault(v => v.Value == config.LastWriteTime) ?? DateTimeSources[0];
 		UseWebView = config.UseWebView;
+		CheckForUpgradesAtStartup = config.CheckForUpgradesAtStartup;
 		LoggingLevel = config.LogLevel;
 		GridScaleFactor = scaleFactorToLinearRange(config.GridScaleFactor);
 		GridFontScaleFactor = scaleFactorToLinearRange(config.GridFontScaleFactor);
@@ -77,6 +78,7 @@ public class ImportantSettingsVM : ViewModelBase
 		config.CreationTime = CreationTime.Value;
 		config.LastWriteTime = LastWriteTime.Value;
 		config.UseWebView = UseWebView;
+		config.CheckForUpgradesAtStartup = CheckForUpgradesAtStartup;
 		config.LogLevel = LoggingLevel;
 		config.TokenStorageMethod = SelectedTokenStorageMethod;
 		initialTokenStorageMethod = SelectedTokenStorageMethod;
@@ -145,10 +147,11 @@ public class ImportantSettingsVM : ViewModelBase
 	/// <summary>When true, the Use WebView setting is disabled (e.g. when running in Linux Snap to avoid portal/sandbox crashes).</summary>
 	public bool UseWebViewSettingDisabled => Configuration.IsRunningUnderSnap;
 	public string UseWebViewSnapMessage { get; } = Configuration.IsRunningUnderSnap ? "Disabled when running in Linux Snap (avoids login crash). Use external browser instead." : "";
+	public string CheckForUpgradesAtStartupText { get; } = Configuration.GetDescription(nameof(Configuration.CheckForUpgradesAtStartup));
+	public string CheckForUpgradesAtStartupTip { get; } = Configuration.GetHelpText(nameof(Configuration.CheckForUpgradesAtStartup));
 	public Serilog.Events.LogEventLevel[] LoggingLevels { get; } = Enum.GetValues<Serilog.Events.LogEventLevel>();
 	public string GridScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridScaleFactor));
 	public string GridFontScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridFontScaleFactor));
-	public string BetaOptInText { get; } = Configuration.GetDescription(nameof(Configuration.BetaOptIn));
 	public EnumDisplay<Configuration.Theme>[] Themes { get; }
 		= Enum.GetValues<Configuration.Theme>()
 		.Select(v => new EnumDisplay<Configuration.Theme>(v))
@@ -171,6 +174,7 @@ public class ImportantSettingsVM : ViewModelBase
 	public EnumDisplay<Configuration.DateTimeSource> CreationTime { get; set; }
 	public EnumDisplay<Configuration.DateTimeSource> LastWriteTime { get; set; }
 	public bool UseWebView { get; set; }
+	public bool CheckForUpgradesAtStartup { get; set; }
 	public Serilog.Events.LogEventLevel LoggingLevel { get; set; }
 
 	public bool EncryptTokens

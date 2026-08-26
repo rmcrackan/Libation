@@ -42,6 +42,8 @@ public partial class SettingsDialog
 		lastWriteTimeLbl.Text = desc(nameof(config.LastWriteTime));
 		gridScaleFactorLbl.Text = desc(nameof(config.GridScaleFactor));
 		gridFontScaleFactorLbl.Text = desc(nameof(config.GridFontScaleFactor));
+		checkForUpgradesCbox.Text = desc(nameof(config.CheckForUpgradesAtStartup));
+		toolTip.SetToolTip(checkForUpgradesCbox, Configuration.GetHelpText(nameof(config.CheckForUpgradesAtStartup)));
 
 		var dateTimeSources = Enum.GetValues<Configuration.DateTimeSource>().Select(v => new EnumDisplay<Configuration.DateTimeSource>(v)).ToArray();
 		creationTimeCb.Items.AddRange(dateTimeSources);
@@ -70,6 +72,7 @@ public partial class SettingsDialog
 
 		saveEpisodesToSeriesFolderCbox.Checked = config.SavePodcastsToParentFolder;
 		overwriteExistingCbox.Checked = config.OverwriteExisting;
+		checkForUpgradesCbox.Checked = config.CheckForUpgradesAtStartup;
 		gridScaleFactorTbar.Value = scaleFactorToLinearRange(config.GridScaleFactor);
 		gridFontScaleFactorTbar.Value = scaleFactorToLinearRange(config.GridFontScaleFactor);
 
@@ -195,6 +198,7 @@ public partial class SettingsDialog
 
 		config.SavePodcastsToParentFolder = saveEpisodesToSeriesFolderCbox.Checked;
 		config.OverwriteExisting = overwriteExistingCbox.Checked;
+		config.CheckForUpgradesAtStartup = checkForUpgradesCbox.Checked;
 
 		config.CreationTime = (creationTimeCb.SelectedItem as EnumDisplay<Configuration.DateTimeSource>)?.Value ?? Configuration.DateTimeSource.File;
 		config.LastWriteTime = (lastWriteTimeCb.SelectedItem as EnumDisplay<Configuration.DateTimeSource>)?.Value ?? Configuration.DateTimeSource.File;

@@ -278,7 +278,7 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 		upgrader.UpgradeFailed += async (_, message) => await Dispatcher.UIThread.InvokeAsync(() => { setProgressVisible(false); MessageBox.Show(this, message, "Upgrade Failed", MessageBoxButtons.OK, MessageBoxIcon.Error); });
 
 #if !DEBUG
-		Opened += async (_, _) => await upgrader.CheckForUpgradeAsync(upgradeAvailable);
+		Opened += async (_, _) => await upgrader.CheckForUpgradeAtStartupAsync(upgradeAvailable);
 #endif
 	}
 

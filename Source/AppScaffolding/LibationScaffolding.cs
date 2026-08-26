@@ -332,7 +332,8 @@ public static class LibationScaffolding
 			config.ImportEpisodes,
 			config.ImportPlusTitles,
 			config.DownloadEpisodes,
-			config.BetaOptIn,
+			// Off means no startup upgrade prompt, which is otherwise indistinguishable from a broken check
+			config.CheckForUpgradesAtStartup,
 			config.UseCoverAsFolderIcon,
 			config.LibationFiles,
 			AudibleFileStorage.BooksDirectory,

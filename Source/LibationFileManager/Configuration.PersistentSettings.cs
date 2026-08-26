@@ -117,8 +117,8 @@ public partial class Configuration
 	[Description("Book display font size")]
 	public float GridFontScaleFactor { get => float.Min(2, float.Max(0.5f, GetNonString(defaultValue: 1f))); set => SetNonString(value); }
 
-	[Description("Use the beta version of Libation\r\nNew and experimental features, but probably buggy.\r\n(requires restart to take effect)")]
-	public bool BetaOptIn { get => GetNonString(defaultValue: false); set => SetNonString(value); }
+	[Description("Check for new Libation versions at startup")]
+	public bool CheckForUpgradesAtStartup { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
 	[Description("Location for book storage. Includes destination of newly liberated books")]
 	public LongPath? Books

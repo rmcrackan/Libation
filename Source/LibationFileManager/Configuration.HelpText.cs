@@ -168,6 +168,17 @@ public partial class Configuration
 			When enabled, books from the Audible Plus catalog (titles you stream or borrow under your membership, not purchased) are imported into Libation.
 
 			Downloading or liberating many Plus titles in a short time can cause Audible to temporarily deny content licenses ("license denied") for a day or two. That limit is enforced by Audible, not Libation — waiting and retrying usually fixes it. If problems persist after several days, report on Libation's GitHub with logs.
+			""" },
+		{nameof(CheckForUpgradesAtStartup), """
+			When enabled, Libation asks GitHub whether a newer
+			release exists each time it starts, and offers it to
+			you if there is one.
+
+			Turn this off if something else keeps Libation up to
+			date, such as a package manager or an AppImage
+			updater. You can still check whenever you like:
+			Settings > About has a "Check for Upgrade" button
+			that works either way.
 			""" }
 	}.AsReadOnly();
 
