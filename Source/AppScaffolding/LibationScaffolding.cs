@@ -208,12 +208,34 @@ public static class LibationScaffolding
 	private static void ensureSerilogConfig(Configuration config)
 		=> config.EnsureSerilogConfig();
 
+	/// <summary>
+	/// Hands everything <see cref="StartupLog"/> collected before this point to Serilog, and points it at
+	/// Serilog from here on. Startup runs long before logging exists, so without this those diagnostics are
+	/// simply dropped. This is also the only place in Libation that maps a startup entry onto a Serilog level.
+	/// </summary>
+	private static void replayStartupLog()
+		=> StartupLog.ReplayTo(entry =>
+		{
+			var level = entry.Level switch
+			{
+				StartupLogLevel.Debug => Serilog.Events.LogEventLevel.Debug,
+				StartupLogLevel.Warning => Serilog.Events.LogEventLevel.Warning,
+				StartupLogLevel.Error => Serilog.Events.LogEventLevel.Error,
+				_ => Serilog.Events.LogEventLevel.Information,
+			};
+
+			// The message is already rendered: startup cannot build a Serilog template without
+			// referencing Serilog, which is the whole point of StartupLog. See issue #2001.
+			Log.Logger.Write(level, entry.Exception, "[startup {StartupTimestamp:HH:mm:ss.fff}] {StartupMessage}", entry.Timestamp, entry.Message);
+		});
+
 	// to restore original: Console.SetOut(origOut);
 	private static TextWriter origOut { get; } = Console.Out;
 
 	private static void configureLogging(Configuration config)
 	{
 		config.ConfigureLogging();
+		replayStartupLog();
 		Log.Information(
 			"Paths: LibationFiles={LibationFiles} AppsettingsJson={AppsettingsJson} SQLiteDb={SqliteDb}",
 			config.LibationFiles.Location,

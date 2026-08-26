@@ -55,7 +55,7 @@ public sealed class SingleInstance : IDisposable
 		catch (Exception ex)
 		{
 			// Never let the guard itself prevent startup. Fail open by treating this as the first instance.
-			Serilog.Log.Logger.Warning(ex, "Could not evaluate the single-instance lock; continuing without it.");
+			StartupLog.Warning(ex, "Could not evaluate the single-instance lock; continuing without it.");
 			mutex?.Dispose();
 			return new SingleInstance(null, true);
 		}

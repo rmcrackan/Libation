@@ -52,7 +52,8 @@ public static class CloudSyncedFolders
 		catch (Exception ex)
 		{
 			// cldapi.dll is absent before Windows 10 1709, where there are no sync roots to find.
-			Serilog.Log.Logger.Debug(ex, "Could not read cloud sync root information for {Path}", path);
+			// Reached while building a crash message, so it must not need Serilog. See issue #2001.
+			StartupLog.Debug(ex, $"Could not read cloud sync root information for {path}");
 			return CloudSyncStatus.NotSynced;
 		}
 	}

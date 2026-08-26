@@ -58,7 +58,7 @@ public static class InteropFactory
 		// nothing to load (normal for LibationCli / Docker: OS interop is optional)
 		if (configApp is null)
 		{
-			Serilog.Log.Logger.Warning($"Unable to locate *{CONFIG_APP_ENDING}; continuing without OS interop helpers");
+			StartupLog.Warning($"Unable to locate *{CONFIG_APP_ENDING}; continuing without OS interop helpers");
 			return;
 		}
 
@@ -75,7 +75,7 @@ public static class InteropFactory
 		catch (Exception e)
 		{
 			//None of the interop functions are strictly necessary for Libation to run.
-			Serilog.Log.Logger.Warning(e, "Unable to load types from assembly {configApp}; continuing without OS interop helpers", configApp);
+			StartupLog.Warning(e, $"Unable to load types from assembly {configApp}; continuing without OS interop helpers");
 		}
 	}
 	private static string? getOSConfigApp()
@@ -104,7 +104,7 @@ public static class InteropFactory
 
 		// Let the runtime handle any dll not found exceptions
 		if (assembly is null)
-			Serilog.Log.Logger.Warning($"Unable to load module {args.Name}");
+			StartupLog.Warning($"Unable to load module {args.Name}");
 
 		return assembly;
 	}
