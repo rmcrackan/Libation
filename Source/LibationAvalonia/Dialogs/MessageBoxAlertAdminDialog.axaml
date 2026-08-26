@@ -4,8 +4,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
 		MinWidth="600" MinHeight="450"
-		MaxWidth="600" MaxHeight="450"
-		Width="600" Height="450"
+		MaxWidth="600" MaxHeight="620"
+		Width="600" Height="560"
         x:Class="LibationAvalonia.Dialogs.MessageBoxAlertAdminDialog"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
@@ -20,12 +20,22 @@
 			Margin="10,10,10,0"
 			ColumnDefinitions="Auto,*">
 			
-			<Image Grid.Column="0" Width="64" Height="64" Source="/Assets/MBIcons/Error_64.png" />
-			<TextBlock
+			<Image Grid.Column="0" Width="64" Height="64" VerticalAlignment="Top" Source="/Assets/MBIcons/Error_64.png" />
+
+			<!--
+			Scrolled and capped: a startup failure that names the file, its version and the recovery steps
+			runs far longer than the two lines this dialog was built for, and without a bound on the
+			description the rows below it were pushed out of the window. See issue #2001.
+			-->
+			<ScrollViewer
 				Grid.Column="1"
-				Margin="10"
-				TextWrapping="Wrap"
-				Text="{Binding ErrorDescription}" />
+				MaxHeight="260"
+				VerticalScrollBarVisibility="Auto">
+				<TextBlock
+					Margin="10"
+					TextWrapping="Wrap"
+					Text="{Binding ErrorDescription}" />
+			</ScrollViewer>
 		</Grid>
 
 		<TextBox

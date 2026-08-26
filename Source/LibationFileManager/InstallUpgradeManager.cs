@@ -308,7 +308,7 @@ public static class InstallUpgradeManager
 		var message = $"""
 			Libation attempted an in-app upgrade to version {targetVersion}, but one or more install files were not updated correctly.
 
-			Libation restored your previous install files from backup so you can continue using the app.
+			Libation restored your previous install files from backup.
 
 			Details:
 			{summary}
