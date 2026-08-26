@@ -50,7 +50,15 @@ static class Program
 			//***********************************************//
 			// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
 			var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
-			StartupAssemblyBootstrap.RecoverFromIncompleteUpgradeIfNeeded();
+
+			// A rollback swaps install files out from under assemblies this process has already loaded, so
+			// it must not go on to touch the database or open a window. Nothing here has done either yet,
+			// which makes this the safe place to stop. See issue #2001.
+			if (StartupAssemblyBootstrap.RecoverFromIncompleteUpgradeIfNeeded() is { } recovery)
+			{
+				MessageBox.Show(recovery.Body, recovery.Title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				return;
+			}
 
 			// Prevent a second instance from racing on the same database, search index, and log file.
 			// Bail out before any database access when we are not the first instance. See issue #1931.
@@ -96,14 +104,23 @@ static class Program
 		}
 		catch (Exception ex)
 		{
-			if (Configuration.Instance.SerilogInitialized)
-				Log.Error(ex, "Fatal error during startup");
+			string? crashLogFile = null;
+			try
+			{
+				if (Configuration.Instance.SerilogInitialized)
+					Log.Error(ex, "Fatal error during startup");
+				else
+					crashLogFile = PreLoggingCrashLog.TryWrite(ex, [("ReleaseIdentifier", LibationScaffolding.ReleaseIdentifier.ToString())]);
+			}
+			catch { /* continue to show the dialog even if logging fails */ }
 
 			var fatalMessage = StartupAssemblyBootstrap.GetFatalStartupMessage(
 				ex,
 				new FatalStartupMessage(
 					"Fatal error, pre-logging",
-					"An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file."));
+					crashLogFile is null
+						? "An unrecoverable error occurred before logging could be initialized, and it could not be written to a log file. Please include the text below when reporting this."
+						: $"An unrecoverable error occurred before logging could be initialized.{Environment.NewLine}{Environment.NewLine}It was written to:{Environment.NewLine}{crashLogFile}"));
 
 			try
 			{

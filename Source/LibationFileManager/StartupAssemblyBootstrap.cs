@@ -32,15 +32,29 @@ public static class StartupAssemblyBootstrap
 	/// Call once immediately after <c>RunPreConfigMigrations</c>, before assigning UI assembly hooks such as
 	/// <c>BadBookActionDialogBase.ShowAsyncImpl</c>.
 	/// </summary>
-	public static void RecoverFromIncompleteUpgradeIfNeeded()
+	/// <returns>
+	/// The message to show when a rollback replaced install files, in which case the caller must show it and
+	/// quit rather than continue. This process has already loaded the assemblies that were just swapped out
+	/// from under it, so what is in memory no longer matches what is on disk. Null when there was nothing to
+	/// recover, which is the normal case.
+	/// </returns>
+	public static FatalStartupMessage? RecoverFromIncompleteUpgradeIfNeeded()
 	{
 		try
 		{
-			InstallUpgradeManager.RecoverPendingUpgradeIfNeeded(Configuration.ProcessDirectory);
+			var recovery = InstallUpgradeManager.RecoverPendingUpgradeIfNeeded(Configuration.ProcessDirectory);
+			if (recovery?.RolledBack != true)
+				return null;
+
+			InstallUpgradeManager.TakeStartupRecoveryAlert();
+			return new FatalStartupMessage(
+				recovery.Title,
+				recovery.Message + Environment.NewLine + Environment.NewLine + "Libation will close now. Please start it again.");
 		}
 		catch (Exception ex)
 		{
 			StartupLog.Error(ex, "Failed while recovering from a pending in-app upgrade");
+			return null;
 		}
 	}
 

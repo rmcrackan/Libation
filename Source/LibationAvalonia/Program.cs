@@ -3,14 +3,12 @@ using AppScaffolding;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
-using FileManager;
 using LibationAvalonia.Dialogs;
 using LibationFileManager;
 using LibationUiBase.Forms;
 using ReactiveUI.Avalonia;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -56,20 +54,28 @@ static class Program
 		try
 		{
 			var config = LibationScaffolding.RunPreConfigMigrations();
-			StartupAssemblyBootstrap.RecoverFromIncompleteUpgradeIfNeeded();
 
-			// Prevent a second instance from racing on the same database, search index, and log file.
-			// Hold the lock for the whole process; skip all database access when we are not the first
-			// instance so the running copy's state is never touched. See issue #1931.
-			SingleInstanceLock = SingleInstance.TryAcquire(config.LibationFiles.Location);
-			App.IsAnotherInstanceRunning = !SingleInstanceLock.IsFirstInstance;
+			// A rollback swaps install files out from under assemblies this process has already loaded, so
+			// it must not go on to touch the database or open a window. App shows the message and shuts
+			// down instead. See issue #2001.
+			App.StartupRecoveryMessage = StartupAssemblyBootstrap.RecoverFromIncompleteUpgradeIfNeeded();
 
-			if (SingleInstanceLock.IsFirstInstance && config.LibationFiles.SettingsAreValid)
+			if (App.StartupRecoveryMessage is null)
 			{
-				App.RunMigrations(config);
-				StartupAssemblyBootstrap.PrepareForBackgroundDataAccess();
-				App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+				// Prevent a second instance from racing on the same database, search index, and log file.
+				// Hold the lock for the whole process; skip all database access when we are not the first
+				// instance so the running copy's state is never touched. See issue #1931.
+				SingleInstanceLock = SingleInstance.TryAcquire(config.LibationFiles.Location);
+				App.IsAnotherInstanceRunning = !SingleInstanceLock.IsFirstInstance;
+
+				if (SingleInstanceLock.IsFirstInstance && config.LibationFiles.SettingsAreValid)
+				{
+					App.RunMigrations(config);
+					StartupAssemblyBootstrap.PrepareForBackgroundDataAccess();
+					App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+				}
 			}
+
 			BuildAvaloniaApp()?.StartWithClassicDesktopLifetime([], ShutdownMode.OnExplicitShutdown);
 		}
 		catch (Exception ex)
@@ -112,13 +118,14 @@ static class Program
 
 	private static void LogAndShowCrashMessage(Exception exception)
 	{
+		string? crashLogFile = null;
 		try
 		{
 			//Try to log the error message before displaying the crash dialog
 			if (Configuration.Instance.SerilogInitialized)
 				Serilog.Log.Logger.Error(exception, "CRASH");
 			else
-				LogErrorWithoutSerilog(exception);
+				crashLogFile = PreLoggingCrashLog.TryWrite(exception, [("ReleaseIdentifier", LibationScaffolding.ReleaseIdentifier.ToString())]);
 		}
 		catch { /* continue to show the crash dialog even if logging fails */ }
 
@@ -127,7 +134,7 @@ static class Program
 
 		try
 		{
-			Dispatcher.UIThread.Invoke(() => DisplayErrorMessage(exception));
+			Dispatcher.UIThread.Invoke(() => DisplayErrorMessage(exception, crashLogFile));
 		}
 		catch (Exception ex)
 		{
@@ -135,7 +142,7 @@ static class Program
 		}
 	}
 
-	private static void DisplayErrorMessage(Exception exception)
+	private static void DisplayErrorMessage(Exception exception, string? crashLogFile)
 	{
 		var dispatcher = new DispatcherFrame();
 
@@ -143,10 +150,10 @@ static class Program
 			exception,
 			new FatalStartupMessage(
 				"Libation Crash",
-				"""
+				$"""
 				Libation encountered a fatal error and must close.
 
-				Please consider reporting this issue on GitHub, including the contents of the LibationCrash.log file created in your user folder.
+				{DescribeCrashLog(crashLogFile)}
 				"""));
 
 		var mbAlert = new MessageBoxAlertAdminDialog(fatalMessage.Body, fatalMessage.Title, exception);
@@ -155,68 +162,17 @@ static class Program
 		Dispatcher.UIThread.PushFrame(dispatcher);
 	}
 
-	private static void LogErrorWithoutSerilog(object exceptionObject)
-	{
-		var logError = $"""
-		{DateTime.Now} - Libation Crash
-		 OS                    {Configuration.OS}
-		 Version               {LibationScaffolding.BuildVersion}
-		 ReleaseIdentifier     {LibationScaffolding.ReleaseIdentifier}
-		 InteropFunctionsType  {InteropFactory.InteropFunctionsType}
-		 LibationFiles         {getConfigValue(c => c.LibationFiles.Location)}
-		 Books Folder          {getConfigValue(c => c.Books)}
-		 === EXCEPTION ===
-		 {exceptionObject}
-		""";
+	/// <summary>
+	/// Names the file the crash was actually written to. This used to name LibationCrash.log
+	/// unconditionally, which is not where the record goes when a Log*.log already exists, so reporters
+	/// went looking for a file that was not there and attached nothing. See issue #2001.
+	/// </summary>
+	private static string DescribeCrashLog(string? crashLogFile)
+		=> crashLogFile is null
+		? "Please consider reporting this issue on GitHub. Libation could not write this error to a log file, so please include the text below."
+		: $"""
+			Please consider reporting this issue on GitHub, including the contents of this file:
+			{crashLogFile}
+			""";
 
-		LongPath logFile;
-		try
-		{
-			//Try to add crash message to the newest existing Libation log file
-			//then to LibationFiles/LibationCrash.log
-			//then to %UserProfile%/LibationCrash.log
-			string logDir = Configuration.Instance.LibationFiles.Location;
-			var existingLogFiles = Directory.GetFiles(logDir, "Log*.log");
-
-			logFile = existingLogFiles.Length == 0 ? getFallbackLogFile()
-				: existingLogFiles.Select(f => new FileInfo(f)).OrderByDescending(f => f.CreationTimeUtc).First().FullName;
-		}
-		catch
-		{
-			logFile = getFallbackLogFile();
-		}
-
-
-		using var sw = new StreamWriter(logFile, true);
-		sw.WriteLine(logError);
-
-		static string getConfigValue(Func<Configuration, string?> selector)
-		{
-			try
-			{
-				return selector(Configuration.Instance) ?? "[null]";
-			}
-			catch (Exception ex)
-			{
-				return ex.ToString();
-			}
-		}
-
-		static string getFallbackLogFile()
-		{
-			try
-			{
-
-				string logDir = Configuration.Instance.LibationFiles.Location;
-				if (!Directory.Exists(logDir))
-					logDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-				return Path.Combine(logDir, "LibationCrash.log");
-			}
-			catch
-			{
-				return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "LibationCrash.log");
-			}
-		}
-	}
 }

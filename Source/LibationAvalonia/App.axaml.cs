@@ -29,6 +29,12 @@ public class App : Application
 
 	/// <summary>Set by <see cref="Program"/> when another Libation instance already holds this folder's lock.</summary>
 	public static bool IsAnotherInstanceRunning { get; set; }
+
+	/// <summary>
+	/// Set by <see cref="Program"/> when startup rolled back an incomplete in-app upgrade. The restored
+	/// files on disk no longer match the assemblies this process loaded, so it shows this and quits.
+	/// </summary>
+	public static FatalStartupMessage? StartupRecoveryMessage { get; set; }
 	public static ChardonnayTheme? DefaultThemeColors { get; private set; }
 	public static MainWindow? MainWindow { get; private set; }
 	public static Uri AssetUriBase { get; } = new("avares://Libation/Assets/");
@@ -50,17 +56,27 @@ public class App : Application
 			MessageBoxBase.ShowAsyncImpl = (owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition) =>
 				MessageBox.Show(owner as Window, message, caption, buttons, icon, defaultButton, saveAndRestorePosition);
 
-			// Another instance already owns this folder. No database work has been done in this process,
-			// so just tell the user and shut down instead of racing on shared files. See issue #1931.
-			if (IsAnotherInstanceRunning)
+			// The install folder was just rolled back underneath us. See issue #2001.
+			if (StartupRecoveryMessage is { } recovery)
 			{
-				_ = ShowAlreadyRunningThenShutdownAsync(desktop);
+				_ = ShowThenShutdownAsync(desktop, recovery.Body, recovery.Title);
 				base.OnFrameworkInitializationCompleted();
 				return;
 			}
 
-			if (InstallUpgradeManager.TakeStartupRecoveryAlert() is { } recovery)
-				_ = MessageBox.Show(null, recovery.Body, recovery.Title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			// Another instance already owns this folder. No database work has been done in this process,
+			// so just tell the user and shut down instead of racing on shared files. See issue #1931.
+			if (IsAnotherInstanceRunning)
+			{
+				_ = ShowThenShutdownAsync(
+					desktop,
+					"Libation is already running.\r\n\r\n"
+						+ "Please use the Libation window that is already open. Running more than one copy of "
+						+ "Libation against the same folder at the same time can corrupt your library.",
+					"Libation is already running");
+				base.OnFrameworkInitializationCompleted();
+				return;
+			}
 
 			BadBookActionDialogBase.ShowAsyncImpl = (owner, message, caption) =>
 				Dialogs.BadBookActionDialog.ShowAsync(owner as Window, message, caption);
@@ -80,21 +96,20 @@ public class App : Application
 		base.OnFrameworkInitializationCompleted();
 	}
 
-	private static async Task ShowAlreadyRunningThenShutdownAsync(IClassicDesktopStyleApplicationLifetime desktop)
+	/// <summary>
+	/// Shows one modal and then shuts the app down without opening the main window, for the cases where
+	/// Libation has decided at startup that it must not keep running.
+	/// </summary>
+	private static async Task ShowThenShutdownAsync(IClassicDesktopStyleApplicationLifetime desktop, string body, string title)
 	{
 		try
 		{
-			await MessageBox.Show(
-				"Libation is already running.\r\n\r\n"
-					+ "Please use the Libation window that is already open. Running more than one copy of "
-					+ "Libation against the same folder at the same time can corrupt your library.",
-				"Libation is already running",
-				MessageBoxButtons.OK,
-				MessageBoxIcon.Warning);
+			await MessageBox.Show(body, title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Error(ex, "Failed to show the 'already running' message");
+			// Serilog is unavailable on the rollback path, and shutting down matters more than the message.
+			StartupLog.Error(ex, $"Failed to show the startup message '{title}'");
 		}
 		finally
 		{
