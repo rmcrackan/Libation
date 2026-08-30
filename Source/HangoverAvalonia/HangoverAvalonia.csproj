@@ -79,6 +79,9 @@
 	<ItemGroup>
 		<ProjectReference Include="..\HangoverBase\HangoverBase.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.400" />
+	</ItemGroup>
 
 
 	<Target Name="SpicNSpan" AfterTargets="Clean">

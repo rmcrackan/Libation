@@ -1,5 +1,3 @@
-using AudibleApi.Authentication;
-
 namespace AudibleUtilities;
 
 public static class AuthenticationExceptionHelper
@@ -14,7 +12,7 @@ public static class AuthenticationExceptionHelper
 
 		for (var current = ex; current is not null; current = current.InnerException)
 		{
-			if (current is AuthenticationRequiredException or LoginFailedException)
+			if (current is AuthenticationRequiredException)
 				return true;
 
 			if (current is InvalidOperationException { Message: var message }

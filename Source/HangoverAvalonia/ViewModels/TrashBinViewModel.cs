@@ -77,7 +77,7 @@ public class TrashBinViewModel : ViewModelBase, IDisposable
 			item.IsChecked = false;
 	}
 
-	public Func<string, Task<bool>>? ConfirmDbMutationAsync { get; set; }
+	public Func<string, Task<bool>> ConfirmDbMutationAsync { get; set; }
 
 	public async Task RestoreCheckedAsync()
 	{

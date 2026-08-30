@@ -5,7 +5,7 @@ namespace HangoverAvalonia.ViewModels;
 
 public partial class MainVM : ViewModelBase
 {
-	public Func<string, Task<bool>>? ConfirmDbMutationAsync { get; set; }
+	public Func<string, Task<bool>> ConfirmDbMutationAsync { get; set; }
 
 	public MainVM()
 	{
