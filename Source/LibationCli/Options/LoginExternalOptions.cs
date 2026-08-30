@@ -103,16 +103,13 @@ internal class LoginExternalOptions : OptionsBase
 			?? AudibleApi.Locale.Empty;
 	}
 
-	internal static bool IsEmptyLocale(AudibleApi.Locale locale)
-		=> string.IsNullOrEmpty(locale.CountryCode);
+	internal static bool IsEmptyLocale(Locale locale) => string.IsNullOrEmpty(locale.CountryCode);
 
 	private sealed class CliLoginExternal : ILoginExternal
 	{
 		private readonly string? _presetResponseUrl;
 
 		public CliLoginExternal(string? presetResponseUrl) => _presetResponseUrl = presetResponseUrl;
-
-		public string DeviceName => "Libation";
 
 		public string GetResponseUrl(string loginUrl, CookieCollection signInCookies)
 		{

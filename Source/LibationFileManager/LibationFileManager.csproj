@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AudibleApi" Version="12.0.0.1" />
+    <PackageReference Include="AudibleApi" Version="13.1.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.11" />
     <PackageReference Include="NameParserSharp" Version="1.5.0" />
     <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
@@ -21,6 +21,10 @@
     <Compile Update="Configuration.*.cs">
       <DependentUpon>Configuration.cs</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.400" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

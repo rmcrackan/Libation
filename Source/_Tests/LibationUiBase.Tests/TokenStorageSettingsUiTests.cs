@@ -59,6 +59,7 @@ public class TokenStorageSettingsUiTests
 	{
 		StringAssert.Contains(TokenStorageSettingsUi.ExportConfirmBody, "password");
 		StringAssert.Contains(TokenStorageSettingsUi.ExportButtonToolTip, "Docker");
-		Assert.AreEqual("Export encryption key...", TokenStorageSettingsUi.ExportButtonText);
+		var temp = TokenStorageSettingsUi.ExportButtonText;
+        Assert.AreEqual("Export encryption key...", temp);
 	}
 }

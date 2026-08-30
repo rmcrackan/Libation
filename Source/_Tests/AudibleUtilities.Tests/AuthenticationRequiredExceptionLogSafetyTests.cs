@@ -1,7 +1,6 @@
 using AudibleApi;
 using AudibleApi.Authorization;
 using AudibleApi.Cryptography;
-using AudibleUtilities;
 using Dinah.Core.Security;
 using LibationFileManager;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

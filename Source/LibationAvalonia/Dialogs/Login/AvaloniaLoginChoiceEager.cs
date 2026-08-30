@@ -14,19 +14,17 @@ namespace LibationAvalonia.Dialogs.Login;
 
 public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 {
-	public ILoginCallback LoginCallback { get; } = new AvaloniaLoginCallback();
-
 	private readonly Account _account;
 
 	public AvaloniaLoginChoiceEager(Account account)
 	{
-		_account = Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
+		_account = ArgumentValidator.EnsureNotNull(account, nameof(account));
 	}
 
-	public async Task<ChoiceOut?> StartAsync(ChoiceIn choiceIn)
+	public async Task<string?> StartAsync(ChoiceIn choiceIn)
 		=> await Dispatcher.UIThread.InvokeAsync(() => StartAsyncInternal(choiceIn));
 
-	private async Task<ChoiceOut?> StartAsyncInternal(ChoiceIn choiceIn)
+	private async Task<string?> StartAsyncInternal(ChoiceIn choiceIn)
 	{
 		try
 		{
@@ -35,7 +33,7 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 			{
 				try
 				{
-					if (await BrowserLoginAsync(choiceIn) is ChoiceOut external)
+					if (await BrowserLoginAsync(choiceIn) is string external)
 						return external;
 				}
 				catch (Exception ex) when (WebView2LoginErrorMessage.IsWebView2SignInInfrastructureFailure(ex))
@@ -65,17 +63,17 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 
 		var externalDialog = new LoginExternalDialog(_account, choiceIn.LoginUrl);
 		return await externalDialog.ShowDialogAsync() is DialogResult.OK
-			? ChoiceOut.External(externalDialog.ResponseUrl)
+			? externalDialog.ResponseUrl
 			: null;
 	}
 
-	private async Task<ChoiceOut?> BrowserLoginAsync(ChoiceIn shoiceIn)
+	private async Task<string?> BrowserLoginAsync(ChoiceIn shoiceIn)
 	{
 		// Time-of-use: setting can change before Show (e.g. settings saved) — never open NativeWebView when disabled.
 		if (!Configuration.Instance.UseWebView)
 			return null;
 
-		TaskCompletionSource<ChoiceOut?> tcs = new();
+		TaskCompletionSource<string?> tcs = new();
 
 		NativeWebDialog dialog = new()
 		{
@@ -89,7 +87,7 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 		{
 			if (e.Request?.AbsolutePath.StartsWith("/ap/maplanding") is true)
 			{
-				tcs.TrySetResult(ChoiceOut.External(e.Request.ToString()));
+				tcs.TrySetResult(e.Request.ToString());
 				dialog.Close();
 			}
 		};

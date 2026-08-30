@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="ClosedXML" Version="0.105.0">
+	<PackageReference Include="ClosedXML" Version="0.105.1">
       <PrivateAssets>compile;contentFiles;build;buildMultitargeting;buildTransitive;analyzers;native</PrivateAssets>
 	</PackageReference>
   </ItemGroup>
@@ -16,6 +16,10 @@
     <ProjectReference Include="..\LibationSearchEngine\LibationSearchEngine.csproj" />
     <ProjectReference Include="..\DataLayer.Postgres\DataLayer.Postgres.csproj" />
     <ProjectReference Include="..\DataLayer.Sqlite\DataLayer.Sqlite.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.400" />
   </ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

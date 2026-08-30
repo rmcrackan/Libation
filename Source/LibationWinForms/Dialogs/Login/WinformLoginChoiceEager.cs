@@ -1,5 +1,6 @@
 ﻿using AudibleApi;
 using AudibleUtilities;
+using Dinah.Core;
 using LibationFileManager;
 using LibationUiBase;
 using LibationWinForms.Dialogs.Login;
@@ -11,20 +12,18 @@ namespace LibationWinForms.Login;
 
 public class WinformLoginChoiceEager : ILoginChoiceEager
 {
-	public ILoginCallback LoginCallback { get; } = new WinformLoginCallback();
-
 	private Account _account { get; }
 	private Control Owner { get; }
 	public WinformLoginChoiceEager(Account account, Control owner)
 	{
-		_account = Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
-		Owner = Dinah.Core.ArgumentValidator.EnsureNotNull(owner, nameof(owner));
+		_account = ArgumentValidator.EnsureNotNull(account, nameof(account));
+		Owner = ArgumentValidator.EnsureNotNull(owner, nameof(owner));
 	}
 
-	public Task<ChoiceOut?> StartAsync(ChoiceIn choiceIn)
+	public Task<string?> StartAsync(ChoiceIn choiceIn)
 		=> Owner.Invoke(() => StartAsyncInternal(choiceIn));
 
-	private Task<ChoiceOut?> StartAsyncInternal(ChoiceIn choiceIn)
+	private Task<string?> StartAsyncInternal(ChoiceIn choiceIn)
 	{
 		if (Configuration.Instance.UseWebView && Environment.OSVersion.Version.Major >= 10)
 		{
@@ -35,7 +34,7 @@ public class WinformLoginChoiceEager : ILoginChoiceEager
 				{
 					using var weblogin = new WebLoginDialog(_account.AccountId, choiceIn);
 					if (ShowDialog(weblogin))
-						return Task.FromResult(ChoiceOut.External(weblogin.ResponseUrl));
+						return Task.FromResult(weblogin.ResponseUrl);
 				}
 			}
 			catch (Exception ex)
@@ -49,7 +48,7 @@ public class WinformLoginChoiceEager : ILoginChoiceEager
 		using var externalDialog = new LoginExternalDialog(_account, choiceIn.LoginUrl);
 		return Task.FromResult(
 			ShowDialog(externalDialog)
-			? ChoiceOut.External(externalDialog.ResponseUrl)
+			? externalDialog.ResponseUrl
 			: null);
 	}
 
