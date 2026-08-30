@@ -17,4 +17,8 @@
     <ProjectReference Include="..\AssertionHelper\AssertionHelper.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.400" />
+  </ItemGroup>
+
 </Project>

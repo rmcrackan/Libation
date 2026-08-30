@@ -10,4 +10,8 @@
     <PackageReference Include="MSTest.TestFramework" Version="4.3.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.400" />
+  </ItemGroup>
+
 </Project>
