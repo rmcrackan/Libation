@@ -179,13 +179,17 @@ public class NetworkFileStream : Stream, IUpdatable
 		DownloadTask = Task.Run(() => DownloadLoopInternal(client, response), _cancellationSource.Token);
 	}
 
-	private async Task DownloadLoopInternal(HttpClient client, BlockResponse blockResponse)
+    // avoid infinite retry loops if the server consistently fails for a particular title
+    private const int MAX_TLS_RETRIES = 5;
+
+    private async Task DownloadLoopInternal(HttpClient client, BlockResponse blockResponse)
 	{
 		try
 		{
-			long startPosition = WritePosition;
+			var startPosition = WritePosition;
 
-			while (WritePosition < ContentLength && !IsCancelled)
+            var tlsRetryCount = 0;
+            while (WritePosition < ContentLength && !IsCancelled)
 			{
 				try
 				{
@@ -206,8 +210,22 @@ public class NetworkFileStream : Stream, IUpdatable
 					blockResponse = await RequestNextByteRangeAsync(client);
 
 					Serilog.Log.Logger.Debug($"Resuming the file download starting at position 0x{WritePosition:X10}.");
-				}
-			}
+                }
+                catch (IOException e)
+                    when (e.InnerException is System.ComponentModel.Win32Exception { NativeErrorCode: -2146893008 }
+                            && WritePosition != startPosition
+                            && WritePosition < ContentLength && !IsCancelled
+							&& ++tlsRetryCount <= MAX_TLS_RETRIES)
+                {
+                    Serilog.Log.Logger.Warning($"TLS decryption failure at position 0x{WritePosition:X10}. Reconnecting and resuming download.");
+
+                    _writeFile.Position = startPosition = WritePosition;
+                    blockResponse.Dispose();
+                    blockResponse = await RequestNextByteRangeAsync(client);
+
+                    Serilog.Log.Logger.Debug($"Resuming the file download starting at position 0x{WritePosition:X10}.");
+                }
+            }
 		}
 		catch (Exception ex)
 		{
