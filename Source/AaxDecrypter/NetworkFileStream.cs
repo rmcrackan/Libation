@@ -206,8 +206,21 @@ public class NetworkFileStream : Stream, IUpdatable
 					blockResponse = await RequestNextByteRangeAsync(client);
 
 					Serilog.Log.Logger.Debug($"Resuming the file download starting at position 0x{WritePosition:X10}.");
-				}
-			}
+                }
+                catch (IOException e)
+                    when (e.InnerException is System.ComponentModel.Win32Exception { NativeErrorCode: -2146893008 }
+                            && WritePosition != startPosition
+                            && WritePosition < ContentLength && !IsCancelled)
+                {
+                    Serilog.Log.Logger.Warning($"TLS decryption failure at position 0x{WritePosition:X10}. Reconnecting and resuming download.");
+
+                    _writeFile.Position = startPosition = WritePosition;
+                    blockResponse.Dispose();
+                    blockResponse = await RequestNextByteRangeAsync(client);
+
+                    Serilog.Log.Logger.Debug($"Resuming the file download starting at position 0x{WritePosition:X10}.");
+                }
+            }
 		}
 		catch (Exception ex)
 		{
