@@ -18,10 +18,16 @@ namespace LibationAvalonia.Dialogs;
 public partial class AccountsDialog : DialogWindow
 {
 	public AvaloniaList<AccountDto> Accounts { get; } = new();
+	private bool _isDirty;
+	private bool _closeConfirmed;
 	public class AccountDto : ViewModels.ViewModelBase
 	{
 		public IReadOnlyList<Locale> Locales => AccountsDialog.Locales;
-		public bool LibraryScan { get; set; } = true;
+		public bool LibraryScan
+		{
+			get => field;
+			set => this.RaiseAndSetIfChanged(ref field, value);
+		} = true;
 		public string? AccountId
 		{
 			get => field;
@@ -43,7 +49,11 @@ public partial class AccountsDialog : DialogWindow
 			}
 		}
 
-		public string? AccountName { get; set; }
+		public string? AccountName
+		{
+			get => field;
+			set => this.RaiseAndSetIfChanged(ref field, value);
+		}
 		public bool IsDefault => string.IsNullOrEmpty(AccountId);
 
 		/// <summary>
@@ -153,7 +163,11 @@ public partial class AccountsDialog : DialogWindow
 		else if (e.Action is NotifyCollectionChangedAction.Remove && e.OldItems?.Count > 0)
 		{
 			foreach (var oldItem in e.OldItems.OfType<AccountDto>())
+			{
 				oldItem.PropertyChanged -= AccountDto_PropertyChanged;
+				if (!oldItem.IsDefault)
+					_isDirty = true;
+			}
 		}
 	}
 
@@ -161,6 +175,13 @@ public partial class AccountsDialog : DialogWindow
 
 	private void AccountDto_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
 	{
+		// only user-editable fields; skip derived props like CanExport / button tooltips
+		if (e.PropertyName is nameof(AccountDto.LibraryScan)
+			or nameof(AccountDto.AccountId)
+			or nameof(AccountDto.SelectedLocale)
+			or nameof(AccountDto.AccountName))
+			_isDirty = true;
+
 		if (!Accounts.Any(a => a.IsDefault))
 			addBlankAccount();
 	}
@@ -214,7 +235,10 @@ public partial class AccountsDialog : DialogWindow
 			}
 
 			if (importResult.Account is { } account)
+			{
 				Accounts.Add(new AccountDto(account));
+				_isDirty = true;
+			}
 		}
 		catch (Exception ex)
 		{
@@ -252,7 +276,10 @@ public partial class AccountsDialog : DialogWindow
 		var dialog = new MarketplacesDialog(account, persister.AccountsSettings, acc.AdditionalLocaleNames);
 
 		if (await dialog.ShowDialog<DialogResult>(this) == DialogResult.OK)
+		{
 			acc.SetAdditionalLocaleNames(dialog.SelectedAdditionalLocaleNames);
+			_isDirty = true;
+		}
 	}
 
 	protected override async Task SaveAndCloseAsync()
@@ -281,6 +308,30 @@ public partial class AccountsDialog : DialogWindow
 
 	public async void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		=> await SaveAndCloseAsync();
+
+	protected override async void OnClosing(WindowClosingEventArgs e)
+	{
+		if (!_closeConfirmed && _isDirty && DialogResult != DialogResult.OK)
+		{
+			e.Cancel = true;
+
+			var result = await MessageBox.Show(
+				this,
+				"You have unsaved changes. Close without saving?",
+				"Unsaved Changes",
+				MessageBoxButtons.YesNo,
+				MessageBoxIcon.Warning,
+				MessageBoxDefaultButton.Button2);
+
+			if (result == DialogResult.Yes)
+			{
+				_closeConfirmed = true;
+				Close(DialogResult.Cancel);
+			}
+		}
+
+		base.OnClosing(e);
+	}
 
 	private void persist(AccountsSettings accountsSettings)
 	{
