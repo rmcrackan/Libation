@@ -21,6 +21,8 @@ public partial class AccountsDialog : Form
 	private const string COL_Locale = nameof(Locale);
 	private const string COL_Marketplaces = nameof(Marketplaces);
 
+	private bool _isDirty;
+
 	public AccountsDialog()
 	{
 		InitializeComponent();
@@ -29,11 +31,37 @@ public partial class AccountsDialog : Form
 
 		dataGridView1.CellValueChanged += DataGridView1_CellValueChanged;
 		dataGridView1.CurrentCellDirtyStateChanged += DataGridView1_CurrentCellDirtyStateChanged;
+		dataGridView1.UserAddedRow += DataGridView1_UserAddedRow;
 
 		populateDropDown();
 
 		populateGridValues();
 		this.SetLibationIcon();
+	}
+
+	protected override void OnFormClosing(FormClosingEventArgs e)
+	{
+		// commit in-progress edits so CellValueChanged can mark dirty before we decide
+		if (dataGridView1.IsCurrentCellInEditMode)
+			dataGridView1.EndEdit();
+		if (dataGridView1.IsCurrentCellDirty)
+			dataGridView1.CommitEdit(DataGridViewDataErrorContexts.Commit);
+
+		if (_isDirty && DialogResult != DialogResult.OK)
+		{
+			var result = MessageBox.Show(
+				this,
+				"You have unsaved changes. Close without saving?",
+				"Unsaved Changes",
+				MessageBoxButtons.YesNo,
+				MessageBoxIcon.Warning,
+				MessageBoxDefaultButton.Button2);
+
+			if (result == DialogResult.No)
+				e.Cancel = true;
+		}
+
+		base.OnFormClosing(e);
 	}
 
 	private void populateDropDown()
@@ -90,6 +118,7 @@ public partial class AccountsDialog : Form
 	{
 		if (e.RowIndex < 0 || e.ColumnIndex < 0)
 			return;
+		_isDirty = true;
 		var colName = dataGridView1.Columns[e.ColumnIndex].Name;
 		if (colName is COL_AccountId or COL_Locale)
 			UpdateExportCellState(dataGridView1.Rows[e.RowIndex]);
@@ -100,9 +129,13 @@ public partial class AccountsDialog : Form
 		if (!dataGridView1.IsCurrentCellDirty || dataGridView1.CurrentCell is null)
 			return;
 		var colName = dataGridView1.Columns[dataGridView1.CurrentCell.ColumnIndex].Name;
-		if (colName == COL_Locale)
+		// combo and checkbox do not commit until leave-cell unless we force it here
+		if (colName is COL_Locale or COL_LibraryScan)
 			dataGridView1.CommitEdit(DataGridViewDataErrorContexts.Commit);
 	}
+
+	private void DataGridView1_UserAddedRow(object? sender, DataGridViewRowEventArgs e)
+		=> _isDirty = true;
 
 	private static bool AccountRowCanExport(string? accountId, string? localeName)
 	{
@@ -150,7 +183,10 @@ public partial class AccountsDialog : Form
 				case COL_Delete:
 					// if final/edit row: do nothing
 					if (e.RowIndex < dgv.RowCount - 1)
+					{
 						dgv.Rows.Remove(row);
+						_isDirty = true;
+					}
 					break;
 				case COL_Export:
 					// if final/edit row: do nothing
@@ -222,6 +258,7 @@ public partial class AccountsDialog : Form
 		var selected = dialog.SelectedAdditionalLocaleNames.ToList();
 		row.Tag = selected;
 		row.Cells[COL_Marketplaces].Value = MarketplacesUi.ButtonText(selected.Count + 1);
+		_isDirty = true;
 	}
 
 	private void saveBtn_Click(object sender, EventArgs e)
@@ -416,7 +453,10 @@ public partial class AccountsDialog : Form
 			}
 
 			if (importResult.Account is { } account)
+			{
 				AddAccountToGrid(account);
+				_isDirty = true;
+			}
 		}
 		catch (Exception ex)
 		{
