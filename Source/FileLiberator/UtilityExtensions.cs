@@ -1,4 +1,5 @@
-﻿using AudibleUtilities;
+﻿using AudibleApi;
+using AudibleUtilities;
 using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
@@ -21,7 +22,12 @@ public static class UtilityExtensions
 		account: libraryBook.Account.ToMask()
 		);
 
-	public static Func<Account, Task<ApiExtended>>? ApiExtendedFunc { get; set; }
+	/// <summary>
+	/// Test seam. Production leaves this null and talks to Audible through <see cref="ApiExtended.CreateAsync"/>.
+	/// The locale argument is the marketplace the book was scanned from, which is not always the one the account
+	/// is registered with.
+	/// </summary>
+	public static Func<Account, Locale?, Task<ApiExtended>>? ApiExtendedFunc { get; set; }
 
 	public static async Task<AudibleApi.Api> GetApiAsync(this LibraryBook libraryBook)
 	{
@@ -29,7 +35,12 @@ public static class UtilityExtensions
 		var account = accounts.AccountsSettings.GetAccount(libraryBook.Account, libraryBook.Book.Locale)
 			?? throw new InvalidCredentialException($"No account found for '{libraryBook.Account}' and locale '{libraryBook.Book.Locale}'");
 
-		var apiExtended = await ApiExtended.CreateAsync(account);
+		// Scanning an extra marketplace tags the book with that store. The license request has to use the same
+		// host; the account's home store answers NotFound for a title that only lives there. See issue #2020.
+		var storeLocale = Localization.Get(libraryBook.Book.Locale);
+		var apiExtended = ApiExtendedFunc is not null
+			? await ApiExtendedFunc(account, storeLocale)
+			: await ApiExtended.CreateAsync(account, allowInteractiveLogin: true, storeLocale: storeLocale);
 		return apiExtended.Api;
 	}
 
