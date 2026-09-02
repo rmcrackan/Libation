@@ -1,4 +1,5 @@
-﻿using AudibleUtilities;
+﻿using AudibleApi;
+using AudibleUtilities;
 using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
@@ -21,17 +22,22 @@ public static class UtilityExtensions
 		account: libraryBook.Account.ToMask()
 		);
 
-	public static Func<Account, Task<ApiExtended>>? ApiExtendedFunc { get; set; }
-
 	public static async Task<AudibleApi.Api> GetApiAsync(this LibraryBook libraryBook)
 	{
 		using var accounts = AudibleApiStorage.GetAccountsSettingsPersister();
 		var account = accounts.AccountsSettings.GetAccount(libraryBook.Account, libraryBook.Book.Locale)
 			?? throw new InvalidCredentialException($"No account found for '{libraryBook.Account}' and locale '{libraryBook.Book.Locale}'");
 
-		var apiExtended = await ApiExtended.CreateAsync(account);
+		var apiExtended = await ApiExtended.CreateAsync(account, allowInteractiveLogin: true, storeLocale: libraryBook.StoreLocale());
 		return apiExtended.Api;
 	}
+
+	/// <summary>
+	/// Marketplace a download or license request must speak to: the one the book was scanned from, which is not
+	/// always the account's home store. See issue #2020.
+	/// </summary>
+	internal static Locale StoreLocale(this LibraryBook libraryBook)
+		=> Localization.Get(libraryBook.Book.Locale);
 
 	public static bool SupportsWidevine(this AudibleApi.Api api)
 	{
