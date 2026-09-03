@@ -163,4 +163,32 @@ public class DownloadFailureClassifierTests
 	[TestMethod]
 	public void Classifying_null_is_harmless()
 		=> Assert.IsNull(DownloadFailureClassifier.Classify(null));
+
+	[TestMethod]
+	public void CustomerThrottled_mixed_with_eligibility_is_still_a_license_denial()
+	{
+		// From Log202609: Ownership named CustomerThrottled while Membership/Client/AYCL still failed eligibility.
+		var ex = Denied(
+			("Membership", RejectionReason.RequesterEligibility, "Customer is not part of any plans"),
+			("Ownership", RejectionReason.CustomerThrottled, "Customer id [##############] being throttled"),
+			("Client", RejectionReason.RequesterEligibility, "does not has access to asin[B005EGKBYK]."),
+			("AYCL", RejectionReason.ContentEligibility, "Asin: [B005EGKBYK] is not eligible for AYCL"));
+
+		Assert.IsTrue(DownloadFailureClassifier.TryClassify(ex, out var diagnosis));
+		Assert.AreEqual(DownloadFailureKind.LicenseDenied, diagnosis.Kind);
+		Assert.IsTrue(ex.IsCustomerThrottled);
+		StringAssert.Contains(diagnosis.Reason, "throttled");
+	}
+
+	[TestMethod]
+	public void An_eligibility_refusal_without_CustomerThrottled_is_not_throttling()
+	{
+		var ex = Denied(
+			("Ownership", RejectionReason.RequesterEligibility, "not owned"),
+			("AYCL", RejectionReason.ContentEligibility, "Asin is not eligible for AYCL"));
+
+		Assert.IsTrue(DownloadFailureClassifier.TryClassify(ex, out var diagnosis));
+		Assert.AreEqual(DownloadFailureKind.LicenseDenied, diagnosis.Kind);
+		Assert.IsFalse(ex.IsCustomerThrottled);
+	}
 }

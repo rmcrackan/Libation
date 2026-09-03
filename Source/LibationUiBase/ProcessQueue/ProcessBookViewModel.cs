@@ -25,6 +25,8 @@ public enum ProcessBookResult
 	FailedAbort,
 	LicenseDenied,
 	LicenseDeniedPossibleOutage,
+	/// <summary>Audible named CustomerThrottled on the license denial.</summary>
+	LicenseDeniedThrottled,
 	/// <summary>ADRM licenserequest failed with Sable acr:null; Widevine may work (see WidevineRecommendation).</summary>
 	WidevineRecommended,
 	/// <summary>Volume full on write; queue should stop (see ProcessQueueViewModel queue loop).</summary>
@@ -86,6 +88,7 @@ public class ProcessBookViewModel : ReactiveObject
 		(ProcessBookResult.LicenseDenied, true) => "License denied (Plus; often temporary)",
 		(ProcessBookResult.LicenseDenied, false) => "License Denied",
 		(ProcessBookResult.LicenseDeniedPossibleOutage, _) => "Possible Service Interruption",
+		(ProcessBookResult.LicenseDeniedThrottled, _) => "License denied (throttled)",
 		(ProcessBookResult.WidevineRecommended, _) => WidevineRecommendationUserMessage.QueueStatusText,
 		(ProcessBookResult.DiskFull, _) => "Disk full, queue stopped",
 		_ => Status.ToString(),
@@ -237,7 +240,12 @@ public class ProcessBookViewModel : ReactiveObject
 		catch (ContentLicenseDeniedException ldex)
 		{
 			Serilog.Log.Logger.Error(ldex, "Content license was denied for {Book}", LibraryBook.LogFriendly());
-			if (ldex.AYCL?.RejectionReason is null or RejectionReason.GenericError)
+			if (ldex.IsCustomerThrottled)
+			{
+				LogInfo($"{procName}:  Content license denied because Audible is throttling this account. Wait 24 to 48 hours, then try again. This is not a Libation bug. - {LibraryBook.Book}");
+				result = ProcessBookResult.LicenseDeniedThrottled;
+			}
+			else if (ldex.AYCL?.RejectionReason is null or RejectionReason.GenericError)
 			{
 				LogInfo($"{procName}:  Content license was denied, but this error appears to be caused by a temporary interruption of service. - {LibraryBook.Book}");
 				result = ProcessBookResult.LicenseDeniedPossibleOutage;

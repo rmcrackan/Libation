@@ -47,10 +47,12 @@ public static class DownloadFailureClassifier
 
 	/// <summary>
 	/// Audible attaches a rejection reason per validation type it ran. <c>GenericError</c> is Audible
-	/// declining to say why, which in practice means an outage or throttling rather than a decision about the
-	/// title; the GUI already reads it that way when it chooses which guidance to offer. Anything else names
-	/// an eligibility problem with the account or the title, which will not change within the hour. Saying
-	/// nothing at all is also treated as an outage: a refusal with no stated reason is not a settled one.
+	/// declining to say why, which in practice means an outage rather than a decision about the title;
+	/// the GUI already reads it that way when it chooses which guidance to offer. Explicit
+	/// <c>CustomerThrottled</c> is a license denial the UI names separately; backoff still treats it as
+	/// a settled refusal. Anything else names an eligibility problem with the account or the title,
+	/// which will not change within the hour. Saying nothing at all is also treated as an outage: a
+	/// refusal with no stated reason is not a settled one.
 	/// </summary>
 	private static DownloadFailureDiagnosis ClassifyLicenseDenial(ContentLicenseDeniedException ex)
 	{

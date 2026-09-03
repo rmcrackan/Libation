@@ -55,9 +55,9 @@ public static class DailyDownloadLimitUserMessage
 		=> $"Skipped {skippedCount} title(s) because of your daily download limit. They remain un-liberated and will be tried on the next run.";
 
 	/// <summary>
-	/// Suggests turning the limit on after a license denial that looks like Audible throttling. Returns null when
-	/// the suggestion would be unhelpful: a limit is already configured, or too little was downloaded recently for
-	/// throttling to be a plausible explanation.
+	/// Suggests turning the limit on after a license denial that looks like Audible throttling but did not
+	/// name CustomerThrottled. Returns null when the suggestion would be unhelpful: a limit is already
+	/// configured, or too little was downloaded recently for throttling to be a plausible explanation.
 	/// </summary>
 	public static string? BuildSuggestionParagraph(Configuration config, IReadOnlyList<DownloadHistoryEntry> history, DateTimeOffset now)
 	{
