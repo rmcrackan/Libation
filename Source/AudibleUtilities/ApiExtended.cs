@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using Polly;
 using Polly.Retry;
 using System.Diagnostics;
+using System.Globalization;
 using System.Threading.Channels;
 
 namespace AudibleUtilities;
@@ -439,21 +440,21 @@ public class ApiExtended
 		}
 
 		int lastEpNum = -1, dupeCount = 0;
-		foreach (var child in children.OrderBy(i => i.EpisodeNumber).ThenBy(i => i.PublicationDateTime))
+		foreach (var child in children.OrderBy(i => UsableEpisodeNumber(i)).ThenBy(i => i.PublicationDateTime))
 		{
 			string sequence;
-			if (child.EpisodeNumber is null)
+			var episodeNumber = UsableEpisodeNumber(child);
+			if (episodeNumber is null)
 			{
-				// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive for malformed data from audible
-				sequence = parent.Relationships?.FirstOrDefault(r => r.Asin == child.Asin)?.Sort?.ToString() ?? "0";
+				sequence = FallbackSeriesSequence(parent, child);
 			}
 			else
 			{
 				//multipart episodes may have the same episode number
-				if (child.EpisodeNumber == lastEpNum)
+				if (episodeNumber == lastEpNum)
 					dupeCount++;
 				else
-					lastEpNum = child.EpisodeNumber.Value;
+					lastEpNum = episodeNumber.Value;
 
 				sequence = (lastEpNum + dupeCount).ToString();
 			}
@@ -471,6 +472,70 @@ public class ApiExtended
 				}
 			};
 		}
+	}
+
+	/// <summary>
+	/// Nine digits. Big enough for YYYYMMDD-style numbering; too small for unix timestamps,
+	/// Integer.MAX_VALUE, and the other sentinel integers Audible has sent as episode order (issue #2024).
+	/// </summary>
+	private const long MaxPlausibleSeriesOrder = 1_000_000_000;
+
+	private static bool IsPlausibleSeriesOrder(long n)
+		=> n >= 0 && n < MaxPlausibleSeriesOrder;
+
+	/// <summary>
+	/// Audible sometimes serializes a missing episode_number as a sentinel integer (Integer.MAX_VALUE
+	/// was the one in #2024) instead of omitting the field. Treat any implausibly large value the same way.
+	/// </summary>
+	private static int? UsableEpisodeNumber(Item child)
+		=> child.EpisodeNumber is int n && IsPlausibleSeriesOrder(n) ? n : null;
+
+	/// <summary>
+	/// When episode_number is missing or implausibly large, use relationship sort/sequence
+	/// or the catalog series sequence. Prefer the parent's child relationship (the historical source),
+	/// then the child's parent relationship, then any series sequence Audible already attached.
+	/// </summary>
+	private static string FallbackSeriesSequence(Item parent, Item child)
+	{
+		var fromParent = parent.Relationships?.FirstOrDefault(r => r.Asin == child.Asin);
+		if (UsableRelationshipOrder(fromParent) is string parentOrder)
+			return parentOrder;
+
+		var fromChild = child.Relationships?.FirstOrDefault(r => r.Asin == parent.Asin);
+		if (UsableRelationshipOrder(fromChild) is string childOrder)
+			return childOrder;
+
+		var catalogSequence = child.Series?.FirstOrDefault(s => s.Asin == parent.Asin)?.Sequence;
+		if (IsUsableOrderString(catalogSequence))
+			return catalogSequence!;
+
+		return "0";
+	}
+
+	private static string? UsableRelationshipOrder(Relationship? relationship)
+	{
+		if (relationship is null)
+			return null;
+		if (IsUsableSort(relationship.Sort))
+			return relationship.Sort!.Value.ToString();
+		if (IsUsableOrderString(relationship.Sequence))
+			return relationship.Sequence;
+		return null;
+	}
+
+	private static bool IsUsableSort(long? sort)
+		=> sort is long n && IsPlausibleSeriesOrder(n);
+
+	/// <summary>
+	/// Bare integers that are too large are sentinels or timestamps. Mixed forms like "1-6" or "2.1"
+	/// are real series orders and are left alone.
+	/// </summary>
+	private static bool IsUsableOrderString(string? value)
+	{
+		if (string.IsNullOrWhiteSpace(value) || value == "-1")
+			return false;
+		return !long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var n)
+			|| IsPlausibleSeriesOrder(n);
 	}
 	#endregion
 }
