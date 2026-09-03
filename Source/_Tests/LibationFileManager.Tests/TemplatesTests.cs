@@ -770,6 +770,8 @@ namespace TemplatesTests
 		[DataRow("<series#[]>", "1", "1")]
 		[DataRow("<series#>", "1", "1")]
 		[DataRow("<series#>", " 1 6 ", "1 6")]
+		[DataRow("<series#>", "2147483647", "2147483647")]
+		[DataRow("<series#[F0]>", "2147483647", "2147483647")]
 		public void SeriesOrder_formatters(string template, string seriesOrder, string expected)
 		{
 			var bookDto = GetLibraryBook();
