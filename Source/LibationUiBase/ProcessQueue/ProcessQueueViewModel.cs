@@ -814,15 +814,20 @@ public class ProcessQueueViewModel : ReactiveObject
 						await book.LibraryBook.UpdateBookStatusAsync(LiberatedStatus.Error);
 					}
 					else if (result == ProcessBookResult.LicenseDeniedPossibleOutage
+						|| result == ProcessBookResult.LicenseDeniedThrottled
 						|| (result == ProcessBookResult.LicenseDenied && book.LibraryBook.IsAudiblePlus))
 					{
 						bool show;
 						lock (resultLock) { show = !shownLicenseGuidanceMessage; shownLicenseGuidanceMessage = true; }
 						if (show)
 						{
-							var body = result == ProcessBookResult.LicenseDeniedPossibleOutage
-								? ContentLicenseDeniedUserMessage.BuildDialogBodyForPossibleOutage(book.LibraryBook.Book.TitleWithSubtitle)
-								: ContentLicenseDeniedUserMessage.BuildDialogBodyForPlusCatalog(book.LibraryBook.Book.TitleWithSubtitle);
+							var title = book.LibraryBook.Book.TitleWithSubtitle;
+							var body = result switch
+							{
+								ProcessBookResult.LicenseDeniedPossibleOutage => ContentLicenseDeniedUserMessage.BuildDialogBodyForPossibleOutage(title),
+								ProcessBookResult.LicenseDeniedThrottled => ContentLicenseDeniedUserMessage.BuildDialogBodyForThrottling(title),
+								_ => ContentLicenseDeniedUserMessage.BuildDialogBodyForPlusCatalog(title)
+							};
 							await MessageBoxBase.Show(
 								body,
 								ContentLicenseDeniedUserMessage.DialogCaption,

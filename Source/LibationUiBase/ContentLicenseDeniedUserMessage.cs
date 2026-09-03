@@ -6,8 +6,8 @@ namespace LibationUiBase;
 
 /// <summary>
 /// User-facing copy when Audible denies a content license (download/decrypt). Covers temporary
-/// service issues and Audible Plus throttling — often mistaken for a Libation bug.
-/// Shared by WinForms and Avalonia via the process queue.
+/// service issues, explicit CustomerThrottled refusals, and Audible Plus denials — often mistaken
+/// for a Libation bug. Shared by WinForms and Avalonia via the process queue.
 /// </summary>
 public static class ContentLicenseDeniedUserMessage
 {
@@ -25,6 +25,18 @@ public static class ContentLicenseDeniedUserMessage
 			If the problem continues after several days, open an issue on Libation's GitHub and include your logs.
 			""" + AppendSuggestion();
 
+	/// <summary>Audible named CustomerThrottled. Shown for any title, Plus or owned.</summary>
+	public static string BuildDialogBodyForThrottling(string bookTitleWithSubtitle)
+		=> $"""
+			You were denied a content license for {bookTitleWithSubtitle}
+
+			Audible refused this download because your account is being throttled. This is a temporary rate limit on Audible's side, not a Libation bug.
+
+			Wait 24 to 48 hours before trying again. In the meantime you should still be able to play this title in the Audible app or website.
+
+			If it still fails after several days, open an issue on Libation's GitHub and include your logs.
+			""" + AppendSuggestion();
+
 	/// <summary>License denied on an Audible Plus title — often rate limiting, not a Libation defect.</summary>
 	public static string BuildDialogBodyForPlusCatalog(string bookTitleWithSubtitle)
 		=> $"""
@@ -38,9 +50,10 @@ public static class ContentLicenseDeniedUserMessage
 			""" + AppendSuggestion();
 
 	/// <summary>
-	/// Audible reports no distinct "throttled" reason, so this suggestion is what turns a guess into evidence:
-	/// it only appears when Libation's own record shows enough recent downloads for throttling to be plausible,
-	/// and when the user has no daily limit configured yet. Logged as well as shown.
+	/// When Audible names CustomerThrottled, the throttling dialog already says so. This extra paragraph is
+	/// for denials without that reason: it only appears when Libation's own record shows enough recent
+	/// downloads for throttling to be plausible, and when the user has no daily limit configured yet.
+	/// Logged as well as shown.
 	/// </summary>
 	private static string AppendSuggestion()
 	{

@@ -13,7 +13,9 @@ internal static class ContentLicenseDeniedCliSummary
 	{
 		ArgumentNullException.ThrowIfNull(ex);
 
-		yield return "Audible denied a content license (download not allowed for this account/title).";
+		yield return ex.IsCustomerThrottled
+			? "Audible denied a content license because this account is being throttled. Wait 24 to 48 hours before trying again. This is not a Libation bug."
+			: "Audible denied a content license (download not allowed for this account/title).";
 		yield return ex.Message;
 
 		if (ex.Ownership?.Message is { } own && !string.IsNullOrWhiteSpace(own))
@@ -30,8 +32,8 @@ internal static class ContentLicenseDeniedCliSummary
 	}
 
 	/// <summary>
-	/// Audible never says "you are being throttled", so this suggestion relies on Libation's own record of recent
-	/// downloads. Silent unless that record makes throttling a plausible explanation and no limit is set yet.
+	/// Extra pacing hint from Libation's own download record when Audible did not name CustomerThrottled.
+	/// Silent unless that record makes throttling a plausible explanation and no limit is set yet.
 	/// </summary>
 	private static IEnumerable<string> SuggestDailyLimitLines()
 	{
