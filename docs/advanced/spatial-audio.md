@@ -62,7 +62,7 @@ Download and decrypt titles while Libation still supports the format Audible del
 
 1. Open **Settings** and enable **Use Widevine DRM**.
 2. Enable **Request xHE-AAC Codec**.
-3. Re-add your account if Libation prompts you (Widevine requires an Android-style device registration).
+3. Re-add your account if Libation prompts you (Widevine requires an Android device registration; the experimental iPhone profile cannot use it). See [Device registration](./device-registration.md).
 4. Re-download the title.
 
 See [Audio File Formats](../features/audio-file-formats.md) for codec details and [Supported Media Players](../features/audio-file-formats.md#supported-media-players) if you have trouble playing xHE-AAC.

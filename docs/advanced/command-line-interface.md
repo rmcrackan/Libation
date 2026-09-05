@@ -115,6 +115,12 @@ libationcli login-external -a you@example.com -l us --response-url "https://www.
 
 If the account row already has valid saved tokens, the CLI reports that no browser login is needed and exits without opening the flow.
 
+Optional `--device-registration` picks which virtual device to register as on a **new** sign-in: `CurrentAndroid` (default from Settings), `RetailAndroid`, or `Mkb79IPhone`. It does nothing to an account that is already authenticated; remove the account first. See [Device registration](/docs/advanced/device-registration).
+
+```console
+libationcli login-external --account you@example.com --locale us --device-registration Mkb79IPhone
+```
+
 Use `libationcli login-external --help` for the exact options on your build.
 
 ## List configured accounts (`list-accounts`)

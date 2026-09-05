@@ -14,6 +14,8 @@ To make upgrades and reinstalls easier, Libation separates all of its responsibi
 
 - Check for new Libation versions at startup. Enabled by default: each time Libation starts it asks GitHub whether a newer release exists, and offers it to you if there is one. Turn it off if something else keeps Libation up to date, such as a package manager or an AppImage updater. Turning it off only stops the automatic check - Settings > About still has a "Check for Upgrade" button that works either way.
 
+- Device registration (experimental). Which virtual device Libation registers with Amazon when you sign in. Leave the Android emulator default unless downloads fail for titles that still play in the official Audible app. Changing it does not convert existing accounts; you must remove and re-add the account. See [Device registration](./device-registration.md).
+
 - Allow Libation to fix up audiobook metadata. After decrypting a title, Libation attempts to fix details like chapters and cover art. Some power users and/or control freaks prefer to manage this themselves. By unchecking this setting, Libation will only decrypt the book and will leave metadata as-is, warts and all.
 
 In addition to the options that are enabled if you allow Libation to "fix up" the audiobook, it does the following:

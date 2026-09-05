@@ -264,9 +264,10 @@ Symptoms include a crash on startup that mentions `LibationContext.db` under a p
 These errors come from Audible refusing to grant a download license. Common causes:
 
 1. **Temporary Audible outage or Plus throttling** -- wait 24 to 48 hours and try again. See the [FAQ](/docs/frequently-asked-questions).
-2. **Title requires Widevine** -- some Plus titles no longer download as AAXC; enable **Use Widevine DRM** in Settings and re-add your account if prompted. See [issue #1580](https://github.com/rmcrackan/Libation/issues/1580).
-3. **Spatial / Dolby Atmos requested (older Libation versions)** -- Audible now requires Widevine L1 for many spatial titles. Libation 13.1.3+ no longer offers spatial download. See [Spatial Audio & DRM](/docs/advanced/spatial-audio).
-4. **You no longer have rights to the title** -- it was returned, it left the Plus catalog, or the account that owned it is no longer active. Check the title in the Audible app or website.
+2. **Virtual-device registration** -- the official Audible app can play the title, but Libation cannot. Try an [experimental device registration](/docs/advanced/device-registration) (then remove and re-add the account), or import credentials from [audible-cli](https://github.com/mkb79/audible-cli).
+3. **Title requires Widevine** -- some Plus titles no longer download as AAXC; enable **Use Widevine DRM** in Settings and re-add your account if prompted. The iPhone registration cannot use Widevine. See [issue #1580](https://github.com/rmcrackan/Libation/issues/1580) and [Device registration](/docs/advanced/device-registration#widevine).
+4. **Spatial / Dolby Atmos requested (older Libation versions)** -- Audible now requires Widevine L1 for many spatial titles. Libation 13.1.3+ no longer offers spatial download. See [Spatial Audio & DRM](/docs/advanced/spatial-audio).
+5. **You no longer have rights to the title** -- it was returned, it left the Plus catalog, or the account that owned it is no longer active. Check the title in the Audible app or website.
 
 After a refusal Libation waits before asking about that title again, so you see the explanation once rather than on every run. It attempts the title again by itself; to try it sooner, name it (`libationcli liberate <ASIN>`) or mark it **Download Pending** (previously "Not Downloaded"). See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads).
 

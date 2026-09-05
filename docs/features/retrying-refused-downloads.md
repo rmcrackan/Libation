@@ -15,6 +15,10 @@ Without this, a title Audible had just refused was requested again on the very n
 refused licenses every run, forever: pointless traffic to Audible, which itself risks throttling, and a
 console and log full of the same warning for the same titles.
 
+If the official Audible app can play a title that Libation cannot download, that can be the virtual device
+Libation registered at sign-in rather than the wait described here. See [Device
+registration](/docs/advanced/device-registration).
+
 ## How long Libation waits
 
 The wait starts short and doubles with each refusal in a row. Nothing is ever permanent: every kind of

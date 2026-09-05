@@ -18,7 +18,7 @@ Audiobooks can be requested from Audible as "Normal" quality or "High" quality, 
 ### Use Widevine DRM
 
 When this setting is disabled, all audiobooks will be downloaded using Audible's in-house DRM (AAX(C)) in the [AAC-LC](#aac-lc) format.
-When this setting is enabled, Libation will request audio files protected by Google's Widevine DRM scheme. This unlocks [Request xHE-AAC Codec](#request-xhe-aac-codec) for higher-quality stereo downloads on titles where Audible delivers them via Widevine L3.
+When this setting is enabled, Libation will request audio files protected by Google's Widevine DRM scheme. This unlocks [Request xHE-AAC Codec](#request-xhe-aac-codec) for higher-quality stereo downloads on titles where Audible delivers them via Widevine L3. Widevine requires an Android device registration; the experimental iPhone profile cannot use it. See [Device registration](/docs/advanced/device-registration#widevine).
 
 If you don't enable **Request xHE-AAC Codec**, then enabling **Use Widevine DRM** will have no practical effect in nearly all circumstances. Audiobooks will be downloaded in the same [AAC-LC](#aac-lc) format with the same bitrate and the same number of audio channels. On rare occasions, enabling **Use Widevine DRM** without xHE-AAC will result in audio files with a different bitrate.
 

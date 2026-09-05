@@ -16,7 +16,7 @@ Audible throttles license requests. Downloading too many titles at once leads it
 
 **Above 3 concurrent downloads, license denials start appearing.** The exact threshold is Audible's and is not published, so 3 is the conservative choice rather than a measured maximum. The ceiling of 10 exists to stop the setting from being turned into a reliable way to get your downloads refused.
 
-If you are seeing license denials, lowering this number is the first thing to try. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads) for what Libation does with a title once it has been refused.
+If you are seeing license denials, lowering this number is the first thing to try. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads) for what Libation does with a title once it has been refused. If the official app can still play the title, also see [Device registration](/docs/advanced/device-registration).
 
 ## Your machine may run fewer than you asked for
 
