@@ -218,7 +218,7 @@ public class DownloadPdf : Processable, IProcessable<DownloadPdf>, ILicensedDown
 			= Path.GetDirectoryName(AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId))
 			?? AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook, Configuration);
 
-		return AudibleFileStorage.Audio.GetCustomDirFilename(libraryBook, destinationDir, extension);
+		return AudibleFileStorage.Audio.GetCustomDirFilename(libraryBook, destinationDir, extension, returnFirstExisting: Configuration.OverwriteExisting);
 	}
 
 	private static string? getdownloadUrl(LibraryBook libraryBook)
