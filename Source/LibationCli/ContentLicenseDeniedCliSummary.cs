@@ -16,6 +16,8 @@ internal static class ContentLicenseDeniedCliSummary
 		yield return ex.IsCustomerThrottled
 			? "Audible denied a content license because this account is being throttled. Wait 24 to 48 hours before trying again. This is not a Libation bug."
 			: "Audible denied a content license (download not allowed for this account/title).";
+		if (ex.IsCustomerThrottled)
+			yield return "If the official Audible app can play this title, try an experimental device registration (--device-registration with login-external after removing the account) or import credentials from audible-cli.";
 		yield return ex.Message;
 
 		if (ex.Ownership?.Message is { } own && !string.IsNullOrWhiteSpace(own))

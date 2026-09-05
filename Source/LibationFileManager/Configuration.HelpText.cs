@@ -179,6 +179,19 @@ public partial class Configuration
 			updater. You can still check whenever you like:
 			Settings > About has a "Check for Upgrade" button
 			that works either way.
+			""" },
+		{nameof(DeviceRegistrationKind), """
+			Which virtual device Libation registers with Amazon
+			when you sign in.
+
+			Android emulator is the default and is required for
+			Widevine. The experimental options exist because
+			Audible has been refusing download licenses for some
+			emulator registrations.
+
+			This only applies to a new sign-in. Remove and re-add
+			the account (or run login-external) after changing it.
+			The iPhone option cannot use Widevine.
 			""" }
 	}.AsReadOnly();
 

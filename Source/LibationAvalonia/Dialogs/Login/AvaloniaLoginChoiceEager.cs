@@ -180,20 +180,21 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 
 		void Dialog_EnvironmentRequested(object? sender, WebViewEnvironmentRequestedEventArgs e)
 		{
+			var userAgent = Configuration.Instance.GetDeviceRegistrationProfile().UserAgent;
 			// Private browsing & user agent setting
 			switch (e)
 			{
 				case WindowsWebView2EnvironmentRequestedEventArgs webView2Args:
 					webView2Args.IsInPrivateModeEnabled = true;
-					webView2Args.AdditionalBrowserArguments = "--user-agent=\"" + Resources.User_Agent + "\"";
+					webView2Args.AdditionalBrowserArguments = "--user-agent=\"" + userAgent + "\"";
 					break;
 				case AppleWKWebViewEnvironmentRequestedEventArgs appleArgs:
 					appleArgs.NonPersistentDataStore = true;
-					appleArgs.ApplicationNameForUserAgent = Resources.User_Agent;
+					appleArgs.ApplicationNameForUserAgent = userAgent;
 					break;
 				case GtkWebViewEnvironmentRequestedEventArgs gtkArgs:
 					gtkArgs.EphemeralDataManager = true;
-					gtkArgs.ApplicationNameForUserAgent = Resources.User_Agent;
+					gtkArgs.ApplicationNameForUserAgent = userAgent;
 					break;
 			}
 		}

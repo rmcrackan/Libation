@@ -1,3 +1,4 @@
+using AudibleApi;
 using AudibleApi.Authorization;
 using FileManager;
 using Newtonsoft.Json;
@@ -351,6 +352,16 @@ public partial class Configuration
 		get => GetNonString(defaultValue: TokenStorageMethod.Encrypted);
 		set => SetNonString(value);
 	}
+
+	[Description("Experimental: virtual device to register as when signing in.")]
+	public DeviceRegistrationKind DeviceRegistrationKind
+	{
+		get => GetNonString(defaultValue: DeviceRegistrationKind.CurrentAndroid);
+		set => SetNonString(value);
+	}
+
+	public DeviceRegistrationProfile GetDeviceRegistrationProfile()
+		=> DeviceRegistrationProfile.FromKind(DeviceRegistrationKind);
 
 	[Description("Use Widevine DRM")]
 	public bool UseWidevine { get => GetNonString(defaultValue: false); set => SetNonString(value); }

@@ -35,7 +35,8 @@ public static class ContentLicenseDeniedUserMessage
 			Wait 24 to 48 hours before trying again. In the meantime you should still be able to play this title in the Audible app or website.
 
 			If it still fails after several days, open an issue on Libation's GitHub and include your logs.
-			""" + AppendSuggestion();
+
+			""" + DeviceRegistrationSettingsUi.ThrottlingWorkaround + AppendSuggestion();
 
 	/// <summary>License denied on an Audible Plus title — often rate limiting, not a Libation defect.</summary>
 	public static string BuildDialogBodyForPlusCatalog(string bookTitleWithSubtitle)

@@ -82,6 +82,7 @@ Learn about Libation's powerful features:
 
 - **[Advanced Topics](/docs/advanced/advanced)** - Deep dives and configuration details
 - **[Command Line Interface](/docs/advanced/command-line-interface)** - CLI usage and commands
+- **[Device registration](/docs/advanced/device-registration)** - Experimental login profiles when Audible denies download licenses
 - **[Troubleshooting](/docs/advanced/troubleshoot)** - Common errors and solutions
 - **[Spatial Audio & DRM](/docs/advanced/spatial-audio)** - Why Dolby Atmos download is not available and what still works
 

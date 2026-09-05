@@ -291,6 +291,7 @@ public partial class Configuration
 			_ = LameEncoderQuality;
 			_ = ClipsBookmarksFileFormat;
 			_ = TokenStorageMethod;
+			_ = DeviceRegistrationKind;
 			_ = SpatialAudioCodec;
 			_ = FileDownloadQuality;
 			_ = CreationTime;

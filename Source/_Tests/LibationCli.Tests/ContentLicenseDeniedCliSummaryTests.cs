@@ -42,6 +42,8 @@ public class ContentLicenseDeniedCliSummaryTests
 
 		StringAssert.Contains(lines[0], "throttled");
 		StringAssert.Contains(lines[0], "24 to 48 hours");
+		Assert.IsTrue(lines.Any(l => l.Contains("device-registration", StringComparison.Ordinal)));
+		Assert.IsTrue(lines.Any(l => l.Contains("audible-cli", StringComparison.Ordinal)));
 		Assert.IsTrue(lines.Any(l => l.StartsWith("Ownership:", StringComparison.Ordinal)));
 	}
 

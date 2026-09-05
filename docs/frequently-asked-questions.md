@@ -67,6 +67,14 @@ You likely copied an `AccountsSettings.json` that has **encrypted** tokens (`"Is
 
 Full steps: [Troubleshooting - Failed to decrypt ExistingAccessToken](/docs/advanced/troubleshoot#failed-to-decrypt-existingaccesstoken-docker-finds-no-new-books) and [Docker Troubleshooting](/docs/installation/docker#troubleshooting).
 
+## Downloads fail with "Content license denied" but the Audible app still plays the title
+
+That is Audible refusing a download license, not a Libation decrypt bug. Wait 24 to 48 hours if you just downloaded many Plus titles.
+
+If the official app can play the title and waiting does not help, try an [experimental device registration](/docs/advanced/device-registration): pick a profile in Settings, then **remove and re-add the account** (or `login-external`). You can also import credentials from [audible-cli](https://github.com/mkb79/audible-cli). Changing the setting does not convert accounts you already signed in.
+
+See [Troubleshooting](/docs/advanced/troubleshoot#download-fails-with-drm-license-response-not-ok-or-content-license-denied).
+
 ## Docker log says Failed to encrypt identity field / Saving as plaintext
 
 That means encryption was preferred but could not run (usually no master key in the container). Libation re-saves those fields as plaintext and **continues** - this is expected and not a crash. Supply a master key if you want encryption at rest, or switch token storage to plaintext to quiet the Errors.
