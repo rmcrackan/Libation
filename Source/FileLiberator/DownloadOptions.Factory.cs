@@ -145,7 +145,7 @@ public partial class DownloadOptions
 				if (canUseWidevine)
 					Serilog.Log.Logger.Warning("Unable to get a Widevine CDM. Falling back to ADRM.");
 				else
-					Serilog.Log.Logger.Warning("Account {account} is not registered as an android device, so content will not be downloaded with Widevine DRM. Remove and re-add the account in Libation to fix.", libraryBook.Account.ToMask());
+					Serilog.Log.Logger.Warning("Account {account} is not registered as an android device, so content will not be downloaded with Widevine DRM. The iPhone registration cannot use Widevine. To use Widevine, remove and re-add the account while registered as Android.", libraryBook.Account.ToMask());
 			}
 
 			token.ThrowIfCancellationRequested();

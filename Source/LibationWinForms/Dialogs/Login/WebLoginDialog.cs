@@ -1,5 +1,6 @@
 ﻿using AudibleApi;
 using Dinah.Core;
+using LibationFileManager;
 using LibationUiBase;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
@@ -53,7 +54,7 @@ public partial class WebLoginDialog : Form
 		options.IsInPrivateModeEnabled = true;
 		await webView.EnsureCoreWebView2Async(env, options);
 
-		webView.CoreWebView2.Settings.UserAgent = Resources.User_Agent;
+		webView.CoreWebView2.Settings.UserAgent = Configuration.Instance.GetDeviceRegistrationProfile().UserAgent;
 
 		// Load init cookies
 		foreach (System.Net.Cookie cookie in choiceIn.SignInCookies ?? [])

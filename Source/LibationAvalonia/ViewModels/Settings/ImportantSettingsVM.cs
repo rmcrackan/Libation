@@ -1,3 +1,4 @@
+using AudibleApi;
 using AudibleApi.Authorization;
 using AudibleUtilities;
 using Dinah.Core;
@@ -35,6 +36,7 @@ public class ImportantSettingsVM : ViewModelBase
 		CreationTime = DateTimeSources.SingleOrDefault(v => v.Value == config.CreationTime) ?? DateTimeSources[0];
 		LastWriteTime = DateTimeSources.SingleOrDefault(v => v.Value == config.LastWriteTime) ?? DateTimeSources[0];
 		UseWebView = config.UseWebView;
+		SelectedDeviceRegistration = DeviceRegistrationSettingsUi.Display(config.DeviceRegistrationKind);
 		CheckForUpgradesAtStartup = config.CheckForUpgradesAtStartup;
 		LoggingLevel = config.LogLevel;
 		GridScaleFactor = scaleFactorToLinearRange(config.GridScaleFactor);
@@ -78,6 +80,7 @@ public class ImportantSettingsVM : ViewModelBase
 		config.CreationTime = CreationTime.Value;
 		config.LastWriteTime = LastWriteTime.Value;
 		config.UseWebView = UseWebView;
+		config.DeviceRegistrationKind = SelectedDeviceRegistration.Value;
 		config.CheckForUpgradesAtStartup = CheckForUpgradesAtStartup;
 		config.LogLevel = LoggingLevel;
 		config.TokenStorageMethod = SelectedTokenStorageMethod;
@@ -144,6 +147,10 @@ public class ImportantSettingsVM : ViewModelBase
 		.ToArray();
 
 	public string UseWebViewText { get; } = Configuration.GetDescription(nameof(Configuration.UseWebView));
+	public string DeviceRegistrationKindText { get; } = DeviceRegistrationSettingsUi.SettingLabel;
+	public string DeviceRegistrationKindTip { get; } = Configuration.GetHelpText(nameof(Configuration.DeviceRegistrationKind));
+	public string DeviceRegistrationReLoginNote { get; } = DeviceRegistrationSettingsUi.ReLoginNote;
+	public EnumDisplay<DeviceRegistrationKind>[] DeviceRegistrationOptions { get; } = DeviceRegistrationSettingsUi.Options;
 	/// <summary>When true, the Use WebView setting is disabled (e.g. when running in Linux Snap to avoid portal/sandbox crashes).</summary>
 	public bool UseWebViewSettingDisabled => Configuration.IsRunningUnderSnap;
 	public string UseWebViewSnapMessage { get; } = Configuration.IsRunningUnderSnap ? "Disabled when running in Linux Snap (avoids login crash). Use external browser instead." : "";
@@ -174,6 +181,7 @@ public class ImportantSettingsVM : ViewModelBase
 	public EnumDisplay<Configuration.DateTimeSource> CreationTime { get; set; }
 	public EnumDisplay<Configuration.DateTimeSource> LastWriteTime { get; set; }
 	public bool UseWebView { get; set; }
+	public EnumDisplay<DeviceRegistrationKind> SelectedDeviceRegistration { get; set; }
 	public bool CheckForUpgradesAtStartup { get; set; }
 	public Serilog.Events.LogEventLevel LoggingLevel { get; set; }
 

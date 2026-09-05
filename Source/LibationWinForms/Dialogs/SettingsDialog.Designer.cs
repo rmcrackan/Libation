@@ -99,6 +99,8 @@
 			autoScanCb = new System.Windows.Forms.CheckBox();
 			showImportedStatsCb = new System.Windows.Forms.CheckBox();
 			useWebViewCb = new System.Windows.Forms.CheckBox();
+			deviceRegistrationLbl = new System.Windows.Forms.Label();
+			deviceRegistrationCb = new System.Windows.Forms.ComboBox();
 			tab3DownloadDecrypt = new System.Windows.Forms.TabPage();
 			saveMetadataToFileCbox = new System.Windows.Forms.CheckBox();
 			useCoverAsFolderIconCb = new System.Windows.Forms.CheckBox();
@@ -244,20 +246,20 @@
 			// importEpisodesCb
 			// 
 			importEpisodesCb.AutoSize = true;
-			importEpisodesCb.Location = new System.Drawing.Point(6, 81);
+			importEpisodesCb.Location = new System.Drawing.Point(6, 132);
 			importEpisodesCb.Name = "importEpisodesCb";
 			importEpisodesCb.Size = new System.Drawing.Size(146, 19);
-			importEpisodesCb.TabIndex = 4;
+			importEpisodesCb.TabIndex = 6;
 			importEpisodesCb.Text = "[import episodes desc]";
 			importEpisodesCb.UseVisualStyleBackColor = true;
 			// 
 			// downloadEpisodesCb
 			// 
 			downloadEpisodesCb.AutoSize = true;
-			downloadEpisodesCb.Location = new System.Drawing.Point(6, 131);
+			downloadEpisodesCb.Location = new System.Drawing.Point(6, 182);
 			downloadEpisodesCb.Name = "downloadEpisodesCb";
 			downloadEpisodesCb.Size = new System.Drawing.Size(163, 19);
-			downloadEpisodesCb.TabIndex = 6;
+			downloadEpisodesCb.TabIndex = 8;
 			downloadEpisodesCb.Text = "[download episodes desc]";
 			downloadEpisodesCb.UseVisualStyleBackColor = true;
 			// 
@@ -709,6 +711,8 @@
 			tab2ImportLibrary.Controls.Add(autoScanCb);
 			tab2ImportLibrary.Controls.Add(showImportedStatsCb);
 			tab2ImportLibrary.Controls.Add(useWebViewCb);
+			tab2ImportLibrary.Controls.Add(deviceRegistrationLbl);
+			tab2ImportLibrary.Controls.Add(deviceRegistrationCb);
 			tab2ImportLibrary.Controls.Add(importEpisodesCb);
 			tab2ImportLibrary.Controls.Add(downloadEpisodesCb);
 			tab2ImportLibrary.Location = new System.Drawing.Point(4, 24);
@@ -721,20 +725,20 @@
 			// importPlusTitlesCb
 			// 
 			importPlusTitlesCb.AutoSize = true;
-			importPlusTitlesCb.Location = new System.Drawing.Point(6, 106);
+			importPlusTitlesCb.Location = new System.Drawing.Point(6, 157);
 			importPlusTitlesCb.Name = "importPlusTitlesCb";
 			importPlusTitlesCb.Size = new System.Drawing.Size(199, 19);
-			importPlusTitlesCb.TabIndex = 5;
+			importPlusTitlesCb.TabIndex = 7;
 			importPlusTitlesCb.Text = "[import audible plus books desc]";
 			importPlusTitlesCb.UseVisualStyleBackColor = true;
 			// 
 			// autoDownloadEpisodesCb
 			// 
 			autoDownloadEpisodesCb.AutoSize = true;
-			autoDownloadEpisodesCb.Location = new System.Drawing.Point(6, 156);
+			autoDownloadEpisodesCb.Location = new System.Drawing.Point(6, 207);
 			autoDownloadEpisodesCb.Name = "autoDownloadEpisodesCb";
 			autoDownloadEpisodesCb.Size = new System.Drawing.Size(190, 19);
-			autoDownloadEpisodesCb.TabIndex = 7;
+			autoDownloadEpisodesCb.TabIndex = 9;
 			autoDownloadEpisodesCb.Text = "[auto download episodes desc]";
 			autoDownloadEpisodesCb.UseVisualStyleBackColor = true;
 			// 
@@ -767,6 +771,24 @@
 			useWebViewCb.TabIndex = 3;
 			useWebViewCb.Text = "[use webview desc]";
 			useWebViewCb.UseVisualStyleBackColor = true;
+			// 
+			// deviceRegistrationLbl
+			// 
+			deviceRegistrationLbl.AutoSize = true;
+			deviceRegistrationLbl.Location = new System.Drawing.Point(6, 81);
+			deviceRegistrationLbl.Name = "deviceRegistrationLbl";
+			deviceRegistrationLbl.Size = new System.Drawing.Size(200, 15);
+			deviceRegistrationLbl.TabIndex = 4;
+			deviceRegistrationLbl.Text = "[device registration desc]";
+			// 
+			// deviceRegistrationCb
+			// 
+			deviceRegistrationCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			deviceRegistrationCb.FormattingEnabled = true;
+			deviceRegistrationCb.Location = new System.Drawing.Point(6, 100);
+			deviceRegistrationCb.Name = "deviceRegistrationCb";
+			deviceRegistrationCb.Size = new System.Drawing.Size(520, 23);
+			deviceRegistrationCb.TabIndex = 5;
 			// 
 			// dailyDownloadLimitGb
 			// 
@@ -1938,6 +1960,8 @@
 		private System.Windows.Forms.CheckBox createCueSheetCbox;
 		private System.Windows.Forms.CheckBox autoScanCb;
 		private System.Windows.Forms.CheckBox useWebViewCb;
+		private System.Windows.Forms.Label deviceRegistrationLbl;
+		private System.Windows.Forms.ComboBox deviceRegistrationCb;
 		private System.Windows.Forms.CheckBox checkForUpgradesCbox;
 		private System.Windows.Forms.CheckBox downloadCoverArtCbox;
 		private System.Windows.Forms.CheckBox autoDownloadEpisodesCb;

@@ -104,7 +104,8 @@ public class ApiExtended
 					LoginChoiceFactory(account),
 					locale,
 					AudibleApiStorage.AccountsSettingsFile,
-					account.GetIdentityTokensJsonPath());
+					account.GetIdentityTokensJsonPath(),
+					Configuration.Instance.GetDeviceRegistrationProfile());
 
 				// login happens against the account's own marketplace, so the api it hands back reads that one.
 				// re-create once the tokens exist if some other marketplace is the one actually wanted.

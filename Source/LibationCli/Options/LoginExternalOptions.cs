@@ -1,6 +1,7 @@
 using AudibleApi;
 using AudibleUtilities;
 using CommandLine;
+using LibationFileManager;
 using System;
 using System.Linq;
 using System.Net;
@@ -19,6 +20,9 @@ internal class LoginExternalOptions : OptionsBase
 
 	[Option("response-url", Required = false, HelpText = "Final browser URL after login. Use when stdin is not a TTY (e.g. scripts, Docker).")]
 	public string? ResponseUrl { get; set; }
+
+	[Option("device-registration", Required = false, HelpText = "CurrentAndroid, RetailAndroid, or Mkb79IPhone. Defaults to Settings. Only used for a new sign-in; remove the account first.")]
+	public string? DeviceRegistration { get; set; }
 
 	protected override async Task ProcessAsync()
 	{
@@ -46,6 +50,13 @@ internal class LoginExternalOptions : OptionsBase
 			return;
 		}
 
+		if (!TryResolveRegistrationProfile(out var registrationProfile, out var registrationError))
+		{
+			PrintVerbUsage("ERROR", "=====", registrationError);
+			Environment.ExitCode = (int)ExitCode.RunTimeError;
+			return;
+		}
+
 		using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 		// Persist by canonical locale name ("germany"), not the user input ("de").
 		var account = persister.AccountsSettings.Upsert(accountId, locale.Name);
@@ -54,6 +65,9 @@ internal class LoginExternalOptions : OptionsBase
 		{
 			Console.WriteLine(
 				$"Account '{accountId}' ({locale.Name}) is already authenticated. No browser login needed.");
+			if (!string.IsNullOrWhiteSpace(DeviceRegistration))
+				Console.WriteLine(
+					"Device registration only applies to a new sign-in. Remove the account first, then run login-external again.");
 			return;
 		}
 
@@ -73,7 +87,8 @@ internal class LoginExternalOptions : OptionsBase
 				loginExternal,
 				locale,
 				AudibleApiStorage.AccountsSettingsFile,
-				account.GetIdentityTokensJsonPath());
+				account.GetIdentityTokensJsonPath(),
+				registrationProfile);
 		}
 		catch (Exception ex)
 		{
@@ -104,6 +119,28 @@ internal class LoginExternalOptions : OptionsBase
 	}
 
 	internal static bool IsEmptyLocale(Locale locale) => string.IsNullOrEmpty(locale.CountryCode);
+
+	internal bool TryResolveRegistrationProfile(out DeviceRegistrationProfile profile, out string error)
+	{
+		if (string.IsNullOrWhiteSpace(DeviceRegistration))
+		{
+			profile = Configuration.Instance.GetDeviceRegistrationProfile();
+			error = "";
+			return true;
+		}
+
+		if (Enum.TryParse<DeviceRegistrationKind>(DeviceRegistration, ignoreCase: true, out var kind)
+			&& Enum.IsDefined(kind))
+		{
+			profile = DeviceRegistrationProfile.FromKind(kind);
+			error = "";
+			return true;
+		}
+
+		profile = DeviceRegistrationProfile.Default;
+		error = $"Unknown device registration '{DeviceRegistration}'. Use CurrentAndroid, RetailAndroid, or Mkb79IPhone.";
+		return false;
+	}
 
 	private sealed class CliLoginExternal : ILoginExternal
 	{

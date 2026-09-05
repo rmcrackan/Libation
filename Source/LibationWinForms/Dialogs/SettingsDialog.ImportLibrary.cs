@@ -1,4 +1,7 @@
-﻿using LibationFileManager;
+﻿using AudibleApi;
+using LibationFileManager;
+using LibationUiBase;
+using System.Linq;
 
 namespace LibationWinForms.Dialogs;
 
@@ -9,6 +12,7 @@ public partial class SettingsDialog
 		this.autoScanCb.Text = desc(nameof(config.AutoScan));
 		this.showImportedStatsCb.Text = desc(nameof(config.ShowImportedStats));
 		this.useWebViewCb.Text = desc(nameof(config.UseWebView));
+		this.deviceRegistrationLbl.Text = DeviceRegistrationSettingsUi.SettingLabel;
 		this.importEpisodesCb.Text = desc(nameof(config.ImportEpisodes));
 		this.importPlusTitlesCb.Text = desc(nameof(config.ImportPlusTitles));
 		toolTip.SetToolTip(importPlusTitlesCb, Configuration.ImportPlusTitlesToolTip);
@@ -22,6 +26,12 @@ public partial class SettingsDialog
 		importPlusTitlesCb.Checked = config.ImportPlusTitles;
 		downloadEpisodesCb.Checked = config.DownloadEpisodes;
 		autoDownloadEpisodesCb.Checked = config.AutoDownloadEpisodes;
+
+		deviceRegistrationCb.Items.Clear();
+		deviceRegistrationCb.Items.AddRange(DeviceRegistrationSettingsUi.Options.Cast<object>().ToArray());
+		deviceRegistrationCb.SelectedItem = DeviceRegistrationSettingsUi.Display(config.DeviceRegistrationKind);
+		toolTip.SetToolTip(deviceRegistrationLbl, Configuration.GetHelpText(nameof(config.DeviceRegistrationKind)));
+		toolTip.SetToolTip(deviceRegistrationCb, DeviceRegistrationSettingsUi.ReLoginNote);
 	}
 	private void Save_ImportLibrary(Configuration config)
 	{
@@ -32,5 +42,7 @@ public partial class SettingsDialog
 		config.DownloadEpisodes = downloadEpisodesCb.Checked;
 		config.AutoDownloadEpisodes = autoDownloadEpisodesCb.Checked;
 		config.UseWebView = useWebViewCb.Checked;
+		config.DeviceRegistrationKind = (deviceRegistrationCb.SelectedItem as EnumDisplay<DeviceRegistrationKind>)?.Value
+			?? DeviceRegistrationKind.CurrentAndroid;
 	}
 }

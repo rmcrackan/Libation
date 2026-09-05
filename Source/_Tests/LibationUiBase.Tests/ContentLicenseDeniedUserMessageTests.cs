@@ -21,6 +21,8 @@ public class ContentLicenseDeniedUserMessageTests
 		StringAssert.Contains(body, "throttled");
 		StringAssert.Contains(body, "24 to 48 hours");
 		StringAssert.Contains(body, "not a Libation bug");
+		StringAssert.Contains(body, "experimental device registration");
+		StringAssert.Contains(body, "audible-cli");
 	}
 
 	[TestMethod]

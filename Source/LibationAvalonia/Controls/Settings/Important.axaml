@@ -87,6 +87,21 @@
 				</StackPanel>
 			</CheckBox>
 
+			<TextBlock
+				Margin="0,8,0,0"
+				Text="{Binding DeviceRegistrationKindText}" />
+			<controls:WheelComboBox
+				Height="25"
+				HorizontalContentAlignment="Stretch"
+				SelectedItem="{Binding SelectedDeviceRegistration, Mode=TwoWay}"
+				ItemsSource="{Binding DeviceRegistrationOptions}"
+				ToolTip.Tip="{Binding DeviceRegistrationKindTip}" />
+			<TextBlock
+				FontStyle="Italic"
+				Opacity="0.8"
+				TextWrapping="Wrap"
+				Text="{Binding DeviceRegistrationReLoginNote}" />
+
 			<CheckBox
 				IsChecked="{Binding CheckForUpgradesAtStartup, Mode=TwoWay}"
 				ToolTip.Tip="{Binding CheckForUpgradesAtStartupTip}">
