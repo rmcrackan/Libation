@@ -50,7 +50,7 @@ public partial class ImageDisplayDialog : DialogWindow, INotifyPropertyChanged
 
 		try
 		{
-			_bitmapHolder.CoverImage?.Save(selectedFile);
+			_bitmapHolder.CoverImage?.Save(selectedFile, JpegBitmapEncoderOptions.Default);
 		}
 		catch (Exception ex)
 		{

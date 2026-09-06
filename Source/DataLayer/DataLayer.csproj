@@ -13,7 +13,7 @@
   <ItemGroup>
     <PackageReference Include="Dinah.Core" Version="11.0.0.1" />
     <PackageReference Include="Dinah.EntityFrameworkCore" Version="11.0.0.1" />
-	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
+	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
       <PrivateAssets>all</PrivateAssets>

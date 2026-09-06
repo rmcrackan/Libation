@@ -242,7 +242,7 @@
 					SortMemberPath="ProductRating" CanUserSort="True"
 					OpacityBinding="{Binding Liberate.Opacity}"
 					ClipboardContentBinding="{Binding ProductRating}"
-					Binding="{Binding ProductRating}">
+					RatingBinding="{Binding ProductRating}">
 					<controls:DataGridMyRatingColumn.Width>
 						<Binding x:DataType="vm:ProductsDisplayViewModel" Path="ProductRatingWidth" Mode="TwoWay" />
 					</controls:DataGridMyRatingColumn.Width>
@@ -269,7 +269,7 @@
 					SortMemberPath="MyRating" CanUserSort="True"
 					OpacityBinding="{Binding Liberate.Opacity}"
 					ClipboardContentBinding="{Binding MyRating}"					
-					Binding="{Binding MyRating, Mode=TwoWay}">
+					RatingBinding="{Binding MyRating, Mode=TwoWay}">
 					<controls:DataGridMyRatingColumn.Width>
 						<Binding x:DataType="vm:ProductsDisplayViewModel" Path="MyRatingWidth" Mode="TwoWay" />
 					</controls:DataGridMyRatingColumn.Width>

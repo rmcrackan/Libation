@@ -12,7 +12,7 @@
   <ItemGroup>
 	<!-- Rasterizes the Liberate column's icons. Kept on the same major version as the one
 	     Avalonia.Skia resolves, so the Avalonia app doesn't get a mismatched native Skia. -->
-	<PackageReference Include="SkiaSharp" Version="3.119.4" />
+	<PackageReference Include="SkiaSharp" Version="4.151.2" />
   </ItemGroup>
 
   <ItemGroup>

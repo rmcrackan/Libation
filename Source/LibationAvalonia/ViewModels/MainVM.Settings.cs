@@ -3,8 +3,8 @@ using LibationFileManager;
 using LibationUiBase.Forms;
 using ReactiveUI;
 using System;
-using System.Reactive;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace LibationAvalonia.ViewModels;
 
@@ -12,7 +12,7 @@ partial class MainVM
 {
 	public string FindBetterQualityBooksTip => Configuration.GetHelpText("FindBetterQualityBooks");
 	public bool MenuBarVisible { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = !Configuration.IsMacOs;
-	public ReactiveCommand<Unit, Unit> LaunchHangover { get; private set; } = null!;
+	public ICommand LaunchHangover { get; private set; } = null!;
 
 	private void Configure_Settings()
 	{
@@ -20,7 +20,7 @@ partial class MainVM
 
 		if (App.Current is Avalonia.Application app &&
 			NativeMenu.GetMenu(app)?.Items[0] is NativeMenuItem aboutMenu)
-			aboutMenu.Command = ReactiveCommand.Create(ShowAboutAsync);
+			aboutMenu.Command = ReactiveCommand.CreateFromTask(ShowAboutAsync);
 	}
 
 	public Task ShowAboutAsync() => new LibationAvalonia.Dialogs.AboutDialog().ShowDialog(MainWindow);

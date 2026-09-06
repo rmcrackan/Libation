@@ -23,11 +23,17 @@ public partial class MyRatingCellEditor : UserControl
 	{
 		InitializeComponent();
 
-		var subscriber = this.ObservableForProperty(p => p.Rating).Subscribe(o => DisplayStarRating(o.Value ?? new Rating(0, 0, 0)));
-		Unloaded += (_, _) => subscriber.Dispose();
-
 		if (Design.IsDesignMode)
 			Rating = new Rating(5, 4, 3);
+	}
+
+	protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+	{
+		base.OnPropertyChanged(change);
+		if (change.Property == RatingProperty)
+		{
+			DisplayStarRating(change.GetNewValue<Rating>() ?? new Rating(0f, 0f, 0f));
+		}
 	}
 
 	private void DisplayStarRating(Rating rating)
