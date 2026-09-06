@@ -22,7 +22,7 @@ public class LoginExternalOptionsTests
 
 		Assert.IsTrue(options.TryResolveRegistrationProfile(out var profile, out var error));
 		Assert.AreEqual("", error);
-		Assert.AreEqual(DeviceRegistrationKind.RetailAndroid, profile.Kind);
+		Assert.AreEqual(DeviceRegistrationKind.CurrentAndroid, profile.Kind);
 	}
 
 	[TestMethod]

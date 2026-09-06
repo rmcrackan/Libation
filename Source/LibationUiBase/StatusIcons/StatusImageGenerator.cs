@@ -105,8 +105,10 @@ public static class StatusImageGenerator
 		};
 
 		//The lamp goes under the body, so it shows through the bezel cut out of it.
-		var lamp = new SKPath();
-		lamp.AddRect(SKRect.Create(LiberateIconGeometry.LampLeft, lampTop, LiberateIconGeometry.LampWidth, LiberateIconGeometry.LampHeight));
+		using var lampBuilder = new SKPathBuilder();
+		lampBuilder.AddRect(SKRect.Create(LiberateIconGeometry.LampLeft, lampTop, LiberateIconGeometry.LampWidth, LiberateIconGeometry.LampHeight));
+		var lamp = lampBuilder.Detach();
+		
 
 		//Sitting flush with the top edge keeps the badge out of the stoplight's height, so a Plus
 		//title's stoplight is drawn at exactly the same size as a purchased one's.
@@ -158,8 +160,9 @@ public static class StatusImageGenerator
 		//Drawn last so the badge sits on top of everything it overlaps.
 		if (descriptor.IsPlus)
 		{
-			var badge = new SKPath();
-			badge.AddCircle(badgeCenterX, badgeCenterY, badgeRadius);
+			using var badgeBuilder = new SKPathBuilder();
+			badgeBuilder.AddCircle(badgeCenterX, badgeCenterY, badgeRadius);
+			var badge = badgeBuilder.Detach();
 
 			layers.Add((badge, palette.PlusBadge));
 			layers.Add((PlusGlyph(badgeCenterX, badgeCenterY), palette.PlusBadgeGlyph));
@@ -171,9 +174,9 @@ public static class StatusImageGenerator
 	/// <summary>The hole cut around the Audible Plus badge, separating it from whatever it overlaps.</summary>
 	private static SKPath BadgeRim(float centerX, float centerY, float badgeRadius)
 	{
-		var rim = new SKPath();
-		rim.AddCircle(centerX, centerY, badgeRadius + LiberateIconGeometry.PlusBadgeRimWidth);
-		return rim;
+		using var rimBuilder = new SKPathBuilder();
+		rimBuilder.AddCircle(centerX, centerY, badgeRadius + LiberateIconGeometry.PlusBadgeRimWidth);
+		return rimBuilder.Detach();
 	}
 
 	/// <summary>
@@ -186,10 +189,10 @@ public static class StatusImageGenerator
 		var thickness = extent * LiberateIconGeometry.PlusBadgeGlyphThickness;
 		var corner = thickness * 0.15f;
 
-		var plus = new SKPath { FillType = SKPathFillType.Winding };
-		plus.AddRoundRect(SKRect.Create(centerX - extent / 2, centerY - thickness / 2, extent, thickness), corner, corner);
-		plus.AddRoundRect(SKRect.Create(centerX - thickness / 2, centerY - extent / 2, thickness, extent), corner, corner);
-		return plus;
+		using var plusBuilder = new SKPathBuilder { FillType = SKPathFillType.Winding };
+		plusBuilder.AddRoundRect(SKRect.Create(centerX - extent / 2, centerY - thickness / 2, extent, thickness), corner, corner);
+		plusBuilder.AddRoundRect(SKRect.Create(centerX - thickness / 2, centerY - extent / 2, thickness, extent), corner, corner);
+		return plusBuilder.Detach();
 	}
 
 	private static SKPath ParsePath(string svgPathData)
