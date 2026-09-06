@@ -1,6 +1,5 @@
 ﻿using Dinah.Core;
 using LibationFileManager;
-using SixLabors.ImageSharp;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -14,15 +13,15 @@ internal class WinInterop : IInteropFunctions
 	public WinInterop(params object[] values) { }
 	public void SetFolderIcon(string image, string directory)
 	{
-		using var img = Image.Load(image);
-		var icon = img.ToIcon();
+		using var bmp = SkiaSharp.SKBitmap.Decode(image);
+		var icon = bmp.ToIcon();
 		new DirectoryInfo(directory)?.SetIcon(icon, "Music");
 	}
 
 	public void SetFolderIcon(byte[] imageJpegBytes, string directory)
 	{
-		using var img = Image.Load(new MemoryStream(imageJpegBytes, writable: false));
-		var icon = img.ToIcon();
+		using var bmp = SkiaSharp.SKBitmap.Decode(imageJpegBytes);
+		var icon = bmp.ToIcon();
 		new DirectoryInfo(directory)?.SetIcon(icon, "Music");
 	}
 
