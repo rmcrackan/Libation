@@ -9,8 +9,9 @@ public class DeviceRegistrationSettingsUiTests
 	[TestMethod]
 	public void Options_cover_every_DeviceRegistrationKind()
 	{
-		var kinds = DeviceRegistrationSettingsUi.Options.Select(o => o.Value).ToHashSet();
-		CollectionAssert.AreEquivalent(Enum.GetValues<DeviceRegistrationKind>(), kinds.ToArray());
+		var kinds = DeviceRegistrationSettingsUi.Options.Select(o => o.Value).ToArray();
+		// RetailAndroid is not a valid option for the setting, so it is excluded from the assertion.
+		CollectionAssert.AreEquivalent(Enum.GetValues<DeviceRegistrationKind>().Where(p => p is not DeviceRegistrationKind.RetailAndroid).ToArray(), kinds);
 	}
 
 	[TestMethod]

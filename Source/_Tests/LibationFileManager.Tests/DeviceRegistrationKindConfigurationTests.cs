@@ -5,6 +5,7 @@ using LibationFileManager;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Linq;
 
 namespace DeviceRegistrationKindConfigurationTests;
 
@@ -32,8 +33,8 @@ public class DeviceRegistrationKindConfigurationTests
 	public void Round_trips_each_kind()
 	{
 		var config = Configuration.CreateMockInstance();
-
-		foreach (var kind in Enum.GetValues<DeviceRegistrationKind>())
+		//Exclude RetailAndroid from this test because it is not a valid option for the setting
+		foreach (var kind in Enum.GetValues<DeviceRegistrationKind>().Where(p => p is not DeviceRegistrationKind.RetailAndroid))
 		{
 			config.DeviceRegistrationKind = kind;
 			Assert.AreEqual(kind, config.DeviceRegistrationKind);

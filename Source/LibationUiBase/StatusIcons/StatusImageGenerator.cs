@@ -108,6 +108,7 @@ public static class StatusImageGenerator
 		var lamp = new SKPath();
 		lamp.AddRect(SKRect.Create(LiberateIconGeometry.LampLeft, lampTop, LiberateIconGeometry.LampWidth, LiberateIconGeometry.LampHeight));
 
+
 		//Sitting flush with the top edge keeps the badge out of the stoplight's height, so a Plus
 		//title's stoplight is drawn at exactly the same size as a purchased one's.
 		var badgeRadius = LiberateIconGeometry.PlusBadgeDiameter / 2;

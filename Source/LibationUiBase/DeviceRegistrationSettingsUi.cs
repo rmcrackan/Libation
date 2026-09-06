@@ -7,11 +7,7 @@ namespace LibationUiBase;
 public static class DeviceRegistrationSettingsUi
 {
 	public static EnumDisplay<DeviceRegistrationKind>[] Options { get; } =
-	[
-		new(DeviceRegistrationKind.CurrentAndroid, "Android emulator (default)"),
-		new(DeviceRegistrationKind.RetailAndroid, "Android Pixel (experimental)"),
-		new(DeviceRegistrationKind.Mkb79IPhone, "iPhone / audible-cli (experimental; no Widevine)"),
-	];
+		DeviceRegistrationProfile.AllProfiles.Select(p => new EnumDisplay<DeviceRegistrationKind>(p.Kind, p.Description)).ToArray();
 
 	public static string SettingLabel { get; } = "Device registration (experimental)";
 

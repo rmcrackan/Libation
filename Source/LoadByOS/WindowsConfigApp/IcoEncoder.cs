@@ -1,18 +1,12 @@
-﻿using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
+﻿using SkiaSharp;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace WindowsConfigApp;
 
-public class IcoEncoder : IImageEncoder
+public class IcoEncoder
 {
-	public bool SkipMetadata { get; init; } = true;
 	public ReadOnlyCollection<int> ExportSizes { get; }
 	public IcoEncoder() : this(512, 256, 128, 96, 64, 48, 32, 24) { }
 	public IcoEncoder(params int[] icoSizes)
@@ -21,20 +15,23 @@ public class IcoEncoder : IImageEncoder
 		ExportSizes = new(icoSizes);
 	}
 
-	public void Encode<TPixel>(Image<TPixel> image, Stream stream) where TPixel : unmanaged, IPixel<TPixel>
+	public void Encode(SKBitmap image, Stream stream)
 	{
 		// https://stackoverflow.com/a/21389253
 
 		//Knowing the image size ahead of time removes the
 		//requirement of the output stream to support seeking.
 		byte[][] iconPngs = new byte[ExportSizes.Count][];
+		var samplingOptions = new SKSamplingOptions(SKCubicResampler.CatmullRom);
+
 		for (int i = 0; i < ExportSizes.Count; i++)
 		{
 			int size = ExportSizes[i];
-			using var resized = image.Clone(x => x.Resize(size, size, KnownResamplers.Lanczos2));
-			using var pngMs = new MemoryStream();
-			resized.SaveAsPng(pngMs);
-			iconPngs[i] = pngMs.ToArray();
+			var imageInfo = new SKImageInfo(size, size);
+			using var resized = image.Resize(imageInfo, samplingOptions);
+			using var skImage = SKImage.FromBitmap(resized);
+			using var data = skImage.Encode(SKEncodedImageFormat.Png, 100);			
+			iconPngs[i] = data.ToArray();
 		}
 
 		//Disposing of the BinaryWriter disposes the soutput stream. Let the caller clean up.
@@ -65,7 +62,4 @@ public class IcoEncoder : IImageEncoder
 		for (int i = 0; i < ExportSizes.Count; i++)
 			bw.Write(iconPngs[i]);
 	}
-
-	public Task EncodeAsync<TPixel>(Image<TPixel> image, Stream stream, CancellationToken cancellationToken) where TPixel : unmanaged, IPixel<TPixel>
-		=> throw new NotImplementedException();
 }

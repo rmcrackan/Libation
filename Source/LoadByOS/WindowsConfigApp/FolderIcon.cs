@@ -1,15 +1,15 @@
-﻿using SixLabors.ImageSharp;
-using System.IO;
+﻿using System.IO;
+using SkiaSharp;
 
 namespace WindowsConfigApp;
 
 internal static partial class FolderIcon
 {
 	static readonly IcoEncoder IcoEncoder = new();
-	public static byte[] ToIcon(this Image img)
+	public static byte[] ToIcon(this SKBitmap img)
 	{
 		using var ms = new MemoryStream();
-		img.Save(ms, IcoEncoder);
+		IcoEncoder.Encode(img, ms);
 		return ms.ToArray();
 	}
 
