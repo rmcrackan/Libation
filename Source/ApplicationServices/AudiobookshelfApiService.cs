@@ -483,7 +483,8 @@ public static class AudiobookshelfApiService
 		string title,
 		string? author,
 		string? series,
-		IEnumerable<string> filePaths)
+		IEnumerable<string> filePaths,
+		IProgress<(long bytesSent, long totalBytes)>? progress = null)
 	{
 		apiToken = AudiobookshelfTokenStorage.DecryptToken(apiToken) ?? "";
 
@@ -517,15 +518,33 @@ public static class AudiobookshelfApiService
 		form.Add(new StringContent(libraryId), "library");
 		form.Add(new StringContent(folderId), "folder");
 
+		var existingFiles = filePaths.Where(File.Exists).ToList();
+		long totalBytes = 0;
+		foreach (var path in existingFiles)
+		{
+			try { totalBytes += new FileInfo(path).Length; } catch { }
+		}
+
+		progress?.Report((0, totalBytes));
+
+		long bytesSent = 0;
+		void OnBytesRead(int count)
+		{
+			var current = System.Threading.Interlocked.Add(ref bytesSent, count);
+			progress?.Report((current, totalBytes));
+		}
+
 		int fileIndex = 0;
 		var streams = new List<Stream>();
 		try
 		{
-			foreach (var path in filePaths.Where(File.Exists))
+			foreach (var path in existingFiles)
 			{
-				var stream = File.OpenRead(path);
-				streams.Add(stream);
-				var fileContent = new StreamContent(stream);
+				var fileStream = File.OpenRead(path);
+				streams.Add(fileStream);
+				var progressStream = new ProgressStream(fileStream, OnBytesRead);
+				streams.Add(progressStream);
+				var fileContent = new StreamContent(progressStream);
 				fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 				form.Add(fileContent, fileIndex.ToString(), Path.GetFileName(path));
 				fileIndex++;
@@ -540,7 +559,10 @@ public static class AudiobookshelfApiService
 			var response = await client.PostAsync("api/upload", form);
 
 			if (response.IsSuccessStatusCode)
+			{
+				progress?.Report((totalBytes, totalBytes));
 				return UploadResult.Success;
+			}
 
 			var responseBody = await response.Content.ReadAsStringAsync();
 			Serilog.Log.Logger.Error("Audiobookshelf upload failed for '{Title}' with status {(int)response.StatusCode} ({StatusCode}). Response body: {ResponseBody}",
