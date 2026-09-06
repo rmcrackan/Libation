@@ -57,7 +57,7 @@ public partial class Configuration
 		(KnownDirectories.MyDocs, () => MyDocs),
 			// this is important to not let very early calls try to accidentally load LibationFiles too early.
 			// also, keep this at bottom of this list
-			(KnownDirectories.LibationFiles, () => Instance.LibationFiles.Location)
+			(KnownDirectories.LibationFiles, () => Instance!.LibationFiles.Location)
 	};
 	public static string? GetKnownDirectoryPath(KnownDirectories directory)
 	{
