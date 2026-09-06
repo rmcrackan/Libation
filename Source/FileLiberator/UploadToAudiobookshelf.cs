@@ -23,6 +23,8 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 		public string Message { get; } = message;
 	}
 
+	public bool CheckAsin { get; set; }
+
 	/// <summary>
 	/// Raised exactly once per processed book, classifying what happened and why.
 	/// <para/>
@@ -81,7 +83,8 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 				title,
 				author,
 				series,
-				files);
+				files,
+				asin: CheckAsin ? libraryBook.Book.AudibleProductId : null);
 
 			if (result == AudiobookshelfApiService.UploadResult.Success)
 			{
