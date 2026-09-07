@@ -8,7 +8,7 @@ Registration data is stored with the account, so updating Libation or changing t
 
 ## Where to find it
 
-- **Chardonnay:** Settings -> Important -> **Device registration (experimental)**
+- **Chardonnay:** Settings -> Import library -> **Device registration (experimental)**
 - **Classic:** Settings -> Import library -> **Device registration (experimental)**
 - **CLI / Docker:** `DeviceRegistrationKind` in `Settings.json`, or `--device-registration` on `login-external`. See [Command Line Interface](/docs/advanced/command-line-interface#log-in-with-an-external-browser-login-external).
 
