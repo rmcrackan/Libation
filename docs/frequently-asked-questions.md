@@ -71,7 +71,9 @@ Full steps: [Troubleshooting - Failed to decrypt ExistingAccessToken](/docs/adva
 
 That is Audible refusing a download license, not a Libation decrypt bug. Wait 24 to 48 hours if you just downloaded many Plus titles.
 
-If the official app can play the title and waiting does not help, try an [experimental device registration](/docs/advanced/device-registration): pick a profile in Settings, then **remove and re-add the account** (or `login-external`). You can also import credentials from [audible-cli](https://github.com/mkb79/audible-cli). Changing the setting does not convert accounts you already signed in.
+If the official app can play the title and waiting does not help, **remove and re-add the account** (or run `login-external`). Older Libation versions registered Android devices with an invalid serial length, and existing accounts keep that old registration after an update. Current versions use the corrected Android registration by default.
+
+If registering again with Android does not help, try the experimental iPhone/audible-cli option described under [Device registration](/docs/advanced/device-registration), or import credentials from [audible-cli](https://github.com/mkb79/audible-cli).
 
 See [Troubleshooting](/docs/advanced/troubleshoot#download-fails-with-drm-license-response-not-ok-or-content-license-denied).
 
