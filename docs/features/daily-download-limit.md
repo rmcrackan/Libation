@@ -74,4 +74,4 @@ A container that liberates on a schedule combines well with a limit: each run do
 
 ## When a license is denied anyway
 
-If Audible refuses a license despite the limit, Libation waits before asking about that title again instead of re-requesting it on every run. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads). If the official Audible app can still play the title, try an [experimental device registration](/docs/advanced/device-registration) or import credentials from audible-cli.
+If Audible refuses a license despite the limit, Libation waits before asking about that title again instead of re-requesting it on every run. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads). If the official Audible app can still play the title, remove and re-add the account to get the corrected Android registration. See [Device registration](/docs/advanced/device-registration) for the experimental iPhone alternative and audible-cli import.
