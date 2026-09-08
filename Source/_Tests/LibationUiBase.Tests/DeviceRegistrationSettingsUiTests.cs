@@ -25,6 +25,11 @@ public class DeviceRegistrationSettingsUiTests
 	{
 		StringAssert.Contains(DeviceRegistrationSettingsUi.ThrottlingWorkaround, "experimental device registration");
 		StringAssert.Contains(DeviceRegistrationSettingsUi.ThrottlingWorkaround, "audible-cli");
+		StringAssert.Contains(DeviceRegistrationSettingsUi.ThrottlingWorkaround, "save or close the Accounts dialog");
 		StringAssert.Contains(DeviceRegistrationSettingsUi.ReLoginNote, "does not convert existing accounts");
+		StringAssert.Contains(DeviceRegistrationSettingsUi.ReLoginNote, "save or close the Accounts dialog");
+		StringAssert.Contains(DeviceRegistrationSettingsUi.RemoveSaveReAddAccountSteps, "Remove the account");
+		StringAssert.Contains(DeviceRegistrationSettingsUi.RemoveSaveReAddAccountSteps, "save or close the Accounts dialog");
+		StringAssert.Contains(DeviceRegistrationSettingsUi.RemoveSaveReAddAccountSteps, "re-add the account");
 	}
 }

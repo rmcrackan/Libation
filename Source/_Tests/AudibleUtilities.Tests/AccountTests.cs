@@ -7,6 +7,9 @@ using AudibleUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Serilog;
+using Serilog.Core;
+using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -1159,6 +1162,65 @@ public class SerializedShape : AccountsTestBase
 		loaded.Accounts[0].AccountId.Should().Be("user@example.com");
 
 		JObject.Parse(loaded.ToJson())["Accounts"]![0]!["MaskedLogEntry"].Should().BeNull();
+	}
+}
+
+[TestClass]
+public class AccountAddRemoveLogging
+{
+	[TestMethod]
+	public void Add_and_Delete_write_masked_account_to_the_log()
+	{
+		var sink = new CollectingSink();
+		var original = Serilog.Log.Logger;
+		Serilog.Log.Logger = new LoggerConfiguration().WriteTo.Sink(sink).CreateLogger();
+
+		try
+		{
+			var settings = new AccountsSettings();
+			var account = settings.Upsert("user@example.com", "us");
+			settings.Delete(account).Should().BeTrue();
+
+			var messages = sink.Events.Select(e => e.RenderMessage()).ToList();
+			Assert.AreEqual(1, messages.Count(m => m.Contains("Added Audible account", StringComparison.Ordinal)));
+			Assert.AreEqual(1, messages.Count(m => m.Contains("Removed Audible account", StringComparison.Ordinal)));
+			Assert.IsTrue(messages.All(m => m.Contains(account.MaskedLogEntry, StringComparison.Ordinal)));
+			Assert.IsFalse(messages.Any(m => m.Contains("user@example.com", StringComparison.Ordinal)));
+		}
+		finally
+		{
+			Serilog.Log.Logger = original;
+		}
+	}
+
+	[TestMethod]
+	public void Loading_accounts_from_json_does_not_log_an_add()
+	{
+		var sink = new CollectingSink();
+		var original = Serilog.Log.Logger;
+		Serilog.Log.Logger = new LoggerConfiguration().WriteTo.Sink(sink).CreateLogger();
+
+		try
+		{
+			var settings = new AccountsSettings();
+			settings.Add(new Account("user@example.com") { IdentityTokens = new Identity(Localization.Get("us")) });
+			var json = settings.ToJson();
+			sink.Events.Clear();
+
+			_ = AccountsSettings.FromJson(json);
+
+			Assert.AreEqual(0, sink.Events.Count);
+		}
+		finally
+		{
+			Serilog.Log.Logger = original;
+		}
+	}
+
+	private class CollectingSink : ILogEventSink
+	{
+		public List<LogEvent> Events { get; } = [];
+		public void Emit(LogEvent logEvent) => Events.Add(logEvent);
 	}
 }
 #pragma warning restore CS8981

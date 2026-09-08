@@ -97,6 +97,7 @@ public class AccountsSettings : IUpdatable
 	public void Add(Account account)
 	{
 		_add(account);
+		Serilog.Log.Logger.Information("Added Audible account {Account}", account.MaskedLogEntry);
 		update_no_validate();
 	}
 
@@ -165,6 +166,8 @@ public class AccountsSettings : IUpdatable
 
 		account.Updated -= update;
 		var result = _accounts_backing.Remove(account);
+		if (result)
+			Serilog.Log.Logger.Information("Removed Audible account {Account}", account.MaskedLogEntry);
 		update_no_validate();
 		return result;
 	}

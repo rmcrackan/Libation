@@ -22,6 +22,8 @@ public static class ContentLicenseDeniedUserMessage
 
 			Heavy use of the Audible Plus catalog in a short time can also produce "license denied" responses; community reports often involve on the order of dozens of titles — Audible does not publish a fixed limit. Waiting 24 to 48 hours before trying again is usually enough.
 
+			If the official Audible app can play this title, {DeviceRegistrationSettingsUi.RemoveSaveReAddAccountSteps}
+
 			If the problem continues after several days, open an issue on Libation's GitHub and include your logs.
 			""" + AppendSuggestion();
 
@@ -48,6 +50,8 @@ public static class ContentLicenseDeniedUserMessage
 			Try waiting 24 to 48 hours and liberate again. If it still fails after several days, open an issue on Libation's GitHub with logs.
 
 			If you should not have access to this title (for example it left Plus before you downloaded), confirm in the Audible app or website.
+
+			If the official Audible app can play this title, {DeviceRegistrationSettingsUi.RemoveSaveReAddAccountSteps}
 			""" + AppendSuggestion();
 
 	/// <summary>

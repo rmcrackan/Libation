@@ -23,6 +23,7 @@ public class ContentLicenseDeniedUserMessageTests
 		StringAssert.Contains(body, "not a Libation bug");
 		StringAssert.Contains(body, "experimental device registration");
 		StringAssert.Contains(body, "audible-cli");
+		AssertSuggestsRemoveSaveReAdd(body);
 	}
 
 	[TestMethod]
@@ -32,6 +33,7 @@ public class ContentLicenseDeniedUserMessageTests
 
 		StringAssert.Contains(body, "temporary interruption of service");
 		Assert.IsFalse(body.Contains("account is being throttled", StringComparison.Ordinal));
+		AssertSuggestsRemoveSaveReAdd(body);
 	}
 
 	[TestMethod]
@@ -41,5 +43,14 @@ public class ContentLicenseDeniedUserMessageTests
 
 		StringAssert.Contains(body, "Audible Plus catalog");
 		Assert.IsFalse(body.Contains("account is being throttled", StringComparison.Ordinal));
+		AssertSuggestsRemoveSaveReAdd(body);
+	}
+
+	private static void AssertSuggestsRemoveSaveReAdd(string body)
+	{
+		StringAssert.Contains(body, "remove the account", StringComparison.OrdinalIgnoreCase);
+		StringAssert.Contains(body, "save or close the Accounts dialog");
+		StringAssert.Contains(body, "re-add the account");
 	}
 }
+
