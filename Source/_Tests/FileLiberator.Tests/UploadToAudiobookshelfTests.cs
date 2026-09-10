@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace FileLiberator.Tests;
@@ -284,5 +285,44 @@ public class UploadToAudiobookshelfTests
 		{
 			Directory.Delete(booksDirectory, recursive: true);
 		}
+	}
+
+	[TestMethod]
+	public void FormatUploadErrorMessage_stream_copy_error_provides_actionable_diagnostics()
+	{
+		var inner = new IOException("An existing connection was forcibly closed by the remote host.");
+		var ex = new HttpRequestException("Error while copying content to a stream.", inner);
+
+		var message = UploadToAudiobookshelf.FormatUploadErrorMessage(ex);
+
+		StringAssert.Contains(message, "Connection lost while sending audio files to the server");
+		StringAssert.Contains(message, "An existing connection was forcibly closed by the remote host");
+		StringAssert.Contains(message, "client_max_body_size");
+		StringAssert.Contains(message, "Reverse proxy or server timeout");
+		StringAssert.Contains(message, "Log.log");
+	}
+
+	[TestMethod]
+	public void FormatUploadErrorMessage_timeout_error_provides_timeout_message()
+	{
+		var ex = new TaskCanceledException("The request was canceled due to the configured HttpClient.Timeout.");
+
+		var message = UploadToAudiobookshelf.FormatUploadErrorMessage(ex);
+
+		StringAssert.Contains(message, "timed out or was cancelled");
+		StringAssert.Contains(message, "Log.log");
+	}
+
+	[TestMethod]
+	public void FormatUploadErrorMessage_unwraps_base_exception()
+	{
+		var root = new InvalidOperationException("Root failure reason");
+		var middle = new Exception("Middle failure", root);
+		var top = new Exception("Top failure", middle);
+
+		var message = UploadToAudiobookshelf.FormatUploadErrorMessage(top);
+
+		StringAssert.Contains(message, "Top failure (Root failure reason)");
+		StringAssert.Contains(message, "Log.log");
 	}
 }
