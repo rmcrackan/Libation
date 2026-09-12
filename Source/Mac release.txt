@@ -7,7 +7,7 @@ Secrets and variables
 Actions
 Variables [tab]
 SIGN_MAC_APP_ON_VALIDATE => true
-(also WAIT_FOR_NOTARIZE true but that hsould already be the case)
+(also WAIT_FOR_NOTARIZE true but that should already be the case)
 
 commit (a trivial change) to master
 
