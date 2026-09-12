@@ -41,7 +41,7 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="11.0.0.1" />
+		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="11.0.1.1" />
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
 	</ItemGroup>
 
