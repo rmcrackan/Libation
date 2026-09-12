@@ -57,7 +57,8 @@ public class LibationContributor
             GitHubUser("oxivanisher"),
 			GitHubUser("tippfehlr"),
 			GitHubUser("SirBiggin"),
-			GitHubUser("dmatlock171"),
+            GitHubUser("dmatlock171"),
+            GitHubUser("CreativeMetrics"),
         ]);
 
 	private LibationContributor(string name, LibationContributorType type, Uri link)
