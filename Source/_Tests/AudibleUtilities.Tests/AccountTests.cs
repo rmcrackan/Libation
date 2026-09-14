@@ -1166,6 +1166,7 @@ public class SerializedShape : AccountsTestBase
 }
 
 [TestClass]
+[DoNotParallelize]
 public class AccountAddRemoveLogging
 {
 	[TestMethod]
