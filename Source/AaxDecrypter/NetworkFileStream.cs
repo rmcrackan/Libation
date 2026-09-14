@@ -241,33 +241,55 @@ public class NetworkFileStream : Stream, IUpdatable
 		}
 	}
 
-	private async Task<BlockResponse> RequestNextByteRangeAsync(HttpClient client)
-	{
-		using var request = new HttpRequestMessage(HttpMethod.Get, Uri);
+    private async Task<BlockResponse> RequestNextByteRangeAsync(HttpClient client)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, Uri);
 
-		//Just in case it snuck in the saved json (Issue #1232)
-		RequestHeaders.Remove("Range");
+        //Just in case it snuck in the saved json (Issue #1232)
+        RequestHeaders.Remove("Range");
 
-		foreach (var header in RequestHeaders)
-			request.Headers.Add(header.Key, header.Value);
+        foreach (var header in RequestHeaders)
+            request.Headers.Add(header.Key, header.Value);
 
-		request.Headers.Add("Range", $"bytes={WritePosition}-");
+        request.Headers.Add("Range", $"bytes={WritePosition}-");
 
-		var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, _cancellationSource.Token);
+        var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, _cancellationSource.Token);
 
-		if (response.StatusCode != HttpStatusCode.PartialContent)
-			throw new WebException($"Server at {Uri.Host} responded with unexpected status code: {response.StatusCode}.");
+        try
+        {
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                if (WritePosition != 0)
+                    throw new WebException(
+                        $"Server at {Uri.Host} ignored the requested byte range. " +
+                        "Cannot resume this download from a full-file response.");
 
-		var totalSize = response.Content.Headers.ContentRange?.Length ??
-			throw new WebException("The response did not contain a total content length.");
+                var fileSize = response.Content.Headers.ContentLength ??
+                    throw new WebException(
+                        "The response did not contain a Content-Length.");
 
-		var rangeSize = response.Content.Headers.ContentLength ??
-			throw new WebException($"The response did not contain a {nameof(response.Content.Headers.ContentLength)};");
+                return new BlockResponse(response, fileSize, fileSize);
+            }
 
-		return new BlockResponse(response, rangeSize, totalSize);
-	}
+            if (response.StatusCode != HttpStatusCode.PartialContent)
+                throw new WebException($"Server at {Uri.Host} responded with unexpected status code: {response.StatusCode}.");
 
-	private readonly record struct BlockResponse(HttpResponseMessage Response, long BlockSize, long FileSize) : IDisposable
+            var totalSize = response.Content.Headers.ContentRange?.Length ??
+                throw new WebException("The response did not contain a total content length.");
+
+            var rangeSize = response.Content.Headers.ContentLength ??
+            throw new WebException($"The response did not contain a {nameof(response.Content.Headers.ContentLength)};");
+
+            return new BlockResponse(response, rangeSize, totalSize);
+        }
+        catch
+        {
+            response.Dispose();
+            throw;
+        }
+    }
+
+    private readonly record struct BlockResponse(HttpResponseMessage Response, long BlockSize, long FileSize) : IDisposable
 	{
 		public void Dispose() => Response?.Dispose();
 	}
