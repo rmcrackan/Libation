@@ -1166,6 +1166,7 @@ public class SerializedShape : AccountsTestBase
 }
 
 [TestClass]
+[DoNotParallelize] // both tests replace the global logger
 public class AccountAddRemoveLogging
 {
 	[TestMethod]
