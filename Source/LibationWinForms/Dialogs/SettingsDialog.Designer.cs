@@ -1,4 +1,4 @@
-﻿namespace LibationWinForms.Dialogs
+namespace LibationWinForms.Dialogs
 {
 	partial class SettingsDialog
 	{
@@ -57,6 +57,7 @@
 			tabControl = new System.Windows.Forms.TabControl();
 			tab5Audiobookshelf = new System.Windows.Forms.TabPage();
 			absEnabledCb = new System.Windows.Forms.CheckBox();
+			absIncludePdfsCb = new System.Windows.Forms.CheckBox();
 			absPlaintextWarningLbl = new System.Windows.Forms.Label();
 			absUrlLbl = new System.Windows.Forms.Label();
 			absUrlTb = new System.Windows.Forms.TextBox();
@@ -1072,6 +1073,7 @@
 			tab5Audiobookshelf.AutoScroll = true;
 			tab5Audiobookshelf.BackColor = System.Drawing.SystemColors.Window;
 			tab5Audiobookshelf.Controls.Add(absEnabledCb);
+			tab5Audiobookshelf.Controls.Add(absIncludePdfsCb);
 			tab5Audiobookshelf.Controls.Add(absPlaintextWarningLbl);
 			tab5Audiobookshelf.Controls.Add(absUrlLbl);
 			tab5Audiobookshelf.Controls.Add(absUrlTb);
@@ -1707,58 +1709,65 @@
 			absEnabledCb.Text = "[AudiobookshelfEnabled desc]";
 			absEnabledCb.UseVisualStyleBackColor = true;
 			absEnabledCb.CheckedChanged += absEnabledCb_CheckedChanged;
+			absIncludePdfsCb.AutoSize = true;
+			absIncludePdfsCb.Location = new System.Drawing.Point(6, 32);
+			absIncludePdfsCb.Name = "absIncludePdfsCb";
+			absIncludePdfsCb.Size = new System.Drawing.Size(350, 19);
+			absIncludePdfsCb.TabIndex = 1;
+			absIncludePdfsCb.Text = "[AudiobookshelfIncludePdfs desc]";
+			absIncludePdfsCb.UseVisualStyleBackColor = true;
 			// 
 			// absPlaintextWarningLbl
 			// 
 			absPlaintextWarningLbl.AutoSize = true;
 			absPlaintextWarningLbl.ForeColor = System.Drawing.Color.DarkOrange;
-			absPlaintextWarningLbl.Location = new System.Drawing.Point(6, 30);
+			absPlaintextWarningLbl.Location = new System.Drawing.Point(6, 56);
 			absPlaintextWarningLbl.Name = "absPlaintextWarningLbl";
 			absPlaintextWarningLbl.Size = new System.Drawing.Size(480, 15);
-			absPlaintextWarningLbl.TabIndex = 1;
+			absPlaintextWarningLbl.TabIndex = 2;
 			absPlaintextWarningLbl.Text = "Warning: The API token is stored as plaintext in Settings.json.";
 			// 
 			// absUrlLbl
 			// 
 			absUrlLbl.AutoSize = true;
-			absUrlLbl.Location = new System.Drawing.Point(6, 55);
+			absUrlLbl.Location = new System.Drawing.Point(6, 81);
 			absUrlLbl.Name = "absUrlLbl";
 			absUrlLbl.Size = new System.Drawing.Size(70, 15);
-			absUrlLbl.TabIndex = 2;
+			absUrlLbl.TabIndex = 3;
 			absUrlLbl.Text = "[AudiobookshelfServerUrl desc]";
 			// 
 			// absUrlTb
 			// 
 			absUrlTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			absUrlTb.Location = new System.Drawing.Point(90, 52);
+			absUrlTb.Location = new System.Drawing.Point(90, 78);
 			absUrlTb.Name = "absUrlTb";
 			absUrlTb.Size = new System.Drawing.Size(550, 23);
-			absUrlTb.TabIndex = 3;
+			absUrlTb.TabIndex = 4;
 			// 
 			// absTokenLbl
 			// 
 			absTokenLbl.AutoSize = true;
-			absTokenLbl.Location = new System.Drawing.Point(6, 84);
+			absTokenLbl.Location = new System.Drawing.Point(6, 110);
 			absTokenLbl.Name = "absTokenLbl";
 			absTokenLbl.Size = new System.Drawing.Size(65, 15);
-			absTokenLbl.TabIndex = 4;
+			absTokenLbl.TabIndex = 5;
 			absTokenLbl.Text = "[AudiobookshelfApiToken desc]";
 			// 
 			// absTokenTb
 			// 
 			absTokenTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			absTokenTb.Location = new System.Drawing.Point(90, 81);
+			absTokenTb.Location = new System.Drawing.Point(90, 107);
 			absTokenTb.Name = "absTokenTb";
 			absTokenTb.Size = new System.Drawing.Size(550, 23);
-			absTokenTb.TabIndex = 5;
+			absTokenTb.TabIndex = 6;
 			// 
 			// absConnectBtn
 			// 
 			absConnectBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			absConnectBtn.Location = new System.Drawing.Point(646, 52);
+			absConnectBtn.Location = new System.Drawing.Point(646, 78);
 			absConnectBtn.Name = "absConnectBtn";
 			absConnectBtn.Size = new System.Drawing.Size(130, 52);
-			absConnectBtn.TabIndex = 6;
+			absConnectBtn.TabIndex = 7;
 			absConnectBtn.Text = "Connect / Refresh";
 			absConnectBtn.UseVisualStyleBackColor = true;
 			absConnectBtn.Click += absConnectBtn_Click;
@@ -1766,19 +1775,19 @@
 			// absStatusLbl
 			// 
 			absStatusLbl.AutoSize = true;
-			absStatusLbl.Location = new System.Drawing.Point(6, 114);
+			absStatusLbl.Location = new System.Drawing.Point(6, 140);
 			absStatusLbl.Name = "absStatusLbl";
 			absStatusLbl.Size = new System.Drawing.Size(0, 15);
-			absStatusLbl.TabIndex = 7;
+			absStatusLbl.TabIndex = 8;
 			absStatusLbl.Text = "";
 			// 
 			// absLibraryLbl
 			// 
 			absLibraryLbl.AutoSize = true;
-			absLibraryLbl.Location = new System.Drawing.Point(6, 140);
+			absLibraryLbl.Location = new System.Drawing.Point(6, 166);
 			absLibraryLbl.Name = "absLibraryLbl";
 			absLibraryLbl.Size = new System.Drawing.Size(50, 15);
-			absLibraryLbl.TabIndex = 8;
+			absLibraryLbl.TabIndex = 9;
 			absLibraryLbl.Text = "[AudiobookshelfLibraryId desc]";
 			// 
 			// absLibraryCb
@@ -1786,19 +1795,19 @@
 			absLibraryCb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			absLibraryCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			absLibraryCb.FormattingEnabled = true;
-			absLibraryCb.Location = new System.Drawing.Point(90, 137);
+			absLibraryCb.Location = new System.Drawing.Point(90, 163);
 			absLibraryCb.Name = "absLibraryCb";
 			absLibraryCb.Size = new System.Drawing.Size(686, 23);
-			absLibraryCb.TabIndex = 9;
+			absLibraryCb.TabIndex = 10;
 			absLibraryCb.SelectedIndexChanged += absLibraryCb_SelectedIndexChanged;
 			// 
 			// absFolderLbl
 			// 
 			absFolderLbl.AutoSize = true;
-			absFolderLbl.Location = new System.Drawing.Point(6, 170);
+			absFolderLbl.Location = new System.Drawing.Point(6, 196);
 			absFolderLbl.Name = "absFolderLbl";
 			absFolderLbl.Size = new System.Drawing.Size(45, 15);
-			absFolderLbl.TabIndex = 10;
+			absFolderLbl.TabIndex = 11;
 			absFolderLbl.Text = "[AudiobookshelfFolderId desc]";
 			// 
 			// absFolderCb
@@ -1806,10 +1815,10 @@
 			absFolderCb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			absFolderCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			absFolderCb.FormattingEnabled = true;
-			absFolderCb.Location = new System.Drawing.Point(90, 167);
+			absFolderCb.Location = new System.Drawing.Point(90, 193);
 			absFolderCb.Name = "absFolderCb";
 			absFolderCb.Size = new System.Drawing.Size(686, 23);
-			absFolderCb.TabIndex = 11;
+			absFolderCb.TabIndex = 12;
 			// 
 			// SettingsDialog
 			// 
@@ -2007,6 +2016,7 @@
 		private System.Windows.Forms.NumericUpDown minFileDurationNud;
 		private System.Windows.Forms.TabPage tab5Audiobookshelf;
 		private System.Windows.Forms.CheckBox absEnabledCb;
+		private System.Windows.Forms.CheckBox absIncludePdfsCb;
 		private System.Windows.Forms.Label absPlaintextWarningLbl;
 		private System.Windows.Forms.Label absUrlLbl;
 		private System.Windows.Forms.TextBox absUrlTb;

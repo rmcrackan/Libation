@@ -16,6 +16,7 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 {
 	private readonly Configuration config;
 	private bool enabled;
+	private bool includePdfs;
 	private string serverUrl = "";
 	private string apiToken = "";
 	private string statusText = "";
@@ -32,6 +33,7 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	{
 		this.config = config;
 		enabled = config.AudiobookshelfEnabled;
+		includePdfs = config.AudiobookshelfIncludePdfs;
 		serverUrl = config.AudiobookshelfServerUrl ?? "";
 		apiToken = AudiobookshelfTokenStorage.DecryptToken(config.AudiobookshelfApiToken) ?? "";
 
@@ -51,6 +53,12 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 			this.RaiseAndSetIfChanged(ref enabled, value);
 			this.RaisePropertyChanged(nameof(CanConnect));
 		}
+	}
+
+	public bool IncludePdfs
+	{
+		get => includePdfs;
+		set => this.RaiseAndSetIfChanged(ref includePdfs, value);
 	}
 
 	public string ServerUrl
@@ -137,6 +145,7 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 
 	// Labels from Configuration descriptions
 	public string EnabledText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfEnabled));
+	public string IncludePdfsText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfIncludePdfs));
 	public string ServerUrlText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfServerUrl));
 	public string ApiTokenText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfApiToken));
 	public string LibraryText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfLibraryId));
@@ -224,6 +233,7 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	public void SaveSettings(Configuration config)
 	{
 		config.AudiobookshelfEnabled = Enabled;
+		config.AudiobookshelfIncludePdfs = IncludePdfs;
 		config.AudiobookshelfServerUrl = AudiobookshelfApiService.TryNormalizeServerUrlForSave(ServerUrl);
 		ServerUrl = config.AudiobookshelfServerUrl ?? "";
 		config.AudiobookshelfApiToken = AudiobookshelfTokenStorage.EncryptToken(ApiToken.Trim());

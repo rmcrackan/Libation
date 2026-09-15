@@ -8,9 +8,10 @@ Available in Classic (WinForms), Chardonnay (Avalonia), and the CLI `liberate` c
 
 1. Open **Settings** -> **Audiobookshelf**.
 2. Enable **Automatically upload downloaded books**.
-3. Enter your Audiobookshelf **Server URL** and **API Token** (see below).
-4. Click **Connect / Refresh**. Libation loads your book libraries and folders.
-5. Choose the target **Library** and **Folder**, then save settings.
+3. Optionally enable **Include PDFs when uploading to Audiobookshelf** (off by default).
+4. Enter your Audiobookshelf **Server URL** and **API Token** (see below).
+5. Click **Connect / Refresh**. Libation loads your book libraries and folders.
+6. Choose the target **Library** and **Folder**, then save settings.
 
 Only libraries with media type `book` are listed (podcast libraries are excluded).
 
@@ -54,11 +55,20 @@ When auto-upload is enabled and configured:
 1. Libation liberates the book as usual (download and decrypt, then PDF if any).
 2. Libation uploads the liberated audio file(s) to the selected Audiobookshelf library and folder.
 3. If Libation saved cover art for that book, the cover image is included in the upload.
-4. Title, author, and series from Libation's library data are sent as upload metadata.
+4. If **Include PDFs when uploading to Audiobookshelf** is enabled, known local PDFs for that book are included.
+5. Title, author, and series from Libation's library data are sent as upload metadata.
 
 Upload runs for GUI download/decrypt and for CLI `liberate`. It does **not** run on the separate **Convert to MP3** queue or `libationcli convert` - those paths only convert local files.
 
 Auto-upload only ever fires at the moment a book is liberated. To send books you liberated earlier, see [Uploading books you already liberated](#uploading-books-you-already-liberated).
+
+### Including PDFs
+
+**Include PDFs when uploading to Audiobookshelf** applies to future uploads from both the GUI and CLI, including `abs upload`. PDFs can have been downloaded earlier or during the current run. Turning the checkbox on does not itself download or upload anything, and turning it off does not change PDF downloads to your computer.
+
+Libation includes only existing PDF files it has recorded for that book. Missing or untracked PDFs and ZIP supplements are omitted; Libation does not search nearby folders for PDFs. At least one audio file must be available: PDFs are never uploaded on their own.
+
+Books already present on Audiobookshelf are still skipped, even if they are missing PDFs. This option does not add PDFs to existing server entries. The checkbox is disabled while Audiobookshelf integration is off, but its saved value is retained.
 
 ## Uploading books you already liberated
 
@@ -81,6 +91,7 @@ The command:
 
 - Considers only books Libation has marked as **liberated**. Books whose liberation errored are skipped, because an errored liberation may have left partial files.
 - Finds audio using both Libation's file-path cache **and** a scan of your Books directory, so books whose cache entry was lost are still found.
+- Includes known local PDFs when **Include PDFs when uploading to Audiobookshelf** is enabled, provided audio is available. See [Including PDFs](#including-pdfs).
 - Checks the server before each upload and skips titles already present - see [Duplicate handling](#duplicate-handling).
 - Prints a summary at the end: uploaded, already on server, no files found, failed, skipped. `skipped` counts books you named by ASIN that were not eligible - most often because they are not marked as liberated.
 
