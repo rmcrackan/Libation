@@ -297,12 +297,63 @@ public static class AudiobookshelfApiService
 		}
 	}
 
-	public static async Task<bool> BookExistsAsync(string serverUrl, string apiToken, string libraryId, string title, string? author = null)
+	public static async Task<bool> BookExistsAsync(
+		string serverUrl,
+		string apiToken,
+		string libraryId,
+		string title,
+		string? author = null,
+		string? asin = null)
 	{
 		apiToken = AudiobookshelfTokenStorage.DecryptToken(apiToken) ?? "";
 		using var client = CreateClient(serverUrl);
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
 		client.Timeout = TimeSpan.FromSeconds(30);
+
+		if (!string.IsNullOrWhiteSpace(asin))
+		{
+			var normalizedAsin = asin.Trim().TrimStart('[').TrimEnd(']');
+			Serilog.Log.Logger.Debug("Audiobookshelf duplicate check: searching by ASIN '{Asin}' in library {LibraryId}", normalizedAsin, libraryId);
+			try
+			{
+				var asinCandidates = await SearchLibraryAsync(client, libraryId, normalizedAsin, 10);
+				foreach (var candidate in asinCandidates)
+				{
+					bool asinMatch = false;
+
+					// 1) Audiobookshelf metadata ASIN match
+					if (!string.IsNullOrWhiteSpace(candidate.Asin)
+						&& string.Equals(candidate.Asin, normalizedAsin, StringComparison.OrdinalIgnoreCase))
+					{
+						asinMatch = true;
+					}
+
+					// 2) Audio/library file name or folder path contains the ASIN
+					if (!asinMatch && candidate.FileNames.Any(fn => fn.Contains(normalizedAsin, StringComparison.OrdinalIgnoreCase)))
+					{
+						asinMatch = true;
+					}
+
+					// 3) Title contains the ASIN
+					if (!asinMatch && (candidate.Title.Contains(normalizedAsin, StringComparison.OrdinalIgnoreCase)
+						|| candidate.FullTitle.Contains(normalizedAsin, StringComparison.OrdinalIgnoreCase)))
+					{
+						asinMatch = true;
+					}
+
+					if (asinMatch)
+					{
+						Serilog.Log.Logger.Information("Audiobookshelf duplicate check: found match by ASIN '{Asin}' (item id={ItemId}, title='{CandidateTitle}')", normalizedAsin, candidate.Id, candidate.FullTitle);
+						return true;
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Debug(ex, "Audiobookshelf duplicate check by ASIN failed for '{Asin}' in library {LibraryId}", normalizedAsin, libraryId);
+				// Fall through to title matching below
+			}
+		}
 
 		var normalizedTitle = NormalizeTitle(title);
 		var baseTitle = GetBaseTitle(normalizedTitle);
@@ -370,7 +421,7 @@ public static class AudiobookshelfApiService
 		}
 	}
 
-	private record SearchCandidate(string Id, string Title, string FullTitle, List<string> Authors);
+	private record SearchCandidate(string Id, string Title, string FullTitle, List<string> Authors, string? Asin, List<string> FileNames);
 
 	private static async Task<List<SearchCandidate>> SearchLibraryAsync(HttpClient client, string libraryId, string query, int limit)
 	{
@@ -393,6 +444,8 @@ public static class AudiobookshelfApiService
 			var id = item["id"]?.Value<string>() ?? entry["id"]?.Value<string>() ?? "";
 			var itemTitle = item["media"]?["metadata"]?["title"]?.Value<string>()?.Replace("\u00A0", " ").Trim();
 			var itemSubtitle = item["media"]?["metadata"]?["subtitle"]?.Value<string>()?.Replace("\u00A0", " ").Trim();
+			var asin = item["media"]?["metadata"]?["asin"]?.Value<string>()?.Trim();
+			var path = item["path"]?.Value<string>() ?? "";
 
 			var itemFullTitle = string.IsNullOrWhiteSpace(itemSubtitle)
 				? itemTitle
@@ -403,11 +456,36 @@ public static class AudiobookshelfApiService
 				.Where(n => !string.IsNullOrWhiteSpace(n))
 				.ToList() ?? [];
 
+			var fileNames = new List<string>();
+			if (!string.IsNullOrWhiteSpace(path))
+				fileNames.Add(path);
+
+			if (item["media"]?["audioFiles"] is JArray audioFiles)
+			{
+				foreach (var af in audioFiles)
+				{
+					var fn = af["metadata"]?["filename"]?.Value<string>() ?? af["ino"]?.Value<string>();
+					if (!string.IsNullOrWhiteSpace(fn))
+						fileNames.Add(fn);
+				}
+			}
+			if (item["media"]?["libraryFiles"] is JArray libFiles)
+			{
+				foreach (var lf in libFiles)
+				{
+					var fn = lf["metadata"]?["filename"]?.Value<string>();
+					if (!string.IsNullOrWhiteSpace(fn))
+						fileNames.Add(fn);
+				}
+			}
+
 			results.Add(new SearchCandidate(
 				id,
 				NormalizeTitle(itemTitle),
 				NormalizeTitle(itemFullTitle),
-				authorList));
+				authorList,
+				asin,
+				fileNames));
 		}
 
 		return results;
@@ -483,14 +561,15 @@ public static class AudiobookshelfApiService
 		string title,
 		string? author,
 		string? series,
-		IEnumerable<string> filePaths)
+		IEnumerable<string> filePaths,
+		string? asin = null)
 	{
 		apiToken = AudiobookshelfTokenStorage.DecryptToken(apiToken) ?? "";
 
 		// Pre-check for existing item
 		try
 		{
-			if (await BookExistsAsync(serverUrl, apiToken, libraryId, title, author))
+			if (await BookExistsAsync(serverUrl, apiToken, libraryId, title, author, asin))
 			{
 				Serilog.Log.Logger.Information("Skipping Audiobookshelf upload: book '{Title}' already exists in library {LibraryId}", title, libraryId);
 				return UploadResult.AlreadyExists;
