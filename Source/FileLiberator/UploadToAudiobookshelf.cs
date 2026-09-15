@@ -136,14 +136,18 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 
 	/// <summary>
 	/// Composes the final upload payload from one preferred audio format, in deterministic order,
-	/// followed by cover art at most once.
+	/// followed by cover art and optional PDFs at most once.
 	/// </summary>
-	internal static List<string> BuildUploadFileList(IEnumerable<string> audioPaths, string? coverPath)
+	internal static List<string> BuildUploadFileList(IEnumerable<string> audioPaths, string? coverPath, IEnumerable<string>? pdfPaths = null)
 	{
 		var audioFiles = audioPaths
 			.Where(p => !string.IsNullOrWhiteSpace(p))
+			.Where(p => FileTypes.GetFileTypeFromPath(p) == FileType.Audio)
 			.Distinct(StringComparer.Ordinal)
 			.ToList();
+
+		if (audioFiles.Count == 0)
+			return [];
 
 		var m4bFiles = audioFiles
 			.Where(p => p.EndsWith(".m4b", StringComparison.OrdinalIgnoreCase))
@@ -162,14 +166,27 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 		if (!string.IsNullOrWhiteSpace(coverPath))
 			files.Add(coverPath);
 
-		return files;
+		files.AddRange((pdfPaths ?? [])
+			.Where(p => !string.IsNullOrWhiteSpace(p) && FileTypes.GetFileTypeFromPath(p) == FileType.PDF)
+			.OrderBy(p => p, StringComparer.Ordinal));
+
+		return files.Distinct(StringComparer.Ordinal).ToList();
 	}
 
-	internal static List<string> GetFilesToUpload(LibraryBook libraryBook)
+	internal List<string> GetFilesToUpload(LibraryBook libraryBook)
 	{
 		var audioFiles = GetAudioFilesOnDisk(libraryBook.Book.AudibleProductId);
+		if (audioFiles.Count == 0)
+			return [];
 
-		return BuildUploadFileList(audioFiles, GetCoverArtPath(libraryBook, audioFiles.FirstOrDefault()));
+		var pdfFiles = Configuration.AudiobookshelfIncludePdfs
+			? FilePathCache.GetFiles(libraryBook.Book.AudibleProductId)
+				.Where(f => f.fileType == FileType.PDF)
+				.Select(f => (string)f.path)
+				.Where(File.Exists)
+			: Enumerable.Empty<string>();
+
+		return BuildUploadFileList(audioFiles, GetCoverArtPath(libraryBook, audioFiles.FirstOrDefault()), pdfFiles);
 	}
 
 	/// <summary>Libation's known cover art output path. Same logic as DownloadDecryptBook.DownloadCoverArt.</summary>

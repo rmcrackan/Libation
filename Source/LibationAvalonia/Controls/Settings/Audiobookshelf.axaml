@@ -12,6 +12,11 @@
 				  Content="{Binding EnabledText}"
 				  Margin="0,0,0,10" />
 
+		<CheckBox IsChecked="{Binding IncludePdfs, Mode=TwoWay}"
+				  Content="{Binding IncludePdfsText}"
+				  IsEnabled="{Binding Enabled}"
+				  Margin="0,0,0,10" />
+
 		<Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
 			<!-- Server URL -->
 			<TextBlock Grid.Row="0" Grid.Column="0"

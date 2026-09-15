@@ -17,6 +17,7 @@ public partial class SettingsDialog
 	private void Load_Audiobookshelf(Configuration config)
 	{
 		absEnabledCb.Text = desc(nameof(config.AudiobookshelfEnabled));
+		absIncludePdfsCb.Text = desc(nameof(config.AudiobookshelfIncludePdfs));
 		absUrlLbl.Text = desc(nameof(config.AudiobookshelfServerUrl));
 		absTokenLbl.Text = desc(nameof(config.AudiobookshelfApiToken));
 		absLibraryLbl.Text = desc(nameof(config.AudiobookshelfLibraryId));
@@ -25,6 +26,7 @@ public partial class SettingsDialog
 		absStatusLbl.Text = "";
 
 		absEnabledCb.Checked = config.AudiobookshelfEnabled;
+		absIncludePdfsCb.Checked = config.AudiobookshelfIncludePdfs;
 		absUrlTb.Text = config.AudiobookshelfServerUrl ?? "";
 		absTokenTb.Text = AudiobookshelfTokenStorage.DecryptToken(config.AudiobookshelfApiToken) ?? "";
 		absTokenTb.PasswordChar = '*';
@@ -42,6 +44,7 @@ public partial class SettingsDialog
 
 	private void ToggleAudiobookshelfControls(bool enabled)
 	{
+		absIncludePdfsCb.Enabled = enabled;
 		absUrlTb.Enabled = enabled;
 		absTokenTb.Enabled = enabled;
 		absConnectBtn.Enabled = enabled;
@@ -137,6 +140,7 @@ public partial class SettingsDialog
 	private void Save_Audiobookshelf(Configuration config)
 	{
 		config.AudiobookshelfEnabled = absEnabledCb.Checked;
+		config.AudiobookshelfIncludePdfs = absIncludePdfsCb.Checked;
 		config.AudiobookshelfServerUrl = AudiobookshelfApiService.TryNormalizeServerUrlForSave(absUrlTb.Text);
 		absUrlTb.Text = config.AudiobookshelfServerUrl ?? "";
 		config.AudiobookshelfApiToken = AudiobookshelfTokenStorage.EncryptToken(absTokenTb.Text.Trim());
