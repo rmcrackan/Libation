@@ -73,6 +73,31 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 			var author = libraryBook.Book.AuthorNames;
 			var series = libraryBook.Book.SeriesNames();
 
+			var averageSpeed = new AaxDecrypter.AverageSpeed();
+			DateTime lastUpdate = DateTime.MinValue;
+
+			var progress = new Progress<(long bytesSent, long totalBytes)>(p =>
+			{
+				var now = DateTime.UtcNow;
+				if (p.bytesSent > 0 && p.bytesSent < p.totalBytes && (now - lastUpdate).TotalMilliseconds < 100)
+					return;
+				lastUpdate = now;
+
+				averageSpeed.AddPosition(p.bytesSent);
+				var remainingBytes = p.totalBytes - p.bytesSent;
+				var estTimeRemaining = remainingBytes / averageSpeed.Average;
+				if (double.IsNormal(estTimeRemaining))
+					OnStreamingTimeRemaining(TimeSpan.FromSeconds(estTimeRemaining));
+
+				var progressPercent = p.totalBytes > 0 ? (100.0 * p.bytesSent / p.totalBytes) : 100.0;
+				OnStreamingProgressChanged(new Dinah.Core.Net.Http.DownloadProgress
+				{
+					ProgressPercentage = progressPercent,
+					BytesReceived = p.bytesSent,
+					TotalBytesToReceive = p.totalBytes
+				});
+			});
+
 			var result = await AudiobookshelfApiService.UploadBookAsync(
 				Configuration.AudiobookshelfServerUrl!,
 				Configuration.AudiobookshelfApiToken!,
@@ -81,10 +106,12 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 				title,
 				author,
 				series,
-				files);
+				files,
+				progress);
 
 			if (result == AudiobookshelfApiService.UploadResult.Success)
 			{
+				OnStreamingTimeRemaining(TimeSpan.Zero);
 				const string message = "Upload to Audiobookshelf completed successfully";
 				OnStatusUpdate(message);
 				OnOutcomeDetermined(UploadOutcome.Uploaded, message);
