@@ -304,6 +304,8 @@ public class UploadToAudiobookshelfTests
 		{
 			var config = ConfiguredForAudiobookshelf();
 			config.Books = directory;
+			// Cover-art naming reads account nicknames, even when no cover exists.
+			AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
 			var book = LibraryBookWith(LiberatedStatus.Liberated);
 			var audio = Path.Combine(directory, "B0TEST0001.m4b");
 			var pdf = Path.Combine(directory, "supplement.pdf");
