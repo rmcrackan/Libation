@@ -104,22 +104,63 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 				OnStatusUpdate(message);
 				Serilog.Log.Logger.Error("Audiobookshelf upload failed for {Book}, but continuing as soft-failure", libraryBook.LogFriendly());
 				// Soft-fail: log the error but do not mark the book as failed
-				OnOutcomeDetermined(UploadOutcome.Failed, message + ". See log for details.");
+				OnOutcomeDetermined(UploadOutcome.Failed, message + $". See Libation log ({Path.Combine(Configuration.Instance.LibationFiles.Location, "Log.log")}) and Audiobookshelf server logs for details.");
 				return new StatusHandler();
 			}
 		}
 		catch (Exception ex)
 		{
 			Serilog.Log.Logger.Error(ex, "Error uploading {Book} to Audiobookshelf; continuing as soft-failure", libraryBook.LogFriendly());
-			OnStatusUpdate($"Audiobookshelf upload error: {ex.Message}");
+			var errorMessage = FormatUploadErrorMessage(ex);
+			OnStatusUpdate(errorMessage);
 			// Soft-fail: log the error but do not mark the book as failed
-			OnOutcomeDetermined(UploadOutcome.Failed, $"Audiobookshelf upload error: {ex.Message}");
+			OnOutcomeDetermined(UploadOutcome.Failed, errorMessage);
 			return new StatusHandler();
 		}
 		finally
 		{
 			OnCompleted(libraryBook);
 		}
+	}
+
+	internal static string FormatUploadErrorMessage(Exception ex)
+	{
+		var baseEx = ex.GetBaseException();
+		var baseMsg = baseEx?.Message?.Trim();
+		var logFile = Path.Combine(Configuration.Instance.LibationFiles.Location, "Log.log");
+
+		var isStreamCopyError = ex.Message.Contains("Error while copying content to a stream", StringComparison.OrdinalIgnoreCase)
+			|| (baseMsg?.Contains("forcibly closed", StringComparison.OrdinalIgnoreCase) == true)
+			|| (baseMsg?.Contains("connection reset", StringComparison.OrdinalIgnoreCase) == true)
+			|| (baseMsg?.Contains("broken pipe", StringComparison.OrdinalIgnoreCase) == true)
+			|| (baseMsg?.Contains("ended prematurely", StringComparison.OrdinalIgnoreCase) == true);
+
+		if (isStreamCopyError)
+		{
+			var reason = !string.IsNullOrWhiteSpace(baseMsg) && !string.Equals(baseMsg, ex.Message, StringComparison.OrdinalIgnoreCase)
+				? $" ({baseMsg})"
+				: "";
+
+			return $"Audiobookshelf upload error: Connection lost while sending audio files to the server{reason}.\n"
+				+ "  Possible causes:\n"
+				+ "  - Reverse proxy upload limit: if using Nginx/Cloudflare/Traefik, ensure 'client_max_body_size' (or equivalent proxy upload limit) is large enough for audiobook files (e.g. 1G or higher).\n"
+				+ "  - Reverse proxy or server timeout: the upload may have exceeded proxy timeout limits.\n"
+				+ "  - Server disk space or Audiobookshelf crash: verify the server has sufficient free storage.\n"
+				+ $"  Check Audiobookshelf server logs and the Libation log ({logFile}) for details.";
+		}
+
+		if (ex is TaskCanceledException or TimeoutException)
+		{
+			return $"Audiobookshelf upload timed out or was cancelled.\n"
+				+ $"  Check Audiobookshelf server logs and the Libation log ({logFile}) for details.";
+		}
+
+		var detail = !string.IsNullOrWhiteSpace(baseMsg) && !string.Equals(baseMsg, ex.Message, StringComparison.OrdinalIgnoreCase)
+			? $"{ex.Message} ({baseMsg})"
+			: ex.Message;
+
+		return $"Audiobookshelf upload error: {detail}\n"
+			+ $"  Check Audiobookshelf server logs and the Libation log ({logFile}) for details.";
 	}
 
 	/// <summary>
