@@ -14,45 +14,28 @@ public static class ContentLicenseDeniedUserMessage
 	public const string DialogCaption = "Content license denied";
 
 	/// <summary>Generic outage / GenericError-style denial: not specific to Plus titles.</summary>
-	public static string BuildDialogBodyForPossibleOutage(string bookTitleWithSubtitle)
-		=> $"""
-			You were denied a content license for {bookTitleWithSubtitle}
-
-			This error often reflects a temporary interruption of service on Audible's side. It usually resolves within about 1 to 2 days, and in the meantime you should still be able to access your books through Audible's website or app.
-
-			Heavy use of the Audible Plus catalog in a short time can also produce "license denied" responses; community reports often involve on the order of dozens of titles — Audible does not publish a fixed limit. Waiting 24 to 48 hours before trying again is usually enough.
-
-			If the official Audible app can play this title, {DeviceRegistrationSettingsUi.RemoveSaveReAddAccountSteps}
-
-			If the problem continues after several days, open an issue on Libation's GitHub and include your logs.
-			""" + AppendSuggestion();
+	public static string BuildDialogBodyForPossibleOutage(string bookTitleWithSubtitle, AudibleApi.Locale? locale = null,
+		AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine)
+		=> BuildBody(bookTitleWithSubtitle,
+			"This may be a temporary interruption of service. If Audible's app can play the title, try these registration recovery steps.", locale, updateStatus);
 
 	/// <summary>Audible named CustomerThrottled. Shown for any title, Plus or owned.</summary>
-	public static string BuildDialogBodyForThrottling(string bookTitleWithSubtitle)
-		=> $"""
-			You were denied a content license for {bookTitleWithSubtitle}
+	public static string BuildDialogBodyForThrottling(string bookTitleWithSubtitle, AudibleApi.Locale? locale = null,
+		AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine)
+		=> BuildBody(bookTitleWithSubtitle,
+			"Audible says this account is being throttled. This can also happen with an old device registration. Try these recovery steps first.", locale, updateStatus);
 
-			Audible refused this download because your account is being throttled. This is a temporary rate limit on Audible's side, not a Libation bug.
+	/// <summary>Plus denials may indicate registration trouble, rate limits, or lost access.</summary>
+	public static string BuildDialogBodyForPlusCatalog(string bookTitleWithSubtitle, AudibleApi.Locale? locale = null,
+		AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine)
+		=> BuildBody(bookTitleWithSubtitle,
+			"This title is from the Audible Plus catalog. It may have left Plus, or Audible may be limiting downloads. Check your access in Audible's app; if it plays, try these recovery steps.", locale, updateStatus);
 
-			Wait 24 to 48 hours before trying again. In the meantime you should still be able to play this title in the Audible app or website.
-
-			If it still fails after several days, open an issue on Libation's GitHub and include your logs.
-
-			""" + DeviceRegistrationSettingsUi.ThrottlingWorkaround + AppendSuggestion();
-
-	/// <summary>License denied on an Audible Plus title — often rate limiting, not a Libation defect.</summary>
-	public static string BuildDialogBodyForPlusCatalog(string bookTitleWithSubtitle)
-		=> $"""
-			You were denied a content license for {bookTitleWithSubtitle}
-
-			This title is from the Audible Plus catalog. Audible sometimes temporarily denies content licenses after heavy Plus use in a short period; community reports often mention on the order of dozens of downloads — Audible does not publish a fixed limit. This is usually not a Libation bug.
-
-			Try waiting 24 to 48 hours and liberate again. If it still fails after several days, open an issue on Libation's GitHub with logs.
-
-			If you should not have access to this title (for example it left Plus before you downloaded), confirm in the Audible app or website.
-
-			If the official Audible app can play this title, {DeviceRegistrationSettingsUi.RemoveSaveReAddAccountSteps}
-			""" + AppendSuggestion();
+	private static string BuildBody(string title, string diagnosis, AudibleApi.Locale? locale, AppScaffolding.VersionCheckOutcome updateStatus)
+		=> $"You were denied a content license for {title}\n\n{diagnosis}\n\n"
+			+ AppScaffolding.LicenseRecoveryGuidance.Explanation + "\n\n"
+			+ AppScaffolding.LicenseRecoveryGuidance.BuildSteps(locale, updateStatus) + "\n\n"
+			+ AppScaffolding.LicenseRecoveryGuidance.Fallback + AppendSuggestion();
 
 	/// <summary>
 	/// When Audible names CustomerThrottled, the throttling dialog already says so. This extra paragraph is

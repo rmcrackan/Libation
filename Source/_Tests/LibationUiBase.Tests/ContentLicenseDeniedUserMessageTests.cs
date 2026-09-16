@@ -20,9 +20,10 @@ public class ContentLicenseDeniedUserMessageTests
 		StringAssert.Contains(body, "Monster Hunter Alpha");
 		StringAssert.Contains(body, "throttled");
 		StringAssert.Contains(body, "24 to 48 hours");
-		StringAssert.Contains(body, "not a Libation bug");
-		StringAssert.Contains(body, "experimental device registration");
-		StringAssert.Contains(body, "audible-cli");
+		Assert.IsFalse(body.Contains("not a Libation bug"));
+		Assert.IsFalse(body.Contains("experimental device registration"));
+		Assert.IsFalse(body.Contains("audible-cli"));
+		Assert.IsTrue(body.IndexOf("Deregister") < body.IndexOf("24 to 48 hours"));
 		AssertSuggestsRemoveSaveReAdd(body);
 	}
 
@@ -48,9 +49,8 @@ public class ContentLicenseDeniedUserMessageTests
 
 	private static void AssertSuggestsRemoveSaveReAdd(string body)
 	{
-		StringAssert.Contains(body, "remove the account", StringComparison.OrdinalIgnoreCase);
-		StringAssert.Contains(body, "save or close the Accounts dialog");
+		StringAssert.Contains(body, "remove the affected account", StringComparison.OrdinalIgnoreCase);
+		StringAssert.Contains(body, "Save the removal, then close Libation");
 		StringAssert.Contains(body, "re-add the account");
 	}
 }
-

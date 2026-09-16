@@ -1,5 +1,6 @@
 ﻿using DataLayer;
 using Dinah.Core.Logging;
+using Dinah.Core;
 using Dinah.Core.Threading;
 using LibationWinForms.Dialogs;
 using Serilog;
@@ -12,6 +13,36 @@ namespace LibationWinForms;
 
 public static class MessageBoxLib
 {
+	internal static DialogResult ShowLicenseRecovery(IWin32Window? owner, string message, string caption)
+	{
+		using var dialog = new Form
+		{
+			Text = caption, StartPosition = FormStartPosition.CenterParent,
+			Size = new System.Drawing.Size(740, 660), MinimizeBox = false, MaximizeBox = false,
+			Padding = new Padding(12)
+		};
+		var area = (owner is null ? Screen.PrimaryScreen : Screen.FromHandle(owner.Handle))?.WorkingArea;
+		if (area is { } bounds)
+			dialog.Size = new System.Drawing.Size(Math.Min(740, bounds.Width * 9 / 10), Math.Min(660, bounds.Height * 9 / 10));
+		var text = new RichTextBox
+		{
+			Text = message, ReadOnly = true, DetectUrls = true, Dock = DockStyle.Fill,
+			Font = System.Drawing.SystemFonts.MessageBoxFont, BackColor = System.Drawing.SystemColors.Window,
+			ScrollBars = RichTextBoxScrollBars.Vertical
+		};
+		text.LinkClicked += (_, e) =>
+		{
+			try { Go.To.Url(e.LinkText); }
+			catch { MessageBox.Show(dialog, "Could not open the link. Copy it into your browser.", caption); }
+		};
+		var ok = new Button { Text = "OK", DialogResult = DialogResult.OK, Dock = DockStyle.Bottom, Height = 36 };
+		dialog.Controls.Add(text);
+		dialog.Controls.Add(ok);
+		dialog.AcceptButton = ok;
+		dialog.CancelButton = ok;
+		return dialog.ShowDialog(owner);
+	}
+
 	/// <summary>
 	/// Logs error. Displays a message box dialog with specified text and caption.
 	/// </summary>

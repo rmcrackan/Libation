@@ -822,11 +822,13 @@ public class ProcessQueueViewModel : ReactiveObject
 						if (show)
 						{
 							var title = book.LibraryBook.Book.TitleWithSubtitle;
+							var locale = AppScaffolding.LicenseRecoveryGuidance.GetRegistrationLocale(book.LibraryBook);
+							var updateStatus = AppScaffolding.LibationScaffolding.LastVersionCheckOutcome;
 							var body = result switch
 							{
-								ProcessBookResult.LicenseDeniedPossibleOutage => ContentLicenseDeniedUserMessage.BuildDialogBodyForPossibleOutage(title),
-								ProcessBookResult.LicenseDeniedThrottled => ContentLicenseDeniedUserMessage.BuildDialogBodyForThrottling(title),
-								_ => ContentLicenseDeniedUserMessage.BuildDialogBodyForPlusCatalog(title)
+								ProcessBookResult.LicenseDeniedPossibleOutage => ContentLicenseDeniedUserMessage.BuildDialogBodyForPossibleOutage(title, locale, updateStatus),
+								ProcessBookResult.LicenseDeniedThrottled => ContentLicenseDeniedUserMessage.BuildDialogBodyForThrottling(title, locale, updateStatus),
+								_ => ContentLicenseDeniedUserMessage.BuildDialogBodyForPlusCatalog(title, locale, updateStatus)
 							};
 							await MessageBoxBase.Show(
 								body,
