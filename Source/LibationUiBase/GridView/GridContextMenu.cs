@@ -80,9 +80,9 @@ public class GridContextMenu
 			.ToArray();
 	}
 
-	public void SetDownloaded()
+	public Task SetDownloaded()
 	{
-		LibraryBookEntries.Select(e => e.LibraryBook)
+		return LibraryBookEntries.Select(e => e.LibraryBook).ToArray()
 			.UpdateUserDefinedItemAsync(udi =>
 			{
 				udi.BookStatus = LiberatedStatus.Liberated;
@@ -91,9 +91,9 @@ public class GridContextMenu
 			});
 	}
 
-	public void SetNotDownloaded()
+	public Task SetNotDownloaded()
 	{
-		LibraryBookEntries.Select(e => e.LibraryBook)
+		return LibraryBookEntries.Select(e => e.LibraryBook).ToArray()
 			.UpdateUserDefinedItemAsync(udi =>
 			{
 				udi.BookStatus = LiberatedStatus.NotLiberated;
@@ -102,13 +102,13 @@ public class GridContextMenu
 			});
 	}
 
-	public void SetPdfDownloaded() => setPdfStatus(LiberatedStatus.Liberated);
+	public Task SetPdfDownloaded() => setPdfStatus(LiberatedStatus.Liberated);
 
-	public void SetPdfNotDownloaded() => setPdfStatus(LiberatedStatus.NotLiberated);
+	public Task SetPdfNotDownloaded() => setPdfStatus(LiberatedStatus.NotLiberated);
 
-	private void setPdfStatus(LiberatedStatus pdfStatus)
+	private Task setPdfStatus(LiberatedStatus pdfStatus)
 	{
-		LibraryBookEntries.Select(e => e.LibraryBook)
+		return LibraryBookEntries.Select(e => e.LibraryBook).ToArray()
 			.UpdateUserDefinedItemAsync(udi =>
 			{
 				if (udi.Book.HasPdf)

@@ -3,6 +3,21 @@
 [TestClass]
 public class ExceptionDisplayTests
 {
+	[TestMethod]
+	public void Includes_original_inner_exception_stack()
+	{
+		try
+		{
+			throw new InvalidOperationException("database conflict");
+		}
+		catch (Exception inner)
+		{
+			var text = Format(new Exception("command failed", inner));
+			Assert.Contains("database conflict", text);
+			Assert.Contains(nameof(Includes_original_inner_exception_stack), text);
+		}
+	}
+
 	/// <summary>Outer exception with a fixed <see cref="Exception.StackTrace"/> so golden-string tests are stable.</summary>
 	private sealed class ExceptionWithFixedStack : Exception
 	{

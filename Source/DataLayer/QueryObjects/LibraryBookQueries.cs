@@ -17,6 +17,13 @@ public static class LibraryBookQueries
 
 	extension(LibationContext context)
 	{
+		/// <summary>Resolve detached selections to one context-owned instance per database key.</summary>
+		public List<LibraryBook> GetTrackedLibraryBooks(IEnumerable<LibraryBook> selection)
+		{
+			var ids = selection.Select(lb => lb.BookId).Distinct().ToArray();
+			return context.LibraryBooks.AsTracking().Include(lb => lb.Book).Where(lb => ids.Contains(lb.BookId)).ToList();
+		}
+
 		//// tracking is a bad idea for main grid. it prevents anything else from updating entities unless getting them from the grid
 		//public static List<LibraryBook> GetLibrary_Flat_WithTracking(this LibationContext context)
 		//	=> context

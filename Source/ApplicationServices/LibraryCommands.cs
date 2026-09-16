@@ -464,7 +464,11 @@ public static class LibraryCommands
 		}
 	}
 
-	public static Task<int> RemoveBooksAsync(this IEnumerable<LibraryBook?>? idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
+	public static Task<int> RemoveBooksAsync(this IEnumerable<LibraryBook?>? idsToRemove)
+	{
+		var selection = idsToRemove?.OfType<LibraryBook>().ToArray();
+		return Task.Run(() => removeBooks(selection));
+	}
 	private static int removeBooks(IEnumerable<LibraryBook?>? removeLibraryBooks)
 	{
 		if (removeLibraryBooks is null || !removeLibraryBooks.Any())
@@ -472,11 +476,9 @@ public static class LibraryCommands
 
 		var qtyChanges = DoDbSizeChangeOperation(ctx =>
 		{
-			// Entry() NoTracking entities before SaveChanges()
-			foreach (var lb in removeLibraryBooks.OfType<LibraryBook>())
+			foreach (var lb in ctx.GetTrackedLibraryBooks(removeLibraryBooks.OfType<LibraryBook>()))
 			{
 				lb.IsDeleted = true;
-				ctx.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 			}
 		});
 
@@ -484,8 +486,12 @@ public static class LibraryCommands
 		return qtyChanges;
 	}
 
-	public static Task<int> RestoreBooksAsync(this IEnumerable<LibraryBook> idsToRemove) => Task.Run(() => restoreBooks(idsToRemove));
-	private static int restoreBooks(this IEnumerable<LibraryBook> libraryBooks)
+	public static Task<int> RestoreBooksAsync(this IEnumerable<LibraryBook> idsToRemove)
+	{
+		var selection = idsToRemove?.ToArray();
+		return Task.Run(() => restoreBooks(selection));
+	}
+	private static int restoreBooks(this IEnumerable<LibraryBook>? libraryBooks)
 	{
 		if (libraryBooks is null || !libraryBooks.Any())
 			return 0;
@@ -493,11 +499,9 @@ public static class LibraryCommands
 		{
 			var qtyChanges = DoDbSizeChangeOperation(ctx =>
 			{
-				// Entry() NoTracking entities before SaveChanges()
-				foreach (var lb in libraryBooks)
+				foreach (var lb in ctx.GetTrackedLibraryBooks(libraryBooks))
 				{
 					lb.IsDeleted = false;
-					ctx.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				}
 			});
 
@@ -511,7 +515,11 @@ public static class LibraryCommands
 		}
 	}
 
-	public static Task<int> PermanentlyDeleteBooksAsync(this IEnumerable<LibraryBook?>? idsToRemove) => Task.Run(() => permanentlyDeleteBooks(idsToRemove));
+	public static Task<int> PermanentlyDeleteBooksAsync(this IEnumerable<LibraryBook?>? idsToRemove)
+	{
+		var selection = idsToRemove?.OfType<LibraryBook>().ToArray();
+		return Task.Run(() => permanentlyDeleteBooks(selection));
+	}
 	private static int permanentlyDeleteBooks(this IEnumerable<LibraryBook?>? libraryBooks)
 	{
 		if (libraryBooks is null || !libraryBooks.Any())
@@ -520,8 +528,9 @@ public static class LibraryCommands
 		{
 			var qtyChanges = DoDbSizeChangeOperation(ctx =>
 				{
-					ctx.LibraryBooks.RemoveRange(libraryBooks.OfType<LibraryBook>());
-					ctx.Books.RemoveRange(libraryBooks.OfType<LibraryBook>().Select(lb => lb.Book));
+					var trackedBooks = ctx.GetTrackedLibraryBooks(libraryBooks.OfType<LibraryBook>());
+					ctx.LibraryBooks.RemoveRange(trackedBooks);
+					ctx.Books.RemoveRange(trackedBooks.Select(lb => lb.Book));
 				});
 
 			logTrashChange("Permanently deleted", qtyChanges);

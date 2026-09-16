@@ -13,7 +13,7 @@ public static class ExceptionDisplay
 	const int MaxInnerCollect = 1000;
 
 	/// <summary>
-	/// Primary message, nested inner messages (first 10, then optional omission count, then deepest 2 when the chain is longer than 10), then the outer stack trace.
+	/// Primary message, nested inner messages and stacks (first 10, then optional omission count, then deepest 2 when the chain is longer than 10), then the outer stack trace.
 	/// </summary>
 	public static string FormatMessageAndStackTrace(Exception exception)
 	{
@@ -64,5 +64,7 @@ public static class ExceptionDisplay
 		sb.AppendLine();
 		sb.Append("Inner exception: ");
 		sb.AppendLine(ex.Message);
+		if (ex.StackTrace is not null)
+			sb.AppendLine(ex.StackTrace);
 	}
 }
