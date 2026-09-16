@@ -78,29 +78,25 @@ public partial class TrashBinDialog : Form
 	}
 
 	private async void permanentlyDeleteBtn_Click(object sender, EventArgs e)
-	{
-		setControlsEnabled(false);
-
-		var qtyChanges = await GetCheckedBooks().PermanentlyDeleteBooksAsync();
-		if (qtyChanges > 0)
-			Reload();
-
-		setControlsEnabled(true);
-	}
+		=> await ChangeCheckedBooksAsync(books => books.PermanentlyDeleteBooksAsync(), "Could not permanently delete books.");
 
 	private async void restoreBtn_Click(object sender, EventArgs e)
-	{
-		setControlsEnabled(false);
+		=> await ChangeCheckedBooksAsync(books => books.RestoreBooksAsync(), "Could not restore books.");
 
-		var qtyChanges = await GetCheckedBooks().RestoreBooksAsync();
-		if (qtyChanges > 0)
-			Reload();
-
-		setControlsEnabled(true);
-	}
+	private Task ChangeCheckedBooksAsync(Func<LibraryBook[], Task<int>> operation, string message)
+		=> LibationUiBase.LibraryOperation.RunAsync(async () =>
+		{
+			var selection = GetCheckedBooks().ToArray();
+			if (await operation(selection) > 0)
+				Reload();
+		}, ex =>
+		{
+			MessageBoxLib.ShowAdminAlert(this, message, "Trash bin operation failed", ex);
+			return Task.CompletedTask;
+		}, setControlsEnabled);
 
 	private void setControlsEnabled(bool enabled)
-		=> Invoke(() => productsGrid1.Enabled = restoreBtn.Enabled = permanentlyDeleteBtn.Enabled = everythingCb.Enabled = enabled);
+		=> Invoke(() => productsGrid1.Enabled = restoreBtn.Enabled = permanentlyDeleteBtn.Enabled = everythingCb.Enabled = audiblePlusCb.Enabled = enabled);
 
 	private void textBox1_KeyDown(object sender, KeyEventArgs e)
 	{

@@ -480,15 +480,10 @@ public partial class ProductsDisplay : UserControl
 	{
 		RemovableCountChanged?.Invoke(sender, productsGrid.GetAllBookEntries().Count(lbe => lbe.Remove is true));
 	}
-	private async Task RunLibraryOperationAsync(Func<Task> operation, string message)
-	{
-		try
-		{
-			await operation();
-		}
-		catch (Exception ex)
+	private Task RunLibraryOperationAsync(Func<Task> operation, string message)
+		=> LibationUiBase.LibraryOperation.RunAsync(operation, ex =>
 		{
 			MessageBoxLib.ShowAdminAlert(this, message, "Library operation failed", ex);
-		}
-	}
+			return Task.CompletedTask;
+		});
 }

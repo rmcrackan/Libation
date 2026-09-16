@@ -756,15 +756,7 @@ public partial class ProductsDisplay : UserControl
 	}
 
 	#endregion
-	private async Task RunLibraryOperationAsync(Func<Task> operation, string message)
-	{
-		try
-		{
-			await operation();
-		}
-		catch (Exception ex)
-		{
-			await MessageBox.ShowAdminAlert(this.GetParentWindow() as Window, message, "Library operation failed", ex);
-		}
-	}
+	private Task RunLibraryOperationAsync(Func<Task> operation, string message)
+		=> LibationUiBase.LibraryOperation.RunAsync(operation,
+			ex => MessageBox.ShowAdminAlert(this.GetParentWindow() as Window, message, "Library operation failed", ex));
 }
