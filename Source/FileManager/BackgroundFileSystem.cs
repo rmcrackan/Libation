@@ -248,14 +248,32 @@ public class BackgroundFileSystem : IDisposable
 
 	private IEnumerable<LongPath> SafestEnumerateFiles(string path)
 	{
-		try
+		var shouldRecurse = SearchOption == SearchOption.AllDirectories;
+		var results = new ConcurrentBag<LongPath>();
+
+		// Internal function to (optionally) recursively scan each subdirectory.
+		// Parallel.ForEach speeds results by an order of magnitude for large
+		// libraries, especially over high-latency connections.
+
+		void walk(string dir)
 		{
-			return FileUtility.SaferEnumerateFiles(path, SearchPattern, SearchOption);
+			try
+			{
+				var files = FileUtility.SaferEnumerateFiles(dir,
+															SearchPattern,
+															SearchOption.TopDirectoryOnly);
+				foreach (var file in files)
+					results.Add(file);
+				if (shouldRecurse)
+					Parallel.ForEach(Directory.EnumerateDirectories(dir), walk);
+			}
+			catch { }
 		}
-		catch
-		{
-			return [];
-		}
+
+		// Actually execute the directory walk and return the results
+
+		walk(path);
+		return results;
 	}
 
 	private void AddUniqueFiles(IEnumerable<LongPath> newFiles)
