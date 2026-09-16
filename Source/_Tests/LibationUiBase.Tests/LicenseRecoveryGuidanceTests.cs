@@ -42,7 +42,7 @@ public class LicenseRecoveryGuidanceTests
 	[DataRow(VersionCheckOutcome.UnableToDetermine, true, true)]
 	public void Upgrade_step_reflects_known_status_and_keeps_steps_in_order(VersionCheckOutcome status, bool upgrade, bool conditional)
 	{
-		var body = LicenseRecoveryGuidance.BuildSteps(Localization.Get("us"), status);
+		var body = LicenseRecoveryGuidance.BuildSteps(Localization.Get("us"), status, hasAdditionalMarketplaces: true);
 		Assert.AreEqual(upgrade, body.Contains(LicenseRecoveryGuidance.ReleasesUrl));
 		Assert.AreEqual(conditional, body.Contains("If you're not on the latest version"));
 		var ordered = new[] { "Deregister", "record its registration region", "all additional marketplaces", "remove the affected account", "Save the removal", "close Libation", "Reopen Libation", "verify the old account is absent", "re-add the account", "Scan and sign in", "check every recorded additional marketplace", "save both dialogs", "Scan again with all marketplaces restored", "retry the download" };
@@ -62,7 +62,7 @@ public class LicenseRecoveryGuidanceTests
 	[TestMethod]
 	public void Cli_instructions_record_and_restore_marketplaces_before_scanning()
 	{
-		var body = LicenseRecoveryGuidance.BuildSteps(Localization.Get("uk"), VersionCheckOutcome.UpToDate, cli: true);
+		var body = LicenseRecoveryGuidance.BuildSteps(Localization.Get("uk"), VersionCheckOutcome.UpToDate, cli: true, hasAdditionalMarketplaces: true);
 		var ordered = new[] { "record its registration region", "all additional marketplaces", "Back up AccountsSettings.json", "remove only that account object", "Run login-external", "copy the saved AdditionalLocaleNames array", "Keep the new identity tokens", "verify Locale and Also scans", "Run scan" };
 		var previous = -1;
 		foreach (var instruction in ordered)
@@ -72,6 +72,28 @@ public class LicenseRecoveryGuidanceTests
 			previous = position;
 		}
 		StringAssert.Contains(body, "\"AdditionalLocaleNames\": [\"us\"]");
+	}
+
+	[TestMethod]
+	[DataRow(false, false)]
+	[DataRow(false, true)]
+	[DataRow(true, false)]
+	[DataRow(true, true)]
+	public void Additional_marketplace_advice_is_only_shown_for_the_affected_account(bool cli, bool hasAdditional)
+	{
+		var accounts = new AccountsSettings();
+		var affected = accounts.Upsert("affected@example.com", "uk");
+		if (hasAdditional) affected.AddMarketplace("us");
+		// Another account's extra marketplaces must not affect this account's instructions.
+		accounts.Upsert("other@example.com", "uk").AddMarketplace("us");
+		var context = LicenseRecoveryGuidance.GetAccountContext(accounts, affected.AccountId, "uk");
+		Assert.AreEqual(hasAdditional, context.HasAdditionalMarketplaces);
+		var body = LicenseRecoveryGuidance.BuildSteps(context.Locale, VersionCheckOutcome.UpToDate, cli, context.HasAdditionalMarketplaces);
+		Assert.AreEqual(hasAdditional, body.Contains("additional marketplaces"));
+		Assert.AreEqual(cli && hasAdditional, body.Contains("AdditionalLocaleNames"));
+		Assert.AreEqual(!cli && hasAdditional, body.Contains("save both dialogs"));
+		StringAssert.Contains(body, cli ? "Run scan" : "Scan and sign in");
+		Assert.IsFalse(LicenseRecoveryGuidance.GetAccountContext(accounts, "missing", "uk").HasAdditionalMarketplaces);
 	}
 
 	[TestMethod]

@@ -28,6 +28,22 @@ public class ContentLicenseDeniedUserMessageTests
 	}
 
 	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void All_dialogs_only_include_extra_marketplace_steps_when_applicable(bool hasAdditional)
+	{
+		var status = AppScaffolding.VersionCheckOutcome.UpToDate;
+		foreach (var body in new[] {
+			ContentLicenseDeniedUserMessage.BuildDialogBodyForThrottling("Title", null, status, hasAdditional),
+			ContentLicenseDeniedUserMessage.BuildDialogBodyForPossibleOutage("Title", null, status, hasAdditional),
+			ContentLicenseDeniedUserMessage.BuildDialogBodyForPlusCatalog("Title", null, status, hasAdditional) })
+		{
+			Assert.AreEqual(hasAdditional, body.Contains("additional marketplaces"));
+			Assert.AreEqual(hasAdditional, body.Contains("save both dialogs"));
+		}
+	}
+
+	[TestMethod]
 	public void The_outage_dialog_still_talks_about_a_service_interruption()
 	{
 		var body = ContentLicenseDeniedUserMessage.BuildDialogBodyForPossibleOutage("Monster Hunter Alpha");

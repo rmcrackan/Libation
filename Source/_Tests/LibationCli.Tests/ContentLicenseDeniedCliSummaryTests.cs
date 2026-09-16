@@ -64,6 +64,18 @@ public class ContentLicenseDeniedCliSummaryTests
 	}
 
 	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void Additional_marketplace_guidance_is_conditional(bool hasAdditional)
+	{
+		var ex = Denied(("Ownership", RejectionReason.CustomerThrottled, "throttled"));
+		var body = string.Join("\n", ContentLicenseDeniedCliSummary.Lines(ex, Localization.Get("uk"),
+			AppScaffolding.VersionCheckOutcome.UpToDate, hasAdditional));
+		Assert.AreEqual(hasAdditional, body.Contains("AdditionalLocaleNames"));
+		Assert.AreEqual(hasAdditional, body.Contains("Also scans"));
+	}
+
+	[TestMethod]
 	public void An_eligibility_denial_keeps_the_generic_opener()
 	{
 		var ex = Denied(("Ownership", RejectionReason.RequesterEligibility, "not owned"));

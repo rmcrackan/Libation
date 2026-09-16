@@ -9,7 +9,7 @@ namespace LibationCli;
 internal static class ContentLicenseDeniedCliSummary
 {
 	/// <summary>Short lines for stderr when Audible denies a download license; mirrors log detail without dumping the full JSON.</summary>
-	public static IEnumerable<string> Lines(ContentLicenseDeniedException ex, Locale? locale = null, AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine)
+	public static IEnumerable<string> Lines(ContentLicenseDeniedException ex, Locale? locale = null, AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine, bool hasAdditionalMarketplaces = false)
 	{
 		ArgumentNullException.ThrowIfNull(ex);
 
@@ -19,7 +19,7 @@ internal static class ContentLicenseDeniedCliSummary
 		yield return ex.IsCustomerThrottled
 			? AppScaffolding.LicenseRecoveryGuidance.Explanation
 			: "If Audible's app can play this title, try these registration recovery steps. Otherwise, check whether you still have access to the title.";
-		yield return AppScaffolding.LicenseRecoveryGuidance.BuildSteps(locale, updateStatus, cli: true);
+		yield return AppScaffolding.LicenseRecoveryGuidance.BuildSteps(locale, updateStatus, cli: true, hasAdditionalMarketplaces: hasAdditionalMarketplaces);
 		yield return AppScaffolding.LicenseRecoveryGuidance.Fallback;
 		yield return ex.Message;
 

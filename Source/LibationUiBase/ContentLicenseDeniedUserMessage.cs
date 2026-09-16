@@ -15,26 +15,26 @@ public static class ContentLicenseDeniedUserMessage
 
 	/// <summary>Generic outage / GenericError-style denial: not specific to Plus titles.</summary>
 	public static string BuildDialogBodyForPossibleOutage(string bookTitleWithSubtitle, AudibleApi.Locale? locale = null,
-		AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine)
+		AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine, bool hasAdditionalMarketplaces = false)
 		=> BuildBody(bookTitleWithSubtitle,
-			"This may be a temporary interruption of service. If Audible's app can play the title, try these registration recovery steps.", locale, updateStatus);
+			"This may be a temporary interruption of service. If Audible's app can play the title, try these registration recovery steps.", locale, updateStatus, hasAdditionalMarketplaces);
 
 	/// <summary>Audible named CustomerThrottled. Shown for any title, Plus or owned.</summary>
 	public static string BuildDialogBodyForThrottling(string bookTitleWithSubtitle, AudibleApi.Locale? locale = null,
-		AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine)
+		AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine, bool hasAdditionalMarketplaces = false)
 		=> BuildBody(bookTitleWithSubtitle,
-			"Audible says this account is being throttled. This can also happen with an old device registration. Try these recovery steps first.", locale, updateStatus);
+			"Audible says this account is being throttled. This can also happen with an old device registration. Try these recovery steps first.", locale, updateStatus, hasAdditionalMarketplaces);
 
 	/// <summary>Plus denials may indicate registration trouble, rate limits, or lost access.</summary>
 	public static string BuildDialogBodyForPlusCatalog(string bookTitleWithSubtitle, AudibleApi.Locale? locale = null,
-		AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine)
+		AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine, bool hasAdditionalMarketplaces = false)
 		=> BuildBody(bookTitleWithSubtitle,
-			"This title is from the Audible Plus catalog. It may have left Plus, or Audible may be limiting downloads. Check your access in Audible's app; if it plays, try these recovery steps.", locale, updateStatus);
+			"This title is from the Audible Plus catalog. It may have left Plus, or Audible may be limiting downloads. Check your access in Audible's app; if it plays, try these recovery steps.", locale, updateStatus, hasAdditionalMarketplaces);
 
-	private static string BuildBody(string title, string diagnosis, AudibleApi.Locale? locale, AppScaffolding.VersionCheckOutcome updateStatus)
+	private static string BuildBody(string title, string diagnosis, AudibleApi.Locale? locale, AppScaffolding.VersionCheckOutcome updateStatus, bool hasAdditionalMarketplaces)
 		=> $"You were denied a content license for {title}\n\n{diagnosis}\n\n"
 			+ AppScaffolding.LicenseRecoveryGuidance.Explanation + "\n\n"
-			+ AppScaffolding.LicenseRecoveryGuidance.BuildSteps(locale, updateStatus) + "\n\n"
+			+ AppScaffolding.LicenseRecoveryGuidance.BuildSteps(locale, updateStatus, hasAdditionalMarketplaces: hasAdditionalMarketplaces) + "\n\n"
 			+ AppScaffolding.LicenseRecoveryGuidance.Fallback + AppendSuggestion();
 
 	/// <summary>
