@@ -117,6 +117,30 @@ public class MessageBox
 	private static MessageBoxWindow CreateMessageBox(TopLevel? owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
 	{
 		var dialog = new MessageBoxWindow(saveAndRestorePosition);
+		if (caption == LibationUiBase.ContentLicenseDeniedUserMessage.DialogCaption && buttons == MessageBoxButtons.OK)
+		{
+			// Recovery instructions must remain readable and copyable on small displays.
+			dialog.Title = caption;
+			dialog.SaveAndRestorePosition = false;
+			var screen = owner is null ? dialog.Screens?.Primary : owner.Screens?.ScreenFromTopLevel(owner);
+			dialog.Width = Math.Min(720, screen is null ? 720 : screen.WorkingArea.Width / screen.Scaling * 0.9);
+			dialog.Height = Math.Min(620, screen is null ? 620 : screen.WorkingArea.Height / screen.Scaling * 0.9);
+			dialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+			var panel = new DockPanel { Margin = new Thickness(16) };
+			var ok = new Button { Content = "OK", HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, Margin = new Thickness(0, 12, 0, 0) };
+			ok.Click += (_, _) => dialog.Close(DialogResult.OK);
+			DockPanel.SetDock(ok, Dock.Bottom);
+			panel.Children.Add(ok);
+			panel.Children.Add(new TextBox
+			{
+				Text = message, IsReadOnly = true, AcceptsReturn = true,
+				TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+				[ScrollViewer.VerticalScrollBarVisibilityProperty] = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto
+			});
+			dialog.Content = panel;
+			dialog.ControlToFocusOnShow = ok;
+			return dialog;
+		}
 
 		var vm = new MessageBoxViewModel(message, caption, buttons, icon, defaultButton);
 		dialog.DataContext = vm;

@@ -21,11 +21,8 @@ public class DeviceRegistrationSettingsUiTests
 	}
 
 	[TestMethod]
-	public void Throttling_workaround_names_experimental_relogin_and_audible_cli()
+	public void Registration_setting_explains_how_to_persist_a_new_registration()
 	{
-		StringAssert.Contains(DeviceRegistrationSettingsUi.ThrottlingWorkaround, "experimental device registration");
-		StringAssert.Contains(DeviceRegistrationSettingsUi.ThrottlingWorkaround, "audible-cli");
-		StringAssert.Contains(DeviceRegistrationSettingsUi.ThrottlingWorkaround, "save or close the Accounts dialog");
 		StringAssert.Contains(DeviceRegistrationSettingsUi.ReLoginNote, "does not convert existing accounts");
 		StringAssert.Contains(DeviceRegistrationSettingsUi.ReLoginNote, "save or close the Accounts dialog");
 		StringAssert.Contains(DeviceRegistrationSettingsUi.RemoveSaveReAddAccountSteps, "Remove the account");

@@ -9,15 +9,18 @@ namespace LibationCli;
 internal static class ContentLicenseDeniedCliSummary
 {
 	/// <summary>Short lines for stderr when Audible denies a download license; mirrors log detail without dumping the full JSON.</summary>
-	public static IEnumerable<string> Lines(ContentLicenseDeniedException ex)
+	public static IEnumerable<string> Lines(ContentLicenseDeniedException ex, Locale? locale = null, AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine, bool hasAdditionalMarketplaces = false)
 	{
 		ArgumentNullException.ThrowIfNull(ex);
 
 		yield return ex.IsCustomerThrottled
-			? "Audible denied a content license because this account is being throttled. Wait 24 to 48 hours before trying again. This is not a Libation bug."
+			? "Audible says this account is being throttled. An old device registration can also cause this; try registration recovery first."
 			: "Audible denied a content license (download not allowed for this account/title).";
-		if (ex.IsCustomerThrottled)
-			yield return "If the official Audible app can play this title, try an experimental device registration (--device-registration with login-external after removing the account) or import credentials from audible-cli.";
+		yield return ex.IsCustomerThrottled
+			? AppScaffolding.LicenseRecoveryGuidance.Explanation
+			: "If Audible's app can play this title, try these registration recovery steps. Otherwise, check whether you still have access to the title.";
+		yield return AppScaffolding.LicenseRecoveryGuidance.BuildSteps(locale, updateStatus, cli: true, hasAdditionalMarketplaces: hasAdditionalMarketplaces);
+		yield return AppScaffolding.LicenseRecoveryGuidance.Fallback;
 		yield return ex.Message;
 
 		if (ex.Ownership?.Message is { } own && !string.IsNullOrWhiteSpace(own))
