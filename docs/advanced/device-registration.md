@@ -27,15 +27,19 @@ Audible changed something in early September 2026. For `CustomerThrottled`, or a
 
 1. Open [Amazon's Audible device-management page (United States)](https://www.amazon.com/hz/mycd/digital-console/devicedetails?deviceFamily=AUDIBLE_APP) and **deregister entries named "Libation"**. For other regions, use your regional Amazon site and go to **Manage Your Content and Devices > Devices > Audible**. The app constructs a regional link, but links outside the US are unverified; use the manual route if yours does not work.
 2. Upgrade to [the latest version of Libation](https://github.com/rmcrackan/Libation/releases/latest).
-3. Go to **Settings > Accounts** and remove the affected account. **This preserves your library and downloaded files.** Save the removal, then close Libation.
+3. Go to **Settings > Accounts**. **Before deleting the account, record its registration region and every additional marketplace checked under its Marketplaces button.** Then remove the affected account. **This preserves your library and downloaded files**, but its marketplace selections must be restored below. Save the removal, then close Libation.
 4. Reopen Libation. Go to **Settings > Accounts**, verify the old account is absent, then re-add it using the same account and registration region.
-5. Scan and sign in, then retry the download. If the title is deferred, mark it **Download Pending** to try sooner.
+5. Save the account and scan/sign in once to enable its **Marketplaces** button. Before retrying downloads, return to **Settings > Accounts**, click **Marketplaces** on that account's row, check every additional marketplace you recorded, and save both dialogs. **Scan again with all marketplaces restored**, then retry the download. If the title is deferred, mark it **Download Pending** to try sooner.
+
+The initial GUI scan is needed to sign in; the Marketplaces button is disabled until credentials exist. Recreating the account alone does not restore its additional marketplaces. For example, a UK registration that also scans the US needs the US checked again, or US downloads can fail with "No account found". The CLI procedure below can restore the list before any scan.
 
 ### CLI / Docker
 
-Follow steps 1 and 2 above, then stop Libation and any running CLI/Docker jobs. Back up `AccountsSettings.json` and remove **only the affected account object** from its `Accounts` array, keeping valid JSON and all other entries. Save it. For Docker, edit the persistent configuration mounted into the container, not a temporary internal copy.
+Follow steps 1 and 2 above. Before deleting the account, run `list-accounts` and record its **Locale** (registration region) and **Also scans** (all additional marketplaces). Stop Libation and any running CLI/Docker jobs. Back up `AccountsSettings.json`, preserving the affected account's `AdditionalLocaleNames` array, then remove **only the affected account object** from its `Accounts` array, keeping valid JSON and all other entries. Save it. For Docker, edit the persistent configuration mounted into the container, not a temporary internal copy.
 
-Run `list-accounts` to verify the old account is absent. Then run `login-external --account <email> --locale <registration-region>` and complete sign-in, followed by `scan` and `liberate <ASIN>`. Use the account's registration region, which may differ from an additional marketplace it scans. LibationCli has no remove-account command; `login-external` alone skips sign-in when existing credentials are still valid.
+Run `list-accounts` to verify the old account is absent. Then run `login-external --account <email> --locale <registration-region>` and complete sign-in. Use the recorded registration region, which may differ from an additional marketplace it scans. LibationCli has no remove-account command; `login-external` alone skips sign-in when existing credentials are still valid.
+
+After `login-external` finishes, with Libation and CLI/Docker jobs stopped, copy the saved `AdditionalLocaleNames` array into the **newly created account object** in `AccountsSettings.json`. For a UK registration with the US as an additional marketplace, that property is `"AdditionalLocaleNames": ["us"]`. Restore all recorded entries, not just the marketplace of the failed title. **Keep the new identity tokens; do not restore the old account object or credentials.** If the old account had no additional marketplaces, no array is needed. Save, then run `list-accounts` and verify **Locale** and **Also scans** match your notes. Only then run `scan` and `liberate <ASIN>`. There is no CLI verb for adding marketplaces.
 
 ### If registration recovery does not help
 

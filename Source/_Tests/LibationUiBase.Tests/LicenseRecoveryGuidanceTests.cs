@@ -3,6 +3,8 @@ using AudibleApi;
 using AudibleApi.Authorization;
 using AudibleUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace LibationUiBase.Tests;
 
@@ -43,7 +45,7 @@ public class LicenseRecoveryGuidanceTests
 		var body = LicenseRecoveryGuidance.BuildSteps(Localization.Get("us"), status);
 		Assert.AreEqual(upgrade, body.Contains(LicenseRecoveryGuidance.ReleasesUrl));
 		Assert.AreEqual(conditional, body.Contains("If you're not on the latest version"));
-		var ordered = new[] { "Deregister", "remove the affected account", "Save the removal", "close Libation", "Reopen Libation", "verify the old account is absent", "re-add the account", "Scan and sign in" };
+		var ordered = new[] { "Deregister", "record its registration region", "all additional marketplaces", "remove the affected account", "Save the removal", "close Libation", "Reopen Libation", "verify the old account is absent", "re-add the account", "Scan and sign in", "check every recorded additional marketplace", "save both dialogs", "Scan again with all marketplaces restored", "retry the download" };
 		var previous = -1;
 		foreach (var instruction in ordered)
 		{
@@ -55,6 +57,62 @@ public class LicenseRecoveryGuidanceTests
 		StringAssert.Contains(body, upgrade ? "5. Scan" : "4. Scan");
 		if (upgrade)
 			Assert.IsTrue(body.IndexOf(LicenseRecoveryGuidance.ReleasesUrl) < body.IndexOf("remove the affected account"));
+	}
+
+	[TestMethod]
+	public void Cli_instructions_record_and_restore_marketplaces_before_scanning()
+	{
+		var body = LicenseRecoveryGuidance.BuildSteps(Localization.Get("uk"), VersionCheckOutcome.UpToDate, cli: true);
+		var ordered = new[] { "record its registration region", "all additional marketplaces", "Back up AccountsSettings.json", "remove only that account object", "Run login-external", "copy the saved AdditionalLocaleNames array", "Keep the new identity tokens", "verify Locale and Also scans", "Run scan" };
+		var previous = -1;
+		foreach (var instruction in ordered)
+		{
+			var position = body.IndexOf(instruction, StringComparison.Ordinal);
+			Assert.IsTrue(position > previous, instruction);
+			previous = position;
+		}
+		StringAssert.Contains(body, "\"AdditionalLocaleNames\": [\"us\"]");
+	}
+
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void Recreated_UK_account_resolves_US_title_after_restoring_and_persisting_marketplaces(bool cli)
+	{
+		var accounts = new AccountsSettings();
+		var original = accounts.Upsert("person@example.com", "uk");
+		original.AddMarketplace("us");
+		var serializerSettings = Identity.GetJsonSerializerSettings();
+		var backup = JObject.Parse(JsonConvert.SerializeObject(accounts, serializerSettings));
+		var savedAdditionalNames = backup["Accounts"]![0]!["AdditionalLocaleNames"]!.DeepClone();
+		var registrationRegion = original.Locale!.Name;
+		Assert.IsTrue(accounts.Delete(original));
+		var replacement = accounts.Upsert(original.AccountId, registrationRegion);
+		Assert.AreNotSame(original.IdentityTokens, replacement.IdentityTokens);
+		Assert.IsNull(accounts.GetAccount(original.AccountId, "us"), "Registration alone loses the additional marketplace.");
+
+		string restoredJson;
+		if (cli)
+		{
+			// Follow the documented JSON edit without restoring the old account/identity.
+			var fresh = JObject.Parse(JsonConvert.SerializeObject(accounts, serializerSettings));
+			fresh["Accounts"]![0]!["AdditionalLocaleNames"] = savedAdditionalNames;
+			restoredJson = fresh.ToString();
+		}
+		else
+		{
+			// The GUI's Accounts dialog persists the selections through this method.
+			replacement.SetAdditionalMarketplaces(savedAdditionalNames.ToObject<string[]>()!);
+			restoredJson = JsonConvert.SerializeObject(accounts, serializerSettings);
+		}
+		var reloaded = JsonConvert.DeserializeObject<AccountsSettings>(restoredJson, serializerSettings)!;
+		// Same account lookup used by FileLiberator.GetApiAsync for the US title.
+		var credentialsForUS = reloaded.GetAccount(original.AccountId, "us");
+		Assert.IsNotNull(credentialsForUS);
+		Assert.AreEqual(registrationRegion, credentialsForUS.Locale!.Name);
+		Assert.AreSame(reloaded.GetAccount(original.AccountId, registrationRegion)!.IdentityTokens, credentialsForUS.IdentityTokens);
+		CollectionAssert.AreEquivalent(new[] { registrationRegion, "us" }, credentialsForUS.ScanLocales.Select(l => l.Name).ToArray());
+		Assert.AreEqual(Localization.Get("uk"), LicenseRecoveryGuidance.GetRegistrationLocale(reloaded, original.AccountId, "us"));
 	}
 
 	[TestMethod]
