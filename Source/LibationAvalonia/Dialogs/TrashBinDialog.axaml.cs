@@ -124,22 +124,20 @@ public class TrashBinViewModel : ViewModelBase
 	}
 
 	public async Task RestoreCheckedAsync()
-	{
-		ControlsEnabled = false;
-		var qtyChanges = await GetCheckedBooks().RestoreBooksAsync();
-		if (qtyChanges > 0)
-			await ReloadAsync();
-		ControlsEnabled = true;
-	}
+		=> await ChangeCheckedBooksAsync(books => books.RestoreBooksAsync(), "Could not restore books.");
 
 	public async Task PermanentlyDeleteCheckedAsync()
-	{
-		ControlsEnabled = false;
-		var qtyChanges = await GetCheckedBooks().PermanentlyDeleteBooksAsync();
-		if (qtyChanges > 0)
-			await ReloadAsync();
-		ControlsEnabled = true;
-	}
+		=> await ChangeCheckedBooksAsync(books => books.PermanentlyDeleteBooksAsync(), "Could not permanently delete books.");
+
+	private Task ChangeCheckedBooksAsync(Func<LibraryBook[], Task<int>> operation, string message)
+		=> LibationUiBase.LibraryOperation.RunAsync(async () =>
+		{
+			var selection = GetCheckedBooks().ToArray();
+			var qtyChanges = await operation(selection);
+			if (qtyChanges > 0)
+				await ReloadAsync();
+		}, ex => MessageBox.ShowAdminAlert(null, message, "Trash bin operation failed", ex),
+			enabled => ControlsEnabled = enabled);
 
 	private static List<LibraryBook> GetDeletedLibraryBooks()
 	{

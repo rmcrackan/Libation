@@ -1,4 +1,4 @@
-﻿using ApplicationServices;
+using ApplicationServices;
 using AudibleUtilities;
 using DataLayer;
 using FileLiberator;
@@ -147,7 +147,7 @@ public partial class ProductsDisplay : UserControl
 			Text = ctx.SetDownloadedText,
 			Enabled = ctx.SetDownloadedEnabled
 		};
-		setDownloadMenuItem.Click += (_, _) => ctx.SetDownloaded();
+		setDownloadMenuItem.Click += async (_, _) => await RunLibraryOperationAsync(ctx.SetDownloaded, "Could not update download status.");
 		ctxMenu.Items.Add(setDownloadMenuItem);
 
 		#endregion
@@ -158,7 +158,7 @@ public partial class ProductsDisplay : UserControl
 			Text = ctx.SetNotDownloadedText,
 			Enabled = ctx.SetNotDownloadedEnabled
 		};
-		setNotDownloadMenuItem.Click += (_, _) => ctx.SetNotDownloaded();
+		setNotDownloadMenuItem.Click += async (_, _) => await RunLibraryOperationAsync(ctx.SetNotDownloaded, "Could not update download status.");
 		ctxMenu.Items.Add(setNotDownloadMenuItem);
 
 		#endregion
@@ -171,7 +171,7 @@ public partial class ProductsDisplay : UserControl
 				Text = ctx.SetPdfDownloadedText,
 				Enabled = ctx.SetPdfDownloadedEnabled
 			};
-			setPdfDownloadMenuItem.Click += (_, _) => ctx.SetPdfDownloaded();
+			setPdfDownloadMenuItem.Click += async (_, _) => await RunLibraryOperationAsync(ctx.SetPdfDownloaded, "Could not update download status.");
 			ctxMenu.Items.Add(setPdfDownloadMenuItem);
 
 			var setPdfNotDownloadMenuItem = new ToolStripMenuItem()
@@ -179,7 +179,7 @@ public partial class ProductsDisplay : UserControl
 				Text = ctx.SetPdfNotDownloadedText,
 				Enabled = ctx.SetPdfNotDownloadedEnabled
 			};
-			setPdfNotDownloadMenuItem.Click += (_, _) => ctx.SetPdfNotDownloaded();
+			setPdfNotDownloadMenuItem.Click += async (_, _) => await RunLibraryOperationAsync(ctx.SetPdfNotDownloaded, "Could not update download status.");
 			ctxMenu.Items.Add(setPdfNotDownloadMenuItem);
 		}
 
@@ -214,7 +214,7 @@ public partial class ProductsDisplay : UserControl
 		#region Remove from library
 
 		var removeMenuItem = new ToolStripMenuItem() { Text = ctx.RemoveText };
-		removeMenuItem.Click += async (_, _) => await ctx.RemoveAsync();
+		removeMenuItem.Click += async (_, _) => await RunLibraryOperationAsync(ctx.RemoveAsync, "Could not remove books from the library.");
 		ctxMenu.Items.Add(removeMenuItem);
 
 		#endregion
@@ -298,7 +298,7 @@ public partial class ProductsDisplay : UserControl
 		{
 			ctxMenu.Items.Add(new ToolStripSeparator());
 			var removeFromAudibleMenuItem = new ToolStripMenuItem() { Text = ctx.RemoveFromAudibleText, Enabled = ctx.RemoveFromAudibleEnabled };
-			removeFromAudibleMenuItem.Click += async (_, _) => await ctx.RemoveFromAudibleAsync();
+			removeFromAudibleMenuItem.Click += async (_, _) => await RunLibraryOperationAsync(ctx.RemoveFromAudibleAsync, "Could not remove books from Audible.");
 			ctxMenu.Items.Add(removeFromAudibleMenuItem);
 		}
 
@@ -480,4 +480,10 @@ public partial class ProductsDisplay : UserControl
 	{
 		RemovableCountChanged?.Invoke(sender, productsGrid.GetAllBookEntries().Count(lbe => lbe.Remove is true));
 	}
+	private Task RunLibraryOperationAsync(Func<Task> operation, string message)
+		=> LibationUiBase.LibraryOperation.RunAsync(operation, ex =>
+		{
+			MessageBoxLib.ShowAdminAlert(this, message, "Library operation failed", ex);
+			return Task.CompletedTask;
+		});
 }

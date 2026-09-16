@@ -308,7 +308,7 @@ public partial class ProductsDisplay : UserControl
 		{
 			Header = ctx.SetDownloadedText,
 			IsEnabled = ctx.SetDownloadedEnabled,
-			Command = ReactiveCommand.Create(ctx.SetDownloaded)
+			Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.SetDownloaded, "Could not update download status."))
 		});
 
 		#endregion
@@ -318,7 +318,7 @@ public partial class ProductsDisplay : UserControl
 		{
 			Header = ctx.SetNotDownloadedText,
 			IsEnabled = ctx.SetNotDownloadedEnabled,
-			Command = ReactiveCommand.Create(ctx.SetNotDownloaded)
+			Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.SetNotDownloaded, "Could not update download status."))
 		});
 
 		#endregion
@@ -330,14 +330,14 @@ public partial class ProductsDisplay : UserControl
 			{
 				Header = ctx.SetPdfDownloadedText,
 				IsEnabled = ctx.SetPdfDownloadedEnabled,
-				Command = ReactiveCommand.Create(ctx.SetPdfDownloaded)
+				Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.SetPdfDownloaded, "Could not update download status."))
 			});
 
 			args.ContextMenuItems.Add(new MenuItem()
 			{
 				Header = ctx.SetPdfNotDownloadedText,
 				IsEnabled = ctx.SetPdfNotDownloadedEnabled,
-				Command = ReactiveCommand.Create(ctx.SetPdfNotDownloaded)
+				Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.SetPdfNotDownloaded, "Could not update download status."))
 			});
 		}
 
@@ -387,7 +387,7 @@ public partial class ProductsDisplay : UserControl
 		args.ContextMenuItems.Add(new MenuItem
 		{
 			Header = ctx.RemoveText,
-			Command = ReactiveCommand.CreateFromTask(ctx.RemoveAsync)
+			Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.RemoveAsync, "Could not remove books from the library."))
 		});
 
 		#endregion
@@ -463,7 +463,7 @@ public partial class ProductsDisplay : UserControl
 			{
 				Header = ctx.RemoveFromAudibleText,
 				IsEnabled = ctx.RemoveFromAudibleEnabled,
-				Command = ReactiveCommand.CreateFromTask(ctx.RemoveFromAudibleAsync)
+				Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.RemoveFromAudibleAsync, "Could not remove books from Audible."))
 			});
 		}
 
@@ -756,4 +756,7 @@ public partial class ProductsDisplay : UserControl
 	}
 
 	#endregion
+	private Task RunLibraryOperationAsync(Func<Task> operation, string message)
+		=> LibationUiBase.LibraryOperation.RunAsync(operation,
+			ex => MessageBox.ShowAdminAlert(this.GetParentWindow() as Window, message, "Library operation failed", ex));
 }

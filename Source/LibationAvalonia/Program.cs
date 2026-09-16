@@ -124,22 +124,33 @@ static class Program
 	private static void LogAndShowCrashMessage(Exception exception)
 	{
 		string? crashLogFile = null;
+		bool submittedToLogger = false;
 		try
 		{
 			//Try to log the error message before displaying the crash dialog
 			if (Configuration.Instance.SerilogInitialized)
+			{
 				Serilog.Log.Logger.Error(exception, "CRASH");
-			else
-				crashLogFile = PreLoggingCrashLog.TryWrite(exception, [("ReleaseIdentifier", LibationScaffolding.ReleaseIdentifier.ToString())]);
+				submittedToLogger = true;
+			}
 		}
-		catch { /* continue to show the crash dialog even if logging fails */ }
+		catch { /* Attempt fallback logging below. */ }
+
+		if (!submittedToLogger)
+		{
+			try
+			{
+				crashLogFile = PreLoggingCrashLog.TryWrite(exception, [("ReleaseIdentifier", LibationScaffolding.ReleaseIdentifier.ToString())]);
+			}
+			catch { /* Continue to show the crash dialog. */ }
+		}
 
 		//Run setup if needed so that we can show the crash dialog
 		BuildAvaloniaApp()?.SetupWithoutStarting();
 
 		try
 		{
-			Dispatcher.UIThread.Invoke(() => DisplayErrorMessage(exception, crashLogFile));
+			Dispatcher.UIThread.Invoke(() => DisplayErrorMessage(exception, crashLogFile, submittedToLogger));
 		}
 		catch (Exception ex)
 		{
@@ -147,7 +158,7 @@ static class Program
 		}
 	}
 
-	private static void DisplayErrorMessage(Exception exception, string? crashLogFile)
+	private static void DisplayErrorMessage(Exception exception, string? crashLogFile, bool submittedToLogger)
 	{
 		var dispatcher = new DispatcherFrame();
 
@@ -158,7 +169,7 @@ static class Program
 				$"""
 				Libation encountered a fatal error and must close.
 
-				{DescribeCrashLog(crashLogFile)}
+				{DescribeCrashLog(crashLogFile, submittedToLogger)}
 				"""));
 
 		var mbAlert = new MessageBoxAlertAdminDialog(fatalMessage.Body, fatalMessage.Title, exception);
@@ -167,17 +178,7 @@ static class Program
 		Dispatcher.UIThread.PushFrame(dispatcher);
 	}
 
-	/// <summary>
-	/// Names the file the crash was actually written to. This used to name LibationCrash.log
-	/// unconditionally, which is not where the record goes when a Log*.log already exists, so reporters
-	/// went looking for a file that was not there and attached nothing. See issue #2001.
-	/// </summary>
-	private static string DescribeCrashLog(string? crashLogFile)
-		=> crashLogFile is null
-		? "Please consider reporting this issue on GitHub. Libation could not write this error to a log file, so please include the text below."
-		: $"""
-			Please consider reporting this issue on GitHub, including the contents of this file:
-			{crashLogFile}
-			""";
-
+	private static string DescribeCrashLog(string? crashLogFile, bool submittedToLogger)
+		=> "Please consider reporting this issue on GitHub." + Environment.NewLine
+			+ LibationUiBase.CrashLogMessage.Describe(crashLogFile, submittedToLogger, LogFileFilter.LogFilePath);
 }
