@@ -21,9 +21,6 @@ public static class DeviceRegistrationSettingsUi
 	public static string RemoveSaveReAddAccountSteps { get; }
 		= "Remove the account, save or close the Accounts dialog, then re-add the account.";
 
-	public static string ThrottlingWorkaround { get; }
-		= "If the official Audible app can play this title, try Settings: pick an experimental device registration, then remove the account, save or close the Accounts dialog, and re-add the account. You can also import credentials from audible-cli.";
-
 	public static EnumDisplay<DeviceRegistrationKind> Display(DeviceRegistrationKind kind)
 		=> Options.FirstOrDefault(o => o.Value.Equals(kind)) ?? Options[0];
 }

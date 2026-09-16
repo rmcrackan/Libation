@@ -242,17 +242,17 @@ public class ProcessBookViewModel : ReactiveObject
 			Serilog.Log.Logger.Error(ldex, "Content license was denied for {Book}", LibraryBook.LogFriendly());
 			if (ldex.IsCustomerThrottled)
 			{
-				LogInfo($"{procName}:  Content license denied because Audible is throttling this account. Wait 24 to 48 hours, then try again. This is not a Libation bug. - {LibraryBook.Book}");
+				LogInfo($"{procName}:  Audible reports throttling. Try deregistering Libation devices and recreating the account first. Recovery steps: {AppScaffolding.LicenseRecoveryGuidance.DocumentationUrl}. If it persists, wait 24 to 48 hours, sometimes a few days. - {LibraryBook.Book}");
 				result = ProcessBookResult.LicenseDeniedThrottled;
 			}
 			else if (ldex.AYCL?.RejectionReason is null or RejectionReason.GenericError)
 			{
-				LogInfo($"{procName}:  Content license was denied, but this error appears to be caused by a temporary interruption of service. - {LibraryBook.Book}");
+				LogInfo($"{procName}:  Content license denied. A temporary interruption of service is possible. If Audible's app plays the title, try registration recovery: {AppScaffolding.LicenseRecoveryGuidance.DocumentationUrl}. Otherwise, waiting 24 to 48 hours, sometimes a few days, may help. - {LibraryBook.Book}");
 				result = ProcessBookResult.LicenseDeniedPossibleOutage;
 			}
 			else if (LibraryBook.IsAudiblePlus)
 			{
-				LogInfo($"{procName}:  Content license denied for this Audible Plus catalog title. Audible often throttles license requests after heavy Plus use; try again in 1 to 2 days. If you should not have access, check the Audible app. - {LibraryBook.Book}");
+				LogInfo($"{procName}:  Content license denied for this Audible Plus catalog title. Check access in the Audible app. If it plays, try registration recovery: {AppScaffolding.LicenseRecoveryGuidance.DocumentationUrl}. Heavy Plus use can also require waiting 24 to 48 hours, sometimes a few days. - {LibraryBook.Book}");
 				result = ProcessBookResult.LicenseDenied;
 			}
 			else

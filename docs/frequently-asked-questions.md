@@ -69,11 +69,9 @@ Full steps: [Troubleshooting - Failed to decrypt ExistingAccessToken](/docs/adva
 
 ## Downloads fail with "Content license denied" but the Audible app still plays the title
 
-That is Audible refusing a download license, not a Libation decrypt bug. Wait 24 to 48 hours if you just downloaded many Plus titles.
+Audible's early September 2026 changes can cause license refusals, including `CustomerThrottled`, for existing device registrations. Try the [full registration recovery procedure](/docs/advanced/device-registration#how-to-register-an-account-again): deregister Amazon devices named "Libation", upgrade to the [latest Libation](https://github.com/rmcrackan/Libation/releases/latest), remove and save the affected account, close and reopen Libation, verify it is gone, then re-add it and scan/sign in. The full procedure includes extra steps only for logins that scan additional marketplaces. Removing the account preserves your library and downloaded files. We recommend the full sequence, although we cannot be certain every step is necessary.
 
-If the official app can play the title and waiting does not help, **remove and re-add the account** (or run `login-external`). Older Libation versions registered Android devices with an invalid serial length, and existing accounts keep that old registration after an update. Current versions use the corrected Android registration by default.
-
-If registering again with Android does not help, try the experimental iPhone/audible-cli option described under [Device registration](/docs/advanced/device-registration), or import credentials from [audible-cli](https://github.com/mkb79/audible-cli).
+If that does not help, waiting **24 to 48 hours, sometimes a few days**, can still resolve real rate limits or outages, especially after heavy Plus use. The recovery page also covers non-US links, CLI/Docker instructions, and secondary experimental registration options. If failures persist after several days, report an issue with logs.
 
 See [Troubleshooting](/docs/advanced/troubleshoot#download-fails-with-drm-license-response-not-ok-or-content-license-denied).
 

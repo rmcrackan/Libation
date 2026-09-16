@@ -335,7 +335,8 @@ public abstract class ProcessableOptionsBase : OptionsBase
 		}
 		catch (ContentLicenseDeniedException clEx)
 		{
-			foreach (var line in ContentLicenseDeniedCliSummary.Lines(clEx))
+			var (locale, hasAdditionalMarketplaces) = AppScaffolding.LicenseRecoveryGuidance.GetAccountContext(libraryBook);
+			foreach (var line in ContentLicenseDeniedCliSummary.Lines(clEx, locale, AppScaffolding.LibationScaffolding.LastVersionCheckOutcome, hasAdditionalMarketplaces))
 				Console.Error.WriteLine(line);
 			Serilog.Log.Logger.Error(clEx, "Content license denied {@DebugInfo}", new { Book = libraryBook.LogFriendly() });
 			ReportNextAttempt(libraryBook);

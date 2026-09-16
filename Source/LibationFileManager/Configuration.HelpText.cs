@@ -167,7 +167,7 @@ public partial class Configuration
 		{nameof(ImportPlusTitles), """
 			When enabled, books from the Audible Plus catalog (titles you stream or borrow under your membership, not purchased) are imported into Libation.
 
-			Downloading or liberating many Plus titles in a short time can cause Audible to temporarily deny content licenses ("license denied") for a day or two. That limit is enforced by Audible, not Libation — waiting and retrying usually fixes it. If problems persist after several days, report on Libation's GitHub with logs.
+			If Audible denies a content license but its app can play the title, try deregistering Libation devices and recreating the account: https://getlibation.com/docs/advanced/device-registration#how-to-register-an-account-again . Heavy Plus use can also cause temporary rate limits: wait 24 to 48 hours, sometimes a few days. If problems persist, report on Libation's GitHub with logs.
 			""" },
 		{nameof(CheckForUpgradesAtStartup), """
 			When enabled, Libation asks GitHub whether a newer

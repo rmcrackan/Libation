@@ -384,7 +384,18 @@ public static class LibationScaffolding
 			=> SearchEngineCommands.OnBookUserDefinedItemCommitted(books);
 	}
 
+	public static VersionCheckOutcome LastVersionCheckOutcome => lastVersionCheckOutcome;
+
+	private static volatile VersionCheckOutcome lastVersionCheckOutcome = VersionCheckOutcome.UnableToDetermine;
+
 	public static VersionCheckResult GetLatestRelease()
+	{
+		var result = CheckLatestRelease();
+		lastVersionCheckOutcome = result.Outcome;
+		return result;
+	}
+
+	private static VersionCheckResult CheckLatestRelease()
 	{
 		var (version, latest, zip, checkSucceeded, definitive) = getLatestRelease(TimeSpan.FromSeconds(10));
 

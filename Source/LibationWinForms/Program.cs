@@ -186,7 +186,10 @@ static class Program
 		LibationUiBase.Forms.MessageBoxDefaultButton defaultButton,
 		bool _)
 	{
-		Func<DialogResult> showMessageBox = () => MessageBox.Show(
+		Func<DialogResult> showMessageBox = () => caption == LibationUiBase.ContentLicenseDeniedUserMessage.DialogCaption
+			&& buttons == LibationUiBase.Forms.MessageBoxButtons.OK
+			? MessageBoxLib.ShowLicenseRecovery(owner as IWin32Window ?? form1, message, caption)
+			: MessageBox.Show(
 				owner as IWin32Window ?? form1,
 				message,
 				caption,
