@@ -597,14 +597,13 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 					extension: ".metadata.json",
 					returnFirstExisting: Configuration.OverwriteExisting);
 
-			if (File.Exists(metadataPath))
-				FileUtility.SaferDelete(metadataPath);
-
 			sourceJson.Add(nameof(ContentMetadata.ChapterInfo), Newtonsoft.Json.Linq.JObject.FromObject(options.ContentMetadata.ChapterInfo));
-			sourceJson.Add(nameof(ContentMetadata.ContentReference), Newtonsoft.Json.Linq.JObject.FromObject(options.ContentMetadata.ContentReference));
+			sourceJson.Add(nameof(ContentMetadata.ContentReference), SerializeContentReference(options.ContentMetadata.ContentReference));
 
 			cancellationToken.ThrowIfCancellationRequested();
-			File.WriteAllText(metadataPath, sourceJson.ToString());
+			// Serialize before touching the destination, then replace it atomically so a failed export
+			// cannot delete or truncate metadata saved by an earlier download.
+			Dinah.Core.IO.AtomicFileWriter.WriteAllText(metadataPath, sourceJson.ToString());
 			SetFileTime(options.LibraryBook, metadataPath);
 			OnFileCreated(options.LibraryBook, metadataPath);
 		}
@@ -616,6 +615,14 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 			throw;
 		}
 	}
+
+	internal static Newtonsoft.Json.Linq.JObject SerializeContentReference(ContentReference reference)
+		// Unencrypted podcast licenses can omit codec and other fields required by the API model.
+		// Preserve the fields we have without inventing values for this optional metadata export.
+		=> Newtonsoft.Json.Linq.JObject.FromObject(reference, new Newtonsoft.Json.JsonSerializer
+		{
+			NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
+		});
 
 	/// <summary>
 	/// Whether a catalog product carries no details at all.

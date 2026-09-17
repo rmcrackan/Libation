@@ -11,6 +11,36 @@ namespace FileLiberator.Tests;
 [TestClass]
 public class CatalogMetadataTests
 {
+	[TestMethod]
+	public void Podcast_content_reference_with_missing_required_fields_can_be_exported()
+	{
+		var reference = new AudibleApi.Common.ContentReference
+		{
+			Asin = "B0981FC27J", Version = "1", Acr = "CR!ACR", Codec = null!,
+			ContentFormat = null!, Marketplace = "AF2M0KC94RCEA", Sku = "BK_TEST_000001", Tempo = null!
+		};
+
+		// Reproduce the exception from the reported podcast download before exercising the export.
+		Assert.ThrowsExactly<Newtonsoft.Json.JsonSerializationException>(() => JObject.FromObject(reference));
+		var exported = DownloadDecryptBook.SerializeContentReference(reference);
+
+		Assert.AreEqual("B0981FC27J", exported.Value<string>("asin"));
+		Assert.AreEqual("1", exported.Value<string>("version"));
+		Assert.IsNull(exported.Property("codec"));
+	}
+
+	[TestMethod]
+	public void Complete_content_reference_keeps_its_existing_json_representation()
+	{
+		var reference = new AudibleApi.Common.ContentReference
+		{
+			Acr = "CR!ACR", Asin = "B0981FC27J", Codec = "mp4a", ContentFormat = "MPEG4_44_128",
+			Marketplace = "AF2M0KC94RCEA", Sku = "BK_TEST_000001", Tempo = "1.0", Version = "1"
+		};
+
+		Assert.IsTrue(JToken.DeepEquals(JObject.FromObject(reference), DownloadDecryptBook.SerializeContentReference(reference)));
+	}
+
 	/// <summary>
 	/// Verbatim from <c>api.audible.com/1.0/catalog/products/?asins=B089T8FSK6&amp;response_groups=&lt;all&gt;</c>,
 	/// the response behind the empty metadata file in the report. The title itself is real and downloadable;
