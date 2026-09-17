@@ -9,8 +9,10 @@ public readonly record struct CloudSyncStatus(bool IsSynced, string? ProviderNam
 {
 	public static readonly CloudSyncStatus NotSynced = new(false, null);
 
-	/// <summary>The provider's own name where Windows reported one, otherwise a generic description.</summary>
-	public string Description => ProviderName is { Length: > 0 } name ? name : "a cloud sync folder";
+	/// <summary>Whether the folder is synced, naming the provider where Windows reported one.</summary>
+	public string Description => !IsSynced
+		? "not a cloud sync folder"
+		: ProviderName is { Length: > 0 } name ? name : "a cloud sync folder";
 }
 
 /// <summary>
