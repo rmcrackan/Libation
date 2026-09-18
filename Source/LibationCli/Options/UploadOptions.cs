@@ -13,6 +13,9 @@ namespace LibationCli;
 	+ "Books are never re-downloaded and local files are never deleted.")]
 public class AbsUploadOptions : ProcessableOptionsBase
 {
+	[Option("check-asin", Required = false, Default = false, HelpText = "Check for existing books on Audiobookshelf by Audible Product ID (ASIN) in metadata and file paths, in addition to title matching.")]
+	public bool CheckAsin { get; set; }
+
 	protected override async Task ProcessAsync()
 	{
 		if (AudibleFileStorage.BooksDirectory is null)
@@ -35,6 +38,7 @@ public class AbsUploadOptions : ProcessableOptionsBase
 		var outcomes = new Dictionary<UploadToAudiobookshelf.UploadOutcome, int>();
 
 		var uploader = CreateProcessable<UploadToAudiobookshelf>();
+		uploader.CheckAsin = CheckAsin;
 
 		// Failures arrive here rather than through StatusHandler: an upload problem must never mark
 		// the book as a bad book. See UploadToAudiobookshelf.OutcomeDetermined.
