@@ -34,7 +34,7 @@ You can use any app which plays m4b files (or mp3 files if you used that setting
 
 - iOS: [BookPlayer](https://apps.apple.com/us/app/bookplayer/id1138219998)
 - iOS: [Bound](https://apps.apple.com/us/app/bound-audiobook-player/id1041727137)
-- ios: [Kirshigo](https://apps.apple.com/us/app/kirshigo/id6808634307)
+- iOS: [Kirshigo](https://apps.apple.com/us/app/kirshigo/id6808634307)
 - Android: [Smart AudioBook Player](https://play.google.com/store/apps/details?id=ak.alizandro.smartaudiobookplayer&hl=en_US&gl=US)
 - Android: [Listen](https://play.google.com/store/apps/details?id=ru.litres.android.audio&hl=en_US&gl=US)
 - Desktop: [VLC](https://www.videolan.org/)
