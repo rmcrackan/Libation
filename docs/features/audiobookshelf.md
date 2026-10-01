@@ -9,6 +9,7 @@ Available in Classic (WinForms), Chardonnay (Avalonia), and the CLI `liberate` c
 1. Open **Settings** -> **Audiobookshelf**.
 2. Enable **Automatically upload downloaded books**.
 3. Optionally enable **Include PDFs when uploading to Audiobookshelf** (off by default).
+   Optionally enable **Check for existing books by ASIN before uploading to Audiobookshelf** (off by default). See [Duplicate handling](#duplicate-handling).
 4. Enter your Audiobookshelf **Server URL** and **API Token** (see below).
 5. Click **Connect / Refresh**. Libation loads your book libraries and folders.
 6. Choose the target **Library** and **Folder**, then save settings.
@@ -100,6 +101,21 @@ Libation does not record which books it has already uploaded, so every run re-ch
 ## Duplicate handling
 
 Before uploading, Libation searches the target Audiobookshelf library for an existing item with a matching title (and author when available). If a match is found, or Audiobookshelf reports that the destination already exists, Libation skips the upload and continues.
+
+### ASIN duplicate check (opt-in)
+
+Localized title qualifiers such as `(French Edition)` can cause title-based matching to miss a book that is already on the server. To help in that case, Libation can additionally look up the Audible Product ID (ASIN) on Audiobookshelf before uploading.
+
+Enable it in either of two ways:
+
+- **GUI**: turn on **Check for existing books by ASIN before uploading to Audiobookshelf** in **Settings** -> **Audiobookshelf**. The setting applies to both auto-upload and `abs upload` runs.
+- **CLI**: pass `--check-asin` to `libationcli abs upload`. This forces the check on for that run even when the setting is off.
+
+Scope and limits:
+
+- Only Audiobookshelf's **metadata ASIN** is checked. Libation uses Audiobookshelf's library search endpoint, which indexes title, subtitle, ASIN, and ISBN from item metadata.
+- ASINs that only appear in folder or file names on disk are **not** detected, because Audiobookshelf's search does not index them. Books whose metadata ASIN was not populated on import will still fall back to title/author matching.
+- Tested against Audiobookshelf 2.x. The `/api/libraries/{id}/search` shape used here has been stable across recent 2.x releases.
 
 ## Failures do not fail liberation
 

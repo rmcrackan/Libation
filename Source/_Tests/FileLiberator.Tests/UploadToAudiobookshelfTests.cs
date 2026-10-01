@@ -6,13 +6,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace FileLiberator.Tests;
 
 /// <summary>
-/// <see cref="Configuration.CreateMockInstance"/> replaces the process-wide
-/// <see cref="Configuration.Instance"/>, so these tests must not run alongside others.
+	/// Configuration uses process-wide test state, so these tests must not run alongside others.
 /// </summary>
 [TestClass]
 [DoNotParallelize]
@@ -294,6 +295,53 @@ public class UploadToAudiobookshelfTests
 	{
 		Assert.AreEqual(0, UploadToAudiobookshelf.BuildUploadFileList(
 			["cover.jpg", "book.pdf"], "cover.jpg", ["book.pdf"]).Count);
+	}
+
+	[TestMethod]
+	public void ClassifyUploadFailure_classifies_connection_socket_errors()
+	{
+		Assert.AreEqual(UploadToAudiobookshelf.UploadFailureKind.Network,
+			UploadToAudiobookshelf.ClassifyUploadFailure(new SocketException((int)SocketError.ConnectionReset)));
+	}
+
+	[TestMethod]
+	public void ClassifyUploadFailure_classifies_connection_http_errors()
+	{
+		var error = new HttpRequestException(HttpRequestError.NameResolutionError, "not a classification input");
+
+		Assert.AreEqual(UploadToAudiobookshelf.UploadFailureKind.Network,
+			UploadToAudiobookshelf.ClassifyUploadFailure(error));
+	}
+
+	[TestMethod]
+	public void ClassifyUploadFailure_does_not_treat_local_stream_io_as_connection_loss()
+	{
+		var error = new HttpRequestException("upload stream failed", new IOException("disk read failed"));
+
+		Assert.AreEqual(UploadToAudiobookshelf.UploadFailureKind.Other,
+			UploadToAudiobookshelf.ClassifyUploadFailure(error));
+	}
+
+	[TestMethod]
+	public void ClassifyUploadFailure_cancellation_wrapping_socket_reset_is_cancellation()
+	{
+		var error = new IOException("wrapper", new OperationCanceledException(
+			"request cancelled", new SocketException((int)SocketError.ConnectionReset)));
+
+		Assert.AreEqual(UploadToAudiobookshelf.UploadFailureKind.Cancellation,
+			UploadToAudiobookshelf.ClassifyUploadFailure(error));
+	}
+
+	[TestMethod]
+	public void FormatUploadFailure_is_single_line_and_does_not_require_configuration()
+	{
+		var message = UploadToAudiobookshelf.FormatUploadFailure(
+			new SocketException((int)SocketError.ConnectionRefused));
+
+		StringAssert.Contains(message, "network failure");
+		StringAssert.Contains(message, "See log for details.");
+		Assert.IsFalse(message.Contains('\n'));
+		Assert.IsFalse(message.Contains("localhost", StringComparison.OrdinalIgnoreCase));
 	}
 
 	[TestMethod]

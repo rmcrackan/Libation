@@ -17,6 +17,7 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	private readonly Configuration config;
 	private bool enabled;
 	private bool includePdfs;
+	private bool checkAsin;
 	private string serverUrl = "";
 	private string apiToken = "";
 	private string statusText = "";
@@ -34,6 +35,7 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 		this.config = config;
 		enabled = config.AudiobookshelfEnabled;
 		includePdfs = config.AudiobookshelfIncludePdfs;
+		checkAsin = config.AudiobookshelfCheckAsin;
 		serverUrl = config.AudiobookshelfServerUrl ?? "";
 		apiToken = AudiobookshelfTokenStorage.DecryptToken(config.AudiobookshelfApiToken) ?? "";
 
@@ -59,6 +61,12 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	{
 		get => includePdfs;
 		set => this.RaiseAndSetIfChanged(ref includePdfs, value);
+	}
+
+	public bool CheckAsin
+	{
+		get => checkAsin;
+		set => this.RaiseAndSetIfChanged(ref checkAsin, value);
 	}
 
 	public string ServerUrl
@@ -146,6 +154,7 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	// Labels from Configuration descriptions
 	public string EnabledText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfEnabled));
 	public string IncludePdfsText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfIncludePdfs));
+	public string CheckAsinText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfCheckAsin));
 	public string ServerUrlText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfServerUrl));
 	public string ApiTokenText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfApiToken));
 	public string LibraryText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfLibraryId));
@@ -234,6 +243,7 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	{
 		config.AudiobookshelfEnabled = Enabled;
 		config.AudiobookshelfIncludePdfs = IncludePdfs;
+		config.AudiobookshelfCheckAsin = CheckAsin;
 		config.AudiobookshelfServerUrl = AudiobookshelfApiService.TryNormalizeServerUrlForSave(ServerUrl);
 		ServerUrl = config.AudiobookshelfServerUrl ?? "";
 		config.AudiobookshelfApiToken = AudiobookshelfTokenStorage.EncryptToken(ApiToken.Trim());
