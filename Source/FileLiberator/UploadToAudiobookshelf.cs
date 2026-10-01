@@ -73,6 +73,17 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 			var author = libraryBook.Book.AuthorNames;
 			var series = libraryBook.Book.SeriesNames();
 
+			var progress = new SynchronousProgress<(long bytesSent, long totalBytes)>(p =>
+			{
+				var progressPercent = p.totalBytes > 0 ? 100.0 * p.bytesSent / p.totalBytes : 100.0;
+				OnStreamingProgressChanged(new Dinah.Core.Net.Http.DownloadProgress
+				{
+					ProgressPercentage = progressPercent,
+					BytesReceived = p.bytesSent,
+					TotalBytesToReceive = p.totalBytes
+				});
+			});
+
 			var result = await AudiobookshelfApiService.UploadBookAsync(
 				Configuration.AudiobookshelfServerUrl!,
 				Configuration.AudiobookshelfApiToken!,
@@ -81,10 +92,12 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 				title,
 				author,
 				series,
-				files);
+				files,
+				progress);
 
 			if (result == AudiobookshelfApiService.UploadResult.Success)
 			{
+				OnStreamingTimeRemaining(TimeSpan.Zero);
 				const string message = "Upload to Audiobookshelf completed successfully";
 				OnStatusUpdate(message);
 				OnOutcomeDetermined(UploadOutcome.Uploaded, message);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 
 namespace LibationCli;
@@ -58,18 +58,20 @@ internal class ConsoleProgressBar
 			? "ETA ∞"
 			: $"ETA {(int)RemainingTime.TotalMinutes}:{RemainingTime.Seconds:D2}";
 
-		Output.Write(new string('\b', m_LastWriteLength) + progressBar);
 		if (progressBar.Length < m_LastWriteLength)
-		{
-			var extra = m_LastWriteLength - progressBar.Length;
-			Output.Write(new string(' ', extra) + new string('\b', extra));
-		}
-		m_LastWriteLength = progressBar.Length;
+			Output.Write("\r" + progressBar.PadRight(m_LastWriteLength));
+		else
+			Output.Write("\r" + progressBar);
+
+		m_LastWriteLength = Math.Max(m_LastWriteLength, progressBar.Length);
 	}
 
 	public void Clear()
-		=> Output.Write(
-			new string('\b', m_LastWriteLength) +
-			new string(' ', m_LastWriteLength) +
-			new string('\b', m_LastWriteLength));
+	{
+		if (m_LastWriteLength > 0)
+		{
+			Output.Write("\r" + new string(' ', m_LastWriteLength) + "\r");
+			m_LastWriteLength = 0;
+		}
+	}
 }
