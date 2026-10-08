@@ -19,11 +19,11 @@ public class AaxcDownloadSingleConverter : AaxcDownloadConvertBase
 		var step = 1;
 
 		AsyncSteps.Name = $"Download and Convert Aaxc To {DownloadOptions.OutputFormat}";
-		AsyncSteps[$"Step {step++}: Get Aaxc Metadata"] = () => Task.Run(Step_GetMetadata);
-		AsyncSteps[$"Step {step++}: Download Decrypted Audiobook"] = Step_DownloadAndDecryptAudiobookAsync;
+		AddStep($"Step {step++}: Get Aaxc Metadata", () => Task.Run(Step_GetMetadata));
+		AddStep($"Step {step++}: Download Decrypted Audiobook", Step_DownloadAndDecryptAudiobookAsync);
 		if (DownloadOptions.MoveMoovToBeginning && DownloadOptions.OutputFormat is OutputFormat.M4b)
-			AsyncSteps[$"Step {step++}: Move moov atom to beginning"] = Step_MoveMoov;
-		AsyncSteps[$"Step {step++}: Create Cue"] = Step_CreateCueAsync;
+			AddStep($"Step {step++}: Move moov atom to beginning", Step_MoveMoov);
+		AddStep($"Step {step++}: Create Cue", Step_CreateCueAsync);
 	}
 
 	protected override void OnInitialized()

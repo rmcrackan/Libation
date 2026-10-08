@@ -43,6 +43,10 @@ public class NetworkFileStream : Stream, IUpdatable
 	[JsonIgnore]
 	public Task? DownloadTask { get; private set; }
 
+	/// <summary> The exception that ended <see cref="DownloadTask"/> early, or null. </summary>
+	[JsonIgnore]
+	public Exception? DownloadException { get; private set; }
+
 	private long _speedLimit = 0;
 	/// <summary>bytes per second</summary>
 	public long SpeedLimit { get => _speedLimit; set => _speedLimit = value <= 0 ? 0 : Math.Max(value, MIN_BYTES_PER_SECOND); }
@@ -232,6 +236,7 @@ public class NetworkFileStream : Stream, IUpdatable
 			//Don't throw from DownloadTask.
 			//This task gets awaited in Dispose() and we don't want to have an unhandled exception there.
 			Serilog.Log.Error(ex, "An error was encountered during the download process.");
+			DownloadException = ex;
 		}
 		finally
 		{
