@@ -21,6 +21,8 @@ public abstract class AudiobookDownloadBase
 	public event EventHandler<TempFile>? TempFileCreated;
 
 	public bool IsCanceled { get; protected set; }
+	//The exception behind a failed RunAsync, or null if a step just returned false.
+	public Exception? FailureException { get; private set; }
 	protected AsyncStepSequence AsyncSteps { get; } = new();
 	protected string OutputDirectory { get; }
 	public IDownloadOptions DownloadOptions { get; }
@@ -69,6 +71,20 @@ public abstract class AudiobookDownloadBase
 		OnDecryptProgressUpdate(zeroProgress);
 	}
 
+	protected void AddStep(string name, Func<Task<bool>> step)
+		=> AsyncSteps[name] = async () =>
+		{
+			try
+			{
+				return await step();
+			}
+			catch (Exception ex)
+			{
+				FailureException ??= ex;
+				throw;
+			}
+		};
+
 	protected TempFile GetNewTempFilePath(string extension)
 	{
 		extension = FileUtility.GetStandardizedExtension(extension);
@@ -83,9 +99,13 @@ public abstract class AudiobookDownloadBase
 
 		(bool success, var elapsed) = await AsyncSteps.RunAsync();
 
-		//Stop the downloader so it doesn't keep running in the background.
 		if (!success)
+		{
+			//A failed download reaches the steps as a secondary error (e.g. truncated input), so it is the better cause.
+			FailureException = InputFileStream.DownloadException ?? FailureException;
+			//Stop the downloader so it doesn't keep running in the background.
 			NfsPersister.Dispose();
+		}
 
 		await progressTask;
 

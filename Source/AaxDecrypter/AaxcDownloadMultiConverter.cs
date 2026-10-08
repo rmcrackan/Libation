@@ -17,8 +17,8 @@ public class AaxcDownloadMultiConverter : AaxcDownloadConvertBase
 		: base(outDirectory, cacheDirectory, dlOptions)
 	{
 		AsyncSteps.Name = $"Download, Convert Aaxc To {DownloadOptions.OutputFormat}, and Split";
-		AsyncSteps["Step 1: Get Aaxc Metadata"] = () => Task.Run(Step_GetMetadata);
-		AsyncSteps["Step 2: Download Decrypted Audiobook"] = Step_DownloadAndDecryptAudiobookAsync;
+		AddStep("Step 1: Get Aaxc Metadata", () => Task.Run(Step_GetMetadata));
+		AddStep("Step 2: Download Decrypted Audiobook", Step_DownloadAndDecryptAudiobookAsync);
 	}
 
 	protected override void OnInitialized()
