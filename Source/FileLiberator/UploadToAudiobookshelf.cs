@@ -7,12 +7,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace FileLiberator;
 
 public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudiobookshelf>
 {
+	internal enum UploadFailureKind { Cancellation, Network, Other }
+
 	public override string Name => "Upload to Audiobookshelf";
 
 	public enum UploadOutcome { Uploaded, AlreadyExists, NoFilesFound, Failed }
@@ -110,10 +114,11 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 		}
 		catch (Exception ex)
 		{
-			Serilog.Log.Logger.Error(ex, "Error uploading {Book} to Audiobookshelf; continuing as soft-failure", libraryBook.LogFriendly());
-			OnStatusUpdate($"Audiobookshelf upload error: {ex.Message}");
+			var message = FormatUploadFailure(ex);
+			Serilog.Log.Logger.Error(ex, "Audiobookshelf upload failed; continuing as soft-failure. See log for details.");
+			OnStatusUpdate(message);
 			// Soft-fail: log the error but do not mark the book as failed
-			OnOutcomeDetermined(UploadOutcome.Failed, $"Audiobookshelf upload error: {ex.Message}");
+			OnOutcomeDetermined(UploadOutcome.Failed, message);
 			return new StatusHandler();
 		}
 		finally
@@ -121,6 +126,77 @@ public class UploadToAudiobookshelf : Processable, IProcessable<UploadToAudioboo
 			OnCompleted(libraryBook);
 		}
 	}
+
+	internal static UploadFailureKind ClassifyUploadFailure(Exception ex)
+	{
+		// Cancellation must win over a SocketException/HttpRequestException nested in a wrapper.
+		if (ContainsException<OperationCanceledException>(ex))
+			return UploadFailureKind.Cancellation;
+
+		for (var current = ex; current is not null; current = current.InnerException)
+		{
+			if (current is SocketException socket
+				&& IsConnectionSocketError(socket.SocketErrorCode))
+				return UploadFailureKind.Network;
+
+			if (current is HttpRequestException request
+				&& IsConnectionHttpError(request.HttpRequestError))
+				return UploadFailureKind.Network;
+
+			if (current is HttpIOException http
+				&& IsConnectionHttpError(http.HttpRequestError))
+				return UploadFailureKind.Network;
+		}
+
+		return UploadFailureKind.Other;
+	}
+
+	internal static string FormatUploadFailure(Exception ex)
+	{
+		var kind = ClassifyUploadFailure(ex);
+		var category = kind switch
+		{
+			UploadFailureKind.Cancellation => "cancelled or timed out",
+			UploadFailureKind.Network => "network failure",
+			_ => "failure"
+		};
+
+		var detail = ex.GetBaseException().Message.ReplaceLineEndings(" ").Trim();
+		return $"Audiobookshelf upload {category}: {detail}. See log for details.";
+	}
+
+	private static bool ContainsException<T>(Exception ex) where T : Exception
+	{
+		for (var current = ex; current is not null; current = current.InnerException)
+			if (current is T)
+				return true;
+		return false;
+	}
+
+	private static bool IsConnectionSocketError(SocketError error)
+		=> error is SocketError.ConnectionAborted
+			or SocketError.ConnectionRefused
+			or SocketError.ConnectionReset
+			or SocketError.HostDown
+			or SocketError.HostNotFound
+			or SocketError.HostUnreachable
+			or SocketError.NetworkDown
+			or SocketError.NetworkReset
+			or SocketError.NetworkUnreachable
+			or SocketError.NoData
+			or SocketError.NotInitialized
+			or SocketError.Shutdown
+			or SocketError.TimedOut
+			or SocketError.TryAgain;
+
+	private static bool IsConnectionHttpError(HttpRequestError error)
+		=> error is HttpRequestError.ConnectionError
+			or HttpRequestError.NameResolutionError
+			or HttpRequestError.SecureConnectionError
+			or HttpRequestError.ProxyTunnelError
+			or HttpRequestError.ResponseEnded
+			or HttpRequestError.HttpProtocolError
+			or HttpRequestError.InvalidResponse;
 
 	/// <summary>
 	/// Resolves a book's audio files by both the path cache and a live scan of the Books directory.
