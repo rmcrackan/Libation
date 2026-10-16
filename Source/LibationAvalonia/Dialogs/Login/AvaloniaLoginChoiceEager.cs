@@ -93,6 +93,15 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 		};
 		dialog.AdapterCreated += (s, e) =>
 		{
+			try
+			{
+				dialog.UserAgent = Configuration.Instance.GetDeviceRegistrationProfile().UserAgent;
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Warning(ex, "Failed to set WebView User-Agent");
+			}
+
 			if (dialog.TryGetCookieManager() is NativeWebViewCookieManager cookieManager)
 			{
 				foreach (System.Net.Cookie c in shoiceIn.SignInCookies ?? [])
@@ -126,10 +135,13 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 			return null;
 		}
 
-		// NativeWebDialog can fault on a posted dispatcher job (e.g. missing libwebkit2gtk on Linux), which bypasses a try/catch around Show().
+		// NativeWebDialog.Show() is async void and can fault on a posted dispatcher job (e.g. missing libwebkit2gtk
+		// or GTK initialization failure on Linux), which bypasses a synchronous try/catch around Show() and would
+		// otherwise leave tcs.Task waiting forever.
 		void onUnhandledException(object? sender, DispatcherUnhandledExceptionEventArgs e)
 		{
-			if (!WebView2LoginErrorMessage.IsWebView2SignInInfrastructureFailure(e.Exception))
+			if (!WebView2LoginErrorMessage.IsWebView2SignInInfrastructureFailure(e.Exception)
+				&& !WebView2LoginErrorMessage.TryFindInTree(e.Exception, out _))
 				return;
 			e.Handled = true;
 			try
@@ -166,7 +178,7 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 				else
 					dialog.Show();
 			}
-			catch (Exception ex) when (WebView2LoginErrorMessage.IsWebView2SignInInfrastructureFailure(ex))
+			catch (Exception ex)
 			{
 				tcs.TrySetException(ex);
 			}
@@ -190,11 +202,10 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 					break;
 				case AppleWKWebViewEnvironmentRequestedEventArgs appleArgs:
 					appleArgs.NonPersistentDataStore = true;
-					appleArgs.ApplicationNameForUserAgent = userAgent;
 					break;
 				case GtkWebViewEnvironmentRequestedEventArgs gtkArgs:
 					gtkArgs.EphemeralDataManager = true;
-					gtkArgs.ApplicationNameForUserAgent = userAgent;
+					gtkArgs.ForceX11GdkBackend = true;
 					break;
 			}
 		}
