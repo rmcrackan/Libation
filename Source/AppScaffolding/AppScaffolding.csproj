@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <Version>14.2.2</Version>
+    <Version>14.2.3</Version>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
@@ -17,7 +17,7 @@
     <ProjectReference Include="..\AudibleUtilities\AudibleUtilities.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.400" />
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.403" />
   </ItemGroup>
 	
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

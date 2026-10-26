@@ -12,7 +12,7 @@
   <ItemGroup>
 	<!-- Rasterizes the Liberate column's icons. Kept on the same major version as the one
 	     Avalonia.Skia resolves, so the Avalonia app doesn't get a mismatched native Skia. -->
-	<PackageReference Include="SkiaSharp" Version="3.119.4" />
+	<PackageReference Include="SkiaSharp" Version="4.153.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.400" />
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.403" />
   </ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

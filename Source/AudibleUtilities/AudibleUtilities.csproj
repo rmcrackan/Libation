@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.36.1" />
+    <PackageReference Include="Google.Protobuf" Version="3.36.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,6 +29,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.400" />
+	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.403" />
 	</ItemGroup>
 </Project>

@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MSTest" Version="4.4.0" />
+    <PackageReference Include="MSTest" Version="4.5.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.400" />
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.403" />
   </ItemGroup>
 
 </Project>

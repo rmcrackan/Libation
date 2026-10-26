@@ -70,16 +70,16 @@
 		<TrimmableAssembly Include="Avalonia.Themes.Default" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Avalonia.Desktop" Version="12.1.2" />
+		<PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
 		<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3" />
-		<PackageReference Include="ReactiveUI.Avalonia" Version="12.1.1" />
-		<PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.2" />
+		<PackageReference Include="ReactiveUI.Avalonia" Version="12.1.6" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\HangoverBase\HangoverBase.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.400" />
+	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.403" />
 	</ItemGroup>
 
 
