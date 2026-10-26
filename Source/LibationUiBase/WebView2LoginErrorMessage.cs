@@ -61,10 +61,15 @@ public static class WebView2LoginErrorMessage
 			if (e is DllNotFoundException dll && IsEmbeddedWebViewNativeDllFailure(dll))
 				return true;
 
+			// AvaloniaGtk.RunTask throws InvalidOperationException("Unable to initialize GTK") when GTK cannot start
+			// (for example on Wayland without X11 backend or when no GTK display is available).
+			if (e is InvalidOperationException && e.Message.Contains("Unable to initialize GTK", StringComparison.OrdinalIgnoreCase))
+				return true;
+
 			if (!StackMentionsEmbeddedSignInBrowser(e))
 				continue;
 
-			if (e is UnauthorizedAccessException)
+			if (e is UnauthorizedAccessException or InvalidOperationException or EntryPointNotFoundException or TypeInitializationException)
 				return true;
 
 			if (e is COMException com
@@ -81,7 +86,9 @@ public static class WebView2LoginErrorMessage
 	private static bool IsEmbeddedWebViewNativeDllFailure(DllNotFoundException e)
 	{
 		if (e.Message.Contains("libwebkit2gtk", StringComparison.OrdinalIgnoreCase)
-			|| e.Message.Contains("webkit2gtk", StringComparison.OrdinalIgnoreCase))
+			|| e.Message.Contains("webkit2gtk", StringComparison.OrdinalIgnoreCase)
+			|| e.Message.Contains("libgtk-3", StringComparison.OrdinalIgnoreCase)
+			|| e.Message.Contains("libgdk-3", StringComparison.OrdinalIgnoreCase))
 			return true;
 
 		return StackMentionsEmbeddedSignInBrowser(e);
@@ -118,7 +125,9 @@ public static class WebView2LoginErrorMessage
 			&& (stack.Contains("WebView2", StringComparison.Ordinal)
 				|| stack.Contains("CoreWebView2", StringComparison.Ordinal)
 				|| stack.Contains("NativeWebDialog", StringComparison.Ordinal)
+				|| stack.Contains("GtkNativeWebViewDialog", StringComparison.Ordinal)
 				|| stack.Contains("GtkWebView", StringComparison.Ordinal)
+				|| stack.Contains("AvaloniaGtk", StringComparison.Ordinal)
 				|| stack.Contains("WebViewControlAvalonia", StringComparison.Ordinal));
 	}
 }
