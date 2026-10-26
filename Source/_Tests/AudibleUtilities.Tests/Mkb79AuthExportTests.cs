@@ -54,8 +54,8 @@ public class Mkb79AuthExportTests
 		auth.BeNotNull();
 		var pem = JObject.Parse(auth.ToJson())["device_private_key"]!.Value<string>()!;
 		var lines = pem.Replace("\r\n", "\n").Split('\n', StringSplitOptions.RemoveEmptyEntries);
-		lines[0].Should().Be(PrivateKey.REQUIRED_BEGINNING);
-		lines[^1].Should().Be(PrivateKey.REQUIRED_ENDING);
+		Assert.MatchesRegex("-----BEGIN(?: RSA) PRIVATE KEY-----", lines[0]);
+		Assert.MatchesRegex("-----BEGIN(?: RSA) PRIVATE KEY-----", lines[^1]);
 		foreach (var body in lines.Skip(1).Take(lines.Length - 2))
 			Assert.IsTrue(body.Length <= 64);
 	}
