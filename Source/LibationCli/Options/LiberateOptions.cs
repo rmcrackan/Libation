@@ -228,7 +228,8 @@ public class LiberateOptions : ProcessableOptionsBase
 		// Targeted runs (explicit ASIN/id) always re-download. --force is for re-downloading the whole library.
 		if (Force || isTargetedRun)
 		{
-			lb.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
+			if (!PdfOnly)
+				lb.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
 			lb.Book.UserDefinedItem.SetPdfStatus(LiberatedStatus.NotLiberated);
 
 			// The status above is set on an untracked copy, so the central clear in updateUserDefinedItem
