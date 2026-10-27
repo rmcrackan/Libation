@@ -163,13 +163,23 @@ run() {
   local scan_exit=$?
   if [ "${scan_exit}" -ne 0 ]; then
     error "scan failed (exit ${scan_exit}); skipping liberate. If the log shows Failed to decrypt ExistingAccessToken, see https://getlibation.com/docs/frequently-asked-questions#docker-finds-no-new-books-failed-to-decrypt-existingaccesstoken"
-    exit "${scan_exit}"
+    if [ "${EXIT_ON_ERROR}" = "true" ] || [ "${EXIT_ON_ERROR}" = "1" ] || [ "${SLEEP_TIME}" == -1 ]; then
+      exit "${scan_exit}"
+    fi
+    return "${scan_exit}"
   fi
   info "liberating books"
   /libation/LibationCli liberate
+  local liberate_exit=$?
+  if [ "${liberate_exit}" -ne 0 ]; then
+    error "liberate failed (exit ${liberate_exit})"
+    if [ "${EXIT_ON_ERROR}" = "true" ] || [ "${EXIT_ON_ERROR}" = "1" ] || [ "${SLEEP_TIME}" == -1 ]; then
+      exit "${liberate_exit}"
+    fi
+  fi
 }
 
-main() {
+load_config() {
   info "initializing libation"
   init_config_file AccountsSettings.json
   init_config_file Settings.json
@@ -178,6 +188,10 @@ main() {
   info "loading settings"
   update_settings Settings.json Books "${LIBATION_BOOKS_DIR:-/data}"
   update_settings Settings.json InProgress /tmp
+}
+
+main() {
+  load_config
 
   info "loading database"
   # If user provides a separate database mount, use that
@@ -208,20 +222,32 @@ main() {
     SLEEP_TIME=-1
   fi
 
+  if [ -z "${EXIT_ON_ERROR}" ]; then
+    EXIT_ON_ERROR=false
+  fi
+
   if [ "${SLEEP_TIME}" == -1 ]; then
     info "running once"
   else
     info "running every ${SLEEP_TIME}"
   fi
 
+  local first_run=true
+
   # loop
   while true
   do
+    if [ "${first_run}" = "true" ]; then
+      first_run=false
+    else
+      load_config
+    fi
+
     run
     
     # Liberate only once if SLEEP_TIME was set to -1
     if [ "${SLEEP_TIME}" == -1 ]; then
-      break  
+      break
     fi
 
     sleep "${SLEEP_TIME}"
