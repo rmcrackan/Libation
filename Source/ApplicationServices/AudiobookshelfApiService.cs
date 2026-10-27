@@ -483,7 +483,8 @@ public static class AudiobookshelfApiService
 		string title,
 		string? author,
 		string? series,
-		IEnumerable<string> filePaths)
+		IEnumerable<string> filePaths,
+		IProgress<(long bytesSent, long totalBytes)>? progress = null)
 	{
 		apiToken = AudiobookshelfTokenStorage.DecryptToken(apiToken) ?? "";
 
@@ -517,15 +518,25 @@ public static class AudiobookshelfApiService
 		form.Add(new StringContent(libraryId), "library");
 		form.Add(new StringContent(folderId), "folder");
 
+		var existingFiles = filePaths.Where(File.Exists).ToList();
+		long totalBytes = 0;
+		foreach (var path in existingFiles)
+		{
+			try { totalBytes += new FileInfo(path).Length; }
+			catch (Exception ex) { Serilog.Log.Logger.Warning(ex, "Could not read file length for Audiobookshelf upload: {Path}", path); }
+		}
+
+		long bytesSent = 0;
+		void OnBytesRead(int count) => progress?.Report((System.Threading.Interlocked.Add(ref bytesSent, count), totalBytes));
+
 		int fileIndex = 0;
-		var streams = new List<Stream>();
 		try
 		{
-			foreach (var path in filePaths.Where(File.Exists))
+			progress?.Report((0, totalBytes));
+			foreach (var path in existingFiles)
 			{
 				var stream = File.OpenRead(path);
-				streams.Add(stream);
-				var fileContent = new StreamContent(stream);
+				var fileContent = new StreamContent(new ProgressStream(stream, OnBytesRead));
 				fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 				form.Add(fileContent, fileIndex.ToString(), Path.GetFileName(path));
 				fileIndex++;
@@ -540,7 +551,10 @@ public static class AudiobookshelfApiService
 			var response = await client.PostAsync("api/upload", form);
 
 			if (response.IsSuccessStatusCode)
+			{
+				progress?.Report((totalBytes, totalBytes));
 				return UploadResult.Success;
+			}
 
 			var responseBody = await response.Content.ReadAsStringAsync();
 			Serilog.Log.Logger.Error("Audiobookshelf upload failed for '{Title}' with status {(int)response.StatusCode} ({StatusCode}). Response body: {ResponseBody}",
@@ -555,12 +569,10 @@ public static class AudiobookshelfApiService
 
 			return UploadResult.Failed;
 		}
-		finally
+		catch (Exception ex)
 		{
-			foreach (var stream in streams)
-			{
-				try { stream.Dispose(); } catch { /* ignored */ }
-			}
+			Serilog.Log.Logger.Error(ex, "Audiobookshelf upload failed for '{Title}'", title);
+			return UploadResult.Failed;
 		}
 	}
 }
