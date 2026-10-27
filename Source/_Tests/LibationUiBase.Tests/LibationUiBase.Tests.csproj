@@ -12,8 +12,9 @@
     <PackageReference Include="MSTest" Version="4.5.1" />
 	<PackageReference Include="Google.Protobuf" Version="3.36.2" />
     <!-- The Liberate icon tests rasterize with SkiaSharp, whose Linux native isn't
-         brought in by the SkiaSharp package itself the way Windows' and macOS' are. -->
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.4" Condition="$([MSBuild]::IsOSPlatform('Linux'))" />
+         brought in by the SkiaSharp package itself the way Windows' and macOS' are.
+         Bounded to [3.119.4, 4.0.0) to match LibationUiBase and Avalonia.Skia. -->
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="[3.119.4, 4.0.0)" Condition="$([MSBuild]::IsOSPlatform('Linux'))" />
   </ItemGroup>
 
   <ItemGroup>
