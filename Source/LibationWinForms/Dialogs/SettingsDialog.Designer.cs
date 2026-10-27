@@ -58,6 +58,7 @@ namespace LibationWinForms.Dialogs
 			tab5Audiobookshelf = new System.Windows.Forms.TabPage();
 			absEnabledCb = new System.Windows.Forms.CheckBox();
 			absIncludePdfsCb = new System.Windows.Forms.CheckBox();
+			absCheckAsinCb = new System.Windows.Forms.CheckBox();
 			absPlaintextWarningLbl = new System.Windows.Forms.Label();
 			absUrlLbl = new System.Windows.Forms.Label();
 			absUrlTb = new System.Windows.Forms.TextBox();
@@ -1074,6 +1075,7 @@ namespace LibationWinForms.Dialogs
 			tab5Audiobookshelf.BackColor = System.Drawing.SystemColors.Window;
 			tab5Audiobookshelf.Controls.Add(absEnabledCb);
 			tab5Audiobookshelf.Controls.Add(absIncludePdfsCb);
+			tab5Audiobookshelf.Controls.Add(absCheckAsinCb);
 			tab5Audiobookshelf.Controls.Add(absPlaintextWarningLbl);
 			tab5Audiobookshelf.Controls.Add(absUrlLbl);
 			tab5Audiobookshelf.Controls.Add(absUrlTb);
@@ -1716,6 +1718,13 @@ namespace LibationWinForms.Dialogs
 			absIncludePdfsCb.TabIndex = 1;
 			absIncludePdfsCb.Text = "[AudiobookshelfIncludePdfs desc]";
 			absIncludePdfsCb.UseVisualStyleBackColor = true;
+			absCheckAsinCb.AutoSize = true;
+			absCheckAsinCb.Location = new System.Drawing.Point(360, 32);
+			absCheckAsinCb.Name = "absCheckAsinCb";
+			absCheckAsinCb.Size = new System.Drawing.Size(350, 19);
+			absCheckAsinCb.TabIndex = 2;
+			absCheckAsinCb.Text = "[AudiobookshelfCheckAsin desc]";
+			absCheckAsinCb.UseVisualStyleBackColor = true;
 			// 
 			// absPlaintextWarningLbl
 			// 
@@ -2017,6 +2026,7 @@ namespace LibationWinForms.Dialogs
 		private System.Windows.Forms.TabPage tab5Audiobookshelf;
 		private System.Windows.Forms.CheckBox absEnabledCb;
 		private System.Windows.Forms.CheckBox absIncludePdfsCb;
+		private System.Windows.Forms.CheckBox absCheckAsinCb;
 		private System.Windows.Forms.Label absPlaintextWarningLbl;
 		private System.Windows.Forms.Label absUrlLbl;
 		private System.Windows.Forms.TextBox absUrlTb;

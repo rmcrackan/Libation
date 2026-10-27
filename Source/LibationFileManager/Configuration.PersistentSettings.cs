@@ -379,6 +379,9 @@ public partial class Configuration
 	[Description("Include PDFs when uploading to Audiobookshelf")]
 	public bool AudiobookshelfIncludePdfs { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
+	[Description("Check for existing books by ASIN before uploading to Audiobookshelf")]
+	public bool AudiobookshelfCheckAsin { get => GetNonString(defaultValue: false); set => SetNonString(value); }
+
 	[Description("Server URL (base address only)")]
 	public string? AudiobookshelfServerUrl { get => GetString(); set => SetString(value); }
 
