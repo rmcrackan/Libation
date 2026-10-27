@@ -146,7 +146,19 @@ static class Program
 		}
 
 		//Run setup if needed so that we can show the crash dialog
-		BuildAvaloniaApp()?.SetupWithoutStarting();
+		try
+		{
+			BuildAvaloniaApp()?.SetupWithoutStarting();
+		}
+		catch (Exception ex)
+		{
+			try
+			{
+				if (Configuration.Instance.SerilogInitialized)
+					Serilog.Log.Logger.Warning(ex, "Could not initialize Avalonia for crash dialog.");
+			}
+			catch { /* ignore */ }
+		}
 
 		try
 		{
@@ -154,9 +166,53 @@ static class Program
 		}
 		catch (Exception ex)
 		{
+			TryShowFallbackAlert(exception, crashLogFile, submittedToLogger);
 			Environment.FailFast("Fatal error displaying crash message", new AggregateException(ex, exception));
 		}
 	}
+
+	private static void TryShowFallbackAlert(Exception exception, string? crashLogFile, bool submittedToLogger)
+	{
+		var fatalMessage = StartupAssemblyBootstrap.GetFatalStartupMessage(
+			exception,
+			new FatalStartupMessage(
+				"Libation Crash",
+				$"""
+				Libation encountered a fatal error and must close.
+
+				{DescribeCrashLog(crashLogFile, submittedToLogger)}
+				"""));
+
+		try
+		{
+			Console.Error.WriteLine($"{fatalMessage.Title}: {fatalMessage.Body}");
+			Console.Error.WriteLine(exception);
+		}
+		catch { /* ignore */ }
+
+		if (Configuration.IsMacOs)
+		{
+			try
+			{
+				var escapedTitle = fatalMessage.Title.Replace("\\", "\\\\").Replace("\"", "\\\"");
+				var escapedMsg = $"{fatalMessage.Body}\n\n{exception.Message}".Replace("\\", "\\\\").Replace("\"", "\\\"");
+				var script = $"display alert \"{escapedTitle}\" message \"{escapedMsg}\" as critical buttons {{\"OK\"}} default button \"OK\"";
+				Process.Start(new ProcessStartInfo("osascript", ["-e", script]) { CreateNoWindow = true, UseShellExecute = false })?.WaitForExit(10000);
+			}
+			catch { /* ignore */ }
+		}
+		else if (Configuration.IsWindows)
+		{
+			try
+			{
+				MessageBoxW(IntPtr.Zero, $"{fatalMessage.Body}\r\n\r\n{exception.Message}", fatalMessage.Title, 0x10 /* MB_ICONERROR */);
+			}
+			catch { /* ignore */ }
+		}
+	}
+
+	[System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "MessageBoxW", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+	private static extern int MessageBoxW(IntPtr hWnd, string text, string caption, uint type);
 
 	private static void DisplayErrorMessage(Exception exception, string? crashLogFile, bool submittedToLogger)
 	{
