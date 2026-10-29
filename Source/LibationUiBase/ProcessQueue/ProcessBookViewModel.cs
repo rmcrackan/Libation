@@ -235,10 +235,16 @@ public class ProcessBookViewModel : ReactiveObject
 				}
 			}
 		}
-		catch (ApiErrorException ex) when (WidevineRecommendation.ShouldRecommendWidevine(ex, Configuration))
+		catch (Exception ex) when (WidevineRecommendation.ShouldRecommendWidevine(ex, Configuration))
 		{
-			Serilog.Log.Logger.Error(ex, "ADRM license unavailable (Sable acr:null) for {Book}", LibraryBook.LogFriendly());
-			LogInfo($"{procName}:  {WidevineRecommendationUserMessage.BuildLogSummary(LibraryBook.Book.TitleWithSubtitle)}");
+			Serilog.Log.Logger.Error(ex, "ADRM license unavailable (Sable acr:null or AAX fallback without codecs) for {Book}", LibraryBook.LogFriendly());
+			if (System.IO.File.Exists(AudibleApiStorage.AccountsSettingsFile))
+			{
+				using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+				var account = persister.AccountsSettings.GetAccount(LibraryBook.Account, LibraryBook.Book.Locale);
+				ThrottledDeviceRecovery.ApplyRecovery(persister.AccountsSettings, Configuration, account);
+			}
+			LogInfo($"{procName}:  {WidevineRecommendationUserMessage.BuildLogSummary(LibraryBook.Book.TitleWithSubtitle, LibraryBook.Account.ToMask())}");
 			result = ProcessBookResult.WidevineRecommended;
 		}
 		catch (ContentLicenseDeniedException ldex)
