@@ -28,6 +28,16 @@ public partial class Configuration
 	/// <summary>True when running inside a (Linux) Snap sandbox (e.g. snap run libation). WebView login is disabled in this environment to avoid portal/sandbox crashes.</summary>
 	public static bool IsRunningUnderSnap { get; } = IsLinux && !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SNAP"));
 
+	/// <summary>True when running under a Linux Wayland desktop session.</summary>
+	public static bool IsWayland { get; } = IsLinux && IsWaylandSession();
+
+	public static bool IsWaylandSession(Func<string, string?>? getEnv = null)
+	{
+		getEnv ??= Environment.GetEnvironmentVariable;
+		return !string.IsNullOrEmpty(getEnv("WAYLAND_DISPLAY"))
+			|| string.Equals(getEnv("XDG_SESSION_TYPE"), "wayland", StringComparison.OrdinalIgnoreCase);
+	}
+
 	public static Version? LibationVersion { get; private set; }
 	public static void SetLibationVersion(Version? version) => LibationVersion = version;
 
