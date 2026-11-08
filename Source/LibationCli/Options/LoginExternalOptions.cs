@@ -24,6 +24,9 @@ internal class LoginExternalOptions : OptionsBase
 	[Option("device-registration", Required = false, HelpText = "CurrentAndroid, RetailAndroid, or Mkb79IPhone. Defaults to Settings. Only used for a new sign-in; remove the account first.")]
 	public string? DeviceRegistration { get; set; }
 
+	internal static bool NeedsReRegistration(Account? account)
+		=> account?.RequiresReRegistration == true || account?.HasObsoleteDeviceRegistration() == true;
+
 	protected override async Task ProcessAsync()
 	{
 		var accountId = AccountId?.Trim();
@@ -57,18 +60,45 @@ internal class LoginExternalOptions : OptionsBase
 			return;
 		}
 
-		using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-		// Persist by canonical locale name ("germany"), not the user input ("de").
-		var account = persister.AccountsSettings.Upsert(accountId, locale.Name);
-
-		if (account.IdentityTokens?.IsValid == true)
+		string jsonPath;
+		using (var persister = AudibleApiStorage.GetAccountsSettingsPersister())
 		{
-			Console.WriteLine(
-				$"Account '{accountId}' ({locale.Name}) is already authenticated. No browser login needed.");
-			if (!string.IsNullOrWhiteSpace(DeviceRegistration))
+			// Persist by canonical locale name ("germany"), not the user input ("de").
+			var account = persister.AccountsSettings.Upsert(accountId, locale.Name);
+			jsonPath = account.GetIdentityTokensJsonPath();
+
+			bool needsReRegistration = NeedsReRegistration(account);
+
+			if (account.IdentityTokens?.IsValid == true && !needsReRegistration)
+			{
 				Console.WriteLine(
-					"Device registration only applies to a new sign-in. Remove the account first, then run login-external again.");
-			return;
+					$"Account '{accountId}' ({locale.Name}) is already authenticated. No browser login needed.");
+				if (!string.IsNullOrWhiteSpace(DeviceRegistration))
+					Console.WriteLine(
+						"Device registration only applies to a new sign-in. Remove the account first, then run login-external again.");
+				return;
+			}
+
+			if (account.RequiresReRegistration)
+			{
+				Console.WriteLine($"Account '{accountId}' ({locale.Name}) is marked as requiring re-registration. Proceeding with sign-in...");
+			}
+			else if (account.HasObsoleteDeviceRegistration())
+			{
+				Console.WriteLine($"Account '{accountId}' ({locale.Name}) has an obsolete or legacy device registration. Proceeding with sign-in...");
+			}
+
+			if (needsReRegistration)
+			{
+				account.IdentityTokens?.Invalidate();
+
+				if (string.IsNullOrWhiteSpace(DeviceRegistration))
+				{
+					Configuration.Instance.UseWidevine = true;
+					Configuration.Instance.DeviceRegistrationKind = DeviceRegistrationKind.CurrentAndroid;
+					registrationProfile = DeviceRegistrationProfile.CurrentAndroid;
+				}
+			}
 		}
 
 		var presetResponse = ResponseUrl?.Trim();
@@ -87,8 +117,13 @@ internal class LoginExternalOptions : OptionsBase
 				loginExternal,
 				locale,
 				AudibleApiStorage.AccountsSettingsFile,
-				account.GetIdentityTokensJsonPath(),
+				jsonPath,
 				registrationProfile);
+
+			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+			var account = persister.AccountsSettings.GetAccount(accountId, locale.Name);
+			if (account is not null)
+				account.RequiresReRegistration = false;
 		}
 		catch (Exception ex)
 		{

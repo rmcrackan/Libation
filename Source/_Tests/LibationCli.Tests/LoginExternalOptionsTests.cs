@@ -45,4 +45,23 @@ public class LoginExternalOptionsTests
 		StringAssert.Contains(error, "WindowsPhone");
 		StringAssert.Contains(error, "CurrentAndroid");
 	}
+
+	[TestMethod]
+	public void NeedsReRegistration_returns_true_when_RequiresReRegistration_is_true()
+	{
+		var account = new AudibleUtilities.Account("user@example.com")
+		{
+			RequiresReRegistration = true
+		};
+
+		Assert.IsTrue(LoginExternalOptions.NeedsReRegistration(account));
+	}
+
+	[TestMethod]
+	public void NeedsReRegistration_returns_false_for_normal_unmarked_account()
+	{
+		var account = new AudibleUtilities.Account("user@example.com");
+
+		Assert.IsFalse(LoginExternalOptions.NeedsReRegistration(account));
+	}
 }

@@ -30,7 +30,9 @@ internal class ListAccountsOptions : OptionsBase
 				a.AccountName ?? "",
 				a.Locale?.Name ?? "",
 				a.LibraryScan ? "yes" : "no",
-				a.IdentityTokens?.IsValid == true ? "yes" : "no",
+				a.RequiresReRegistration
+					? (Bare ? "no" : "re-login needed")
+					: (a.IdentityTokens?.IsValid == true ? "yes" : "no"),
 				string.Join(", ", a.AdditionalLocales.Select(l => l.Name))))
 			.ToArray();
 
