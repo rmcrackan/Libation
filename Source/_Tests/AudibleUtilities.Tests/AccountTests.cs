@@ -1,4 +1,4 @@
-﻿using AssertionHelper;
+using AssertionHelper;
 using Dinah.Core.Security;
 using AudibleApi;
 using AudibleApi.Authorization;
@@ -1133,6 +1133,30 @@ public class SerializedShape : AccountsTestBase
 
 		JObject.Parse(settings.ToJson())["Accounts"]![0]!["AdditionalLocaleNames"]!
 			.Values<string>().Should().BeEquivalentTo(["us"]);
+	}
+
+	[TestMethod]
+	public void requires_re_registration_is_written_only_when_true()
+	{
+		var settings = new AccountsSettings();
+		var account = new Account("user@example.com")
+		{
+			AccountName = "Main",
+			IdentityTokens = new Identity(Localization.Get("ca"))
+		};
+		settings.Add(account);
+
+		((JObject)JObject.Parse(settings.ToJson())["Accounts"]![0]!)
+			.ContainsKey(nameof(Account.RequiresReRegistration)).Should().BeFalse();
+
+		account.RequiresReRegistration = true;
+
+		var parsed = JObject.Parse(settings.ToJson())["Accounts"]![0]![nameof(Account.RequiresReRegistration)]!;
+		parsed.Value<bool>().Should().BeTrue();
+
+		var reloaded = AccountsSettings.FromJson(settings.ToJson());
+		reloaded.BeNotNull();
+		reloaded.Accounts[0].RequiresReRegistration.Should().BeTrue();
 	}
 
 	[TestMethod]
