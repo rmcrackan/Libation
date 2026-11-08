@@ -1,5 +1,6 @@
-﻿using ApplicationServices;
+using ApplicationServices;
 using AudibleApi;
+using AudibleUtilities;
 using CommandLine;
 using DataLayer;
 using FileLiberator;
@@ -335,9 +336,30 @@ public abstract class ProcessableOptionsBase : OptionsBase
 		}
 		catch (ContentLicenseDeniedException clEx)
 		{
-			var (locale, hasAdditionalMarketplaces) = AppScaffolding.LicenseRecoveryGuidance.GetAccountContext(libraryBook);
-			foreach (var line in ContentLicenseDeniedCliSummary.Lines(clEx, locale, AppScaffolding.LibationScaffolding.LastVersionCheckOutcome, hasAdditionalMarketplaces))
-				Console.Error.WriteLine(line);
+			bool recovered = false;
+			if (System.IO.File.Exists(AudibleApiStorage.AccountsSettingsFile))
+			{
+				using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+				var account = persister.AccountsSettings.GetAccount(libraryBook.Account, libraryBook.Book.Locale);
+
+				if (ThrottledDeviceRecovery.ShouldRecover(clEx, account, Configuration.Instance))
+				{
+					ThrottledDeviceRecovery.ApplyRecovery(persister.AccountsSettings, Configuration.Instance, account);
+					Console.Error.WriteLine(
+						$"Audible reported CustomerThrottled on a legacy or non-Widevine device registration. Libation has updated settings to Android emulator with Widevine enabled, and marked account '{account?.AccountId ?? libraryBook.Account}' for re-registration.");
+					Console.Error.WriteLine(
+						$"Run 'libationcli login-external --account {account?.AccountId ?? libraryBook.Account} --locale {account?.Locale?.Name ?? libraryBook.Book.Locale}' to sign in and register a fresh device.");
+					recovered = true;
+				}
+			}
+
+			if (!recovered)
+			{
+				var (locale, hasAdditionalMarketplaces) = AppScaffolding.LicenseRecoveryGuidance.GetAccountContext(libraryBook);
+				foreach (var line in ContentLicenseDeniedCliSummary.Lines(clEx, locale, AppScaffolding.LibationScaffolding.LastVersionCheckOutcome, hasAdditionalMarketplaces))
+					Console.Error.WriteLine(line);
+			}
+
 			Serilog.Log.Logger.Error(clEx, "Content license denied {@DebugInfo}", new { Book = libraryBook.LogFriendly() });
 			ReportNextAttempt(libraryBook);
 		}

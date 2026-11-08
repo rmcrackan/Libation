@@ -1,4 +1,4 @@
-﻿using ApplicationServices;
+using ApplicationServices;
 using DataLayer;
 using FileLiberator;
 using LibationFileManager;
@@ -815,6 +815,7 @@ public class ProcessQueueViewModel : ReactiveObject
 					}
 					else if (result == ProcessBookResult.LicenseDeniedPossibleOutage
 						|| result == ProcessBookResult.LicenseDeniedThrottled
+						|| result == ProcessBookResult.LicenseDeniedThrottledRecovered
 						|| (result == ProcessBookResult.LicenseDenied && book.LibraryBook.IsAudiblePlus))
 					{
 						bool show;
@@ -828,6 +829,7 @@ public class ProcessQueueViewModel : ReactiveObject
 							{
 								ProcessBookResult.LicenseDeniedPossibleOutage => ContentLicenseDeniedUserMessage.BuildDialogBodyForPossibleOutage(title, locale, updateStatus, hasAdditionalMarketplaces),
 								ProcessBookResult.LicenseDeniedThrottled => ContentLicenseDeniedUserMessage.BuildDialogBodyForThrottling(title, locale, updateStatus, hasAdditionalMarketplaces),
+								ProcessBookResult.LicenseDeniedThrottledRecovered => ContentLicenseDeniedUserMessage.BuildDialogBodyForThrottlingRecovered(title),
 								_ => ContentLicenseDeniedUserMessage.BuildDialogBodyForPlusCatalog(title, locale, updateStatus, hasAdditionalMarketplaces)
 							};
 							await MessageBoxBase.Show(
