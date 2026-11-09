@@ -70,9 +70,11 @@ Full steps: [Troubleshooting - Failed to decrypt ExistingAccessToken](/docs/adva
 
 ## Downloads fail with "Content license denied" but the Audible app still plays the title
 
-Audible's early September 2026 changes can cause license refusals, including `CustomerThrottled`, for existing device registrations. Try the [full registration recovery procedure](/docs/advanced/device-registration#how-to-register-an-account-again): deregister Amazon devices named "Libation", upgrade to the [latest Libation](https://github.com/rmcrackan/Libation/releases/latest), remove and save the affected account, close and reopen Libation, verify it is gone, then re-add it and scan/sign in. The full procedure includes extra steps only for logins that scan additional marketplaces. Removing the account preserves your library and downloaded files. We recommend the full sequence, although we cannot be certain every step is necessary.
+Audible can deny content licenses (`CustomerThrottled` or generic errors) for two main reasons: an obsolete device registration or volume rate limiting.
 
-If that does not help, waiting **24 to 48 hours, sometimes a few days**, can still resolve real rate limits or outages, especially after heavy Plus use. The recovery page also covers non-US links, CLI/Docker instructions, and secondary experimental registration options. If failures persist after several days, report an issue with logs.
+If caused by an obsolete registration profile or disabled Widevine, Libation automatically detects this, configures Android emulator + Widevine, and prompts you to sign in to re-register on your next scan or download—preserving your library, accounts, and extra marketplaces without requiring manual account removal. See [Device registration](/docs/advanced/device-registration).
+
+If caused by volume rate limiting (such as downloading dozens of Plus titles or running [Scan for Better Quality Audiobooks](/docs/features/audio-file-formats#upgrading-existing-audiobooks-and-rate-limiting) to re-download your library), wait **24 to 48 hours** for Audible's temporary lockout to expire, and turn on the [Daily download limit](/docs/features/daily-download-limit) to pace future runs.
 
 See [Troubleshooting](/docs/advanced/troubleshoot#download-fails-with-drm-license-response-not-ok-or-content-license-denied).
 

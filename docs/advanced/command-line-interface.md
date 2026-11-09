@@ -113,9 +113,9 @@ Non-interactive use (stdin redirected, Docker without `-t`, scripts): pass the p
 libationcli login-external -a you@example.com -l us --response-url "https://www.amazon.com/ap/maplanding?..."
 ```
 
-If the account row already has valid saved tokens, the CLI reports that no browser login is needed and exits without opening the flow.
+If the account row already has valid saved tokens and does not require re-registration, the CLI reports that no browser login is needed and exits without opening the flow. If the account is marked as requiring re-registration (or has an obsolete registration profile), `login-external` automatically proceeds with sign-in to register a fresh device and clears the flag—no account removal or manual configuration editing required.
 
-Optional `--device-registration` picks which virtual device to register as on a **new** sign-in: `CurrentAndroid` (the corrected default) or `Mkb79IPhone` (experimental; no Widevine). It does nothing to an account that is already authenticated; remove the account first. See [Device registration](/docs/advanced/device-registration).
+Optional `--device-registration` picks which virtual device to register as on a **new** sign-in: `CurrentAndroid` (the default, Widevine-capable) or `Mkb79IPhone` (experimental; no Widevine). See [Device registration](/docs/advanced/device-registration).
 
 ```console
 libationcli login-external --account you@example.com --locale us --device-registration Mkb79IPhone

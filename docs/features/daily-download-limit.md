@@ -4,7 +4,7 @@ Libation can pace itself, downloading only so much in any 24 hour period. The li
 
 Two different reasons to use it:
 
-- **Audible throttling.** Downloading a lot of Audible Plus titles in a short time can lead Audible to deny content licenses for a day or two ("license denied"). That limit is Audible's, not Libation's, and Audible does not publish a number, but community reports put it in the dozens of titles. Capping your Plus downloads can help reduce that risk. However, `CustomerThrottled` can also reflect device-registration trouble after Audible's early September 2026 changes. Try the [registration recovery procedure](/docs/advanced/device-registration#how-to-register-an-account-again), including upgrading to the [latest release](https://github.com/rmcrackan/Libation/releases/latest). If that does not help, waiting 24 to 48 hours, sometimes a few days, remains valid advice for rate limits or outages.
+- **Audible throttling.** Downloading a large volume of titles in a short time—such as downloading dozens of Audible Plus titles or re-downloading books in bulk after running [Scan for Better Quality Audiobooks](/docs/features/audio-file-formats#upgrading-existing-audiobooks-and-rate-limiting)—can lead Audible to deny content licenses for 24 to 48 hours ("license denied" / `CustomerThrottled`). That limit is enforced by Audible's servers, not Libation. Setting a daily download limit (using "Plus titles only" for regular use, or "All books" when performing a library upgrade) paces your downloads to stay below Audible's throttling thresholds. Note that `CustomerThrottled` can also stem from an obsolete device registration; Libation handles registration issues automatically (see [Device registration](/docs/advanced/device-registration)).
 - **Disk space.** A large library can fill a drive. A limit in MB or GB stops a long run before your disk does.
 
 ## Turning it on
@@ -74,4 +74,6 @@ A container that liberates on a schedule combines well with a limit: each run do
 
 ## When a license is denied anyway
 
-If Audible refuses a license despite the limit, Libation waits before asking about that title again instead of re-requesting it on every run. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads). If the official Audible app can still play the title, remove and re-add the account to get the corrected Android registration. See [Device registration](/docs/advanced/device-registration) for the experimental iPhone alternative and audible-cli import.
+If Audible refuses a license despite the limit, Libation waits before asking about that title again instead of re-requesting it on every run. See [Retrying titles Audible refuses](/docs/features/retrying-refused-downloads).
+
+If Audible reports `CustomerThrottled` because of a legacy or non-Widevine device registration, Libation will automatically migrate your settings and prompt you to sign in to re-register on your next scan or download. See [Device registration](/docs/advanced/device-registration) for details. For true volume rate limits, wait 24 to 48 hours for Audible's temporary lockout to clear.
