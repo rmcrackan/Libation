@@ -42,8 +42,8 @@ fi
 notinstalled=('libcoreclrtraceptprovider.so' 'libation_glass.svg' 'Libation.desktop')
 
 mkdir -p ~/rpmbuild/SPECS
-mkdir ~/rpmbuild/BUILD
-mkdir ~/rpmbuild/RPMS
+mkdir -p ~/rpmbuild/BUILD
+mkdir -p ~/rpmbuild/RPMS
 
 echo "Name:           libation
 Version:        ${VERSION}
@@ -67,6 +67,11 @@ mkdir -p %{buildroot}%{_libdir}/%{name}
 mkdir -p %{buildroot}%{_datadir}/icons/hicolor/scalable/apps
 mkdir -p %{buildroot}%{_datadir}/applications
 
+# RPM 4.20+ runs %install in a dedicated %{name}-%{version}-build subdirectory of ~/rpmbuild/BUILD
+if [ ! -f "libation_glass.svg" ] && [ -f "../libation_glass.svg" ]; then
+    find .. -maxdepth 1 -type f -exec cp -t . {} +
+fi
+
 if test -f 'libcoreclrtraceptprovider.so'; then
     rm 'libcoreclrtraceptprovider.so'
 fi
@@ -78,7 +83,7 @@ install -m 666 Libation.desktop %{buildroot}%{_datadir}/applications/Libation.de
 rm libation_glass.svg
 rm Libation.desktop
 
-install * %{buildroot}%{_libdir}/%{name}/
+find . -maxdepth 1 -type f -exec install -t %{buildroot}%{_libdir}/%{name}/ {} +
 
 %post
 
@@ -128,6 +133,6 @@ rpmbuild -bb --target $ARCH_RPM libation.spec
 cd $BASEDIR
 RPM_FILE=$(ls ~/rpmbuild/RPMS/${ARCH_RPM})
 
-mkdir bundle
+mkdir -p bundle
 
 mv ~/rpmbuild/RPMS/${ARCH_RPM}/$RPM_FILE "./bundle/Libation.${VERSION}-linux-chardonnay-${ARCH}.rpm"

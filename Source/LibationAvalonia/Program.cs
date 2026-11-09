@@ -40,6 +40,18 @@ static class Program
 				$"\"{Configuration.ProcessDirectory}\"");
 			return;
 		}
+
+		if (OperatingSystem.IsLinux())
+		{
+			// WebKitGTK on Linux (especially Wayland / Mesa / Xwayland) fails to render or crashes
+			// unless hardware-accelerated compositing and DMABUF rendering are disabled.
+			// See issues #2106, #2129.
+			if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBKIT_DISABLE_COMPOSITING_MODE")))
+				Environment.SetEnvironmentVariable("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
+			if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBKIT_DISABLE_DMABUF_RENDERER")))
+				Environment.SetEnvironmentVariable("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+		}
+
 		AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
 		// When essential file validation fails and the error cannot be written to the log, show the user

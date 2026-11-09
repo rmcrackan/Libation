@@ -85,6 +85,7 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 		dialog.Closing += (_, _) => tcs.TrySetResult(null);
 		dialog.NavigationStarted += async (_, e) =>
 		{
+			Serilog.Log.Logger.Debug("WebView navigation started: {Url}", e.Request?.ToString() ?? "[null]");
 			if (e.Request?.AbsolutePath.StartsWith("/ap/maplanding") is true)
 			{
 				tcs.TrySetResult(e.Request.ToString());
@@ -93,6 +94,7 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 		};
 		dialog.AdapterCreated += (s, e) =>
 		{
+			Serilog.Log.Logger.Debug("WebView dialog adapter created, loading login URL: {Url}", shoiceIn.LoginUrl);
 			try
 			{
 				dialog.UserAgent = Configuration.Instance.GetDeviceRegistrationProfile().UserAgent;
@@ -205,7 +207,12 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 					break;
 				case GtkWebViewEnvironmentRequestedEventArgs gtkArgs:
 					gtkArgs.EphemeralDataManager = true;
-					gtkArgs.ForceX11GdkBackend = true;
+					// Only force X11 backend when not running in a Wayland session.
+					// On Wayland (e.g. Fedora KDE Plasma 6), forcing X11 forces Xwayland, which causes
+					// WebKitGTK hardware acceleration and compositing mismatches resulting in blank windows.
+					// If GTK fails to initialize, WebView2LoginErrorMessage catches the failure and falls back to external browser.
+					if (!Configuration.IsWayland)
+						gtkArgs.ForceX11GdkBackend = true;
 					break;
 			}
 		}
@@ -215,7 +222,12 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 	{
 		if (e.IsSuccess && sender is NativeWebDialog dialog)
 		{
+			Serilog.Log.Logger.Debug("WebView navigation completed successfully");
 			await dialog.InvokeScript(getScript(_account.AccountId));
+		}
+		else if (!e.IsSuccess)
+		{
+			Serilog.Log.Logger.Warning("WebView navigation failed or was aborted");
 		}
 	}
 
