@@ -132,7 +132,11 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 		(sender as Button)?.IsEnabled = false;
 		try
 		{
-			await VM.MarkBooksAsync();
+			var result = await VM.MarkBooksAsync();
+			if (result.GetSummaryMessage() is string message)
+			{
+				await MessageBox.Show(this, message, "Books Marked for Download", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			}
 		}
 		catch (Exception ex)
 		{
