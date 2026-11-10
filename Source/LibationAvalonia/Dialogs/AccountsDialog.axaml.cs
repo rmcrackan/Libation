@@ -62,6 +62,33 @@ public partial class AccountsDialog : DialogWindow
 		/// </summary>
 		public List<string> AdditionalLocaleNames { get; } = new();
 
+		public bool SignedIn
+		{
+			get => field;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref field, value);
+				this.RaisePropertyChanged(nameof(SignedInToolTip));
+			}
+		}
+
+		public bool CanToggleSignedIn
+		{
+			get => field;
+			private set
+			{
+				this.RaiseAndSetIfChanged(ref field, value);
+				this.RaisePropertyChanged(nameof(SignedInToolTip));
+			}
+		}
+
+		public string SignedInToolTip
+			=> !CanToggleSignedIn
+				? "Account has not been authenticated yet. Run a scan to sign in."
+				: SignedIn
+					? "Account is signed in. Uncheck and save to require a fresh sign-in and device registration on the next scan or liberate."
+					: "Account requires a fresh sign-in. Check and save to keep existing registration.";
+
 		public bool CanExport
 		{
 			get => field;
@@ -106,6 +133,8 @@ public partial class AccountsDialog : DialogWindow
 		private void RefreshCanExportFromAccount(Account account)
 		{
 			CanExport = account.IdentityTokens?.IsValid == true;
+			CanToggleSignedIn = CanExport;
+			SignedIn = CanExport && !account.RequiresReRegistration;
 			RaiseDerivedFromCanExport();
 		}
 
@@ -114,6 +143,8 @@ public partial class AccountsDialog : DialogWindow
 			this.RaisePropertyChanged(nameof(ExportButtonToolTip));
 			this.RaisePropertyChanged(nameof(CanCheckMarketplaces));
 			this.RaisePropertyChanged(nameof(MarketplacesButtonToolTip));
+			this.RaisePropertyChanged(nameof(CanToggleSignedIn));
+			this.RaisePropertyChanged(nameof(SignedInToolTip));
 		}
 
 		private void RefreshCanExport()
@@ -121,6 +152,8 @@ public partial class AccountsDialog : DialogWindow
 			if (string.IsNullOrEmpty(AccountId) || SelectedLocale is null)
 			{
 				CanExport = false;
+				CanToggleSignedIn = false;
+				SignedIn = false;
 				RaiseDerivedFromCanExport();
 				return;
 			}
@@ -129,6 +162,8 @@ public partial class AccountsDialog : DialogWindow
 			var account = persister.AccountsSettings.Accounts.FirstOrDefault(a =>
 				a.AccountId == AccountId && a.Locale?.Name == SelectedLocale.Name);
 			CanExport = account?.IdentityTokens?.IsValid == true;
+			CanToggleSignedIn = CanExport;
+			SignedIn = CanExport && account?.RequiresReRegistration != true;
 			RaiseDerivedFromCanExport();
 		}
 	}
@@ -177,6 +212,7 @@ public partial class AccountsDialog : DialogWindow
 	{
 		// only user-editable fields; skip derived props like CanExport / button tooltips
 		if (e.PropertyName is nameof(AccountDto.LibraryScan)
+			or nameof(AccountDto.SignedIn)
 			or nameof(AccountDto.AccountId)
 			or nameof(AccountDto.SelectedLocale)
 			or nameof(AccountDto.AccountName))
@@ -362,6 +398,15 @@ public partial class AccountsDialog : DialogWindow
 				= string.IsNullOrWhiteSpace(dto.AccountName)
 				? $"{dto.AccountId} - {dto.SelectedLocale?.Name}"
 				: dto.AccountName.Trim();
+
+			if (!dto.SignedIn && acct.IdentityTokens?.IsValid == true)
+			{
+				acct.RequiresReRegistration = true;
+			}
+			else if (dto.SignedIn && acct.RequiresReRegistration)
+			{
+				acct.RequiresReRegistration = false;
+			}
 
 			// drop every marketplace before assigning any, so that moving one from one account to another in a
 			// single sitting cannot trip the "no two accounts scan one marketplace" rule halfway through

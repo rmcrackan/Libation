@@ -34,6 +34,7 @@ namespace LibationWinForms.Dialogs
             this.DeleteAccount = new DeleteColumn();
             this.ExportAccount = new ExportColumn();
             this.LibraryScan = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.SignedIn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.AccountId = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Locale = new LocaleColumn();
             this.Marketplaces = new MarketplacesColumn();
@@ -78,6 +79,7 @@ namespace LibationWinForms.Dialogs
             this.DeleteAccount,
             this.ExportAccount,
             this.LibraryScan,
+            this.SignedIn,
             this.AccountId,
             this.Locale,
             this.Marketplaces,
@@ -111,6 +113,14 @@ namespace LibationWinForms.Dialogs
             this.LibraryScan.HeaderText = "Include in library scan?";
             this.LibraryScan.Name = "LibraryScan";
             this.LibraryScan.Width = 94;
+            // 
+            // SignedIn
+            // 
+            this.SignedIn.HeaderText = "Signed in?";
+            this.SignedIn.Name = "SignedIn";
+            this.SignedIn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.SignedIn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.SignedIn.Width = 83;
             // 
             // AccountId
             // 
@@ -177,6 +187,7 @@ namespace LibationWinForms.Dialogs
 		private DeleteColumn DeleteAccount;
 		private ExportColumn ExportAccount;
 		private System.Windows.Forms.DataGridViewCheckBoxColumn LibraryScan;
+		private System.Windows.Forms.DataGridViewCheckBoxColumn SignedIn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn AccountId;
 		private LocaleColumn Locale;
 		private MarketplacesColumn Marketplaces;

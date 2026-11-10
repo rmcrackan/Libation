@@ -16,6 +16,7 @@ public partial class AccountsDialog : Form
 	private const string COL_Delete = nameof(DeleteAccount);
 	private const string COL_Export = nameof(ExportAccount);
 	private const string COL_LibraryScan = nameof(LibraryScan);
+	private const string COL_SignedIn = nameof(SignedIn);
 	private const string COL_AccountId = nameof(AccountId);
 	private const string COL_AccountName = nameof(AccountName);
 	private const string COL_Locale = nameof(Locale);
@@ -87,11 +88,13 @@ public partial class AccountsDialog : Form
 	private void AddAccountToGrid(Account account)
 	{
 		var additional = account.AdditionalLocales.Select(l => l.Name).ToList();
+		bool signedIn = account.IdentityTokens?.IsValid == true && !account.RequiresReRegistration;
 
 		var row = dataGridView1.Rows.Add(
 			"X",
 			"Export",
 			account.LibraryScan,
+			signedIn,
 			account.AccountId,
 			account.Locale?.Name ?? "",
 			MarketplacesUi.ButtonText(additional.Count + 1),
@@ -108,6 +111,8 @@ public partial class AccountsDialog : Form
 	{
 		e.Row.Cells[COL_Delete].Value = "X";
 		e.Row.Cells[COL_LibraryScan].Value = true;
+		e.Row.Cells[COL_SignedIn].Value = false;
+		e.Row.Cells[COL_SignedIn].ReadOnly = true;
 		e.Row.Cells[COL_Export].ReadOnly = true;
 		e.Row.Cells[COL_Marketplaces].Value = MarketplacesUi.ButtonText(1);
 		e.Row.Cells[COL_Marketplaces].ReadOnly = true;
@@ -130,7 +135,7 @@ public partial class AccountsDialog : Form
 			return;
 		var colName = dataGridView1.Columns[dataGridView1.CurrentCell.ColumnIndex].Name;
 		// combo and checkbox do not commit until leave-cell unless we force it here
-		if (colName is COL_Locale or COL_LibraryScan)
+		if (colName is COL_Locale or COL_LibraryScan or COL_SignedIn)
 			dataGridView1.CommitEdit(DataGridViewDataErrorContexts.Commit);
 	}
 
@@ -160,6 +165,16 @@ public partial class AccountsDialog : Form
 		row.Cells[COL_Export].ToolTipText = canExport
 			? "Export account authorization to audible-cli"
 			: "Authenticate this account (e.g. library scan) before exporting to audible-cli.";
+
+		if (dataGridView1.Columns.Contains(COL_SignedIn))
+		{
+			row.Cells[COL_SignedIn].ReadOnly = !canExport;
+			if (!canExport)
+				row.Cells[COL_SignedIn].Value = false;
+			row.Cells[COL_SignedIn].ToolTipText = canExport
+				? "Uncheck to require a fresh sign-in and device registration on the next scan or liberate."
+				: "Account has not been authenticated yet. Run a scan to sign in.";
+		}
 
 		if (!dataGridView1.Columns.Contains(COL_Marketplaces))
 			return;
@@ -230,6 +245,7 @@ public partial class AccountsDialog : Form
 		string? AccountName,
 		string LocaleName,
 		bool LibraryScan,
+		bool SignedIn,
 		IReadOnlyList<string> AdditionalLocaleNames);
 
 	/// <summary>Opens the marketplaces dialog for one row and takes the result back into the row.</summary>
@@ -331,6 +347,15 @@ public partial class AccountsDialog : Form
 				? $"{dto.AccountId} - {dto.LocaleName}"
 				: dto.AccountName.Trim();
 
+			if (!dto.SignedIn && acct.IdentityTokens?.IsValid == true)
+			{
+				acct.RequiresReRegistration = true;
+			}
+			else if (dto.SignedIn && acct.RequiresReRegistration)
+			{
+				acct.RequiresReRegistration = false;
+			}
+
 			// drop every marketplace before assigning any, so that moving one from one account to another in a
 			// single sitting cannot trip the "no two accounts scan one marketplace" rule halfway through
 			acct.SetAdditionalMarketplaces([]);
@@ -367,11 +392,14 @@ public partial class AccountsDialog : Form
 	private static IReadOnlyList<string> GetAdditionalLocaleNames(DataGridViewRow row)
 		=> row.Tag as List<string> ?? [];
 
+	private static bool? GetSignedIn(DataGridViewRow row)
+		=> row.Cells[COL_SignedIn]?.Value as bool?;
+
 	private static AccountDto? RowToAccountDto(DataGridViewRow row)
 		=> GetAccountId(row) is string accountId
 		&& GetLocale(row) is string localeName
 		&& GetLibraryScan(row) is bool libraryScan
-		? new AccountDto(accountId, GetAccountName(row), localeName, libraryScan, GetAdditionalLocaleNames(row))
+		? new AccountDto(accountId, GetAccountName(row), localeName, libraryScan, GetSignedIn(row) ?? false, GetAdditionalLocaleNames(row))
 		: null;
 
 	private string GetAudibleCliAppDataPath()
