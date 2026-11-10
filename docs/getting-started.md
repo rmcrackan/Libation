@@ -49,6 +49,15 @@ Create your account(s):
 Most people use a normal region and their Audible **email**. If your account predates Amazon and still signs in with a **username**, choose a **pre-amazon** locale and put that username in the Audible email/login field.
 :::
 
+### Account Settings Columns
+
+The Accounts table in **Settings > Accounts** contains the following options for each account:
+
+- **Scan**: When checked, this account will be automatically included whenever you run a library scan.
+- **Signed in?**: Indicates whether the account currently holds valid login tokens. If you need to re-authenticate or refresh your device registration without deleting your account or losing your additional marketplaces, simply uncheck **Signed in?** and click **Save**. Libation preserves your account settings and prompts you for a fresh sign-in on your next scan or download.
+- **Marketplaces**: Lets you scan and import titles from secondary Audible marketplaces associated with this account (see below).
+- **Delete (`x`)**: Removes the account from Libation. (Your downloaded audiobooks and library database are preserved).
+
 ### Titles bought from another country
 
 Audible keeps a **separate library for each marketplace**. If you have ever changed your Amazon address to another country to buy a title that was not sold in your own - a common way to get around region-locked titles - that title stayed in that country's library. Scanning your usual marketplace will never find it, and nothing in Libation will suggest it is missing.

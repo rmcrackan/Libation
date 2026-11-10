@@ -23,8 +23,8 @@ public class ContentLicenseDeniedUserMessageTests
 		Assert.IsFalse(body.Contains("not a Libation bug"));
 		Assert.IsFalse(body.Contains("experimental device registration"));
 		Assert.IsFalse(body.Contains("audible-cli"));
-		Assert.IsTrue(body.IndexOf("Deregister") < body.IndexOf("24 to 48 hours"));
-		AssertSuggestsRemoveSaveReAdd(body);
+		Assert.IsTrue(body.IndexOf("Settings > Accounts") < body.IndexOf("24 to 48 hours"));
+		AssertSuggestsUncheckSaveAndScan(body);
 	}
 
 	[TestMethod]
@@ -39,7 +39,6 @@ public class ContentLicenseDeniedUserMessageTests
 			ContentLicenseDeniedUserMessage.BuildDialogBodyForPlusCatalog("Title", null, status, hasAdditional) })
 		{
 			Assert.AreEqual(hasAdditional, body.Contains("additional marketplaces"));
-			Assert.AreEqual(hasAdditional, body.Contains("save both dialogs"));
 		}
 	}
 
@@ -50,7 +49,7 @@ public class ContentLicenseDeniedUserMessageTests
 
 		StringAssert.Contains(body, "temporary interruption of service");
 		Assert.IsFalse(body.Contains("account is being throttled", StringComparison.Ordinal));
-		AssertSuggestsRemoveSaveReAdd(body);
+		AssertSuggestsUncheckSaveAndScan(body);
 	}
 
 	[TestMethod]
@@ -60,13 +59,13 @@ public class ContentLicenseDeniedUserMessageTests
 
 		StringAssert.Contains(body, "Audible Plus catalog");
 		Assert.IsFalse(body.Contains("account is being throttled", StringComparison.Ordinal));
-		AssertSuggestsRemoveSaveReAdd(body);
+		AssertSuggestsUncheckSaveAndScan(body);
 	}
 
-	private static void AssertSuggestsRemoveSaveReAdd(string body)
+	private static void AssertSuggestsUncheckSaveAndScan(string body)
 	{
-		StringAssert.Contains(body, "remove the affected account", StringComparison.OrdinalIgnoreCase);
-		StringAssert.Contains(body, "Save the removal, then close Libation");
-		StringAssert.Contains(body, "re-add the account");
+		StringAssert.Contains(body, "Settings > Accounts");
+		StringAssert.Contains(body, "Signed in?");
+		StringAssert.Contains(body, "Scan and sign in");
 	}
 }

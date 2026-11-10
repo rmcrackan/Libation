@@ -12,27 +12,21 @@ namespace LibationUiBase.Tests;
 public class LicenseRecoveryGuidanceTests
 {
 	[TestMethod]
-	[DataRow("us", "com", false)]
-	[DataRow("uk", "co.uk", true)]
-	[DataRow("germany", "de", true)]
-	public void Regional_links_use_locale_metadata_with_non_US_caveat(string name, string domain, bool caveat)
+	[DataRow("us", "com")]
+	[DataRow("uk", "co.uk")]
+	[DataRow("germany", "de")]
+	public void Regional_device_management_urls_use_locale_metadata(string name, string domain)
 	{
 		var locale = Localization.Get(name);
 		Assert.AreEqual($"https://www.amazon.{domain}/hz/mycd/digital-console/devicedetails?deviceFamily=AUDIBLE_APP", LicenseRecoveryGuidance.DeviceManagementUrl(locale));
-		var body = LicenseRecoveryGuidance.BuildSteps(locale, VersionCheckOutcome.UpToDate);
-		Assert.AreEqual(caveat, body.Contains("regional link is unverified"));
-		Assert.AreEqual(caveat, body.Contains("Manage Your Content and Devices"));
 	}
 
 	[TestMethod]
-	public void Missing_or_empty_locale_uses_labeled_US_link_and_manual_route()
+	public void Missing_or_empty_locale_uses_fallback_device_management_url()
 	{
 		foreach (var locale in new Locale?[] { null, Locale.Empty })
 		{
-			var body = LicenseRecoveryGuidance.BuildSteps(locale, VersionCheckOutcome.UpToDate);
-			StringAssert.Contains(body, "https://www.amazon.com/");
-			StringAssert.Contains(body, "US link; account region is unknown");
-			StringAssert.Contains(body, "Manage Your Content and Devices");
+			Assert.AreEqual("https://www.amazon.com/hz/mycd/digital-console/devicedetails?deviceFamily=AUDIBLE_APP", LicenseRecoveryGuidance.DeviceManagementUrl(locale));
 		}
 	}
 
@@ -45,7 +39,7 @@ public class LicenseRecoveryGuidanceTests
 		var body = LicenseRecoveryGuidance.BuildSteps(Localization.Get("us"), status, hasAdditionalMarketplaces: true);
 		Assert.AreEqual(upgrade, body.Contains(LicenseRecoveryGuidance.ReleasesUrl));
 		Assert.AreEqual(conditional, body.Contains("If you're not on the latest version"));
-		var ordered = new[] { "Deregister", "record its registration region", "all additional marketplaces", "remove the affected account", "Save the removal", "close Libation", "Reopen Libation", "verify the old account is absent", "re-add the account", "Scan and sign in", "check every recorded additional marketplace", "save both dialogs", "Scan again with all marketplaces restored", "retry the download" };
+		var ordered = new[] { "Settings > Accounts", "Signed in?", "Save", "Scan and sign in", "Retry the download" };
 		var previous = -1;
 		foreach (var instruction in ordered)
 		{
@@ -53,17 +47,17 @@ public class LicenseRecoveryGuidanceTests
 			Assert.IsTrue(position > previous, instruction);
 			previous = position;
 		}
-		StringAssert.Contains(body, "preserves your library and downloaded files");
-		StringAssert.Contains(body, upgrade ? "5. Scan" : "4. Scan");
+		StringAssert.Contains(body, "additional marketplaces under Marketplaces are preserved");
+		StringAssert.Contains(body, upgrade ? "3. Scan" : "2. Scan");
 		if (upgrade)
-			Assert.IsTrue(body.IndexOf(LicenseRecoveryGuidance.ReleasesUrl) < body.IndexOf("remove the affected account"));
+			Assert.IsTrue(body.IndexOf(LicenseRecoveryGuidance.ReleasesUrl) < body.IndexOf("Settings > Accounts"));
 	}
 
 	[TestMethod]
-	public void Cli_instructions_record_and_restore_marketplaces_before_scanning()
+	public void Cli_instructions_use_login_external_and_preserve_marketplaces()
 	{
 		var body = LicenseRecoveryGuidance.BuildSteps(Localization.Get("uk"), VersionCheckOutcome.UpToDate, cli: true, hasAdditionalMarketplaces: true);
-		var ordered = new[] { "record its registration region", "all additional marketplaces", "Back up AccountsSettings.json", "remove only that account object", "Run login-external", "copy the saved AdditionalLocaleNames array", "Keep the new identity tokens", "verify Locale and Also scans", "Run scan" };
+		var ordered = new[] { "login-external --account", "--locale uk", "additional marketplaces will be preserved", "Run scan", "retry with liberate" };
 		var previous = -1;
 		foreach (var instruction in ordered)
 		{
@@ -71,7 +65,8 @@ public class LicenseRecoveryGuidanceTests
 			Assert.IsTrue(position > previous, instruction);
 			previous = position;
 		}
-		StringAssert.Contains(body, "\"AdditionalLocaleNames\": [\"us\"]");
+		StringAssert.Contains(body, "1. Run login-external");
+		StringAssert.Contains(body, "2. Run scan");
 	}
 
 	[TestMethod]
@@ -90,8 +85,6 @@ public class LicenseRecoveryGuidanceTests
 		Assert.AreEqual(hasAdditional, context.HasAdditionalMarketplaces);
 		var body = LicenseRecoveryGuidance.BuildSteps(context.Locale, VersionCheckOutcome.UpToDate, cli, context.HasAdditionalMarketplaces);
 		Assert.AreEqual(hasAdditional, body.Contains("additional marketplaces"));
-		Assert.AreEqual(cli && hasAdditional, body.Contains("AdditionalLocaleNames"));
-		Assert.AreEqual(!cli && hasAdditional, body.Contains("save both dialogs"));
 		StringAssert.Contains(body, cli ? "Run scan" : "Scan and sign in");
 		Assert.IsFalse(LicenseRecoveryGuidance.GetAccountContext(accounts, "missing", "uk").HasAdditionalMarketplaces);
 	}

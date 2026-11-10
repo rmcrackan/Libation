@@ -43,7 +43,6 @@ public class ContentLicenseDeniedCliSummaryTests
 		StringAssert.Contains(lines[0], "throttled");
 		Assert.IsTrue(lines.Any(l => l.Contains("24 to 48 hours")));
 		Assert.IsTrue(lines.Any(l => l.Contains("login-external --account", StringComparison.Ordinal)));
-		Assert.IsTrue(lines.Any(l => l.Contains("AccountsSettings.json", StringComparison.Ordinal)));
 		Assert.IsFalse(lines.Any(l => l.Contains("Settings > Accounts")));
 		Assert.IsFalse(lines.Any(l => l.Contains("not a Libation bug")));
 		Assert.IsTrue(lines.Any(l => l.StartsWith("Ownership:", StringComparison.Ordinal)));
@@ -57,10 +56,9 @@ public class ContentLicenseDeniedCliSummaryTests
 	{
 		var ex = Denied(("Ownership", RejectionReason.CustomerThrottled, "throttled"));
 		var body = string.Join("\n", ContentLicenseDeniedCliSummary.Lines(ex, Localization.Get("uk"), status));
-		StringAssert.Contains(body, "https://www.amazon.co.uk/");
-		StringAssert.Contains(body, "regional link is unverified");
+		StringAssert.Contains(body, "--locale uk");
 		Assert.AreEqual(upgrade, body.Contains(AppScaffolding.LicenseRecoveryGuidance.ReleasesUrl));
-		Assert.IsTrue(body.IndexOf("Deregister") < body.IndexOf("24 to 48 hours"));
+		Assert.IsTrue(body.IndexOf("login-external") < body.IndexOf("24 to 48 hours"));
 	}
 
 	[TestMethod]
@@ -71,8 +69,7 @@ public class ContentLicenseDeniedCliSummaryTests
 		var ex = Denied(("Ownership", RejectionReason.CustomerThrottled, "throttled"));
 		var body = string.Join("\n", ContentLicenseDeniedCliSummary.Lines(ex, Localization.Get("uk"),
 			AppScaffolding.VersionCheckOutcome.UpToDate, hasAdditional));
-		Assert.AreEqual(hasAdditional, body.Contains("AdditionalLocaleNames"));
-		Assert.AreEqual(hasAdditional, body.Contains("Also scans"));
+		Assert.AreEqual(hasAdditional, body.Contains("additional marketplaces"));
 	}
 
 	[TestMethod]
