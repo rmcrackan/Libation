@@ -18,13 +18,34 @@ Audiobooks can be requested from Audible as "Normal" quality or "High" quality, 
 ### Use Widevine DRM
 
 When this setting is disabled, all audiobooks will be downloaded using Audible's in-house DRM (AAX(C)) in the [AAC-LC](#aac-lc) format.
-When this setting is enabled, Libation will request audio files protected by Google's Widevine DRM scheme. This unlocks [Request xHE-AAC Codec](#request-xhe-aac-codec) for higher-quality stereo downloads on titles where Audible delivers them via Widevine L3. Widevine requires an Android device registration; the experimental iPhone profile cannot use it. See [Device registration](/docs/advanced/device-registration#widevine).
+When this setting is enabled, Libation will request audio files protected by Google's Widevine DRM scheme. This unlocks [Request xHE-AAC Codec](#request-xhe-aac-codec) for higher-quality stereo downloads on titles where Audible delivers them via Widevine L3. Widevine requires an Android device registration; the experimental iPhone profile cannot use it. See [Device registration](/docs/advanced/device-registration).
 
 If you don't enable **Request xHE-AAC Codec**, then enabling **Use Widevine DRM** will have no practical effect in nearly all circumstances. Audiobooks will be downloaded in the same [AAC-LC](#aac-lc) format with the same bitrate and the same number of audio channels. On rare occasions, enabling **Use Widevine DRM** without xHE-AAC will result in audio files with a different bitrate.
 
 ### Request xHE-AAC Codec
 
 Enable this setting to request audiobooks in the [xHE-AAC](#xhe-aac) format. This codec is generally better quality than the [AAC-LC](#aac-lc) codec at the same bitrate, but it isn't as commonly supported by media players, so you may have some difficulty playing these audiobooks. The highest bitrate version of some audiobooks is only available as [xHE-AAC](#xhe-aac).
+
+### Upgrading Existing Audiobooks and Rate Limiting
+
+If you enable Widevine or xHE-AAC after already liberating books, existing audio files on disk remain in their original formats unless you choose to re-download them.
+
+Libation includes a built-in scanner to help upgrade your library:
+- **Chardonnay:** Top menu -> **Scan for Better Quality Audiobooks**
+- **Classic:** Menu bar -> **Tools** -> **Scan Audible for Higher Quality Audio**
+
+This tool inspects your liberated audiobooks against Audible's servers, reports which titles have a higher bitrate or superior codec available, and lets you mark those titles as **Download Pending** with one click.
+
+> [!WARNING]
+> **Pace Bulk Re-downloads to Avoid Throttling:**
+> Re-downloading dozens or hundreds of books in a short span will easily trigger Audible's server-side rate limits (`CustomerThrottled`), locking your account out of downloading licenses for 24 to 48 hours.
+>
+> Before liberating a large batch of upgraded titles, enable a [Daily download limit](/docs/features/daily-download-limit):
+> 1. Go to **Settings > Download/Decrypt > Daily download limit**.
+> 2. Select **All books** (so the limit applies to owned titles being re-downloaded, not just Plus catalog titles).
+> 3. Set a sustainable volume (e.g. 30 to 50 books per 24 hours).
+>
+> Libation will pace the re-downloads automatically across multiple days without triggering Audible's throttling mechanisms.
 
 ### Download My Books in the Original Audio Format (Lossless)
 

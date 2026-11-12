@@ -1,4 +1,4 @@
-﻿using AudibleUtilities;
+using AudibleUtilities;
 using LibationFileManager;
 using LibationFileManager.Templates;
 using LibationUiBase;
@@ -72,7 +72,9 @@ partial class SettingsDialog
 		downloadCoverArtCbox.Checked = config.DownloadCoverArt;
 		downloadClipsBookmarksCbox.Checked = config.DownloadClipsBookmarks;
 		fileDownloadQualityCb.SelectedItem = config.FileDownloadQuality;
+		useWidevineCbox.CheckedChanged -= useWidevineCbox_CheckedChanged;
 		useWidevineCbox.Checked = config.UseWidevine;
+		useWidevineCbox.CheckedChanged += useWidevineCbox_CheckedChanged;
 		request_xHE_AAC_Cbox.Checked = config.Request_xHE_AAC;
 
 		clipsBookmarksFormatCb.SelectedItem = config.ClipsBookmarksFileFormat;
@@ -191,39 +193,33 @@ partial class SettingsDialog
 		}
 	}
 
-	private void useWidevineCbox_CheckedChanged(object sender, EventArgs e)
+	private void useWidevineCbox_CheckedChanged(object? sender, EventArgs e)
 	{
 		if (useWidevineCbox.Checked)
 		{
 			using var accounts = AudibleApiStorage.GetAccountsSettingsPersister();
 
-			if (!accounts.AccountsSettings.Accounts.All(a => a.IdentityTokens?.DeviceType == AudibleApi.Resources.DeviceType))
+			if (accounts.AccountsSettings.Accounts.Count > 0)
 			{
 				var choice = MessageBox.Show(this,
-					"In order to enable widevine content, Libation will need to log into your accounts again.\r\n\r\n" +
-					"Do you want Libation to clear your current account settings and prompt you to login before the next download?",
-					"Widevine Content Unavailable",
+					ThrottledDeviceRecovery.WidevinePromptMessage,
+					ThrottledDeviceRecovery.WidevinePromptTitle,
 					MessageBoxButtons.YesNo,
 					MessageBoxIcon.Question,
-					MessageBoxDefaultButton.Button2);
+					MessageBoxDefaultButton.Button1);
 
 				if (choice == DialogResult.Yes)
 				{
-					foreach (var account in accounts.AccountsSettings.Accounts.ToArray())
-					{
-						if (account.Locale is not null && account.IdentityTokens?.DeviceType != AudibleApi.Resources.DeviceType)
-						{
-							accounts.AccountsSettings.Delete(account);
-							var acc = accounts.AccountsSettings.Upsert(account.AccountId, account.Locale.Name);
-							acc.AccountName = account.AccountName;
-						}
-					}
-
+					ThrottledDeviceRecovery.MarkAllAccountsForWidevine(accounts.AccountsSettings, Configuration.Instance);
 					return;
 				}
 
 				useWidevineCbox.Checked = false;
 				return;
+			}
+			else
+			{
+				Configuration.Instance.DeviceRegistrationKind = AudibleApi.DeviceRegistrationKind.CurrentAndroid;
 			}
 		}
 		else

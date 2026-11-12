@@ -59,6 +59,19 @@
 					Binding="{Binding LibraryScan, Mode=TwoWay}"
 					Header="Include in&#xa;library scan?"/>
 
+				<DataGridTemplateColumn Header="Signed in?">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<CheckBox
+								IsChecked="{Binding SignedIn, Mode=TwoWay}"
+								IsEnabled="{Binding CanToggleSignedIn}"
+								ToolTip.Tip="{Binding SignedInToolTip}"
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center"/>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+
 				<DataGridTextColumn
 					Width="2*"
 					Binding="{Binding AccountId, Mode=TwoWay}"

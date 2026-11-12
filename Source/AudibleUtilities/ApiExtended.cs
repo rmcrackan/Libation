@@ -1,4 +1,4 @@
-﻿using AudibleApi;
+using AudibleApi;
 using AudibleApi.Common;
 using Dinah.Core;
 using LibationFileManager;
@@ -44,6 +44,9 @@ public class ApiExtended
 
 		try
 		{
+			if (account.RequiresReRegistration)
+				throw new AuthenticationRequiredException(account, "Account requires a fresh login and device registration.");
+
 			Serilog.Log.Logger.Information("{@DebugInfo}", new
 			{
 				AccountMaskedLogEntry = account.MaskedLogEntry,
@@ -82,7 +85,9 @@ public class ApiExtended
 				throw new AuthenticationRequiredException(
 					account,
 					message: $"Stored credentials for {account.MaskedLogEntry} "
-						+ (missingCredentials ? "are missing or incomplete" : "could not be used")
+						+ (account.RequiresReRegistration
+							? "require a new login and device registration"
+							: missingCredentials ? "are missing or incomplete" : "could not be used")
 						+ (LoginChoiceFactory is null
 							? " and interactive login is not available in this context (CLI/Docker)."
 							: " and interactive login was not allowed.")
@@ -100,12 +105,30 @@ public class ApiExtended
 					LocaleName = locale.Name
 				});
 
+				if (account.RequiresReRegistration)
+				{
+					account.IdentityTokens?.Invalidate();
+					using (var persister = AudibleApiStorage.GetAccountsSettingsPersister())
+					{
+						var matching = persister.AccountsSettings.GetAccount(account.AccountId, account.Locale?.Name);
+						matching?.IdentityTokens?.Invalidate();
+					}
+				}
+
 				var api = await EzApiCreator.GetApiAsync(
 					LoginChoiceFactory(account),
 					locale,
 					AudibleApiStorage.AccountsSettingsFile,
 					account.GetIdentityTokensJsonPath(),
 					Configuration.Instance.GetDeviceRegistrationProfile());
+
+				account.RequiresReRegistration = false;
+				using (var persister = AudibleApiStorage.GetAccountsSettingsPersister())
+				{
+					var matching = persister.AccountsSettings.GetAccount(account.AccountId, account.Locale?.Name);
+					if (matching is not null)
+						matching.RequiresReRegistration = false;
+				}
 
 				// login happens against the account's own marketplace, so the api it hands back reads that one.
 				// re-create once the tokens exist if some other marketplace is the one actually wanted.

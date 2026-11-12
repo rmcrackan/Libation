@@ -1,4 +1,4 @@
-﻿using AudibleApi;
+using AudibleApi;
 using AudibleApi.Authorization;
 using Dinah.Core;
 using Dinah.Core.Security;
@@ -86,6 +86,44 @@ public class Account : IUpdatable, ILogMasked
 			field = value;
 			update();
 		}
+	}
+
+	/// <summary>
+	/// True when this account must obtain a new device registration and token set before next use
+	/// (e.g. after switching to Widevine or encountering CustomerThrottled on an obsolete device).
+	/// </summary>
+	[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+	public bool RequiresReRegistration
+	{
+		get => field;
+		set
+		{
+			if (field == value)
+				return;
+			field = value;
+			update();
+		}
+	}
+
+	/// <summary>
+	/// True when the account has tokens registered with a non-Android device type (e.g. Mkb79IPhone)
+	/// or a legacy device serial format that is incompatible with modern Widevine downloads.
+	/// </summary>
+	public bool HasObsoleteDeviceRegistration()
+	{
+		if (IdentityTokens is null)
+			return false;
+
+		if (IdentityTokens.DeviceType != AudibleApi.Resources.DeviceType)
+			return true;
+
+		var serial = IdentityTokens.DeviceSerialNumber;
+		if (string.IsNullOrEmpty(serial)
+			|| serial.Length != 20
+			|| !serial.All(char.IsAsciiHexDigit))
+			return true;
+
+		return false;
 	}
 
 	/// <summary>

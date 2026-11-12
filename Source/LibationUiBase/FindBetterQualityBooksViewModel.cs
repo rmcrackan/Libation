@@ -1,5 +1,6 @@
 ﻿using AaxDecrypter;
 using ApplicationServices;
+using AudibleUtilities;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.Net.Http;
@@ -14,6 +15,34 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace LibationUiBase;
+
+public record MarkBooksResult(
+	int MarkedCount,
+	bool WidevineEnabled,
+	bool XHeAacRequested,
+	bool AccountsMarkedForReRegistration)
+{
+	public string? GetSummaryMessage()
+	{
+		if (MarkedCount == 0)
+			return null;
+
+		var message = MarkedCount == 1
+			? "Marked 1 book as Download Pending."
+			: $"Marked {MarkedCount} books as Download Pending.";
+
+		if (WidevineEnabled || AccountsMarkedForReRegistration)
+		{
+			message += "\r\n\r\nLibation has automatically configured your download settings for higher-quality audio and marked your accounts for a fresh sign-in on your next scan or download so that the higher-quality audio can be acquired.";
+		}
+		else if (XHeAacRequested)
+		{
+			message += "\r\n\r\nLibation has automatically enabled xHE-AAC audio requests in your settings.";
+		}
+
+		return message;
+	}
+}
 
 public class FindBetterQualityBooksViewModel : ReactiveObject
 {
@@ -32,9 +61,11 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 
 		Click 'Scan Audible for Higher Quality Audio' to begin.
 
-		When done, click the 'Mark X books as Download Pending' to allow Libation to re-download those books in the higher.
+		When done, click 'Mark X books as Download Pending' to allow Libation to re-download those books in the higher quality format.
 
-		Note: make sure you adjust your download quality settings before re-liberating the books.
+		Marking books will automatically configure Widevine and xHE-AAC settings and prompt for a fresh account sign-in if needed, ensuring the upgraded audio streams are downloaded.
+
+		Note: If you have a large library, downloading many higher-quality audiobooks in quick succession may trigger Audible's daily download limits. You can configure a daily download limit or download delay in Settings > Network if needed.
 
 		Display this help message again in the future?
 		""";
@@ -76,14 +107,50 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 		cts?.Cancel();
 	}
 
-	public async Task MarkBooksAsync()
+	public async Task<MarkBooksResult> MarkBooksAsync()
 	{
 		var significant = Books?.Where(b => b.IsSignificant).ToArray() ?? [];
+		if (significant.Length == 0)
+			return new MarkBooksResult(0, false, false, false);
 
 		await significant.Select(b => b.LibraryBook).UpdateBookStatusAsync(LiberatedStatus.NotLiberated);
 		Array.ForEach(significant, b => Books?.Remove(b));
 
 		SignificantCount = Books?.Count(b => b.IsSignificant) ?? 0;
+
+		bool widevineNewlyEnabled = false;
+		bool xHeAacNewlyRequested = false;
+		bool accountsMarked = false;
+
+		bool requiresWidevine = ScanWidevine || significant.Any(b => b.AvailableCodec is "xHE-AAC" or "EC-3" or "AC-4");
+		if (File.Exists(AudibleApiStorage.AccountsSettingsFile))
+		{
+			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+			if (requiresWidevine)
+			{
+				var recovery = ThrottledDeviceRecovery.ApplyRecovery(persister.AccountsSettings, Configuration.Instance);
+				widevineNewlyEnabled = recovery.WidevineEnabled;
+				accountsMarked = recovery.MarkedAccounts.Count > 0;
+			}
+			else
+			{
+				accountsMarked = ThrottledDeviceRecovery.MarkObsoleteAccounts(persister.AccountsSettings) > 0;
+			}
+		}
+		else if (requiresWidevine)
+		{
+			widevineNewlyEnabled = !Configuration.Instance.UseWidevine;
+			Configuration.Instance.UseWidevine = true;
+			Configuration.Instance.DeviceRegistrationKind = AudibleApi.DeviceRegistrationKind.CurrentAndroid;
+		}
+
+		if (requiresWidevine && significant.Any(b => b.AvailableCodec == "xHE-AAC") && !Configuration.Instance.Request_xHE_AAC)
+		{
+			Configuration.Instance.Request_xHE_AAC = true;
+			xHeAacNewlyRequested = true;
+		}
+
+		return new MarkBooksResult(significant.Length, widevineNewlyEnabled, xHeAacNewlyRequested, accountsMarked);
 	}
 
 	public async Task ScanAsync()

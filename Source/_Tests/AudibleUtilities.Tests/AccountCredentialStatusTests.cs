@@ -54,6 +54,14 @@ public class AccountCredentialStatusTests
 		=> AccountCredentialStatus.LooksLikeMissingCredentials(registeredAccount()).Should().BeFalse();
 
 	[TestMethod]
+	public void an_account_requiring_re_registration_looks_like_missing_credentials()
+	{
+		var account = registeredAccount();
+		account.RequiresReRegistration = true;
+		AccountCredentialStatus.LooksLikeMissingCredentials(account).Should().BeTrue();
+	}
+
+	[TestMethod]
 	public void the_label_pairs_a_friendly_name_with_the_id()
 		=> AccountCredentialStatus.FormatAccountLabel(new Account("user@example.com") { AccountName = "Jade" })
 			.Should().Be("'Jade' (user@example.com)");

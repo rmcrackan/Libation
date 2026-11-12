@@ -51,7 +51,7 @@
 			<Grid ColumnDefinitions="*,Auto">
 				<CheckBox
 					ToolTip.Tip="{Binding UseWidevineTip}"
-					IsCheckedChanged="UseWidevine_IsCheckedChanged"
+					Click="UseWidevine_Click"
 					IsChecked="{Binding UseWidevine, Mode=TwoWay}">
 					<TextBlock Text="{Binding UseWidevineText}" />
 				</CheckBox>

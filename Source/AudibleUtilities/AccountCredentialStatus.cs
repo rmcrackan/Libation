@@ -11,7 +11,10 @@ public static class AccountCredentialStatus
 	/// </summary>
 	public static bool LooksLikeMissingCredentials(Account? account)
 	{
-		if (account?.IdentityTokens is not { } tokens)
+		if (account is null || account.RequiresReRegistration)
+			return true;
+
+		if (account.IdentityTokens is not { } tokens)
 			return true;
 
 		if (tokens.IsValid)

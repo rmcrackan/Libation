@@ -1,6 +1,7 @@
-﻿using ApplicationServices;
+using ApplicationServices;
 using AudibleApi;
 using AudibleApi.Common;
+using AudibleUtilities;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
@@ -27,6 +28,8 @@ public enum ProcessBookResult
 	LicenseDeniedPossibleOutage,
 	/// <summary>Audible named CustomerThrottled on the license denial.</summary>
 	LicenseDeniedThrottled,
+	/// <summary>Audible throttled on legacy/non-Widevine registration; settings thunked to Android+Widevine and account marked for re-registration.</summary>
+	LicenseDeniedThrottledRecovered,
 	/// <summary>ADRM licenserequest failed with Sable acr:null; Widevine may work (see WidevineRecommendation).</summary>
 	WidevineRecommended,
 	/// <summary>Volume full on write; queue should stop (see ProcessQueueViewModel queue loop).</summary>
@@ -89,6 +92,7 @@ public class ProcessBookViewModel : ReactiveObject
 		(ProcessBookResult.LicenseDenied, false) => "License Denied",
 		(ProcessBookResult.LicenseDeniedPossibleOutage, _) => "Possible Service Interruption",
 		(ProcessBookResult.LicenseDeniedThrottled, _) => "License denied (throttled)",
+		(ProcessBookResult.LicenseDeniedThrottledRecovered, _) => "License denied (re-login needed)",
 		(ProcessBookResult.WidevineRecommended, _) => WidevineRecommendationUserMessage.QueueStatusText,
 		(ProcessBookResult.DiskFull, _) => "Disk full, queue stopped",
 		_ => Status.ToString(),
@@ -231,10 +235,16 @@ public class ProcessBookViewModel : ReactiveObject
 				}
 			}
 		}
-		catch (ApiErrorException ex) when (WidevineRecommendation.ShouldRecommendWidevine(ex, Configuration))
+		catch (Exception ex) when (WidevineRecommendation.ShouldRecommendWidevine(ex, Configuration))
 		{
-			Serilog.Log.Logger.Error(ex, "ADRM license unavailable (Sable acr:null) for {Book}", LibraryBook.LogFriendly());
-			LogInfo($"{procName}:  {WidevineRecommendationUserMessage.BuildLogSummary(LibraryBook.Book.TitleWithSubtitle)}");
+			Serilog.Log.Logger.Error(ex, "ADRM license unavailable (Sable acr:null or AAX fallback without codecs) for {Book}", LibraryBook.LogFriendly());
+			if (System.IO.File.Exists(AudibleApiStorage.AccountsSettingsFile))
+			{
+				using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+				var account = persister.AccountsSettings.GetAccount(LibraryBook.Account, LibraryBook.Book.Locale);
+				ThrottledDeviceRecovery.ApplyRecovery(persister.AccountsSettings, Configuration, account);
+			}
+			LogInfo($"{procName}:  {WidevineRecommendationUserMessage.BuildLogSummary(LibraryBook.Book.TitleWithSubtitle, LibraryBook.Account.ToMask())}");
 			result = ProcessBookResult.WidevineRecommended;
 		}
 		catch (ContentLicenseDeniedException ldex)
@@ -242,8 +252,25 @@ public class ProcessBookViewModel : ReactiveObject
 			Serilog.Log.Logger.Error(ldex, "Content license was denied for {Book}", LibraryBook.LogFriendly());
 			if (ldex.IsCustomerThrottled)
 			{
-				LogInfo($"{procName}:  Audible reports throttling. Try deregistering Libation devices and recreating the account first. Recovery steps: {AppScaffolding.LicenseRecoveryGuidance.DocumentationUrl}. If it persists, wait 24 to 48 hours, sometimes a few days. - {LibraryBook.Book}");
-				result = ProcessBookResult.LicenseDeniedThrottled;
+				bool recovered = false;
+				if (System.IO.File.Exists(AudibleApiStorage.AccountsSettingsFile))
+				{
+					using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+					var account = persister.AccountsSettings.GetAccount(LibraryBook.Account, LibraryBook.Book.Locale);
+					if (ThrottledDeviceRecovery.ShouldRecover(ldex, account, Configuration.Instance))
+					{
+						ThrottledDeviceRecovery.ApplyRecovery(persister.AccountsSettings, Configuration.Instance, account);
+						LogInfo($"{procName}:  Audible reports throttling on a legacy or non-Widevine registration. Libation updated settings to Android + Widevine and marked account '{LibraryBook.Account.ToMask()}' for re-registration. Sign in on next scan or liberate to complete setup. - {LibraryBook.Book}");
+						result = ProcessBookResult.LicenseDeniedThrottledRecovered;
+						recovered = true;
+					}
+				}
+
+				if (!recovered)
+				{
+					LogInfo($"{procName}:  Audible reports throttling. Try deregistering Libation devices and recreating the account first. Recovery steps: {AppScaffolding.LicenseRecoveryGuidance.DocumentationUrl}. If it persists, wait 24 to 48 hours, sometimes a few days. - {LibraryBook.Book}");
+					result = ProcessBookResult.LicenseDeniedThrottled;
+				}
 			}
 			else if (ldex.AYCL?.RejectionReason is null or RejectionReason.GenericError)
 			{

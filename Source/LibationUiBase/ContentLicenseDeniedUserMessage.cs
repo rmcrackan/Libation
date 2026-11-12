@@ -25,6 +25,13 @@ public static class ContentLicenseDeniedUserMessage
 		=> BuildBody(bookTitleWithSubtitle,
 			"Audible says this account is being throttled. This can also happen with an old device registration. Try these recovery steps first.", locale, updateStatus, hasAdditionalMarketplaces);
 
+	/// <summary>Audible throttled on legacy or non-Widevine registration; settings updated and account marked for re-registration.</summary>
+	public static string BuildDialogBodyForThrottlingRecovered(string bookTitleWithSubtitle)
+		=> $"You were denied a content license for {bookTitleWithSubtitle}\n\n"
+			+ "Audible reported throttling on your account's legacy device registration.\n\n"
+			+ "Libation has automatically updated your settings to Android emulator and Widevine DRM, and marked your account for a fresh sign-in.\n\n"
+			+ "No accounts need to be deleted. Next time you Scan or Liberate, you will be prompted to sign in once to establish the new device registration.";
+
 	/// <summary>Plus denials may indicate registration trouble, rate limits, or lost access.</summary>
 	public static string BuildDialogBodyForPlusCatalog(string bookTitleWithSubtitle, AudibleApi.Locale? locale = null,
 		AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine, bool hasAdditionalMarketplaces = false)

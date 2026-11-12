@@ -22,42 +22,40 @@ public partial class Audio : UserControl
 		}
 	}
 
-	private async void UseWidevine_IsCheckedChanged(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+	private async void UseWidevine_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{
 		if (sender is CheckBox cbox && cbox.IsChecked is true)
 		{
 			using var accounts = AudibleApiStorage.GetAccountsSettingsPersister();
 
-			if (!accounts.AccountsSettings.Accounts.All(a => a.IdentityTokens?.DeviceType == AudibleApi.Resources.DeviceType))
+			if (accounts.AccountsSettings.Accounts.Count > 0)
 			{
 				var choice = await MessageBox.Show(this.GetParentWindow(),
-				"In order to enable widevine content, Libation will need to log into your accounts again.\r\n\r\n" +
-				"Do you want Libation to clear your current account settings and prompt you to login before the next download?",
-				"Widevine Content Unavailable",
-				MessageBoxButtons.YesNo,
-				MessageBoxIcon.Question,
-				MessageBoxDefaultButton.Button2);
+					ThrottledDeviceRecovery.WidevinePromptMessage,
+					ThrottledDeviceRecovery.WidevinePromptTitle,
+					MessageBoxButtons.YesNo,
+					MessageBoxIcon.Question,
+					MessageBoxDefaultButton.Button1);
 
 				if (choice == DialogResult.Yes)
 				{
-					foreach (var account in accounts.AccountsSettings.Accounts.ToArray())
-					{
-						if (account.Locale is not null && account.IdentityTokens?.DeviceType != AudibleApi.Resources.DeviceType)
-						{
-							accounts.AccountsSettings.Delete(account);
-							var acc = accounts.AccountsSettings.Upsert(account.AccountId, account.Locale.Name);
-							acc.AccountName = account.AccountName;
-						}
-					}
+					ThrottledDeviceRecovery.MarkAllAccountsForWidevine(accounts.AccountsSettings, Configuration.Instance);
 					return;
 				}
 
-				_viewModel?.UseWidevine = false;
+				cbox.IsChecked = false;
+				if (_viewModel is not null)
+					_viewModel.UseWidevine = false;
+			}
+			else
+			{
+				Configuration.Instance.DeviceRegistrationKind = AudibleApi.DeviceRegistrationKind.CurrentAndroid;
 			}
 		}
 		else
 		{
-			_viewModel?.Request_xHE_AAC = _viewModel.RequestSpatial = false;
+			if (_viewModel is not null)
+				_viewModel.Request_xHE_AAC = _viewModel.RequestSpatial = false;
 		}
 	}
 
