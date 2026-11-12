@@ -1,3 +1,4 @@
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -126,7 +127,7 @@ public static class InstallUpgradeManager
 	/// Snapshot critical install files and record expected post-upgrade hashes from the upgrade zip.
 	/// Call immediately before launching ZipExtractor.
 	/// </summary>
-	public static void PrepareForUpgrade(string installDirectory, string upgradeBundlePath, Version targetVersion)
+	public static void PrepareForUpgrade(string installDirectory, string upgradeBundlePath, NuGetVersion targetVersion)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(installDirectory);
 		ArgumentException.ThrowIfNullOrWhiteSpace(upgradeBundlePath);

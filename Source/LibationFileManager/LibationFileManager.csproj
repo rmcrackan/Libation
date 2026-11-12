@@ -6,9 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AudibleApi" Version="14.1.2" />
+    <PackageReference Include="AudibleApi" Version="14.1.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.14" />
     <PackageReference Include="NameParserSharp" Version="1.5.0" />
+    <PackageReference Include="NuGet.Versioning" Version="8.0.0" />
     <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
   </ItemGroup>
 

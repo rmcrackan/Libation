@@ -7,6 +7,7 @@ using DtoImporterService;
 using FileManager;
 using LibationFileManager;
 using Newtonsoft.Json.Linq;
+using NuGet.Versioning;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -621,7 +622,7 @@ public static class LibraryCommands
 					udi.UpdateRating(rating.OverallRating, rating.PerformanceRating, rating.StoryRating);
 			});
 
-	public static async Task<int> UpdateBookStatusAsync(this LibraryBook lb, LiberatedStatus bookStatus, Version? libationVersion, AudioFormat? audioFormat, string audioVersion)
+	public static async Task<int> UpdateBookStatusAsync(this LibraryBook lb, LiberatedStatus bookStatus, NuGetVersion? libationVersion, AudioFormat? audioFormat, string audioVersion)
 		=> await lb.UpdateUserDefinedItemAsync(udi => { udi.BookStatus = bookStatus; udi.SetLastDownloaded(libationVersion, audioFormat, audioVersion); });
 
 	public static async Task<int> UpdateBookStatusAsync(this LibraryBook libraryBook, LiberatedStatus bookStatus)

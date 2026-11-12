@@ -35,17 +35,17 @@ namespace LibationWinForms.Dialogs
 			importEpisodesCb = new System.Windows.Forms.CheckBox();
 			downloadEpisodesCb = new System.Windows.Forms.CheckBox();
 			badBookGb = new System.Windows.Forms.GroupBox();
-			dailyDownloadLimitGb = new System.Windows.Forms.GroupBox();
-			dailyDownloadLimitDescLbl = new System.Windows.Forms.Label();
-			dailyDownloadLimitScopeCb = new System.Windows.Forms.ComboBox();
-			dailyDownloadLimitQtyLbl = new System.Windows.Forms.Label();
-			dailyDownloadLimitQtyNud = new System.Windows.Forms.NumericUpDown();
-			dailyDownloadLimitUnitCb = new System.Windows.Forms.ComboBox();
-			dailyDownloadLimitApproxLbl = new System.Windows.Forms.Label();
 			badBookIgnoreRb = new System.Windows.Forms.RadioButton();
 			badBookRetryRb = new System.Windows.Forms.RadioButton();
 			badBookAbortRb = new System.Windows.Forms.RadioButton();
 			badBookAskRb = new System.Windows.Forms.RadioButton();
+			dailyDownloadLimitGb = new System.Windows.Forms.GroupBox();
+			dailyDownloadLimitApproxLbl = new System.Windows.Forms.Label();
+			dailyDownloadLimitUnitCb = new System.Windows.Forms.ComboBox();
+			dailyDownloadLimitQtyNud = new System.Windows.Forms.NumericUpDown();
+			dailyDownloadLimitQtyLbl = new System.Windows.Forms.Label();
+			dailyDownloadLimitScopeCb = new System.Windows.Forms.ComboBox();
+			dailyDownloadLimitDescLbl = new System.Windows.Forms.Label();
 			stripAudibleBrandingCbox = new System.Windows.Forms.CheckBox();
 			splitFilesByChapterCbox = new System.Windows.Forms.CheckBox();
 			allowLibationFixupCbox = new System.Windows.Forms.CheckBox();
@@ -55,21 +55,8 @@ namespace LibationWinForms.Dialogs
 			loggingLevelLbl = new System.Windows.Forms.Label();
 			loggingLevelCb = new System.Windows.Forms.ComboBox();
 			tabControl = new System.Windows.Forms.TabControl();
-			tab5Audiobookshelf = new System.Windows.Forms.TabPage();
-			absEnabledCb = new System.Windows.Forms.CheckBox();
-			absIncludePdfsCb = new System.Windows.Forms.CheckBox();
-			absPlaintextWarningLbl = new System.Windows.Forms.Label();
-			absUrlLbl = new System.Windows.Forms.Label();
-			absUrlTb = new System.Windows.Forms.TextBox();
-			absTokenLbl = new System.Windows.Forms.Label();
-			absTokenTb = new System.Windows.Forms.TextBox();
-			absConnectBtn = new System.Windows.Forms.Button();
-			absStatusLbl = new System.Windows.Forms.Label();
-			absLibraryLbl = new System.Windows.Forms.Label();
-			absLibraryCb = new System.Windows.Forms.ComboBox();
-			absFolderLbl = new System.Windows.Forms.Label();
-			absFolderCb = new System.Windows.Forms.ComboBox();
 			tab1ImportantSettings = new System.Windows.Forms.TabPage();
+			preReleaseCbox = new System.Windows.Forms.CheckBox();
 			checkForUpgradesCbox = new System.Windows.Forms.CheckBox();
 			themeLbl = new System.Windows.Forms.Label();
 			themeCb = new System.Windows.Forms.ComboBox();
@@ -81,11 +68,11 @@ namespace LibationWinForms.Dialogs
 			gridFontScaleFactorLbl = new System.Windows.Forms.Label();
 			gridFontScaleFactorTbar = new System.Windows.Forms.TrackBar();
 			tokenStorageGb = new System.Windows.Forms.GroupBox();
-			encryptTokensCbox = new System.Windows.Forms.CheckBox();
-			plaintextTokenWarningLbl = new System.Windows.Forms.Label();
-			osSecretStoreUnavailableLbl = new System.Windows.Forms.Label();
-			exportMasterKeyBtn = new System.Windows.Forms.Button();
 			updateExistingTokensBtn = new System.Windows.Forms.Button();
+			exportMasterKeyBtn = new System.Windows.Forms.Button();
+			osSecretStoreUnavailableLbl = new System.Windows.Forms.Label();
+			plaintextTokenWarningLbl = new System.Windows.Forms.Label();
+			encryptTokensCbox = new System.Windows.Forms.CheckBox();
 			booksGb = new System.Windows.Forms.GroupBox();
 			booksSelectControl = new DirectoryOrCustomSelectControl();
 			lastWriteTimeCb = new System.Windows.Forms.ComboBox();
@@ -172,6 +159,20 @@ namespace LibationWinForms.Dialogs
 			retainAaxFileCbox = new System.Windows.Forms.CheckBox();
 			downloadCoverArtCbox = new System.Windows.Forms.CheckBox();
 			createCueSheetCbox = new System.Windows.Forms.CheckBox();
+			tab5Audiobookshelf = new System.Windows.Forms.TabPage();
+			absEnabledCb = new System.Windows.Forms.CheckBox();
+			absIncludePdfsCb = new System.Windows.Forms.CheckBox();
+			absPlaintextWarningLbl = new System.Windows.Forms.Label();
+			absUrlLbl = new System.Windows.Forms.Label();
+			absUrlTb = new System.Windows.Forms.TextBox();
+			absTokenLbl = new System.Windows.Forms.Label();
+			absTokenTb = new System.Windows.Forms.TextBox();
+			absConnectBtn = new System.Windows.Forms.Button();
+			absStatusLbl = new System.Windows.Forms.Label();
+			absLibraryLbl = new System.Windows.Forms.Label();
+			absLibraryCb = new System.Windows.Forms.ComboBox();
+			absFolderLbl = new System.Windows.Forms.Label();
+			absFolderCb = new System.Windows.Forms.ComboBox();
 			badBookGb.SuspendLayout();
 			dailyDownloadLimitGb.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)dailyDownloadLimitQtyNud).BeginInit();
@@ -187,7 +188,6 @@ namespace LibationWinForms.Dialogs
 			inProgressFilesGb.SuspendLayout();
 			customFileNamingGb.SuspendLayout();
 			tab4AudioFileOptions.SuspendLayout();
-			tab5Audiobookshelf.SuspendLayout();
 			audiobookFixupsGb.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)minFileDurationNud).BeginInit();
 			chapterTitleTemplateGb.SuspendLayout();
@@ -197,6 +197,7 @@ namespace LibationWinForms.Dialogs
 			lameQualityGb.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)lameVBRQualityTb).BeginInit();
 			groupBox2.SuspendLayout();
+			tab5Audiobookshelf.SuspendLayout();
 			SuspendLayout();
 			// 
 			// booksLocationDescLbl
@@ -273,7 +274,7 @@ namespace LibationWinForms.Dialogs
 			badBookGb.Controls.Add(badBookAskRb);
 			badBookGb.Location = new System.Drawing.Point(7, 122);
 			badBookGb.Name = "badBookGb";
-			badBookGb.Size = new System.Drawing.Size(841, 76);
+			badBookGb.Size = new System.Drawing.Size(807, 76);
 			badBookGb.TabIndex = 13;
 			badBookGb.TabStop = false;
 			badBookGb.Text = "[bad book desc]";
@@ -321,6 +322,77 @@ namespace LibationWinForms.Dialogs
 			badBookAskRb.TabStop = true;
 			badBookAskRb.Text = "[ask desc]";
 			badBookAskRb.UseVisualStyleBackColor = true;
+			// 
+			// dailyDownloadLimitGb
+			// 
+			dailyDownloadLimitGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitApproxLbl);
+			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitUnitCb);
+			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitQtyNud);
+			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitQtyLbl);
+			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitScopeCb);
+			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitDescLbl);
+			dailyDownloadLimitGb.Location = new System.Drawing.Point(7, 6);
+			dailyDownloadLimitGb.Name = "dailyDownloadLimitGb";
+			dailyDownloadLimitGb.Size = new System.Drawing.Size(808, 110);
+			dailyDownloadLimitGb.TabIndex = 23;
+			dailyDownloadLimitGb.TabStop = false;
+			dailyDownloadLimitGb.Text = "[daily download limit desc]";
+			// 
+			// dailyDownloadLimitApproxLbl
+			// 
+			dailyDownloadLimitApproxLbl.Location = new System.Drawing.Point(485, 53);
+			dailyDownloadLimitApproxLbl.Name = "dailyDownloadLimitApproxLbl";
+			dailyDownloadLimitApproxLbl.Size = new System.Drawing.Size(350, 45);
+			dailyDownloadLimitApproxLbl.TabIndex = 6;
+			dailyDownloadLimitApproxLbl.Text = "[mb/gb approximate note]";
+			// 
+			// dailyDownloadLimitUnitCb
+			// 
+			dailyDownloadLimitUnitCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			dailyDownloadLimitUnitCb.FormattingEnabled = true;
+			dailyDownloadLimitUnitCb.Location = new System.Drawing.Point(383, 57);
+			dailyDownloadLimitUnitCb.Name = "dailyDownloadLimitUnitCb";
+			dailyDownloadLimitUnitCb.Size = new System.Drawing.Size(90, 23);
+			dailyDownloadLimitUnitCb.TabIndex = 5;
+			dailyDownloadLimitUnitCb.SelectedIndexChanged += dailyDownloadLimitUnitCb_SelectedIndexChanged;
+			// 
+			// dailyDownloadLimitQtyNud
+			// 
+			dailyDownloadLimitQtyNud.Location = new System.Drawing.Point(264, 57);
+			dailyDownloadLimitQtyNud.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
+			dailyDownloadLimitQtyNud.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+			dailyDownloadLimitQtyNud.Name = "dailyDownloadLimitQtyNud";
+			dailyDownloadLimitQtyNud.Size = new System.Drawing.Size(110, 23);
+			dailyDownloadLimitQtyNud.TabIndex = 4;
+			dailyDownloadLimitQtyNud.Value = new decimal(new int[] { 50, 0, 0, 0 });
+			// 
+			// dailyDownloadLimitQtyLbl
+			// 
+			dailyDownloadLimitQtyLbl.AutoSize = true;
+			dailyDownloadLimitQtyLbl.Location = new System.Drawing.Point(220, 61);
+			dailyDownloadLimitQtyLbl.Name = "dailyDownloadLimitQtyLbl";
+			dailyDownloadLimitQtyLbl.Size = new System.Drawing.Size(32, 15);
+			dailyDownloadLimitQtyLbl.TabIndex = 3;
+			dailyDownloadLimitQtyLbl.Text = "[qty]";
+			// 
+			// dailyDownloadLimitScopeCb
+			// 
+			dailyDownloadLimitScopeCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			dailyDownloadLimitScopeCb.FormattingEnabled = true;
+			dailyDownloadLimitScopeCb.Location = new System.Drawing.Point(7, 57);
+			dailyDownloadLimitScopeCb.Name = "dailyDownloadLimitScopeCb";
+			dailyDownloadLimitScopeCb.Size = new System.Drawing.Size(200, 23);
+			dailyDownloadLimitScopeCb.TabIndex = 2;
+			dailyDownloadLimitScopeCb.SelectedIndexChanged += dailyDownloadLimitScopeCb_SelectedIndexChanged;
+			// 
+			// dailyDownloadLimitDescLbl
+			// 
+			dailyDownloadLimitDescLbl.Location = new System.Drawing.Point(7, 19);
+			dailyDownloadLimitDescLbl.Name = "dailyDownloadLimitDescLbl";
+			dailyDownloadLimitDescLbl.Size = new System.Drawing.Size(828, 32);
+			dailyDownloadLimitDescLbl.TabIndex = 1;
+			dailyDownloadLimitDescLbl.Text = "[daily download limit long desc]";
 			// 
 			// stripAudibleBrandingCbox
 			// 
@@ -409,16 +481,6 @@ namespace LibationWinForms.Dialogs
 			loggingLevelCb.Size = new System.Drawing.Size(129, 23);
 			loggingLevelCb.TabIndex = 4;
 			// 
-			// checkForUpgradesCbox
-			// 
-			checkForUpgradesCbox.AutoSize = true;
-			checkForUpgradesCbox.Location = new System.Drawing.Point(6, 569);
-			checkForUpgradesCbox.Name = "checkForUpgradesCbox";
-			checkForUpgradesCbox.Size = new System.Drawing.Size(300, 19);
-			checkForUpgradesCbox.TabIndex = 13;
-			checkForUpgradesCbox.Text = "[Check for upgrades at startup]";
-			checkForUpgradesCbox.UseVisualStyleBackColor = true;
-			// 
 			// tabControl
 			// 
 			tabControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
@@ -437,6 +499,7 @@ namespace LibationWinForms.Dialogs
 			// 
 			tab1ImportantSettings.AutoScroll = true;
 			tab1ImportantSettings.BackColor = System.Drawing.SystemColors.Window;
+			tab1ImportantSettings.Controls.Add(preReleaseCbox);
 			tab1ImportantSettings.Controls.Add(checkForUpgradesCbox);
 			tab1ImportantSettings.Controls.Add(themeLbl);
 			tab1ImportantSettings.Controls.Add(themeCb);
@@ -453,6 +516,27 @@ namespace LibationWinForms.Dialogs
 			tab1ImportantSettings.Size = new System.Drawing.Size(856, 457);
 			tab1ImportantSettings.TabIndex = 0;
 			tab1ImportantSettings.Text = "Important settings";
+			// 
+			// preReleaseCbox
+			// 
+			preReleaseCbox.AutoSize = true;
+			preReleaseCbox.Location = new System.Drawing.Point(411, 569);
+			preReleaseCbox.Name = "preReleaseCbox";
+			preReleaseCbox.Size = new System.Drawing.Size(198, 19);
+			preReleaseCbox.TabIndex = 14;
+			preReleaseCbox.Text = "[Check for pre-release upgrades]";
+			preReleaseCbox.UseVisualStyleBackColor = true;
+			// 
+			// checkForUpgradesCbox
+			// 
+			checkForUpgradesCbox.AutoSize = true;
+			checkForUpgradesCbox.Location = new System.Drawing.Point(6, 569);
+			checkForUpgradesCbox.Name = "checkForUpgradesCbox";
+			checkForUpgradesCbox.Size = new System.Drawing.Size(190, 19);
+			checkForUpgradesCbox.TabIndex = 13;
+			checkForUpgradesCbox.Text = "[Check for upgrades at startup]";
+			checkForUpgradesCbox.UseVisualStyleBackColor = true;
+			checkForUpgradesCbox.CheckedChanged += checkForUpgradesCbox_CheckedChanged;
 			// 
 			// themeLbl
 			// 
@@ -492,7 +576,7 @@ namespace LibationWinForms.Dialogs
 			groupBox1.Controls.Add(gridFontScaleFactorTbar);
 			groupBox1.Location = new System.Drawing.Point(6, 387);
 			groupBox1.Name = "groupBox1";
-			groupBox1.Size = new System.Drawing.Size(844, 83);
+			groupBox1.Size = new System.Drawing.Size(810, 83);
 			groupBox1.TabIndex = 9;
 			groupBox1.TabStop = false;
 			groupBox1.Text = "Display Settings";
@@ -500,7 +584,7 @@ namespace LibationWinForms.Dialogs
 			// applyDisplaySettingsBtn
 			// 
 			applyDisplaySettingsBtn.Anchor = System.Windows.Forms.AnchorStyles.Right;
-			applyDisplaySettingsBtn.Location = new System.Drawing.Point(672, 26);
+			applyDisplaySettingsBtn.Location = new System.Drawing.Point(638, 26);
 			applyDisplaySettingsBtn.Name = "applyDisplaySettingsBtn";
 			applyDisplaySettingsBtn.Size = new System.Drawing.Size(148, 34);
 			applyDisplaySettingsBtn.TabIndex = 9;
@@ -560,47 +644,26 @@ namespace LibationWinForms.Dialogs
 			tokenStorageGb.Controls.Add(encryptTokensCbox);
 			tokenStorageGb.Location = new System.Drawing.Point(6, 277);
 			tokenStorageGb.Name = "tokenStorageGb";
-			tokenStorageGb.Size = new System.Drawing.Size(844, 104);
+			tokenStorageGb.Size = new System.Drawing.Size(810, 104);
 			tokenStorageGb.TabIndex = 8;
 			tokenStorageGb.TabStop = false;
 			tokenStorageGb.Text = "Authentication tokens";
 			// 
-			// encryptTokensCbox
+			// updateExistingTokensBtn
 			// 
-			encryptTokensCbox.AutoSize = true;
-			encryptTokensCbox.Location = new System.Drawing.Point(8, 22);
-			encryptTokensCbox.Name = "encryptTokensCbox";
-			encryptTokensCbox.Size = new System.Drawing.Size(520, 19);
-			encryptTokensCbox.TabIndex = 0;
-			encryptTokensCbox.Text = "Store authentication tokens encrypted. Unchecking this option stores tokens in plaintext.";
-			encryptTokensCbox.UseVisualStyleBackColor = true;
-			encryptTokensCbox.CheckedChanged += encryptTokensCbox_CheckedChanged;
-			// 
-			// plaintextTokenWarningLbl
-			// 
-			plaintextTokenWarningLbl.AutoSize = true;
-			plaintextTokenWarningLbl.ForeColor = System.Drawing.Color.DarkRed;
-			plaintextTokenWarningLbl.Location = new System.Drawing.Point(27, 44);
-			plaintextTokenWarningLbl.Name = "plaintextTokenWarningLbl";
-			plaintextTokenWarningLbl.Size = new System.Drawing.Size(480, 15);
-			plaintextTokenWarningLbl.TabIndex = 1;
-			plaintextTokenWarningLbl.Text = "Authentication tokens will be stored as readable plaintext in AccountsSettings.json.";
-			// 
-			// osSecretStoreUnavailableLbl
-			// 
-			osSecretStoreUnavailableLbl.AutoSize = true;
-			osSecretStoreUnavailableLbl.ForeColor = System.Drawing.Color.DarkRed;
-			osSecretStoreUnavailableLbl.Location = new System.Drawing.Point(27, 44);
-			osSecretStoreUnavailableLbl.Name = "osSecretStoreUnavailableLbl";
-			osSecretStoreUnavailableLbl.Size = new System.Drawing.Size(250, 15);
-			osSecretStoreUnavailableLbl.TabIndex = 2;
-			osSecretStoreUnavailableLbl.Text = "[OS secret store unavailable]";
-			osSecretStoreUnavailableLbl.Visible = false;
+			updateExistingTokensBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			updateExistingTokensBtn.Location = new System.Drawing.Point(594, 68);
+			updateExistingTokensBtn.Name = "updateExistingTokensBtn";
+			updateExistingTokensBtn.Size = new System.Drawing.Size(200, 27);
+			updateExistingTokensBtn.TabIndex = 4;
+			updateExistingTokensBtn.Text = "Update existing stored tokens";
+			updateExistingTokensBtn.UseVisualStyleBackColor = true;
+			updateExistingTokensBtn.Click += updateExistingTokensBtn_Click;
 			// 
 			// exportMasterKeyBtn
 			// 
 			exportMasterKeyBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			exportMasterKeyBtn.Location = new System.Drawing.Point(422, 68);
+			exportMasterKeyBtn.Location = new System.Drawing.Point(388, 68);
 			exportMasterKeyBtn.Name = "exportMasterKeyBtn";
 			exportMasterKeyBtn.Size = new System.Drawing.Size(200, 27);
 			exportMasterKeyBtn.TabIndex = 3;
@@ -608,16 +671,37 @@ namespace LibationWinForms.Dialogs
 			exportMasterKeyBtn.UseVisualStyleBackColor = true;
 			exportMasterKeyBtn.Click += exportMasterKeyBtn_Click;
 			// 
-			// updateExistingTokensBtn
+			// osSecretStoreUnavailableLbl
 			// 
-			updateExistingTokensBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			updateExistingTokensBtn.Location = new System.Drawing.Point(628, 68);
-			updateExistingTokensBtn.Name = "updateExistingTokensBtn";
-			updateExistingTokensBtn.Size = new System.Drawing.Size(200, 27);
-			updateExistingTokensBtn.TabIndex = 4;
-			updateExistingTokensBtn.Text = "Update existing stored tokens";
-			updateExistingTokensBtn.UseVisualStyleBackColor = true;
-			updateExistingTokensBtn.Click += updateExistingTokensBtn_Click;
+			osSecretStoreUnavailableLbl.AutoSize = true;
+			osSecretStoreUnavailableLbl.ForeColor = System.Drawing.Color.DarkRed;
+			osSecretStoreUnavailableLbl.Location = new System.Drawing.Point(27, 44);
+			osSecretStoreUnavailableLbl.Name = "osSecretStoreUnavailableLbl";
+			osSecretStoreUnavailableLbl.Size = new System.Drawing.Size(156, 15);
+			osSecretStoreUnavailableLbl.TabIndex = 2;
+			osSecretStoreUnavailableLbl.Text = "[OS secret store unavailable]";
+			osSecretStoreUnavailableLbl.Visible = false;
+			// 
+			// plaintextTokenWarningLbl
+			// 
+			plaintextTokenWarningLbl.AutoSize = true;
+			plaintextTokenWarningLbl.ForeColor = System.Drawing.Color.DarkRed;
+			plaintextTokenWarningLbl.Location = new System.Drawing.Point(27, 44);
+			plaintextTokenWarningLbl.Name = "plaintextTokenWarningLbl";
+			plaintextTokenWarningLbl.Size = new System.Drawing.Size(443, 15);
+			plaintextTokenWarningLbl.TabIndex = 1;
+			plaintextTokenWarningLbl.Text = "Authentication tokens will be stored as readable plaintext in AccountsSettings.json.";
+			// 
+			// encryptTokensCbox
+			// 
+			encryptTokensCbox.AutoSize = true;
+			encryptTokensCbox.Location = new System.Drawing.Point(8, 22);
+			encryptTokensCbox.Name = "encryptTokensCbox";
+			encryptTokensCbox.Size = new System.Drawing.Size(492, 19);
+			encryptTokensCbox.TabIndex = 0;
+			encryptTokensCbox.Text = "Store authentication tokens encrypted. Unchecking this option stores tokens in plaintext.";
+			encryptTokensCbox.UseVisualStyleBackColor = true;
+			encryptTokensCbox.CheckedChanged += encryptTokensCbox_CheckedChanged;
 			// 
 			// booksGb
 			// 
@@ -632,7 +716,7 @@ namespace LibationWinForms.Dialogs
 			booksGb.Controls.Add(booksLocationDescLbl);
 			booksGb.Location = new System.Drawing.Point(6, 6);
 			booksGb.Name = "booksGb";
-			booksGb.Size = new System.Drawing.Size(844, 265);
+			booksGb.Size = new System.Drawing.Size(810, 265);
 			booksGb.TabIndex = 0;
 			booksGb.TabStop = false;
 			booksGb.Text = "Books location";
@@ -642,7 +726,7 @@ namespace LibationWinForms.Dialogs
 			booksSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			booksSelectControl.Location = new System.Drawing.Point(8, 37);
 			booksSelectControl.Name = "booksSelectControl";
-			booksSelectControl.Size = new System.Drawing.Size(830, 80);
+			booksSelectControl.Size = new System.Drawing.Size(796, 80);
 			booksSelectControl.TabIndex = 6;
 			// 
 			// lastWriteTimeCb
@@ -768,7 +852,7 @@ namespace LibationWinForms.Dialogs
 			useWebViewCb.AutoSize = true;
 			useWebViewCb.Location = new System.Drawing.Point(6, 56);
 			useWebViewCb.Name = "useWebViewCb";
-			useWebViewCb.Size = new System.Drawing.Size(112, 19);
+			useWebViewCb.Size = new System.Drawing.Size(128, 19);
 			useWebViewCb.TabIndex = 3;
 			useWebViewCb.Text = "[use webview desc]";
 			useWebViewCb.UseVisualStyleBackColor = true;
@@ -778,7 +862,7 @@ namespace LibationWinForms.Dialogs
 			deviceRegistrationLbl.AutoSize = true;
 			deviceRegistrationLbl.Location = new System.Drawing.Point(6, 81);
 			deviceRegistrationLbl.Name = "deviceRegistrationLbl";
-			deviceRegistrationLbl.Size = new System.Drawing.Size(200, 15);
+			deviceRegistrationLbl.Size = new System.Drawing.Size(139, 15);
 			deviceRegistrationLbl.TabIndex = 4;
 			deviceRegistrationLbl.Text = "[device registration desc]";
 			// 
@@ -790,77 +874,6 @@ namespace LibationWinForms.Dialogs
 			deviceRegistrationCb.Name = "deviceRegistrationCb";
 			deviceRegistrationCb.Size = new System.Drawing.Size(520, 23);
 			deviceRegistrationCb.TabIndex = 5;
-			// 
-			// dailyDownloadLimitGb
-			// 
-			dailyDownloadLimitGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitApproxLbl);
-			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitUnitCb);
-			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitQtyNud);
-			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitQtyLbl);
-			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitScopeCb);
-			dailyDownloadLimitGb.Controls.Add(dailyDownloadLimitDescLbl);
-			dailyDownloadLimitGb.Location = new System.Drawing.Point(7, 6);
-			dailyDownloadLimitGb.Name = "dailyDownloadLimitGb";
-			dailyDownloadLimitGb.Size = new System.Drawing.Size(842, 110);
-			dailyDownloadLimitGb.TabIndex = 23;
-			dailyDownloadLimitGb.TabStop = false;
-			dailyDownloadLimitGb.Text = "[daily download limit desc]";
-			// 
-			// dailyDownloadLimitDescLbl
-			// 
-			dailyDownloadLimitDescLbl.Location = new System.Drawing.Point(7, 19);
-			dailyDownloadLimitDescLbl.Name = "dailyDownloadLimitDescLbl";
-			dailyDownloadLimitDescLbl.Size = new System.Drawing.Size(828, 32);
-			dailyDownloadLimitDescLbl.TabIndex = 1;
-			dailyDownloadLimitDescLbl.Text = "[daily download limit long desc]";
-			// 
-			// dailyDownloadLimitScopeCb
-			// 
-			dailyDownloadLimitScopeCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			dailyDownloadLimitScopeCb.FormattingEnabled = true;
-			dailyDownloadLimitScopeCb.Location = new System.Drawing.Point(7, 57);
-			dailyDownloadLimitScopeCb.Name = "dailyDownloadLimitScopeCb";
-			dailyDownloadLimitScopeCb.Size = new System.Drawing.Size(200, 23);
-			dailyDownloadLimitScopeCb.TabIndex = 2;
-			dailyDownloadLimitScopeCb.SelectedIndexChanged += dailyDownloadLimitScopeCb_SelectedIndexChanged;
-			// 
-			// dailyDownloadLimitQtyLbl
-			// 
-			dailyDownloadLimitQtyLbl.AutoSize = true;
-			dailyDownloadLimitQtyLbl.Location = new System.Drawing.Point(220, 61);
-			dailyDownloadLimitQtyLbl.Name = "dailyDownloadLimitQtyLbl";
-			dailyDownloadLimitQtyLbl.Size = new System.Drawing.Size(38, 15);
-			dailyDownloadLimitQtyLbl.TabIndex = 3;
-			dailyDownloadLimitQtyLbl.Text = "[qty]";
-			// 
-			// dailyDownloadLimitQtyNud
-			// 
-			dailyDownloadLimitQtyNud.Location = new System.Drawing.Point(264, 57);
-			dailyDownloadLimitQtyNud.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
-			dailyDownloadLimitQtyNud.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-			dailyDownloadLimitQtyNud.Name = "dailyDownloadLimitQtyNud";
-			dailyDownloadLimitQtyNud.Size = new System.Drawing.Size(110, 23);
-			dailyDownloadLimitQtyNud.TabIndex = 4;
-			dailyDownloadLimitQtyNud.Value = new decimal(new int[] { 50, 0, 0, 0 });
-			// 
-			// dailyDownloadLimitUnitCb
-			// 
-			dailyDownloadLimitUnitCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			dailyDownloadLimitUnitCb.FormattingEnabled = true;
-			dailyDownloadLimitUnitCb.Location = new System.Drawing.Point(383, 57);
-			dailyDownloadLimitUnitCb.Name = "dailyDownloadLimitUnitCb";
-			dailyDownloadLimitUnitCb.Size = new System.Drawing.Size(90, 23);
-			dailyDownloadLimitUnitCb.TabIndex = 5;
-			dailyDownloadLimitUnitCb.SelectedIndexChanged += dailyDownloadLimitUnitCb_SelectedIndexChanged;
-			// 
-			// dailyDownloadLimitApproxLbl
-			// 
-			dailyDownloadLimitApproxLbl.Location = new System.Drawing.Point(485, 53);
-			dailyDownloadLimitApproxLbl.Name = "dailyDownloadLimitApproxLbl";
-			dailyDownloadLimitApproxLbl.Size = new System.Drawing.Size(350, 45);
-			dailyDownloadLimitApproxLbl.TabIndex = 6;
-			dailyDownloadLimitApproxLbl.Text = "[mb/gb approximate note]";
 			// 
 			// tab3DownloadDecrypt
 			// 
@@ -883,7 +896,7 @@ namespace LibationWinForms.Dialogs
 			// 
 			saveMetadataToFileCbox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
 			saveMetadataToFileCbox.AutoSize = true;
-			saveMetadataToFileCbox.Location = new System.Drawing.Point(481, 551);
+			saveMetadataToFileCbox.Location = new System.Drawing.Point(447, 551);
 			saveMetadataToFileCbox.Name = "saveMetadataToFileCbox";
 			saveMetadataToFileCbox.Size = new System.Drawing.Size(166, 19);
 			saveMetadataToFileCbox.TabIndex = 22;
@@ -892,7 +905,6 @@ namespace LibationWinForms.Dialogs
 			// 
 			// useCoverAsFolderIconCb
 			// 
-			useCoverAsFolderIconCb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left;
 			useCoverAsFolderIconCb.AutoSize = true;
 			useCoverAsFolderIconCb.Location = new System.Drawing.Point(6, 551);
 			useCoverAsFolderIconCb.Name = "useCoverAsFolderIconCb";
@@ -908,7 +920,7 @@ namespace LibationWinForms.Dialogs
 			inProgressFilesGb.Controls.Add(inProgressDescLbl);
 			inProgressFilesGb.Location = new System.Drawing.Point(6, 397);
 			inProgressFilesGb.Name = "inProgressFilesGb";
-			inProgressFilesGb.Size = new System.Drawing.Size(842, 148);
+			inProgressFilesGb.Size = new System.Drawing.Size(808, 148);
 			inProgressFilesGb.TabIndex = 21;
 			inProgressFilesGb.TabStop = false;
 			inProgressFilesGb.Text = "In progress files";
@@ -918,7 +930,7 @@ namespace LibationWinForms.Dialogs
 			inProgressSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			inProgressSelectControl.Location = new System.Drawing.Point(6, 65);
 			inProgressSelectControl.Name = "inProgressSelectControl";
-			inProgressSelectControl.Size = new System.Drawing.Size(830, 80);
+			inProgressSelectControl.Size = new System.Drawing.Size(796, 80);
 			inProgressSelectControl.TabIndex = 19;
 			// 
 			// customFileNamingGb
@@ -936,7 +948,7 @@ namespace LibationWinForms.Dialogs
 			customFileNamingGb.Controls.Add(folderTemplateLbl);
 			customFileNamingGb.Location = new System.Drawing.Point(7, 204);
 			customFileNamingGb.Name = "customFileNamingGb";
-			customFileNamingGb.Size = new System.Drawing.Size(842, 187);
+			customFileNamingGb.Size = new System.Drawing.Size(808, 187);
 			customFileNamingGb.TabIndex = 20;
 			customFileNamingGb.TabStop = false;
 			customFileNamingGb.Text = "Custom file naming";
@@ -955,7 +967,7 @@ namespace LibationWinForms.Dialogs
 			// chapterFileTemplateBtn
 			// 
 			chapterFileTemplateBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			chapterFileTemplateBtn.Location = new System.Drawing.Point(762, 124);
+			chapterFileTemplateBtn.Location = new System.Drawing.Point(728, 124);
 			chapterFileTemplateBtn.Name = "chapterFileTemplateBtn";
 			chapterFileTemplateBtn.Size = new System.Drawing.Size(75, 23);
 			chapterFileTemplateBtn.TabIndex = 8;
@@ -969,7 +981,7 @@ namespace LibationWinForms.Dialogs
 			chapterFileTemplateTb.Location = new System.Drawing.Point(6, 125);
 			chapterFileTemplateTb.Name = "chapterFileTemplateTb";
 			chapterFileTemplateTb.ReadOnly = true;
-			chapterFileTemplateTb.Size = new System.Drawing.Size(750, 23);
+			chapterFileTemplateTb.Size = new System.Drawing.Size(716, 23);
 			chapterFileTemplateTb.TabIndex = 7;
 			// 
 			// chapterFileTemplateLbl
@@ -984,7 +996,7 @@ namespace LibationWinForms.Dialogs
 			// fileTemplateBtn
 			// 
 			fileTemplateBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			fileTemplateBtn.Location = new System.Drawing.Point(762, 80);
+			fileTemplateBtn.Location = new System.Drawing.Point(728, 80);
 			fileTemplateBtn.Name = "fileTemplateBtn";
 			fileTemplateBtn.Size = new System.Drawing.Size(75, 23);
 			fileTemplateBtn.TabIndex = 5;
@@ -998,7 +1010,7 @@ namespace LibationWinForms.Dialogs
 			fileTemplateTb.Location = new System.Drawing.Point(6, 81);
 			fileTemplateTb.Name = "fileTemplateTb";
 			fileTemplateTb.ReadOnly = true;
-			fileTemplateTb.Size = new System.Drawing.Size(750, 23);
+			fileTemplateTb.Size = new System.Drawing.Size(716, 23);
 			fileTemplateTb.TabIndex = 4;
 			// 
 			// fileTemplateLbl
@@ -1013,7 +1025,7 @@ namespace LibationWinForms.Dialogs
 			// folderTemplateBtn
 			// 
 			folderTemplateBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			folderTemplateBtn.Location = new System.Drawing.Point(762, 36);
+			folderTemplateBtn.Location = new System.Drawing.Point(728, 36);
 			folderTemplateBtn.Name = "folderTemplateBtn";
 			folderTemplateBtn.Size = new System.Drawing.Size(75, 23);
 			folderTemplateBtn.TabIndex = 2;
@@ -1027,7 +1039,7 @@ namespace LibationWinForms.Dialogs
 			folderTemplateTb.Location = new System.Drawing.Point(5, 37);
 			folderTemplateTb.Name = "folderTemplateTb";
 			folderTemplateTb.ReadOnly = true;
-			folderTemplateTb.Size = new System.Drawing.Size(750, 23);
+			folderTemplateTb.Size = new System.Drawing.Size(716, 23);
 			folderTemplateTb.TabIndex = 1;
 			// 
 			// folderTemplateLbl
@@ -1067,30 +1079,6 @@ namespace LibationWinForms.Dialogs
 			tab4AudioFileOptions.Size = new System.Drawing.Size(856, 457);
 			tab4AudioFileOptions.TabIndex = 3;
 			tab4AudioFileOptions.Text = "Audio File Options";
-			// 
-			// tab5Audiobookshelf
-			// 
-			tab5Audiobookshelf.AutoScroll = true;
-			tab5Audiobookshelf.BackColor = System.Drawing.SystemColors.Window;
-			tab5Audiobookshelf.Controls.Add(absEnabledCb);
-			tab5Audiobookshelf.Controls.Add(absIncludePdfsCb);
-			tab5Audiobookshelf.Controls.Add(absPlaintextWarningLbl);
-			tab5Audiobookshelf.Controls.Add(absUrlLbl);
-			tab5Audiobookshelf.Controls.Add(absUrlTb);
-			tab5Audiobookshelf.Controls.Add(absTokenLbl);
-			tab5Audiobookshelf.Controls.Add(absTokenTb);
-			tab5Audiobookshelf.Controls.Add(absConnectBtn);
-			tab5Audiobookshelf.Controls.Add(absStatusLbl);
-			tab5Audiobookshelf.Controls.Add(absLibraryLbl);
-			tab5Audiobookshelf.Controls.Add(absLibraryCb);
-			tab5Audiobookshelf.Controls.Add(absFolderLbl);
-			tab5Audiobookshelf.Controls.Add(absFolderCb);
-			tab5Audiobookshelf.Location = new System.Drawing.Point(4, 24);
-			tab5Audiobookshelf.Name = "tab5Audiobookshelf";
-			tab5Audiobookshelf.Padding = new System.Windows.Forms.Padding(3);
-			tab5Audiobookshelf.Size = new System.Drawing.Size(856, 457);
-			tab5Audiobookshelf.TabIndex = 4;
-			tab5Audiobookshelf.Text = "Audiobookshelf";
 			// 
 			// request_xHE_AAC_Cbox
 			// 
@@ -1699,20 +1687,47 @@ namespace LibationWinForms.Dialogs
 			createCueSheetCbox.UseVisualStyleBackColor = true;
 			createCueSheetCbox.CheckedChanged += allowLibationFixupCbox_CheckedChanged;
 			// 
+			// tab5Audiobookshelf
+			// 
+			tab5Audiobookshelf.AutoScroll = true;
+			tab5Audiobookshelf.BackColor = System.Drawing.SystemColors.Window;
+			tab5Audiobookshelf.Controls.Add(absEnabledCb);
+			tab5Audiobookshelf.Controls.Add(absIncludePdfsCb);
+			tab5Audiobookshelf.Controls.Add(absPlaintextWarningLbl);
+			tab5Audiobookshelf.Controls.Add(absUrlLbl);
+			tab5Audiobookshelf.Controls.Add(absUrlTb);
+			tab5Audiobookshelf.Controls.Add(absTokenLbl);
+			tab5Audiobookshelf.Controls.Add(absTokenTb);
+			tab5Audiobookshelf.Controls.Add(absConnectBtn);
+			tab5Audiobookshelf.Controls.Add(absStatusLbl);
+			tab5Audiobookshelf.Controls.Add(absLibraryLbl);
+			tab5Audiobookshelf.Controls.Add(absLibraryCb);
+			tab5Audiobookshelf.Controls.Add(absFolderLbl);
+			tab5Audiobookshelf.Controls.Add(absFolderCb);
+			tab5Audiobookshelf.Location = new System.Drawing.Point(4, 24);
+			tab5Audiobookshelf.Name = "tab5Audiobookshelf";
+			tab5Audiobookshelf.Padding = new System.Windows.Forms.Padding(3);
+			tab5Audiobookshelf.Size = new System.Drawing.Size(856, 457);
+			tab5Audiobookshelf.TabIndex = 4;
+			tab5Audiobookshelf.Text = "Audiobookshelf";
+			// 
 			// absEnabledCb
 			// 
 			absEnabledCb.AutoSize = true;
 			absEnabledCb.Location = new System.Drawing.Point(6, 6);
 			absEnabledCb.Name = "absEnabledCb";
-			absEnabledCb.Size = new System.Drawing.Size(280, 19);
+			absEnabledCb.Size = new System.Drawing.Size(187, 19);
 			absEnabledCb.TabIndex = 0;
 			absEnabledCb.Text = "[AudiobookshelfEnabled desc]";
 			absEnabledCb.UseVisualStyleBackColor = true;
 			absEnabledCb.CheckedChanged += absEnabledCb_CheckedChanged;
+			// 
+			// absIncludePdfsCb
+			// 
 			absIncludePdfsCb.AutoSize = true;
 			absIncludePdfsCb.Location = new System.Drawing.Point(6, 32);
 			absIncludePdfsCb.Name = "absIncludePdfsCb";
-			absIncludePdfsCb.Size = new System.Drawing.Size(350, 19);
+			absIncludePdfsCb.Size = new System.Drawing.Size(207, 19);
 			absIncludePdfsCb.TabIndex = 1;
 			absIncludePdfsCb.Text = "[AudiobookshelfIncludePdfs desc]";
 			absIncludePdfsCb.UseVisualStyleBackColor = true;
@@ -1723,7 +1738,7 @@ namespace LibationWinForms.Dialogs
 			absPlaintextWarningLbl.ForeColor = System.Drawing.Color.DarkOrange;
 			absPlaintextWarningLbl.Location = new System.Drawing.Point(6, 56);
 			absPlaintextWarningLbl.Name = "absPlaintextWarningLbl";
-			absPlaintextWarningLbl.Size = new System.Drawing.Size(480, 15);
+			absPlaintextWarningLbl.Size = new System.Drawing.Size(327, 15);
 			absPlaintextWarningLbl.TabIndex = 2;
 			absPlaintextWarningLbl.Text = "Warning: The API token is stored as plaintext in Settings.json.";
 			// 
@@ -1732,7 +1747,7 @@ namespace LibationWinForms.Dialogs
 			absUrlLbl.AutoSize = true;
 			absUrlLbl.Location = new System.Drawing.Point(6, 81);
 			absUrlLbl.Name = "absUrlLbl";
-			absUrlLbl.Size = new System.Drawing.Size(70, 15);
+			absUrlLbl.Size = new System.Drawing.Size(173, 15);
 			absUrlLbl.TabIndex = 3;
 			absUrlLbl.Text = "[AudiobookshelfServerUrl desc]";
 			// 
@@ -1749,7 +1764,7 @@ namespace LibationWinForms.Dialogs
 			absTokenLbl.AutoSize = true;
 			absTokenLbl.Location = new System.Drawing.Point(6, 110);
 			absTokenLbl.Name = "absTokenLbl";
-			absTokenLbl.Size = new System.Drawing.Size(65, 15);
+			absTokenLbl.Size = new System.Drawing.Size(176, 15);
 			absTokenLbl.TabIndex = 5;
 			absTokenLbl.Text = "[AudiobookshelfApiToken desc]";
 			// 
@@ -1779,14 +1794,13 @@ namespace LibationWinForms.Dialogs
 			absStatusLbl.Name = "absStatusLbl";
 			absStatusLbl.Size = new System.Drawing.Size(0, 15);
 			absStatusLbl.TabIndex = 8;
-			absStatusLbl.Text = "";
 			// 
 			// absLibraryLbl
 			// 
 			absLibraryLbl.AutoSize = true;
 			absLibraryLbl.Location = new System.Drawing.Point(6, 166);
 			absLibraryLbl.Name = "absLibraryLbl";
-			absLibraryLbl.Size = new System.Drawing.Size(50, 15);
+			absLibraryLbl.Size = new System.Drawing.Size(172, 15);
 			absLibraryLbl.TabIndex = 9;
 			absLibraryLbl.Text = "[AudiobookshelfLibraryId desc]";
 			// 
@@ -1806,7 +1820,7 @@ namespace LibationWinForms.Dialogs
 			absFolderLbl.AutoSize = true;
 			absFolderLbl.Location = new System.Drawing.Point(6, 196);
 			absFolderLbl.Name = "absFolderLbl";
-			absFolderLbl.Size = new System.Drawing.Size(45, 15);
+			absFolderLbl.Size = new System.Drawing.Size(169, 15);
 			absFolderLbl.TabIndex = 11;
 			absFolderLbl.Text = "[AudiobookshelfFolderId desc]";
 			// 
@@ -2028,5 +2042,6 @@ namespace LibationWinForms.Dialogs
 		private System.Windows.Forms.ComboBox absLibraryCb;
 		private System.Windows.Forms.Label absFolderLbl;
 		private System.Windows.Forms.ComboBox absFolderCb;
+		private System.Windows.Forms.CheckBox preReleaseCbox;
 	}
 }

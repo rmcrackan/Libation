@@ -1,3 +1,4 @@
+using NuGet.Versioning;
 using System;
 using System.Text.RegularExpressions;
 
@@ -19,15 +20,17 @@ public partial record UpgradeProperties
 	public string ZipUrl { get; }
 	public string HtmlUrl { get; }
 	public string ZipName { get; }
-	public Version LatestRelease { get; }
+	public NuGetVersion LatestRelease { get; }
 	public string Notes { get; }
+	public bool IsPreRelease { get; }
 
-	public UpgradeProperties(string zipUrl, string htmlUrl, string zipName, Version latestRelease, string notes)
+	public UpgradeProperties(string zipUrl, string htmlUrl, string zipName, NuGetVersion latestRelease, string notes, bool isPrerelease)
 	{
 		ZipName = zipName;
 		HtmlUrl = htmlUrl;
 		ZipUrl = zipUrl;
 		LatestRelease = latestRelease;
+		IsPreRelease = isPrerelease;
 
 		var text = NoAppBlockRegex().Replace(notes, "");
 		text = LinkStripRegex().Replace(text, "$1");

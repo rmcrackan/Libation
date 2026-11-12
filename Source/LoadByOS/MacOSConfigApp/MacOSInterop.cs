@@ -1,5 +1,6 @@
 ﻿using Dinah.Core;
 using LibationFileManager;
+using NuGet.Versioning;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -46,7 +47,7 @@ internal class MacOSInterop : IInteropFunctions
 
 	public string ReleaseIdString => AppScaffolding.LibationScaffolding.ReleaseIdentifier.ToString();
 
-	public Task InstallUpgradeAsync(string upgradeBundle, Version targetVersion)
+	public Task InstallUpgradeAsync(string upgradeBundle, NuGetVersion targetVersion)
 	{
 		Serilog.Log.Information($"Extracting upgrade bundle to {AppPath} (target version {targetVersion})");
 

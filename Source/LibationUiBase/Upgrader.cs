@@ -50,7 +50,7 @@ public class Upgrader : UpgraderBase
 	{
 		try
 		{
-			return await Task.Run(LibationScaffolding.GetLatestRelease);
+			return await Task.Run(() => LibationScaffolding.GetLatestRelease(Configuration.Instance.CheckForPreRelease));
 		}
 		catch (Exception ex)
 		{
@@ -159,7 +159,8 @@ public class MockUpgrader : UpgraderBase
 					"",
 					Path.GetFileName(MockUpgradeBundle) ?? "",
 					LibationScaffolding.BuildVersion ?? new(1, 0, 0, 0),
-					"<RELEASE NOTES>")));
+					"<RELEASE NOTES>",
+					isPrerelease: false)));
 	}
 
 	protected override async Task<string?> DownloadUpgradeAsync(UpgradeProperties upgradeProperties)

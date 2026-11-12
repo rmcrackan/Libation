@@ -1,6 +1,7 @@
 using AudibleApi;
 using AudibleApi.Authorization;
 using AudibleUtilities;
+using Avalonia.Controls;
 using Dinah.Core;
 using FileManager;
 using LibationFileManager;
@@ -38,6 +39,7 @@ public class ImportantSettingsVM : ViewModelBase
 		UseWebView = config.UseWebView;
 		SelectedDeviceRegistration = DeviceRegistrationSettingsUi.Display(config.DeviceRegistrationKind);
 		CheckForUpgradesAtStartup = config.CheckForUpgradesAtStartup;
+		CheckForPreRelease = config.CheckForPreRelease;
 		LoggingLevel = config.LogLevel;
 		GridScaleFactor = scaleFactorToLinearRange(config.GridScaleFactor);
 		GridFontScaleFactor = scaleFactorToLinearRange(config.GridFontScaleFactor);
@@ -62,7 +64,8 @@ public class ImportantSettingsVM : ViewModelBase
 			ExportButtonEnabled = true;
 		}
 
-		RefreshTokenStorageUiState();
+		if (!Design.IsDesignMode)
+			RefreshTokenStorageUiState();
 		ConvertExistingTokensCommand = ReactiveCommand.CreateFromTask(ConvertExistingTokensAsync);
 	}
 
@@ -82,6 +85,7 @@ public class ImportantSettingsVM : ViewModelBase
 		config.UseWebView = UseWebView;
 		config.DeviceRegistrationKind = SelectedDeviceRegistration.Value;
 		config.CheckForUpgradesAtStartup = CheckForUpgradesAtStartup;
+		config.CheckForPreRelease = CheckForPreRelease;
 		config.LogLevel = LoggingLevel;
 		config.TokenStorageMethod = SelectedTokenStorageMethod;
 		initialTokenStorageMethod = SelectedTokenStorageMethod;
@@ -156,6 +160,8 @@ public class ImportantSettingsVM : ViewModelBase
 	public string UseWebViewSnapMessage { get; } = Configuration.IsRunningUnderSnap ? "Disabled when running in Linux Snap (avoids login crash). Use external browser instead." : "";
 	public string CheckForUpgradesAtStartupText { get; } = Configuration.GetDescription(nameof(Configuration.CheckForUpgradesAtStartup));
 	public string CheckForUpgradesAtStartupTip { get; } = Configuration.GetHelpText(nameof(Configuration.CheckForUpgradesAtStartup));
+	public string CheckForPreReleaseText { get; } = Configuration.GetDescription(nameof(Configuration.CheckForPreRelease));
+	public string CheckForPreReleaseTip { get; } = Configuration.GetHelpText(nameof(Configuration.CheckForPreRelease));
 	public Serilog.Events.LogEventLevel[] LoggingLevels { get; } = Enum.GetValues<Serilog.Events.LogEventLevel>();
 	public string GridScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridScaleFactor));
 	public string GridFontScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridFontScaleFactor));
@@ -183,6 +189,7 @@ public class ImportantSettingsVM : ViewModelBase
 	public bool UseWebView { get; set; }
 	public EnumDisplay<DeviceRegistrationKind> SelectedDeviceRegistration { get; set; }
 	public bool CheckForUpgradesAtStartup { get; set; }
+	public bool CheckForPreRelease { get; set; }
 	public Serilog.Events.LogEventLevel LoggingLevel { get; set; }
 
 	public bool EncryptTokens

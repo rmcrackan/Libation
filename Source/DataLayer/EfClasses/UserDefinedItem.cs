@@ -1,4 +1,5 @@
 ﻿using Dinah.Core;
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +32,7 @@ public partial class UserDefinedItem
 	/// <summary>
 	/// Version of Libation used the last time the audio file was downloaded.
 	/// </summary>
-	public Version? LastDownloadedVersion { get; private set; }
+	public NuGetVersion? LastDownloadedVersion { get; private set; }
 	/// <summary>
 	/// Audio format of the last downloaded audio file.
 	/// </summary>
@@ -41,7 +42,7 @@ public partial class UserDefinedItem
 	/// </summary>
 	public string? LastDownloadedFileVersion { get; private set; }
 
-	public void SetLastDownloaded(Version? libationVersion, AudioFormat? audioFormat, string? audioVersion)
+	public void SetLastDownloaded(NuGetVersion? libationVersion, AudioFormat? audioFormat, string? audioVersion)
 	{
 		if (LastDownloadedVersion != libationVersion)
 		{

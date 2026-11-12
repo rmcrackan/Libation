@@ -1,6 +1,7 @@
 ﻿using AppScaffolding;
 using LibationFileManager;
 using LibationUiBase;
+using NuGet.Versioning;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,7 +58,7 @@ public partial class AboutDialog : Form
 		upgrader.DownloadCompleted += (_, _) => form1?.Invoke(() => form1.upgradeLbl.Visible = form1.upgradePb.Visible = false);
 
 		checkForUpgradeBtn.Enabled = false;
-		Version? latestVersion = null;
+		NuGetVersion? latestVersion = null;
 		var result = await upgrader.CheckForUpgradeAsync(OnUpgradeAvailable);
 
 		checkForUpgradeBtn.Enabled = true;

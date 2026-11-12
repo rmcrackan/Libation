@@ -71,7 +71,9 @@ jobs:
         run: |
           SCRIPT=./Scripts/Bundle_${{ inputs.OS }}.sh
           chmod +rx ${SCRIPT}
-          ${SCRIPT} ./bin "${{ inputs.libation-version }}" "${{ inputs.architecture }}"
+          # version string may be in semantic format, so replace '`' with '~' for *nix
+          VERSION=$(echo "${{ inputs.libation-version }}" | sed 's/-/~/g')
+          ${SCRIPT} ./bin "$VERSION" "${{ inputs.architecture }}"
           artifact=$(ls ./bundle)
           echo "artifact=${artifact}" >> "${GITHUB_OUTPUT}"
 

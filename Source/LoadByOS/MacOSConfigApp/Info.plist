@@ -19,7 +19,7 @@
 	<key>CFBundleIconFile</key>
 	<string>libation.icns</string>
 	<key>CFBundleVersion</key>
-	<string>VERSION_STRING</string>
+	<string>VERSION_NUM</string>
 	<key>CFBundleShortVersionString</key>
 	<string>VERSION_STRING</string>
 </dict>

@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NuGet.Versioning;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -47,7 +48,7 @@ public class InstallUpgradeManagerTests
 			("AppScaffolding.dll", "new-app-scaffolding"),
 			("Microsoft.EntityFrameworkCore.Sqlite.dll", "new-ef"));
 
-		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new Version(9, 9, 9));
+		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new NuGetVersion(9, 9, 9));
 
 		Assert.IsTrue(File.Exists(InstallUpgradeManager.GetPendingStatePath(_installDir)));
 		Assert.IsTrue(File.Exists(Path.Combine(InstallUpgradeManager.GetBackupDirectory(_installDir), "LibationUiBase.dll")));
@@ -68,7 +69,7 @@ public class InstallUpgradeManagerTests
 			("AppScaffolding.dll", "new-app-scaffolding"),
 			("Microsoft.EntityFrameworkCore.Sqlite.dll", "new-ef"));
 
-		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new Version(9, 9, 9));
+		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new NuGetVersion(9, 9, 9));
 
 		// Simulate a partial overlay: only some files updated.
 		WriteInstallFile("LibationFileManager.dll", "new-file-manager");
@@ -105,7 +106,7 @@ public class InstallUpgradeManagerTests
 			("LibationUiBase.dll", "new-ui-base"),
 			("LibationFileManager.dll", "new-file-manager"));
 
-		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new Version(9, 9, 9));
+		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new NuGetVersion(9, 9, 9));
 
 		// A partial overlay: LibationUiBase.dll was never replaced.
 		WriteInstallFile("LibationFileManager.dll", "new-file-manager");
@@ -131,7 +132,7 @@ public class InstallUpgradeManagerTests
 			("LibationUiBase.dll", "new-ui-base"),
 			("LibationFileManager.dll", "new-file-manager"));
 
-		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new Version(9, 9, 9));
+		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new NuGetVersion(9, 9, 9));
 
 		WriteInstallFile("LibationUiBase.dll", "new-ui-base");
 		// LibationFileManager.dll keeps its old contents, so verification fails and a rollback follows.
@@ -166,7 +167,7 @@ public class InstallUpgradeManagerTests
 			("LibationUiBase.dll", "new-ui-base"),
 			("LibationFileManager.dll", "new-file-manager"));
 
-		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new Version(9, 9, 9));
+		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new NuGetVersion(9, 9, 9));
 
 		// Nothing was replaced: ZipExtractor never ran.
 		var recovery = InstallUpgradeManager.RecoverPendingUpgradeIfNeeded(_installDir);
@@ -187,7 +188,7 @@ public class InstallUpgradeManagerTests
 			("LibationUiBase.dll", "new-ui-base"),
 			("LibationFileManager.dll", "new-file-manager"));
 
-		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new Version(9, 9, 9));
+		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new NuGetVersion(9, 9, 9));
 
 		// One file was replaced and one was not, so the overlay was underway when it stopped. The backup
 		// covers a dozen names out of hundreds, so restoring them cannot undo what else it replaced.
@@ -211,7 +212,7 @@ public class InstallUpgradeManagerTests
 			("LibationUiBase.dll", "new-ui-base"),
 			("LibationFileManager.dll", "new-file-manager"));
 
-		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new Version(9, 9, 9));
+		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new NuGetVersion(9, 9, 9));
 
 		// Make one backup file unreadable so its restore fails while the other succeeds.
 		var unreadableBackup = Path.Combine(InstallUpgradeManager.GetBackupDirectory(_installDir), "LibationUiBase.dll");
@@ -256,7 +257,7 @@ public class InstallUpgradeManagerTests
 			("AppScaffolding.dll", "new-app-scaffolding"),
 			("Microsoft.EntityFrameworkCore.Sqlite.dll", "new-ef"));
 
-		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new Version(9, 9, 9));
+		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new NuGetVersion(9, 9, 9));
 
 		WriteInstallFile("LibationUiBase.dll", "new-ui-base");
 		WriteInstallFile("LibationFileManager.dll", "new-file-manager");
@@ -273,7 +274,7 @@ public class InstallUpgradeManagerTests
 	public void VerifyInstallMatchesUpgrade_reports_missing_files()
 	{
 		var zipPath = CreateUpgradeZip(("LibationUiBase.dll", "new-ui-base"));
-		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new Version(1, 2, 3));
+		InstallUpgradeManager.PrepareForUpgrade(_installDir, zipPath, new NuGetVersion(1, 2, 3));
 
 		File.Delete(Path.Combine(_installDir, "LibationUiBase.dll"));
 

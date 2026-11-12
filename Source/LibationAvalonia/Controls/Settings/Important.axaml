@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="600"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="900"
 			 xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 			 xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
 			 x:DataType="vm:ImportantSettingsVM"
@@ -102,11 +102,23 @@
 				TextWrapping="Wrap"
 				Text="{Binding DeviceRegistrationReLoginNote}" />
 
-			<CheckBox
-				IsChecked="{Binding CheckForUpgradesAtStartup, Mode=TwoWay}"
-				ToolTip.Tip="{Binding CheckForUpgradesAtStartupTip}">
-				<TextBlock Text="{Binding CheckForUpgradesAtStartupText}" />
-			</CheckBox>
+			<StackPanel Orientation="Horizontal" >
+				<CheckBox
+					Margin="0,0,10,0"
+					Name="CheckForUpgradesAtStartupCheckBox"
+					IsChecked="{Binding CheckForUpgradesAtStartup, Mode=TwoWay}"
+					ToolTip.Tip="{Binding CheckForUpgradesAtStartupTip}">
+					<TextBlock Text="{Binding CheckForUpgradesAtStartupText}" />
+				</CheckBox>
+				<CheckBox
+					IsEnabled="{Binding #CheckForUpgradesAtStartupCheckBox.IsChecked}"
+					IsChecked="{Binding CheckForPreRelease, Mode=TwoWay}"
+					ToolTip.Tip="{Binding CheckForPreReleaseTip}">
+					<TextBlock Text="{Binding CheckForPreReleaseText}" />
+				</CheckBox>
+				
+			</StackPanel>
+
 		</StackPanel>
 
 		<controls:GroupBox

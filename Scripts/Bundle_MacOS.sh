@@ -127,7 +127,11 @@ echo "Set LSArchitecturePriority to $PLIST_ARCH"
 # Portable sed -i (BSD sed on macOS requires backup arg; use .bak then remove)
 sed -i.bak "s/ARCHITECTURE_STRING/$PLIST_ARCH/" $BUNDLE_CONTENTS/Info.plist && rm -f $BUNDLE_CONTENTS/Info.plist.bak
 
-echo "Set CFBundleVersion to $VERSION"
+VERSION_NUM=$(echo "$VERSION" | cut -d "-" -f 1)
+echo "Set CFBundleVersion to $VERSION_NUM"
+sed -i.bak "s/VERSION_NUM/$VERSION_NUM/" $BUNDLE_CONTENTS/Info.plist && rm -f $BUNDLE_CONTENTS/Info.plist.bak
+
+echo "Set CFBundleShortVersionString to $VERSION"
 sed -i.bak "s/VERSION_STRING/$VERSION/" $BUNDLE_CONTENTS/Info.plist && rm -f $BUNDLE_CONTENTS/Info.plist.bak
 
 delfiles=('MacOSConfigApp' 'MacOSConfigApp.deps.json' 'MacOSConfigApp.runtimeconfig.json')

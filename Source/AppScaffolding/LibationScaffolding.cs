@@ -5,6 +5,7 @@ using Dinah.Core.Logging;
 using LibationFileManager;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NuGet.Versioning;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -59,9 +60,8 @@ public static class LibationScaffolding
 		=> _entryAssembly ??= Assembly.GetEntryAssembly();
 
 	// previously: System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-	private static Version? _buildVersion;
-	public static Version? BuildVersion
-		=> _buildVersion ??= new[] { ExecutingAssembly.GetName(), EntryAssembly?.GetName() }.Max(a => a?.Version);
+	private static NuGetVersion? _buildVersion;
+	public static NuGetVersion? BuildVersion => _buildVersion ??= GetAssemblyVersion();
 
 	/// <summary>Run migrations before loading Configuration for the first time. Then load and return Configuration</summary>
 	public static Configuration RunPreConfigMigrations()
@@ -80,6 +80,15 @@ public static class LibationScaffolding
 		//                                               //
 		//***********************************************//
 		return Configuration.Instance;
+	}
+
+	private static NuGetVersion? GetAssemblyVersion()
+	{
+		var verStr = ExecutingAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+			?? EntryAssembly?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+
+		return !string.IsNullOrEmpty(verStr) && NuGetVersion.TryParse(verStr, out var nugetVersion) ? nugetVersion
+			: new[] { ExecutingAssembly.GetName(), EntryAssembly?.GetName() }.Max(a => a?.Version != null ? new NuGetVersion(a.Version) : null);
 	}
 
 	/// <summary>most migrations go in here</summary>
@@ -151,7 +160,7 @@ public static class LibationScaffolding
 
 		try
 		{
-			using var _ = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+			using var _ = new FileStream(path, System.IO.FileMode.Open, FileAccess.ReadWrite, FileShare.None);
 			return false;
 		}
 		catch (IOException)
@@ -388,42 +397,70 @@ public static class LibationScaffolding
 
 	private static volatile VersionCheckOutcome lastVersionCheckOutcome = VersionCheckOutcome.UnableToDetermine;
 
-	public static VersionCheckResult GetLatestRelease()
+	public static VersionCheckResult GetLatestRelease(bool includePreRelease)
 	{
-		var result = CheckLatestRelease();
+		var result = CheckLatestRelease(includePreRelease);
 		lastVersionCheckOutcome = result.Outcome;
 		return result;
 	}
 
-	private static VersionCheckResult CheckLatestRelease()
+	private static VersionCheckResult CheckLatestRelease(bool includePreRelease)
 	{
-		var (version, latest, zip, checkSucceeded, definitive) = getLatestRelease(TimeSpan.FromSeconds(10));
+		var releaseResult = getLatestReleaseWithRetry(TimeSpan.FromSeconds(10), includePreRelease);
 
-		if (!checkSucceeded || !definitive)
+		if (releaseResult is null)
 			return new VersionCheckResult(VersionCheckOutcome.UnableToDetermine);
 
-		if (version is null || latest is null || zip is null)
+		if (releaseResult.ReleaseVersion <= BuildVersion)
 			return new VersionCheckResult(VersionCheckOutcome.UpToDate);
 
+		if (releaseResult.Release is null || releaseResult.Asset is null)
+			return new VersionCheckResult(VersionCheckOutcome.UnableToDetermine);
+
 		// we have an update
-		var zipUrl = zip.BrowserDownloadUrl;
+		var upgradeProperties = releaseResult.ToUpgradeProperties();
 
 		Log.Logger.Information("Update available: {@DebugInfo}", new
 		{
-			latestRelease = version.ToString(),
-			latest.HtmlUrl,
-			zipUrl
+			latestRelease = releaseResult.ReleaseVersion.ToString(),
+			releaseResult.Release.HtmlUrl,
+			upgradeProperties.ZipUrl
 		});
 
-		return new VersionCheckResult(VersionCheckOutcome.UpdateAvailable, new UpgradeProperties(zipUrl, latest.HtmlUrl, zip.Name, version, latest.Body));
+		return new VersionCheckResult(VersionCheckOutcome.UpdateAvailable, upgradeProperties);
 	}
-	private static (Version? releaseVersion, Octokit.Release?, Octokit.ReleaseAsset? zip, bool checkSucceeded, bool definitive) getLatestRelease(TimeSpan timeout)
+
+	private record GitHubReleaseResult
+	{
+		public NuGetVersion ReleaseVersion { get; }
+		public Octokit.Release? Release { get; }
+		public Octokit.ReleaseAsset? Asset { get; }
+		public bool IsPrerelease => Release?.Prerelease ?? false;
+		public GitHubReleaseResult(NuGetVersion releaseVersion, Octokit.Release? latest = null, Octokit.ReleaseAsset? asset = null)
+		{
+			ReleaseVersion = releaseVersion;
+			Release = latest;
+			Asset = asset;
+		}
+
+		public UpgradeProperties ToUpgradeProperties()
+			=> Release is null || Asset is null ? throw new InvalidOperationException("Cannot convert to UpgradeProperties without Release and Asset")
+				: new UpgradeProperties(
+					Asset.BrowserDownloadUrl,
+					Release.HtmlUrl,
+					Asset.Name,
+					ReleaseVersion,
+					Release.Body,
+					IsPrerelease);
+	}
+
+	private static GitHubReleaseResult? getLatestReleaseWithRetry(TimeSpan timeout, bool includePreRelease)
 	{
 		try
 		{
-			var task = getLatestReleaseAsync();
+			var task = getLatestReleaseAsync(includePreRelease);
 			if (task.Wait(timeout))
-				return (task.Result.releaseVersion, task.Result.latest, task.Result.zip, true, task.Result.definitive);
+				return task.Result;
 
 			Log.Logger.Information("Version check timed out");
 		}
@@ -440,22 +477,48 @@ public static class LibationScaffolding
 			// different text to make it easier to identify in logs, vs the AggregateException case above
 			Log.Logger.Error(ex, "Version check failed. General exception");
 		}
-		return (null, null, null, false, false);
+		return null;
 	}
-	private static async System.Threading.Tasks.Task<(Version? releaseVersion, Octokit.Release? latest, Octokit.ReleaseAsset? zip, bool definitive)> getLatestReleaseAsync()
+	private static async System.Threading.Tasks.Task<GitHubReleaseResult?> getLatestReleaseAsync(bool includePreRelease)
 	{
 		const string ownerAccount = "rmcrackan";
 		const string repoName = "Libation";
 
 		var gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue(repoName));
 
-		//https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-the-latest-release
-		var latestRelease = await gitHubClient.Repository.Release.GetLatest(ownerAccount, repoName);
+		Octokit.Release? latestRelease;
+		if (includePreRelease)
+		{
+			var options = new Octokit.ApiOptions
+			{
+				PageCount = 1,
+				PageSize = 1,
+				StartPage = 1,
+			};
+			var releases = await gitHubClient.Repository.Release.GetAll(ownerAccount, repoName, options);
+			latestRelease = releases[0];
+		}
+		else
+		{
+			//https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-the-latest-release
+			latestRelease = await gitHubClient.Repository.Release.GetLatest(ownerAccount, repoName);
+		}
 
 		//Ensure that latest release is greater than the current version
-		var latestVersionString = latestRelease.TagName.Trim('v');
-		if (!Version.TryParse(latestVersionString, out var releaseVersion) || releaseVersion <= BuildVersion)
-			return (null, null, null, true);
+		var latestVersionString = latestRelease.TagName.TrimStart('v');
+		if (!NuGetVersion.TryParse(latestVersionString, out var releaseVersion))
+		{
+			Serilog.Log.Logger.Warning("Latest release tag is not a valid version: {TagName}", latestRelease.TagName);
+			return null;
+		}
+		if (latestRelease.Prerelease != releaseVersion.IsPrerelease)
+		{
+			Serilog.Log.Logger.Warning("Latest release tag indicates pre-release mismatch: {TagName}", latestRelease.TagName);
+			return null;
+		}
+
+		if (releaseVersion <= BuildVersion)
+			return new GitHubReleaseResult(releaseVersion);
 
 		//Download the release index
 		var bts = await gitHubClient.Repository.Content.GetRawContent(ownerAccount, repoName, ".releaseindex.json");
@@ -485,7 +548,7 @@ public static class LibationScaffolding
 		if (string.IsNullOrEmpty(regexPattern))
 		{
 			Log.Logger.Warning("Release index has no entry for this platform (ReleaseIdentifier: {ReleaseId}, ReleaseIdString: {ReleaseIdString}). Version check inconclusive.", ReleaseIdentifier, releaseIdString);
-			return (null, null, null, false);
+			return new GitHubReleaseResult(releaseVersion, latestRelease);
 		}
 
 		var regex = new System.Text.RegularExpressions.Regex(regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
@@ -494,7 +557,7 @@ public static class LibationScaffolding
 		if (zip is not null && !string.IsNullOrEmpty(releaseIdString))
 			Log.Logger.Information("Update asset matched using {ReleaseIdString}: {AssetName}", releaseIdString, zip.Name);
 
-		return (releaseVersion, latestRelease, zip, true);
+		return new GitHubReleaseResult(releaseVersion, latestRelease, zip);
 	}
 }
 

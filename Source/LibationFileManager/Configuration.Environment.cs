@@ -1,4 +1,6 @@
+using NuGet.Versioning;
 using System;
+using System.Linq;
 
 namespace LibationFileManager;
 
@@ -13,10 +15,10 @@ public enum OS
 
 public static class Extensions
 {
-	public static string ToVersionString(this Version? version)
+	public static string ToVersionString(this NuGetVersion? version)
 		=> version is null ? "[unknown]"
-		: version.Revision > 1 ? version.ToString(4)
-		: version.ToString(3);
+		: version.IsLegacyVersion  && version.Revision > 1 && !version.ReleaseLabels.Any() ? version.ToString("x.y.z.r", VersionFormatter.Instance)
+		: version.ToString();
 }
 
 public partial class Configuration
@@ -38,8 +40,8 @@ public partial class Configuration
 			|| string.Equals(getEnv("XDG_SESSION_TYPE"), "wayland", StringComparison.OrdinalIgnoreCase);
 	}
 
-	public static Version? LibationVersion { get; private set; }
-	public static void SetLibationVersion(Version? version) => LibationVersion = version;
+	public static NuGetVersion? LibationVersion { get; private set; }
+	public static void SetLibationVersion(NuGetVersion? version) => LibationVersion = version;
 
 	public static OS OS { get; }
 		= IsLinux ? OS.Linux

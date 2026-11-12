@@ -24,7 +24,7 @@ internal class VersionOptions : OptionsBase
 			var origColor = Console.ForegroundColor;
 			try
 			{
-				var result = LibationScaffolding.GetLatestRelease();
+				var result = LibationScaffolding.GetLatestRelease(Configuration.Instance.CheckForPreRelease);
 
 				switch (result.Outcome)
 				{
