@@ -1,5 +1,6 @@
 ﻿using AppScaffolding;
 using LibationFileManager;
+using NuGet.Versioning;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,7 +34,7 @@ internal class LinuxInterop : IInteropFunctions
 	//.deb or .rpm package. Try to detect this by checking if the symlink exists.
 	public bool CanUpgrade => File.Exists("/usr/bin/libation") || File.Exists("/bin/libation");
 
-	public async Task InstallUpgradeAsync(string upgradeBundle, Version targetVersion)
+	public async Task InstallUpgradeAsync(string upgradeBundle, NuGetVersion targetVersion)
 	{
 		if (string.IsNullOrWhiteSpace(upgradeBundle) || !File.Exists(upgradeBundle))
 			throw new FileNotFoundException("Upgrade bundle not found.", upgradeBundle);

@@ -4,11 +4,14 @@
 ; Build-WindowsInstaller.ps1 for local builds; CI will pass the same defines.
 ;
 ; Required /D defines from build script:
-;   MyVersion, MyReleaseName, MyArchitecture, MySetupIcon,
+;   MyVersion, MyVersionNum, MyReleaseName, MyArchitecture, MySetupIcon,
 ;   OutputBaseFilename, SourceDir, OutputDir, ArchitecturesAllowed
 
 #ifndef MyVersion
   #define MyVersion "0.0.0-dev"
+#endif
+#ifndef MyVersionNum
+  #define MyVersionNum "0.0.0.0"
 #endif
 #ifndef MyReleaseName
   #define MyReleaseName "chardonnay"
@@ -70,7 +73,7 @@ WizardStyle=modern
 SetupIconFile={#MySetupIcon}
 UninstallDisplayIcon={app}\Libation.exe
 UninstallDisplayName={#AppName}
-VersionInfoVersion={#MyVersion}
+VersionInfoVersion={#MyVersionNum}
 VersionInfoProductName={#AppName}
 VersionInfoCompany=Libation
 

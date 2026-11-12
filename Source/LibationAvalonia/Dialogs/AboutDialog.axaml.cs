@@ -1,9 +1,10 @@
-﻿using LibationAvalonia.Controls;
+﻿using AppScaffolding;
+using LibationAvalonia.Controls;
 using LibationAvalonia.ViewModels;
-using AppScaffolding;
 using LibationFileManager;
 using LibationUiBase;
 using LibationUiBase.Forms;
+using NuGet.Versioning;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,7 @@ public partial class AboutDialog : DialogWindow
 		upgrader.DownloadCompleted += async (_, _) => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => mainWindow?.ViewModel?.DownloadProgress = null);
 
 		_viewModel.CanCheckForUpgrade = false;
-		Version? latestVersion = null;
+		NuGetVersion? latestVersion = null;
 		var result = await upgrader.CheckForUpgradeAsync(OnUpgradeAvailable);
 
 		_viewModel.CanCheckForUpgrade = true;

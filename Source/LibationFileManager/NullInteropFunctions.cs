@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NuGet.Versioning;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -16,6 +17,6 @@ public class NullInteropFunctions : IInteropFunctions
 	public bool CanUpgrade => throw new PlatformNotSupportedException();
 	public string ReleaseIdString => throw new PlatformNotSupportedException();
 	public Process RunAsRoot(string exe, string args) => throw new PlatformNotSupportedException();
-	public Task InstallUpgradeAsync(string updateBundle, Version targetVersion) => throw new PlatformNotSupportedException();
+	public Task InstallUpgradeAsync(string updateBundle, NuGetVersion targetVersion) => throw new PlatformNotSupportedException();
 	public void TrySyncInstallMetadata() { }
 }

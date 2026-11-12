@@ -142,9 +142,12 @@ $setupIcon = Join-Path $PSScriptRoot 'libation.ico'
 if (-not (Test-Path $setupIcon)) {
     throw "Installer icon not found: $setupIcon"
 }
+
+$VersionNum=$($Version -split "-")[0]
 $iss = Join-Path $PSScriptRoot 'Libation.iss'
 $defines = @(
     "/DMyVersion=$Version",
+    "/DMyVersionNum=$VersionNum",
     "/DMySetupIcon=$setupIcon",
     "/DMyReleaseName=$releaseName",
     "/DMyArchitecture=$Architecture",

@@ -54,7 +54,7 @@
 			this.promptLbl.Name = "promptLbl";
 			this.promptLbl.Size = new System.Drawing.Size(416, 21);
 			this.promptLbl.TabIndex = 0;
-			this.promptLbl.Text = "There is a new version available. Would you like to update?";
+			this.promptLbl.Text = "There is a new {0} available. Would you like to update?";
 			// 
 			// promptDetailLbl
 			// 

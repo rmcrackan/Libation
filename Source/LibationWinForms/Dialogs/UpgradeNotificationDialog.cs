@@ -22,13 +22,14 @@ public partial class UpgradeNotificationDialog : Form
 		PackageUrl = upgradeProperties.ZipUrl;
 		packageDlLink.Text = upgradeProperties.ZipName;
 		releaseNotesTbox.Text = upgradeProperties.Notes;
+		promptLbl.Text = string.Format(promptLbl.Text, upgradeProperties.IsPreRelease ? "pre-release" : "release");
 
 		if (!canUpgrade)
 		{
 			// Without a Yes button this is a notice, so it must stop asking a question that no
 			// longer has an answer. Both labels take one line before the release notes box begins,
 			// which is why this takes the one-line summary and not the full explanation.
-			promptLbl.Text = "There is a new version available.";
+			promptLbl.Text = string.Format("There is a new {0} available.", upgradeProperties.IsPreRelease ? "pre-release" : "release");
 			promptDetailLbl.Text = upgradeUnavailableSummary ?? "Libation cannot install this update itself. Use the download link below.";
 			yesBtn.Visible = false;
 			noBtn.Text = "OK";

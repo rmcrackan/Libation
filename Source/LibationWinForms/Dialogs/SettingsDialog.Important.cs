@@ -43,7 +43,9 @@ public partial class SettingsDialog
 		gridScaleFactorLbl.Text = desc(nameof(config.GridScaleFactor));
 		gridFontScaleFactorLbl.Text = desc(nameof(config.GridFontScaleFactor));
 		checkForUpgradesCbox.Text = desc(nameof(config.CheckForUpgradesAtStartup));
+		preReleaseCbox.Text = desc(nameof(config.CheckForPreRelease));
 		toolTip.SetToolTip(checkForUpgradesCbox, Configuration.GetHelpText(nameof(config.CheckForUpgradesAtStartup)));
+		toolTip.SetToolTip(preReleaseCbox, Configuration.GetHelpText(nameof(config.CheckForPreRelease)));
 
 		var dateTimeSources = Enum.GetValues<Configuration.DateTimeSource>().Select(v => new EnumDisplay<Configuration.DateTimeSource>(v)).ToArray();
 		creationTimeCb.Items.AddRange(dateTimeSources);
@@ -73,9 +75,11 @@ public partial class SettingsDialog
 		saveEpisodesToSeriesFolderCbox.Checked = config.SavePodcastsToParentFolder;
 		overwriteExistingCbox.Checked = config.OverwriteExisting;
 		checkForUpgradesCbox.Checked = config.CheckForUpgradesAtStartup;
+		preReleaseCbox.Checked = config.CheckForPreRelease;
 		gridScaleFactorTbar.Value = scaleFactorToLinearRange(config.GridScaleFactor);
 		gridFontScaleFactorTbar.Value = scaleFactorToLinearRange(config.GridFontScaleFactor);
 
+		checkForUpgradesCbox_CheckedChanged(this, EventArgs.Empty);
 		Load_TokenStorage(config);
 	}
 
@@ -199,6 +203,7 @@ public partial class SettingsDialog
 		config.SavePodcastsToParentFolder = saveEpisodesToSeriesFolderCbox.Checked;
 		config.OverwriteExisting = overwriteExistingCbox.Checked;
 		config.CheckForUpgradesAtStartup = checkForUpgradesCbox.Checked;
+		config.CheckForPreRelease = preReleaseCbox.Checked;
 
 		config.CreationTime = (creationTimeCb.SelectedItem as EnumDisplay<Configuration.DateTimeSource>)?.Value ?? Configuration.DateTimeSource.File;
 		config.LastWriteTime = (lastWriteTimeCb.SelectedItem as EnumDisplay<Configuration.DateTimeSource>)?.Value ?? Configuration.DateTimeSource.File;
@@ -236,5 +241,10 @@ public partial class SettingsDialog
 			themeVariant = selected.Value;
 			themeLbl.Visible = themeVariant != initialThemeVariant;
 		}
+	}
+
+	private void checkForUpgradesCbox_CheckedChanged(object sender, EventArgs e)
+	{
+		preReleaseCbox.Enabled = checkForUpgradesCbox.Checked;
 	}
 }

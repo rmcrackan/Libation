@@ -1,5 +1,6 @@
 ﻿using Dinah.Core;
 using LibationFileManager;
+using NuGet.Versioning;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -32,7 +33,7 @@ internal class WinInterop : IInteropFunctions
 
 	public string ReleaseIdString => AppScaffolding.LibationScaffolding.ReleaseIdentifier.ToString();
 
-	public async Task InstallUpgradeAsync(string upgradeBundle, Version targetVersion)
+	public async Task InstallUpgradeAsync(string upgradeBundle, NuGetVersion targetVersion)
 	{
 		const string ExtractorExeName = "ZipExtractor.exe";
 		var thisExe = Environment.ProcessPath;

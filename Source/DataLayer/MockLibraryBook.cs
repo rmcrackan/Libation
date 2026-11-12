@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NuGet.Versioning;
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -57,9 +58,9 @@ public class MockLibraryBook : LibraryBook
 		return this;
 	}
 
-	public MockLibraryBook WithLastDownloaded(Version? lastVersion = null, AudioFormat? format = null, string audioVersion = "1")
+	public MockLibraryBook WithLastDownloaded(NuGetVersion? lastVersion = null, AudioFormat? format = null, string audioVersion = "1")
 	{
-		lastVersion ??= new Version(10, 0, 0, 0);
+		lastVersion ??= new NuGetVersion(10, 0, 0, 0);
 		format ??= AudioFormat.Default;
 		Book.UserDefinedItem.SetLastDownloaded(lastVersion, format, audioVersion);
 		return this;
@@ -93,7 +94,7 @@ public class MockLibraryBook : LibraryBook
 		LiberatedStatus bookStatus = LiberatedStatus.Liberated,
 		LiberatedStatus? pdfStatus = null,
 		AudioFormat? lastDlFormat = null,
-		Version? lastDlVersion = null)
+		NuGetVersion? lastDlVersion = null)
 	{
 		var book = new Book(
 			new AudibleProductId(CalculateAsin(title + subtitle)),
@@ -109,7 +110,7 @@ public class MockLibraryBook : LibraryBook
 		lastDlFormat ??= new AudioFormat(Codec.AAC_LC, 128, 44100, 2);
 		// Three fields, like a real Libation version: Extensions.ToVersionString formats to at least three,
 		// so a two-field default throws as soon as anything renders a naming template for a mock book.
-		lastDlVersion ??= new Version(13, 0, 0);
+		lastDlVersion ??= new NuGetVersion(13, 0, 0);
 		book.UserDefinedItem.SetLastDownloaded(lastDlVersion, lastDlFormat, "1");
 		book.UserDefinedItem.PdfStatus = pdfStatus;
 		book.UserDefinedItem.BookStatus = bookStatus;

@@ -180,6 +180,11 @@ public partial class Configuration
 			Settings > About has a "Check for Upgrade" button
 			that works either way.
 			""" },
+		{nameof(CheckForPreRelease), """
+			When enabled, Libation checks for pre-release
+			versions including alphas, betas, and
+			release candidates.
+			""" },
 		{nameof(DeviceRegistrationKind), """
 			Which virtual device Libation registers with Amazon
 			when you sign in.

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NuGet.Versioning;
 using System;
 
 namespace DataLayer.Configurations;
@@ -48,7 +49,7 @@ internal class BookConfig : IEntityTypeConfiguration<Book>
 				b_udi.Property(udi => udi.LastDownloaded);
 				b_udi
 					.Property(udi => udi.LastDownloadedVersion)
-					.HasConversion(ver => ver == null ? null : ver.ToString(), str => str == null ? null : Version.Parse(str));
+					.HasConversion(ver => ver == null ? null : ver.ToString(), str => str == null ? null : NuGetVersion.Parse(str));
 				b_udi
 					.Property(udi => udi.LastDownloadedFormat)
 					.HasConversion(af => af == null ? 0 : af.Serialize(), str => AudioFormat.Deserialize(str));

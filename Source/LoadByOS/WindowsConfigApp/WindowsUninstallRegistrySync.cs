@@ -1,5 +1,6 @@
 using LibationFileManager;
 using Microsoft.Win32;
+using NuGet.Versioning;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -90,7 +91,7 @@ internal static class WindowsUninstallRegistrySync
 			return null;
 
 		raw = raw.Split('+')[0].Split('-')[0].Trim();
-		return Version.TryParse(raw, out var version) ? version.ToVersionString() : null;
+		return NuGetVersion.TryParse(raw, out var version) ? version.ToVersionString() : null;
 	}
 
 	private static string? getDisplayName(string installDir)

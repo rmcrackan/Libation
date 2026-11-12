@@ -121,6 +121,9 @@ public partial class Configuration
 	[Description("Check for new Libation versions at startup")]
 	public bool CheckForUpgradesAtStartup { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
+	[Description("Include pre-releases when checking for Libation updates")]
+	public bool CheckForPreRelease { get => GetNonString(defaultValue: false); set => SetNonString(value); }
+
 	[Description("Location for book storage. Includes destination of newly liberated books")]
 	public LongPath? Books
 	{

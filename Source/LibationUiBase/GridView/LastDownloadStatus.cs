@@ -1,5 +1,6 @@
 ﻿using DataLayer;
 using LibationFileManager;
+using NuGet.Versioning;
 using System;
 
 namespace LibationUiBase.GridView;
@@ -9,7 +10,7 @@ public class LastDownloadStatus : IComparable
 	public bool IsValid => LastDownloadedVersion is not null && LastDownloaded.HasValue;
 	public AudioFormat? LastDownloadedFormat { get; }
 	public string? LastDownloadedFileVersion { get; }
-	public Version? LastDownloadedVersion { get; }
+	public NuGetVersion? LastDownloadedVersion { get; }
 	public DateTime? LastDownloaded { get; }
 	public string ToolTipText => IsValid ? $"Double click to open v{LastDownloadedVersion!.ToVersionString()} release notes" : "";
 
