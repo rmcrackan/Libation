@@ -81,46 +81,6 @@ public class WidevineRecommendationTests
 	}
 
 	[TestMethod]
-	public void IsAaxFallbackMissingCodecError_matches_codec_missing_errors()
-	{
-		var ex1 = new System.ApplicationException("Book has no codec specified. Cannot continue with download. Full book data:\r\n[1782836926] Together");
-		Assert.IsTrue(WidevineRecommendation.IsAaxFallbackMissingCodecError(ex1));
-
-		var ex2 = new System.ApplicationException("Book has no available codecs. Cannot continue with download.");
-		Assert.IsTrue(WidevineRecommendation.IsAaxFallbackMissingCodecError(ex2));
-
-		var wrapped = new System.InvalidOperationException("Outer wrapper", ex1);
-		Assert.IsTrue(WidevineRecommendation.IsAaxFallbackMissingCodecError(wrapped));
-	}
-
-	[TestMethod]
-	public void IsAaxFallbackMissingCodecError_rejects_unrelated_errors()
-	{
-		var ex = new System.ApplicationException("Some other download error occurred.");
-		Assert.IsFalse(WidevineRecommendation.IsAaxFallbackMissingCodecError(ex));
-	}
-
-	[TestMethod]
-	public void ShouldRecommendWidevine_matches_aax_fallback_missing_codec_when_widevine_disabled()
-	{
-		var ex = new System.ApplicationException("Book has no codec specified. Cannot continue with download. Full book data:\r\n[1409167399] Starsight");
-		var config = Configuration.CreateMockInstance();
-		config.UseWidevine = false;
-
-		Assert.IsTrue(WidevineRecommendation.ShouldRecommendWidevine(ex, config));
-	}
-
-	[TestMethod]
-	public void ShouldRecommendWidevine_rejects_aax_fallback_missing_codec_when_widevine_enabled()
-	{
-		var ex = new System.ApplicationException("Book has no codec specified. Cannot continue with download. Full book data:\r\n[1409167399] Starsight");
-		var config = Configuration.CreateMockInstance();
-		config.UseWidevine = true;
-
-		Assert.IsFalse(WidevineRecommendation.ShouldRecommendWidevine(ex, config));
-	}
-
-	[TestMethod]
 	public void BuildLogSummary_includes_account_when_provided()
 	{
 		var summaryWithAccount = WidevineRecommendation.BuildLogSummary("Starsight", "user@example.com");

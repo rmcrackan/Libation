@@ -3,7 +3,7 @@ using FileLiberator;
 namespace LibationUiBase;
 
 /// <summary>
-/// User-facing copy when ADRM licenserequest fails with Sable acr:null or AAX fallback has no codecs (Widevine required).
+/// User-facing copy when ADRM licenserequest fails with Sable acr:null (Widevine required).
 /// Shared by WinForms, Avalonia, and the process queue.
 /// </summary>
 public static class WidevineRecommendationUserMessage
