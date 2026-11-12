@@ -157,16 +157,40 @@ setup_db() {
   ln -s "${FILE}" "${LINK}"
 }
 
+# Run a command in the background and wait for it. bash only runs a trap once the
+# foreground command exits, so `docker stop` would otherwise wait out a whole scan,
+# liberate or sleep.
+run_child() {
+  "$@" &
+  CHILD_PID=$!
+  wait "${CHILD_PID}"
+  local child_exit=$?
+  CHILD_PID=
+  return "${child_exit}"
+}
+
+# Docker sends SIGTERM to PID 1 only, and bash as PID 1 ignores it unless it is trapped.
+shutdown() {
+  info "received ${1}, shutting down"
+  if [ -n "${CHILD_PID}" ]; then
+    # Always forward TERM: background children ignore SIGINT
+    kill -TERM "${CHILD_PID}" 2>/dev/null
+    wait "${CHILD_PID}"
+  fi
+  info "exiting"
+  exit "${2}"
+}
+
 run() {
   info "scanning accounts"
-  /libation/LibationCli scan
+  run_child /libation/LibationCli scan
   local scan_exit=$?
   if [ "${scan_exit}" -ne 0 ]; then
     error "scan failed (exit ${scan_exit}); skipping liberate. If the log shows Failed to decrypt ExistingAccessToken, see https://getlibation.com/docs/frequently-asked-questions#docker-finds-no-new-books-failed-to-decrypt-existingaccesstoken"
     exit "${scan_exit}"
   fi
   info "liberating books"
-  /libation/LibationCli liberate
+  run_child /libation/LibationCli liberate
 }
 
 main() {
@@ -214,6 +238,9 @@ main() {
     info "running every ${SLEEP_TIME}"
   fi
 
+  trap 'shutdown SIGTERM 143' TERM
+  trap 'shutdown SIGINT 130' INT
+
   # loop
   while true
   do
@@ -224,7 +251,7 @@ main() {
       break  
     fi
 
-    sleep "${SLEEP_TIME}"
+    run_child sleep "${SLEEP_TIME}"
   done
 
   info "exiting"
