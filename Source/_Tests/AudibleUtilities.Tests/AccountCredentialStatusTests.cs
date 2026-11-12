@@ -14,7 +14,7 @@ namespace AudibleUtilities.Tests;
 [TestClass]
 public class AccountCredentialStatusTests
 {
-	private static Account registeredAccount()
+	private static Account registeredAccount(bool modernDevice = false)
 	{
 		var identity = new Identity(Localization.Get("us"));
 		identity.Update(
@@ -23,8 +23,8 @@ public class AccountCredentialStatusTests
 			new AccessToken("Atna|_CHAR_ACCESS_", new DateTime(2200, 1, 1, 12, 0, 0, DateTimeKind.Utc)),
 			new RefreshToken("Atnr|_CHAR_REFRESH_"),
 			new List<KeyValuePair<string, SecretString>> { new("session-id", "cookie-value") },
-			deviceSerialNumber: "device-serial",
-			deviceType: "device-type",
+			deviceSerialNumber: modernDevice ? "0123456789abcdef0123" : "device-serial",
+			deviceType: modernDevice ? AudibleApi.Resources.DeviceType : "device-type",
 			amazonAccountId: "amzn-account",
 			deviceName: "device-name",
 			storeAuthenticationCookie: "store-auth-cookie");
@@ -59,6 +59,38 @@ public class AccountCredentialStatusTests
 		var account = registeredAccount();
 		account.RequiresReRegistration = true;
 		AccountCredentialStatus.LooksLikeMissingCredentials(account).Should().BeTrue();
+	}
+
+	[TestMethod]
+	public void modern_account_reports_modern_sign_in_status()
+	{
+		var account = registeredAccount(modernDevice: true);
+		Assert.AreEqual(AccountSignInStatus.Modern, AccountCredentialStatus.GetSignInStatus(account));
+		Assert.AreEqual(AccountSignInStatus.Modern, account.SignInStatus);
+	}
+
+	[TestMethod]
+	public void legacy_account_with_older_device_profile_reports_legacy_status()
+	{
+		var account = registeredAccount(modernDevice: false);
+		Assert.AreEqual(AccountSignInStatus.Legacy, AccountCredentialStatus.GetSignInStatus(account));
+		Assert.AreEqual(AccountSignInStatus.Legacy, account.SignInStatus);
+	}
+
+	[TestMethod]
+	public void unregistered_or_null_account_reports_not_signed_in()
+	{
+		Assert.AreEqual(AccountSignInStatus.NotSignedIn, AccountCredentialStatus.GetSignInStatus(null));
+		Assert.AreEqual(AccountSignInStatus.NotSignedIn, new Account("user@example.com").SignInStatus);
+	}
+
+	[TestMethod]
+	public void account_requiring_re_registration_reports_not_signed_in()
+	{
+		var account = registeredAccount(modernDevice: true);
+		account.RequiresReRegistration = true;
+		Assert.AreEqual(AccountSignInStatus.NotSignedIn, AccountCredentialStatus.GetSignInStatus(account));
+		Assert.AreEqual(AccountSignInStatus.NotSignedIn, account.SignInStatus);
 	}
 
 	[TestMethod]

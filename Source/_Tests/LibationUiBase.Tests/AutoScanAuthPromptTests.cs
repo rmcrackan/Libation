@@ -58,6 +58,18 @@ public class AutoScanAuthPromptTests
 	}
 
 	[TestMethod]
+	public void an_account_requiring_re_registration_is_told_re_registration_required()
+	{
+		var account = registeredAccount();
+		account.RequiresReRegistration = true;
+
+		var body = AutoScanAuthPrompt.FormatBody(new AuthenticationRequiredException(account, "re-registration required"));
+
+		StringAssert.Contains(body, "'Jade' (jade@example.com)");
+		StringAssert.Contains(body, "requires a fresh login and device registration");
+	}
+
+	[TestMethod]
 	public void an_unattributed_failure_still_reads_sensibly()
 	{
 		var body = AutoScanAuthPrompt.FormatBody(new AuthenticationRequiredException(account: null, "auth failed"));

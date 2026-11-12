@@ -16,6 +16,7 @@ public class ApiExtended
 {
 	public static Func<Account, ILoginChoiceEager>? LoginChoiceFactory { get; set; }
 	public Api Api { get; private set; }
+	public Account Account { get; private set; }
 
 	private const int MaxConcurrency = 10;
 	private const int BatchSize = 50;
@@ -24,7 +25,22 @@ public class ApiExtended
 	/// <summary>Upper bound on how many dropped titles a single log entry will name.</summary>
 	private const int MaxLoggedTitles = 50;
 
-	private ApiExtended(Api api) => Api = api;
+	private ApiExtended(Api api, Account account)
+	{
+		Api = api;
+		Account = account;
+
+		// Configure the API to present only the authentication methods the account actually possesses.
+		var methods = ApiAuthenticationMethod.None;
+		if (account.IdentityTokens?.HasRequiredTokens(ApiAuthenticationMethod.AdpSignature) == true)
+			methods |= ApiAuthenticationMethod.AdpSignature;
+		if (account.IdentityTokens?.HasRequiredTokens(ApiAuthenticationMethod.BearerToken) == true)
+			methods |= ApiAuthenticationMethod.BearerToken;
+
+		Api.AuthenticationMethods = methods != ApiAuthenticationMethod.None
+			? methods
+			: ApiAuthenticationMethod.AdpSignature;
+	}
 
 	private static readonly SemaphoreSlim InteractiveLoginGate = new(1, 1);
 
@@ -58,7 +74,7 @@ public class ApiExtended
 					AudibleApiStorage.AccountsSettingsFile,
 					account.GetIdentityTokensJsonPath(),
 					storeLocale);
-			return new ApiExtended(api);
+			return new ApiExtended(api, account);
 		}
 		catch (Exception ex)
 		{
@@ -89,7 +105,7 @@ public class ApiExtended
 							? "require a new login and device registration"
 							: missingCredentials ? "are missing or incomplete" : "could not be used")
 						+ (LoginChoiceFactory is null
-							? " and interactive login is not available in this context (CLI/Docker)."
+							? $" and interactive login is not available in this context (CLI/Docker). Run 'libationcli login-external --account {account.AccountId} --locale {locale.Name}' to sign in."
 							: " and interactive login was not allowed.")
 						+ $" {ex.Message}",
 					innerException: ex);
@@ -115,12 +131,15 @@ public class ApiExtended
 					}
 				}
 
+				bool missingRequiredTokens = account.IdentityTokens is not null && !account.IdentityTokens.HasRequiredTokens(AccountCredentialStatus.RequiredAuthenticationMethods);
 				var api = await EzApiCreator.GetApiAsync(
 					LoginChoiceFactory(account),
 					locale,
 					AudibleApiStorage.AccountsSettingsFile,
 					account.GetIdentityTokensJsonPath(),
-					Configuration.Instance.GetDeviceRegistrationProfile());
+					Configuration.Instance.GetDeviceRegistrationProfile(),
+					forceLogin: missingRequiredTokens || account.RequiresReRegistration,
+					requiredAuthMethods: AccountCredentialStatus.RequiredAuthenticationMethods);
 
 				account.RequiresReRegistration = false;
 				using (var persister = AudibleApiStorage.GetAccountsSettingsPersister())
@@ -139,7 +158,7 @@ public class ApiExtended
 						account.GetIdentityTokensJsonPath(),
 						storeLocale);
 
-				return new ApiExtended(api);
+				return new ApiExtended(api, account);
 			}
 			finally
 			{
@@ -153,13 +172,36 @@ public class ApiExtended
 		// 2 retries == 3 total
 		.RetryAsync(2);
 
-	public Task<List<Item>> GetLibraryValidatedAsync(LibraryOptions libraryOptions)
+	public async Task<List<Item>> GetLibraryValidatedAsync(LibraryOptions libraryOptions)
 	{
 		// bug on audible's side. the 1st time after a long absence, a query to get library will return without titles or authors. a subsequent identical query will be successful. this is true whether or not tokens are refreshed
 		// worse, this 1st dummy call doesn't seem to help:
 		//    var page = await api.GetLibraryAsync(new AudibleApi.LibraryOptions { NumberOfResultPerPage = 1, PageNumber = 1, PurchasedAfter = DateTime.Now.AddYears(-20), ResponseGroups = AudibleApi.LibraryOptions.ResponseGroupOptions.ALL_OPTIONS });
 		// i don't want to incur the cost of making a full dummy call every time because it fails sometimes
-		return policy.ExecuteAsync(() => getItemsAsync(libraryOptions));
+		try
+		{
+			return await policy.ExecuteAsync(() => getItemsAsync(libraryOptions));
+		}
+		catch (NotAuthenticatedException ex)
+		{
+			if (Account is not null && Account.SignInStatus == AccountSignInStatus.Legacy)
+			{
+				Account.RequiresReRegistration = true;
+				using (var persister = AudibleApiStorage.GetAccountsSettingsPersister())
+				{
+					var matching = persister.AccountsSettings.GetAccount(Account.AccountId, Account.Locale?.Name);
+					if (matching is not null)
+						matching.RequiresReRegistration = true;
+				}
+
+				throw new AuthenticationRequiredException(
+					Account,
+					$"Stored legacy credentials for {Account.MaskedLogEntry} were rejected by Audible. A fresh sign-in is required to upgrade to modern credentials.",
+					ex);
+			}
+
+			throw;
+		}
 	}
 
 	/// <summary>

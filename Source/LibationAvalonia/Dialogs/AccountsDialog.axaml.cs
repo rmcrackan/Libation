@@ -62,11 +62,26 @@ public partial class AccountsDialog : DialogWindow
 		/// </summary>
 		public List<string> AdditionalLocaleNames { get; } = new();
 
-		public bool SignedIn
+		private bool? _originalSignedIn;
+
+		public bool? SignedIn
 		{
 			get => field;
 			set
 			{
+				if (_originalSignedIn == null)
+				{
+					// For legacy accounts, toggle between null (legacy) and false (uncheck)
+					if (value != false)
+						value = null;
+				}
+				else if (_originalSignedIn == true)
+				{
+					// For modern accounts, toggle between true (modern) and false (uncheck)
+					if (value != true)
+						value = false;
+				}
+
 				this.RaiseAndSetIfChanged(ref field, value);
 				this.RaisePropertyChanged(nameof(SignedInToolTip));
 			}
@@ -85,9 +100,11 @@ public partial class AccountsDialog : DialogWindow
 		public string SignedInToolTip
 			=> !CanToggleSignedIn
 				? "Account has not been authenticated yet. Run a scan to sign in."
-				: SignedIn
-					? "Account is signed in. Uncheck and save to require a fresh sign-in and device registration on the next scan or liberate."
-					: "Account requires a fresh sign-in. Check and save to keep existing registration.";
+				: SignedIn == true
+					? "Account is signed in with current credentials. Uncheck and save to require a fresh sign-in on the next scan or liberate."
+					: SignedIn == null
+						? "Account is signed in with legacy credentials. Uncheck and save to upgrade to modern credentials on the next scan or liberate."
+						: "Account requires a fresh sign-in. Check and save to keep existing registration.";
 
 		public bool CanExport
 		{
@@ -134,7 +151,13 @@ public partial class AccountsDialog : DialogWindow
 		{
 			CanExport = account.IdentityTokens?.IsValid == true;
 			CanToggleSignedIn = CanExport;
-			SignedIn = CanExport && !account.RequiresReRegistration;
+			SignedIn = account.SignInStatus switch
+			{
+				AccountSignInStatus.Modern => true,
+				AccountSignInStatus.Legacy => null,
+				_ => false
+			};
+			_originalSignedIn = SignedIn;
 			RaiseDerivedFromCanExport();
 		}
 
@@ -154,6 +177,7 @@ public partial class AccountsDialog : DialogWindow
 				CanExport = false;
 				CanToggleSignedIn = false;
 				SignedIn = false;
+				_originalSignedIn = false;
 				RaiseDerivedFromCanExport();
 				return;
 			}
@@ -163,7 +187,13 @@ public partial class AccountsDialog : DialogWindow
 				a.AccountId == AccountId && a.Locale?.Name == SelectedLocale.Name);
 			CanExport = account?.IdentityTokens?.IsValid == true;
 			CanToggleSignedIn = CanExport;
-			SignedIn = CanExport && account?.RequiresReRegistration != true;
+			SignedIn = account?.SignInStatus switch
+			{
+				AccountSignInStatus.Modern => true,
+				AccountSignInStatus.Legacy => null,
+				_ => false
+			};
+			_originalSignedIn = SignedIn;
 			RaiseDerivedFromCanExport();
 		}
 	}
@@ -399,11 +429,11 @@ public partial class AccountsDialog : DialogWindow
 				? $"{dto.AccountId} - {dto.SelectedLocale?.Name}"
 				: dto.AccountName.Trim();
 
-			if (!dto.SignedIn && acct.IdentityTokens?.IsValid == true)
+			if (dto.SignedIn == false && acct.IdentityTokens?.IsValid == true)
 			{
 				acct.RequiresReRegistration = true;
 			}
-			else if (dto.SignedIn && acct.RequiresReRegistration)
+			else if (dto.SignedIn != false && acct.RequiresReRegistration)
 			{
 				acct.RequiresReRegistration = false;
 			}

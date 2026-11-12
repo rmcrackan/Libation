@@ -120,6 +120,7 @@ namespace LibationWinForms.Dialogs
             this.SignedIn.Name = "SignedIn";
             this.SignedIn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.SignedIn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.SignedIn.ThreeState = true;
             this.SignedIn.Width = 83;
             // 
             // AccountId
