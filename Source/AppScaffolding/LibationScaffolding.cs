@@ -96,7 +96,20 @@ public static class LibationScaffolding
 	{
 		if (ephemeralSettings)
 		{
-			var settings = JObject.Parse(File.ReadAllText(config.LibationFiles.SettingsFilePath));
+			var settingsPath = config.LibationFiles.SettingsFilePath;
+			var settingsJson = File.ReadAllText(settingsPath);
+			if (string.IsNullOrWhiteSpace(settingsJson))
+				throw FileManager.InvalidConfigurationValueException.ForPath(settingsPath, "", $"Settings file '{settingsPath}' is empty.");
+
+			JObject settings;
+			try
+			{
+				settings = JObject.Parse(settingsJson);
+			}
+			catch (JsonException ex)
+			{
+				throw FileManager.InvalidConfigurationValueException.ForPath(settingsPath, null, $"Settings file '{settingsPath}' contains invalid JSON: {ex.Message}");
+			}
 			config.LoadEphemeralSettings(settings);
 		}
 		else

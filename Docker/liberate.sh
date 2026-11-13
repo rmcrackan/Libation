@@ -27,13 +27,19 @@ log() {
 init_config_file() {
   FILE=$1
   FULLPATH=${LIBATION_CONFIG_DIR}/${FILE}
-  if [ -f ${FULLPATH} ]; then
+  if [ -f "${FULLPATH}" ]; then
     info "loading ${FILE}"
-    cp ${FULLPATH} ${LIBATION_CONFIG_INTERNAL}/
+    if ! cp "${FULLPATH}" "${LIBATION_CONFIG_INTERNAL}/"; then
+      error "failed to copy ${FULLPATH} to ${LIBATION_CONFIG_INTERNAL}/"
+      exit 1
+    fi
     return 0
   else
     warn "${FULLPATH} not found, creating empty file"
-    echo "{}" > ${LIBATION_CONFIG_INTERNAL}/${FILE}
+    if ! echo "{}" > "${LIBATION_CONFIG_INTERNAL}/${FILE}"; then
+      error "failed to create ${LIBATION_CONFIG_INTERNAL}/${FILE}"
+      exit 1
+    fi
     return 1
   fi
 }
@@ -49,21 +55,23 @@ init_master_key() {
     debug "LIBATION_MASTER_KEY is already set, not looking for ${FILE}"
     return 0
   fi
-  if [ -f ${FULLPATH} ]; then
+  if [ -f "${FULLPATH}" ]; then
     info "loading ${FILE}"
-    cp ${FULLPATH} ${LIBATION_CONFIG_INTERNAL}/
+    if ! cp "${FULLPATH}" "${LIBATION_CONFIG_INTERNAL}/"; then
+      error "failed to copy ${FULLPATH} to ${LIBATION_CONFIG_INTERNAL}/"
+      exit 1
+    fi
   else
     debug "${FULLPATH} not found, assuming accounts don't use encrypted tokens"
   fi
 }
 
 update_settings() {
-  FILE=$1
-  KEY=$2
-  VALUE=$3
-  info "setting ${KEY} to ${VALUE}"
-  echo $(jq --arg k "${KEY}" --arg v "${VALUE}" '.[$k] = $v' ${LIBATION_CONFIG_INTERNAL}/${FILE}) > ${LIBATION_CONFIG_INTERNAL}/${FILE}.tmp
-  mv ${LIBATION_CONFIG_INTERNAL}/${FILE}.tmp ${LIBATION_CONFIG_INTERNAL}/${FILE}
+  shift
+  if ! /libation/LibationCli set-setting --libationFiles "${LIBATION_CONFIG_INTERNAL}" "$@"; then
+    error "failed to update settings in ${LIBATION_CONFIG_INTERNAL}/Settings.json"
+    exit 1
+  fi
 }
 
 is_mounted() {
@@ -147,14 +155,20 @@ setup_db() {
       return 0
     fi
     warn "removing existing symlink '${LINK_ORIGIN}' to '${LINK}'"
-    rm -f "$LINK"
+    if ! rm -f "$LINK"; then
+      error "failed to remove existing symlink '${LINK}'"
+      exit 1
+    fi
   elif [[ -e $LINK ]]
   then
     error "found blocking file at '${LINK}' - can't create symlink"
     exit 1
   fi
 
-  ln -s "${FILE}" "${LINK}"
+  if ! ln -s "${FILE}" "${LINK}"; then
+    error "failed to symlink '${FILE}' to '${LINK}'"
+    exit 1
+  fi
 }
 
 # Run a command in the background and wait for it. bash only runs a trap once the
@@ -191,6 +205,10 @@ run() {
   fi
   info "liberating books"
   run_child /libation/LibationCli liberate
+  local liberate_exit=$?
+  if [ "${liberate_exit}" -ne 0 ]; then
+    error "liberate failed (exit ${liberate_exit})"
+  fi
 }
 
 main() {
@@ -200,8 +218,9 @@ main() {
   init_master_key
 
   info "loading settings"
-  update_settings Settings.json Books "${LIBATION_BOOKS_DIR:-/data}"
-  update_settings Settings.json InProgress /tmp
+  info "setting Books to ${LIBATION_BOOKS_DIR:-/data}"
+  info "setting InProgress to /tmp"
+  update_settings Settings.json "Books=${LIBATION_BOOKS_DIR:-/data}" "InProgress=/tmp"
 
   info "loading database"
   # If user provides a separate database mount, use that
