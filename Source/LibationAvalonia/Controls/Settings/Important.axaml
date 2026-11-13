@@ -104,14 +104,12 @@
 
 			<StackPanel Orientation="Horizontal" >
 				<CheckBox
-					Margin="0,0,10,0"
-					Name="CheckForUpgradesAtStartupCheckBox"
+					Margin="0,0,20,0"
 					IsChecked="{Binding CheckForUpgradesAtStartup, Mode=TwoWay}"
 					ToolTip.Tip="{Binding CheckForUpgradesAtStartupTip}">
 					<TextBlock Text="{Binding CheckForUpgradesAtStartupText}" />
 				</CheckBox>
 				<CheckBox
-					IsEnabled="{Binding #CheckForUpgradesAtStartupCheckBox.IsChecked}"
 					IsChecked="{Binding CheckForPreRelease, Mode=TwoWay}"
 					ToolTip.Tip="{Binding CheckForPreReleaseTip}">
 					<TextBlock Text="{Binding CheckForPreReleaseText}" />
