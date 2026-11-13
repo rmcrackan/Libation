@@ -19,7 +19,8 @@ public class UnencryptedAudiobookDownloader : AudiobookDownloadBase
 	{
 		await (InputFileStream.DownloadTask ?? Task.CompletedTask);
 
-		if (IsCanceled)
+		//The download loop logs and swallows its errors, so a download that stopped early still completes normally.
+		if (IsCanceled || InputFileStream.WritePosition < InputFileStream.Length)
 			return false;
 		else
 		{
