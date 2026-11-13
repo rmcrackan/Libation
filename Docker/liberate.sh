@@ -69,7 +69,7 @@ init_master_key() {
 update_settings() {
   shift
   if ! /libation/LibationCli set-setting --libationFiles "${LIBATION_CONFIG_INTERNAL}" "$@"; then
-    error "failed to update settings in ${LIBATION_CONFIG_INTERNAL}/Settings.json"
+    error "failed to update settings; check ${LIBATION_CONFIG_DIR}/Settings.json for invalid JSON or permissions"
     exit 1
   fi
 }
