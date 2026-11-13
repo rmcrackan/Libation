@@ -170,10 +170,33 @@ public partial class AccountsDialog : Form
 		{
 			row.Cells[COL_SignedIn].ReadOnly = !canExport;
 			if (!canExport)
-				row.Cells[COL_SignedIn].Value = false;
-			row.Cells[COL_SignedIn].ToolTipText = canExport
-				? "Uncheck to require a fresh sign-in and device registration on the next scan or liberate."
-				: "Account has not been authenticated yet. Run a scan to sign in.";
+			{
+				row.Cells[COL_SignedIn].Value = CheckState.Unchecked;
+				row.Cells[COL_SignedIn].Tag = CheckState.Unchecked;
+				row.Cells[COL_SignedIn].ToolTipText = "Account has not been authenticated yet. Run a scan to sign in.";
+			}
+			else
+			{
+				using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+				var account = persister.AccountsSettings.Accounts.FirstOrDefault(a =>
+					a.AccountId == GetAccountId(row) && a.Locale?.Name == GetLocale(row));
+
+				var status = account?.SignInStatus ?? AccountSignInStatus.NotSignedIn;
+				var checkState = status switch
+				{
+					AccountSignInStatus.Modern => CheckState.Checked,
+					AccountSignInStatus.Legacy => CheckState.Indeterminate,
+					_ => CheckState.Unchecked
+				};
+				row.Cells[COL_SignedIn].Tag = checkState;
+				row.Cells[COL_SignedIn].Value = checkState;
+				row.Cells[COL_SignedIn].ToolTipText = checkState switch
+				{
+					CheckState.Checked => "Account is signed in with current credentials. Uncheck to require a fresh sign-in on the next scan or liberate.",
+					CheckState.Indeterminate => "Account is signed in with legacy credentials. Uncheck to upgrade to modern credentials on the next scan or liberate.",
+					_ => "Account requires a fresh sign-in. Check to keep existing registration."
+				};
+			}
 		}
 
 		if (!dataGridView1.Columns.Contains(COL_Marketplaces))
@@ -190,6 +213,32 @@ public partial class AccountsDialog : Form
 		var dgv = (DataGridView)sender;
 
 		var col = dgv.Columns[e.ColumnIndex];
+		if (col.Name == COL_SignedIn && e.RowIndex >= 0 && e.RowIndex < dgv.RowCount - 1)
+		{
+			var row = dgv.Rows[e.RowIndex];
+			var cell = row.Cells[COL_SignedIn];
+			if (cell.ReadOnly)
+				return;
+
+			var originalState = cell.Tag as CheckState? ?? CheckState.Unchecked;
+			if (originalState == CheckState.Unchecked)
+				return;
+
+			dgv.CommitEdit(DataGridViewDataErrorContexts.Commit);
+			var currentState = GetSignedInCheckState(row);
+
+			if (originalState == CheckState.Checked && currentState == CheckState.Indeterminate)
+			{
+				cell.Value = CheckState.Unchecked;
+			}
+			else if (originalState == CheckState.Indeterminate && currentState == CheckState.Checked)
+			{
+				cell.Value = CheckState.Indeterminate;
+			}
+			_isDirty = true;
+			return;
+		}
+
 		if (col is DataGridViewButtonColumn && e.RowIndex >= 0)
 		{
 			var row = dgv.Rows[e.RowIndex];
@@ -245,7 +294,7 @@ public partial class AccountsDialog : Form
 		string? AccountName,
 		string LocaleName,
 		bool LibraryScan,
-		bool SignedIn,
+		CheckState SignedInState,
 		IReadOnlyList<string> AdditionalLocaleNames);
 
 	/// <summary>Opens the marketplaces dialog for one row and takes the result back into the row.</summary>
@@ -347,11 +396,11 @@ public partial class AccountsDialog : Form
 				? $"{dto.AccountId} - {dto.LocaleName}"
 				: dto.AccountName.Trim();
 
-			if (!dto.SignedIn && acct.IdentityTokens?.IsValid == true)
+			if (dto.SignedInState == CheckState.Unchecked && acct.IdentityTokens?.IsValid == true)
 			{
 				acct.RequiresReRegistration = true;
 			}
-			else if (dto.SignedIn && acct.RequiresReRegistration)
+			else if (dto.SignedInState != CheckState.Unchecked && acct.RequiresReRegistration)
 			{
 				acct.RequiresReRegistration = false;
 			}
@@ -392,14 +441,22 @@ public partial class AccountsDialog : Form
 	private static IReadOnlyList<string> GetAdditionalLocaleNames(DataGridViewRow row)
 		=> row.Tag as List<string> ?? [];
 
-	private static bool? GetSignedIn(DataGridViewRow row)
-		=> row.Cells[COL_SignedIn]?.Value as bool?;
+	private static CheckState GetSignedInCheckState(DataGridViewRow row)
+	{
+		var val = row.Cells[COL_SignedIn]?.Value;
+		return val switch
+		{
+			CheckState state => state,
+			bool b => b ? CheckState.Checked : CheckState.Unchecked,
+			_ => CheckState.Unchecked
+		};
+	}
 
 	private static AccountDto? RowToAccountDto(DataGridViewRow row)
 		=> GetAccountId(row) is string accountId
 		&& GetLocale(row) is string localeName
 		&& GetLibraryScan(row) is bool libraryScan
-		? new AccountDto(accountId, GetAccountName(row), localeName, libraryScan, GetSignedIn(row) ?? false, GetAdditionalLocaleNames(row))
+		? new AccountDto(accountId, GetAccountName(row), localeName, libraryScan, GetSignedInCheckState(row), GetAdditionalLocaleNames(row))
 		: null;
 
 	private string GetAudibleCliAppDataPath()

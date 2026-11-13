@@ -127,6 +127,12 @@ public class Account : IUpdatable, ILogMasked
 	}
 
 	/// <summary>
+	/// Authentication status of the account: Modern (full credentials), Legacy (functional with older tokens), or NotSignedIn.
+	/// </summary>
+	[JsonIgnore]
+	public AccountSignInStatus SignInStatus => AccountCredentialStatus.GetSignInStatus(this);
+
+	/// <summary>
 	/// The marketplace this account is registered with: where it logs in, and the only place its tokens can be
 	/// refreshed. Every account has exactly one.
 	/// </summary>

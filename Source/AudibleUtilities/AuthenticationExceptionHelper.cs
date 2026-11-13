@@ -15,6 +15,9 @@ public static class AuthenticationExceptionHelper
 			if (current is AuthenticationRequiredException)
 				return true;
 
+			if (current is AudibleApi.NotAuthenticatedException)
+				return true;
+
 			if (current is InvalidOperationException { Message: var message }
 				&& message.Contains("ADP token is null", StringComparison.Ordinal))
 				return true;

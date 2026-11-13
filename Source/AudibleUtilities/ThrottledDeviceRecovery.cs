@@ -30,7 +30,8 @@ public static class ThrottledDeviceRecovery
 
 		return !config.UseWidevine
 			|| config.DeviceRegistrationKind != DeviceRegistrationKind.CurrentAndroid
-			|| (account?.HasObsoleteDeviceRegistration() == true);
+			|| (account?.HasObsoleteDeviceRegistration() == true)
+			|| (account?.IdentityTokens is not null && !account.IdentityTokens.HasRequiredTokens(AccountCredentialStatus.RequiredAuthenticationMethods));
 	}
 
 	/// <summary>
@@ -66,8 +67,8 @@ public static class ThrottledDeviceRecovery
 				continue;
 
 			// If Widevine was newly enabled, every account needs a relogin.
-			// If Widevine was already enabled, any account with an obsolete registration needs a relogin.
-			if (widevineWasDisabled || account.HasObsoleteDeviceRegistration())
+			// If Widevine was already enabled, any account with an obsolete registration or legacy tokens needs a relogin.
+			if (widevineWasDisabled || account.HasObsoleteDeviceRegistration() || (account.IdentityTokens is not null && !account.IdentityTokens.HasRequiredTokens(AccountCredentialStatus.RequiredAuthenticationMethods)))
 			{
 				account.RequiresReRegistration = true;
 				markedAccounts.Add(account);
