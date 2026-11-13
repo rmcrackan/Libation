@@ -21,8 +21,17 @@ public abstract class OptionsBase
 	[Option('o', "override", HelpText = "Configuration setting override [SettingName]=\"Setting_Value\"")]
 	public IEnumerable<OptionOverride>? SettingOverrides { get; set; }
 
+	protected virtual bool EphemeralSettings => true;
+
 	public async Task Run()
 	{
+		if (!EphemeralSettings && SettingOverrides?.Any() is true)
+		{
+			Console.Error.WriteLine("Error: -o/--override cannot be used with set-setting.");
+			Environment.ExitCode = (int)ExitCode.RunTimeError;
+			return;
+		}
+
 		if (LibationFiles?.Exists is true)
 		{
 			Environment.SetEnvironmentVariable(LibationFileManager.LibationFiles.LIBATION_FILES_DIR, LibationFiles.FullName);
@@ -35,7 +44,7 @@ public abstract class OptionsBase
 		//***********************************************//
 		try
 		{
-			Setup.Initialize();
+			Setup.Initialize(EphemeralSettings);
 		}
 		catch (Exception ex) when (StartupAssemblyBootstrap.TryFindInvalidConfigurationValue(ex, out var configEx) && configEx is not null)
 		{
@@ -149,51 +158,69 @@ public abstract class OptionsBase
 		nameof(Configuration.GridColumnsWidths)];
 
 	private void ProcessSettingsOverrides()
+		=> ApplySettings(SettingOverrides);
+
+	/// <summary>
+	/// Applies <c>Property=Value</c> entries onto <see cref="Configuration.Instance"/>.
+	/// Returns <c>false</c> if any entry is malformed, unknown, or fails type conversion.
+	/// </summary>
+	protected bool ApplySettings(IEnumerable<OptionOverride>? overrides)
 	{
 		var configProperties = GetConfigurationProperties().ToArray();
-		foreach (var option in SettingOverrides?.Where(p => p.Property is not null && p.Value is not null) ?? [])
+		bool allSucceeded = true;
+
+		foreach (var option in overrides ?? [])
 		{
-			if (option.Property?.StartsWithInsensitive(ReplacePrefix) is true)
+			if (option.Property is null || option.Value is null)
 			{
-				OverrideReplacement(option);
+				Console.Error.WriteLine("Invalid setting format. Expected [SettingName]=\"Setting_Value\".");
+				allSucceeded = false;
+			}
+			else if (option.Property.StartsWithInsensitive(ReplacePrefix))
+			{
+				if (!OverrideReplacement(option))
+					allSucceeded = false;
 			}
 			else if (configProperties.FirstOrDefault(p => p.Name.EqualsInsensitive(option.Property)) is not PropertyInfo property)
 			{
 				Console.Error.WriteLine($"Unknown configuration property '{option.Property}'");
+				allSucceeded = false;
 			}
 			else if (property.PropertyType == typeof(string))
 			{
-				property.SetValue(Configuration.Instance, option.Value?.Trim());
+				property.SetValue(Configuration.Instance, option.Value.Trim());
 			}
-			else if (property.PropertyType == typeof(bool) && bool.TryParse(option.Value?.Trim(), out var bVal))
+			else if (property.PropertyType == typeof(bool) && bool.TryParse(option.Value.Trim(), out var bVal))
 			{
 				property.SetValue(Configuration.Instance, bVal);
 			}
-			else if (property.PropertyType == typeof(int) && int.TryParse(option.Value?.Trim(), out var intVal))
+			else if (property.PropertyType == typeof(int) && int.TryParse(option.Value.Trim(), out var intVal))
 			{
 				property.SetValue(Configuration.Instance, intVal);
 			}
-			else if (property.PropertyType == typeof(long) && long.TryParse(option.Value?.Trim(), out var longVal))
+			else if (property.PropertyType == typeof(long) && long.TryParse(option.Value.Trim(), out var longVal))
 			{
 				property.SetValue(Configuration.Instance, longVal);
 			}
 			else if (property.PropertyType == typeof(LongPath))
 			{
-				var value = option.Value is null ? null : (LongPath)option.Value.Trim();
-				property.SetValue(Configuration.Instance, value);
+				property.SetValue(Configuration.Instance, (LongPath)option.Value.Trim());
 			}
-			else if (property.PropertyType.IsEnum && TryParseEnum(property.PropertyType, option.Value?.Trim(), out var enumVal))
+			else if (property.PropertyType.IsEnum && TryParseEnum(property.PropertyType, option.Value.Trim(), out var enumVal))
 			{
 				property.SetValue(Configuration.Instance, enumVal);
 			}
 			else
 			{
 				Console.Error.WriteLine($"Cannot set configuration property '{property.Name}' of type '{property.PropertyType}' with value '{option.Value}'");
+				allSucceeded = false;
 			}
 		}
+
+		return allSucceeded;
 	}
 
-	private static void OverrideReplacement(OptionOverride option)
+	private static bool OverrideReplacement(OptionOverride option)
 	{
 		List<Replacement> newReplacements = [];
 
@@ -221,13 +248,12 @@ public abstract class OptionsBase
 			if (charToReplace.Length != 1)
 			{
 				Console.Error.WriteLine($"Invalid character to replace: '{charToReplace}'");
+				return false;
 			}
-			else
-			{
-				newReplacements.Add(new(charToReplace[0], option.Value ?? string.Empty, ""));
-			}
+			newReplacements.Add(new(charToReplace[0], option.Value ?? string.Empty, ""));
 		}
 		Configuration.Instance.ReplacementCharacters = new ReplacementCharacters { Replacements = newReplacements };
+		return true;
 	}
 
 	const string ReplacePrefix = "Replace_";
