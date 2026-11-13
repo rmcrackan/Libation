@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -71,7 +72,14 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 				// decrypt failed. Delete all output entries but leave the cache files.
 				result.ResultFiles.ForEach(f => FileUtility.SaferDelete(f.FilePath));
 				cancellationToken.ThrowIfCancellationRequested();
-				return new StatusHandler { "Decrypt failed" };
+				// Thrown so hosts can match the exception (HResult, inner exceptions), not just its message.
+				if (result.Failure is { } failure && DiskSpaceHelper.IsDiskFullException(failure))
+					ExceptionDispatchInfo.Throw(failure);
+
+				var status = new StatusHandler { "Decrypt failed" };
+				if (result.Failure is not null)
+					status.AddError(result.Failure.Message);
+				return status;
 			}
 
 			if (Configuration.RetainAaxFile)
@@ -151,7 +159,7 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 		}
 	}
 
-	private record AudiobookDecryptResult(bool Success, List<TempFile> ResultFiles, List<TempFile> CacheFiles);
+	private record AudiobookDecryptResult(bool Success, List<TempFile> ResultFiles, List<TempFile> CacheFiles, Exception? Failure = null);
 
 	private async Task<AudiobookDecryptResult> DownloadAudiobookAsync(AudibleApi.Api api, DownloadOptions dlOptions, CancellationToken cancellationToken)
 	{
@@ -187,14 +195,14 @@ public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptB
 
 			// REAL WORK DONE HERE
 			bool success = await abDownloader.RunAsync();
-			return result with { Success = success };
+			return result with { Success = success, Failure = abDownloader.FailureException };
 		}
 		catch (Exception ex)
 		{
 			if (!cancellationToken.IsCancellationRequested)
 				Serilog.Log.Logger.Error(ex, "Error downloading audiobook {@Book}", dlOptions.LibraryBook.LogFriendly());
 			//don't throw any exceptions so the caller can delete any temp files.
-			return result;
+			return result with { Failure = ex };
 		}
 		finally
 		{

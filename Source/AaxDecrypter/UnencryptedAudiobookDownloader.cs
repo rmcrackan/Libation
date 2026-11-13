@@ -11,8 +11,8 @@ public class UnencryptedAudiobookDownloader : AudiobookDownloadBase
 		: base(outDirectory, cacheDirectory, dlLic)
 	{
 		AsyncSteps.Name = "Download Unencrypted Audiobook";
-		AsyncSteps["Step 1: Download Audiobook"] = Step_DownloadAndDecryptAudiobookAsync;
-		AsyncSteps["Step 2: Create Cue"] = Step_CreateCueAsync;
+		AddStep("Step 1: Download Audiobook", Step_DownloadAndDecryptAudiobookAsync);
+		AddStep("Step 2: Create Cue", Step_CreateCueAsync);
 	}
 
 	protected override async Task<bool> Step_DownloadAndDecryptAudiobookAsync()
