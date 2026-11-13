@@ -70,10 +70,10 @@
 		<TrimmableAssembly Include="Avalonia.Themes.Default" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
+		<PackageReference Include="Avalonia.Desktop" Version="12.1.6" />
 		<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3" />
 		<PackageReference Include="ReactiveUI.Avalonia" Version="12.1.6" />
-		<PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.6" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\HangoverBase\HangoverBase.csproj" />
