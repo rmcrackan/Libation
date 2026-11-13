@@ -67,11 +67,13 @@ public class MoveWithProgress
 		return success;
 	}
 
+	//%d is the device number in BSD stat's -f format and in GNU stat's -c format.
+	//GNU's -f flag would report on the file system instead, where %d is the free inode count.
 	private static string? GetDeviceId(FileSystemInfo? fsEntry)
 		=> fsEntry?.FullName is not string path ? null
 		: LongPath.IsWindows ? GetDriveSerialNumber(path)
-		: LongPath.IsOSX ? RunShellCommand("stat -L -f %d \"" + path + "\"")
-		: RunShellCommand("stat -L -f -c %d \"" + path + "\"");
+		: LongPath.IsOSX ? RunStat("-L", "-f", "%d", path)
+		: RunStat("-L", "-c", "%d", path);
 
 	private async Task<bool> CopyWithProgressAsync(FileInfo sourceFileInfo, FileInfo destinationFile, CancellationToken cancellation)
 	{
@@ -113,25 +115,30 @@ public class MoveWithProgress
 		return totalCopied == sourceFileInfo.Length;
 	}
 
-	private static string? RunShellCommand(string command)
+	//The path comes from book metadata, so it is passed as an argument and never through a shell.
+	private static string? RunStat(params string[] arguments)
 	{
 		var psi = new ProcessStartInfo
 		{
-			FileName = "/bin/sh",
+			FileName = "stat",
 			RedirectStandardOutput = true,
 			UseShellExecute = false,
-			CreateNoWindow = true,
-			ArgumentList = { "-c", command }
+			CreateNoWindow = true
 		};
+		foreach (var argument in arguments)
+			psi.ArgumentList.Add(argument);
 		try
 		{
-			var proc = Process.Start(psi);
-			proc?.WaitForExit();
-			return proc?.StandardOutput?.ReadToEnd()?.Trim();
+			using var proc = Process.Start(psi);
+			if (proc is null)
+				return null;
+			var output = proc.StandardOutput.ReadToEnd().Trim();
+			proc.WaitForExit();
+			return proc.ExitCode == 0 ? output : null;
 		}
 		catch (Exception e)
 		{
-			Log.Logger.Error(e, "Failed to run shell command. {@Arguments}", psi.ArgumentList);
+			Log.Logger.Error(e, "Failed to run stat. {@Arguments}", psi.ArgumentList);
 			return null;
 		}
 	}
