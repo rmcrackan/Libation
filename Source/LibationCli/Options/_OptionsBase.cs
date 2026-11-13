@@ -25,6 +25,13 @@ public abstract class OptionsBase
 
 	public async Task Run()
 	{
+		if (!EphemeralSettings && SettingOverrides?.Any() is true)
+		{
+			Console.Error.WriteLine("Error: -o/--override cannot be used with set-setting.");
+			Environment.ExitCode = (int)ExitCode.RunTimeError;
+			return;
+		}
+
 		if (LibationFiles?.Exists is true)
 		{
 			Environment.SetEnvironmentVariable(LibationFileManager.LibationFiles.LIBATION_FILES_DIR, LibationFiles.FullName);
