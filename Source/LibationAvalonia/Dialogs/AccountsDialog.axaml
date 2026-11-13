@@ -64,6 +64,7 @@
 						<DataTemplate>
 							<CheckBox
 								IsChecked="{Binding SignedIn, Mode=TwoWay}"
+								IsThreeState="True"
 								IsEnabled="{Binding CanToggleSignedIn}"
 								ToolTip.Tip="{Binding SignedInToolTip}"
 								HorizontalAlignment="Center"

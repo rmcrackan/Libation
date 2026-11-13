@@ -54,7 +54,10 @@ Most people use a normal region and their Audible **email**. If your account pre
 The Accounts table in **Settings > Accounts** contains the following options for each account:
 
 - **Scan**: When checked, this account will be automatically included whenever you run a library scan.
-- **Signed in?**: Indicates whether the account currently holds valid login tokens. If you need to re-authenticate or refresh your device registration without deleting your account or losing your additional marketplaces, simply uncheck **Signed in?** and click **Save**. Libation preserves your account settings and prompts you for a fresh sign-in on your next scan or download.
+- **Signed in?**: Indicates authentication status:
+  - **Checked (full checkmark):** Signed in with modern credentials (both ADP request signing and Bearer authorization tokens, using the latest Android device registration profile).
+  - **Indeterminate (dash or half-checked):** Signed in with legacy credentials (valid tokens such as ADP request signatures or an older device registration). Libation continues using these legacy credentials without forcing a re-login until challenged by Audible.
+  - **Unchecked (empty):** Not signed in, or marked for fresh authentication. If you need to refresh your credentials or device registration without deleting your account or losing your additional marketplaces, simply uncheck **Signed in?** and click **Save**. Libation preserves all your account settings and prompts you for a fresh sign-in on your next scan or download.
 - **Marketplaces**: Lets you scan and import titles from secondary Audible marketplaces associated with this account (see below).
 - **Delete (`x`)**: Removes the account from Libation. (Your downloaded audiobooks and library database are preserved).
 

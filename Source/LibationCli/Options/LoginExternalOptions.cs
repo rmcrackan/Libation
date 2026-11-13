@@ -1,4 +1,5 @@
 using AudibleApi;
+using AudibleApi.Common;
 using AudibleUtilities;
 using CommandLine;
 using LibationFileManager;
@@ -24,8 +25,41 @@ internal class LoginExternalOptions : OptionsBase
 	[Option("device-registration", Required = false, HelpText = "CurrentAndroid, RetailAndroid, or Mkb79IPhone. Defaults to Settings. Only used for a new sign-in; remove the account first.")]
 	public string? DeviceRegistration { get; set; }
 
-	internal static bool NeedsReRegistration(Account? account)
-		=> account?.RequiresReRegistration == true || account?.HasObsoleteDeviceRegistration() == true;
+	[Option('f', "force", Required = false, HelpText = "Force re-authentication even if the account is already authenticated.")]
+	public bool Force { get; set; }
+
+	internal enum LoginRequiredReason
+	{
+		NotAuthenticated,
+		RequiresReRegistration,
+		ObsoleteDeviceRegistration,
+		MissingRequiredTokens,
+		Forced,
+		AlreadyAuthenticated
+	}
+
+	internal static LoginRequiredReason EvaluateLoginRequirement(
+		Account? account,
+		ApiAuthenticationMethod requiredAuth,
+		bool force)
+	{
+		if (account?.RequiresReRegistration == true)
+			return LoginRequiredReason.RequiresReRegistration;
+
+		if (account?.IdentityTokens?.IsValid != true)
+			return LoginRequiredReason.NotAuthenticated;
+
+		if (account.HasObsoleteDeviceRegistration())
+			return LoginRequiredReason.ObsoleteDeviceRegistration;
+
+		if (!account.IdentityTokens.HasRequiredTokens(requiredAuth))
+			return LoginRequiredReason.MissingRequiredTokens;
+
+		if (force)
+			return LoginRequiredReason.Forced;
+
+		return LoginRequiredReason.AlreadyAuthenticated;
+	}
 
 	protected override async Task ProcessAsync()
 	{
@@ -61,43 +95,61 @@ internal class LoginExternalOptions : OptionsBase
 		}
 
 		string jsonPath;
+		LoginRequiredReason requirement;
+		ApiAuthenticationMethod requiredAuth;
 		using (var persister = AudibleApiStorage.GetAccountsSettingsPersister())
 		{
 			// Persist by canonical locale name ("germany"), not the user input ("de").
 			var account = persister.AccountsSettings.Upsert(accountId, locale.Name);
 			jsonPath = account.GetIdentityTokensJsonPath();
 
-			bool needsReRegistration = NeedsReRegistration(account);
+			requiredAuth = AccountCredentialStatus.RequiredAuthenticationMethods;
+			requirement = EvaluateLoginRequirement(account, requiredAuth, Force);
 
-			if (account.IdentityTokens?.IsValid == true && !needsReRegistration)
+			switch (requirement)
 			{
-				Console.WriteLine(
-					$"Account '{accountId}' ({locale.Name}) is already authenticated. No browser login needed.");
-				if (!string.IsNullOrWhiteSpace(DeviceRegistration))
+				case LoginRequiredReason.AlreadyAuthenticated:
 					Console.WriteLine(
-						"Device registration only applies to a new sign-in. Remove the account first, then run login-external again.");
-				return;
-			}
+						$"Account '{accountId}' ({locale.Name}) is already authenticated. No browser login needed.");
+					if (!string.IsNullOrWhiteSpace(DeviceRegistration))
+						Console.WriteLine(
+							"Device registration only applies to a new sign-in. Remove the account first, then run login-external again.");
+					return;
 
-			if (account.RequiresReRegistration)
-			{
-				Console.WriteLine($"Account '{accountId}' ({locale.Name}) is marked as requiring re-registration. Proceeding with sign-in...");
-			}
-			else if (account.HasObsoleteDeviceRegistration())
-			{
-				Console.WriteLine($"Account '{accountId}' ({locale.Name}) has an obsolete or legacy device registration. Proceeding with sign-in...");
-			}
+				case LoginRequiredReason.RequiresReRegistration:
+					Console.WriteLine($"Account '{accountId}' ({locale.Name}) is marked as requiring re-registration. Proceeding with sign-in...");
+					account.IdentityTokens?.Invalidate();
+					if (string.IsNullOrWhiteSpace(DeviceRegistration))
+					{
+						Configuration.Instance.UseWidevine = true;
+						Configuration.Instance.DeviceRegistrationKind = DeviceRegistrationKind.CurrentAndroid;
+						registrationProfile = DeviceRegistrationProfile.CurrentAndroid;
+					}
+					break;
 
-			if (needsReRegistration)
-			{
-				account.IdentityTokens?.Invalidate();
+				case LoginRequiredReason.ObsoleteDeviceRegistration:
+					Console.WriteLine($"Account '{accountId}' ({locale.Name}) has an obsolete or legacy device registration. Proceeding with sign-in...");
+					account.IdentityTokens?.Invalidate();
+					if (string.IsNullOrWhiteSpace(DeviceRegistration))
+					{
+						Configuration.Instance.UseWidevine = true;
+						Configuration.Instance.DeviceRegistrationKind = DeviceRegistrationKind.CurrentAndroid;
+						registrationProfile = DeviceRegistrationProfile.CurrentAndroid;
+					}
+					break;
 
-				if (string.IsNullOrWhiteSpace(DeviceRegistration))
-				{
-					Configuration.Instance.UseWidevine = true;
-					Configuration.Instance.DeviceRegistrationKind = DeviceRegistrationKind.CurrentAndroid;
-					registrationProfile = DeviceRegistrationProfile.CurrentAndroid;
-				}
+				case LoginRequiredReason.MissingRequiredTokens:
+					Console.WriteLine(
+						$"Account '{accountId}' ({locale.Name}) is missing credentials for modern authentication ({requiredAuth}). Starting sign-in to retrieve missing tokens...");
+					break;
+
+				case LoginRequiredReason.Forced:
+					Console.WriteLine($"Forcing re-authentication for account '{accountId}' ({locale.Name})...");
+					break;
+
+				case LoginRequiredReason.NotAuthenticated:
+				default:
+					break;
 			}
 		}
 
@@ -118,7 +170,9 @@ internal class LoginExternalOptions : OptionsBase
 				locale,
 				AudibleApiStorage.AccountsSettingsFile,
 				jsonPath,
-				registrationProfile);
+				registrationProfile,
+				forceLogin: requirement is LoginRequiredReason.Forced or LoginRequiredReason.MissingRequiredTokens or LoginRequiredReason.RequiresReRegistration or LoginRequiredReason.ObsoleteDeviceRegistration,
+				requiredAuthMethods: requiredAuth);
 
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			var account = persister.AccountsSettings.GetAccount(accountId, locale.Name);

@@ -21,12 +21,18 @@ public sealed class AccountSummary
 	/// </summary>
 	public bool LooksLikeMissingCredentials { get; }
 
+	/// <summary>
+	/// True when the account has been marked as needing a fresh login and device registration.
+	/// </summary>
+	public bool RequiresReRegistration { get; }
+
 	private readonly string ownerFacingLabel;
 
 	private AccountSummary(Account account)
 	{
 		MaskedLogEntry = account.MaskedLogEntry;
 		LooksLikeMissingCredentials = AccountCredentialStatus.LooksLikeMissingCredentials(account);
+		RequiresReRegistration = account.RequiresReRegistration;
 		ownerFacingLabel = AccountCredentialStatus.FormatAccountLabel(account);
 	}
 
