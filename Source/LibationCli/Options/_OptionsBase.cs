@@ -23,7 +23,7 @@ public abstract class OptionsBase
 
 	public async Task Run()
 	{
-		if (LibationFiles?.Exists is true)
+		if (LibationFiles is not null)
 		{
 			Environment.SetEnvironmentVariable(LibationFileManager.LibationFiles.LIBATION_FILES_DIR, LibationFiles.FullName);
 		}

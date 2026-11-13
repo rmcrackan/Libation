@@ -18,6 +18,7 @@ public class AbsUploadOptions : ProcessableOptionsBase
 		if (AudibleFileStorage.BooksDirectory is null)
 		{
 			Console.Error.WriteLine("Error: Books directory is not set. Please configure the 'Books' setting in Settings.json.");
+			Environment.ExitCode = (int)ExitCode.RunTimeError;
 			return;
 		}
 
@@ -29,6 +30,7 @@ public class AbsUploadOptions : ProcessableOptionsBase
 				Console.Error.WriteLine("  " + error);
 			Console.Error.WriteLine();
 			Console.Error.WriteLine("Set these under Settings -> Audiobookshelf in the main Libation app, then retry.");
+			Environment.ExitCode = (int)ExitCode.RunTimeError;
 			return;
 		}
 
