@@ -8,7 +8,7 @@ name: Exempt specific creators
 on:
   issues:
     types: [opened]
-  pull_request:
+  pull_request_target:
     types: [opened]
 
 permissions:
@@ -23,7 +23,7 @@ jobs:
         if: >-
           (github.event_name == 'issues' &&
           contains(fromJSON('["rmcrackan","Mbucari"]'), github.event.issue.user.login)) ||
-          (github.event_name == 'pull_request' &&
+          (github.event_name == 'pull_request_target' &&
           contains(fromJSON('["rmcrackan","Mbucari"]'), github.event.pull_request.user.login))
         uses: actions/github-script@v9
         with:
