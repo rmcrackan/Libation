@@ -79,7 +79,6 @@ public partial class SettingsDialog
 		gridScaleFactorTbar.Value = scaleFactorToLinearRange(config.GridScaleFactor);
 		gridFontScaleFactorTbar.Value = scaleFactorToLinearRange(config.GridFontScaleFactor);
 
-		checkForUpgradesCbox_CheckedChanged(this, EventArgs.Empty);
 		Load_TokenStorage(config);
 	}
 
@@ -241,10 +240,5 @@ public partial class SettingsDialog
 			themeVariant = selected.Value;
 			themeLbl.Visible = themeVariant != initialThemeVariant;
 		}
-	}
-
-	private void checkForUpgradesCbox_CheckedChanged(object sender, EventArgs e)
-	{
-		preReleaseCbox.Enabled = checkForUpgradesCbox.Checked;
 	}
 }

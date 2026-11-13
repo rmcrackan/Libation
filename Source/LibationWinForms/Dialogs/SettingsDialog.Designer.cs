@@ -536,7 +536,6 @@ namespace LibationWinForms.Dialogs
 			checkForUpgradesCbox.TabIndex = 13;
 			checkForUpgradesCbox.Text = "[Check for upgrades at startup]";
 			checkForUpgradesCbox.UseVisualStyleBackColor = true;
-			checkForUpgradesCbox.CheckedChanged += checkForUpgradesCbox_CheckedChanged;
 			// 
 			// themeLbl
 			// 
