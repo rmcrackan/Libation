@@ -328,7 +328,7 @@ public abstract class ProcessableOptionsBase : OptionsBase
 				Serilog.Log.Logger.Error(errorMessage);
 			}
 		}
-		catch (Exception ex) when (WidevineRecommendation.ShouldRecommendWidevine(ex, Configuration.Instance))
+		catch (ApiErrorException ex) when (WidevineRecommendation.ShouldRecommendWidevine(ex, Configuration.Instance))
 		{
 			string? accountId = null;
 			string? localeName = null;
@@ -348,7 +348,7 @@ public abstract class ProcessableOptionsBase : OptionsBase
 					$"Run 'libationcli login-external --account {accountId} --locale {localeName}' to sign in and register for Widevine credentials.");
 			}
 
-			Serilog.Log.Logger.Error(ex, "ADRM license unavailable (Sable acr:null or AAX fallback without codecs) {@DebugInfo}", new { Book = libraryBook.LogFriendly() });
+			Serilog.Log.Logger.Error(ex, "ADRM license unavailable (Sable acr:null) {@DebugInfo}", new { Book = libraryBook.LogFriendly() });
 			ReportNextAttempt(libraryBook);
 		}
 		catch (ContentLicenseDeniedException clEx)

@@ -235,9 +235,9 @@ public class ProcessBookViewModel : ReactiveObject
 				}
 			}
 		}
-		catch (Exception ex) when (WidevineRecommendation.ShouldRecommendWidevine(ex, Configuration))
+		catch (ApiErrorException ex) when (WidevineRecommendation.ShouldRecommendWidevine(ex, Configuration))
 		{
-			Serilog.Log.Logger.Error(ex, "ADRM license unavailable (Sable acr:null or AAX fallback without codecs) for {Book}", LibraryBook.LogFriendly());
+			Serilog.Log.Logger.Error(ex, "ADRM license unavailable (Sable acr:null) for {Book}", LibraryBook.LogFriendly());
 			if (System.IO.File.Exists(AudibleApiStorage.AccountsSettingsFile))
 			{
 				using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
