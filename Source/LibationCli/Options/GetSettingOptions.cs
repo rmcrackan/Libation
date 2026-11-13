@@ -31,6 +31,7 @@ internal class GetSettingOptions : OptionsBase
 			foreach (var item in SettingNames.ExceptBy(configs.Select(c => c.Name), c => c, StringComparer.OrdinalIgnoreCase))
 			{
 				Console.Error.WriteLine($"Unknown Setting Name: {item}");
+				Environment.ExitCode = (int)ExitCode.RunTimeError;
 			}
 
 			var validSettings = configs.IntersectBy(SettingNames, a => a.Name, StringComparer.OrdinalIgnoreCase);
@@ -39,6 +40,7 @@ internal class GetSettingOptions : OptionsBase
 				foreach (var item in validSettings.Where(s => !s.SettingType.IsEnum))
 				{
 					Console.Error.WriteLine($"Setting '{item.Name}' is not an enum type");
+					Environment.ExitCode = (int)ExitCode.RunTimeError;
 				}
 
 				PrintEnumValues(validSettings.Where(s => s.SettingType.IsEnum));
