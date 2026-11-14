@@ -37,11 +37,12 @@ internal static class AvaloniaUtils
 		try
 		{
 			using var ms = new System.IO.MemoryStream(picture);
-			return new Bitmap(ms);
+			return defaultSize is PictureSize.Native || (int)defaultSize <= 0
+				? new Bitmap(ms)
+				: Bitmap.DecodeToWidth(ms, (int)defaultSize);
 		}
 		catch
 		{
-			using var ms = new System.IO.MemoryStream(PictureStorage.GetDefaultImage(defaultSize));
 			return getDefaultImage();
 		}
 
