@@ -7,6 +7,7 @@ using Polly;
 using Polly.Retry;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Threading.Channels;
 
 namespace AudibleUtilities;
@@ -114,6 +115,39 @@ public class ApiExtended
 			await InteractiveLoginGate.WaitAsync();
 			try
 			{
+				// Re-read disk state first: another concurrent caller may have completed login while we waited on the gate.
+				if (File.Exists(AudibleApiStorage.AccountsSettingsFile))
+				{
+					Account? reloaded;
+					using (var persister = AudibleApiStorage.GetAccountsSettingsPersister())
+						reloaded = persister.AccountsSettings.GetAccount(account.AccountId, locale.Name);
+
+					if (reloaded is not null)
+					{
+						account.RequiresReRegistration = reloaded.RequiresReRegistration;
+						if (reloaded.IdentityTokens is not null)
+							account.IdentityTokens = reloaded.IdentityTokens;
+					}
+
+					if (!account.RequiresReRegistration
+						&& AccountCredentialStatus.GetSignInStatus(account) == AccountSignInStatus.Modern)
+					{
+						try
+						{
+							var cachedApi = await EzApiCreator.GetApiAsync(
+								locale,
+								AudibleApiStorage.AccountsSettingsFile,
+								account.GetIdentityTokensJsonPath(),
+								storeLocale);
+							return new ApiExtended(cachedApi, account);
+						}
+						catch (Exception retryEx)
+						{
+							Serilog.Log.Logger.Debug(retryEx, "Non-interactive retry after InteractiveLoginGate failed for {Account}; proceeding with interactive login.", account.MaskedLogEntry);
+						}
+					}
+				}
+
 				Serilog.Log.Logger.Information("{@DebugInfo}", new
 				{
 					LoginType = nameof(ILoginChoiceEager),
@@ -146,7 +180,13 @@ public class ApiExtended
 				{
 					var matching = persister.AccountsSettings.GetAccount(account.AccountId, account.Locale?.Name);
 					if (matching is not null)
+					{
 						matching.RequiresReRegistration = false;
+						// EzApiCreator writes the new tokens to disk; sync them back to the in-memory account
+						// so downstream callers (e.g. Widevine Cdm.CreateApiRequest) see valid tokens.
+						if (matching.IdentityTokens is not null)
+							account.IdentityTokens = matching.IdentityTokens;
+					}
 				}
 
 				// login happens against the account's own marketplace, so the api it hands back reads that one.
