@@ -45,8 +45,10 @@ jobs:
         id: metadata
         uses: docker/metadata-action@v6
         with:
+          # Pre-release versions (e.g. 14.3.0-rc.1) get only their version tag,
+          # so `latest` keeps pointing at the newest stable release.
           flavor: |
-            latest=true
+            latest=${{ !contains(inputs.version, '-') }}
           images: |
             name=${{ secrets.docker_username }}/libation
           tags: |
