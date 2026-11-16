@@ -124,9 +124,11 @@ public class ApiExtended
 
 					if (reloaded is not null)
 					{
-						account.RequiresReRegistration = reloaded.RequiresReRegistration;
+						// Sync IdentityTokens before RequiresReRegistration: any setter on `account`
+						// triggers an attached caller AccountsSettingsPersister to flush its in-memory copy.
 						if (reloaded.IdentityTokens is not null)
 							account.IdentityTokens = reloaded.IdentityTokens;
+						account.RequiresReRegistration = reloaded.RequiresReRegistration;
 					}
 
 					if (!account.RequiresReRegistration
@@ -175,19 +177,7 @@ public class ApiExtended
 					forceLogin: missingRequiredTokens || account.RequiresReRegistration,
 					requiredAuthMethods: AccountCredentialStatus.RequiredAuthenticationMethods);
 
-				account.RequiresReRegistration = false;
-				using (var persister = AudibleApiStorage.GetAccountsSettingsPersister())
-				{
-					var matching = persister.AccountsSettings.GetAccount(account.AccountId, account.Locale?.Name);
-					if (matching is not null)
-					{
-						matching.RequiresReRegistration = false;
-						// EzApiCreator writes the new tokens to disk; sync them back to the in-memory account
-						// so downstream callers (e.g. Widevine Cdm.CreateApiRequest) see valid tokens.
-						if (matching.IdentityTokens is not null)
-							account.IdentityTokens = matching.IdentityTokens;
-					}
-				}
+				SyncAccountFromDiskAfterLogin(account, AudibleApiStorage.AccountsSettingsFile);
 
 				// login happens against the account's own marketplace, so the api it hands back reads that one.
 				// re-create once the tokens exist if some other marketplace is the one actually wanted.
@@ -205,6 +195,26 @@ public class ApiExtended
 				InteractiveLoginGate.Release();
 			}
 		}
+	}
+
+	/// <summary>
+	/// Reloads newly persisted tokens onto the in-memory <paramref name="account"/> before clearing
+	/// <see cref="Account.RequiresReRegistration"/>, so an open caller persister cannot flush stale
+	/// invalidated tokens back over the new ones on disk.
+	/// </summary>
+	internal static void SyncAccountFromDiskAfterLogin(Account account, string accountsSettingsFile)
+	{
+		using (var persister = new AccountsSettingsPersister(accountsSettingsFile))
+		{
+			var matching = persister.AccountsSettings.GetAccount(account.AccountId, account.Locale?.Name);
+			if (matching is not null)
+			{
+				if (matching.IdentityTokens is not null)
+					account.IdentityTokens = matching.IdentityTokens;
+				matching.RequiresReRegistration = false;
+			}
+		}
+		account.RequiresReRegistration = false;
 	}
 
 	private static AsyncRetryPolicy policy { get; }
