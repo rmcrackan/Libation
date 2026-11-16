@@ -177,7 +177,7 @@ public class ApiExtended
 					forceLogin: missingRequiredTokens || account.RequiresReRegistration,
 					requiredAuthMethods: AccountCredentialStatus.RequiredAuthenticationMethods);
 
-				SyncAccountFromDiskAfterLogin(account, AudibleApiStorage.AccountsSettingsFile);
+				SyncAccountFromDiskAfterLogin(account);
 
 				// login happens against the account's own marketplace, so the api it hands back reads that one.
 				// re-create once the tokens exist if some other marketplace is the one actually wanted.
@@ -202,9 +202,11 @@ public class ApiExtended
 	/// <see cref="Account.RequiresReRegistration"/>, so an open caller persister cannot flush stale
 	/// invalidated tokens back over the new ones on disk.
 	/// </summary>
-	internal static void SyncAccountFromDiskAfterLogin(Account account, string accountsSettingsFile)
+	internal static void SyncAccountFromDiskAfterLogin(Account account, string? accountsSettingsFile = null)
 	{
-		using (var persister = new AccountsSettingsPersister(accountsSettingsFile))
+		using (var persister = accountsSettingsFile is null
+			? AudibleApiStorage.GetAccountsSettingsPersister()
+			: new AccountsSettingsPersister(accountsSettingsFile))
 		{
 			var matching = persister.AccountsSettings.GetAccount(account.AccountId, account.Locale?.Name);
 			if (matching is not null)
