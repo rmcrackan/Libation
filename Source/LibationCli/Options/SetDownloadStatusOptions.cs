@@ -10,15 +10,15 @@ using System.Threading.Tasks;
 namespace LibationCli;
 
 [Verb("set-status", HelpText = """
-        Set download statuses throughout library based on whether each book's audio file can be found.
+        Set download statuses throughout library based on whether each book's audio file and PDF can be found.
         """)]
 public class SetDownloadStatusOptions : OptionsBase
 {
 	//https://github.com/commandlineparser/commandline/wiki/Option-Groups
-	[Option(shortName: 'd', longName: "downloaded", Group = "Download Status", HelpText = "if the audio file can be found, mark the book 'Downloaded'")]
+	[Option(shortName: 'd', longName: "downloaded", Group = "Download Status", HelpText = "if the audio file can be found, mark the book 'Downloaded'; likewise its PDF")]
 	public bool SetDownloaded { get; set; }
 
-	[Option(shortName: 'p', longName: "download-pending", Group = "Download Status", HelpText = "if the audio file cannot be found, mark the book 'Download Pending' (previously 'Not Downloaded')")]
+	[Option(shortName: 'p', longName: "download-pending", Group = "Download Status", HelpText = "if the audio file cannot be found, mark the book 'Download Pending' (previously 'Not Downloaded'); likewise a downloaded PDF")]
 	public bool SetDownloadPending { get; set; }
 
 	/// <summary>

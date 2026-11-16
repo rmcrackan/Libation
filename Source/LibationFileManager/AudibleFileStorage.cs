@@ -95,6 +95,8 @@ public abstract class AudibleFileStorage
 
 	public static AudioFileStorage Audio { get; } = new AudioFileStorage();
 
+	public static SupplementFileStorage Supplement { get; } = new SupplementFileStorage();
+
 	/// <summary>
 	/// The fully-qualified Books durectory path if the directory exists, otherwise null.
 	/// </summary>
@@ -118,21 +120,21 @@ public abstract class AudibleFileStorage
 	#endregion
 
 	#region instance
-	private FileType FileType { get; }
+	private FileType[] Types { get; }
 	private string regexTemplate { get; }
 
-	protected AudibleFileStorage(FileType fileType)
+	protected AudibleFileStorage(params FileType[] fileTypes)
 	{
-		FileType = fileType;
+		Types = fileTypes;
 
-		var extAggr = FileTypes.GetExtensions(FileType).Aggregate((a, b) => $"{a}|{b}");
+		var extAggr = Types.SelectMany(t => FileTypes.GetExtensions(t)).Aggregate((a, b) => $"{a}|{b}");
 		regexTemplate = $@"{{0}}.*?\.({extAggr})$";
 	}
 
 	protected LongPath? GetFilePath(string productId)
 	{
 		// primary lookup
-		var cachedFile = FilePathCache.GetFirstPath(productId, FileType);
+		var cachedFile = Types.Select(t => FilePathCache.GetFirstPath(productId, t)).FirstOrDefault(p => p is not null);
 		if (cachedFile is not null && File.Exists(cachedFile))
 			return cachedFile;
 
@@ -242,9 +244,7 @@ public class AudioFileStorage : AudibleFileStorage
 
 	protected override List<LongPath> GetFilePathsCustom(string productId)
 	{
-		ValidateBookDirectoryFiles();
-		var regex = GetBookSearchRegex(productId);
-		var diskFiles = BookDirectoryFiles?.FindFiles(regex) ?? [];
+		var diskFiles = FindBookDirectoryFiles(GetBookSearchRegex(productId));
 
 		//Find all extant files matching the productId
 		//using both the file system and the file path cache
@@ -255,6 +255,17 @@ public class AudioFileStorage : AudibleFileStorage
 			.Select(c => c.path)
 			.Union(diskFiles)
 			.ToList();
+	}
+
+	/// <summary>
+	/// Files anywhere in the Books directory whose path matches <paramref name="regex"/>, from the listing of
+	/// it kept here. Shared with <see cref="SupplementFileStorage"/> so that finding a book's PDF costs no
+	/// second walk of the library.
+	/// </summary>
+	internal List<LongPath> FindBookDirectoryFiles(Regex regex)
+	{
+		ValidateBookDirectoryFiles();
+		return BookDirectoryFiles?.FindFiles(regex) ?? [];
 	}
 
 	public void Refresh()
@@ -339,4 +350,21 @@ public class AudioFileStorage : AudibleFileStorage
 				: null;
 		}
 	}
+}
+
+/// <summary>
+/// A book's supplement: the PDF, or occasionally an archive, that the PDF download saves in the book's folder.
+/// Found the way its audio is, by the product id appearing in its path.
+/// </summary>
+public class SupplementFileStorage : AudibleFileStorage
+{
+	internal SupplementFileStorage() : base(FileType.PDF, FileType.Zip) { }
+
+	protected override LongPath? GetFilePathCustom(string productId)
+		=> GetFilePathsCustom(productId).FirstOrDefault();
+
+	protected override List<LongPath> GetFilePathsCustom(string productId)
+		=> Audio.FindBookDirectoryFiles(GetBookSearchRegex(productId));
+
+	public LongPath? GetPath(string productId) => GetFilePath(productId);
 }
