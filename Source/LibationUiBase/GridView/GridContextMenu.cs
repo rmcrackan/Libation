@@ -128,8 +128,10 @@ public class GridContextMenu
 		if (toRemove.Length == 0)
 			return;
 
-		string bookStr = "book".PluralizeWithCount(toRemove.Length), itsThem = toRemove.Length == 1 ? "it" : "them";
-		string confirmMessage = string.Format(Strings.GridContextMenu_LibationIsAboutToRemoveFrom, bookStr, itsThem, itsThem, bookStr, toRemove.AggregateTitles());
+		string confirmMessage = string.Format(
+			toRemove.Length == 1 ? Strings.GridContextMenu_AboutToRemoveOneFromAudible : Strings.GridContextMenu_AboutToRemoveManyFromAudible,
+			"book".PluralizeWithCount(toRemove.Length),
+			toRemove.AggregateTitles());
 		DialogResult result = await MessageBoxBase.Show(confirmMessage, Strings.GridContextMenu_ConfirmRemoveFromAudibleLibrary, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
 		if (result != DialogResult.Yes)
 			return;

@@ -918,6 +918,24 @@ Display this help message again in the future?</value>
   <data name="FindBetterQualityBooksViewModel_UseWidevine" xml:space="preserve">
     <value>Use Widevine?</value>
   </data>
+  <data name="GridContextMenu_AboutToRemoveManyFromAudible" xml:space="preserve">
+    <value>Libation is about to remove {0} from your Audible account. The only way to get them back
+is to re-add them to your Audible Library through the Audible website or app.
+
+Are you sure you want to remove the following {0}?
+
+{1}</value>
+    <comment>{0} = book count, e.g. &quot;3 books&quot;, {1} = book titles</comment>
+  </data>
+  <data name="GridContextMenu_AboutToRemoveOneFromAudible" xml:space="preserve">
+    <value>Libation is about to remove {0} from your Audible account. The only way to get it back
+is to re-add it to your Audible Library through the Audible website or app.
+
+Are you sure you want to remove the following {0}?
+
+{1}</value>
+    <comment>{0} = &quot;1 book&quot;, {1} = book titles</comment>
+  </data>
   <data name="GridContextMenu_ConfirmRemoveFromAudibleLibrary" xml:space="preserve">
     <value>Confirm Remove from Audible Library</value>
   </data>
@@ -970,15 +988,6 @@ Display this help message again in the future?</value>
   </data>
   <data name="GridContextMenu_FolderTemplate" xml:space="preserve">
     <value>Folder Template</value>
-  </data>
-  <data name="GridContextMenu_LibationIsAboutToRemoveFrom" xml:space="preserve">
-    <value>Libation is about to remove {0} from your Audible account. The only way to get {1} back
-is to re-add {2} to your Audible Library through the Audible website or app.
-
-Are you sure you want to remove the following {3}?
-
-{4}</value>
-    <comment>{0} = bookStr, {1} = itsThem, {2} = itsThem, {3} = bookStr, {4} = toRemove.AggregateTitles()</comment>
   </data>
   <data name="GridContextMenu_LiberateAllEpisodes" xml:space="preserve">
     <value>{0}Liberate All Episodes</value>
@@ -2738,11 +2747,15 @@ If you choose to split your audiobook into multiple files by chapter marker, you
   <data name="WalkthroughMessages_EditingQuickFilters" xml:space="preserve">
     <value>Editing Quick Filters</value>
   </data>
-  <data name="WalkthroughMessages_FinallyScanYourAudibleToSync" xml:space="preserve">
-    <value>Finally, scan your Audible {0} to sync your {1} with Libation.&#xD;
+  <data name="WalkthroughMessages_FinallyScanAccount" xml:space="preserve">
+    <value>Finally, scan your Audible account to sync your library with Libation.&#xD;
 &#xD;
 If this is your first time scanning an account, you&apos;ll be prompted to enter your account&apos;s password to log into your Audible account.</value>
-    <comment>{0} = accounts, {1} = library</comment>
+  </data>
+  <data name="WalkthroughMessages_FinallyScanAccounts" xml:space="preserve">
+    <value>Finally, scan your Audible accounts to sync your libraries with Libation.&#xD;
+&#xD;
+If this is your first time scanning an account, you&apos;ll be prompted to enter your account&apos;s password to log into your Audible account.</value>
   </data>
   <data name="WalkthroughMessages_FirstAddYourAudibleAccountS" xml:space="preserve">
     <value>First, add your Audible account(s).</value>
@@ -2773,9 +2786,11 @@ If you experience a problem and need help, you&apos;ll be asked to provide your 
   <data name="WalkthroughMessages_QuickFilters" xml:space="preserve">
     <value>Quick Filters</value>
   </data>
-  <data name="WalkthroughMessages_Scan" xml:space="preserve">
-    <value>Scan {0}</value>
-    <comment>{0} = accounts</comment>
+  <data name="WalkthroughMessages_ScanAccount" xml:space="preserve">
+    <value>Scan account</value>
+  </data>
+  <data name="WalkthroughMessages_ScanAccounts" xml:space="preserve">
+    <value>Scan accounts</value>
   </data>
   <data name="WalkthroughMessages_SearchCheatSheet" xml:space="preserve">
     <value>Search Cheat Sheet</value>

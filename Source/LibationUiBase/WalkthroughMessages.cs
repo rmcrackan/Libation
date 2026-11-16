@@ -82,11 +82,9 @@ public static class WalkthroughMessages
 
 	public static WalkthroughMessage ScanProceed(int accountCount)
 	{
-		var accounts = accountCount > 1 ? "accounts" : "account";
-		var library = accountCount > 1 ? "libraries" : "library";
-		return new(
-			string.Format(Strings.WalkthroughMessages_Scan, accounts),
-			string.Format(Strings.WalkthroughMessages_FinallyScanYourAudibleToSync, accounts, library));
+		return accountCount > 1
+			? new(Strings.WalkthroughMessages_ScanAccounts, Strings.WalkthroughMessages_FinallyScanAccounts)
+			: new(Strings.WalkthroughMessages_ScanAccount, Strings.WalkthroughMessages_FinallyScanAccount);
 	}
 
 	public static bool TryGetSettingsTab(string tabHeader, out WalkthroughMessage message)
