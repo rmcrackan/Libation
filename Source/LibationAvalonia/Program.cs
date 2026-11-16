@@ -10,6 +10,7 @@ using ReactiveUI.Avalonia;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia;
@@ -83,6 +84,7 @@ static class Program
 				if (SingleInstanceLock.IsFirstInstance && config.LibationFiles.SettingsAreValid)
 				{
 					App.RunMigrations(config);
+					ApplyUiLanguage(config);
 					StartupAssemblyBootstrap.PrepareForBackgroundDataAccess();
 					App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 				}
@@ -107,6 +109,14 @@ static class Program
 			LogAndShowCrashMessage(ex);
 		}
 	}
+
+	/// <summary>
+	/// Kept out of <see cref="Main"/> so Main names no type that is new in LibationUiBase. If an interrupted
+	/// upgrade left an old LibationUiBase.dll behind, the failure then comes from this call, after the recovery
+	/// check, and the crash handler can still roll back. See issue #2001. Call it after settings are loaded.
+	/// </summary>
+	[MethodImpl(MethodImplOptions.NoInlining)]
+	private static void ApplyUiLanguage(Configuration config) => LibationUiBase.UiLanguage.Apply(config.UiLanguage);
 
 	public static AppBuilder? BuildAvaloniaApp()
 	{

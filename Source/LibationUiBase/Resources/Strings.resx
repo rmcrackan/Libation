@@ -1150,6 +1150,12 @@ Are you sure you want to remove the following {3}?
   <data name="Important_EditThemeColors" xml:space="preserve">
     <value>Edit Theme Colors</value>
   </data>
+  <data name="Important_Language" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="Important_LanguageTip" xml:space="preserve">
+    <value>Takes effect the next time Libation starts.</value>
+  </data>
   <data name="Important_LoggingLevel" xml:space="preserve">
     <value>Logging level</value>
   </data>
@@ -2630,6 +2636,9 @@ from Libation</value>
   </data>
   <data name="TrashBinUi_TrashBin2" xml:space="preserve">
     <value>Trash Bin</value>
+  </data>
+  <data name="UiLanguage_SystemDefault" xml:space="preserve">
+    <value>System default</value>
   </data>
   <data name="UpgradeNotificationDialog_DonTRemindMeAboutThis" xml:space="preserve">
     <value>Don&apos;t remind me

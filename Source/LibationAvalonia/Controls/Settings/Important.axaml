@@ -245,7 +245,7 @@
 
 		<Grid
 			Grid.Row="5"
-			ColumnDefinitions="Auto,Auto,*"
+			ColumnDefinitions="Auto,Auto,Auto,Auto,*"
 			Margin="10"
 			VerticalAlignment="Bottom">
 			<TextBlock
@@ -261,9 +261,23 @@
 				MinWidth="80"
 				SelectedItem="{Binding ThemeVariant, Mode=TwoWay}"
 				ItemsSource="{Binding Themes}"/>
+
+			<TextBlock
+				Grid.Column="2"
+				FontSize="16"
+				Margin="25,0,15,0"
+				VerticalAlignment="Center"
+				Text="{x:Static res:Strings.Important_Language}"/>
+
+			<controls:WheelComboBox
+				Grid.Column="3"
+				MinWidth="80"
+				ToolTip.Tip="{x:Static res:Strings.Important_LanguageTip}"
+				SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"
+				ItemsSource="{Binding Languages}"/>
 			
 			<Button
-				Grid.Column="2"
+				Grid.Column="4"
 				HorizontalAlignment="Right"
 				Padding="20,0"
 				VerticalAlignment="Stretch"

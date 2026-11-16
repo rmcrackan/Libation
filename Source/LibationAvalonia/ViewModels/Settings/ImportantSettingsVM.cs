@@ -46,6 +46,7 @@ public class ImportantSettingsVM : ViewModelBase
 		GridFontScaleFactor = scaleFactorToLinearRange(config.GridFontScaleFactor);
 
 		themeVariant = Themes.Single(v => v.Value == config.ThemeVariant);
+		SelectedLanguage = Languages.FirstOrDefault(l => l.Name == (config.UiLanguage ?? "")) ?? Languages[0];
 
 		initialTokenStorageMethod = config.TokenStorageMethod;
 		osSecretStoreAvailable = IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out var unavailableReason);
@@ -89,6 +90,7 @@ public class ImportantSettingsVM : ViewModelBase
 		config.CheckForPreRelease = CheckForPreRelease;
 		config.LogLevel = LoggingLevel;
 		config.TokenStorageMethod = SelectedTokenStorageMethod;
+		config.UiLanguage = SelectedLanguage.Name;
 		initialTokenStorageMethod = SelectedTokenStorageMethod;
 		RefreshTokenStorageUiState();
 	}
@@ -166,6 +168,9 @@ public class ImportantSettingsVM : ViewModelBase
 	public Serilog.Events.LogEventLevel[] LoggingLevels { get; } = Enum.GetValues<Serilog.Events.LogEventLevel>();
 	public string GridScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridScaleFactor));
 	public string GridFontScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridFontScaleFactor));
+	public UiLanguageOption[] Languages { get; } = UiLanguage.Options();
+	public UiLanguageOption SelectedLanguage { get; set; }
+
 	public EnumDisplay<Configuration.Theme>[] Themes { get; }
 		= Enum.GetValues<Configuration.Theme>()
 		.Select(v => new EnumDisplay<Configuration.Theme>(v))

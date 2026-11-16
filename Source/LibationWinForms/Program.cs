@@ -60,6 +60,8 @@ static class Program
 				return;
 			}
 
+			KeepSharedTextInEnglish();
+
 			// Prevent a second instance from racing on the same database, search index, and log file.
 			// Bail out before any database access when we are not the first instance. See issue #1931.
 			singleInstanceLock = SingleInstance.TryAcquire(config.LibationFiles.Location);
@@ -151,6 +153,15 @@ static class Program
 		form1.Load += async (_, _) => await LoadLibraryIntoFormAsync(form1, libraryLoadTask);
 		Application.Run(form1);
 	}
+
+	/// <summary>
+	/// Classic is not translated, so the text it shares with Chardonnay stays English to match its forms.
+	/// Kept out of <see cref="Main"/> so Main names no type that is new in LibationUiBase: an interrupted upgrade
+	/// that left the old DLL behind must still reach the recovery check. See issue #2001.
+	/// </summary>
+	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+	private static void KeepSharedTextInEnglish()
+		=> LibationUiBase.Resources.Strings.Culture = System.Globalization.CultureInfo.InvariantCulture;
 
 	/// <summary>
 	/// Reports what the rollback did and, when the restored install is worth going back into, offers to
