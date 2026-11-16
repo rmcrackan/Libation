@@ -1,6 +1,7 @@
 using AudibleUtilities;
 using System.Collections.Generic;
 using System.Linq;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase;
 
@@ -11,29 +12,26 @@ namespace LibationUiBase;
 /// </summary>
 public static class MarketplacesUi
 {
-	public const string DialogTitle = "Marketplaces";
+	public static string DialogTitle => Strings.MarketplacesUi_Marketplaces;
 
-	public const string Intro
-		= "Audible keeps a separate library for each marketplace. A title bought while your Amazon address was "
-		+ "set to another country stays in that country's library, and Libation only sees the marketplaces "
-		+ "listed here.\r\n\r\nChecking one adds it to this account's library scans. No second login is needed - "
-		+ "your existing credentials work in every marketplace.";
+	public static string Intro
+		=> Strings.MarketplacesUi_AudibleKeepsASeparateLibraryFor;
 
-	public const string CheckButton = "Check other marketplaces";
+	public static string CheckButton => Strings.MarketplacesUi_CheckOtherMarketplaces;
 
-	public const string Checking = "Checking marketplaces...";
+	public static string Checking => Strings.MarketplacesUi_CheckingMarketplaces;
 
-	public const string NotAuthenticatedToolTip
-		= "Scan this account's library first, so Libation has credentials to check the other marketplaces with.";
+	public static string NotAuthenticatedToolTip
+		=> Strings.MarketplacesUi_ScanThisAccountSLibraryFirst;
 
-	public const string ButtonToolTip
-		= "See whether this account holds titles in other Audible marketplaces.";
+	public static string ButtonToolTip
+		=> Strings.MarketplacesUi_SeeWhetherThisAccountHoldsTitles;
 
-	public const string NoneFound
-		= "No other marketplace holds titles for this account.";
+	public static string NoneFound
+		=> Strings.MarketplacesUi_NoOtherMarketplaceHoldsTitlesFor;
 
-	public const string NoneChecked
-		= "No marketplace could be checked. Scan this account's library to refresh its credentials, then try again.";
+	public static string NoneChecked
+		=> Strings.MarketplacesUi_NoMarketplaceCouldBeCheckedScan;
 
 	/// <summary>Label for the accounts grid button: the account's marketplaces, at a glance.</summary>
 	public static string ButtonText(int marketplaceCount)
@@ -44,18 +42,18 @@ public static class MarketplacesUi
 		=> result.Outcome switch
 		{
 			MarketplaceProbeOutcome.AlreadyScanned
-				=> $"{result.Locale.Name} - already scanned by this account",
+				=> string.Format(Strings.MarketplacesUi_AlreadyScannedByThisAccount, result.Locale.Name),
 			MarketplaceProbeOutcome.ScannedByAnotherAccount
-				=> $"{result.Locale.Name} - already scanned by {result.ClaimedBy}",
+				=> string.Format(Strings.MarketplacesUi_AlreadyScannedBy, result.Locale.Name, result.ClaimedBy),
 			MarketplaceProbeOutcome.TitlesFound when result.TitleCount == 1
-				=> $"{result.Locale.Name} - 1 title",
+				=> string.Format(Strings.MarketplacesUi_1Title, result.Locale.Name),
 			MarketplaceProbeOutcome.TitlesFound
-				=> $"{result.Locale.Name} - {result.TitleCount} titles",
+				=> string.Format(Strings.MarketplacesUi_Titles, result.Locale.Name, result.TitleCount),
 			MarketplaceProbeOutcome.Empty when result.TitleCount == 0
-				=> $"{result.Locale.Name} - no titles",
+				=> string.Format(Strings.MarketplacesUi_NoTitles, result.Locale.Name),
 			MarketplaceProbeOutcome.Empty
-				=> $"{result.Locale.Name} - reachable, title count unknown",
-			_ => $"{result.Locale.Name} - could not be checked ({result.Error})"
+				=> string.Format(Strings.MarketplacesUi_ReachableTitleCountUnknown, result.Locale.Name),
+			_ => string.Format(Strings.MarketplacesUi_CouldNotBeChecked, result.Locale.Name, result.Error)
 		};
 
 	/// <summary>
@@ -99,8 +97,8 @@ public static class MarketplacesUi
 
 		var list = string.Join(", ", found.Select(r => $"{r.Locale.Name} ({r.TitleCount})"));
 		var lead = found.Count == 1
-			? $"Found titles in another marketplace: {list}.\r\n\r\nCheck it to include it in library scans."
-			: $"Found titles in {found.Count} other marketplaces: {list}.\r\n\r\nCheck the ones to include in library scans.";
+			? string.Format(Strings.MarketplacesUi_FoundTitlesInAnotherMarketplaceCheck, list)
+			: string.Format(Strings.MarketplacesUi_FoundTitlesInOtherMarketplacesCheck, found.Count, list);
 
 		return lead + unchecked_;
 	}

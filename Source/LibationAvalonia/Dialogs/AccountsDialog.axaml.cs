@@ -12,6 +12,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -99,12 +100,12 @@ public partial class AccountsDialog : DialogWindow
 
 		public string SignedInToolTip
 			=> !CanToggleSignedIn
-				? "Account has not been authenticated yet. Run a scan to sign in."
+				? Strings.AccountsDialog_AccountHasNotBeenAuthenticatedYet
 				: SignedIn == true
-					? "Account is signed in with current credentials. Uncheck and save to require a fresh sign-in on the next scan or liberate."
+					? Strings.AccountsDialog_AccountIsSignedInWithCurrent
 					: SignedIn == null
-						? "Account is signed in with legacy credentials. Uncheck and save to upgrade to modern credentials on the next scan or liberate."
-						: "Account requires a fresh sign-in. Check and save to keep existing registration.";
+						? Strings.AccountsDialog_AccountIsSignedInWithLegacy
+						: Strings.AccountsDialog_AccountRequiresAFreshSignIn;
 
 		public bool CanExport
 		{
@@ -114,8 +115,8 @@ public partial class AccountsDialog : DialogWindow
 
 		public string ExportButtonToolTip =>
 			CanExport
-				? "Export account authorization to audible-cli"
-				: "Authenticate this account (e.g. library scan) before exporting to audible-cli.";
+				? Strings.AccountsDialog_ExportAccountAuthorizationToAudibleCli
+				: Strings.AccountsDialog_AuthenticateThisAccountEGLibrary;
 
 		/// <summary>
 		/// Checking other marketplaces uses this account's stored credentials, so it needs the same thing an
@@ -262,11 +263,11 @@ public partial class AccountsDialog : DialogWindow
 	{
 		var openFileDialogOptions = new FilePickerOpenOptions
 		{
-			Title = $"Select the audible-cli [account].json file",
+			Title = Strings.AccountsDialog_SelectTheAudibleCliAccountJson,
 			AllowMultiple = false,
 			FileTypeFilter = new FilePickerFileType[]
 			{
-				new("JSON files (*.json)")
+				new(Strings.AccountsDialog_JSONFilesJson)
 				{
 					Patterns = new[] { "*.json" },
 					AppleUniformTypeIdentifiers  = new[] { "public.json" }
@@ -290,13 +291,13 @@ public partial class AccountsDialog : DialogWindow
 
 			if (importResult.Outcome is Mkb79ImportOutcome.InvalidFile)
 			{
-				await MessageBox.Show(this, importResult.Message ?? "Invalid import file.", "Error Importing Account", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				await MessageBox.Show(this, importResult.Message ?? Strings.AccountsDialog_InvalidImportFile, Strings.AccountsDialog_ErrorImportingAccount, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
 
 			if (importResult.Outcome is Mkb79ImportOutcome.DuplicateAccount && importResult.Account is not null)
 			{
-				await MessageBox.Show(this, Mkb79AuthImporter.DuplicateMessage(importResult), "Cannot Add Duplicate Account");
+				await MessageBox.Show(this, Mkb79AuthImporter.DuplicateMessage(importResult), Strings.AccountsDialog_CannotAddDuplicateAccount);
 				return;
 			}
 
@@ -310,8 +311,8 @@ public partial class AccountsDialog : DialogWindow
 		{
 			await MessageBox.ShowAdminAlert(
 					this,
-					$"An error occurred while importing an account from:\r\n{selectedFile}\r\n\r\nIs the file encrypted?",
-					"Error Importing Account",
+					string.Format(Strings.AccountsDialog_AnErrorOccurredWhileImportingAn, selectedFile),
+					Strings.AccountsDialog_ErrorImportingAccount,
 					ex);
 		}
 	}
@@ -335,7 +336,7 @@ public partial class AccountsDialog : DialogWindow
 
 		if (account is null || account.IdentityTokens?.IsValid != true)
 		{
-			await MessageBox.Show(this, MarketplacesUi.NotAuthenticatedToolTip, "Account Not Authenticated");
+			await MessageBox.Show(this, MarketplacesUi.NotAuthenticatedToolTip, Strings.AccountsDialog_AccountNotAuthenticated);
 			return;
 		}
 
@@ -368,7 +369,7 @@ public partial class AccountsDialog : DialogWindow
 		}
 		catch (Exception ex)
 		{
-			await MessageBox.ShowAdminAlert(this, "Error attempting to save accounts", "Error saving accounts", ex);
+			await MessageBox.ShowAdminAlert(this, Strings.AccountsDialog_ErrorAttemptingToSaveAccounts, Strings.AccountsDialog_ErrorSavingAccounts, ex);
 		}
 	}
 
@@ -383,8 +384,8 @@ public partial class AccountsDialog : DialogWindow
 
 			var result = await MessageBox.Show(
 				this,
-				"You have unsaved changes. Close without saving?",
-				"Unsaved Changes",
+				Strings.AccountsDialog_YouHaveUnsavedChangesCloseWithout,
+				Strings.AccountsDialog_UnsavedChanges,
 				MessageBoxButtons.YesNo,
 				MessageBoxIcon.Warning,
 				MessageBoxDefaultButton.Button2);
@@ -459,13 +460,13 @@ public partial class AccountsDialog : DialogWindow
 
 			if (string.IsNullOrWhiteSpace(dto.AccountId))
 			{
-				await MessageBox.Show(this, "Account id cannot be blank. Please enter an account id for all accounts.", "Blank account", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				await MessageBox.Show(this, Strings.AccountsDialog_AccountIdCannotBeBlankPlease, Strings.AccountsDialog_BlankAccount, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return false;
 			}
 
 			if (string.IsNullOrWhiteSpace(dto.SelectedLocale?.Name))
 			{
-				await MessageBox.Show(this, "Please select a locale (i.e.: country or region) for all accounts.", "Blank region", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				await MessageBox.Show(this, Strings.AccountsDialog_PleaseSelectALocaleIE, Strings.AccountsDialog_BlankRegion, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return false;
 			}
 		}
@@ -485,19 +486,19 @@ public partial class AccountsDialog : DialogWindow
 
 		if (account.IdentityTokens?.IsValid != true)
 		{
-			await MessageBox.Show(this, "This account hasn't been authenticated yet. First scan your library to log into your account, then try exporting again.", "Account Not Authenticated");
+			await MessageBox.Show(this, Strings.AccountsDialog_ThisAccountHasnTBeenAuthenticated, Strings.AccountsDialog_AccountNotAuthenticated);
 			return;
 		}
 
 		var options = new FilePickerSaveOptions
 		{
-			Title = $"Save Sover Image",
+			Title = Strings.AccountsDialog_SaveSoverImage,
 			SuggestedFileName = $"{acc.AccountId}.json",
 			DefaultExtension = "json",
 			ShowOverwritePrompt = true,
 			FileTypeChoices = new FilePickerFileType[]
 				{
-					new("JSON files (*.json)")
+					new(Strings.AccountsDialog_JSONFilesJson)
 					{
 						Patterns = new[] { "*.json" },
 						AppleUniformTypeIdentifiers  = new[] { "public.json" }
@@ -521,14 +522,14 @@ public partial class AccountsDialog : DialogWindow
 
 			File.WriteAllText(selectedFile, jsonText);
 
-			await MessageBox.Show(this, $"Successfully exported {account.AccountName} to\r\n\r\n{selectedFile}", "Success!");
+			await MessageBox.Show(this, string.Format(Strings.AccountsDialog_SuccessfullyExportedTo, account.AccountName, selectedFile), Strings.AccountsDialog_Success);
 		}
 		catch (Exception ex)
 		{
 			await MessageBox.ShowAdminAlert(
 				this,
-				$"An error occurred while exporting account:\r\n{account.AccountName}",
-				"Error Exporting Account",
+				string.Format(Strings.AccountsDialog_AnErrorOccurredWhileExportingAccount, account.AccountName),
+				Strings.AccountsDialog_ErrorExportingAccount,
 				ex);
 		}
 	}

@@ -7,6 +7,7 @@ using LibationAvalonia.ViewModels.Settings;
 using LibationFileManager;
 using LibationUiBase;
 using System.Linq;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Controls.Settings;
 
@@ -38,8 +39,8 @@ public partial class Important : UserControl
 			ShowOverwritePrompt = true,
 			FileTypeChoices =
 			[
-				new("Master key (*.key)") { Patterns = ["*.key"] },
-				new("All files (*.*)") { Patterns = ["*"] }
+				new(Strings.Important_MasterKeyKey) { Patterns = ["*.key"] },
+				new(Strings.Important_AllFiles) { Patterns = ["*"] }
 			]
 		};
 

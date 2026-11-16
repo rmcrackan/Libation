@@ -14,6 +14,7 @@ using LibationUiBase.Forms;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia;
 
@@ -80,7 +81,7 @@ internal class Walkthrough
 
 		settingsDialog.Opened += SettingsDialog_Opened;
 		settingsDialog.Closing += SettingsDialog_FormClosing;
-		settingsDialog.saveBtn.Content = "Next Tab";
+		settingsDialog.saveBtn.Content = Strings.Walkthrough_NextTab;
 
 		await settingsDialog.ShowDialog(MainForm);
 
@@ -99,7 +100,7 @@ internal class Walkthrough
 				return;
 
 			if (tabsToVisit.Count == 0)
-				settingsDialog.saveBtn.Content = "Save";
+				settingsDialog.saveBtn.Content = Strings.Walkthrough_Save;
 
 			if (!shownSettingTabs.Add(text))
 				return;

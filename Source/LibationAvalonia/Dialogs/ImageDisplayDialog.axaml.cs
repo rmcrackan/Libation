@@ -4,6 +4,7 @@ using LibationUiBase.Forms;
 using ReactiveUI;
 using System;
 using System.ComponentModel;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -29,14 +30,14 @@ public partial class ImageDisplayDialog : DialogWindow, INotifyPropertyChanged
 	{
 		var options = new FilePickerSaveOptions
 		{
-			Title = $"Save Sover Image",
+			Title = Strings.ImageDisplayDialog_SaveSoverImage,
 			SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)),
 			SuggestedFileName = PictureFileName,
 			DefaultExtension = "jpg",
 			ShowOverwritePrompt = true,
 			FileTypeChoices = new FilePickerFileType[]
 				{
-					new("Jpeg (*.jpg)")
+					new(Strings.ImageDisplayDialog_JpegJpg)
 					{
 						Patterns = new[] { "jpg" },
 						AppleUniformTypeIdentifiers = new[] { "public.jpeg" }
@@ -55,7 +56,7 @@ public partial class ImageDisplayDialog : DialogWindow, INotifyPropertyChanged
 		catch (Exception ex)
 		{
 			Serilog.Log.Logger.Error(ex, $"Failed to save picture to {selectedFile}");
-			await MessageBox.Show(this, $"An error was encountered while trying to save the picture\r\n\r\n{ex.Message}", "Failed to save picture", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+			await MessageBox.Show(this, string.Format(Strings.ImageDisplayDialog_AnErrorWasEncounteredWhileTrying, ex.Message), Strings.ImageDisplayDialog_FailedToSavePicture, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
 		}
 	}
 

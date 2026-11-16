@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -8,14 +9,14 @@
 		x:CompileBindings="True"
 		Width="600" Height="450"
 		x:Class="LibationAvalonia.Dialogs.LocateAudiobooksDialog"
-        Title="Locate Audiobooks"
+        Title="{x:Static res:Strings.LocateAudiobooksDialog_LocateAudiobooks}"
 		WindowStartupLocation="CenterOwner">
 
 	<Grid Margin="5" ColumnDefinitions="*,Auto" RowDefinitions="Auto,*">
-		<TextBlock Grid.Column="0" Text="Found Audiobooks" />
+		<TextBlock Grid.Column="0" Text="{x:Static res:Strings.LocateAudiobooksDialog_FoundAudiobooks2}" />
 		<StackPanel Grid.Column="1"  Orientation="Horizontal">
 
-			<TextBlock Text="IDs Found: " />
+			<TextBlock Text="{x:Static res:Strings.LocateAudiobooksDialog_IDsFound}" />
 			<TextBlock Text="{Binding FoundAsinCount}" />
 		</StackPanel>
 		<DataGrid
@@ -31,16 +32,16 @@
 			ItemsSource="{Binding FoundFiles}">
 			<DataGrid.Styles>
 				<Style Selector="DataGridCell TextBlock">
-					<Setter Property="ToolTip.Tip" Value="Double-click to open containing folder."/>
+					<Setter Property="ToolTip.Tip" Value="{x:Static res:Strings.LocateAudiobooksDialog_DoubleClickToOpenContainingFolder}"/>
 				</Style>
 				</DataGrid.Styles>
 			<DataGrid.Columns>
 				<DataGridTextColumn
-					Header="Found ID"
+					Header="{x:Static res:Strings.LocateAudiobooksDialog_FoundID}"
 					Width="Auto"
 					Binding="{Binding ID}" />
 				<DataGridTextColumn
-					Header="Found File"
+					Header="{x:Static res:Strings.LocateAudiobooksDialog_FoundFile}"
 					Width="*"
 					Binding="{Binding FileName}" />
 				</DataGrid.Columns>			

@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -8,7 +9,7 @@
 		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 		x:DataType="dialogs:EditTemplateDialog+EditTemplateViewModel"
-        Title="EditTemplateDialog">
+        Title="{x:Static res:Strings.EditTemplateDialog_EditTemplateDialog}">
 
 	<Grid RowDefinitions="Auto,*,Auto" Margin="10">
 		<Grid
@@ -35,7 +36,7 @@
 				Margin="10,0,0,0"
 				VerticalAlignment="Stretch"
 				VerticalContentAlignment="Center"
-				Content="Reset to Default"
+				Content="{x:Static res:Strings.EditTemplateDialog_ResetToDefault}"
 				Command="{Binding ResetToDefault}"/>
 		</Grid>
 		<Grid Grid.Row="1" ColumnDefinitions="Auto,*"
@@ -52,7 +53,7 @@
 					ItemsSource="{Binding ListItems}" >
 
 					<DataGrid.Columns>
-						<DataGridTemplateColumn Width="Auto" Header="Tag">
+						<DataGridTemplateColumn Width="Auto" Header="{x:Static res:Strings.EditTemplateDialog_Tag}">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
 									<TextBlock Height="18" Margin="10,0,10,0" VerticalAlignment="Center" Text="{Binding Item1}" />
@@ -60,7 +61,7 @@
 							</DataGridTemplateColumn.CellTemplate>
 						</DataGridTemplateColumn>
 
-						<DataGridTemplateColumn Width="Auto" Header="Description">
+						<DataGridTemplateColumn Width="Auto" Header="{x:Static res:Strings.EditTemplateDialog_Description}">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
 									<TextBlock
@@ -82,7 +83,7 @@
 
 				<TextBlock
 					Margin="0,0,0,5"
-					Text="Example:"/>
+					Text="{x:Static res:Strings.EditTemplateDialog_Example}"/>
 				
 				<Border
 					Grid.Row="1"
@@ -106,13 +107,13 @@
 		<controls:LinkLabel
 			Grid.Row="2"
 			VerticalAlignment="Center"
-			Text="Read about naming templates on the Wiki"
+			Text="{x:Static res:Strings.EditTemplateDialog_ReadAboutNamingTemplatesOnThe}"
 			Command="{Binding GoToNamingTemplateWiki}" />
 		<Button
 			Grid.Row="2"
 				Classes="SaveButton"
 			HorizontalAlignment="Right"
-			Content="Save"
+			Content="{x:Static res:Strings.EditTemplateDialog_Save}"
 			Click="SaveButton_Click" />
 	</Grid>
 </Window>

@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia;
 
@@ -73,10 +74,8 @@ public class App : Application
 			{
 				_ = ShowThenShutdownAsync(
 					desktop,
-					"Libation is already running.\r\n\r\n"
-						+ "Please use the Libation window that is already open. Running more than one copy of "
-						+ "Libation against the same folder at the same time can corrupt your library.",
-					"Libation is already running");
+					Strings.App_LibationIsAlreadyRunningPleaseUse,
+					Strings.App_LibationIsAlreadyRunning);
 				base.OnFrameworkInitializationCompleted();
 				return;
 			}
@@ -171,7 +170,7 @@ public class App : Application
 		}
 		else
 		{
-			await MessageBox.Show("Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			await MessageBox.Show(Strings.App_InitialSetUpCancelled, Strings.App_Cancelled, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			desktop.Shutdown(-1);
 		}
 	}
@@ -264,10 +263,8 @@ public class App : Application
 			Serilog.Log.Logger.Error(ex, "Failed to load library at startup");
 			await MessageBox.Show(
 				mainWindow,
-				"Libation could not load your library, so the library view will be empty for this session. "
-					+ "Restarting Libation may resolve it. If this keeps happening, your library database or your "
-					+ "computer's memory or disk may be corrupted.",
-				"Error loading library",
+				Strings.App_LibationCouldNotLoadYourLibrary,
+				Strings.App_ErrorLoadingLibrary,
 				MessageBoxButtons.OK,
 				MessageBoxIcon.Error);
 			await showEmptyLibraryAsync();

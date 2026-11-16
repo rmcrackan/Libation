@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -44,7 +45,7 @@
 							</ContextMenu.Styles>
 							<MenuItem>
 								<MenuItem.Header>
-									<TextBlock Text="Show / Hide Columns" />
+									<TextBlock Text="{x:Static res:Strings.ProductsDisplay_ShowHideColumns}" />
 								</MenuItem.Header>
 							</MenuItem>
 							<MenuItem Header="-"/>                    
@@ -87,7 +88,7 @@
 					CanUserResize="False"
 					IsVisible="{Binding RemoveColumnVisible}"
 					PropertyChanged="RemoveColumn_PropertyChanged"
-					Header="Remove"
+					Header="{x:Static res:Strings.ProductsDisplay_Remove}"
 					IsReadOnly="False"
 					SortMemberPath="Remove"
 					Width="75">
@@ -102,7 +103,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<controls:DataGridTemplateColumnExt CanUserResize="False" CanUserSort="True" Header="Liberate" SortMemberPath="Liberate">
+				<controls:DataGridTemplateColumnExt CanUserResize="False" CanUserSort="True" Header="{x:Static res:Strings.ProductsDisplay_Liberate}" SortMemberPath="Liberate">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<views:LiberateStatusButton
@@ -119,10 +120,10 @@
 					</controls:DataGridTemplateColumnExt.ClipboardContentBinding>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Header="Cover" CanUserResize="False" CanUserSort="False" SortMemberPath="Cover">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_Cover2}" CanUserResize="False" CanUserSort="False" SortMemberPath="Cover">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
-							<Image Opacity="{Binding Liberate.Opacity}" Tapped="Cover_Click" Source="{Binding Cover}" ToolTip.Tip="Click to see full size" />
+							<Image Opacity="{Binding Liberate.Opacity}" Tapped="Cover_Click" Source="{Binding Cover}" ToolTip.Tip="{x:Static res:Strings.ProductsDisplay_ClickToSeeFullSize}" />
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 					<controls:DataGridTemplateColumnExt.ClipboardContentBinding>
@@ -130,7 +131,7 @@
 					</controls:DataGridTemplateColumnExt.ClipboardContentBinding>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Header="Title" MinWidth="10" Width="{Binding TitleWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Title">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_Title}" MinWidth="10" Width="{Binding TitleWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Title">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
@@ -143,7 +144,7 @@
 					</controls:DataGridTemplateColumnExt.ClipboardContentBinding>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Header="Authors" MinWidth="10" Width="{Binding AuthorsWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Authors">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_Authors}" MinWidth="10" Width="{Binding AuthorsWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Authors">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
@@ -156,7 +157,7 @@
 					</controls:DataGridTemplateColumnExt.ClipboardContentBinding>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Header="Narrators" MinWidth="10" Width="{Binding NarratorsWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Narrators">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_Narrators}" MinWidth="10" Width="{Binding NarratorsWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Narrators">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
@@ -169,7 +170,7 @@
 					</controls:DataGridTemplateColumnExt.ClipboardContentBinding>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Header="Length" MinWidth="10" Width="{Binding LengthWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Length">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_Length}" MinWidth="10" Width="{Binding LengthWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Length">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
@@ -182,7 +183,7 @@
 					</controls:DataGridTemplateColumnExt.ClipboardContentBinding>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Header="Series" MinWidth="10" Width="{Binding SeriesWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Series">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_Series}" MinWidth="10" Width="{Binding SeriesWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Series">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
@@ -195,7 +196,7 @@
 					</controls:DataGridTemplateColumnExt.ClipboardContentBinding>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Header="Series&#xA;Order" MinWidth="10" Width="{Binding SeriesOrderWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="SeriesOrder">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_SeriesOrder}" MinWidth="10" Width="{Binding SeriesOrderWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="SeriesOrder">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
@@ -208,10 +209,10 @@
 					</controls:DataGridTemplateColumnExt.ClipboardContentBinding>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Header="Description" MinWidth="10" Width="{Binding DescriptionWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Description">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_Description}" MinWidth="10" Width="{Binding DescriptionWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Description">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
-							<Panel Opacity="{Binding Liberate.Opacity}" Tapped="Description_Click" ToolTip.Tip="Click to see full description" >
+							<Panel Opacity="{Binding Liberate.Opacity}" Tapped="Description_Click" ToolTip.Tip="{x:Static res:Strings.ProductsDisplay_ClickToSeeFullDescription}" >
 								<TextBlock Text="{Binding Description}" VerticalAlignment="Top" />
 							</Panel>
 						</DataTemplate>
@@ -221,7 +222,7 @@
 					</controls:DataGridTemplateColumnExt.ClipboardContentBinding>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Header="Category" MinWidth="10" Width="{Binding CategoryWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Category">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_Category}" MinWidth="10" Width="{Binding CategoryWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Category">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
@@ -236,7 +237,7 @@
 
 				<controls:DataGridMyRatingColumn
 					x:DataType="uibase:GridEntry"
-					Header="Product&#xA;Rating"
+					Header="{x:Static res:Strings.ProductsDisplay_ProductRating}"
 					IsReadOnly="true"
 					MinWidth="10"
 					SortMemberPath="ProductRating" CanUserSort="True"
@@ -248,7 +249,7 @@
 					</controls:DataGridMyRatingColumn.Width>
 				</controls:DataGridMyRatingColumn>
 
-				<controls:DataGridTemplateColumnExt Header="Purchase&#xA;Date" MinWidth="10" Width="{Binding PurchaseDateWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="PurchaseDate">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_PurchaseDate}" MinWidth="10" Width="{Binding PurchaseDateWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="PurchaseDate">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
@@ -263,7 +264,7 @@
 
 				<controls:DataGridMyRatingColumn
 					x:DataType="uibase:GridEntry"
-					Header="My Rating"
+					Header="{x:Static res:Strings.ProductsDisplay_MyRating}"
 					IsReadOnly="false"
 					MinWidth="10"
 					SortMemberPath="MyRating" CanUserSort="True"
@@ -275,7 +276,7 @@
 					</controls:DataGridMyRatingColumn.Width>
 				</controls:DataGridMyRatingColumn>
 
-				<controls:DataGridTemplateColumnExt Header="Misc" MinWidth="10" Width="{Binding MiscWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Misc">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_Misc}" MinWidth="10" Width="{Binding MiscWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Misc">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
@@ -288,7 +289,7 @@
 					</controls:DataGridTemplateColumnExt.ClipboardContentBinding>
 				</controls:DataGridTemplateColumnExt>
 				
-				<controls:DataGridTemplateColumnExt Header="Included&#xA;Until" MinWidth="10" Width="{Binding IncludedUntilWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="IncludedUntil">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_IncludedUntil}" MinWidth="10" Width="{Binding IncludedUntilWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="IncludedUntil">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
@@ -301,7 +302,7 @@
 					</controls:DataGridTemplateColumnExt.ClipboardContentBinding>
 				</controls:DataGridTemplateColumnExt>
 				
-				<controls:DataGridTemplateColumnExt Header="Last&#xA;Download" MinWidth="10" Width="{Binding LastDownloadWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="LastDownload">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_LastDownload}" MinWidth="10" Width="{Binding LastDownloadWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="LastDownload">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}" ToolTip.Tip="{Binding LastDownload.ToolTipText}" DoubleTapped="Version_DoubleClick">
@@ -314,7 +315,7 @@
 					</controls:DataGridTemplateColumnExt.ClipboardContentBinding>
 				</controls:DataGridTemplateColumnExt>
 				
-				<controls:DataGridTemplateColumnExt Header="Is&#xA;Spatial" MinWidth="10" Width="{Binding IsSpatialWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="IsSpatial">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_IsSpatial}" MinWidth="10" Width="{Binding IsSpatialWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="IsSpatial">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
@@ -327,7 +328,7 @@
 					</controls:DataGridTemplateColumnExt.ClipboardContentBinding>
 				</controls:DataGridTemplateColumnExt>
 				
-				<controls:DataGridTemplateColumnExt Header="Account" MinWidth="10" Width="{Binding AccountWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Account">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_Account}" MinWidth="10" Width="{Binding AccountWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Account">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
@@ -340,7 +341,7 @@
 					</controls:DataGridTemplateColumnExt.ClipboardContentBinding>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Header="Tags" MinWidth="10" Width="{Binding BookTagsWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="BookTags">
+				<controls:DataGridTemplateColumnExt Header="{x:Static res:Strings.ProductsDisplay_Tags}" MinWidth="10" Width="{Binding BookTagsWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="BookTags">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Button
@@ -350,7 +351,7 @@
 								VerticalContentAlignment="Stretch"
 								HorizontalContentAlignment="Stretch"
 								Click="OnTagsButtonClick"
-								ToolTip.Tip="Click to edit tags">
+								ToolTip.Tip="{x:Static res:Strings.ProductsDisplay_ClickToEditTags}">
 								<Grid
 									RowDefinitions="*,*,*"
 									Opacity="{Binding Liberate.Opacity}">

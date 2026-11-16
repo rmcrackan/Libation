@@ -1,12 +1,13 @@
 ﻿using LibationUiBase.Forms;
 using System;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels.Dialogs;
 
 public class MessageBoxViewModel
 {
 	public string? Message { get => field; set => field = value; }
-	public string Caption { get; } = "Message Box";
+	public string Caption { get; } = Strings.MessageBoxViewModel_MessageBox;
 	private readonly MessageBoxButtons _button;
 	private readonly MessageBoxIcon _icon;
 	private readonly MessageBoxDefaultButton _defaultButton;
@@ -27,32 +28,32 @@ public class MessageBoxViewModel
 
 	public string Button1Text => _button switch
 	{
-		MessageBoxButtons.OK => "OK",
-		MessageBoxButtons.OKCancel => "OK",
-		MessageBoxButtons.AbortRetryIgnore => "Abort",
-		MessageBoxButtons.YesNoCancel => "Yes",
-		MessageBoxButtons.YesNo => "Yes",
-		MessageBoxButtons.RetryCancel => "Retry",
-		MessageBoxButtons.CancelTryContinue => "Cancel",
+		MessageBoxButtons.OK => Strings.MessageBoxViewModel_OK,
+		MessageBoxButtons.OKCancel => Strings.MessageBoxViewModel_OK,
+		MessageBoxButtons.AbortRetryIgnore => Strings.MessageBoxViewModel_Abort,
+		MessageBoxButtons.YesNoCancel => Strings.MessageBoxViewModel_Yes,
+		MessageBoxButtons.YesNo => Strings.MessageBoxViewModel_Yes,
+		MessageBoxButtons.RetryCancel => Strings.MessageBoxViewModel_Retry,
+		MessageBoxButtons.CancelTryContinue => Strings.MessageBoxViewModel_Cancel,
 		_ => string.Empty,
 	};
 
 	public string Button2Text => _button switch
 	{
-		MessageBoxButtons.OKCancel => "Cancel",
-		MessageBoxButtons.AbortRetryIgnore => "Retry",
-		MessageBoxButtons.YesNoCancel => "No",
-		MessageBoxButtons.YesNo => "No",
-		MessageBoxButtons.RetryCancel => "Cancel",
-		MessageBoxButtons.CancelTryContinue => "Try",
+		MessageBoxButtons.OKCancel => Strings.MessageBoxViewModel_Cancel,
+		MessageBoxButtons.AbortRetryIgnore => Strings.MessageBoxViewModel_Retry,
+		MessageBoxButtons.YesNoCancel => Strings.MessageBoxViewModel_No,
+		MessageBoxButtons.YesNo => Strings.MessageBoxViewModel_No,
+		MessageBoxButtons.RetryCancel => Strings.MessageBoxViewModel_Cancel,
+		MessageBoxButtons.CancelTryContinue => Strings.MessageBoxViewModel_Try,
 		_ => string.Empty,
 	};
 
 	public string Button3Text => _button switch
 	{
-		MessageBoxButtons.AbortRetryIgnore => "Ignore",
-		MessageBoxButtons.YesNoCancel => "Cancel",
-		MessageBoxButtons.CancelTryContinue => "Continue",
+		MessageBoxButtons.AbortRetryIgnore => Strings.MessageBoxViewModel_Ignore,
+		MessageBoxButtons.YesNoCancel => Strings.MessageBoxViewModel_Cancel,
+		MessageBoxButtons.CancelTryContinue => Strings.MessageBoxViewModel_Continue,
 		_ => string.Empty,
 	};
 

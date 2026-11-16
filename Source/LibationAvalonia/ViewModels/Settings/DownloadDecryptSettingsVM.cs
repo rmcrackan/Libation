@@ -5,6 +5,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels.Settings;
 
@@ -113,9 +114,9 @@ public class DownloadDecryptSettingsVM : ViewModelBase
 	public string DailyDownloadLimitQuantityText { get; } = Configuration.GetDescription(nameof(Configuration.DailyDownloadLimitQuantity));
 	public string DailyDownloadLimitUnitText { get; } = Configuration.GetDescription(nameof(Configuration.DailyDownloadLimitUnit));
 	public string DailyDownloadLimitApproximateNoteText { get; }
-		= "MB and GB are approximate: Libation does not know precisely how large an audiobook is before downloading it, so it assumes about 400 MB per book when deciding whether another download would exceed the limit.";
+		= Strings.DownloadDecryptSettingsVM_MBAndGBAreApproximateLibation;
 	public string DailyDownloadLimitDescriptionText { get; }
-		= "Rolling 24 hours, not a calendar day. Only downloads Libation completes are counted; books you download from the Audible app or website are not.";
+		= Strings.DownloadDecryptSettingsVM_Rolling24HoursNotACalendar;
 
 	#endregion
 

@@ -1,12 +1,13 @@
 using AudibleUtilities;
 using System;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase;
 
 /// <summary>Shared copy for the dialog shown when auto-scan pauses itself waiting for a login.</summary>
 public static class AutoScanAuthPrompt
 {
-	public const string Caption = "Auto-scan paused - login required";
+	public static string Caption => Strings.AutoScanAuthPrompt_AutoScanPausedLoginRequired;
 
 	public static string FormatBody(AuthenticationRequiredException ex)
 	{
@@ -14,14 +15,13 @@ public static class AutoScanAuthPrompt
 
 		// the owner is looking at their own screen, so the dialog names the account in full. the log gets
 		// ex.AccountInfo.MaskedLogEntry instead
-		var account = ex.AccountInfo?.RevealOwnerFacingLabel() ?? "an Audible account";
+		var account = ex.AccountInfo?.RevealOwnerFacingLabel() ?? Strings.AutoScanAuthPrompt_AnAudibleAccount;
 		var cause = ex.AccountInfo?.RequiresReRegistration == true
-			? "that account requires a fresh login and device registration"
+			? Strings.AutoScanAuthPrompt_ThatAccountRequiresAFreshLogin
 			: ex.AccountInfo?.LooksLikeMissingCredentials ?? true
-				? "that account has never been logged in, or its stored credentials are missing"
-				: "the stored login for that account expired";
+				? Strings.AutoScanAuthPrompt_ThatAccountHasNeverBeenLogged
+				: Strings.AutoScanAuthPrompt_TheStoredLoginForThatAccount;
 
-		return $"Libation could not refresh the Audible library for {account} because {cause}.\n\n"
-			+ "Background auto-scan has been paused. Use Import > Scan Library to log in for that account and resume periodic scans.";
+		return string.Format(Strings.AutoScanAuthPrompt_LibationCouldNotRefreshTheAudible, account, cause);
 	}
 }

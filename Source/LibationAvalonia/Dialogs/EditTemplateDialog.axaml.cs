@@ -13,6 +13,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -43,7 +44,7 @@ public partial class EditTemplateDialog : DialogWindow
 
 		_viewModel = new EditTemplateViewModel(Configuration.Instance, templateEditor);
 		_viewModel.ResetTextBox(templateEditor.EditingTemplate.TemplateText);
-		Title = $"Edit {templateEditor.TemplateName}";
+		Title = string.Format(Strings.EditTemplateDialog_Edit, templateEditor.TemplateName);
 		DataContext = _viewModel;
 	}
 
@@ -127,7 +128,7 @@ public partial class EditTemplateDialog : DialogWindow
 				return true;
 
 			var errors = string.Join("\r\n", TemplateEditor.EditingTemplate.Errors.Select(err => $"- {err}"));
-			await MessageBox.Show($"This template text is not valid. Errors:\r\n{errors}", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			await MessageBox.Show(string.Format(Strings.EditTemplateDialog_ThisTemplateTextIsNotValid, errors), Strings.EditTemplateDialog_Invalid, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			return false;
 		}
 

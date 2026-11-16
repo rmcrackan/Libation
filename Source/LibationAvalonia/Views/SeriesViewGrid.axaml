@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -35,19 +36,19 @@
 
 		<DataGrid.Columns>
 
-			<DataGridTemplateColumn Width="80" Header="Cover" CanUserSort="False">
+			<DataGridTemplateColumn Width="80" Header="{x:Static res:Strings.SeriesViewGrid_Cover2}" CanUserSort="False">
 				<DataGridTemplateColumn.CellTemplate>
 					<DataTemplate x:DataType="uibase:SeriesItem">
 						<Image
 							Tapped="Cover_Click"
 							Height="80"
 							Source="{Binding Cover}"
-							ToolTip.Tip="Click to see full size" />
+							ToolTip.Tip="{x:Static res:Strings.SeriesViewGrid_ClickToSeeFullSize}" />
 					</DataTemplate>
 				</DataGridTemplateColumn.CellTemplate>
 			</DataGridTemplateColumn>
 
-			<DataGridTemplateColumn Width="Auto" Header="Series&#xa;Order" CanUserSort="True" SortMemberPath="Order">
+			<DataGridTemplateColumn Width="Auto" Header="{x:Static res:Strings.SeriesViewGrid_SeriesOrder}" CanUserSort="True" SortMemberPath="Order">
 				<DataGridTemplateColumn.CellTemplate>
 					<DataTemplate x:DataType="uibase:SeriesItem">
 						<Panel>
@@ -60,7 +61,7 @@
 				</DataGridTemplateColumn.CellTemplate>
 			</DataGridTemplateColumn>
 
-			<DataGridTemplateColumn Width="Auto" Header="Availability" CanUserSort="True" SortMemberPath="Button">
+			<DataGridTemplateColumn Width="Auto" Header="{x:Static res:Strings.SeriesViewGrid_Availability}" CanUserSort="True" SortMemberPath="Button">
 				<DataGridTemplateColumn.CellTemplate>
 					<DataTemplate x:DataType="uibase:SeriesItem">
 						<Panel>
@@ -90,10 +91,10 @@
 				</DataGridTemplateColumn.CellTemplate>
 			</DataGridTemplateColumn>
 
-			<DataGridTemplateColumn MinWidth="150" Width="*" Header="Title" CanUserSort="True" SortMemberPath="Title">
+			<DataGridTemplateColumn MinWidth="150" Width="*" Header="{x:Static res:Strings.SeriesViewGrid_Title}" CanUserSort="True" SortMemberPath="Title">
 				<DataGridTemplateColumn.CellTemplate>
 					<DataTemplate x:DataType="uibase:SeriesItem">
-						<Panel ToolTip.Tip="Open Audible product page">
+						<Panel ToolTip.Tip="{x:Static res:Strings.SeriesViewGrid_OpenAudibleProductPage}">
 							<controls:LinkLabel
 								VerticalAlignment="Center"
 								Text="{Binding Title}"

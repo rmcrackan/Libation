@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -66,16 +67,16 @@
 				</Grid.Styles>
 				<StackPanel IsVisible="{Binding Queued}" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Vertical">
 
-					<Button ToolTip.Tip="Move book to top of queue" Click="MoveFirst_Click">
+					<Button ToolTip.Tip="{x:Static res:Strings.ProcessBookControl_MoveBookToTopOfQueue}" Click="MoveFirst_Click">
 						<Path VerticalAlignment="Top" Data="{StaticResource	FirstButtonIcon}" />
 					</Button>
-					<Button ToolTip.Tip="Move book up in queue" Click="MoveUp_Click">
+					<Button ToolTip.Tip="{x:Static res:Strings.ProcessBookControl_MoveBookUpInQueue}" Click="MoveUp_Click">
 						<Path VerticalAlignment="Top" Data="{StaticResource	UpButtonIcon}" />
 					</Button>
-					<Button ToolTip.Tip="Move book down in queue" Click="MoveDown_Click">
+					<Button ToolTip.Tip="{x:Static res:Strings.ProcessBookControl_MoveBookDownInQueue}" Click="MoveDown_Click">
 						<Path VerticalAlignment="Bottom" Data="{StaticResource	DownButtonIcon}" />
 					</Button>
-					<Button ToolTip.Tip="Move book to bottom of queue" Click="MoveLast_Click">
+					<Button ToolTip.Tip="{x:Static res:Strings.ProcessBookControl_MoveBookToBottomOfQueue}" Click="MoveLast_Click">
 						<Path VerticalAlignment="Bottom" Data="{StaticResource	LastButtonIcon}" />
 					</Button>
 				</StackPanel>

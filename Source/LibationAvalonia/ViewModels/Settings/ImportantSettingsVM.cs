@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels.Settings;
 
@@ -157,7 +158,7 @@ public class ImportantSettingsVM : ViewModelBase
 	public EnumDisplay<DeviceRegistrationKind>[] DeviceRegistrationOptions { get; } = DeviceRegistrationSettingsUi.Options;
 	/// <summary>When true, the Use WebView setting is disabled (e.g. when running in Linux Snap to avoid portal/sandbox crashes).</summary>
 	public bool UseWebViewSettingDisabled => Configuration.IsRunningUnderSnap;
-	public string UseWebViewSnapMessage { get; } = Configuration.IsRunningUnderSnap ? "Disabled when running in Linux Snap (avoids login crash). Use external browser instead." : "";
+	public string UseWebViewSnapMessage { get; } = Configuration.IsRunningUnderSnap ? Strings.ImportantSettingsVM_DisabledWhenRunningInLinuxSnap : "";
 	public string CheckForUpgradesAtStartupText { get; } = Configuration.GetDescription(nameof(Configuration.CheckForUpgradesAtStartup));
 	public string CheckForUpgradesAtStartupTip { get; } = Configuration.GetHelpText(nameof(Configuration.CheckForUpgradesAtStartup));
 	public string CheckForPreReleaseText { get; } = Configuration.GetDescription(nameof(Configuration.CheckForPreRelease));

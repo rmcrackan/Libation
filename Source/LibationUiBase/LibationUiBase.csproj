@@ -22,6 +22,17 @@
   </ItemGroup>
 
   <ItemGroup>
+	<!-- User-facing text. Translations go next to it as Strings.<culture>.resx. -->
+	<EmbeddedResource Update="Resources\Strings.resx">
+	  <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+	  <StronglyTypedNamespace>LibationUiBase.Resources</StronglyTypedNamespace>
+	  <StronglyTypedClassName>Strings</StronglyTypedClassName>
+	  <StronglyTypedFileName>$(IntermediateOutputPath)Strings.Designer.cs</StronglyTypedFileName>
+	  <PublicClass>true</PublicClass>
+	</EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Update="Microsoft.SourceLink.GitHub" Version="10.0.403" />
   </ItemGroup>
 

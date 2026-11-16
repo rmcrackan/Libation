@@ -2,6 +2,7 @@ using Avalonia;
 using LibationSearchEngine;
 using System;
 using System.Linq;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -21,36 +22,13 @@ public partial class SearchSyntaxDialog : DialogWindow
 	{
 		InitializeComponent();
 
-		StringUsage = """
-		Search for wizard of oz:
-			 title:oz
-			 title:"wizard of oz"
-		""";
+		StringUsage = Strings.SearchSyntaxDialog_SearchForWizardOfOzTitle;
 
-		NumberUsage = """
-		Find books between 1-100 minutes long
-			 length:[1 TO 100]
-		Find books exactly 1 hr long
-			 length:60
-		Find books published from 2020-1-1 to
-		2023-12-31
-			 datepublished:[20200101 TO 20231231]
-		""";
+		NumberUsage = Strings.SearchSyntaxDialog_FindBooksBetween1100Minutes;
 
-		BoolUsage = """
-		Find books that you haven't rated:
-			 -IsRated
-		""";
+		BoolUsage = Strings.SearchSyntaxDialog_FindBooksThatYouHavenT;
 
-		IdUsage = """
-		Alice's Adventures in
-		  Wonderland (ID: B015D78L0U)
-
-			 id:B015D78L0U
-
-		All of these are synonyms
-		for the ID field
-		""";
+		IdUsage = Strings.SearchSyntaxDialog_AliceSAdventuresInWonderlandID;
 
 		DataContext = this;
 	}

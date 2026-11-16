@@ -7,6 +7,7 @@ using LibationUiBase;
 using ReactiveUI;
 using System;
 using System.Linq;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels.Settings;
 
@@ -19,7 +20,7 @@ public class AudioSettingsVM : ViewModelBase
 	public AvaloniaList<EnumDisplay<SampleRate>> SampleRates { get; }
 			= new(Enum.GetValues<SampleRate>()
 			.Where(r => r >= SampleRate.Hz_8000 && r <= SampleRate.Hz_48000)
-			.Select(v => new EnumDisplay<SampleRate>(v, $"{((int)v):N0} Hz")));
+			.Select(v => new EnumDisplay<SampleRate>(v, string.Format(Strings.AudioSettingsVM_Hz, ((int)v)))));
 
 	public AvaloniaList<NAudio.Lame.EncoderQuality> EncoderQualities { get; }
 	= new([

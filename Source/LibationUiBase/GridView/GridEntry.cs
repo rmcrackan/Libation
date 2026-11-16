@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase.GridView;
 
@@ -126,7 +127,7 @@ public abstract class GridEntry : ReactiveObject
 	protected string GetBookLengthString()
 	{
 		int bookLenMins = GetLengthInMinutes();
-		return bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
+		return bookLenMins == 0 ? "" : string.Format(Strings.GridEntry_HrMin, (bookLenMins / 60), (bookLenMins % 60));
 	}
 
 	#endregion
@@ -319,23 +320,23 @@ public abstract class GridEntry : ReactiveObject
 	{
 		var details = new List<string>();
 
-		var locale = libraryBook.Book.Locale.DefaultIfNullOrWhiteSpace("[unknown]");
-		var acct = libraryBook.Account.DefaultIfNullOrWhiteSpace("[unknown]");
+		var locale = libraryBook.Book.Locale.DefaultIfNullOrWhiteSpace(Strings.GridEntry_Unknown);
+		var acct = libraryBook.Account.DefaultIfNullOrWhiteSpace(Strings.GridEntry_Unknown);
 
-		details.Add($"Account: {locale} - {acct}");
+		details.Add(string.Format(Strings.GridEntry_Account, locale, acct));
 
 		if (libraryBook.Book.HasPdf)
-			details.Add("Has PDF");
+			details.Add(Strings.GridEntry_HasPDF);
 		if (libraryBook.Book.IsAbridged)
-			details.Add("Abridged");
+			details.Add(Strings.GridEntry_Abridged);
 		if (libraryBook.Book.DatePublished.HasValue)
-			details.Add($"Date pub'd: {libraryBook.Book.DatePublished.Value:MM/dd/yyyy}");
+			details.Add(string.Format(Strings.GridEntry_DatePubD, libraryBook.Book.DatePublished.Value));
 		// this goes last since it's most likely to have a line-break
 		if (!string.IsNullOrWhiteSpace(libraryBook.Book.Publisher))
-			details.Add($"Pub: {libraryBook.Book.Publisher.Trim()}");
+			details.Add(string.Format(Strings.GridEntry_Pub, libraryBook.Book.Publisher.Trim()));
 
 		if (!details.Any())
-			return "[details not imported]";
+			return Strings.GridEntry_DetailsNotImported;
 
 		return string.Join("\r\n", details);
 	}

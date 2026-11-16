@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -10,7 +11,7 @@
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 		x:DataType="dialogs:EditReplacementChars"
 		x:CompileBindings="True"
-		Title="File Path Character Replacement">
+		Title="{x:Static res:Strings.EditReplacementChars_FilePathCharacterReplacement}">
 
 	<Grid RowDefinitions="*,Auto">
 		<DataGrid
@@ -31,17 +32,17 @@
 				<controls:DataGridTextColumnExt
 					x:DataType="dialogs:EditReplacementChars+ReplacementsExt"
 					MaxLength="1"
-					Header="Char to&#xa;Replace"
+					Header="{x:Static res:Strings.EditReplacementChars_CharToReplace}"
 					Binding="{Binding CharacterToReplace, Mode=TwoWay}"/>
 
 				<DataGridTextColumn
 					x:DataType="dialogs:EditReplacementChars+ReplacementsExt"
-					Header="Replacement&#xa;Text"
+					Header="{x:Static res:Strings.EditReplacementChars_ReplacementText}"
 					Binding="{Binding ReplacementText, Mode=TwoWay}"/>
             
 				<DataGridTextColumn
 					x:DataType="dialogs:EditReplacementChars+ReplacementsExt"
-					Header="Description"
+					Header="{x:Static res:Strings.EditReplacementChars_Description}"
 					Binding="{Binding Description, Mode=TwoWay}"/>
 
 			</DataGrid.Columns>
@@ -63,19 +64,19 @@
 				</Style>
 			</Grid.Styles>
 
-			<TextBlock Grid.Row="0" Text="This&#xa;System:" IsVisible="{Binding !EnvironmentIsWindows}" />
-			<TextBlock Grid.Row="1" Text="NTFS:" IsVisible="{Binding !EnvironmentIsWindows}" />
+			<TextBlock Grid.Row="0" Text="{x:Static res:Strings.EditReplacementChars_ThisSystem}" IsVisible="{Binding !EnvironmentIsWindows}" />
+			<TextBlock Grid.Row="1" Text="{x:Static res:Strings.EditReplacementChars_NTFS}" IsVisible="{Binding !EnvironmentIsWindows}" />
 
-			<Button Grid.Column="1" Command="{Binding Defaults}" CommandParameter="{Binding EnvironmentIsWindows}" Content="Defaults" />
-			<Button Grid.Column="2" Command="{Binding LoFiDefaults}" CommandParameter="{Binding EnvironmentIsWindows}" Content="LoFi Defaults" />
-			<Button Grid.Column="3" Command="{Binding Barebones}" CommandParameter="{Binding EnvironmentIsWindows}" Content="Barebones" />
+			<Button Grid.Column="1" Command="{Binding Defaults}" CommandParameter="{Binding EnvironmentIsWindows}" Content="{x:Static res:Strings.EditReplacementChars_Defaults}" />
+			<Button Grid.Column="2" Command="{Binding LoFiDefaults}" CommandParameter="{Binding EnvironmentIsWindows}" Content="{x:Static res:Strings.EditReplacementChars_LoFiDefaults}" />
+			<Button Grid.Column="3" Command="{Binding Barebones}" CommandParameter="{Binding EnvironmentIsWindows}" Content="{x:Static res:Strings.EditReplacementChars_Barebones}" />
 
-			<Button Grid.Row="1" Grid.Column="1" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding Defaults}" CommandParameter="{x:True}" Content="Defaults" />
-			<Button Grid.Row="1" Grid.Column="2" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding LoFiDefaults}" CommandParameter="{x:True}" Content="LoFi Defaults" />
-			<Button Grid.Row="1" Grid.Column="3" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding Barebones}" CommandParameter="{x:True}" Content="Barebones" />
+			<Button Grid.Row="1" Grid.Column="1" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding Defaults}" CommandParameter="{x:True}" Content="{x:Static res:Strings.EditReplacementChars_Defaults}" />
+			<Button Grid.Row="1" Grid.Column="2" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding LoFiDefaults}" CommandParameter="{x:True}" Content="{x:Static res:Strings.EditReplacementChars_LoFiDefaults}" />
+			<Button Grid.Row="1" Grid.Column="3" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding Barebones}" CommandParameter="{x:True}" Content="{x:Static res:Strings.EditReplacementChars_Barebones}" />
 						
-			<Button Grid.RowSpan="2" Grid.Column="4" Command="{Binding Close}" Content="Cancel" />
-			<Button Grid.RowSpan="2" Grid.Column="5" Classes="SaveButton" Command="{Binding SaveAndClose}" Content="Save" />
+			<Button Grid.RowSpan="2" Grid.Column="4" Command="{Binding Close}" Content="{x:Static res:Strings.EditReplacementChars_Cancel}" />
+			<Button Grid.RowSpan="2" Grid.Column="5" Classes="SaveButton" Command="{Binding SaveAndClose}" Content="{x:Static res:Strings.EditReplacementChars_Save}" />
 		</Grid>	
 	</Grid>	
 </Window>

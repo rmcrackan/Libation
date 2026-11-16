@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -9,14 +10,14 @@
 		MinWidth="630" MinHeight="90"
 		MaxWidth="630" MaxHeight="90"
 		Width="630" Height="110"
-        Title="Replace Tags"
+        Title="{x:Static res:Strings.TagsBatchDialog_ReplaceTags}"
 		WindowStartupLocation="CenterOwner">
 
 	<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" Margin="10">
 		<TextBlock
 			Grid.ColumnSpan="2"
 			Margin="0,0,0,10"
-			Text="Tags are separated by a space. Each tag can contain letters, numbers, and underscores"/>
+			Text="{x:Static res:Strings.TagsBatchDialog_TagsAreSeparatedByASpace}"/>
 		<TextBox
 			Grid.Row="1"
 			MinHeight="25"
@@ -28,7 +29,7 @@
 			Margin="10,0,0,0"
 			Classes="SaveButton"
 			VerticalAlignment="Stretch"
-			Content="Save"
+			Content="{x:Static res:Strings.TagsBatchDialog_Save}"
 			Command="{Binding SaveAndClose}"/>
 	</Grid>
 </Window>

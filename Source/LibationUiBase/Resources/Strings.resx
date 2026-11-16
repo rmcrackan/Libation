@@ -1,0 +1,2770 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AboutDialog_AboutLibation" xml:space="preserve">
+    <value>About Libation</value>
+  </data>
+  <data name="AboutDialog_Acknowledgements" xml:space="preserve">
+    <value>Acknowledgements</value>
+  </data>
+  <data name="AboutDialog_AdditionalContributionsBy" xml:space="preserve">
+    <value>Additional Contributions by:</value>
+  </data>
+  <data name="AboutDialog_CheckForUpgrade" xml:space="preserve">
+    <value>Check for Upgrade</value>
+  </data>
+  <data name="AboutDialog_Donate" xml:space="preserve">
+    <value>Donate</value>
+  </data>
+  <data name="AboutDialog_LibationIsUpToDateCheck" xml:space="preserve">
+    <value>Libation is up to date. Check Again.</value>
+  </data>
+  <data name="AboutDialog_LibationV" xml:space="preserve">
+    <value>Libation {0} v{1}</value>
+    <comment>{0} = AppScaffolding.LibationScaffolding.Variety, {1} = AppScaffolding.LibationScaffolding.BuildVersion</comment>
+  </data>
+  <data name="AboutDialog_UnableToCheckForUpdatesTry" xml:space="preserve">
+    <value>Unable to check for updates. Try again later.</value>
+  </data>
+  <data name="AboutDialog_VersionIsAvailable" xml:space="preserve">
+    <value>Version {0:3} is available</value>
+    <comment>{0} = p.LatestRelease</comment>
+  </data>
+  <data name="AboutDialog_ViewReleaseNotes" xml:space="preserve">
+    <value>View Release Notes</value>
+  </data>
+  <data name="AccountsDialog_AccountHasNotBeenAuthenticatedYet" xml:space="preserve">
+    <value>Account has not been authenticated yet. Run a scan to sign in.</value>
+  </data>
+  <data name="AccountsDialog_AccountIdCannotBeBlankPlease" xml:space="preserve">
+    <value>Account id cannot be blank. Please enter an account id for all accounts.</value>
+  </data>
+  <data name="AccountsDialog_AccountIsSignedInWithCurrent" xml:space="preserve">
+    <value>Account is signed in with current credentials. Uncheck and save to require a fresh sign-in on the next scan or liberate.</value>
+  </data>
+  <data name="AccountsDialog_AccountIsSignedInWithLegacy" xml:space="preserve">
+    <value>Account is signed in with legacy credentials. Uncheck and save to upgrade to modern credentials on the next scan or liberate.</value>
+  </data>
+  <data name="AccountsDialog_AccountNicknameOptional" xml:space="preserve">
+    <value>Account Nickname
+(optional)</value>
+  </data>
+  <data name="AccountsDialog_AccountNotAuthenticated" xml:space="preserve">
+    <value>Account Not Authenticated</value>
+  </data>
+  <data name="AccountsDialog_AccountRequiresAFreshSignIn" xml:space="preserve">
+    <value>Account requires a fresh sign-in. Check and save to keep existing registration.</value>
+  </data>
+  <data name="AccountsDialog_AnErrorOccurredWhileExportingAccount" xml:space="preserve">
+    <value>An error occurred while exporting account:&#xD;
+{0}</value>
+    <comment>{0} = account.AccountName</comment>
+  </data>
+  <data name="AccountsDialog_AnErrorOccurredWhileImportingAn" xml:space="preserve">
+    <value>An error occurred while importing an account from:&#xD;
+{0}&#xD;
+&#xD;
+Is the file encrypted?</value>
+    <comment>{0} = selectedFile</comment>
+  </data>
+  <data name="AccountsDialog_AudibleAccounts" xml:space="preserve">
+    <value>Audible Accounts</value>
+  </data>
+  <data name="AccountsDialog_AudibleEmailLogin" xml:space="preserve">
+    <value>Audible
+email/login</value>
+  </data>
+  <data name="AccountsDialog_AuthenticateThisAccountEGLibrary" xml:space="preserve">
+    <value>Authenticate this account (e.g. library scan) before exporting to audible-cli.</value>
+  </data>
+  <data name="AccountsDialog_BlankAccount" xml:space="preserve">
+    <value>Blank account</value>
+  </data>
+  <data name="AccountsDialog_BlankRegion" xml:space="preserve">
+    <value>Blank region</value>
+  </data>
+  <data name="AccountsDialog_CannotAddDuplicateAccount" xml:space="preserve">
+    <value>Cannot Add Duplicate Account</value>
+  </data>
+  <data name="AccountsDialog_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="AccountsDialog_ErrorAttemptingToSaveAccounts" xml:space="preserve">
+    <value>Error attempting to save accounts</value>
+  </data>
+  <data name="AccountsDialog_ErrorExportingAccount" xml:space="preserve">
+    <value>Error Exporting Account</value>
+  </data>
+  <data name="AccountsDialog_ErrorImportingAccount" xml:space="preserve">
+    <value>Error Importing Account</value>
+  </data>
+  <data name="AccountsDialog_ErrorSavingAccounts" xml:space="preserve">
+    <value>Error saving accounts</value>
+  </data>
+  <data name="AccountsDialog_Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="AccountsDialog_ExportAccountAuthorizationToAudibleCli" xml:space="preserve">
+    <value>Export account authorization to audible-cli</value>
+  </data>
+  <data name="AccountsDialog_ImportFromAudibleCli" xml:space="preserve">
+    <value>Import from audible-cli</value>
+  </data>
+  <data name="AccountsDialog_IncludeInLibraryScan" xml:space="preserve">
+    <value>Include in
+library scan?</value>
+  </data>
+  <data name="AccountsDialog_InvalidImportFile" xml:space="preserve">
+    <value>Invalid import file.</value>
+  </data>
+  <data name="AccountsDialog_JSONFilesJson" xml:space="preserve">
+    <value>JSON files (*.json)</value>
+  </data>
+  <data name="AccountsDialog_Locale" xml:space="preserve">
+    <value>Locale</value>
+  </data>
+  <data name="AccountsDialog_Marketplaces" xml:space="preserve">
+    <value>Marketplaces</value>
+  </data>
+  <data name="AccountsDialog_PleaseSelectALocaleIE" xml:space="preserve">
+    <value>Please select a locale (i.e.: country or region) for all accounts.</value>
+  </data>
+  <data name="AccountsDialog_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="AccountsDialog_SaveSoverImage" xml:space="preserve">
+    <value>Save Sover Image</value>
+  </data>
+  <data name="AccountsDialog_SelectTheAudibleCliAccountJson" xml:space="preserve">
+    <value>Select the audible-cli [account].json file</value>
+  </data>
+  <data name="AccountsDialog_SignedIn" xml:space="preserve">
+    <value>Signed in?</value>
+  </data>
+  <data name="AccountsDialog_Success" xml:space="preserve">
+    <value>Success!</value>
+  </data>
+  <data name="AccountsDialog_SuccessfullyExportedTo" xml:space="preserve">
+    <value>Successfully exported {0} to&#xD;
+&#xD;
+{1}</value>
+    <comment>{0} = account.AccountName, {1} = selectedFile</comment>
+  </data>
+  <data name="AccountsDialog_ThisAccountHasnTBeenAuthenticated" xml:space="preserve">
+    <value>This account hasn&apos;t been authenticated yet. First scan your library to log into your account, then try exporting again.</value>
+  </data>
+  <data name="AccountsDialog_UnsavedChanges" xml:space="preserve">
+    <value>Unsaved Changes</value>
+  </data>
+  <data name="AccountsDialog_YouHaveUnsavedChangesCloseWithout" xml:space="preserve">
+    <value>You have unsaved changes. Close without saving?</value>
+  </data>
+  <data name="App_AboutLibation" xml:space="preserve">
+    <value>About Libation</value>
+  </data>
+  <data name="App_Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="App_ErrorLoadingLibrary" xml:space="preserve">
+    <value>Error loading library</value>
+  </data>
+  <data name="App_InitialSetUpCancelled" xml:space="preserve">
+    <value>Initial set up cancelled.</value>
+  </data>
+  <data name="App_LibationCouldNotLoadYourLibrary" xml:space="preserve">
+    <value>Libation could not load your library, so the library view will be empty for this session. Restarting Libation may resolve it. If this keeps happening, your library database or your computer&apos;s memory or disk may be corrupted.</value>
+  </data>
+  <data name="App_LibationIsAlreadyRunning" xml:space="preserve">
+    <value>Libation is already running</value>
+  </data>
+  <data name="App_LibationIsAlreadyRunningPleaseUse" xml:space="preserve">
+    <value>Libation is already running.&#xD;
+&#xD;
+Please use the Libation window that is already open. Running more than one copy of Libation against the same folder at the same time can corrupt your library.</value>
+  </data>
+  <data name="AudioSettingsVM_Hz" xml:space="preserve">
+    <value>{0:N0} Hz</value>
+    <comment>{0} = ((int)v)</comment>
+  </data>
+  <data name="Audio_AudiobookFixUps" xml:space="preserve">
+    <value>Audiobook Fix-ups</value>
+  </data>
+  <data name="Audio_Bitrate" xml:space="preserve">
+    <value>Bitrate</value>
+  </data>
+  <data name="Audio_DownloadClipsNotesAndBookmarksAs" xml:space="preserve">
+    <value>Download Clips, Notes and Bookmarks as</value>
+  </data>
+  <data name="Audio_DownloadMyBooksAsMP3Files" xml:space="preserve">
+    <value>Download my books as .MP3 files (transcode if necessary)</value>
+  </data>
+  <data name="Audio_DownloadMyBooksInTheOriginal" xml:space="preserve">
+    <value>Download my books in the original audio format (Lossless)</value>
+  </data>
+  <data name="Audio_DownsampleToMonoRecommended" xml:space="preserve">
+    <value>Downsample to mono? (Recommended)</value>
+  </data>
+  <data name="Audio_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Audio_EncoderQuality" xml:space="preserve">
+    <value>Encoder Quality:</value>
+  </data>
+  <data name="Audio_Higher" xml:space="preserve">
+    <value>Higher</value>
+  </data>
+  <data name="Audio_Kbps" xml:space="preserve">
+    <value> Kbps</value>
+  </data>
+  <data name="Audio_Lower" xml:space="preserve">
+    <value>Lower</value>
+  </data>
+  <data name="Audio_MatchSourceBitrate" xml:space="preserve">
+    <value>Match Source Bitrate?</value>
+  </data>
+  <data name="Audio_MaxAudioSampleRate" xml:space="preserve">
+    <value>Max audio sample rate:</value>
+  </data>
+  <data name="Audio_Mp3EncodingOptions" xml:space="preserve">
+    <value>Mp3 Encoding Options</value>
+  </data>
+  <data name="Audio_Quality" xml:space="preserve">
+    <value>Quality</value>
+  </data>
+  <data name="Audio_RestrictEncoderToConstantBitrate" xml:space="preserve">
+    <value>Restrict Encoder to Constant Bitrate?</value>
+  </data>
+  <data name="Audio_Target" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="Audio_UsingLAMEEncoding" xml:space="preserve">
+    <value>Using L.A.M.E encoding engine</value>
+  </data>
+  <data name="AudiobookshelfSettingsVM_ConnectRefresh" xml:space="preserve">
+    <value>Connect / Refresh</value>
+  </data>
+  <data name="AudiobookshelfSettingsVM_Connecting" xml:space="preserve">
+    <value>Connecting...</value>
+  </data>
+  <data name="AudiobookshelfSettingsVM_WarningTheAPITokenIsStored" xml:space="preserve">
+    <value>Warning: The API token is stored as plaintext in Settings.json.</value>
+  </data>
+  <data name="Audiobookshelf_YourABSAPIToken" xml:space="preserve">
+    <value>Your ABS API token</value>
+  </data>
+  <data name="AutoScanAuthPrompt_AnAudibleAccount" xml:space="preserve">
+    <value>an Audible account</value>
+  </data>
+  <data name="AutoScanAuthPrompt_AutoScanPausedLoginRequired" xml:space="preserve">
+    <value>Auto-scan paused - login required</value>
+  </data>
+  <data name="AutoScanAuthPrompt_LibationCouldNotRefreshTheAudible" xml:space="preserve">
+    <value>Libation could not refresh the Audible library for {0} because {1}.
+
+Background auto-scan has been paused. Use Import &gt; Scan Library to log in for that account and resume periodic scans.</value>
+    <comment>{0} = account, {1} = cause</comment>
+  </data>
+  <data name="AutoScanAuthPrompt_ThatAccountHasNeverBeenLogged" xml:space="preserve">
+    <value>that account has never been logged in, or its stored credentials are missing</value>
+  </data>
+  <data name="AutoScanAuthPrompt_ThatAccountRequiresAFreshLogin" xml:space="preserve">
+    <value>that account requires a fresh login and device registration</value>
+  </data>
+  <data name="AutoScanAuthPrompt_TheStoredLoginForThatAccount" xml:space="preserve">
+    <value>the stored login for that account expired</value>
+  </data>
+  <data name="AvaloniaLoginChoiceEager_AudibleLogin" xml:space="preserve">
+    <value>Audible Login</value>
+  </data>
+  <data name="AyceButton_FREEAddToLibrary" xml:space="preserve">
+    <value>FREE&#xD;
+&#xD;
+Add to&#xD;
+Library</value>
+  </data>
+  <data name="AyceButton_RemoveFromLibrary" xml:space="preserve">
+    <value>Remove&#xD;
+From&#xD;
+Library</value>
+  </data>
+  <data name="BackupRequest_AlreadyDownloaded" xml:space="preserve">
+    <value>Already downloaded</value>
+  </data>
+  <data name="BackupRequest_DownloadNotQueued" xml:space="preserve">
+    <value>Download not queued</value>
+  </data>
+  <data name="BackupRequest_DownloadATitleOnItsOwn" xml:space="preserve">
+    <value>download a title on its own to try it now</value>
+  </data>
+  <data name="BackupRequest_LibationFoundNoTitlesThatNeed" xml:space="preserve">
+    <value>Libation found no titles that need downloading.
+
+Titles that are already downloaded, and titles that were absent from your last library scan, are not queued.</value>
+  </data>
+  <data name="BackupRequest_MarkItDownloadPendingToTry" xml:space="preserve">
+    <value>mark it &apos;Download Pending&apos; to try again</value>
+  </data>
+  <data name="BackupRequest_None" xml:space="preserve">
+    <value>none</value>
+  </data>
+  <data name="BackupRequest_PreviouslyFailedToDownload" xml:space="preserve">
+    <value>Previously failed to download</value>
+  </data>
+  <data name="BackupRequest_TitlesWaitingToRetryAfterA" xml:space="preserve">
+    <value>Titles waiting to retry after a recent failure</value>
+  </data>
+  <data name="BackupRequest_WhyLibationIsWaiting" xml:space="preserve">
+    <value>Why Libation is waiting:</value>
+  </data>
+  <data name="BadBookActionDialog_Abort" xml:space="preserve">
+    <value>Abort</value>
+  </data>
+  <data name="BadBookActionDialog_ApplyToAllRemainingBooksIn" xml:space="preserve">
+    <value>Apply to all remaining books in this queue</value>
+  </data>
+  <data name="BadBookActionDialog_Ignore" xml:space="preserve">
+    <value>Ignore</value>
+  </data>
+  <data name="BadBookActionDialog_RememberThisChoiceInSettings" xml:space="preserve">
+    <value>Remember this choice in Settings</value>
+  </data>
+  <data name="BadBookActionDialog_Retry" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="BookDataViewModel_Kbps" xml:space="preserve">
+    <value>{0} kbps</value>
+    <comment>{0} = bitrate</comment>
+  </data>
+  <data name="BookDetailsDialog_Book" xml:space="preserve">
+    <value>Book</value>
+  </data>
+  <data name="BookDetailsDialog_BookDetails" xml:space="preserve">
+    <value>Book Details</value>
+  </data>
+  <data name="BookDetailsDialog_BookRating" xml:space="preserve">
+    <value>&#xD;
+Book Rating:&#xD;
+{0}</value>
+    <comment>{0} = bookRating</comment>
+  </data>
+  <data name="BookDetailsDialog_DownloadPending" xml:space="preserve">
+    <value>Download Pending</value>
+  </data>
+  <data name="BookDetailsDialog_Downloaded" xml:space="preserve">
+    <value>Downloaded</value>
+  </data>
+  <data name="BookDetailsDialog_EditTags" xml:space="preserve">
+    <value>Edit Tags</value>
+  </data>
+  <data name="BookDetailsDialog_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="BookDetailsDialog_LiberatedStatusWhetherTheBookPdf" xml:space="preserve">
+    <value>Liberated status: Whether the book/pdf has been downloaded</value>
+  </data>
+  <data name="BookDetailsDialog_MyRating" xml:space="preserve">
+    <value>&#xD;
+My Rating:&#xD;
+{0}</value>
+    <comment>{0} = myRating</comment>
+  </data>
+  <data name="BookDetailsDialog_OpenInAudibleBrowser" xml:space="preserve">
+    <value>Open in 
+Audible
+(Browser)</value>
+  </data>
+  <data name="BookDetailsDialog_PDF" xml:space="preserve">
+    <value>PDF</value>
+  </data>
+  <data name="BookDetailsDialog_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="BookDetailsDialog_Series" xml:space="preserve">
+    <value>&#xD;
+Series: {0}</value>
+    <comment>{0} = seriesNames</comment>
+  </data>
+  <data name="BookDetailsDialog_ToDownloadAgainNextTimeChange" xml:space="preserve">
+    <value>To download again next time: change to Download Pending
+To not download: change to Downloaded</value>
+  </data>
+  <data name="BookRecordsDialog_AllFiles" xml:space="preserve">
+    <value>All files (*.*)</value>
+  </data>
+  <data name="BookRecordsDialog_BookRecordsDialog" xml:space="preserve">
+    <value>BookRecordsDialog</value>
+  </data>
+  <data name="BookRecordsDialog_CSVFilesCsv" xml:space="preserve">
+    <value>CSV files (*.csv)</value>
+  </data>
+  <data name="BookRecordsDialog_CheckAll" xml:space="preserve">
+    <value>Check All</value>
+  </data>
+  <data name="BookRecordsDialog_Checked" xml:space="preserve">
+    <value>Checked</value>
+  </data>
+  <data name="BookRecordsDialog_ClipsAndBookmarks" xml:space="preserve">
+    <value>{0} - Clips and Bookmarks</value>
+    <comment>{0} = libraryBook.Book.TitleWithSubtitle</comment>
+  </data>
+  <data name="BookRecordsDialog_Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="BookRecordsDialog_DeleteChecked" xml:space="preserve">
+    <value>Delete Checked</value>
+  </data>
+  <data name="BookRecordsDialog_DeletionFailed" xml:space="preserve">
+    <value>Deletion Failed</value>
+  </data>
+  <data name="BookRecordsDialog_End" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="BookRecordsDialog_ErrorAttemptingToExportYourLibrary" xml:space="preserve">
+    <value>Error attempting to export your library.</value>
+  </data>
+  <data name="BookRecordsDialog_ErrorExporting" xml:space="preserve">
+    <value>Error exporting</value>
+  </data>
+  <data name="BookRecordsDialog_ExcelWorkbookXlsx" xml:space="preserve">
+    <value>Excel Workbook (*.xlsx)</value>
+  </data>
+  <data name="BookRecordsDialog_ExportAll" xml:space="preserve">
+    <value>Export All</value>
+  </data>
+  <data name="BookRecordsDialog_ExportChecked" xml:space="preserve">
+    <value>Export Checked</value>
+  </data>
+  <data name="BookRecordsDialog_JSONFilesJson" xml:space="preserve">
+    <value>JSON files (*.json)</value>
+  </data>
+  <data name="BookRecordsDialog_LibationWasUnableToDeleteThe" xml:space="preserve">
+    <value>Libation was unable to delete the {0} selected records</value>
+    <comment>{0} = records.Count</comment>
+  </data>
+  <data name="BookRecordsDialog_LibationWasUnableToReloadRecords" xml:space="preserve">
+    <value>Libation was unable to reload records</value>
+  </data>
+  <data name="BookRecordsDialog_Modified" xml:space="preserve">
+    <value>Modified</value>
+  </data>
+  <data name="BookRecordsDialog_Note" xml:space="preserve">
+    <value>Note</value>
+  </data>
+  <data name="BookRecordsDialog_Records" xml:space="preserve">
+    <value>{0} - Records</value>
+    <comment>{0} = libraryBook.Book.TitleWithSubtitle</comment>
+  </data>
+  <data name="BookRecordsDialog_ReloadAll" xml:space="preserve">
+    <value>Reload All</value>
+  </data>
+  <data name="BookRecordsDialog_ReloadFailed" xml:space="preserve">
+    <value>Reload Failed</value>
+  </data>
+  <data name="BookRecordsDialog_Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="BookRecordsDialog_Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="BookRecordsDialog_Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="BookRecordsDialog_UncheckAll" xml:space="preserve">
+    <value>Uncheck All</value>
+  </data>
+  <data name="BookRecordsDialog_WhereToExportBookRecords" xml:space="preserve">
+    <value>Where to export book records</value>
+  </data>
+  <data name="ContentLicenseDeniedUserMessage_AudibleSaysThisAccountIsBeing" xml:space="preserve">
+    <value>Audible says this account is being throttled. This can also happen with an old device registration. Try these recovery steps first.</value>
+  </data>
+  <data name="ContentLicenseDeniedUserMessage_ContentLicenseDenied" xml:space="preserve">
+    <value>Content license denied</value>
+  </data>
+  <data name="ContentLicenseDeniedUserMessage_ThisMayBeATemporaryInterruption" xml:space="preserve">
+    <value>This may be a temporary interruption of service. If Audible&apos;s app can play the title, try these registration recovery steps.</value>
+  </data>
+  <data name="ContentLicenseDeniedUserMessage_ThisTitleIsFromTheAudible" xml:space="preserve">
+    <value>This title is from the Audible Plus catalog. It may have left Plus, or Audible may be limiting downloads. Check your access in Audible&apos;s app; if it plays, try these recovery steps.</value>
+  </data>
+  <data name="ContentLicenseDeniedUserMessage_YouWereDeniedAContentLicense" xml:space="preserve">
+    <value>You were denied a content license for {0}
+
+Audible reported throttling on your account&apos;s legacy device registration.
+
+Libation has automatically updated your settings to Android emulator and Widevine DRM, and marked your account for a fresh sign-in.
+
+No accounts need to be deleted. Next time you Scan or Liberate, you will be prompted to sign in once to establish the new device registration.</value>
+    <comment>{0} = bookTitleWithSubtitle</comment>
+  </data>
+  <data name="ContentLicenseDeniedUserMessage_YouWereDeniedAContentLicense2" xml:space="preserve">
+    <value>You were denied a content license for {0}
+
+{1}
+
+{2}
+
+{3}
+
+{4}{5}</value>
+    <comment>{0} = title, {1} = diagnosis, {2} = AppScaffolding.LicenseRecoveryGuidance.Explanation, {3} = AppScaffolding.LicenseRecoveryGuidance.BuildSteps(locale, updateStatus, hasAdditionalMarketplaces: hasAdditionalMarketplaces), {4} = AppScaffolding.LicenseRecoveryGuidance.Fallback, {5} = AppendSuggestion()</comment>
+  </data>
+  <data name="CrashLogMessage_LibationCouldNotConfirmThatThis" xml:space="preserve">
+    <value>Libation could not confirm that this error was saved.
+Please include the text below when reporting this issue.</value>
+  </data>
+  <data name="CrashLogMessage_TheErrorWasSubmittedToLibation" xml:space="preserve">
+    <value>The error was submitted to Libation&apos;s logger.
+Please attach the current Libation log and include the text below.</value>
+  </data>
+  <data name="CrashLogMessage_TheErrorWasSubmittedToLibation2" xml:space="preserve">
+    <value>The error was submitted to Libation&apos;s logger.
+Please attach the current log:
+{0}
+Please also include the text below.</value>
+    <comment>{0} = currentLogFile</comment>
+  </data>
+  <data name="CrashLogMessage_TheErrorWasWrittenToPlease" xml:space="preserve">
+    <value>The error was written to:
+{0}
+Please attach that file when reporting this issue.</value>
+    <comment>{0} = crashLogFile</comment>
+  </data>
+  <data name="DataGridMyRatingColumn_ClickToChangeRatings" xml:space="preserve">
+    <value>Click to change ratings</value>
+  </data>
+  <data name="DescriptionDisplayDialog_DescriptionDisplay" xml:space="preserve">
+    <value>DescriptionDisplay</value>
+  </data>
+  <data name="DeviceRegistrationSettingsUi_ChangingThisDoesNotConvertExisting" xml:space="preserve">
+    <value>Changing this does not convert existing accounts. Remove the account, save or close the Accounts dialog, then re-add the account (or run login-external) to register again.</value>
+  </data>
+  <data name="DeviceRegistrationSettingsUi_DeviceRegistrationExperimental" xml:space="preserve">
+    <value>Device registration (experimental)</value>
+  </data>
+  <data name="DeviceRegistrationSettingsUi_RemoveTheAccountSaveOrClose" xml:space="preserve">
+    <value>Remove the account, save or close the Accounts dialog, then re-add the account.</value>
+  </data>
+  <data name="DirectoryOrCustomSelectControl_SelectKnownDirectory" xml:space="preserve">
+    <value>Select Known Directory:</value>
+  </data>
+  <data name="DiskFullUserMessage_Books" xml:space="preserve">
+    <value>Books</value>
+  </data>
+  <data name="DiskFullUserMessage_BooksAndInProgressCanBe" xml:space="preserve">
+    <value>Books and In progress can be on different drives. A warning below for your In progress drive does not necessarily mean your Books location is full.</value>
+  </data>
+  <data name="DiskFullUserMessage_BooksInProgress" xml:space="preserve">
+    <value>Books + In progress</value>
+  </data>
+  <data name="DiskFullUserMessage_BooksIsWhereFinishedAudiobooksAre" xml:space="preserve">
+    <value>Books is where finished audiobooks are stored. In progress holds temporary files while one title downloads and decrypts (about one book at a time, often on a different drive than Books).</value>
+  </data>
+  <data name="DiskFullUserMessage_ContinueAnyway" xml:space="preserve">
+    <value>Continue anyway?</value>
+  </data>
+  <data name="DiskFullUserMessage_FreeEstimatedNeeded" xml:space="preserve">
+    <value>{0}  ({1})  Free: {2}  Estimated needed: {3}</value>
+    <comment>{0} = drive.DriveRoot, {1} = role, {2} = free, {3} = needed</comment>
+  </data>
+  <data name="DiskFullUserMessage_FreeSpaceOrChangeTheBooks" xml:space="preserve">
+    <value>Free space or change the Books and In progress locations in Settings, then try again.</value>
+  </data>
+  <data name="DiskFullUserMessage_InProgress" xml:space="preserve">
+    <value>In progress</value>
+  </data>
+  <data name="DiskFullUserMessage_LibationPaths" xml:space="preserve">
+    <value>Libation paths</value>
+  </data>
+  <data name="DiskFullUserMessage_LibationStoppedTheBackupQueueBecause" xml:space="preserve">
+    <value>Libation stopped the backup queue because the disk ran out of free space.
+
+Download and decrypt use temporary files under your &quot;In progress&quot; folder, then write finished audiobooks to your Books location. Those folders can be on different drives, and each needs enough free space for its role.
+
+Free disk space (or move Books / In progress to a larger drive in Settings), delete partial files under your In progress folder if needed, then retry your backups in smaller batches.</value>
+  </data>
+  <data name="DiskFullUserMessage_NotEnoughDiskSpace" xml:space="preserve">
+    <value>Not enough disk space</value>
+  </data>
+  <data name="DiskFullUserMessage_Unknown" xml:space="preserve">
+    <value>unknown</value>
+  </data>
+  <data name="DiskFullUserMessage_YouAreAboutToBackUp" xml:space="preserve">
+    <value>You are about to back up {0} books, but a drive Libation uses does not have enough free space to continue safely.</value>
+    <comment>{0} = bookCount</comment>
+  </data>
+  <data name="DiskFullUserMessage_YouAreAboutToBackUp2" xml:space="preserve">
+    <value>You are about to back up {0} books. Libation estimates you may need on the order of {1} on your Books drive for the finished files, plus about {2} free on your In progress drive at a time for temporary download/decrypt files.</value>
+    <comment>{0} = bookCount, {1} = FormatBytes(bookCount * DiskSpaceHelper.EstimatedBytesPerAudiobookBackup), {2} = FormatBytes(DiskSpaceHelper.EstimatedBytesPerAudiobookBackup)</comment>
+  </data>
+  <data name="DownloadDecryptSettingsVM_MBAndGBAreApproximateLibation" xml:space="preserve">
+    <value>MB and GB are approximate: Libation does not know precisely how large an audiobook is before downloading it, so it assumes about 400 MB per book when deciding whether another download would exceed the limit.</value>
+  </data>
+  <data name="DownloadDecryptSettingsVM_Rolling24HoursNotACalendar" xml:space="preserve">
+    <value>Rolling 24 hours, not a calendar day. Only downloads Libation completes are counted; books you download from the Audible app or website are not.</value>
+  </data>
+  <data name="DownloadDecrypt_CustomFileNaming" xml:space="preserve">
+    <value>Custom File Naming</value>
+  </data>
+  <data name="DownloadDecrypt_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="DownloadDecrypt_TemporaryFilesLocation" xml:space="preserve">
+    <value>Temporary Files Location</value>
+  </data>
+  <data name="EditQuickFilters_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="EditQuickFilters_EditQuickFilters" xml:space="preserve">
+    <value>Edit Quick Filters</value>
+  </data>
+  <data name="EditQuickFilters_Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="EditQuickFilters_MoveDown" xml:space="preserve">
+    <value>Move
+Down</value>
+  </data>
+  <data name="EditQuickFilters_MoveUp" xml:space="preserve">
+    <value>Move
+Up</value>
+  </data>
+  <data name="EditQuickFilters_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="EditQuickFilters_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="EditReplacementChars_Barebones" xml:space="preserve">
+    <value>Barebones</value>
+  </data>
+  <data name="EditReplacementChars_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="EditReplacementChars_CharToReplace" xml:space="preserve">
+    <value>Char to
+Replace</value>
+  </data>
+  <data name="EditReplacementChars_Defaults" xml:space="preserve">
+    <value>Defaults</value>
+  </data>
+  <data name="EditReplacementChars_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="EditReplacementChars_FilePathCharacterReplacement" xml:space="preserve">
+    <value>File Path Character Replacement</value>
+  </data>
+  <data name="EditReplacementChars_LoFiDefaults" xml:space="preserve">
+    <value>LoFi Defaults</value>
+  </data>
+  <data name="EditReplacementChars_NTFS" xml:space="preserve">
+    <value>NTFS:</value>
+  </data>
+  <data name="EditReplacementChars_ReplacementText" xml:space="preserve">
+    <value>Replacement
+Text</value>
+  </data>
+  <data name="EditReplacementChars_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="EditReplacementChars_ThisSystem" xml:space="preserve">
+    <value>This
+System:</value>
+  </data>
+  <data name="EditTemplateDialog_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="EditTemplateDialog_Edit" xml:space="preserve">
+    <value>Edit {0}</value>
+    <comment>{0} = templateEditor.TemplateName</comment>
+  </data>
+  <data name="EditTemplateDialog_EditTemplateDialog" xml:space="preserve">
+    <value>EditTemplateDialog</value>
+  </data>
+  <data name="EditTemplateDialog_Example" xml:space="preserve">
+    <value>Example:</value>
+  </data>
+  <data name="EditTemplateDialog_Invalid" xml:space="preserve">
+    <value>Invalid</value>
+  </data>
+  <data name="EditTemplateDialog_ReadAboutNamingTemplatesOnThe" xml:space="preserve">
+    <value>Read about naming templates on the Wiki</value>
+  </data>
+  <data name="EditTemplateDialog_ResetToDefault" xml:space="preserve">
+    <value>Reset to Default</value>
+  </data>
+  <data name="EditTemplateDialog_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="EditTemplateDialog_Tag" xml:space="preserve">
+    <value>Tag</value>
+  </data>
+  <data name="EditTemplateDialog_ThisTemplateTextIsNotValid" xml:space="preserve">
+    <value>This template text is not valid. Errors:&#xD;
+{0}</value>
+    <comment>{0} = errors</comment>
+  </data>
+  <data name="EntryStatus_AudiblePlusTitle" xml:space="preserve">
+    <value>&#xD;
+Audible Plus title</value>
+  </data>
+  <data name="EntryStatus_BookDownloadPending" xml:space="preserve">
+    <value>Book download pending</value>
+  </data>
+  <data name="EntryStatus_BookDownloadedERROR" xml:space="preserve">
+    <value>Book downloaded ERROR</value>
+  </data>
+  <data name="EntryStatus_ClickToCollapse" xml:space="preserve">
+    <value>Click to Collapse</value>
+  </data>
+  <data name="EntryStatus_ClickToDownload" xml:space="preserve">
+    <value>&#xD;
+Click to download</value>
+  </data>
+  <data name="EntryStatus_ClickToExpand" xml:space="preserve">
+    <value>Click to Expand</value>
+  </data>
+  <data name="EntryStatus_FileHasBeenAtLeastPartially" xml:space="preserve">
+    <value>File has been at least&#xD;
+partially downloaded</value>
+  </data>
+  <data name="EntryStatus_Liberated" xml:space="preserve">
+    <value>Liberated</value>
+  </data>
+  <data name="EntryStatus_PDFCouldNotBeDownloadedAnd" xml:space="preserve">
+    <value>&#xD;
+PDF could not be downloaded&#xD;
+and will not be tried again</value>
+  </data>
+  <data name="EntryStatus_PDFDownloadPending" xml:space="preserve">
+    <value>&#xD;
+PDF download pending</value>
+  </data>
+  <data name="EntryStatus_PDFDownloaded" xml:space="preserve">
+    <value>&#xD;
+PDF downloaded</value>
+  </data>
+  <data name="EntryStatus_ThisBookCannotBeDownloadedBecause" xml:space="preserve">
+    <value>This book cannot be downloaded
+because it wasn&apos;t found during
+the most recent library scan</value>
+  </data>
+  <data name="ExceptionDisplay_InnerException" xml:space="preserve">
+    <value> inner exception</value>
+  </data>
+  <data name="ExceptionDisplay_InnerException2" xml:space="preserve">
+    <value>Inner exception: </value>
+  </data>
+  <data name="ExceptionDisplay_Omitted" xml:space="preserve">
+    <value> omitted.</value>
+  </data>
+  <data name="FindBetterQualityBooksDialog_ASIN" xml:space="preserve">
+    <value>ASIN</value>
+  </data>
+  <data name="FindBetterQualityBooksDialog_AnErrorOccurredWhileMarkingBooks" xml:space="preserve">
+    <value>An error occurred while marking books as Download Pending. Please see the logs for more information.</value>
+  </data>
+  <data name="FindBetterQualityBooksDialog_AnErrorOccurredWhileScanningFor" xml:space="preserve">
+    <value>An error occurred while scanning for better quality books. Please see the logs for more information.</value>
+  </data>
+  <data name="FindBetterQualityBooksDialog_AvailableBitrate" xml:space="preserve">
+    <value>Available
+Bitrate</value>
+  </data>
+  <data name="FindBetterQualityBooksDialog_AvailableCodec" xml:space="preserve">
+    <value>Available
+Codec</value>
+  </data>
+  <data name="FindBetterQualityBooksDialog_BestFoundFile" xml:space="preserve">
+    <value>Best Found File</value>
+  </data>
+  <data name="FindBetterQualityBooksDialog_BooksMarkedForDownload" xml:space="preserve">
+    <value>Books Marked for Download</value>
+  </data>
+  <data name="FindBetterQualityBooksDialog_ErrorMarkingBooks" xml:space="preserve">
+    <value>Error Marking Books</value>
+  </data>
+  <data name="FindBetterQualityBooksDialog_ErrorScanningBooks" xml:space="preserve">
+    <value>Error Scanning Books</value>
+  </data>
+  <data name="FindBetterQualityBooksDialog_ExistingBitrate" xml:space="preserve">
+    <value>Existing
+Bitrate</value>
+  </data>
+  <data name="FindBetterQualityBooksDialog_ExistingCodec" xml:space="preserve">
+    <value>Existing
+Codec</value>
+  </data>
+  <data name="FindBetterQualityBooksDialog_ScanAudibleForBetterQualityAudiobooks" xml:space="preserve">
+    <value>Scan Audible for Better Quality Audiobooks</value>
+  </data>
+  <data name="FindBetterQualityBooksDialog_SignificantlyGreater" xml:space="preserve">
+    <value>Significantly
+Greater?</value>
+  </data>
+  <data name="FindBetterQualityBooksDialog_Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_0OfScanned" xml:space="preserve">
+    <value>0 of {0:N0} scanned</value>
+    <comment>{0} = Books.Count</comment>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_Error" xml:space="preserve">
+    <value>Error: {0}</value>
+    <comment>{0} = ex.Message</comment>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_FileNotFoundAndNoLast" xml:space="preserve">
+    <value>File not found and no &apos;Last Downloaded&apos; format found.</value>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_FileNotFoundUsingLastDownloaded" xml:space="preserve">
+    <value>File not found. Using &apos;Last Downloaded&apos; format.</value>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_LibationHasAutomaticallyConfiguredYourDownload" xml:space="preserve">
+    <value>&#xD;
+&#xD;
+Libation has automatically configured your download settings for higher-quality audio and marked your accounts for a fresh sign-in on your next scan or download so that the higher-quality audio can be acquired.</value>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_LibationHasAutomaticallyEnabledXHEAAC" xml:space="preserve">
+    <value>&#xD;
+&#xD;
+Libation has automatically enabled xHE-AAC audio requests in your settings.</value>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_Mark1BookAsDownloadPending" xml:space="preserve">
+    <value>Mark 1 book as &apos;Download Pending&apos;</value>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_MarkBooksAsDownloadPending" xml:space="preserve">
+    <value>Mark {0} books as &apos;Download Pending&apos;</value>
+    <comment>{0} = value</comment>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_Marked1BookAsDownloadPending" xml:space="preserve">
+    <value>Marked 1 book as Download Pending.</value>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_MarkedBooksAsDownloadPending" xml:space="preserve">
+    <value>Marked {0} books as Download Pending.</value>
+    <comment>{0} = MarkedCount</comment>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_OfScanned" xml:space="preserve">
+    <value>{0:N0} of {1:N0} scanned</value>
+    <comment>{0} = (i + 1), {1} = Books.Count</comment>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_ScanAudibleForHigherQualityAudio" xml:space="preserve">
+    <value>Scan Audible for Higher Quality Audio</value>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_StopScanning" xml:space="preserve">
+    <value>Stop Scanning</value>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_ThisToolWillScanYourLiberated" xml:space="preserve">
+    <value>This tool will scan your liberated audiobooks to see if Audible
+has a higher quality version available.
+
+For each liberated audiobook in your library, it will try to read the existing audio file to determine its codec and bitrate. If no local file is found, it will use the &apos;Last Downloaded&apos; format information stored in the database.
+
+It will then query Audible&apos;s API to get the highest quality format currently available for that audiobook.
+
+If you check the &apos;Use Widevine&apos; option, it will query for Widevine-protected formats, which may or may not be xHE-AAC. If unchecked, it will query for Audible DRM-protected formats, which are typically AAC-LC.
+
+Click &apos;Scan Audible for Higher Quality Audio&apos; to begin.
+
+When done, click &apos;Mark X books as Download Pending&apos; to allow Libation to re-download those books in the higher quality format.
+
+Marking books will automatically configure Widevine and xHE-AAC settings and prompt for a fresh account sign-in if needed, ensuring the upgraded audio streams are downloaded.
+
+Note: If you have a large library, downloading many higher-quality audiobooks in quick succession may trigger Audible&apos;s daily download limits. You can configure a daily download limit or download delay in Settings &gt; Network if needed.
+
+Display this help message again in the future?</value>
+  </data>
+  <data name="FindBetterQualityBooksViewModel_UseWidevine" xml:space="preserve">
+    <value>Use Widevine?</value>
+  </data>
+  <data name="GridContextMenu_ConfirmRemoveFromAudibleLibrary" xml:space="preserve">
+    <value>Confirm Remove from Audible Library</value>
+  </data>
+  <data name="GridContextMenu_ConvertToMp3" xml:space="preserve">
+    <value>{0}Convert to Mp3</value>
+    <comment>{0} = Accelerator</comment>
+  </data>
+  <data name="GridContextMenu_CopyCellContents" xml:space="preserve">
+    <value>{0}Copy Cell Contents</value>
+    <comment>{0} = Accelerator</comment>
+  </data>
+  <data name="GridContextMenu_DownloadSelectedAudiobooks" xml:space="preserve">
+    <value>Download selected audiobooks</value>
+  </data>
+  <data name="GridContextMenu_DownloadSplitByChapters" xml:space="preserve">
+    <value>Download {0}split by chapters</value>
+    <comment>{0} = Accelerator</comment>
+  </data>
+  <data name="GridContextMenu_DownloadThisAudiobook" xml:space="preserve">
+    <value>Download this audiobook</value>
+  </data>
+  <data name="GridContextMenu_EditTemplates" xml:space="preserve">
+    <value>Edit Templates</value>
+  </data>
+  <data name="GridContextMenu_ErrorSavingBookSLocation" xml:space="preserve">
+    <value>Error saving book&apos;s location</value>
+  </data>
+  <data name="GridContextMenu_FailedToDeleteFromLibation" xml:space="preserve">
+    <value>Failed to delete {0} from Libation.
+
+{1}</value>
+    <comment>{0} = booksStr, {1} = removedFromAudible.AggregateTitles()</comment>
+  </data>
+  <data name="GridContextMenu_FailedToDeleteFromLibation2" xml:space="preserve">
+    <value>Failed to Delete {0} from Libation</value>
+    <comment>{0} = booksStr</comment>
+  </data>
+  <data name="GridContextMenu_FailedToRemoveFromAudible" xml:space="preserve">
+    <value>Failed to remove {0} from Audible.
+
+{1}</value>
+    <comment>{0} = booksStr, {1} = failedToRemove.AggregateTitles()</comment>
+  </data>
+  <data name="GridContextMenu_FailedToRemoveFromAudible2" xml:space="preserve">
+    <value>Failed to Remove {0} from Audible</value>
+    <comment>{0} = booksStr</comment>
+  </data>
+  <data name="GridContextMenu_FileTemplate" xml:space="preserve">
+    <value>File Template</value>
+  </data>
+  <data name="GridContextMenu_FolderTemplate" xml:space="preserve">
+    <value>Folder Template</value>
+  </data>
+  <data name="GridContextMenu_LibationIsAboutToRemoveFrom" xml:space="preserve">
+    <value>Libation is about to remove {0} from your Audible account. The only way to get {1} back
+is to re-add {2} to your Audible Library through the Audible website or app.
+
+Are you sure you want to remove the following {3}?
+
+{4}</value>
+    <comment>{0} = bookStr, {1} = itsThem, {2} = itsThem, {3} = bookStr, {4} = toRemove.AggregateTitles()</comment>
+  </data>
+  <data name="GridContextMenu_LiberateAllEpisodes" xml:space="preserve">
+    <value>{0}Liberate All Episodes</value>
+    <comment>{0} = Accelerator</comment>
+  </data>
+  <data name="GridContextMenu_LocateFile" xml:space="preserve">
+    <value>{0}Locate file...</value>
+    <comment>{0} = Accelerator</comment>
+  </data>
+  <data name="GridContextMenu_MarkAsDownloadPending" xml:space="preserve">
+    <value>Mark as &apos;Download {0}Pending&apos;</value>
+    <comment>{0} = Accelerator</comment>
+  </data>
+  <data name="GridContextMenu_MarkAsDownloaded" xml:space="preserve">
+    <value>Mark as &apos;{0}Downloaded&apos;</value>
+    <comment>{0} = Accelerator</comment>
+  </data>
+  <data name="GridContextMenu_MarkPDFAsDownloadPending" xml:space="preserve">
+    <value>Mark PDF as &apos;Download Pending&apos;</value>
+  </data>
+  <data name="GridContextMenu_MarkPDFAsDownloaded" xml:space="preserve">
+    <value>Mark PDF as &apos;Downloaded&apos;</value>
+  </data>
+  <data name="GridContextMenu_MultipartFileTemplate" xml:space="preserve">
+    <value>Multipart File Template</value>
+  </data>
+  <data name="GridContextMenu_ReDownloadThisAudiobook" xml:space="preserve">
+    <value>Re-download this audiobook</value>
+  </data>
+  <data name="GridContextMenu_RemoveFromLibrary" xml:space="preserve">
+    <value>{0}Remove from library</value>
+    <comment>{0} = Accelerator</comment>
+  </data>
+  <data name="GridContextMenu_ViewAllBooksInSeries" xml:space="preserve">
+    <value>View All Books in Series</value>
+  </data>
+  <data name="GridContextMenu_ViewAllEpisodesInSeries" xml:space="preserve">
+    <value>View All Episodes in Series</value>
+  </data>
+  <data name="GridContextMenu_ViewBookmarksClips" xml:space="preserve">
+    <value>View {0}Bookmarks/Clips</value>
+    <comment>{0} = Accelerator</comment>
+  </data>
+  <data name="GridEmptyStateUi_1BookIsInTheTrash" xml:space="preserve">
+    <value>1 book is in the trash.</value>
+  </data>
+  <data name="GridEmptyStateUi_1MatchingBookIsInThe" xml:space="preserve">
+    <value>1 matching book is in the trash.</value>
+  </data>
+  <data name="GridEmptyStateUi_AddAccount" xml:space="preserve">
+    <value>Add Account</value>
+  </data>
+  <data name="GridEmptyStateUi_AddYourAudibleAccountThenScan" xml:space="preserve">
+    <value>Add your Audible account, then scan your library to bring your books in.</value>
+  </data>
+  <data name="GridEmptyStateUi_BooksAreInTheTrash" xml:space="preserve">
+    <value>{0} books are in the trash.</value>
+    <comment>{0} = booksInTrash</comment>
+  </data>
+  <data name="GridEmptyStateUi_LibationIsEmpty" xml:space="preserve">
+    <value>Libation is empty.</value>
+  </data>
+  <data name="GridEmptyStateUi_MatchingBooksAreInTheTrash" xml:space="preserve">
+    <value>{0} matching books are in the trash.</value>
+    <comment>{0} = matchesInTrash</comment>
+  </data>
+  <data name="GridEmptyStateUi_NoBooksInYourLibraryYet" xml:space="preserve">
+    <value>No books in your library yet.</value>
+  </data>
+  <data name="GridEmptyStateUi_NoBooksMatch" xml:space="preserve">
+    <value>No books match &quot;{0}&quot;.</value>
+    <comment>{0} = searchString.Trim()</comment>
+  </data>
+  <data name="GridEmptyStateUi_NoBooksMatchTheCurrentFilter" xml:space="preserve">
+    <value>No books match the current filter.</value>
+  </data>
+  <data name="GridEmptyStateUi_OpenTrashBin" xml:space="preserve">
+    <value>Open Trash Bin</value>
+  </data>
+  <data name="GridEmptyStateUi_ScanLibrary" xml:space="preserve">
+    <value>Scan Library</value>
+  </data>
+  <data name="GridEmptyStateUi_ScanYourAudibleAccountToBring" xml:space="preserve">
+    <value>Scan your Audible account to bring your books in.</value>
+  </data>
+  <data name="GridEmptyStateUi_TakeAGuidedTour" xml:space="preserve">
+    <value>Take a Guided Tour</value>
+  </data>
+  <data name="GridEntry_Abridged" xml:space="preserve">
+    <value>Abridged</value>
+  </data>
+  <data name="GridEntry_Account" xml:space="preserve">
+    <value>Account: {0} - {1}</value>
+    <comment>{0} = locale, {1} = acct</comment>
+  </data>
+  <data name="GridEntry_DatePubD" xml:space="preserve">
+    <value>Date pub&apos;d: {0:MM/dd/yyyy}</value>
+    <comment>{0} = libraryBook.Book.DatePublished.Value</comment>
+  </data>
+  <data name="GridEntry_DetailsNotImported" xml:space="preserve">
+    <value>[details not imported]</value>
+  </data>
+  <data name="GridEntry_HasPDF" xml:space="preserve">
+    <value>Has PDF</value>
+  </data>
+  <data name="GridEntry_HrMin" xml:space="preserve">
+    <value>{0} hr {1} min</value>
+    <comment>{0} = (bookLenMins / 60), {1} = (bookLenMins % 60)</comment>
+  </data>
+  <data name="GridEntry_Pub" xml:space="preserve">
+    <value>Pub: {0}</value>
+    <comment>{0} = libraryBook.Book.Publisher.Trim()</comment>
+  </data>
+  <data name="GridEntry_Unknown" xml:space="preserve">
+    <value>[unknown]</value>
+  </data>
+  <data name="GroupBox_ThisIsAGroupboxLabel" xml:space="preserve">
+    <value>This is a groupbox label</value>
+  </data>
+  <data name="ImageDisplayDialog_AnErrorWasEncounteredWhileTrying" xml:space="preserve">
+    <value>An error was encountered while trying to save the picture&#xD;
+&#xD;
+{0}</value>
+    <comment>{0} = ex.Message</comment>
+  </data>
+  <data name="ImageDisplayDialog_Cover" xml:space="preserve">
+    <value>Cover</value>
+  </data>
+  <data name="ImageDisplayDialog_FailedToSavePicture" xml:space="preserve">
+    <value>Failed to save picture</value>
+  </data>
+  <data name="ImageDisplayDialog_JpegJpg" xml:space="preserve">
+    <value>Jpeg (*.jpg)</value>
+  </data>
+  <data name="ImageDisplayDialog_SavePictureToFile" xml:space="preserve">
+    <value>Save Picture to File</value>
+  </data>
+  <data name="ImageDisplayDialog_SaveSoverImage" xml:space="preserve">
+    <value>Save Sover Image</value>
+  </data>
+  <data name="ImportantSettingsVM_DisabledWhenRunningInLinuxSnap" xml:space="preserve">
+    <value>Disabled when running in Linux Snap (avoids login crash). Use external browser instead.</value>
+  </data>
+  <data name="Important_AllFiles" xml:space="preserve">
+    <value>All files (*.*)</value>
+  </data>
+  <data name="Important_ApplyDisplaySettings" xml:space="preserve">
+    <value>Apply Display Settings</value>
+  </data>
+  <data name="Important_AuthenticationTokens" xml:space="preserve">
+    <value>Authentication tokens</value>
+  </data>
+  <data name="Important_BooksLocation" xml:space="preserve">
+    <value>Books Location</value>
+  </data>
+  <data name="Important_DisplaySettings" xml:space="preserve">
+    <value>Display Settings</value>
+  </data>
+  <data name="Important_EditThemeColors" xml:space="preserve">
+    <value>Edit Theme Colors</value>
+  </data>
+  <data name="Important_LoggingLevel" xml:space="preserve">
+    <value>Logging level</value>
+  </data>
+  <data name="Important_MasterKeyKey" xml:space="preserve">
+    <value>Master key (*.key)</value>
+  </data>
+  <data name="Important_OpenLogFolder" xml:space="preserve">
+    <value>Open Log Folder</value>
+  </data>
+  <data name="Important_Theme" xml:space="preserve">
+    <value>Theme:</value>
+  </data>
+  <data name="LastDownloadStatus_DoubleClickToOpenVRelease" xml:space="preserve">
+    <value>Double click to open v{0} release notes</value>
+    <comment>{0} = LastDownloadedVersion!.ToVersionString()</comment>
+  </data>
+  <data name="LastDownloadStatus_FileV" xml:space="preserve">
+    <value>(File v.{0})</value>
+    <comment>{0} = ver</comment>
+  </data>
+  <data name="LastDownloadStatus_LibationV" xml:space="preserve">
+    <value>{0} {1}
+{2}
+Libation v{3}</value>
+    <comment>{0} = dateString(), {1} = versionString(), {2} = LastDownloadedFormat, {3} = LastDownloadedVersion.ToVersionString()</comment>
+  </data>
+  <data name="LastDownloadStatus_Text" xml:space="preserve">
+    <value>{0} {1:HH:mm}</value>
+    <comment>{0} = LastDownloaded.Value.ToShortDateString(), {1} = LastDownloaded.Value</comment>
+  </data>
+  <data name="LibationFilesDialog_BookDetails" xml:space="preserve">
+    <value>Book Details</value>
+  </data>
+  <data name="LibationFilesDialog_FolderDoesNotExist" xml:space="preserve">
+    <value>Folder does not exist</value>
+  </data>
+  <data name="LibationFilesDialog_NotSavingChangeToLibationFiles" xml:space="preserve">
+    <value>Not saving change to Libation Files location. This folder does not exist:&#xD;
+{0}</value>
+    <comment>{0} = SelectedDirectory</comment>
+  </data>
+  <data name="LibationFilesDialog_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="LibationSetup_AnErrorOccurredWhileCreatingDefault" xml:space="preserve">
+    <value>An error occurred while creating default settings folder:
+{0}</value>
+    <comment>{0} = LibationFiles.DefaultLibationFilesDirectory</comment>
+  </data>
+  <data name="LibationSetup_AnErrorOccurredWhileCreatingDefault2" xml:space="preserve">
+    <value>An error occurred while creating default settings file in:
+{0}</value>
+    <comment>{0} = LibationFiles.DefaultLibationFilesDirectory</comment>
+  </data>
+  <data name="LibationSetup_CouldNotCreateTheLibationSettings" xml:space="preserve">
+    <value>Could not create the Libation Settings folder at:
+{0}
+
+Would you like to create a new install settings in this folder?
+{1}</value>
+    <comment>{0} = Files.Location.Path, {1} = LibationFiles.DefaultLibationFilesDirectory</comment>
+  </data>
+  <data name="LibationSetup_CouldNotCreateTheLibationSettings2" xml:space="preserve">
+    <value>Could not create the Libation Settings file at:
+{0}
+
+Would you like to create a new install settings in this folder?
+{1}</value>
+    <comment>{0} = Files.SettingsFilePath, {1} = LibationFiles.DefaultLibationFilesDirectory</comment>
+  </data>
+  <data name="LibationSetup_ErrorCreatingLibationSettings" xml:space="preserve">
+    <value>Error Creating Libation Settings</value>
+  </data>
+  <data name="LibationSetup_NewInstall" xml:space="preserve">
+    <value>New install?</value>
+  </data>
+  <data name="LibationSetup_NoValidSettingsWereFoundAt" xml:space="preserve">
+    <value>No valid settings were found at this location.				
+Would you like to create a new install settings in this folder?
+
+{0}</value>
+    <comment>{0} = chooseFolderResult.SelectedDirectory</comment>
+  </data>
+  <data name="LiberatedStatusBatchAutoDialog_IfTheAudioFileCanBe" xml:space="preserve">
+    <value>If the audio file can be found, mark the book &apos;Downloaded&apos;</value>
+  </data>
+  <data name="LiberatedStatusBatchAutoDialog_IfTheAudioFileCannotBe" xml:space="preserve">
+    <value>If the audio file cannot be found, mark the book &apos;Download Pending&apos;</value>
+  </data>
+  <data name="LiberatedStatusBatchAutoDialog_LiberatedStatusWhetherTheBookHas" xml:space="preserve">
+    <value>Liberated status: Whether the book has been downloaded</value>
+  </data>
+  <data name="LiberatedStatusBatchAutoDialog_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="LiberatedStatusBatchManualDialog_Book" xml:space="preserve">
+    <value>Book</value>
+  </data>
+  <data name="LiberatedStatusBatchManualDialog_DownloadPending" xml:space="preserve">
+    <value>Download Pending</value>
+  </data>
+  <data name="LiberatedStatusBatchManualDialog_Downloaded" xml:space="preserve">
+    <value>Downloaded</value>
+  </data>
+  <data name="LiberatedStatusBatchManualDialog_LiberatedStatusWhetherTheBookHas" xml:space="preserve">
+    <value>Liberated status: Whether the book has been downloaded</value>
+  </data>
+  <data name="LiberatedStatusBatchManualDialog_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="LiberatedStatusBatchManualDialog_ToDownloadAgainNextTimeChange" xml:space="preserve">
+    <value>To download again next time: change to Download Pending
+To not download: change to Downloaded</value>
+  </data>
+  <data name="LocateAudiobooksDialog_DoubleClickToOpenContainingFolder" xml:space="preserve">
+    <value>Double-click to open containing folder.</value>
+  </data>
+  <data name="LocateAudiobooksDialog_FoundAudiobooks" xml:space="preserve">
+    <value>Found {0} Audiobooks</value>
+    <comment>{0} = _viewModel.FoundAsinCount</comment>
+  </data>
+  <data name="LocateAudiobooksDialog_FoundAudiobooks2" xml:space="preserve">
+    <value>Found Audiobooks</value>
+  </data>
+  <data name="LocateAudiobooksDialog_FoundFile" xml:space="preserve">
+    <value>Found File</value>
+  </data>
+  <data name="LocateAudiobooksDialog_FoundID" xml:space="preserve">
+    <value>Found ID</value>
+  </data>
+  <data name="LocateAudiobooksDialog_IDsFound" xml:space="preserve">
+    <value>IDs Found: </value>
+  </data>
+  <data name="LocateAudiobooksDialog_LibationHasFoundUniqueAudiobooksAnd" xml:space="preserve">
+    <value>Libation has found {0} unique audiobooks and added them to its database. </value>
+    <comment>{0} = _viewModel.FoundAsinCount</comment>
+  </data>
+  <data name="LocateAudiobooksDialog_LocateAudiobooks" xml:space="preserve">
+    <value>Locate Audiobooks</value>
+  </data>
+  <data name="LocateAudiobooksDialog_SelectTheFolderToSearchFor" xml:space="preserve">
+    <value>Select the folder to search for audiobooks</value>
+  </data>
+  <data name="LoginExternalDialog_AudibleLoginExternal" xml:space="preserve">
+    <value>Audible Login External</value>
+  </data>
+  <data name="LoginExternalDialog_CopyURLToClipboard" xml:space="preserve">
+    <value>Copy URL to Clipboard</value>
+  </data>
+  <data name="LoginExternalDialog_InvalidResponseURL" xml:space="preserve">
+    <value>Invalid response URL</value>
+  </data>
+  <data name="LoginExternalDialog_LaunchInBrowser" xml:space="preserve">
+    <value>Launch in Browser</value>
+  </data>
+  <data name="LoginExternalDialog_Locale" xml:space="preserve">
+    <value>Locale: </value>
+  </data>
+  <data name="LoginExternalDialog_LoginWithYourAmazonAudibleCredentials" xml:space="preserve">
+    <value>Login with your Amazon/Audible credentials. 
+After login is complete, your browser will show you an error page similar to: 
+     Looking for Something? 
+     We&apos;re sorry. The Web address you entered is not a functioning page on our site 
+Don&apos;t worry -- this is ACTUALLY A SUCCESSFUL LOGIN. 
+Copy the current url from your browser&apos;s address bar and paste it here: </value>
+  </data>
+  <data name="LoginExternalDialog_PasteThisURLIntoYourBrowser" xml:space="preserve">
+    <value>Paste this URL into your browser:</value>
+  </data>
+  <data name="LoginExternalDialog_Submit" xml:space="preserve">
+    <value>Submit</value>
+  </data>
+  <data name="LoginExternalDialog_TlDrAnERROROnAmazon" xml:space="preserve">
+    <value>tl;dr : an ERROR on Amazon is GOOD. Sorry, I can&apos;t control their weird login</value>
+  </data>
+  <data name="LoginExternalDialog_Username" xml:space="preserve">
+    <value>Username: </value>
+  </data>
+  <data name="MainVM_AllBooksHaveBeenLiberated" xml:space="preserve">
+    <value>All books have been liberated</value>
+  </data>
+  <data name="MainVM_AllFiles" xml:space="preserve">
+    <value>All files (*.*)</value>
+  </data>
+  <data name="MainVM_AllPDFsHaveBeenDownloaded" xml:space="preserve">
+    <value>All PDFs have been downloaded</value>
+  </data>
+  <data name="MainVM_AllVisibleBooksAreLiberated" xml:space="preserve">
+    <value>All visible books are liberated</value>
+  </data>
+  <data name="MainVM_AnErrorOccurredWhileUpdatingThe" xml:space="preserve">
+    <value>An error occurred while updating the library.</value>
+  </data>
+  <data name="MainVM_AreYouSureYouWantTo" xml:space="preserve">
+    <value>Are you sure you want to replace tags in {0}?</value>
+  </data>
+  <data name="MainVM_AreYouSureYouWantTo2" xml:space="preserve">
+    <value>Are you sure you want to replace book downloaded status in {0}?</value>
+  </data>
+  <data name="MainVM_AreYouSureYouWantTo3" xml:space="preserve">
+    <value>Are you sure you want to replace PDF downloaded status in {0}?</value>
+  </data>
+  <data name="MainVM_AreYouSureYouWantTo4" xml:space="preserve">
+    <value>Are you sure you want to remove {0} from Libation&apos;s library?</value>
+  </data>
+  <data name="MainVM_BadFilterString" xml:space="preserve">
+    <value>Bad filter string: &quot;{0}&quot;&#xD;
+&#xD;
+{1}</value>
+    <comment>{0} = tryFilter, {1} = failure.Message</comment>
+  </data>
+  <data name="MainVM_BadFilterString2" xml:space="preserve">
+    <value>Bad filter string</value>
+  </data>
+  <data name="MainVM_BeginBookAndPDFBackups0" xml:space="preserve">
+    <value>Begin Book and PDF Backups: 0</value>
+  </data>
+  <data name="MainVM_BeginPDFOnlyBackups0" xml:space="preserve">
+    <value>Begin PDF Only Backups: 0</value>
+  </data>
+  <data name="MainVM_CSVFilesCsv" xml:space="preserve">
+    <value>CSV files (*.csv)</value>
+  </data>
+  <data name="MainVM_ConvertAllM4bMp3" xml:space="preserve">
+    <value>Convert all M4b =&gt; Mp3?</value>
+  </data>
+  <data name="MainVM_EditQuickFilters" xml:space="preserve">
+    <value>_Edit quick filters...</value>
+  </data>
+  <data name="MainVM_ErrorAttemptingToExportYourLibrary" xml:space="preserve">
+    <value>Error attempting to export your library.</value>
+  </data>
+  <data name="MainVM_ErrorExporting" xml:space="preserve">
+    <value>Error exporting</value>
+  </data>
+  <data name="MainVM_ErrorImportingLibrary" xml:space="preserve">
+    <value>Error importing library</value>
+  </data>
+  <data name="MainVM_ErrorImportingLibraryPleaseTryAgain" xml:space="preserve">
+    <value>Error importing library. Please try again. If this still happens after 2 or 3 tries, stop and contact administrator</value>
+  </data>
+  <data name="MainVM_ExcelWorkbookXlsx" xml:space="preserve">
+    <value>Excel Workbook (*.xlsx)</value>
+  </data>
+  <data name="MainVM_FileNotFound" xml:space="preserve">
+    <value>File not found{0}</value>
+    <comment>{0} = suffix</comment>
+  </data>
+  <data name="MainVM_JSONFilesJson" xml:space="preserve">
+    <value>JSON files (*.json)</value>
+  </data>
+  <data name="MainVM_LaunchHangover" xml:space="preserve">
+    <value>Launch Hangover</value>
+  </data>
+  <data name="MainVM_LibationLibraryExport" xml:space="preserve">
+    <value>Libation Library Export {0:yyyy-MM-dd}</value>
+    <comment>{0} = DateTime.Now</comment>
+  </data>
+  <data name="MainVM_Liberate" xml:space="preserve">
+    <value>Liberate: {0}</value>
+    <comment>{0} = visibleNotLiberated</comment>
+  </data>
+  <data name="MainVM_Liberate0" xml:space="preserve">
+    <value>Liberate: 0</value>
+  </data>
+  <data name="MainVM_LiberateVisibleBooks0" xml:space="preserve">
+    <value>Liberate _Visible Books: 0</value>
+  </data>
+  <data name="MainVM_LibraryExported" xml:space="preserve">
+    <value>Library Exported</value>
+  </data>
+  <data name="MainVM_LibraryExportedTo" xml:space="preserve">
+    <value>Library exported to:&#xD;
+{0}</value>
+    <comment>{0} = selectedFile</comment>
+  </data>
+  <data name="MainVM_LibrarySizeChangeError" xml:space="preserve">
+    <value>Library Size Change Error</value>
+  </data>
+  <data name="MainVM_LocateAudiobooks" xml:space="preserve">
+    <value>Locate Audiobooks...</value>
+  </data>
+  <data name="MainVM_LocatePreviouslyLiberatedAudiobookFiles" xml:space="preserve">
+    <value>Locate Previously-Liberated Audiobook Files</value>
+  </data>
+  <data name="MainVM_NoAccountsYetAddAccount" xml:space="preserve">
+    <value>No accounts yet. Add Account...</value>
+  </data>
+  <data name="MainVM_Remove1BookFromLibation" xml:space="preserve">
+    <value>Remove 1 Book from Libation</value>
+  </data>
+  <data name="MainVM_RemoveBooksFromAllAccounts" xml:space="preserve">
+    <value>Remove Books from All Accounts</value>
+  </data>
+  <data name="MainVM_RemoveBooksFromLibation" xml:space="preserve">
+    <value>Remove # Books from Libation</value>
+  </data>
+  <data name="MainVM_RemoveBooksFromLibation2" xml:space="preserve">
+    <value>Remove books from Libation?</value>
+  </data>
+  <data name="MainVM_RemoveBooksFromLibation3" xml:space="preserve">
+    <value>Remove {0} Books from Libation</value>
+    <comment>{0} = removeCount</comment>
+  </data>
+  <data name="MainVM_RemoveBooksFromSomeAccounts" xml:space="preserve">
+    <value>Remove Books from Some Accounts</value>
+  </data>
+  <data name="MainVM_RemoveLibraryBooks" xml:space="preserve">
+    <value>Remove Library Books</value>
+  </data>
+  <data name="MainVM_ReplaceDownloadedStatus" xml:space="preserve">
+    <value>Replace downloaded status?</value>
+  </data>
+  <data name="MainVM_ReplaceTags" xml:space="preserve">
+    <value>Replace tags?</value>
+  </data>
+  <data name="MainVM_ScanLibrary" xml:space="preserve">
+    <value>Scan Library</value>
+  </data>
+  <data name="MainVM_ScanLibraryOfAllAccounts" xml:space="preserve">
+    <value>Scan Library of All Accounts</value>
+  </data>
+  <data name="MainVM_ScanLibraryOfSomeAccounts" xml:space="preserve">
+    <value>Scan Library of Some Accounts</value>
+  </data>
+  <data name="MainVM_Scanning" xml:space="preserve">
+    <value>Scanning...</value>
+  </data>
+  <data name="MainVM_ScanningAccounts" xml:space="preserve">
+    <value>Scanning {0} accounts...</value>
+    <comment>{0} = _numAccountsScanning</comment>
+  </data>
+  <data name="MainVM_StartLibationWith1stFilterDefault" xml:space="preserve">
+    <value>Start Libation with 1st filter _Default</value>
+  </data>
+  <data name="MainVM_ThisConvertsAllM4bTitlesIn" xml:space="preserve">
+    <value>This converts all m4b titles in your library to mp3 files. Original files are not deleted.&#xD;
+For large libraries this will take a long time and will take up more disk space.&#xD;
+&#xD;
+Continue?&#xD;
+&#xD;
+(To always download titles as mp3 instead of m4b, go to Settings: Download my books as .MP3 files)</value>
+  </data>
+  <data name="MainVM_ToLoadYourAudibleLibraryCome" xml:space="preserve">
+    <value>To load your Audible library, come back here to the Import menu after adding your account</value>
+  </data>
+  <data name="MainVM_TotalProcessedNew" xml:space="preserve">
+    <value>Total processed: {0}&#xD;
+New: {1}</value>
+    <comment>{0} = totalProcessed, {1} = newAdded</comment>
+  </data>
+  <data name="MainVM_Visible" xml:space="preserve">
+    <value>Visible: {0}</value>
+    <comment>{0} = _visibleCount</comment>
+  </data>
+  <data name="MainVM_VisibleBooks" xml:space="preserve">
+    <value>Visible Books {0}</value>
+    <comment>{0} = _visibleCount</comment>
+  </data>
+  <data name="MainVM_WhereToExportLibrary" xml:space="preserve">
+    <value>Where to export Library</value>
+  </data>
+  <data name="MainWindow_About" xml:space="preserve">
+    <value>About...</value>
+  </data>
+  <data name="MainWindow_About2" xml:space="preserve">
+    <value>A_bout...</value>
+  </data>
+  <data name="MainWindow_Accounts" xml:space="preserve">
+    <value>Accounts...</value>
+  </data>
+  <data name="MainWindow_Accounts2" xml:space="preserve">
+    <value>_Accounts...</value>
+  </data>
+  <data name="MainWindow_AddAccount" xml:space="preserve">
+    <value>Add Account</value>
+  </data>
+  <data name="MainWindow_AddToQuickFilters" xml:space="preserve">
+    <value>Add To Quick Filters</value>
+  </data>
+  <data name="MainWindow_AutoScanLibrary" xml:space="preserve">
+    <value>Auto Scan Library</value>
+  </data>
+  <data name="MainWindow_AutoScanLibrary2" xml:space="preserve">
+    <value>A_uto Scan Library</value>
+  </data>
+  <data name="MainWindow_BooksDirectoryNotSet" xml:space="preserve">
+    <value>Books Directory Not Set</value>
+  </data>
+  <data name="MainWindow_ClearFilter" xml:space="preserve">
+    <value>Clear filter</value>
+  </data>
+  <data name="MainWindow_ConvertAllM4bToMp3Long" xml:space="preserve">
+    <value>Convert all M4b to Mp3 [Long-running]...</value>
+  </data>
+  <data name="MainWindow_ConvertAllM4bToMp3Long2" xml:space="preserve">
+    <value>Convert all _M4b to Mp3 [Long-running]...</value>
+  </data>
+  <data name="MainWindow_DoneRemovingBooks" xml:space="preserve">
+    <value>Done Removing Books</value>
+  </data>
+  <data name="MainWindow_EditQuickFilters" xml:space="preserve">
+    <value>Edit quick filters...</value>
+  </data>
+  <data name="MainWindow_ErrorLoadingAccountSettings" xml:space="preserve">
+    <value>Error Loading Account Settings</value>
+  </data>
+  <data name="MainWindow_Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="MainWindow_Export2" xml:space="preserve">
+    <value>E_xport</value>
+  </data>
+  <data name="MainWindow_ExportLibrary" xml:space="preserve">
+    <value>Export Library</value>
+  </data>
+  <data name="MainWindow_ExportLibrary2" xml:space="preserve">
+    <value>E_xport Library</value>
+  </data>
+  <data name="MainWindow_Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="MainWindow_Import" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="MainWindow_Import2" xml:space="preserve">
+    <value>_Import</value>
+  </data>
+  <data name="MainWindow_LaunchHangover" xml:space="preserve">
+    <value>Launch Hangover</value>
+  </data>
+  <data name="MainWindow_LaunchHangover2" xml:space="preserve">
+    <value>Launch _Hangover</value>
+  </data>
+  <data name="MainWindow_LibationCouldNotLoadYourAccount" xml:space="preserve">
+    <value>Libation could not load your account settings, so it had created a new, empty account settings file.
+
+You will need to re-add you Audible account(s) before scanning or downloading.
+
+The old account settings file has been archived at &apos;{0}&apos;
+
+{1}</value>
+    <comment>{0} = backupFile.PathWithoutPrefix, {1} = ex</comment>
+  </data>
+  <data name="MainWindow_LibationCouldNotLoadYourAccount2" xml:space="preserve">
+    <value>Libation could not load your account settings. The file may be corrupted, but Libation is unable to delete it.
+
+Please move or delete the account settings file &apos;{0}&apos;
+
+{1}</value>
+    <comment>{0} = e.SettingsFilePath, {1} = e.GetException().ToString()</comment>
+  </data>
+  <data name="MainWindow_LibationLiberateYourLibrary" xml:space="preserve">
+    <value>Libation: Liberate your Library</value>
+  </data>
+  <data name="MainWindow_LibationWalkthrough" xml:space="preserve">
+    <value>Libation Walkthrough</value>
+  </data>
+  <data name="MainWindow_Liberate" xml:space="preserve">
+    <value>Liberate</value>
+  </data>
+  <data name="MainWindow_Liberate2" xml:space="preserve">
+    <value>_Liberate</value>
+  </data>
+  <data name="MainWindow_LocateAudiobooks" xml:space="preserve">
+    <value>L_ocate Audiobooks...</value>
+  </data>
+  <data name="MainWindow_NoAccountsYetAddAccount" xml:space="preserve">
+    <value>No accounts yet. A_dd Account...</value>
+  </data>
+  <data name="MainWindow_OpenTrashBin" xml:space="preserve">
+    <value>Open Trash Bin</value>
+  </data>
+  <data name="MainWindow_PleaseSetAValidBooksLocation" xml:space="preserve">
+    <value>Please set a valid Books location in the settings dialog.</value>
+  </data>
+  <data name="MainWindow_QuickFilters" xml:space="preserve">
+    <value>Quick Filters</value>
+  </data>
+  <data name="MainWindow_QuickFilters2" xml:space="preserve">
+    <value>Quick _Filters</value>
+  </data>
+  <data name="MainWindow_RemoveBooksFromAllAccounts" xml:space="preserve">
+    <value>_Remove Books from All Accounts</value>
+  </data>
+  <data name="MainWindow_RemoveBooksFromSomeAccounts" xml:space="preserve">
+    <value>_Remove Books from Some Accounts</value>
+  </data>
+  <data name="MainWindow_RemoveFromLibrary" xml:space="preserve">
+    <value>Remove from library...</value>
+  </data>
+  <data name="MainWindow_RemoveFromLibrary2" xml:space="preserve">
+    <value>_Remove from library...</value>
+  </data>
+  <data name="MainWindow_RemoveLibraryBooks" xml:space="preserve">
+    <value>_Remove Library Books</value>
+  </data>
+  <data name="MainWindow_ReplaceTags" xml:space="preserve">
+    <value>Replace Tags...</value>
+  </data>
+  <data name="MainWindow_ReplaceTags2" xml:space="preserve">
+    <value>Replace _Tags...</value>
+  </data>
+  <data name="MainWindow_ScanForBetterQualityAudiobooks" xml:space="preserve">
+    <value>Scan for Better Quality Audiobooks</value>
+  </data>
+  <data name="MainWindow_ScanLibrary" xml:space="preserve">
+    <value>Scan _Library</value>
+  </data>
+  <data name="MainWindow_ScanLibrary2" xml:space="preserve">
+    <value>Scan Library</value>
+  </data>
+  <data name="MainWindow_ScanLibraryOfAllAccounts" xml:space="preserve">
+    <value>Scan Library of _All Accounts</value>
+  </data>
+  <data name="MainWindow_ScanLibraryOfSomeAccounts" xml:space="preserve">
+    <value>Scan Library of _Some Accounts</value>
+  </data>
+  <data name="MainWindow_SetBookDownloadedStatusManually" xml:space="preserve">
+    <value>Set book &apos;Downloaded&apos; status manually...</value>
+  </data>
+  <data name="MainWindow_SetBookDownloadedStatusManually2" xml:space="preserve">
+    <value>Set book &apos;_Downloaded&apos; status manually...</value>
+  </data>
+  <data name="MainWindow_SetDownloadedStatusAutomatically" xml:space="preserve">
+    <value>Set &apos;Downloaded&apos; status automatically...</value>
+  </data>
+  <data name="MainWindow_SetDownloadedStatusAutomatically2" xml:space="preserve">
+    <value>Set &apos;_Downloaded&apos; status automatically...</value>
+  </data>
+  <data name="MainWindow_SetPDFDownloadedStatusManually" xml:space="preserve">
+    <value>Set PDF &apos;Downloaded&apos; status manually...</value>
+  </data>
+  <data name="MainWindow_SetPDFDownloadedStatusManually2" xml:space="preserve">
+    <value>Set _PDF &apos;Downloaded&apos; status manually...</value>
+  </data>
+  <data name="MainWindow_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="MainWindow_Settings2" xml:space="preserve">
+    <value>Settings...</value>
+  </data>
+  <data name="MainWindow_Settings3" xml:space="preserve">
+    <value>_Settings</value>
+  </data>
+  <data name="MainWindow_Settings4" xml:space="preserve">
+    <value>_Settings...</value>
+  </data>
+  <data name="MainWindow_StartLibationWith1stFilterDefault" xml:space="preserve">
+    <value>Start Libation with 1st filter Default</value>
+  </data>
+  <data name="MainWindow_TakeAGuidedTour" xml:space="preserve">
+    <value>Take a Guided Tour</value>
+  </data>
+  <data name="MainWindow_TakeAGuidedTourOfLibation" xml:space="preserve">
+    <value>Take a Guided Tour of Libation</value>
+  </data>
+  <data name="MainWindow_TakeAGuidedTourOfLibation2" xml:space="preserve">
+    <value>Take a Guided _Tour of Libation</value>
+  </data>
+  <data name="MainWindow_UpgradeFailed" xml:space="preserve">
+    <value>Upgrade Failed</value>
+  </data>
+  <data name="MainWindow_Upgrading" xml:space="preserve">
+    <value>Upgrading:</value>
+  </data>
+  <data name="MainWindow_VisibleBooks" xml:space="preserve">
+    <value>Visible Books</value>
+  </data>
+  <data name="MainWindow_WouldYouLikeAGuidedTour" xml:space="preserve">
+    <value>Would you like a guided tour to get started?</value>
+  </data>
+  <data name="MarketplacesDialog_AlwaysScannedThisIsWhereThe" xml:space="preserve">
+    <value>Always scanned. This is where the account is registered.</value>
+  </data>
+  <data name="MarketplacesDialog_Marketplaces" xml:space="preserve">
+    <value>Marketplaces</value>
+  </data>
+  <data name="MarketplacesDialog_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="MarketplacesDialog_ThisAccountSOwnMarketplace" xml:space="preserve">
+    <value>{0} - this account&apos;s own marketplace</value>
+    <comment>{0} = locale.Name</comment>
+  </data>
+  <data name="MarketplacesUi_1Title" xml:space="preserve">
+    <value>{0} - 1 title</value>
+    <comment>{0} = result.Locale.Name</comment>
+  </data>
+  <data name="MarketplacesUi_AlreadyScannedBy" xml:space="preserve">
+    <value>{0} - already scanned by {1}</value>
+    <comment>{0} = result.Locale.Name, {1} = result.ClaimedBy</comment>
+  </data>
+  <data name="MarketplacesUi_AlreadyScannedByThisAccount" xml:space="preserve">
+    <value>{0} - already scanned by this account</value>
+    <comment>{0} = result.Locale.Name</comment>
+  </data>
+  <data name="MarketplacesUi_AudibleKeepsASeparateLibraryFor" xml:space="preserve">
+    <value>Audible keeps a separate library for each marketplace. A title bought while your Amazon address was set to another country stays in that country&apos;s library, and Libation only sees the marketplaces listed here.&#xD;
+&#xD;
+Checking one adds it to this account&apos;s library scans. No second login is needed - your existing credentials work in every marketplace.</value>
+  </data>
+  <data name="MarketplacesUi_CheckOtherMarketplaces" xml:space="preserve">
+    <value>Check other marketplaces</value>
+  </data>
+  <data name="MarketplacesUi_CheckingMarketplaces" xml:space="preserve">
+    <value>Checking marketplaces...</value>
+  </data>
+  <data name="MarketplacesUi_CouldNotBeChecked" xml:space="preserve">
+    <value>{0} - could not be checked ({1})</value>
+    <comment>{0} = result.Locale.Name, {1} = result.Error</comment>
+  </data>
+  <data name="MarketplacesUi_FoundTitlesInAnotherMarketplaceCheck" xml:space="preserve">
+    <value>Found titles in another marketplace: {0}.&#xD;
+&#xD;
+Check it to include it in library scans.</value>
+    <comment>{0} = list</comment>
+  </data>
+  <data name="MarketplacesUi_FoundTitlesInOtherMarketplacesCheck" xml:space="preserve">
+    <value>Found titles in {0} other marketplaces: {1}.&#xD;
+&#xD;
+Check the ones to include in library scans.</value>
+    <comment>{0} = found.Count, {1} = list</comment>
+  </data>
+  <data name="MarketplacesUi_Marketplaces" xml:space="preserve">
+    <value>Marketplaces</value>
+  </data>
+  <data name="MarketplacesUi_NoMarketplaceCouldBeCheckedScan" xml:space="preserve">
+    <value>No marketplace could be checked. Scan this account&apos;s library to refresh its credentials, then try again.</value>
+  </data>
+  <data name="MarketplacesUi_NoOtherMarketplaceHoldsTitlesFor" xml:space="preserve">
+    <value>No other marketplace holds titles for this account.</value>
+  </data>
+  <data name="MarketplacesUi_NoTitles" xml:space="preserve">
+    <value>{0} - no titles</value>
+    <comment>{0} = result.Locale.Name</comment>
+  </data>
+  <data name="MarketplacesUi_ReachableTitleCountUnknown" xml:space="preserve">
+    <value>{0} - reachable, title count unknown</value>
+    <comment>{0} = result.Locale.Name</comment>
+  </data>
+  <data name="MarketplacesUi_ScanThisAccountSLibraryFirst" xml:space="preserve">
+    <value>Scan this account&apos;s library first, so Libation has credentials to check the other marketplaces with.</value>
+  </data>
+  <data name="MarketplacesUi_SeeWhetherThisAccountHoldsTitles" xml:space="preserve">
+    <value>See whether this account holds titles in other Audible marketplaces.</value>
+  </data>
+  <data name="MarketplacesUi_Titles" xml:space="preserve">
+    <value>{0} - {1} titles</value>
+    <comment>{0} = result.Locale.Name, {1} = result.TitleCount</comment>
+  </data>
+  <data name="MessageBoxViewModel_Abort" xml:space="preserve">
+    <value>Abort</value>
+  </data>
+  <data name="MessageBoxViewModel_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="MessageBoxViewModel_Continue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="MessageBoxViewModel_Ignore" xml:space="preserve">
+    <value>Ignore</value>
+  </data>
+  <data name="MessageBoxViewModel_MessageBox" xml:space="preserve">
+    <value>Message Box</value>
+  </data>
+  <data name="MessageBoxViewModel_No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="MessageBoxViewModel_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="MessageBoxViewModel_Retry" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="MessageBoxViewModel_Try" xml:space="preserve">
+    <value>Try</value>
+  </data>
+  <data name="MessageBoxViewModel_Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="MessageBox_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="MessageBox_VerboseLoggingEnabled" xml:space="preserve">
+    <value>Verbose logging enabled</value>
+  </data>
+  <data name="MessageBox_WarningVerboseLoggingIsEnabledThis" xml:space="preserve">
+    <value>Warning: verbose logging is enabled.
+
+This should be used for debugging only. It creates many
+more logs and debug files, neither of which are as
+strictly anonymous.
+
+When you are finished debugging, it&apos;s highly recommended
+to set your debug MinimumLevel to Information and restart
+Libation.</value>
+  </data>
+  <data name="MyRatingCellEditor_Overall" xml:space="preserve">
+    <value>Overall:</value>
+  </data>
+  <data name="MyRatingCellEditor_Perform" xml:space="preserve">
+    <value>Perform: </value>
+  </data>
+  <data name="MyRatingCellEditor_Story" xml:space="preserve">
+    <value>Story:</value>
+  </data>
+  <data name="ProcessBookControl_MoveBookDownInQueue" xml:space="preserve">
+    <value>Move book down in queue</value>
+  </data>
+  <data name="ProcessBookControl_MoveBookToBottomOfQueue" xml:space="preserve">
+    <value>Move book to bottom of queue</value>
+  </data>
+  <data name="ProcessBookControl_MoveBookToTopOfQueue" xml:space="preserve">
+    <value>Move book to top of queue</value>
+  </data>
+  <data name="ProcessBookControl_MoveBookUpInQueue" xml:space="preserve">
+    <value>Move book up in queue</value>
+  </data>
+  <data name="ProcessBookViewModel_AnErrorOccurredWhileTryingTo" xml:space="preserve">
+    <value>An error occurred while trying to process this book.
+{0}
+
+- ABORT: Stop processing books.
+
+- RETRY: Skip this book for now, but retry if it is requeued. Continue processing the queued books.
+
+- IGNORE: Permanently ignore this book. Continue processing the queued books. (Will not try this book again later.)
+
+Check &quot;Apply to all remaining books&quot; to use your choice for the rest of this queue.
+Check &quot;Remember in Settings&quot; to save your choice in Download/Decrypt settings.</value>
+    <comment>{0} = details</comment>
+  </data>
+  <data name="ProcessBookViewModel_Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="ProcessBookViewModel_DiskFullQueueStopped" xml:space="preserve">
+    <value>Disk full, queue stopped</value>
+  </data>
+  <data name="ProcessBookViewModel_ETA" xml:space="preserve">
+    <value>ETA: {0:mm\:ss}</value>
+    <comment>{0} = value</comment>
+  </data>
+  <data name="ProcessBookViewModel_Empty" xml:space="preserve">
+    <value>[empty]</value>
+  </data>
+  <data name="ProcessBookViewModel_ErrorAbort" xml:space="preserve">
+    <value>Error, Abort</value>
+  </data>
+  <data name="ProcessBookViewModel_ErrorRetrievingDetails" xml:space="preserve">
+    <value>[Error retrieving details]</value>
+  </data>
+  <data name="ProcessBookViewModel_ErrorSkipping" xml:space="preserve">
+    <value>Error, Skipping</value>
+  </data>
+  <data name="ProcessBookViewModel_ErrorWillRetryLater" xml:space="preserve">
+    <value>Error, will retry later</value>
+  </data>
+  <data name="ProcessBookViewModel_Finished" xml:space="preserve">
+    <value>Finished</value>
+  </data>
+  <data name="ProcessBookViewModel_LicenseDenied" xml:space="preserve">
+    <value>License Denied</value>
+  </data>
+  <data name="ProcessBookViewModel_LicenseDeniedPlusOftenTemporary" xml:space="preserve">
+    <value>License denied (Plus; often temporary)</value>
+  </data>
+  <data name="ProcessBookViewModel_LicenseDeniedReLoginNeeded" xml:space="preserve">
+    <value>License denied (re-login needed)</value>
+  </data>
+  <data name="ProcessBookViewModel_LicenseDeniedThrottled" xml:space="preserve">
+    <value>License denied (throttled)</value>
+  </data>
+  <data name="ProcessBookViewModel_PossibleServiceInterruption" xml:space="preserve">
+    <value>Possible Service Interruption</value>
+  </data>
+  <data name="ProcessBookViewModel_SkipThisBook" xml:space="preserve">
+    <value>Skip this book?</value>
+  </data>
+  <data name="ProcessBookViewModel_TitleIDAuthorNarr" xml:space="preserve">
+    <value>  Title: {0}
+  ID: {1}
+  Author: {2}
+  Narr: {3}</value>
+    <comment>{0} = libraryBook.Book.TitleWithSubtitle, {1} = libraryBook.Book.AudibleProductId, {2} = trunc(libraryBook.Book.AuthorNames), {3} = trunc(libraryBook.Book.NarratorNames)</comment>
+  </data>
+  <data name="ProcessBookViewModel_ValidationFail" xml:space="preserve">
+    <value>Validation fail</value>
+  </data>
+  <data name="ProcessQueueControl_AtOnce" xml:space="preserve">
+    <value>At once</value>
+  </data>
+  <data name="ProcessQueueControl_AutoScroll" xml:space="preserve">
+    <value>Auto-scroll</value>
+  </data>
+  <data name="ProcessQueueControl_DLLimit" xml:space="preserve">
+    <value>DL Limit</value>
+  </data>
+  <data name="ProcessQueueControl_FewerBooksDownloadAtOnceThan" xml:space="preserve">
+    <value>Fewer books download at once than the number chosen, because this machine has fewer processors to decrypt them.</value>
+  </data>
+  <data name="ProcessQueueControl_HowManyBooksToDownloadAnd" xml:space="preserve">
+    <value>How many books to download and decrypt at the same time. 1 downloads one at a time.</value>
+  </data>
+  <data name="ProcessQueueControl_KeepActiveDownloadsScrolledIntoView" xml:space="preserve">
+    <value>Keep active downloads scrolled into view.</value>
+  </data>
+  <data name="ProcessQueueControl_Message" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="ProcessQueueControl_Timestamp" xml:space="preserve">
+    <value>Timestamp</value>
+  </data>
+  <data name="ProcessQueueViewModel_AtATime" xml:space="preserve">
+    <value>({0} at a time)</value>
+    <comment>{0} = EffectiveConcurrentDownloads</comment>
+  </data>
+  <data name="ProcessQueueViewModel_BooksDirectoryNotSet" xml:space="preserve">
+    <value>Books Directory Not Set</value>
+  </data>
+  <data name="ProcessQueueViewModel_DailyDownloadLimitCapacityIsAvailable" xml:space="preserve">
+    <value>Daily download limit: capacity is available again. Resuming with {0}.</value>
+    <comment>{0} = nextBook.LibraryBook.Book.TitleWithSubtitle</comment>
+  </data>
+  <data name="ProcessQueueViewModel_DownloadNotQueued" xml:space="preserve">
+    <value>Download not queued</value>
+  </data>
+  <data name="ProcessQueueViewModel_FailedToCreateBooksDirectory" xml:space="preserve">
+    <value>Failed to Create Books Directory</value>
+  </data>
+  <data name="ProcessQueueViewModel_FailedToCreateDecryptInProgress" xml:space="preserve">
+    <value>Failed to Create Decrypt In Progress Directory</value>
+  </data>
+  <data name="ProcessQueueViewModel_FailedToCreateDownloadsInProgress" xml:space="preserve">
+    <value>Failed to Create Downloads In Progress Directory</value>
+  </data>
+  <data name="ProcessQueueViewModel_LibationCouldNotQueueADownload" xml:space="preserve">
+    <value>Libation could not queue a download for this title.
+
+If it should be downloadable: confirm it is not already liberated, try marking it &quot;Download Pending&quot;, or check whether a library scan is required.</value>
+  </data>
+  <data name="ProcessQueueViewModel_LibationWasUnableToCreateThe" xml:space="preserve">
+    <value>Libation was unable to create the &quot;Books location&quot; folder at:
+{0}
+
+Please change the Books location in the settings menu.</value>
+    <comment>{0} = config.Books</comment>
+  </data>
+  <data name="ProcessQueueViewModel_LibationWasUnableToCreateThe2" xml:space="preserve">
+    <value>Libation was unable to create the &quot;Downloads In Progress&quot; folder in:
+{0}
+
+Please change the In Progress location in the settings menu.</value>
+    <comment>{0} = config.InProgress</comment>
+  </data>
+  <data name="ProcessQueueViewModel_LibationWasUnableToCreateThe3" xml:space="preserve">
+    <value>Libation was unable to create the &quot;Decrypt In Progress&quot; folder in:
+{0}
+
+Please change the In Progress location in the settings menu.</value>
+    <comment>{0} = config.InProgress</comment>
+  </data>
+  <data name="ProcessQueueViewModel_LibationWasUnableToReadThe" xml:space="preserve">
+    <value>Libation was unable to read the &quot;Books location&quot; folder at:
+{0}
+
+If it is on a removable or network drive, check that the drive is connected and working. Otherwise, change the Books location in the settings menu.</value>
+    <comment>{0} = booksDirectory</comment>
+  </data>
+  <data name="ProcessQueueViewModel_LibraryScanRequired" xml:space="preserve">
+    <value>Library scan required</value>
+  </data>
+  <data name="ProcessQueueViewModel_PleaseChooseABooksLocationFolder" xml:space="preserve">
+    <value>Please choose a &quot;Books location&quot; folder in the Settings menu.</value>
+  </data>
+  <data name="ProcessQueueViewModel_ThisTitleIsMarkedAbsentFrom" xml:space="preserve">
+    <value>This title is marked absent from your last library scan.
+
+Run Scan (or `libationcli scan`) so Libation can refresh your library, then try again.</value>
+  </data>
+  <data name="ProcessQueueViewModel_UnableToReadBooksDirectory" xml:space="preserve">
+    <value>Unable to Read Books Directory</value>
+  </data>
+  <data name="ProductsDisplayViewModel_AreYouSureYouWantTo" xml:space="preserve">
+    <value>Are you sure you want to remove {0} from Libation&apos;s library?</value>
+  </data>
+  <data name="ProductsDisplayViewModel_ErrorScanningLibrary" xml:space="preserve">
+    <value>Error scanning library</value>
+  </data>
+  <data name="ProductsDisplayViewModel_ErrorScanningLibraryYouMayStill" xml:space="preserve">
+    <value>Error scanning library. You may still manually select books to remove from Libation&apos;s library.</value>
+  </data>
+  <data name="ProductsDisplayViewModel_RemoveBooksFromLibation" xml:space="preserve">
+    <value>Remove books from Libation?</value>
+  </data>
+  <data name="ProductsDisplay_Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="ProductsDisplay_AllFiles" xml:space="preserve">
+    <value>All files (*.*)</value>
+  </data>
+  <data name="ProductsDisplay_Authors" xml:space="preserve">
+    <value>Authors</value>
+  </data>
+  <data name="ProductsDisplay_Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="ProductsDisplay_ClickToEditTags" xml:space="preserve">
+    <value>Click to edit tags</value>
+  </data>
+  <data name="ProductsDisplay_ClickToSeeFullDescription" xml:space="preserve">
+    <value>Click to see full description</value>
+  </data>
+  <data name="ProductsDisplay_ClickToSeeFullSize" xml:space="preserve">
+    <value>Click to see full size</value>
+  </data>
+  <data name="ProductsDisplay_CopyRowContents" xml:space="preserve">
+    <value>_Copy Row Contents</value>
+  </data>
+  <data name="ProductsDisplay_CouldNotRemoveBooksFromAudible" xml:space="preserve">
+    <value>Could not remove books from Audible.</value>
+  </data>
+  <data name="ProductsDisplay_CouldNotRemoveBooksFromThe" xml:space="preserve">
+    <value>Could not remove books from the library.</value>
+  </data>
+  <data name="ProductsDisplay_CouldNotUpdateDownloadStatus" xml:space="preserve">
+    <value>Could not update download status.</value>
+  </data>
+  <data name="ProductsDisplay_Cover" xml:space="preserve">
+    <value>{0} - Cover</value>
+    <comment>{0} = gEntry.Title</comment>
+  </data>
+  <data name="ProductsDisplay_Cover2" xml:space="preserve">
+    <value>Cover</value>
+  </data>
+  <data name="ProductsDisplay_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="ProductsDisplay_IncludedUntil" xml:space="preserve">
+    <value>Included
+Until</value>
+  </data>
+  <data name="ProductsDisplay_IsSpatial" xml:space="preserve">
+    <value>Is
+Spatial</value>
+  </data>
+  <data name="ProductsDisplay_LastDownload" xml:space="preserve">
+    <value>Last
+Download</value>
+  </data>
+  <data name="ProductsDisplay_Length" xml:space="preserve">
+    <value>Length</value>
+  </data>
+  <data name="ProductsDisplay_Liberate" xml:space="preserve">
+    <value>Liberate</value>
+  </data>
+  <data name="ProductsDisplay_LibraryOperationFailed" xml:space="preserve">
+    <value>Library operation failed</value>
+  </data>
+  <data name="ProductsDisplay_Misc" xml:space="preserve">
+    <value>Misc</value>
+  </data>
+  <data name="ProductsDisplay_MyRating" xml:space="preserve">
+    <value>My Rating</value>
+  </data>
+  <data name="ProductsDisplay_Narrators" xml:space="preserve">
+    <value>Narrators</value>
+  </data>
+  <data name="ProductsDisplay_NoCoverArt" xml:space="preserve">
+    <value>No Cover Art</value>
+  </data>
+  <data name="ProductsDisplay_NoCoverArtIsAvailableFor" xml:space="preserve">
+    <value>No cover art is available for this book.</value>
+  </data>
+  <data name="ProductsDisplay_ProductRating" xml:space="preserve">
+    <value>Product
+Rating</value>
+  </data>
+  <data name="ProductsDisplay_PurchaseDate" xml:space="preserve">
+    <value>Purchase
+Date</value>
+  </data>
+  <data name="ProductsDisplay_Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="ProductsDisplay_Series" xml:space="preserve">
+    <value>Series</value>
+  </data>
+  <data name="ProductsDisplay_SeriesOrder" xml:space="preserve">
+    <value>Series
+Order</value>
+  </data>
+  <data name="ProductsDisplay_ShowHideColumns" xml:space="preserve">
+    <value>Show / Hide Columns</value>
+  </data>
+  <data name="ProductsDisplay_Tags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="ProductsDisplay_Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="ScanAccountsDialog_CheckTheAccountsToScanAnd" xml:space="preserve">
+    <value>Check the accounts to scan and import.
+To change default selections, go to: Settings &gt; Accounts</value>
+  </data>
+  <data name="ScanAccountsDialog_EditAccounts" xml:space="preserve">
+    <value>Edit Accounts</value>
+  </data>
+  <data name="ScanAccountsDialog_Import" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="ScanAccountsDialog_WhichAccounts" xml:space="preserve">
+    <value>Which Accounts?</value>
+  </data>
+  <data name="SearchIndexRecovery_LibationCouldNotUseItsSearch" xml:space="preserve">
+    <value>Libation could not use its search index, and could not repair it automatically. Your library itself is fine; only searching and filtering are affected.
+
+To fix it by hand:
+1. In Settings, click &apos;Open log folder&apos;
+2. Close Libation
+3. Delete the SearchEngine folder you find there
+4. Start Libation again</value>
+  </data>
+  <data name="SearchIndexRecovery_SearchIndexNeedsAttention" xml:space="preserve">
+    <value>Search index needs attention</value>
+  </data>
+  <data name="SearchSyntaxDialog_AliceSAdventuresInWonderlandID" xml:space="preserve">
+    <value>Alice&apos;s Adventures in
+  Wonderland (ID: B015D78L0U)
+
+	 id:B015D78L0U
+
+All of these are synonyms
+for the ID field</value>
+  </data>
+  <data name="SearchSyntaxDialog_BOOLEANTRUEFALSEFIELDS" xml:space="preserve">
+    <value>BOOLEAN (TRUE/FALSE) FIELDS</value>
+  </data>
+  <data name="SearchSyntaxDialog_FilterOptions" xml:space="preserve">
+    <value>Filter Options</value>
+  </data>
+  <data name="SearchSyntaxDialog_FindBooksBetween1100Minutes" xml:space="preserve">
+    <value>Find books between 1-100 minutes long
+	 length:[1 TO 100]
+Find books exactly 1 hr long
+	 length:60
+Find books published from 2020-1-1 to
+2023-12-31
+	 datepublished:[20200101 TO 20231231]</value>
+  </data>
+  <data name="SearchSyntaxDialog_FindBooksThatYouHavenT" xml:space="preserve">
+    <value>Find books that you haven&apos;t rated:
+	 -IsRated</value>
+  </data>
+  <data name="SearchSyntaxDialog_FullLuceneQuerySyntaxIsSupported" xml:space="preserve">
+    <value>Full Lucene query syntax is supported
+Fields with similar names are synomyns (eg: Author, Authors, AuthorNames)</value>
+  </data>
+  <data name="SearchSyntaxDialog_IDFIELDS" xml:space="preserve">
+    <value>ID FIELDS</value>
+  </data>
+  <data name="SearchSyntaxDialog_NUMBERFIELDS" xml:space="preserve">
+    <value>NUMBER FIELDS</value>
+  </data>
+  <data name="SearchSyntaxDialog_STRINGFIELDS" xml:space="preserve">
+    <value>STRING FIELDS</value>
+  </data>
+  <data name="SearchSyntaxDialog_SearchForWizardOfOzTitle" xml:space="preserve">
+    <value>Search for wizard of oz:
+	 title:oz
+	 title:&quot;wizard of oz&quot;</value>
+  </data>
+  <data name="SearchSyntaxDialog_TAGFORMATTagName" xml:space="preserve">
+    <value>TAG FORMAT: [tagName]</value>
+  </data>
+  <data name="SeriesViewDialog_ERROR" xml:space="preserve">
+    <value>ERROR</value>
+  </data>
+  <data name="SeriesViewDialog_ERRORLOADINGSERIESINFO" xml:space="preserve">
+    <value>ERROR LOADING SERIES INFO&#xD;
+&#xD;
+{0}</value>
+    <comment>{0} = ex.Message</comment>
+  </data>
+  <data name="SeriesViewDialog_ViewAllItemsInSeries" xml:space="preserve">
+    <value>View All Items in Series</value>
+  </data>
+  <data name="SeriesViewGrid_Availability" xml:space="preserve">
+    <value>Availability</value>
+  </data>
+  <data name="SeriesViewGrid_ClickToSeeFullSize" xml:space="preserve">
+    <value>Click to see full size</value>
+  </data>
+  <data name="SeriesViewGrid_Cover" xml:space="preserve">
+    <value>{0} - Cover</value>
+    <comment>{0} = libraryBook.Title</comment>
+  </data>
+  <data name="SeriesViewGrid_Cover2" xml:space="preserve">
+    <value>Cover</value>
+  </data>
+  <data name="SeriesViewGrid_NoCoverArt" xml:space="preserve">
+    <value>No Cover Art</value>
+  </data>
+  <data name="SeriesViewGrid_NoCoverArtIsAvailableFor" xml:space="preserve">
+    <value>No cover art is available for this book.</value>
+  </data>
+  <data name="SeriesViewGrid_OpenAudibleProductPage" xml:space="preserve">
+    <value>Open Audible product page</value>
+  </data>
+  <data name="SeriesViewGrid_SeriesOrder" xml:space="preserve">
+    <value>Series
+Order</value>
+  </data>
+  <data name="SeriesViewGrid_Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="SettingsDialog_AudioFileSettings" xml:space="preserve">
+    <value>Audio File Settings</value>
+  </data>
+  <data name="SettingsDialog_CannotSetBooksLocationToBlank" xml:space="preserve">
+    <value>Cannot set Books Location to blank</value>
+  </data>
+  <data name="SettingsDialog_DownloadDecrypt" xml:space="preserve">
+    <value>Download/Decrypt</value>
+  </data>
+  <data name="SettingsDialog_EditSettings" xml:space="preserve">
+    <value>Edit Settings</value>
+  </data>
+  <data name="SettingsDialog_ErrorCreatingBooksLocation" xml:space="preserve">
+    <value>Error creating Books Location:
+
+{0}</value>
+    <comment>{0} = ex.Message</comment>
+  </data>
+  <data name="SettingsDialog_ErrorCreatingDirectory" xml:space="preserve">
+    <value>Error creating directory</value>
+  </data>
+  <data name="SettingsDialog_ImportLibrary" xml:space="preserve">
+    <value>Import Library</value>
+  </data>
+  <data name="SettingsDialog_ImportantSettings" xml:space="preserve">
+    <value>Important Settings</value>
+  </data>
+  <data name="SettingsDialog_LocationIsBlank" xml:space="preserve">
+    <value>Location is blank</value>
+  </data>
+  <data name="SettingsDialog_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SetupDialog_Dark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="SetupDialog_Light" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="SetupDialog_NEWUSER" xml:space="preserve">
+    <value>NEW USER</value>
+  </data>
+  <data name="SetupDialog_RETURNINGUSERIHavePreviouslyInstalled" xml:space="preserve">
+    <value>RETURNING USER
+
+I have previously installed Libation. This is an upgrade or re-install.</value>
+  </data>
+  <data name="SetupDialog_System" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="SetupDialog_Theme" xml:space="preserve">
+    <value>Theme:  </value>
+  </data>
+  <data name="SetupDialog_ThisAppearsToBeYourFirst" xml:space="preserve">
+    <value>This appears to be your first time using Libation or a previous setup was incomplete. 
+ 
+Please fill in a few settings. You can also change these settings later. 
+ 
+After you make your selections, get started by importing your library. 
+Go to Import &gt; Scan Library 
+ 
+Download your entire library from the &quot;Liberate&quot; tab or 
+liberate your books one at a time by clicking the stoplight.</value>
+  </data>
+  <data name="SetupDialog_WelcomeToLibation" xml:space="preserve">
+    <value>Welcome to Libation</value>
+  </data>
+  <data name="TagsBatchDialog_ReplaceTags" xml:space="preserve">
+    <value>Replace Tags</value>
+  </data>
+  <data name="TagsBatchDialog_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="TagsBatchDialog_TagsAreSeparatedByASpace" xml:space="preserve">
+    <value>Tags are separated by a space. Each tag can contain letters, numbers, and underscores</value>
+  </data>
+  <data name="ThemePickerDialog_AllFiles" xml:space="preserve">
+    <value>All files (*.*)</value>
+  </data>
+  <data name="ThemePickerDialog_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="ThemePickerDialog_Color" xml:space="preserve">
+    <value>Color</value>
+  </data>
+  <data name="ThemePickerDialog_Defaults" xml:space="preserve">
+    <value>Defaults</value>
+  </data>
+  <data name="ThemePickerDialog_ErrorAttemptingToExportYourChardonnay" xml:space="preserve">
+    <value>Error attempting to export your chardonnay theme.</value>
+  </data>
+  <data name="ThemePickerDialog_ErrorAttemptingToImportYourChardonnay" xml:space="preserve">
+    <value>Error attempting to import your chardonnay theme.</value>
+  </data>
+  <data name="ThemePickerDialog_ErrorExporting" xml:space="preserve">
+    <value>Error Exporting</value>
+  </data>
+  <data name="ThemePickerDialog_ErrorImporting" xml:space="preserve">
+    <value>Error Importing</value>
+  </data>
+  <data name="ThemePickerDialog_ErrorSavingTheme" xml:space="preserve">
+    <value>Error saving theme</value>
+  </data>
+  <data name="ThemePickerDialog_ExportTheme" xml:space="preserve">
+    <value>Export Theme</value>
+  </data>
+  <data name="ThemePickerDialog_FailedToSaveTheTheme" xml:space="preserve">
+    <value>Failed to save the theme.</value>
+  </data>
+  <data name="ThemePickerDialog_ImportTheme" xml:space="preserve">
+    <value>Import Theme</value>
+  </data>
+  <data name="ThemePickerDialog_JSONFilesJson" xml:space="preserve">
+    <value>JSON files (*.json)</value>
+  </data>
+  <data name="ThemePickerDialog_Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="ThemePickerDialog_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="ThemePickerDialog_SelectTheChardonnayThemeJsonFile" xml:space="preserve">
+    <value>Select the ChardonnayTheme.json file</value>
+  </data>
+  <data name="ThemePickerDialog_ThemeEditor" xml:space="preserve">
+    <value>Theme Editor</value>
+  </data>
+  <data name="ThemePickerDialog_ThemeExported" xml:space="preserve">
+    <value>Theme Exported</value>
+  </data>
+  <data name="ThemePickerDialog_ThemeExportedTo" xml:space="preserve">
+    <value>Theme exported to:&#xD;
+{0}</value>
+    <comment>{0} = selectedFile</comment>
+  </data>
+  <data name="ThemePickerDialog_ThemeImported" xml:space="preserve">
+    <value>Theme Imported</value>
+  </data>
+  <data name="ThemePickerDialog_ThemeImportedAndApplied" xml:space="preserve">
+    <value>Theme imported and applied</value>
+  </data>
+  <data name="ThemePickerDialog_ThemeItem" xml:space="preserve">
+    <value>Theme Item</value>
+  </data>
+  <data name="ThemePickerDialog_WhereToExportLibrary" xml:space="preserve">
+    <value>Where to export Library</value>
+  </data>
+  <data name="ThemePreviewControl_ThisIsACheckBox" xml:space="preserve">
+    <value>This is a check box</value>
+  </data>
+  <data name="ThemePreviewControl_ThisIsAReadOnlyText" xml:space="preserve">
+    <value>This is a read-only text box</value>
+  </data>
+  <data name="ThemePreviewControl_ThisIsAVisitedLink" xml:space="preserve">
+    <value>This is a visited link</value>
+  </data>
+  <data name="ThemePreviewControl_ThisIsAnEditableTextBox" xml:space="preserve">
+    <value>This is an editable text box</value>
+  </data>
+  <data name="ThemePreviewControl_ThisIsAnOption" xml:space="preserve">
+    <value>This is an option</value>
+  </data>
+  <data name="ThemePreviewControl_ThisIsAnUnvisitedLink" xml:space="preserve">
+    <value>This is an unvisited link</value>
+  </data>
+  <data name="ThemePreviewControl_ThisIsAnotherOption" xml:space="preserve">
+    <value>This is another option</value>
+  </data>
+  <data name="TokenStorageSettingsUi_AuthenticationTokensWillBeStoredAs" xml:space="preserve">
+    <value>Authentication tokens will be stored as readable plaintext in AccountsSettings.json.</value>
+  </data>
+  <data name="TokenStorageSettingsUi_ConfirmTokenConversion" xml:space="preserve">
+    <value>Confirm token conversion</value>
+  </data>
+  <data name="TokenStorageSettingsUi_ConvertExistingTokens" xml:space="preserve">
+    <value>Convert existing tokens?</value>
+  </data>
+  <data name="TokenStorageSettingsUi_ConvertExistingTokensInAccountsSettingsJson" xml:space="preserve">
+    <value>Convert existing tokens in AccountsSettings.json to match the currently selected storage method.</value>
+  </data>
+  <data name="TokenStorageSettingsUi_DecryptAndReSaveExistingEncrypted" xml:space="preserve">
+    <value>Decrypt and re-save existing encrypted authentication tokens as plaintext? This will make those token values readable in the account settings file.</value>
+  </data>
+  <data name="TokenStorageSettingsUi_EncryptAndReSaveExistingPlaintext" xml:space="preserve">
+    <value>Encrypt and re-save existing plaintext authentication tokens so they match the current setting?</value>
+  </data>
+  <data name="TokenStorageSettingsUi_EncryptedTokenStorageRequiresAnOS" xml:space="preserve">
+    <value>Encrypted token storage requires an OS secret store, which is not available. Tokens cannot be stored encrypted.</value>
+  </data>
+  <data name="TokenStorageSettingsUi_EncryptedTokenStorageRequiresAnOS2" xml:space="preserve">
+    <value>Encrypted token storage requires an OS secret store, which is not available: {0}</value>
+    <comment>{0} = unavailableReason</comment>
+  </data>
+  <data name="TokenStorageSettingsUi_EncryptedTokenStorageUnavailable" xml:space="preserve">
+    <value>Encrypted token storage unavailable</value>
+  </data>
+  <data name="TokenStorageSettingsUi_EncryptionKeyExported" xml:space="preserve">
+    <value>Encryption key exported</value>
+  </data>
+  <data name="TokenStorageSettingsUi_ExistingAuthenticationTokensWereUpdatedTo" xml:space="preserve">
+    <value>Existing authentication tokens were updated to match the selected storage method.</value>
+  </data>
+  <data name="TokenStorageSettingsUi_ExportEncryptionKey" xml:space="preserve">
+    <value>Export encryption key...</value>
+  </data>
+  <data name="TokenStorageSettingsUi_ExportEncryptionKey2" xml:space="preserve">
+    <value>Export encryption key</value>
+  </data>
+  <data name="TokenStorageSettingsUi_ExportFailed" xml:space="preserve">
+    <value>Export failed</value>
+  </data>
+  <data name="TokenStorageSettingsUi_ExportTheEncryptionMasterKeyTo" xml:space="preserve">
+    <value>Export the encryption master key to a file for use in Docker or on another machine?&#xD;
+&#xD;
+Anyone with this file can decrypt encrypted tokens in AccountsSettings.json. Treat it like a password.</value>
+  </data>
+  <data name="TokenStorageSettingsUi_ExportTheOSBoundEncryptionMaster" xml:space="preserve">
+    <value>Export the OS-bound encryption master key to a file for Docker or another machine. Treat the file like a password.</value>
+  </data>
+  <data name="TokenStorageSettingsUi_NewAndRefreshedAuthenticationTokensWill" xml:space="preserve">
+    <value>New and refreshed authentication tokens will now be stored encrypted. Would you also like to encrypt and re-save existing plaintext tokens?</value>
+  </data>
+  <data name="TokenStorageSettingsUi_NewAndRefreshedAuthenticationTokensWill2" xml:space="preserve">
+    <value>New and refreshed authentication tokens will now be stored in plaintext. Would you also like to decrypt and re-save existing encrypted tokens? This will make those token values readable in the account settings file.</value>
+  </data>
+  <data name="TokenStorageSettingsUi_StoreAuthenticationTokensEncryptedUncheckingThis" xml:space="preserve">
+    <value>Store authentication tokens encrypted. Unchecking this option stores tokens in plaintext.</value>
+  </data>
+  <data name="TokenStorageSettingsUi_TokenConversionFailed" xml:space="preserve">
+    <value>Token conversion failed</value>
+  </data>
+  <data name="TokenStorageSettingsUi_TokenConversionFailed2" xml:space="preserve">
+    <value>Token conversion failed.</value>
+  </data>
+  <data name="TokenStorageSettingsUi_TokenConversionFailedTheOriginalAccountsSettings" xml:space="preserve">
+    <value>Token conversion failed. The original AccountsSettings.json file was left unchanged.</value>
+  </data>
+  <data name="TokenStorageSettingsUi_TokensUpdated" xml:space="preserve">
+    <value>Tokens updated</value>
+  </data>
+  <data name="TokenStorageSettingsUi_UpdateExistingStoredTokens" xml:space="preserve">
+    <value>Update existing stored tokens</value>
+  </data>
+  <data name="TokenStorageSettingsUi_WroteMasterKeyToForDocker" xml:space="preserve">
+    <value>Wrote master key to:&#xD;
+{0}&#xD;
+&#xD;
+For Docker, copy it next to AccountsSettings.json as libation-master.key, or set LIBATION_MASTER_KEY_FILE.</value>
+    <comment>{0} = filePath</comment>
+  </data>
+  <data name="TrashBinDialog_AudiblePlusBooks" xml:space="preserve">
+    <value>Audible Plus Books</value>
+  </data>
+  <data name="TrashBinDialog_CheckBooksYouWantToPermanently" xml:space="preserve">
+    <value>Check books you want to permanently delete from or restore to Libation</value>
+  </data>
+  <data name="TrashBinDialog_CheckedOf" xml:space="preserve">
+    <value>Checked: {0} of {1}</value>
+    <comment>{0} = checkedCount, {1} = visible.Length</comment>
+  </data>
+  <data name="TrashBinDialog_CouldNotPermanentlyDeleteBooks" xml:space="preserve">
+    <value>Could not permanently delete books.</value>
+  </data>
+  <data name="TrashBinDialog_CouldNotRestoreBooks" xml:space="preserve">
+    <value>Could not restore books.</value>
+  </data>
+  <data name="TrashBinDialog_Everything" xml:space="preserve">
+    <value>Everything</value>
+  </data>
+  <data name="TrashBinDialog_Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="TrashBinDialog_PermanentlyDeleteFromLibation" xml:space="preserve">
+    <value>Permanently Delete
+from Libation</value>
+  </data>
+  <data name="TrashBinDialog_Restore" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="TrashBinDialog_SearchDeletedBooks" xml:space="preserve">
+    <value>Search Deleted Books:</value>
+  </data>
+  <data name="TrashBinDialog_TrashBin" xml:space="preserve">
+    <value>Trash Bin</value>
+  </data>
+  <data name="TrashBinDialog_TrashBinOperationFailed" xml:space="preserve">
+    <value>Trash bin operation failed</value>
+  </data>
+  <data name="TrashBinUi_TheseBooksAreHiddenFromYour" xml:space="preserve">
+    <value>These books are hidden from your library. Open the trash bin to restore them.</value>
+  </data>
+  <data name="TrashBinUi_TrashBin" xml:space="preserve">
+    <value>Trash Bin ({0})</value>
+    <comment>{0} = booksInTrash</comment>
+  </data>
+  <data name="TrashBinUi_TrashBin2" xml:space="preserve">
+    <value>Trash Bin</value>
+  </data>
+  <data name="UpgradeNotificationDialog_DonTRemindMeAboutThis" xml:space="preserve">
+    <value>Don&apos;t remind me
+about this release</value>
+  </data>
+  <data name="UpgradeNotificationDialog_DownloadRelease" xml:space="preserve">
+    <value>Download Release:</value>
+  </data>
+  <data name="UpgradeNotificationDialog_GoToLibationSWebsite" xml:space="preserve">
+    <value>Go to Libation&apos;s website</value>
+  </data>
+  <data name="UpgradeNotificationDialog_LibationVersionIsNowAvailable" xml:space="preserve">
+    <value>Libation version {0} is now available.</value>
+    <comment>{0} = upgradeProperties.LatestRelease.ToVersionString()</comment>
+  </data>
+  <data name="UpgradeNotificationDialog_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="UpgradeNotificationDialog_PreRelease" xml:space="preserve">
+    <value>pre-release</value>
+  </data>
+  <data name="UpgradeNotificationDialog_Release" xml:space="preserve">
+    <value>release</value>
+  </data>
+  <data name="UpgradeNotificationDialog_ReleaseInformation" xml:space="preserve">
+    <value>Release Information</value>
+  </data>
+  <data name="UpgradeNotificationDialog_ThereIsANewAvailableWould" xml:space="preserve">
+    <value>There is a new {0} available. Would you like to update?&#xD;
+&#xD;
+After you close Libation, the upgrade will start automatically.</value>
+  </data>
+  <data name="UpgradeNotificationDialog_UpgradeAvailable" xml:space="preserve">
+    <value>Upgrade Available</value>
+  </data>
+  <data name="UpgradeNotificationDialog_ViewTheSourceCodeOnGitHub" xml:space="preserve">
+    <value>View the source code on GitHub</value>
+  </data>
+  <data name="UpgradeNotificationDialog_Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Upgrader_ANewVersionIsAvailableBut" xml:space="preserve">
+    <value>A new version is available, but Libation cannot install it itself: Smart App Control is On for this PC, and it blocks files Windows does not recognise. Replacing Libation&apos;s files in place is what leaves it unable to start.
+
+Download the release below and install it yourself. If Windows blocks that too, see:
+{0}</value>
+    <comment>{0} = StartupAssemblyBootstrap.TroubleshootApplicationControlUrl</comment>
+  </data>
+  <data name="Upgrader_AnErrorOccurredWhileCheckingFor" xml:space="preserve">
+    <value>An error occurred while checking for app upgrades.</value>
+  </data>
+  <data name="Upgrader_DownloadLinkForNewVersionNot" xml:space="preserve">
+    <value>Download link for new version not found.</value>
+  </data>
+  <data name="Upgrader_FailedToCreateATempDirectory" xml:space="preserve">
+    <value>Failed to create a temp directory for the upgrade download.</value>
+  </data>
+  <data name="Upgrader_FailedToDownloadTheUpgrade" xml:space="preserve">
+    <value>Failed to download the upgrade: {0}</value>
+    <comment>{0} = upgradeProperties.ZipUrl</comment>
+  </data>
+  <data name="Upgrader_LibationCannotInstallThisUpdateWhile" xml:space="preserve">
+    <value>Libation cannot install this update while Smart App Control is On.</value>
+  </data>
+  <data name="Upgrader_TheInAppUpgradeDidNot" xml:space="preserve">
+    <value>The in-app upgrade did not complete successfully. Libation restored your previous install files from backup.{0}{1}{2}</value>
+    <comment>{0} = Environment.NewLine, {1} = Environment.NewLine, {2} = ex.Message</comment>
+  </data>
+  <data name="Upgrader_TheUpgradeInstallerDidNotComplete" xml:space="preserve">
+    <value>The upgrade installer did not complete successfully. You can install the downloaded package manually from your temp folder.</value>
+  </data>
+  <data name="WalkthroughMessages_AddAccounts" xml:space="preserve">
+    <value>Add Accounts</value>
+  </data>
+  <data name="WalkthroughMessages_AddAnAccount" xml:space="preserve">
+    <value>Add an Account</value>
+  </data>
+  <data name="WalkthroughMessages_AddAnAudibleAccount" xml:space="preserve">
+    <value>Add an Audible Account</value>
+  </data>
+  <data name="WalkthroughMessages_AddAnAudibleAccountThenSync" xml:space="preserve">
+    <value>Add an Audible account, then sync your library through the &apos;Import&apos; menu.</value>
+  </data>
+  <data name="WalkthroughMessages_AddYourAudibleAccountSThen" xml:space="preserve">
+    <value>Add your Audible account(s), then save.&#xD;
+&#xD;
+Most accounts use email and a normal region. If yours is a pre-Amazon username login, choose a pre-amazon locale and enter that username.</value>
+  </data>
+  <data name="WalkthroughMessages_ChangeSettings" xml:space="preserve">
+    <value>Change Settings</value>
+  </data>
+  <data name="WalkthroughMessages_ControlHowAudioFilesAreDecrypted" xml:space="preserve">
+    <value>Control how audio files are decrypted, including audio format and metadata handling.&#xD;
+&#xD;
+If you choose to split your audiobook into multiple files by chapter marker, you may edit the chapter file &apos;Naming Template&apos; to control how each chapter file is named.</value>
+  </data>
+  <data name="WalkthroughMessages_EditingQuickFilters" xml:space="preserve">
+    <value>Editing Quick Filters</value>
+  </data>
+  <data name="WalkthroughMessages_FinallyScanYourAudibleToSync" xml:space="preserve">
+    <value>Finally, scan your Audible {0} to sync your {1} with Libation.&#xD;
+&#xD;
+If this is your first time scanning an account, you&apos;ll be prompted to enter your account&apos;s password to log into your Audible account.</value>
+    <comment>{0} = accounts, {1} = library</comment>
+  </data>
+  <data name="WalkthroughMessages_FirstAddYourAudibleAccountS" xml:space="preserve">
+    <value>First, add your Audible account(s).</value>
+  </data>
+  <data name="WalkthroughMessages_ForBestUseWithScreenReaders" xml:space="preserve">
+    <value>For best use with screen readers, uncheck &quot;Use Libation&apos;s built-in web browser to log into Audible?&quot;.</value>
+  </data>
+  <data name="WalkthroughMessages_FromHereYouCanChangeWhere" xml:space="preserve">
+    <value>From here you can change where liberated books are stored and how detailed Libation&apos;s logs are.&#xD;
+&#xD;
+If you experience a problem and need help, you&apos;ll be asked to provide your log file. In certain circumstances we may need you to reproduce the error with a higher level of logging detail.</value>
+  </data>
+  <data name="WalkthroughMessages_FromHereYouCanEditDelete" xml:space="preserve">
+    <value>From here you can edit, delete, and change the order of Quick Filters</value>
+  </data>
+  <data name="WalkthroughMessages_InThisTabYouCanChange" xml:space="preserve">
+    <value>In this tab you can change how your library is scanned and imported into Libation, as well as automatic liberation.</value>
+  </data>
+  <data name="WalkthroughMessages_LibationProvidesABuiltInCheat" xml:space="preserve">
+    <value>Libation provides a built-in cheat sheet for its query language</value>
+  </data>
+  <data name="WalkthroughMessages_NextAdjustLibationSSettings" xml:space="preserve">
+    <value>Next, adjust Libation&apos;s settings</value>
+  </data>
+  <data name="WalkthroughMessages_QueriesThatYouPerformRegularlyCan" xml:space="preserve">
+    <value>Queries that you perform regularly can be added to &apos;Quick Filters&apos;</value>
+  </data>
+  <data name="WalkthroughMessages_QuickFilters" xml:space="preserve">
+    <value>Quick Filters</value>
+  </data>
+  <data name="WalkthroughMessages_Scan" xml:space="preserve">
+    <value>Scan {0}</value>
+    <comment>{0} = accounts</comment>
+  </data>
+  <data name="WalkthroughMessages_SearchCheatSheet" xml:space="preserve">
+    <value>Search Cheat Sheet</value>
+  </data>
+  <data name="WalkthroughMessages_Searching" xml:space="preserve">
+    <value>Searching</value>
+  </data>
+  <data name="WalkthroughMessages_Tab" xml:space="preserve">
+    <value>{0} Tab</value>
+    <comment>{0} = tabHeader</comment>
+  </data>
+  <data name="WalkthroughMessages_TheseSettingsAllowYouToControl" xml:space="preserve">
+    <value>These settings allow you to control how liberated files and folders are named and stored.&#xD;
+You can customize the &apos;Naming Templates&apos; to use any number of the audiobook&apos;s properties to build a customized file and folder naming format. Learn more about the syntax from the wiki at&#xD;
+&#xD;
+{0}</value>
+    <comment>{0} = LibationScaffolding.NamingTemplatesDocUrl</comment>
+  </data>
+  <data name="WalkthroughMessages_TourFinished" xml:space="preserve">
+    <value>Tour Finished</value>
+  </data>
+  <data name="WalkthroughMessages_YouCanFilterTheGridEntries" xml:space="preserve">
+    <value>You can filter the grid entries by searching</value>
+  </data>
+  <data name="WalkthroughMessages_YouReNowReadyToBegin" xml:space="preserve">
+    <value>You&apos;re now ready to begin using Libation.&#xD;
+&#xD;
+One thing worth knowing: Audible keeps a separate library for each marketplace. If you have ever changed your Amazon address to another country to buy a title, it lives in that country&apos;s library and a normal scan will not find it. Settings &gt; Accounts &gt; Marketplaces checks the other marketplaces for you.&#xD;
+&#xD;
+Enjoy!</value>
+  </data>
+  <data name="Walkthrough_NextTab" xml:space="preserve">
+    <value>Next Tab</value>
+  </data>
+  <data name="Walkthrough_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="WebView2LoginErrorMessage_AfterSignInWorksUseImport" xml:space="preserve">
+    <value>After sign-in works, use Import again to scan your library.</value>
+  </data>
+  <data name="WebView2LoginErrorMessage_CheckThatSecuritySoftwareIsNot" xml:space="preserve">
+    <value>• Check that security software is not blocking Libation or the embedded browser.&#xD;
+</value>
+  </data>
+  <data name="WebView2LoginErrorMessage_EnsureYourAccountCanWriteTo" xml:space="preserve">
+    <value>• Ensure your account can write to local app data folders (permissions).&#xD;
+</value>
+  </data>
+  <data name="WebView2LoginErrorMessage_IfYouRunAsAdministratorTry" xml:space="preserve">
+    <value>• If you run as Administrator, try running Libation as a normal user (or the reverse).&#xD;
+&#xD;
+</value>
+  </data>
+  <data name="WebView2LoginErrorMessage_InLibationSettingsTryTurningOff" xml:space="preserve">
+    <value>• In Libation Settings, try turning off the option to use the embedded browser and use external browser sign-in instead.&#xD;
+</value>
+  </data>
+  <data name="WebView2LoginErrorMessage_LibationCouldNotStartTheIn" xml:space="preserve">
+    <value>Libation could not start the in-app sign-in browser. On Linux this uses WebKit2GTK (native WebKit). {0}{1}• Install WebKit2GTK for your distro (e.g. on Arch: webkit2gtk or webkit2gtk-4.1).&#xD;
+{2}{3}{4}{5}{6}</value>
+    <comment>{0} = localIssue, {1} = thingsToTry, {2} = settingsBullet, {3} = securityBullet, {4} = permissionsBullet, {5} = adminBullet, {6} = footer</comment>
+  </data>
+  <data name="WebView2LoginErrorMessage_LibationCouldNotStartTheIn2" xml:space="preserve">
+    <value>Libation could not start the in-app sign-in browser. On Windows this uses Microsoft WebView2. {0}{1}• On Windows: install or repair the Microsoft Edge WebView2 Runtime from https://developer.microsoft.com/microsoft-edge/webview2/&#xD;
+{2}{3}{4}{5}{6}</value>
+    <comment>{0} = localIssue, {1} = thingsToTry, {2} = settingsBullet, {3} = securityBullet, {4} = permissionsBullet, {5} = adminBullet, {6} = footer</comment>
+  </data>
+  <data name="WebView2LoginErrorMessage_SignInBrowserCouldNotStart" xml:space="preserve">
+    <value>Sign-in browser could not start</value>
+  </data>
+  <data name="WebView2LoginErrorMessage_ThingsToTry" xml:space="preserve">
+    <value>Things to try:&#xD;
+</value>
+  </data>
+  <data name="WebView2LoginErrorMessage_ThisIsALocalSignIn" xml:space="preserve">
+    <value>This is a local sign-in or system setup issue — not a failure of the library scan itself.&#xD;
+&#xD;
+</value>
+  </data>
+  <data name="WidevineRecommendationUserMessage_LibationCouldNotGetADownload" xml:space="preserve">
+    <value>Libation could not get a download license for {0} using the standard (ADRM) format.
+
+This title delivers only via Widevine DRM. Libation has automatically enabled Widevine DRM in Settings and marked your account for a fresh sign-in to obtain Widevine credentials.
+
+Please sign into your account when prompted, then liberate this title again.
+
+(All of your account settings and marketplaces are preserved.)</value>
+    <comment>{0} = bookTitleWithSubtitle</comment>
+  </data>
+  <data name="WidevineRecommendationUserMessage_WidevineDRMEnabled" xml:space="preserve">
+    <value>Widevine DRM Enabled</value>
+  </data>
+  <data name="WidevineRecommendationUserMessage_WidevineEnabledReLoginNeeded" xml:space="preserve">
+    <value>Widevine enabled (re-login needed)</value>
+  </data>
+  <data name="WishlistButton_AddToWishlist" xml:space="preserve">
+    <value>Add to&#xD;
+Wishlist</value>
+  </data>
+  <data name="WishlistButton_AlreadyOwned" xml:space="preserve">
+    <value>Already&#xD;
+Owned</value>
+  </data>
+  <data name="WishlistButton_RemoveFromWishlist" xml:space="preserve">
+    <value>Remove&#xD;
+From&#xD;
+Wishlist</value>
+  </data>
+</root>

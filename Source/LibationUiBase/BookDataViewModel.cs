@@ -1,5 +1,6 @@
 ﻿using DataLayer;
 using LibationUiBase.ProcessQueue;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase;
 
@@ -42,5 +43,5 @@ public class BookDataViewModel : ReactiveObject
 	public string? AvailableBitrateString { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
 	public bool IsSignificant { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
 	public ProcessBookStatus ScanStatus { get => field; set => RaiseAndSetIfChanged(ref field, value); }
-	private static string? GetBitrateString(int bitrate) => bitrate > 0 ? $"{bitrate} kbps" : null;
+	private static string? GetBitrateString(int bitrate) => bitrate > 0 ? string.Format(Strings.BookDataViewModel_Kbps, bitrate) : null;
 }

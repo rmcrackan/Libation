@@ -11,6 +11,7 @@ using ReactiveUI;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels;
 
@@ -48,7 +49,7 @@ partial class MainVM
 		QuickFilterMenuItems.Add(new MenuItem
 		{
 
-			Header = "Start Libation with 1st filter _Default",
+			Header = Strings.MainVM_StartLibationWith1stFilterDefault,
 			Command = ReactiveCommand.Create(ToggleFirstFilterIsDefault),
 			Icon = new CheckBox
 			{
@@ -57,7 +58,7 @@ partial class MainVM
 				[!CheckBox.IsCheckedProperty] = new Binding(nameof(FirstFilterIsDefault))
 			}
 		});
-		QuickFilterMenuItems.Add(new MenuItem { Header = "_Edit quick filters...", Command = ReactiveCommand.Create(EditQuickFiltersAsync) });
+		QuickFilterMenuItems.Add(new MenuItem { Header = Strings.MainVM_EditQuickFilters, Command = ReactiveCommand.Create(EditQuickFiltersAsync) });
 		QuickFilterMenuItems.Add(new Separator());
 	}
 
@@ -79,7 +80,7 @@ partial class MainVM
 		if (SearchIndexRecovery.IsIndexUnavailable(failure))
 			await MessageBox.Show(SearchIndexRecovery.ManualRecoveryInstructions, SearchIndexRecovery.Caption, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		else
-			await MessageBox.Show($"Bad filter string: \"{tryFilter}\"\r\n\r\n{failure.Message}", "Bad filter string", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			await MessageBox.Show(string.Format(Strings.MainVM_BadFilterString, tryFilter, failure.Message), Strings.MainVM_BadFilterString2, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
 		// Restore the last filter that worked, then give up on filtering entirely. Recursing into PerformFilter
 		// here never terminated when the search index rather than the query was at fault, because that fails for

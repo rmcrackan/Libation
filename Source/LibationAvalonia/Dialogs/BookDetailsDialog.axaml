@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -10,7 +11,7 @@
 		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
 		x:DataType="dialogs:BookDetailsDialog+BookDetailsDialogViewModel"
 		x:CompileBindings="True"
-        Title="Book Details" Name="BookDetails">
+        Title="{x:Static res:Strings.BookDetailsDialog_BookDetails}" Name="BookDetails">
 
 	<Grid RowDefinitions="*,Auto,Auto,40">
 		<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*,Auto" Margin="10">
@@ -32,7 +33,7 @@
 				VerticalAlignment="Bottom"
 				TextWrapping="Wrap"
 				Command="{Binding OpenInAudibleCommand}"
-				Text="Open in &#xa;Audible&#xa;(Browser)" />
+				Text="{x:Static res:Strings.BookDetailsDialog_OpenInAudibleBrowser}" />
 			
 			<TextBox
 				Grid.Column="1"
@@ -44,7 +45,7 @@
 		</Grid>
 		
 		<controls:GroupBox
-			Label="Edit Tags"
+			Label="{x:Static res:Strings.BookDetailsDialog_EditTags}"
 			Grid.Row="1"
 			Margin="10,0,10,0">
 			
@@ -61,7 +62,7 @@
 		</controls:GroupBox>
 		
 		<controls:GroupBox
-			Label="Liberated status: Whether the book/pdf has been downloaded"
+			Label="{x:Static res:Strings.BookDetailsDialog_LiberatedStatusWhetherTheBookPdf}"
 			Grid.Row="2"
 			Margin="10,10,10,10">
 			
@@ -71,7 +72,7 @@
 					FontSize="12"
 					VerticalAlignment="Top"
 					Margin="10,10,0,0"
-					Text="To download again next time: change to Download Pending&#xA;To not download: change to Downloaded" />
+					Text="{x:Static res:Strings.BookDetailsDialog_ToDownloadAgainNextTimeChange}" />
 
 				<Grid Margin="0,10,0,5" ColumnDefinitions="Auto,Auto,50,Auto,Auto,*">
 					
@@ -79,13 +80,13 @@
 						Grid.Column="0"
 						Margin="0,0,10,0"
 						VerticalAlignment="Center"
-						Text="Book" />
+						Text="{x:Static res:Strings.BookDetailsDialog_Book}" />
 					
 					<TextBlock
 						Grid.Column="3"
 						Margin="0,0,10,0"
 						VerticalAlignment="Center"
-						Text="PDF" />
+						Text="{x:Static res:Strings.BookDetailsDialog_PDF}" />
 
 					<controls:WheelComboBox
 						Grid.Column="1"
@@ -139,7 +140,7 @@
 			
 			<Button
 				Grid.Column="1"
-				Content="Save"
+				Content="{x:Static res:Strings.BookDetailsDialog_Save}"
 				Classes="SaveButton"
 				Click="SaveButton_Clicked" />
 		</Grid>

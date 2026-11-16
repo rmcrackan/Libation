@@ -2,6 +2,7 @@ using LibationSearchEngine;
 using System;
 using System.IO;
 using System.Threading;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase;
 
@@ -11,16 +12,10 @@ namespace LibationUiBase;
 /// </summary>
 public static class SearchIndexRecovery
 {
-	public const string Caption = "Search index needs attention";
+	public static string Caption => Strings.SearchIndexRecovery_SearchIndexNeedsAttention;
 
-	public const string ManualRecoveryInstructions
-		= "Libation could not use its search index, and could not repair it automatically. "
-		+ "Your library itself is fine; only searching and filtering are affected.\n\n"
-		+ "To fix it by hand:\n"
-		+ "1. In Settings, click 'Open log folder'\n"
-		+ "2. Close Libation\n"
-		+ "3. Delete the SearchEngine folder you find there\n"
-		+ "4. Start Libation again";
+	public static string ManualRecoveryInstructions
+		=> Strings.SearchIndexRecovery_LibationCouldNotUseItsSearch;
 
 	/// <summary>
 	/// True when a search failed because the index could not be reached, rather than because the query was

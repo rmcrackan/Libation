@@ -3,6 +3,7 @@ using AudibleUtilities;
 using LibationUiBase.Forms;
 using System;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase;
 
@@ -11,51 +12,50 @@ namespace LibationUiBase;
 /// </summary>
 public static class TokenStorageSettingsUi
 {
-	public const string CheckboxText
-		= "Store authentication tokens encrypted. Unchecking this option stores tokens in plaintext.";
+	public static string CheckboxText
+		=> Strings.TokenStorageSettingsUi_StoreAuthenticationTokensEncryptedUncheckingThis;
 
-	public const string PlaintextWarningText
-		= "Authentication tokens will be stored as readable plaintext in AccountsSettings.json.";
+	public static string PlaintextWarningText
+		=> Strings.TokenStorageSettingsUi_AuthenticationTokensWillBeStoredAs;
 
-	public const string ConvertButtonText = "Update existing stored tokens";
+	public static string ConvertButtonText => Strings.TokenStorageSettingsUi_UpdateExistingStoredTokens;
 
-	public const string ConvertButtonToolTip
-		= "Convert existing tokens in AccountsSettings.json to match the currently selected storage method.";
+	public static string ConvertButtonToolTip
+		=> Strings.TokenStorageSettingsUi_ConvertExistingTokensInAccountsSettingsJson;
 
-	public const string ExportButtonText = "Export encryption key...";
+	public static string ExportButtonText => Strings.TokenStorageSettingsUi_ExportEncryptionKey;
 
-	public const string ExportButtonToolTip
-		= "Export the OS-bound encryption master key to a file for Docker or another machine. Treat the file like a password.";
+	public static string ExportButtonToolTip
+		=> Strings.TokenStorageSettingsUi_ExportTheOSBoundEncryptionMaster;
 
-	public const string ExportConfirmCaption = "Export encryption key";
+	public static string ExportConfirmCaption => Strings.TokenStorageSettingsUi_ExportEncryptionKey2;
 
-	public const string ExportConfirmBody
-		= "Export the encryption master key to a file for use in Docker or on another machine?\r\n\r\n"
-		+ "Anyone with this file can decrypt encrypted tokens in AccountsSettings.json. Treat it like a password.";
+	public static string ExportConfirmBody
+		=> Strings.TokenStorageSettingsUi_ExportTheEncryptionMasterKeyTo;
 
-	public const string ExportSucceededCaption = "Encryption key exported";
-	public const string ExportFailedCaption = "Export failed";
+	public static string ExportSucceededCaption => Strings.TokenStorageSettingsUi_EncryptionKeyExported;
+	public static string ExportFailedCaption => Strings.TokenStorageSettingsUi_ExportFailed;
 
-	public const string SavePromptCaption = "Convert existing tokens?";
-	public const string ConvertConfirmCaption = "Confirm token conversion";
-	public const string ConversionFailedCaption = "Token conversion failed";
-	public const string ConversionSucceededCaption = "Tokens updated";
-	public const string OsStoreUnavailableCaption = "Encrypted token storage unavailable";
+	public static string SavePromptCaption => Strings.TokenStorageSettingsUi_ConvertExistingTokens;
+	public static string ConvertConfirmCaption => Strings.TokenStorageSettingsUi_ConfirmTokenConversion;
+	public static string ConversionFailedCaption => Strings.TokenStorageSettingsUi_TokenConversionFailed;
+	public static string ConversionSucceededCaption => Strings.TokenStorageSettingsUi_TokensUpdated;
+	public static string OsStoreUnavailableCaption => Strings.TokenStorageSettingsUi_EncryptedTokenStorageUnavailable;
 
-	public const string SavePromptEncrypted
-		= "New and refreshed authentication tokens will now be stored encrypted. Would you also like to encrypt and re-save existing plaintext tokens?";
+	public static string SavePromptEncrypted
+		=> Strings.TokenStorageSettingsUi_NewAndRefreshedAuthenticationTokensWill;
 
-	public const string SavePromptPlaintext
-		= "New and refreshed authentication tokens will now be stored in plaintext. Would you also like to decrypt and re-save existing encrypted tokens? This will make those token values readable in the account settings file.";
+	public static string SavePromptPlaintext
+		=> Strings.TokenStorageSettingsUi_NewAndRefreshedAuthenticationTokensWill2;
 
-	public const string StandaloneConfirmEncrypted
-		= "Encrypt and re-save existing plaintext authentication tokens so they match the current setting?";
+	public static string StandaloneConfirmEncrypted
+		=> Strings.TokenStorageSettingsUi_EncryptAndReSaveExistingPlaintext;
 
-	public const string StandaloneConfirmPlaintext
-		= "Decrypt and re-save existing encrypted authentication tokens as plaintext? This will make those token values readable in the account settings file.";
+	public static string StandaloneConfirmPlaintext
+		=> Strings.TokenStorageSettingsUi_DecryptAndReSaveExistingEncrypted;
 
-	public const string ConversionSucceededMessage
-		= "Existing authentication tokens were updated to match the selected storage method.";
+	public static string ConversionSucceededMessage
+		=> Strings.TokenStorageSettingsUi_ExistingAuthenticationTokensWereUpdatedTo;
 
 	public static TokenStorageMethod MethodFromCheckbox(bool storeEncrypted)
 		=> storeEncrypted ? TokenStorageMethod.Encrypted : TokenStorageMethod.Plaintext;
@@ -78,13 +78,13 @@ public static class TokenStorageSettingsUi
 
 	public static string OsStoreUnavailableMessage(string? unavailableReason)
 		=> string.IsNullOrWhiteSpace(unavailableReason)
-			? "Encrypted token storage requires an OS secret store, which is not available. Tokens cannot be stored encrypted."
-			: $"Encrypted token storage requires an OS secret store, which is not available: {unavailableReason}";
+			? Strings.TokenStorageSettingsUi_EncryptedTokenStorageRequiresAnOS
+			: string.Format(Strings.TokenStorageSettingsUi_EncryptedTokenStorageRequiresAnOS2, unavailableReason);
 
 	public static string FormatConversionError(IdentityTokenConversionResult result)
 	{
 		var error = string.IsNullOrWhiteSpace(result.Error)
-			? "Token conversion failed."
+			? Strings.TokenStorageSettingsUi_TokenConversionFailed2
 			: result.Error!;
 
 		if (result.FailedCategories.Count == 0)
@@ -185,7 +185,7 @@ public static class TokenStorageSettingsUi
 			Serilog.Log.Logger.Warning(ex, "Token conversion failed");
 			await MessageBoxBase.Show(
 				owner,
-				"Token conversion failed. The original AccountsSettings.json file was left unchanged.",
+				Strings.TokenStorageSettingsUi_TokenConversionFailedTheOriginalAccountsSettings,
 				ConversionFailedCaption,
 				MessageBoxButtons.OK,
 				MessageBoxIcon.Error);
@@ -256,8 +256,7 @@ public static class TokenStorageSettingsUi
 
 		await MessageBoxBase.Show(
 			owner,
-			$"Wrote master key to:\r\n{filePath}\r\n\r\n"
-			+ "For Docker, copy it next to AccountsSettings.json as libation-master.key, or set LIBATION_MASTER_KEY_FILE.",
+			string.Format(Strings.TokenStorageSettingsUi_WroteMasterKeyToForDocker, filePath),
 			ExportSucceededCaption,
 			MessageBoxButtons.OK,
 			MessageBoxIcon.Information);

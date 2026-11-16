@@ -1,3 +1,5 @@
+using LibationUiBase.Resources;
+
 namespace LibationUiBase;
 
 /// <summary>
@@ -11,8 +13,8 @@ public static class GridEmptyStateUi
 	/// <summary>Headline for a filter that matched nothing in the library.</summary>
 	public static string NoMatchesText(string? searchString)
 		=> string.IsNullOrWhiteSpace(searchString)
-			? "No books match the current filter."
-			: $"No books match \"{searchString.Trim()}\".";
+			? Strings.GridEmptyStateUi_NoBooksMatchTheCurrentFilter
+			: string.Format(Strings.GridEmptyStateUi_NoBooksMatch, searchString.Trim());
 
 	/// <summary>
 	/// Follow-up naming matches hiding in the trash. Only worth saying when the filter matched something in
@@ -20,10 +22,10 @@ public static class GridEmptyStateUi
 	/// </summary>
 	public static string NoMatchesTrashHintText(int matchesInTrash)
 		=> matchesInTrash == 1
-			? "1 matching book is in the trash."
-			: $"{matchesInTrash} matching books are in the trash.";
+			? Strings.GridEmptyStateUi_1MatchingBookIsInThe
+			: string.Format(Strings.GridEmptyStateUi_MatchingBooksAreInTheTrash, matchesInTrash);
 
-	public const string OpenTrashBinButton = "Open Trash Bin";
+	public static string OpenTrashBinButton => Strings.GridEmptyStateUi_OpenTrashBin;
 
 	#endregion
 
@@ -35,13 +37,13 @@ public static class GridEmptyStateUi
 	/// </summary>
 	public static string EmptyLibraryHeadline(bool anyAccounts)
 		=> anyAccounts
-			? "No books in your library yet."
-			: "Libation is empty.";
+			? Strings.GridEmptyStateUi_NoBooksInYourLibraryYet
+			: Strings.GridEmptyStateUi_LibationIsEmpty;
 
 	public static string EmptyLibraryDetail(bool anyAccounts)
 		=> anyAccounts
-			? "Scan your Audible account to bring your books in."
-			: "Add your Audible account, then scan your library to bring your books in.";
+			? Strings.GridEmptyStateUi_ScanYourAudibleAccountToBring
+			: Strings.GridEmptyStateUi_AddYourAudibleAccountThenScan;
 
 	/// <summary>
 	/// Books in the trash while the library itself is empty. Without this the headline above reads as though
@@ -49,17 +51,17 @@ public static class GridEmptyStateUi
 	/// </summary>
 	public static string EmptyLibraryTrashHintText(int booksInTrash)
 		=> booksInTrash == 1
-			? "1 book is in the trash."
-			: $"{booksInTrash} books are in the trash.";
+			? Strings.GridEmptyStateUi_1BookIsInTheTrash
+			: string.Format(Strings.GridEmptyStateUi_BooksAreInTheTrash, booksInTrash);
 
-	public const string AddAccountButton = "Add Account";
-	public const string ScanLibraryButton = "Scan Library";
+	public static string AddAccountButton => Strings.GridEmptyStateUi_AddAccount;
+	public static string ScanLibraryButton => Strings.GridEmptyStateUi_ScanLibrary;
 
 	/// <summary>
 	/// The walkthrough is offered once, on first launch, and never again once that is declined. A permanent
 	/// way back in costs one button and is the only one a new user is likely to find.
 	/// </summary>
-	public const string TakeTheTourButton = "Take a Guided Tour";
+	public static string TakeTheTourButton => Strings.GridEmptyStateUi_TakeAGuidedTour;
 
 	#endregion
 }

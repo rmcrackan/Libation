@@ -6,6 +6,7 @@ using LibationUiBase;
 using ReactiveUI;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels;
 
@@ -14,9 +15,9 @@ partial class MainVM
 	private readonly System.ComponentModel.BackgroundWorker updateCountsBw = new();
 
 	/// <summary> The "Begin Book and PDF Backup" menu item header text </summary>
-	public string BookBackupsToolStripText { get; private set; } = "Begin Book and PDF Backups: 0";
+	public string BookBackupsToolStripText { get; private set; } = Strings.MainVM_BeginBookAndPDFBackups0;
 	/// <summary> The "Begin PDF Only Backup" menu item header text </summary>
-	public string PdfBackupsToolStripText { get; private set; } = "Begin PDF Only Backups: 0";
+	public string PdfBackupsToolStripText { get; private set; } = Strings.MainVM_BeginPDFOnlyBackups0;
 
 	/// <summary> How many books are in the trash, where nothing else on screen would reveal them </summary>
 	public int BooksInTrash
@@ -66,12 +67,12 @@ partial class MainVM
 			BookBackupsToolStripText
 				= LibraryStats?.HasPendingBooks ?? false
 				? "Begin " + menufyText($"Book and PDF Backups: {LibraryStats.PendingBooks} remaining")
-				: "All books have been liberated";
+				: Strings.MainVM_AllBooksHaveBeenLiberated;
 
 			PdfBackupsToolStripText
 				= LibraryStats?.pdfsNotDownloaded > 0
 				? "Begin " + menufyText($"PDF Only Backups: {LibraryStats.pdfsNotDownloaded} remaining")
-				: "All PDFs have been downloaded";
+				: Strings.MainVM_AllPDFsHaveBeenDownloaded;
 
 			this.RaisePropertyChanged(nameof(BookBackupsToolStripText));
 			this.RaisePropertyChanged(nameof(PdfBackupsToolStripText));

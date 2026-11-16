@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -109,7 +110,7 @@
 
 			<Grid ColumnDefinitions="*,Auto">
 				<CheckBox IsChecked="{Binding DownloadClipsBookmarks, Mode=TwoWay}">
-					<TextBlock Text="Download Clips, Notes and Bookmarks as" />
+					<TextBlock Text="{x:Static res:Strings.Audio_DownloadClipsNotesAndBookmarksAs}" />
 				</CheckBox>
 
 				<controls:WheelComboBox
@@ -146,7 +147,7 @@
 
 			<controls:GroupBox
 				Grid.Row="1"
-				Label="Audiobook Fix-ups"
+				Label="{x:Static res:Strings.Audio_AudiobookFixUps}"
 				IsEnabled="{Binding AllowLibationFixup}">
 
 				<StackPanel Orientation="Vertical">
@@ -206,7 +207,7 @@
 				
 				<StackPanel VerticalAlignment="Center">
 					<TextBlock
-						Text="Download my books in the original audio format (Lossless)" />
+						Text="{x:Static res:Strings.Audio_DownloadMyBooksInTheOriginal}" />
 					<CheckBox
 						IsEnabled="{Binding !DecryptToLossy}"
 						IsChecked="{Binding MoveMoovToBeginning, Mode=TwoWay}"
@@ -221,13 +222,13 @@
 				ToolTip.Tip="{Binding DecryptToLossyTip}">
 				<TextBlock
 					TextWrapping="Wrap"
-					Text="Download my books as .MP3 files (transcode if necessary)" />
+					Text="{x:Static res:Strings.Audio_DownloadMyBooksAsMP3Files}" />
 			</RadioButton>
 
 			<controls:GroupBox
 				Grid.Column="1"
 				IsEnabled="{Binding DecryptToLossy}"
-				Label="Mp3 Encoding Options">
+				Label="{x:Static res:Strings.Audio_Mp3EncodingOptions}">
 
 				<Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
 
@@ -237,18 +238,18 @@
 
 						<controls:GroupBox
 							Grid.Column="0"
-							Label="Target">
+							Label="{x:Static res:Strings.Audio_Target}">
 
 							<Grid ColumnDefinitions="Auto,Auto">
 								<RadioButton
 									Margin="5"
-									Content="Bitrate"
+									Content="{x:Static res:Strings.Audio_Bitrate}"
 									IsChecked="{Binding LameTargetBitrate, Mode=TwoWay}"/>
 
 								<RadioButton
 									Grid.Column="1"
 									Margin="5"
-									Content="Quality"
+									Content="{x:Static res:Strings.Audio_Quality}"
 									IsChecked="{Binding !LameTargetBitrate, Mode=TwoWay}"/>
 							</Grid>
 						</controls:GroupBox>
@@ -261,21 +262,21 @@
 
 							<TextBlock
 								TextWrapping="Wrap"
-								Text="Downsample to mono? (Recommended)" />
+								Text="{x:Static res:Strings.Audio_DownsampleToMonoRecommended}" />
 
 						</CheckBox>
 					</Grid>
 
 					<Grid Grid.Row="1" Margin="0,5" RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
 
-						<TextBlock Margin="0,0,0,5" Text="Max audio sample rate:" />
+						<TextBlock Margin="0,0,0,5" Text="{x:Static res:Strings.Audio_MaxAudioSampleRate}" />
 						<controls:WheelComboBox
 							Grid.Row="1"
 							HorizontalAlignment="Stretch"
 							ItemsSource="{Binding SampleRates}"
 							SelectedItem="{Binding SelectedSampleRate, Mode=TwoWay}"/>
 
-						<TextBlock Margin="0,0,0,5" Grid.Column="2" Text="Encoder Quality:" />
+						<TextBlock Margin="0,0,0,5" Grid.Column="2" Text="{x:Static res:Strings.Audio_EncoderQuality}" />
 
 						<controls:WheelComboBox
 							Grid.Column="2"
@@ -288,7 +289,7 @@
 					<controls:GroupBox
 						Grid.Row="2"
 						Margin="0,5"
-						Label="Bitrate"
+						Label="{x:Static res:Strings.Audio_Bitrate}"
 						IsEnabled="{Binding LameTargetBitrate}" >
 
 						<StackPanel>
@@ -321,7 +322,7 @@
 
 								<TextBlock
 									Grid.Column="2"
-									Text=" Kbps" />
+									Text="{x:Static res:Strings.Audio_Kbps}" />
 
 							</Grid>
 
@@ -333,7 +334,7 @@
 
 									<TextBlock
 										TextWrapping="Wrap"
-										Text="Restrict Encoder to Constant Bitrate?" />
+										Text="{x:Static res:Strings.Audio_RestrictEncoderToConstantBitrate}" />
 
 								</CheckBox>
 
@@ -344,7 +345,7 @@
 
 									<TextBlock
 										TextWrapping="Wrap"
-										Text="Match Source Bitrate?" />
+										Text="{x:Static res:Strings.Audio_MatchSourceBitrate}" />
 
 								</CheckBox>
 							</Grid>
@@ -354,7 +355,7 @@
 					<controls:GroupBox
 						Grid.Row="3"
 						Margin="0,5"
-						Label="Quality"
+						Label="{x:Static res:Strings.Audio_Quality}"
 						IsEnabled="{Binding !LameTargetBitrate}">
 
 						<Grid
@@ -393,13 +394,13 @@
 							<TextBlock
 								Grid.Column="0"
 								Grid.Row="1"
-								Text="Higher" />
+								Text="{x:Static res:Strings.Audio_Higher}" />
 
 							<TextBlock
 								Grid.Column="1"
 								Grid.Row="1"
 								HorizontalAlignment="Right"
-								Text="Lower" />
+								Text="{x:Static res:Strings.Audio_Lower}" />
 
 						</Grid>
 					</controls:GroupBox>
@@ -408,7 +409,7 @@
 						Grid.Row="4"
 						Margin="0,5"
 						VerticalAlignment="Bottom"
-						Text="Using L.A.M.E encoding engine"
+						Text="{x:Static res:Strings.Audio_UsingLAMEEncoding}"
 						FontStyle="Oblique" />
 				</Grid>
 			</controls:GroupBox>
@@ -433,7 +434,7 @@
 
 				<Button
 					Grid.Column="1"
-					Content="Edit"
+					Content="{x:Static res:Strings.Audio_Edit}"
 					Classes="SaveButton"
 					Margin="10,0,0,0"
 					VerticalAlignment="Stretch"

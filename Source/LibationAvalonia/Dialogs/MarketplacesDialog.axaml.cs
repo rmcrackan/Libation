@@ -6,6 +6,7 @@ using ReactiveUI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -91,11 +92,11 @@ public partial class MarketplacesDialog : DialogWindow
 			Marketplaces.Add(new ListItem(
 				locale,
 				isRegistered
-					? $"{locale.Name} - this account's own marketplace"
+					? string.Format(Strings.MarketplacesDialog_ThisAccountSOwnMarketplace, locale.Name)
 					: locale.Name,
 				isChecked: isRegistered || selected.Contains(locale.Name),
 				canCheck: !isRegistered,
-				toolTip: isRegistered ? "Always scanned. This is where the account is registered." : null));
+				toolTip: isRegistered ? Strings.MarketplacesDialog_AlwaysScannedThisIsWhereThe : null));
 		}
 
 		StatusTextBlock.Text = MarketplacesUi.ButtonToolTip;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase;
 
@@ -42,10 +43,10 @@ public static class ExceptionDisplay
 				{
 					sb.AppendLine();
 					sb.Append(omitted);
-					sb.Append(" inner exception");
+					sb.Append(Strings.ExceptionDisplay_InnerException);
 					if (omitted != 1)
 						sb.Append('s');
-					sb.AppendLine(" omitted.");
+					sb.AppendLine(Strings.ExceptionDisplay_Omitted);
 				}
 
 				var startTail = Math.Max(FirstInnerCount, n - TailInnerCount);
@@ -62,7 +63,7 @@ public static class ExceptionDisplay
 	private static void AppendInner(StringBuilder sb, Exception ex)
 	{
 		sb.AppendLine();
-		sb.Append("Inner exception: ");
+		sb.Append(Strings.ExceptionDisplay_InnerException2);
 		sb.AppendLine(ex.Message);
 		if (ex.StackTrace is not null)
 			sb.AppendLine(ex.StackTrace);

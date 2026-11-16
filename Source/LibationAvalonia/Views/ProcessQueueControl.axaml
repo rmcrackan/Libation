@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <UserControl
 	xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:views="clr-namespace:LibationAvalonia.Views"
@@ -68,7 +69,7 @@
 						</Grid.Styles>
 						<Grid Grid.Row="0" Margin="0,0,0,4" VerticalAlignment="Center"
 						      ColumnDefinitions="Auto,Auto,*,Auto,Auto">
-							<TextBlock Grid.Column="0" Classes="settingLabel" Text="At once" />
+							<TextBlock Grid.Column="0" Classes="settingLabel" Text="{x:Static res:Strings.ProcessQueueControl_AtOnce}" />
 							<NumericUpDown
 								Grid.Column="1"
 								Classes="SmallNumericUpDown"
@@ -76,7 +77,7 @@
 								FontSize="12"
 								HorizontalContentAlignment="Center"
 								VerticalContentAlignment="Center"
-								ToolTip.Tip="How many books to download and decrypt at the same time. 1 downloads one at a time."
+								ToolTip.Tip="{x:Static res:Strings.ProcessQueueControl_HowManyBooksToDownloadAnd}"
 								Value="{Binding MaxConcurrentDownloads, Mode=TwoWay}"
 								Minimum="{Binding MinConcurrentDownloads}"
 								Maximum="{Binding MaxAllowedConcurrentDownloads}"
@@ -94,10 +95,10 @@
 								Margin="6,0,6,0"
 								Opacity="0.7"
 								TextTrimming="CharacterEllipsis"
-								ToolTip.Tip="Fewer books download at once than the number chosen, because this machine has fewer processors to decrypt them."
+								ToolTip.Tip="{x:Static res:Strings.ProcessQueueControl_FewerBooksDownloadAtOnceThan}"
 								IsVisible="{Binding ConcurrencyHint, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
 								Text="{Binding ConcurrencyHint}" />
-							<TextBlock Grid.Column="3" Classes="settingLabel" Text="DL Limit" />
+							<TextBlock Grid.Column="3" Classes="settingLabel" Text="{x:Static res:Strings.ProcessQueueControl_DLLimit}" />
 							<NumericUpDown
 								Grid.Column="4"
 								Classes="SmallNumericUpDown"
@@ -120,8 +121,8 @@
 								Margin="10,0,10,0"
 								VerticalAlignment="Center"
 								IsChecked="{Binding AutoScrollQueue, Mode=TwoWay}"
-								ToolTip.Tip="Keep active downloads scrolled into view."
-								Content="Auto-scroll" />
+								ToolTip.Tip="{x:Static res:Strings.ProcessQueueControl_KeepActiveDownloadsScrolledIntoView}"
+								Content="{x:Static res:Strings.ProcessQueueControl_AutoScroll}" />
 							<Button Grid.Column="3" FontSize="12" VerticalAlignment="Stretch" Click="ClearFinishedBtn_Click">Clear Finished</Button>
 						</Grid>
 					</Grid>
@@ -136,8 +137,8 @@
 					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemRegionColor}">
 						<DataGrid AutoGenerateColumns="False" ItemsSource="{Binding LogEntries}">
 							<DataGrid.Columns>
-								<DataGridTextColumn SortMemberPath="LogDate" Header="Timestamp" CanUserSort="True" Binding="{Binding LogDateString}" Width="90"/>
-								<DataGridTemplateColumn SortMemberPath="LogMessage"  Width="*" Header="Message" CanUserSort="True">
+								<DataGridTextColumn SortMemberPath="LogDate" Header="{x:Static res:Strings.ProcessQueueControl_Timestamp}" CanUserSort="True" Binding="{Binding LogDateString}" Width="90"/>
+								<DataGridTemplateColumn SortMemberPath="LogMessage"  Width="*" Header="{x:Static res:Strings.ProcessQueueControl_Message}" CanUserSort="True">
 									<DataGridTemplateColumn.CellTemplate>
 										<DataTemplate>
 											<Border BorderThickness="3">

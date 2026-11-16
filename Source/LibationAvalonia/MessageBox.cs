@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia;
 
@@ -41,17 +42,7 @@ public class MessageBox
 	{
 		// when turning on debug (and especially Verbose) to share logs, some privacy settings may not be obscured
 		if (Serilog.Log.Logger.IsVerboseEnabled())
-			await Show("""
-			Warning: verbose logging is enabled.
-
-			This should be used for debugging only. It creates many
-			more logs and debug files, neither of which are as
-			strictly anonymous.
-
-			When you are finished debugging, it's highly recommended
-			to set your debug MinimumLevel to Information and restart
-			Libation.
-			""", "Verbose logging enabled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			await Show(Strings.MessageBox_WarningVerboseLoggingIsEnabledThis, Strings.MessageBox_VerboseLoggingEnabled, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 	}
 
 	/// <summary>
@@ -127,7 +118,7 @@ public class MessageBox
 			dialog.Height = Math.Min(620, screen is null ? 620 : screen.WorkingArea.Height / screen.Scaling * 0.9);
 			dialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 			var panel = new DockPanel { Margin = new Thickness(16) };
-			var ok = new Button { Content = "OK", HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, Margin = new Thickness(0, 12, 0, 0) };
+			var ok = new Button { Content = Strings.MessageBox_OK, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, Margin = new Thickness(0, 12, 0, 0) };
 			ok.Click += (_, _) => dialog.Close(DialogResult.OK);
 			DockPanel.SetDock(ok, Dock.Bottom);
 			panel.Children.Add(ok);

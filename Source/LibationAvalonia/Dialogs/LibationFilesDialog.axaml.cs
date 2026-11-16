@@ -3,6 +3,7 @@ using LibationUiBase;
 using LibationUiBase.Forms;
 using System.Collections.Generic;
 using System.IO;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -50,7 +51,7 @@ public partial class LibationFilesDialog : DialogWindow, ILibationInstallLocatio
 			}
 			catch
 			{
-				await MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + SelectedDirectory, "Folder does not exist", MessageBoxButtons.OK, MessageBoxIcon.Error, saveAndRestorePosition: false);
+				await MessageBox.Show(string.Format(Strings.LibationFilesDialog_NotSavingChangeToLibationFiles, SelectedDirectory), Strings.LibationFilesDialog_FolderDoesNotExist, MessageBoxButtons.OK, MessageBoxIcon.Error, saveAndRestorePosition: false);
 				return;
 			}
 		}

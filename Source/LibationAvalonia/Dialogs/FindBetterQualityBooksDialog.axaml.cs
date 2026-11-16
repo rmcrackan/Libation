@@ -11,6 +11,7 @@ using LibationUiBase.ProcessQueue;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -114,7 +115,7 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 			catch (Exception ex)
 			{
 				Serilog.Log.Error(ex, "Failed to scan for better quality books");
-				await MessageBox.Show(this, "An error occurred while scanning for better quality books. Please see the logs for more information.", "Error Scanning Books", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				await MessageBox.Show(this, Strings.FindBetterQualityBooksDialog_AnErrorOccurredWhileScanningFor, Strings.FindBetterQualityBooksDialog_ErrorScanningBooks, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 			finally
 			{
@@ -135,13 +136,13 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 			var result = await VM.MarkBooksAsync();
 			if (result.GetSummaryMessage() is string message)
 			{
-				await MessageBox.Show(this, message, "Books Marked for Download", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				await MessageBox.Show(this, message, Strings.FindBetterQualityBooksDialog_BooksMarkedForDownload, MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 		}
 		catch (Exception ex)
 		{
 			Serilog.Log.Error(ex, "Failed to mark books as Download Pending");
-			await MessageBox.Show(this, "An error occurred while marking books as Download Pending. Please see the logs for more information.", "Error Marking Books", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			await MessageBox.Show(this, Strings.FindBetterQualityBooksDialog_AnErrorOccurredWhileMarkingBooks, Strings.FindBetterQualityBooksDialog_ErrorMarkingBooks, MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
 		finally
 		{

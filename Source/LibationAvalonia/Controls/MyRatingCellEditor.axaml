@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -13,9 +14,9 @@
 				</Style>
 			</Grid.Styles>
 
-			<TextBlock Grid.Column="0" Grid.Row="0" Name="tblockOverall" Text="Overall:" />
-			<TextBlock Grid.Column="0" Grid.Row="1" Name="tblockPerform" Text="Perform: " />
-			<TextBlock Grid.Column="0" Grid.Row="2" Name="tblockStory" Text="Story:" />
+			<TextBlock Grid.Column="0" Grid.Row="0" Name="tblockOverall" Text="{x:Static res:Strings.MyRatingCellEditor_Overall}" />
+			<TextBlock Grid.Column="0" Grid.Row="1" Name="tblockPerform" Text="{x:Static res:Strings.MyRatingCellEditor_Perform}" />
+			<TextBlock Grid.Column="0" Grid.Row="2" Name="tblockStory" Text="{x:Static res:Strings.MyRatingCellEditor_Story}" />
 
 			<Panel Background="Transparent" PointerExited="Panel_PointerExited" Grid.Column="1" Grid.Row="0">
 				<StackPanel Name="panelOverall" Orientation="Horizontal">

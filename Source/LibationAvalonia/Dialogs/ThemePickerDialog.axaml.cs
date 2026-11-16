@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -52,11 +53,11 @@ public partial class ThemePickerDialog : DialogWindow
 		{
 			var openFileDialogOptions = new FilePickerOpenOptions
 			{
-				Title = $"Select the ChardonnayTheme.json file",
+				Title = Strings.ThemePickerDialog_SelectTheChardonnayThemeJsonFile,
 				AllowMultiple = false,
 				FileTypeFilter =
 				[
-					new("JSON files (*.json)")
+					new(Strings.ThemePickerDialog_JSONFilesJson)
 					{
 						Patterns = ["*.json"],
 						AppleUniformTypeIdentifiers  = ["public.json"]
@@ -74,11 +75,11 @@ public partial class ThemePickerDialog : DialogWindow
 				ResetTheme(theme.Target);
 			}
 
-			await MessageBox.Show(this, "Theme imported and applied", "Theme Imported");
+			await MessageBox.Show(this, Strings.ThemePickerDialog_ThemeImportedAndApplied, Strings.ThemePickerDialog_ThemeImported);
 		}
 		catch (Exception ex)
 		{
-			await MessageBox.ShowAdminAlert(this, "Error attempting to import your chardonnay theme.", "Error Importing", ex);
+			await MessageBox.ShowAdminAlert(this, Strings.ThemePickerDialog_ErrorAttemptingToImportYourChardonnay, Strings.ThemePickerDialog_ErrorImporting, ex);
 		}
 	}
 
@@ -88,18 +89,18 @@ public partial class ThemePickerDialog : DialogWindow
 		{
 			var options = new FilePickerSaveOptions
 			{
-				Title = "Where to export Library",
+				Title = Strings.ThemePickerDialog_WhereToExportLibrary,
 				SuggestedFileName = $"ChardonnayTheme",
 				DefaultExtension = "json",
 				ShowOverwritePrompt = true,
 				FileTypeChoices =
 				[
-					new("JSON files (*.json)")
+					new(Strings.ThemePickerDialog_JSONFilesJson)
 					{
 						Patterns = ["*.json"],
 						AppleUniformTypeIdentifiers = ["public.json"]
 					},
-					new("All files (*.*)") { Patterns = ["*"] }
+					new(Strings.ThemePickerDialog_AllFiles) { Patterns = ["*"] }
 				]
 			};
 
@@ -110,11 +111,11 @@ public partial class ThemePickerDialog : DialogWindow
 			using (var theme = new ChardonnayThemePersister(WorkingTheme, selectedFile))
 				theme.Target.Save();
 
-			await MessageBox.Show(this, "Theme exported to:\r\n" + selectedFile, "Theme Exported");
+			await MessageBox.Show(this, string.Format(Strings.ThemePickerDialog_ThemeExportedTo, selectedFile), Strings.ThemePickerDialog_ThemeExported);
 		}
 		catch (Exception ex)
 		{
-			await MessageBox.ShowAdminAlert(this, "Error attempting to export your chardonnay theme.", "Error Exporting", ex);
+			await MessageBox.ShowAdminAlert(this, Strings.ThemePickerDialog_ErrorAttemptingToExportYourChardonnay, Strings.ThemePickerDialog_ErrorExporting, ex);
 		}
 	}
 
@@ -141,7 +142,7 @@ public partial class ThemePickerDialog : DialogWindow
 		{
 			if (themePersister is null)
 			{
-				await MessageBox.Show(this, "Failed to save the theme.", "Error saving theme", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				await MessageBox.Show(this, Strings.ThemePickerDialog_FailedToSaveTheTheme, Strings.ThemePickerDialog_ErrorSavingTheme, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 			else
 			{

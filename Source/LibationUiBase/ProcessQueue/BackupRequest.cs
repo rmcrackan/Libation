@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase.ProcessQueue;
 
@@ -14,15 +15,15 @@ namespace LibationUiBase.ProcessQueue;
 /// </summary>
 internal sealed class BackupRequest
 {
-	public const string NothingQueuedCaption = "Download not queued";
+	public static string NothingQueuedCaption => Strings.BackupRequest_DownloadNotQueued;
 
 	/// <summary>Why a title cannot be queued. Reported in declaration order.</summary>
 	internal sealed record SkipReason(string Label, string Advice = "")
 	{
-		public static readonly SkipReason AlreadyDownloaded = new("Already downloaded");
-		public static readonly SkipReason PreviousError = new("Previously failed to download", "mark it 'Download Pending' to try again");
+		public static readonly SkipReason AlreadyDownloaded = new(Strings.BackupRequest_AlreadyDownloaded);
+		public static readonly SkipReason PreviousError = new(Strings.BackupRequest_PreviouslyFailedToDownload, Strings.BackupRequest_MarkItDownloadPendingToTry);
 		public static readonly SkipReason AbsentFromLastScan = new(AbsentFromLastScanUserMessage.Label, AbsentFromLastScanUserMessage.Advice);
-		public static readonly SkipReason WaitingToRetry = new("Titles waiting to retry after a recent failure", "download a title on its own to try it now");
+		public static readonly SkipReason WaitingToRetry = new(Strings.BackupRequest_TitlesWaitingToRetryAfterA, Strings.BackupRequest_DownloadATitleOnItsOwn);
 
 		public static readonly SkipReason[] All = [AlreadyDownloaded, PreviousError, AbsentFromLastScan, WaitingToRetry];
 	}
@@ -91,18 +92,14 @@ internal sealed class BackupRequest
 	/// <summary>A compact breakdown for the log, eg: "already downloaded: 3, absent from your last library scan: 1".</summary>
 	public string BuildSkippedLogSummary()
 		=> SkippedCount == 0
-		? "none"
+		? Strings.BackupRequest_None
 		: string.Join(", ", Breakdown().Select(b => $"{b.Reason.Label.ToLowerInvariant()}: {b.Count}"));
 
 	/// <summary>The dialog body shown when a backup request produced nothing to queue.</summary>
 	public string BuildNothingQueuedBody()
 	{
 		if (RequestedCount == 0)
-			return """
-				Libation found no titles that need downloading.
-
-				Titles that are already downloaded, and titles that were absent from your last library scan, are not queued.
-				""";
+			return Strings.BackupRequest_LibationFoundNoTitlesThatNeed;
 
 		var sb = new StringBuilder();
 		sb.AppendLine($"None of the {"title".PluralizeWithCount(RequestedCount)} could be queued for download.");
@@ -128,7 +125,7 @@ internal sealed class BackupRequest
 	public string BuildDeferredDetail(DateTimeOffset now)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine("Why Libation is waiting:");
+		sb.AppendLine(Strings.BackupRequest_WhyLibationIsWaiting);
 
 		foreach (var group in Deferred.GroupBy(d => d.Kind).OrderBy(g => g.Key))
 		{

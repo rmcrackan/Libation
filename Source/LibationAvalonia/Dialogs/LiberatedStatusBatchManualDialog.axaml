@@ -1,11 +1,12 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="100"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
         x:Class="LibationAvalonia.Dialogs.LiberatedStatusBatchManualDialog"
-        Title="Liberated status: Whether the book has been downloaded"
+        Title="{x:Static res:Strings.LiberatedStatusBatchManualDialog_LiberatedStatusWhetherTheBookHas}"
 		MinWidth="400" MinHeight="100"
 		MaxWidth="400" MaxHeight="100"
 		Width="400" Height="100"
@@ -18,7 +19,7 @@
 		<TextBlock
 			Grid.ColumnSpan="2"
 			Margin="10"
-			Text="To download again next time: change to Download Pending&#xa;To not download: change to Downloaded"/>
+			Text="{x:Static res:Strings.LiberatedStatusBatchManualDialog_ToDownloadAgainNextTimeChange}"/>
 		
 		<StackPanel
 			Margin="10,0"
@@ -29,7 +30,7 @@
 				Grid.Column="0"
 				Margin="0,0,10,0"
 				VerticalAlignment="Center"
-				Text="Book" />
+				Text="{x:Static res:Strings.LiberatedStatusBatchManualDialog_Book}" />
 
 			<controls:WheelComboBox
 				Width="130"
@@ -58,7 +59,7 @@
 			Classes="SaveButton"
 			VerticalAlignment="Stretch"
 			HorizontalAlignment="Right"
-			Content="Save"
+			Content="{x:Static res:Strings.LiberatedStatusBatchManualDialog_Save}"
 			Name="SaveButton"
 			Click="SaveButton_Clicked" />
 	</Grid>

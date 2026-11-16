@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -12,7 +13,7 @@
 		<controls:GroupBox
 			Grid.Row="0"
 			Margin="5"
-			Label="Books Location">
+			Label="{x:Static res:Strings.Important_BooksLocation}">
 
 			<StackPanel>
 				<TextBlock
@@ -122,7 +123,7 @@
 		<controls:GroupBox
 			Grid.Row="2"
 			Margin="5"
-			Label="Authentication tokens">
+			Label="{x:Static res:Strings.Important_AuthenticationTokens}">
 			<StackPanel>
 				<CheckBox
 					IsEnabled="{Binding CanEditEncryptTokens}"
@@ -169,7 +170,7 @@
 			<TextBlock
 				Margin="0,0,10,0"
 				VerticalAlignment="Center"
-				Text="Logging level" />
+				Text="{x:Static res:Strings.Important_LoggingLevel}" />
 
 			<controls:WheelComboBox
 				Width="120"
@@ -182,7 +183,7 @@
 				Margin="50,0,0,0"
 				Padding="20,0"
 				VerticalAlignment="Stretch"
-				Content="Open Log Folder"
+				Content="{x:Static res:Strings.Important_OpenLogFolder}"
 				Command="{Binding OpenLogFolderButton}" />
 
 		</StackPanel>
@@ -190,7 +191,7 @@
 		<controls:GroupBox
 			Grid.Row="4"
 			Margin="5"
-			Label="Display Settings">
+			Label="{x:Static res:Strings.Important_DisplaySettings}">
 			<Grid
 				RowDefinitions="Auto,Auto"
 				ColumnDefinitions="Auto,Auto,*">
@@ -237,7 +238,7 @@
 					Margin="0,5"
 					Padding="20,0"
 					VerticalAlignment="Stretch"
-					Content="Apply Display Settings"
+					Content="{x:Static res:Strings.Important_ApplyDisplaySettings}"
 					Command="{Binding ApplyDisplaySettings}"/>
 			</Grid>
 		</controls:GroupBox>
@@ -252,7 +253,7 @@
 				FontSize="16"
 				Margin="0,0,15,0"
 				VerticalAlignment="Center"
-				Text="Theme:"/>
+				Text="{x:Static res:Strings.Important_Theme}"/>
 
 			<controls:WheelComboBox
 				Name="ThemeComboBox"
@@ -266,7 +267,7 @@
 				HorizontalAlignment="Right"
 				Padding="20,0"
 				VerticalAlignment="Stretch"
-				Content="Edit Theme Colors"
+				Content="{x:Static res:Strings.Important_EditThemeColors}"
 				Click="EditThemeColors_Click"/>
 		</Grid>
 	</Grid>

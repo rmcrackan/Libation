@@ -2,6 +2,7 @@
 using LibationFileManager;
 using NuGet.Versioning;
 using System;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase.GridView;
 
@@ -12,7 +13,7 @@ public class LastDownloadStatus : IComparable
 	public string? LastDownloadedFileVersion { get; }
 	public NuGetVersion? LastDownloadedVersion { get; }
 	public DateTime? LastDownloaded { get; }
-	public string ToolTipText => IsValid ? $"Double click to open v{LastDownloadedVersion!.ToVersionString()} release notes" : "";
+	public string ToolTipText => IsValid ? string.Format(Strings.LastDownloadStatus_DoubleClickToOpenVRelease, LastDownloadedVersion!.ToVersionString()) : "";
 
 	public LastDownloadStatus() { }
 	public LastDownloadStatus(UserDefinedItem udi)
@@ -30,16 +31,12 @@ public class LastDownloadStatus : IComparable
 	}
 
 	public override string ToString()
-		=> IsValid ? $"""
-			{dateString()} {versionString()}
-			{LastDownloadedFormat}
-			Libation v{LastDownloadedVersion.ToVersionString()}
-			""" : "";
+		=> IsValid ? string.Format(Strings.LastDownloadStatus_LibationV, dateString(), versionString(), LastDownloadedFormat, LastDownloadedVersion.ToVersionString()) : "";
 
-	private string versionString() => LastDownloadedFileVersion is string ver ? $"(File v.{ver})" : "";
+	private string versionString() => LastDownloadedFileVersion is string ver ? string.Format(Strings.LastDownloadStatus_FileV, ver) : "";
 
 	//Call ToShortDateString to use current culture's date format.
-	private string dateString() => LastDownloaded.HasValue ? $"{LastDownloaded.Value.ToShortDateString()} {LastDownloaded.Value:HH:mm}" : string.Empty;
+	private string dateString() => LastDownloaded.HasValue ? string.Format(Strings.LastDownloadStatus_Text, LastDownloaded.Value.ToShortDateString(), LastDownloaded.Value) : string.Empty;
 
 	public int CompareTo(object? obj)
 	{

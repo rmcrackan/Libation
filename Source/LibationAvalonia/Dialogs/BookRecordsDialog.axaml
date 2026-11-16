@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -7,7 +8,7 @@
         x:Class="LibationAvalonia.Dialogs.BookRecordsDialog"
 		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
 		x:DataType="dialogs:BookRecordsDialog"
-        Title="BookRecordsDialog">
+        Title="{x:Static res:Strings.BookRecordsDialog_BookRecordsDialog}">
 
 	<Grid RowDefinitions="*,Auto">
 		<DataGrid
@@ -35,49 +36,49 @@
 					IsReadOnly="False"
 					x:DataType="dialogs:BookRecordsDialog+BookRecordEntry"
 					Binding="{Binding IsChecked, Mode=TwoWay}"
-					Header="Checked"/>
+					Header="{x:Static res:Strings.BookRecordsDialog_Checked}"/>
 				<DataGridTextColumn
 					Width="Auto"
 					IsReadOnly="True"
 					x:DataType="dialogs:BookRecordsDialog+BookRecordEntry"
 					Binding="{Binding Type}"
-					Header="Type"/>
+					Header="{x:Static res:Strings.BookRecordsDialog_Type}"/>
 				<DataGridTextColumn
 					Width="Auto"
 					IsReadOnly="True"
 					x:DataType="dialogs:BookRecordsDialog+BookRecordEntry"
 					Binding="{Binding Created}"
-					Header="Created"/>
+					Header="{x:Static res:Strings.BookRecordsDialog_Created}"/>
 				<DataGridTextColumn
 					Width="Auto"
 					IsReadOnly="True"
 					x:DataType="dialogs:BookRecordsDialog+BookRecordEntry"
 					Binding="{Binding Start}"
-					Header="Start"/>
+					Header="{x:Static res:Strings.BookRecordsDialog_Start}"/>
 				<DataGridTextColumn
 					Width="Auto"
 					IsReadOnly="True"
 					x:DataType="dialogs:BookRecordsDialog+BookRecordEntry"
 					Binding="{Binding Modified}"
-					Header="Modified"/>
+					Header="{x:Static res:Strings.BookRecordsDialog_Modified}"/>
 				<DataGridTextColumn
 					Width="Auto"
 					IsReadOnly="True"
 					x:DataType="dialogs:BookRecordsDialog+BookRecordEntry"
 					Binding="{Binding End}"
-					Header="End"/>
+					Header="{x:Static res:Strings.BookRecordsDialog_End}"/>
 				<DataGridTextColumn
 					Width="Auto"
 					IsReadOnly="True"
 					x:DataType="dialogs:BookRecordsDialog+BookRecordEntry"
 					Binding="{Binding Note}"
-					Header="Note"/>
+					Header="{x:Static res:Strings.BookRecordsDialog_Note}"/>
 				<DataGridTextColumn
 					Width="Auto"
 					IsReadOnly="True"
 					x:DataType="dialogs:BookRecordsDialog+BookRecordEntry"
 					Binding="{Binding Title}"
-					Header="Title"/>
+					Header="{x:Static res:Strings.BookRecordsDialog_Title}"/>
 
 
 
@@ -100,39 +101,39 @@
 			<Button
 				Grid.Column="0"
 				Grid.Row="0"
-				Content="Check All"
+				Content="{x:Static res:Strings.BookRecordsDialog_CheckAll}"
 				Command="{Binding CheckAll}"/>
 
 			<Button
 				Grid.Column="0"
 				Grid.Row="1"
-				Content="Uncheck All"
+				Content="{x:Static res:Strings.BookRecordsDialog_UncheckAll}"
 				Command="{Binding UncheckAll}"/>
 			
 			<Button
 				Grid.Column="1"
 				Grid.Row="0"
 				Margin="20,10,0,0"
-				Content="Delete Checked"
+				Content="{x:Static res:Strings.BookRecordsDialog_DeleteChecked}"
 				Click="DeleteChecked_Click"/>
 
 			<Button
 				Grid.Column="1"
 				Grid.Row="1"
 				Margin="20,10,0,0"
-				Content="Reload All"
+				Content="{x:Static res:Strings.BookRecordsDialog_ReloadAll}"
 				Click="ReloadAll_Click"/>
 
 			<Button
 				Grid.Column="3"
 				Grid.Row="0"
-				Content="Export Checked"
+				Content="{x:Static res:Strings.BookRecordsDialog_ExportChecked}"
 				Click="ExportChecked_Click"/>
 
 			<Button
 				Grid.Column="3"
 				Grid.Row="1"
-				Content="Export All"
+				Content="{x:Static res:Strings.BookRecordsDialog_ExportAll}"
 				Click="ExportAll_Click"/>
 		</Grid>
 	</Grid>

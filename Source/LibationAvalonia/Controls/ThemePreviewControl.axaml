@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -10,18 +11,18 @@
 	<Grid RowDefinitions="Auto,Auto,*">
 		<controls:GroupBox>
 			<WrapPanel>
-				<RadioButton Margin="5,0" Content="This is an option" IsChecked="True" />
-				<RadioButton Margin="5,0" Content="This is another option" />
-				<CheckBox Margin="5,0" Content="This is a check box" />
+				<RadioButton Margin="5,0" Content="{x:Static res:Strings.ThemePreviewControl_ThisIsAnOption}" IsChecked="True" />
+				<RadioButton Margin="5,0" Content="{x:Static res:Strings.ThemePreviewControl_ThisIsAnotherOption}" />
+				<CheckBox Margin="5,0" Content="{x:Static res:Strings.ThemePreviewControl_ThisIsACheckBox}" />
 				<controls:WheelComboBox
 					Margin="5,0"
 					ItemsSource="{Binding ComboBoxItems}"
 					SelectedIndex="{Binding ComboBoxSelectedIndex}" />
-				<TextBox Margin="5,0" Text="This is an editable text box" />
-				<TextBox Margin="5,0" Text="This is a read-only text box" IsReadOnly="True" />
+				<TextBox Margin="5,0" Text="{x:Static res:Strings.ThemePreviewControl_ThisIsAnEditableTextBox}" />
+				<TextBox Margin="5,0" Text="{x:Static res:Strings.ThemePreviewControl_ThisIsAReadOnlyText}" IsReadOnly="True" />
 				<NumericUpDown Margin="5,0" Value="100" />
-				<controls:LinkLabel VerticalAlignment="Center" Margin="5,5" Text="This is an unvisited link" />
-				<controls:LinkLabel VerticalAlignment="Center" Margin="5,5" Text="This is a visited link" Foreground="{DynamicResource HyperlinkVisited}" />
+				<controls:LinkLabel VerticalAlignment="Center" Margin="5,5" Text="{x:Static res:Strings.ThemePreviewControl_ThisIsAnUnvisitedLink}" />
+				<controls:LinkLabel VerticalAlignment="Center" Margin="5,5" Text="{x:Static res:Strings.ThemePreviewControl_ThisIsAVisitedLink}" Foreground="{DynamicResource HyperlinkVisited}" />
 				<StackPanel Margin="5,0" Height="25" Orientation="Horizontal">
 					<StackPanel.Styles>
 						<Style Selector="Path">

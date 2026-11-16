@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Views;
 
@@ -281,7 +282,7 @@ public partial class ProductsDisplay : UserControl
 
 			args.ContextMenuItems.Add(new MenuItem
 			{
-				Header = "_Copy Row Contents",
+				Header = Strings.ProductsDisplay_CopyRowContents,
 				Command = ReactiveCommand.CreateFromTask(() => clipboard?.SetTextAsync(args.GetRowClipboardContents()) ?? Task.CompletedTask)
 			});
 
@@ -308,7 +309,7 @@ public partial class ProductsDisplay : UserControl
 		{
 			Header = ctx.SetDownloadedText,
 			IsEnabled = ctx.SetDownloadedEnabled,
-			Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.SetDownloaded, "Could not update download status."))
+			Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.SetDownloaded, Strings.ProductsDisplay_CouldNotUpdateDownloadStatus))
 		});
 
 		#endregion
@@ -318,7 +319,7 @@ public partial class ProductsDisplay : UserControl
 		{
 			Header = ctx.SetNotDownloadedText,
 			IsEnabled = ctx.SetNotDownloadedEnabled,
-			Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.SetNotDownloaded, "Could not update download status."))
+			Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.SetNotDownloaded, Strings.ProductsDisplay_CouldNotUpdateDownloadStatus))
 		});
 
 		#endregion
@@ -330,14 +331,14 @@ public partial class ProductsDisplay : UserControl
 			{
 				Header = ctx.SetPdfDownloadedText,
 				IsEnabled = ctx.SetPdfDownloadedEnabled,
-				Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.SetPdfDownloaded, "Could not update download status."))
+				Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.SetPdfDownloaded, Strings.ProductsDisplay_CouldNotUpdateDownloadStatus))
 			});
 
 			args.ContextMenuItems.Add(new MenuItem()
 			{
 				Header = ctx.SetPdfNotDownloadedText,
 				IsEnabled = ctx.SetPdfNotDownloadedEnabled,
-				Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.SetPdfNotDownloaded, "Could not update download status."))
+				Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.SetPdfNotDownloaded, Strings.ProductsDisplay_CouldNotUpdateDownloadStatus))
 			});
 		}
 
@@ -363,7 +364,7 @@ public partial class ProductsDisplay : UserControl
 							SuggestedStartLocation = await window.StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books?.PathWithoutPrefix!),
 							FileTypeFilter = new FilePickerFileType[]
 							{
-								new("All files (*.*)") { Patterns = new[] { "*" } },
+								new(Strings.ProductsDisplay_AllFiles) { Patterns = new[] { "*" } },
 							}
 						};
 
@@ -387,7 +388,7 @@ public partial class ProductsDisplay : UserControl
 		args.ContextMenuItems.Add(new MenuItem
 		{
 			Header = ctx.RemoveText,
-			Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.RemoveAsync, "Could not remove books from the library."))
+			Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.RemoveAsync, Strings.ProductsDisplay_CouldNotRemoveBooksFromThe))
 		});
 
 		#endregion
@@ -463,7 +464,7 @@ public partial class ProductsDisplay : UserControl
 			{
 				Header = ctx.RemoveFromAudibleText,
 				IsEnabled = ctx.RemoveFromAudibleEnabled,
-				Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.RemoveFromAudibleAsync, "Could not remove books from Audible."))
+				Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.RemoveFromAudibleAsync, Strings.ProductsDisplay_CouldNotRemoveBooksFromAudible))
 			});
 		}
 
@@ -680,7 +681,7 @@ public partial class ProductsDisplay : UserControl
 		var pictureId = gEntry.LibraryBook.Book.PictureLarge ?? gEntry.LibraryBook.Book.PictureId;
 		if (string.IsNullOrEmpty(pictureId))
 		{
-			await MessageBox.Show(this.GetParentWindow(), "No cover art is available for this book.", "No Cover Art", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			await MessageBox.Show(this.GetParentWindow(), Strings.ProductsDisplay_NoCoverArtIsAvailableFor, Strings.ProductsDisplay_NoCoverArt, MessageBoxButtons.OK, MessageBoxIcon.Information);
 			return;
 		}
 
@@ -703,7 +704,7 @@ public partial class ProductsDisplay : UserControl
 		(bool isDefault, byte[] initialImageBts) = PictureStorage.GetPicture(picDef);
 
 
-		var windowTitle = $"{gEntry.Title} - Cover";
+		var windowTitle = string.Format(Strings.ProductsDisplay_Cover, gEntry.Title);
 
 
 		imageDisplayDialog.BookSaveDirectory = AudibleFileStorage.Audio.GetDestinationDirectory(gEntry.LibraryBook);
@@ -758,5 +759,5 @@ public partial class ProductsDisplay : UserControl
 	#endregion
 	private Task RunLibraryOperationAsync(Func<Task> operation, string message)
 		=> LibationUiBase.LibraryOperation.RunAsync(operation,
-			ex => MessageBox.ShowAdminAlert(this.GetParentWindow() as Window, message, "Library operation failed", ex));
+			ex => MessageBox.ShowAdminAlert(this.GetParentWindow() as Window, message, Strings.ProductsDisplay_LibraryOperationFailed, ex));
 }

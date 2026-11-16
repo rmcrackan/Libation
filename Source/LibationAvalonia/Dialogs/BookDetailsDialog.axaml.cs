@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -131,26 +132,26 @@ public partial class BookDetailsDialog : DialogWindow
 
 			var seriesNames = libraryBook.Book.SeriesNames();
 			if (!string.IsNullOrWhiteSpace(seriesNames))
-				DetailsText += $"\r\nSeries: {seriesNames}";
+				DetailsText += string.Format(Strings.BookDetailsDialog_Series, seriesNames);
 
 			var bookRating = libraryBook.Book.Rating?.ToStarString();
 			if (!string.IsNullOrWhiteSpace(bookRating))
-				DetailsText += $"\r\nBook Rating:\r\n{bookRating}";
+				DetailsText += string.Format(Strings.BookDetailsDialog_BookRating, bookRating);
 
 			var myRating = libraryBook.Book.UserDefinedItem.Rating?.ToStarString();
 			if (!string.IsNullOrWhiteSpace(myRating))
-				DetailsText += $"\r\nMy Rating:\r\n{myRating}";
+				DetailsText += string.Format(Strings.BookDetailsDialog_MyRating, myRating);
 
 
 			//init book status
 			{
 				var status = libraryBook.Book.UserDefinedItem.BookStatus;
 
-				BookLiberatedItems.Add(new() { Status = LiberatedStatus.Liberated, Text = "Downloaded" });
-				BookLiberatedItems.Add(new() { Status = LiberatedStatus.NotLiberated, Text = "Download Pending" });
+				BookLiberatedItems.Add(new() { Status = LiberatedStatus.Liberated, Text = Strings.BookDetailsDialog_Downloaded });
+				BookLiberatedItems.Add(new() { Status = LiberatedStatus.NotLiberated, Text = Strings.BookDetailsDialog_DownloadPending });
 
 				if (status == LiberatedStatus.Error)
-					BookLiberatedItems.Add(new() { Status = LiberatedStatus.Error, Text = "Error" });
+					BookLiberatedItems.Add(new() { Status = LiberatedStatus.Error, Text = Strings.BookDetailsDialog_Error });
 
 				BookLiberatedSelectedItem = BookLiberatedItems.SingleOrDefault(s => s.Status == status);
 			}
@@ -161,8 +162,8 @@ public partial class BookDetailsDialog : DialogWindow
 
 				if (status is not null)
 				{
-					PdfLiberatedItems.Add(new() { Status = LiberatedStatus.Liberated, Text = "Downloaded" });
-					PdfLiberatedItems.Add(new() { Status = LiberatedStatus.NotLiberated, Text = "Download Pending" });
+					PdfLiberatedItems.Add(new() { Status = LiberatedStatus.Liberated, Text = Strings.BookDetailsDialog_Downloaded });
+					PdfLiberatedItems.Add(new() { Status = LiberatedStatus.NotLiberated, Text = Strings.BookDetailsDialog_DownloadPending });
 
 					PdfLiberatedSelectedItem = PdfLiberatedItems.SingleOrDefault(s => s.Status == status);
 				}
