@@ -119,16 +119,17 @@ public partial class BookDetailsDialog : DialogWindow
 			var title = string.IsNullOrEmpty(Book.Subtitle) ? Book.Title : $"{Book.Title}\r\n        {Book.Subtitle}";
 
 			//init book details
-			DetailsText = $"""
-			Title: {title}
-			Author(s): {Book.AuthorNames}
-			Narrator(s): {Book.NarratorNames}
-			Length: {(Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min")}
-			Category: {string.Join(", ", Book.LowestCategoryNames())}
-			Purchase Date: {libraryBook.DateAdded:d}
-			Language: {Book.Language}
-			Audible ID: {Book.AudibleProductId}
-			""";
+			var length = Book.LengthInMinutes == 0 ? "" : string.Format(Strings.BookDetailsDialog_HrMin, Book.LengthInMinutes / 60, Book.LengthInMinutes % 60);
+			DetailsText = string.Format(
+				Strings.BookDetailsDialog_Details,
+				title,
+				Book.AuthorNames,
+				Book.NarratorNames,
+				length,
+				string.Join(", ", Book.LowestCategoryNames()),
+				libraryBook.DateAdded,
+				Book.Language,
+				Book.AudibleProductId);
 
 			var seriesNames = libraryBook.Book.SeriesNames();
 			if (!string.IsNullOrWhiteSpace(seriesNames))

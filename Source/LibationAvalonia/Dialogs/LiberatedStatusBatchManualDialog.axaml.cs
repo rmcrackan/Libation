@@ -37,7 +37,7 @@ public partial class LiberatedStatusBatchManualDialog : DialogWindow
 	public LiberatedStatusBatchManualDialog(bool isPdf) : this()
 	{
 		if (isPdf)
-			Title = Title?.Replace("book", "PDF");
+			Title = Strings.LiberatedStatusBatchManualDialog_LiberatedStatusWhetherThePdfHas;
 	}
 
 	public LiberatedStatusBatchManualDialog()

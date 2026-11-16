@@ -28,7 +28,7 @@
 			<!-- Queue Tab -->
 			<TabItem>
 				<TabItem.Header>
-					<TextBlock FontSize="14" VerticalAlignment="Center">Process Queue</TextBlock>
+					<TextBlock FontSize="14" VerticalAlignment="Center" Text="{x:Static res:Strings.ProcessQueueControl_ProcessQueue}" />
 				</TabItem.Header>
 				<Grid ColumnDefinitions="*" RowDefinitions="*,72">
 					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemRegionColor}">
@@ -114,7 +114,7 @@
 								Maximum="999" />
 						</Grid>
 						<Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto">
-							<Button Name="cancelAllBtn" Grid.Column="0" FontSize="12" VerticalAlignment="Stretch" Click="CancelAllBtn_Click">Cancel All</Button>
+							<Button Name="cancelAllBtn" Grid.Column="0" FontSize="12" VerticalAlignment="Stretch" Click="CancelAllBtn_Click" Content="{x:Static res:Strings.ProcessQueueControl_CancelAll}" />
 							<CheckBox
 								Grid.Column="1"
 								FontSize="12"
@@ -123,7 +123,7 @@
 								IsChecked="{Binding AutoScrollQueue, Mode=TwoWay}"
 								ToolTip.Tip="{x:Static res:Strings.ProcessQueueControl_KeepActiveDownloadsScrolledIntoView}"
 								Content="{x:Static res:Strings.ProcessQueueControl_AutoScroll}" />
-							<Button Grid.Column="3" FontSize="12" VerticalAlignment="Stretch" Click="ClearFinishedBtn_Click">Clear Finished</Button>
+							<Button Grid.Column="3" FontSize="12" VerticalAlignment="Stretch" Click="ClearFinishedBtn_Click" Content="{x:Static res:Strings.ProcessQueueControl_ClearFinished}" />
 						</Grid>
 					</Grid>
 				</Grid>
@@ -131,7 +131,7 @@
 			<!-- Log Tab -->
 			<TabItem>
 				<TabItem.Header>
-					<TextBlock FontSize="14" VerticalAlignment="Center">Queue Log</TextBlock>
+					<TextBlock FontSize="14" VerticalAlignment="Center" Text="{x:Static res:Strings.ProcessQueueControl_QueueLog}" />
 				</TabItem.Header>
 				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
 					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemRegionColor}">
@@ -151,8 +151,8 @@
 						</DataGrid>
 					</Border>
 					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="*,Auto">
-						<Button Grid.Column="0" FontSize="12" HorizontalAlignment="Left" Click="LogCopyBtn_Click">Copy Log Entries to Clipboard</Button>
-						<Button Grid.Column="1" FontSize="12" HorizontalAlignment="Right" Click="ClearLogBtn_Click">Clear Log</Button>
+						<Button Grid.Column="0" FontSize="12" HorizontalAlignment="Left" Click="LogCopyBtn_Click" Content="{x:Static res:Strings.ProcessQueueControl_CopyLogEntriesToClipboard}" />
+						<Button Grid.Column="1" FontSize="12" HorizontalAlignment="Right" Click="ClearLogBtn_Click" Content="{x:Static res:Strings.ProcessQueueControl_ClearLog}" />
 					</Grid>
 				</Grid>
 			</TabItem>

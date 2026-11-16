@@ -301,6 +301,10 @@ Library</value>
   <data name="BackupRequest_AlreadyDownloaded" xml:space="preserve">
     <value>Already downloaded</value>
   </data>
+  <data name="BackupRequest_DeferredGroupNextAttempt" xml:space="preserve">
+    <value>- {0} ({1}). Next attempt {2}.</value>
+    <comment>{0} = reason, {1} = title count, e.g. "3 titles", {2} = when</comment>
+  </data>
   <data name="BackupRequest_DownloadNotQueued" xml:space="preserve">
     <value>Download not queued</value>
   </data>
@@ -317,6 +321,10 @@ Titles that are already downloaded, and titles that were absent from your last l
   </data>
   <data name="BackupRequest_None" xml:space="preserve">
     <value>none</value>
+  </data>
+  <data name="BackupRequest_NoneOfTheCouldBeQueued" xml:space="preserve">
+    <value>None of the {0} could be queued for download.</value>
+    <comment>{0} = title count, e.g. "3 titles"</comment>
   </data>
   <data name="BackupRequest_PreviouslyFailedToDownload" xml:space="preserve">
     <value>Previously failed to download</value>
@@ -358,6 +366,17 @@ Book Rating:&#xD;
 {0}</value>
     <comment>{0} = bookRating</comment>
   </data>
+  <data name="BookDetailsDialog_Details" xml:space="preserve">
+    <value>Title: {0}
+Author(s): {1}
+Narrator(s): {2}
+Length: {3}
+Category: {4}
+Purchase Date: {5:d}
+Language: {6}
+Audible ID: {7}</value>
+    <comment>{0} = title, {1} = authors, {2} = narrators, {3} = length, {4} = categories, {5} = purchase date, {6} = language, {7} = Audible ID</comment>
+  </data>
   <data name="BookDetailsDialog_DownloadPending" xml:space="preserve">
     <value>Download Pending</value>
   </data>
@@ -369,6 +388,10 @@ Book Rating:&#xD;
   </data>
   <data name="BookDetailsDialog_Error" xml:space="preserve">
     <value>Error</value>
+  </data>
+  <data name="BookDetailsDialog_HrMin" xml:space="preserve">
+    <value>{0} hr {1} min</value>
+    <comment>{0} = hours, {1} = minutes</comment>
   </data>
   <data name="BookDetailsDialog_LiberatedStatusWhetherTheBookPdf" xml:space="preserve">
     <value>Liberated status: Whether the book/pdf has been downloaded</value>
@@ -394,6 +417,9 @@ Audible
     <value>&#xD;
 Series: {0}</value>
     <comment>{0} = seriesNames</comment>
+  </data>
+  <data name="BookDetailsDialog_TagsAreSeparatedByASpace" xml:space="preserve">
+    <value>Tags are separated by a space. Each tag can contain letters, numbers, and underscores</value>
   </data>
   <data name="BookDetailsDialog_ToDownloadAgainNextTimeChange" xml:space="preserve">
     <value>To download again next time: change to Download Pending
@@ -715,6 +741,11 @@ System:</value>
 {0}</value>
     <comment>{0} = errors</comment>
   </data>
+  <data name="EditTemplateDialog_Warning" xml:space="preserve">
+    <value>Warning:&#xD;
+{0}</value>
+    <comment>{0} = one warning per line</comment>
+  </data>
   <data name="EntryStatus_AudiblePlusTitle" xml:space="preserve">
     <value>&#xD;
 Audible Plus title</value>
@@ -957,6 +988,10 @@ Are you sure you want to remove the following {3}?
     <value>{0}Locate file...</value>
     <comment>{0} = Accelerator</comment>
   </data>
+  <data name="GridContextMenu_LocateTheAudioFileFor" xml:space="preserve">
+    <value>Locate the audio file for '{0}'</value>
+    <comment>{0} = book title</comment>
+  </data>
   <data name="GridContextMenu_MarkAsDownloadPending" xml:space="preserve">
     <value>Mark as &apos;Download {0}Pending&apos;</value>
     <comment>{0} = Accelerator</comment>
@@ -980,6 +1015,12 @@ Are you sure you want to remove the following {3}?
   <data name="GridContextMenu_RemoveFromLibrary" xml:space="preserve">
     <value>{0}Remove from library</value>
     <comment>{0} = Accelerator</comment>
+  </data>
+  <data name="GridContextMenu_RemovePlusBookFromAudible" xml:space="preserve">
+    <value>Remove Plus Book from Audible Library</value>
+  </data>
+  <data name="GridContextMenu_RemovePlusBooksFromAudible" xml:space="preserve">
+    <value>Remove Plus Books from Audible Library</value>
   </data>
   <data name="GridContextMenu_ViewAllBooksInSeries" xml:space="preserve">
     <value>View All Books in Series</value>
@@ -1216,6 +1257,9 @@ Would you like to create a new install settings in this folder?
   <data name="LiberatedStatusBatchManualDialog_LiberatedStatusWhetherTheBookHas" xml:space="preserve">
     <value>Liberated status: Whether the book has been downloaded</value>
   </data>
+  <data name="LiberatedStatusBatchManualDialog_LiberatedStatusWhetherThePdfHas" xml:space="preserve">
+    <value>Liberated status: Whether the PDF has been downloaded</value>
+  </data>
   <data name="LiberatedStatusBatchManualDialog_Save" xml:space="preserve">
     <value>Save</value>
   </data>
@@ -1326,8 +1370,16 @@ Copy the current url from your browser&apos;s address bar and paste it here: </v
   <data name="MainVM_BeginBookAndPDFBackups0" xml:space="preserve">
     <value>Begin Book and PDF Backups: 0</value>
   </data>
+  <data name="MainVM_BeginMenu" xml:space="preserve">
+    <value>Begin {0}</value>
+    <comment>{0} = menu item text</comment>
+  </data>
   <data name="MainVM_BeginPDFOnlyBackups0" xml:space="preserve">
     <value>Begin PDF Only Backups: 0</value>
+  </data>
+  <data name="MainVM_BookAndPDFBackupsRemaining" xml:space="preserve">
+    <value>Book and PDF Backups: {0} remaining</value>
+    <comment>{0} = count</comment>
   </data>
   <data name="MainVM_CSVFilesCsv" xml:space="preserve">
     <value>CSV files (*.csv)</value>
@@ -1374,6 +1426,10 @@ Copy the current url from your browser&apos;s address bar and paste it here: </v
   <data name="MainVM_Liberate0" xml:space="preserve">
     <value>Liberate: 0</value>
   </data>
+  <data name="MainVM_LiberateMenu" xml:space="preserve">
+    <value>Liberate {0}</value>
+    <comment>{0} = menu item text</comment>
+  </data>
   <data name="MainVM_LiberateVisibleBooks0" xml:space="preserve">
     <value>Liberate _Visible Books: 0</value>
   </data>
@@ -1396,6 +1452,10 @@ Copy the current url from your browser&apos;s address bar and paste it here: </v
   </data>
   <data name="MainVM_NoAccountsYetAddAccount" xml:space="preserve">
     <value>No accounts yet. Add Account...</value>
+  </data>
+  <data name="MainVM_PDFOnlyBackupsRemaining" xml:space="preserve">
+    <value>PDF Only Backups: {0} remaining</value>
+    <comment>{0} = count</comment>
   </data>
   <data name="MainVM_Remove1BookFromLibation" xml:space="preserve">
     <value>Remove 1 Book from Libation</value>
@@ -1467,6 +1527,10 @@ New: {1}</value>
   <data name="MainVM_VisibleBooks" xml:space="preserve">
     <value>Visible Books {0}</value>
     <comment>{0} = _visibleCount</comment>
+  </data>
+  <data name="MainVM_VisibleBooksCount" xml:space="preserve">
+    <value>Visible Books: {0}</value>
+    <comment>{0} = count</comment>
   </data>
   <data name="MainVM_WhereToExportLibrary" xml:space="preserve">
     <value>Where to export Library</value>
@@ -1733,8 +1797,16 @@ Check it to include it in library scans.</value>
 Check the ones to include in library scans.</value>
     <comment>{0} = found.Count, {1} = list</comment>
   </data>
+  <data name="MarketplacesUi_MarketplaceCouldNotBeChecked" xml:space="preserve">
+    <value>{0} marketplace could not be checked, so what they hold is unknown.</value>
+    <comment>{0} = 1</comment>
+  </data>
   <data name="MarketplacesUi_Marketplaces" xml:space="preserve">
     <value>Marketplaces</value>
+  </data>
+  <data name="MarketplacesUi_MarketplacesCouldNotBeChecked" xml:space="preserve">
+    <value>{0} marketplaces could not be checked, so what they hold is unknown.</value>
+    <comment>{0} = marketplace count</comment>
   </data>
   <data name="MarketplacesUi_NoMarketplaceCouldBeCheckedScan" xml:space="preserve">
     <value>No marketplace could be checked. Scan this account&apos;s library to refresh its credentials, then try again.</value>
@@ -1792,6 +1864,14 @@ Check the ones to include in library scans.</value>
   </data>
   <data name="MessageBox_OK" xml:space="preserve">
     <value>OK</value>
+  </data>
+  <data name="MessageBox_TheseBooks" xml:space="preserve">
+    <value>these {0} books</value>
+    <comment>{0} = book count. Fills the {0} of the confirmation message</comment>
+  </data>
+  <data name="MessageBox_ThisBook" xml:space="preserve">
+    <value>this {0} book</value>
+    <comment>{0} = 1. Fills the {0} of the confirmation message</comment>
   </data>
   <data name="MessageBox_VerboseLoggingEnabled" xml:space="preserve">
     <value>Verbose logging enabled</value>
@@ -1904,6 +1984,18 @@ Check &quot;Remember in Settings&quot; to save your choice in Download/Decrypt s
   <data name="ProcessQueueControl_AutoScroll" xml:space="preserve">
     <value>Auto-scroll</value>
   </data>
+  <data name="ProcessQueueControl_CancelAll" xml:space="preserve">
+    <value>Cancel All</value>
+  </data>
+  <data name="ProcessQueueControl_ClearFinished" xml:space="preserve">
+    <value>Clear Finished</value>
+  </data>
+  <data name="ProcessQueueControl_ClearLog" xml:space="preserve">
+    <value>Clear Log</value>
+  </data>
+  <data name="ProcessQueueControl_CopyLogEntriesToClipboard" xml:space="preserve">
+    <value>Copy Log Entries to Clipboard</value>
+  </data>
   <data name="ProcessQueueControl_DLLimit" xml:space="preserve">
     <value>DL Limit</value>
   </data>
@@ -1918,6 +2010,12 @@ Check &quot;Remember in Settings&quot; to save your choice in Download/Decrypt s
   </data>
   <data name="ProcessQueueControl_Message" xml:space="preserve">
     <value>Message</value>
+  </data>
+  <data name="ProcessQueueControl_ProcessQueue" xml:space="preserve">
+    <value>Process Queue</value>
+  </data>
+  <data name="ProcessQueueControl_QueueLog" xml:space="preserve">
+    <value>Queue Log</value>
   </data>
   <data name="ProcessQueueControl_Timestamp" xml:space="preserve">
     <value>Timestamp</value>
@@ -2444,6 +2542,12 @@ Anyone with this file can decrypt encrypted tokens in AccountsSettings.json. Tre
   <data name="TokenStorageSettingsUi_ExportTheOSBoundEncryptionMaster" xml:space="preserve">
     <value>Export the OS-bound encryption master key to a file for Docker or another machine. Treat the file like a password.</value>
   </data>
+  <data name="TokenStorageSettingsUi_FailedCategories" xml:space="preserve">
+    <value>{0}&#xD;
+&#xD;
+Failed categories: {1}</value>
+    <comment>{0} = error, {1} = category list</comment>
+  </data>
   <data name="TokenStorageSettingsUi_NewAndRefreshedAuthenticationTokensWill" xml:space="preserve">
     <value>New and refreshed authentication tokens will now be stored encrypted. Would you also like to encrypt and re-save existing plaintext tokens?</value>
   </data>
@@ -2512,6 +2616,10 @@ from Libation</value>
   </data>
   <data name="TrashBinDialog_TrashBinOperationFailed" xml:space="preserve">
     <value>Trash bin operation failed</value>
+  </data>
+  <data name="TrashBinUi_InTrash" xml:space="preserve">
+    <value>{0} in trash</value>
+    <comment>{0} = book count, e.g. "3 books"</comment>
   </data>
   <data name="TrashBinUi_TheseBooksAreHiddenFromYour" xml:space="preserve">
     <value>These books are hidden from your library. Open the trash bin to restore them.</value>

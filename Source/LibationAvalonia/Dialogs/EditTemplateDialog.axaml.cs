@@ -149,8 +149,7 @@ public partial class EditTemplateDialog : DialogWindow
 			WarningText
 				= !TemplateEditor.EditingTemplate.HasWarnings
 				? ""
-				: "Warning:\r\n" +
-					string.Join("\r\n", TemplateEditor.EditingTemplate.Warnings.Select(err => $"- {err}"));
+				: string.Format(Strings.EditTemplateDialog_Warning, string.Join("\r\n", TemplateEditor.EditingTemplate.Warnings.Select(err => $"- {err}")));
 
 			var bold = FontWeight.Bold;
 			var reg = FontWeight.Normal;

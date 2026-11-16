@@ -40,10 +40,11 @@ public static class WalkthroughMessages
 		["Download/Decrypt"] = DownloadDecryptBody,
 		["Audio File Options"] = AudioFileBody,
 
-		// Avalonia
-		["Important Settings"] = ImportantSettingsBody + "\r\n\r\n" + ScreenReaderTip,
-		["Import Library"] = ImportLibraryBody,
-		["Audio File Settings"] = AudioFileBody,
+		// Avalonia. Its headers are translated, so look them up by the same resources.
+		[Strings.SettingsDialog_ImportantSettings] = ImportantSettingsBody + "\r\n\r\n" + ScreenReaderTip,
+		[Strings.SettingsDialog_ImportLibrary] = ImportLibraryBody,
+		[Strings.SettingsDialog_DownloadDecrypt] = DownloadDecryptBody,
+		[Strings.SettingsDialog_AudioFileSettings] = AudioFileBody,
 	};
 
 	public static WalkthroughMessage AddAccountsProceed { get; }

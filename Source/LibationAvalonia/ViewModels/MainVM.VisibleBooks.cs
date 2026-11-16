@@ -54,7 +54,7 @@ partial class MainVM
 
 		LiberateVisibleToolStripText
 			= AnyVisibleNotLiberated
-			? "Liberate " + menufyText($"Visible Books: {visibleNotLiberated}")
+			? string.Format(Strings.MainVM_LiberateMenu, menufyText(string.Format(Strings.MainVM_VisibleBooksCount, visibleNotLiberated)))
 			: Strings.MainVM_AllVisibleBooksAreLiberated;
 
 		LiberateVisibleToolStripText_2

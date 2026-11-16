@@ -55,12 +55,10 @@ public class MessageBox
 
 		var count = libraryBooks.Count();
 
-		string thisThese = count > 1 ? "these" : "this";
-		string bookBooks = count > 1 ? "books" : "book";
 		string titlesAgg = libraryBooks.AggregateTitles();
 
 		var message
-			= string.Format(format, $"{thisThese} {count} {bookBooks}")
+			= string.Format(format, string.Format(count > 1 ? Strings.MessageBox_TheseBooks : Strings.MessageBox_ThisBook, count))
 			+ $"\r\n\r\n{titlesAgg}";
 
 		return await ShowCoreAsync(owner,

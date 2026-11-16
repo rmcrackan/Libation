@@ -90,7 +90,7 @@ public static class TokenStorageSettingsUi
 		if (result.FailedCategories.Count == 0)
 			return error;
 
-		return $"{error}\r\n\r\nFailed categories: {string.Join(", ", result.FailedCategories)}";
+		return string.Format(Strings.TokenStorageSettingsUi_FailedCategories, error, string.Join(", ", result.FailedCategories));
 	}
 
 	/// <summary>

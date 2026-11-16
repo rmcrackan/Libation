@@ -66,12 +66,12 @@ partial class MainVM
 
 			BookBackupsToolStripText
 				= LibraryStats?.HasPendingBooks ?? false
-				? "Begin " + menufyText($"Book and PDF Backups: {LibraryStats.PendingBooks} remaining")
+				? string.Format(Strings.MainVM_BeginMenu, menufyText(string.Format(Strings.MainVM_BookAndPDFBackupsRemaining, LibraryStats.PendingBooks)))
 				: Strings.MainVM_AllBooksHaveBeenLiberated;
 
 			PdfBackupsToolStripText
 				= LibraryStats?.pdfsNotDownloaded > 0
-				? "Begin " + menufyText($"PDF Only Backups: {LibraryStats.pdfsNotDownloaded} remaining")
+				? string.Format(Strings.MainVM_BeginMenu, menufyText(string.Format(Strings.MainVM_PDFOnlyBackupsRemaining, LibraryStats.pdfsNotDownloaded)))
 				: Strings.MainVM_AllPDFsHaveBeenDownloaded;
 
 			this.RaisePropertyChanged(nameof(BookBackupsToolStripText));

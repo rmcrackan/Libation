@@ -88,7 +88,7 @@ public static class MarketplacesUi
 
 		var unchecked_ = failed == 0
 			? ""
-			: $"\r\n\r\n{failed} marketplace{(failed == 1 ? "" : "s")} could not be checked, so what they hold is unknown.";
+			: "\r\n\r\n" + string.Format(failed == 1 ? Strings.MarketplacesUi_MarketplaceCouldNotBeChecked : Strings.MarketplacesUi_MarketplacesCouldNotBeChecked, failed);
 
 		if (found.Count == 0)
 			return answered == 0

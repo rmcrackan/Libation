@@ -23,9 +23,9 @@ public class GridContextMenu
 	public string SetPdfDownloadedText => Strings.GridContextMenu_MarkPDFAsDownloaded;
 	public string SetPdfNotDownloadedText => Strings.GridContextMenu_MarkPDFAsDownloadPending;
 	public string RemoveText => string.Format(Strings.GridContextMenu_RemoveFromLibrary, Accelerator);
-	public string RemoveFromAudibleText => $"Remove Plus {(GridEntries.Count(e => e.LibraryBook.IsAudiblePlus) == 1 ? "Book" : "Books")} from Audible Library";
+	public string RemoveFromAudibleText => GridEntries.Count(e => e.LibraryBook.IsAudiblePlus) == 1 ? Strings.GridContextMenu_RemovePlusBookFromAudible : Strings.GridContextMenu_RemovePlusBooksFromAudible;
 	public string LocateFileText => string.Format(Strings.GridContextMenu_LocateFile, Accelerator);
-	public string LocateFileDialogTitle => $"Locate the audio file for '{GridEntries[0].Book?.TitleWithSubtitle ?? "[null]"}'";
+	public string LocateFileDialogTitle => string.Format(Strings.GridContextMenu_LocateTheAudioFileFor, GridEntries[0].Book?.TitleWithSubtitle ?? "[null]");
 	public string LocateFileErrorMessage => Strings.GridContextMenu_ErrorSavingBookSLocation;
 	public string ConvertToMp3Text => string.Format(Strings.GridContextMenu_ConvertToMp3, Accelerator);
 	public string DownloadAsChapters => string.Format(Strings.GridContextMenu_DownloadSplitByChapters, Accelerator);
