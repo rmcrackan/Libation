@@ -113,17 +113,21 @@
 								Increment="{Binding SpeedLimitIncrement}"
 								Maximum="999" />
 						</Grid>
-						<Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto">
+						<!-- The checkbox takes what the buttons leave and wraps its label, so a longer translation
+						     can't push Clear Finished out of the pane. -->
+						<Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto">
 							<Button Name="cancelAllBtn" Grid.Column="0" FontSize="12" VerticalAlignment="Stretch" Click="CancelAllBtn_Click" Content="{x:Static res:Strings.ProcessQueueControl_CancelAll}" />
 							<CheckBox
 								Grid.Column="1"
 								FontSize="12"
 								Margin="10,0,10,0"
+								HorizontalAlignment="Left"
 								VerticalAlignment="Center"
 								IsChecked="{Binding AutoScrollQueue, Mode=TwoWay}"
-								ToolTip.Tip="{x:Static res:Strings.ProcessQueueControl_KeepActiveDownloadsScrolledIntoView}"
-								Content="{x:Static res:Strings.ProcessQueueControl_AutoScroll}" />
-							<Button Grid.Column="3" FontSize="12" VerticalAlignment="Stretch" Click="ClearFinishedBtn_Click" Content="{x:Static res:Strings.ProcessQueueControl_ClearFinished}" />
+								ToolTip.Tip="{x:Static res:Strings.ProcessQueueControl_KeepActiveDownloadsScrolledIntoView}">
+								<TextBlock TextWrapping="Wrap" Text="{x:Static res:Strings.ProcessQueueControl_AutoScroll}" />
+							</CheckBox>
+							<Button Grid.Column="2" FontSize="12" VerticalAlignment="Stretch" Click="ClearFinishedBtn_Click" Content="{x:Static res:Strings.ProcessQueueControl_ClearFinished}" />
 						</Grid>
 					</Grid>
 				</Grid>
@@ -133,7 +137,7 @@
 				<TabItem.Header>
 					<TextBlock FontSize="14" VerticalAlignment="Center" Text="{x:Static res:Strings.ProcessQueueControl_QueueLog}" />
 				</TabItem.Header>
-				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
+				<Grid ColumnDefinitions="*" RowDefinitions="*,Auto">
 					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemRegionColor}">
 						<DataGrid AutoGenerateColumns="False" ItemsSource="{Binding LogEntries}">
 							<DataGrid.Columns>
@@ -150,10 +154,13 @@
 							</DataGrid.Columns>
 						</DataGrid>
 					</Border>
-					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="*,Auto">
-						<Button Grid.Column="0" FontSize="12" HorizontalAlignment="Left" Click="LogCopyBtn_Click" Content="{x:Static res:Strings.ProcessQueueControl_CopyLogEntriesToClipboard}" />
-						<Button Grid.Column="1" FontSize="12" HorizontalAlignment="Right" Click="ClearLogBtn_Click" Content="{x:Static res:Strings.ProcessQueueControl_ClearLog}" />
-					</Grid>
+					<!-- Copy takes what Clear leaves and wraps its label, so a longer translation can't cut it off. -->
+					<DockPanel Grid.Column="0" Grid.Row="1" MinHeight="40">
+						<Button DockPanel.Dock="Right" FontSize="12" Click="ClearLogBtn_Click" Content="{x:Static res:Strings.ProcessQueueControl_ClearLog}" />
+						<Button FontSize="12" HorizontalAlignment="Left" Click="LogCopyBtn_Click">
+							<TextBlock TextWrapping="Wrap" Text="{x:Static res:Strings.ProcessQueueControl_CopyLogEntriesToClipboard}" />
+						</Button>
+					</DockPanel>
 				</Grid>
 			</TabItem>
 		</TabControl>

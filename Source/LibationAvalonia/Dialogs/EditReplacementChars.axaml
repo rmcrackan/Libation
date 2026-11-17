@@ -49,6 +49,7 @@
 		</DataGrid>
 
 		<Grid
+			Name="buttonRow"
 			Grid.Row="1"
 			RowDefinitions="Auto,Auto"
 			ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto"

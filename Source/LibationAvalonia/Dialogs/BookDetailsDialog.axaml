@@ -50,7 +50,7 @@
 			Margin="10,0,10,0">
 			
 			<StackPanel Orientation="Vertical">
-				<TextBlock FontSize="12" VerticalAlignment="Top" Text="{x:Static res:Strings.BookDetailsDialog_TagsAreSeparatedByASpace}" />
+				<TextBlock FontSize="12" VerticalAlignment="Top" TextWrapping="Wrap" Text="{x:Static res:Strings.BookDetailsDialog_TagsAreSeparatedByASpace}" />
 
 				<TextBox Margin="0,5,0,5"
 					MinHeight="25"

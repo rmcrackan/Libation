@@ -14,7 +14,7 @@
 		x:DataType="dialogs:LiberatedStatusBatchManualDialog"
 		WindowStartupLocation="CenterOwner">
 
-	<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto">
+	<Grid Name="content" RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto">
 
 		<TextBlock
 			Grid.ColumnSpan="2"
@@ -33,7 +33,7 @@
 				Text="{x:Static res:Strings.LiberatedStatusBatchManualDialog_Book}" />
 
 			<controls:WheelComboBox
-				Width="130"
+				MinWidth="130"
 				MinHeight="25"
 				Height="25"
 				VerticalAlignment="Center"

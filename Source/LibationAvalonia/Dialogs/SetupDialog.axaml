@@ -18,7 +18,9 @@
 		HorizontalAlignment="Stretch"
 		RowDefinitions="*,Auto,Auto">
 		
-		<TextBlock Grid.Row="0" TextWrapping="Wrap" Text="{x:Static res:Strings.SetupDialog_ThisAppearsToBeYourFirst}" />
+		<ScrollViewer Grid.Row="0">
+			<TextBlock TextWrapping="Wrap" Text="{x:Static res:Strings.SetupDialog_ThisAppearsToBeYourFirst}" />
+		</ScrollViewer>
 
 		<Grid
 			Grid.Row="1"
@@ -70,6 +72,7 @@
 
 			<TextBlock
 				TextAlignment="Center"
+				TextWrapping="Wrap"
 				Text="{x:Static res:Strings.SetupDialog_RETURNINGUSERIHavePreviouslyInstalled}"/>
 		
 		</Button>		

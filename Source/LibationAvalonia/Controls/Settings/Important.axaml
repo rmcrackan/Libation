@@ -245,39 +245,38 @@
 
 		<Grid
 			Grid.Row="5"
-			ColumnDefinitions="Auto,Auto,Auto,Auto,*"
+			ColumnDefinitions="*,Auto"
 			Margin="10"
 			VerticalAlignment="Bottom">
-			<TextBlock
-				Grid.Column="0"
-				FontSize="16"
-				Margin="0,0,15,0"
-				VerticalAlignment="Center"
-				Text="{x:Static res:Strings.Important_Theme}"/>
+			<!-- Wraps instead of squeezing the button when the labels are long. -->
+			<WrapPanel VerticalAlignment="Center">
+				<TextBlock
+					FontSize="16"
+					Margin="0,0,15,0"
+					VerticalAlignment="Center"
+					Text="{x:Static res:Strings.Important_Theme}"/>
 
-			<controls:WheelComboBox
-				Name="ThemeComboBox"
-				Grid.Column="1"
-				MinWidth="80"
-				SelectedItem="{Binding ThemeVariant, Mode=TwoWay}"
-				ItemsSource="{Binding Themes}"/>
+				<controls:WheelComboBox
+					Name="ThemeComboBox"
+					MinWidth="80"
+					SelectedItem="{Binding ThemeVariant, Mode=TwoWay}"
+					ItemsSource="{Binding Themes}"/>
 
-			<TextBlock
-				Grid.Column="2"
-				FontSize="16"
-				Margin="25,0,15,0"
-				VerticalAlignment="Center"
-				Text="{x:Static res:Strings.Important_Language}"/>
+				<TextBlock
+					FontSize="16"
+					Margin="25,0,15,0"
+					VerticalAlignment="Center"
+					Text="{x:Static res:Strings.Important_Language}"/>
 
-			<controls:WheelComboBox
-				Grid.Column="3"
-				MinWidth="80"
-				ToolTip.Tip="{x:Static res:Strings.Important_LanguageTip}"
-				SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"
-				ItemsSource="{Binding Languages}"/>
-			
+				<controls:WheelComboBox
+					MinWidth="80"
+					ToolTip.Tip="{x:Static res:Strings.Important_LanguageTip}"
+					SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"
+					ItemsSource="{Binding Languages}"/>
+			</WrapPanel>
+
 			<Button
-				Grid.Column="4"
+				Grid.Column="1"
 				HorizontalAlignment="Right"
 				Padding="20,0"
 				VerticalAlignment="Stretch"

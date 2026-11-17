@@ -76,6 +76,7 @@
 
 				<DataGridTextColumn
 					Width="2*"
+					MinWidth="150"
 					Binding="{Binding AccountId, Mode=TwoWay}"
 					Header="{x:Static res:Strings.AccountsDialog_AudibleEmailLogin}"/>
 

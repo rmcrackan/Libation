@@ -40,37 +40,39 @@
 		<Grid
 			Margin="0,5,0,0"
 			Grid.Row="3"
-			ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+			ColumnDefinitions="*,Auto,Auto">
 
-			<CheckBox
-				IsEnabled="{Binding	ControlsEnabled}"
-				IsThreeState="True"
-				Margin="0,0,14,0"
-				IsChecked="{Binding EverythingChecked}"
-				Content="{x:Static res:Strings.TrashBinDialog_Everything}" />
-			
-			<TextBlock
-				Grid.Column="1"
-				Margin="0,0,14,0"
-				VerticalAlignment="Center"
-				Text="{Binding CheckedCountText}" />
+			<!-- Wraps instead of pushing the buttons off the window when the labels are long. -->
+			<WrapPanel VerticalAlignment="Center">
 
-			<CheckBox
-				Grid.Column="2"
-				IsEnabled="{Binding	ControlsEnabled}"
-				IsThreeState="True"
-				Margin="0,0,15,0"
-				IsChecked="{Binding AudiblePlusChecked}"
-				Content="{x:Static res:Strings.TrashBinDialog_AudiblePlusBooks}" />
+				<CheckBox
+					IsEnabled="{Binding	ControlsEnabled}"
+					IsThreeState="True"
+					Margin="0,0,14,0"
+					IsChecked="{Binding EverythingChecked}"
+					Content="{x:Static res:Strings.TrashBinDialog_Everything}" />
 			
-			<TextBlock
-				Grid.Column="3"
-				VerticalAlignment="Center"
-				Text="{Binding AudiblePlusCheckedCountText}" />
+				<TextBlock
+					Margin="0,0,14,0"
+					VerticalAlignment="Center"
+					Text="{Binding CheckedCountText}" />
+
+				<CheckBox
+					IsEnabled="{Binding	ControlsEnabled}"
+					IsThreeState="True"
+					Margin="0,0,15,0"
+					IsChecked="{Binding AudiblePlusChecked}"
+					Content="{x:Static res:Strings.TrashBinDialog_AudiblePlusBooks}" />
 			
+				<TextBlock
+					VerticalAlignment="Center"
+					Text="{Binding AudiblePlusCheckedCountText}" />
+			
+			</WrapPanel>
+
 			<Button
 				IsEnabled="{Binding	ControlsEnabled}"
-				Grid.Column="4"
+				Grid.Column="1"
 				Margin="0,0,20,0"
 				HorizontalAlignment="Right"
 				VerticalAlignment="Stretch"
@@ -80,7 +82,7 @@
 			
 			<Button
 				IsEnabled="{Binding	ControlsEnabled}"
-				Grid.Column="5"
+				Grid.Column="2"
 				Command="{Binding PermanentlyDeleteCheckedAsync}" >
 				<TextBlock
 					TextAlignment="Center"

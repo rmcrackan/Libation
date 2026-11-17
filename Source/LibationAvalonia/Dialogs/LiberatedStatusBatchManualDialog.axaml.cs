@@ -43,6 +43,7 @@ public partial class LiberatedStatusBatchManualDialog : DialogWindow
 	public LiberatedStatusBatchManualDialog()
 	{
 		InitializeComponent();
+		WidenToFit(content);
 		SelectedItem = BookStatuses[0];
 		DataContext = this;
 		ControlToFocusOnShow = SaveButton;

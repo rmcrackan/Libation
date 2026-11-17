@@ -23,6 +23,7 @@
 			Grid.Row="0"
 			Grid.Column="0"
 			Grid.ColumnSpan="2"
+			TextWrapping="Wrap"
 			Text="{x:Static res:Strings.ScanAccountsDialog_CheckTheAccountsToScanAnd}"/>
 
 		<DockPanel

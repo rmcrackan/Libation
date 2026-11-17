@@ -17,6 +17,7 @@
 		<TextBlock
 			Grid.ColumnSpan="2"
 			Margin="0,0,0,10"
+			TextWrapping="Wrap"
 			Text="{x:Static res:Strings.TagsBatchDialog_TagsAreSeparatedByASpace}"/>
 		<TextBox
 			Grid.Row="1"
