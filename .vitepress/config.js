@@ -139,6 +139,7 @@ export default defineConfig({
           },
           { text: "Contribute", link: "/docs/development/contribute" },
           { text: "Testing Changes", link: "/docs/development/testing" },
+          { text: "Translations", link: "/docs/development/translations" },
           { text: "Website & Docs", link: "/docs/development/website" },
           { text: "Linux Setup (Nix)", link: "/docs/development/nix-linux-setup" },
         ],
