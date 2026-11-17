@@ -56,6 +56,9 @@ partial class MainVM
 		}
 	}
 
+	/// <summary>The backup counts line in the status bar.</summary>
+	public string? StatusText => LibraryStats is null ? null : LibraryStatsText.Of(LibraryStats);
+
 	/// <summary> The user's library statistics </summary>
 	public LibraryCommands.LibraryStats? LibraryStats
 	{
@@ -63,6 +66,7 @@ partial class MainVM
 		set
 		{
 			this.RaiseAndSetIfChanged(ref field, value);
+			this.RaisePropertyChanged(nameof(StatusText));
 
 			BookBackupsToolStripText
 				= LibraryStats?.HasPendingBooks ?? false

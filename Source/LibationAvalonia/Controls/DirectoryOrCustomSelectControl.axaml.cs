@@ -177,7 +177,7 @@ public class KnownDirectoryItem : ReactiveObject
 
 	public KnownDirectoryItem(Configuration.KnownDirectories known, string? subDir)
 	{
-		Name = known.GetDescription();
+		Name = LibationUiBase.SettingsText.Of(known);
 		KnownDirectory = known;
 		SubDirectory = subDir;
 	}

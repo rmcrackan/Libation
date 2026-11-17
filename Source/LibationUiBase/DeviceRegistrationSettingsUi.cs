@@ -8,7 +8,7 @@ namespace LibationUiBase;
 public static class DeviceRegistrationSettingsUi
 {
 	public static EnumDisplay<DeviceRegistrationKind>[] Options { get; } =
-		DeviceRegistrationProfile.AllProfiles.Select(p => new EnumDisplay<DeviceRegistrationKind>(p.Kind, p.Description)).ToArray();
+		DeviceRegistrationProfile.AllProfiles.Select(p => new EnumDisplay<DeviceRegistrationKind>(p.Kind, SettingsText.Of(p.Kind, p.Description))).ToArray();
 
 	public static string SettingLabel { get; } = Strings.DeviceRegistrationSettingsUi_DeviceRegistrationExperimental;
 

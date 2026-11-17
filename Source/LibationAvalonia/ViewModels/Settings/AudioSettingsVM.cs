@@ -105,28 +105,28 @@ public class AudioSettingsVM : ViewModelBase
 				new EnumDisplay<Configuration.SpatialCodec>(Configuration.SpatialCodec.AC_4, "Dolby AC-4")
 			]);
 	public AvaloniaList<Configuration.ClipBookmarkFormat> ClipBookmarkFormats { get; } = new(Enum<Configuration.ClipBookmarkFormat>.GetValues());
-	public string FileDownloadQualityText { get; } = Configuration.GetDescription(nameof(Configuration.FileDownloadQuality));
-	public string UseWidevineText { get; } = Configuration.GetDescription(nameof(Configuration.UseWidevine));
+	public string FileDownloadQualityText { get; } = SettingsText.Label(nameof(Configuration.FileDownloadQuality));
+	public string UseWidevineText { get; } = SettingsText.Label(nameof(Configuration.UseWidevine));
 	public string UseWidevineTip { get; } = Configuration.GetHelpText(nameof(Configuration.UseWidevine));
-	public string Request_xHE_AACText { get; } = Configuration.GetDescription(nameof(Configuration.Request_xHE_AAC));
+	public string Request_xHE_AACText { get; } = SettingsText.Label(nameof(Configuration.Request_xHE_AAC));
 	public string Request_xHE_AACTip { get; } = Configuration.GetHelpText(nameof(Configuration.Request_xHE_AAC));
-	public string RequestSpatialText { get; } = Configuration.GetDescription(nameof(Configuration.RequestSpatial));
+	public string RequestSpatialText { get; } = SettingsText.Label(nameof(Configuration.RequestSpatial));
 	public string RequestSpatialTip { get; } = Configuration.GetHelpText(nameof(Configuration.RequestSpatial));
 	public string SpatialAudioCodecTip { get; } = Configuration.GetHelpText(nameof(Configuration.SpatialAudioCodec));
-	public string CreateCueSheetText { get; } = Configuration.GetDescription(nameof(Configuration.CreateCueSheet));
-	public string CombineNestedChapterTitlesText { get; } = Configuration.GetDescription(nameof(Configuration.CombineNestedChapterTitles));
+	public string CreateCueSheetText { get; } = SettingsText.Label(nameof(Configuration.CreateCueSheet));
+	public string CombineNestedChapterTitlesText { get; } = SettingsText.Label(nameof(Configuration.CombineNestedChapterTitles));
 	public string CombineNestedChapterTitlesTip => Configuration.GetHelpText(nameof(CombineNestedChapterTitles));
-	public string AllowLibationFixupText { get; } = Configuration.GetDescription(nameof(Configuration.AllowLibationFixup));
+	public string AllowLibationFixupText { get; } = SettingsText.Label(nameof(Configuration.AllowLibationFixup));
 	public string AllowLibationFixupTip => Configuration.GetHelpText(nameof(AllowLibationFixup));
-	public string DownloadCoverArtText { get; } = Configuration.GetDescription(nameof(Configuration.DownloadCoverArt));
-	public string RetainAaxFileText { get; } = Configuration.GetDescription(nameof(Configuration.RetainAaxFile));
-	public string SplitFilesByChapterText { get; } = Configuration.GetDescription(nameof(Configuration.SplitFilesByChapter));
-	public string MinimumFileDurationText { get; } = Configuration.GetDescription(nameof(Configuration.MinimumFileDuration));
-	public string MergeOpeningEndCreditsText { get; } = Configuration.GetDescription(nameof(Configuration.MergeOpeningAndEndCredits));
-	public string StripAudibleBrandingText { get; } = Configuration.GetDescription(nameof(Configuration.StripAudibleBrandAudio));
-	public string StripUnabridgedText { get; } = Configuration.GetDescription(nameof(Configuration.StripUnabridged));
-	public string ChapterTitleTemplateText { get; } = Configuration.GetDescription(nameof(Configuration.ChapterTitleTemplate));
-	public string MoveMoovToBeginningText { get; } = Configuration.GetDescription(nameof(Configuration.MoveMoovToBeginning));
+	public string DownloadCoverArtText { get; } = SettingsText.Label(nameof(Configuration.DownloadCoverArt));
+	public string RetainAaxFileText { get; } = SettingsText.Label(nameof(Configuration.RetainAaxFile));
+	public string SplitFilesByChapterText { get; } = SettingsText.Label(nameof(Configuration.SplitFilesByChapter));
+	public string MinimumFileDurationText { get; } = SettingsText.Label(nameof(Configuration.MinimumFileDuration));
+	public string MergeOpeningEndCreditsText { get; } = SettingsText.Label(nameof(Configuration.MergeOpeningAndEndCredits));
+	public string StripAudibleBrandingText { get; } = SettingsText.Label(nameof(Configuration.StripAudibleBrandAudio));
+	public string StripUnabridgedText { get; } = SettingsText.Label(nameof(Configuration.StripUnabridged));
+	public string ChapterTitleTemplateText { get; } = SettingsText.Label(nameof(Configuration.ChapterTitleTemplate));
+	public string MoveMoovToBeginningText { get; } = SettingsText.Label(nameof(Configuration.MoveMoovToBeginning));
 	public string MoveMoovToBeginningTip => Configuration.GetHelpText(nameof(MoveMoovToBeginning));
 
 	public bool CreateCueSheet { get; set; }

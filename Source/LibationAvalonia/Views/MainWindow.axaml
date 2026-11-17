@@ -354,7 +354,7 @@
 					Content="{Binding TrashBinStatusText}"
 					ToolTip.Tip="{Binding TrashBinStatusToolTip}"
 					IsVisible="{Binding TrashBinStatusVisible}" />
-			<TextBlock FontSize="14" Grid.Column="4" Text="{Binding LibraryStats?.StatusString}" VerticalAlignment="Center" />		
+			<TextBlock FontSize="14" Grid.Column="4" Text="{Binding StatusText}" VerticalAlignment="Center" />		
 		</Grid>
 	</Grid>
 </Window>

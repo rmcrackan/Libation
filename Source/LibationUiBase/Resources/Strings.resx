@@ -546,6 +546,22 @@ No accounts need to be deleted. Next time you Scan or Liberate, you will be prom
 {4}{5}</value>
     <comment>{0} = title, {1} = diagnosis, {2} = AppScaffolding.LicenseRecoveryGuidance.Explanation, {3} = AppScaffolding.LicenseRecoveryGuidance.BuildSteps(locale, updateStatus, hasAdditionalMarketplaces: hasAdditionalMarketplaces), {4} = AppScaffolding.LicenseRecoveryGuidance.Fallback, {5} = AppendSuggestion()</comment>
   </data>
+  <data name="Counted_Books" xml:space="preserve">
+    <value>{0} books</value>
+    <comment>{0} = count, never 1</comment>
+  </data>
+  <data name="Counted_OneBook" xml:space="preserve">
+    <value>{0} book</value>
+    <comment>{0} = 1</comment>
+  </data>
+  <data name="Counted_OneTitle" xml:space="preserve">
+    <value>{0} title</value>
+    <comment>{0} = 1</comment>
+  </data>
+  <data name="Counted_Titles" xml:space="preserve">
+    <value>{0} titles</value>
+    <comment>{0} = count, never 1</comment>
+  </data>
   <data name="CrashLogMessage_LibationCouldNotConfirmThatThis" xml:space="preserve">
     <value>Libation could not confirm that this error was saved.
 Please include the text below when reporting this issue.</value>
@@ -790,6 +806,114 @@ PDF downloaded</value>
     <value>This book cannot be downloaded
 because it wasn&apos;t found during
 the most recent library scan</value>
+  </data>
+  <data name="Enum_BadBookAction_Abort" xml:space="preserve">
+    <value>Stop processing books.</value>
+    <comment>Configuration.BadBookAction.Abort. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_BadBookAction_Ask" xml:space="preserve">
+    <value>Ask each time what action to take.</value>
+    <comment>Configuration.BadBookAction.Ask. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_BadBookAction_Ignore" xml:space="preserve">
+    <value>Permanently ignore book. Continue processing books. Do not try book again.</value>
+    <comment>Configuration.BadBookAction.Ignore. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_BadBookAction_Retry" xml:space="preserve">
+    <value>Retry book later. Skip for now. Continue processing books.</value>
+    <comment>Configuration.BadBookAction.Retry. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_DailyLimitScope_AllBooks" xml:space="preserve">
+    <value>All books</value>
+    <comment>Configuration.DailyLimitScope.AllBooks. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_DailyLimitScope_NoLimit" xml:space="preserve">
+    <value>No limit</value>
+    <comment>Configuration.DailyLimitScope.NoLimit. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_DailyLimitScope_PlusOnly" xml:space="preserve">
+    <value>Plus titles only</value>
+    <comment>Configuration.DailyLimitScope.PlusOnly. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_DailyLimitUnit_Books" xml:space="preserve">
+    <value>books</value>
+    <comment>Configuration.DailyLimitUnit.Books. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_DailyLimitUnit_GB" xml:space="preserve">
+    <value>GB</value>
+    <comment>Configuration.DailyLimitUnit.GB. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_DailyLimitUnit_MB" xml:space="preserve">
+    <value>MB</value>
+    <comment>Configuration.DailyLimitUnit.MB. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_DateTimeSource_Added" xml:space="preserve">
+    <value>Date book was added to your Audible account</value>
+    <comment>Configuration.DateTimeSource.Added. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_DateTimeSource_File" xml:space="preserve">
+    <value>File creation date/time</value>
+    <comment>Configuration.DateTimeSource.File. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_DateTimeSource_Published" xml:space="preserve">
+    <value>Audiobook publication date</value>
+    <comment>Configuration.DateTimeSource.Published. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_DeviceRegistrationKind_CurrentAndroid" xml:space="preserve">
+    <value>Android emulator (default)</value>
+    <comment>DeviceRegistrationProfile description for CurrentAndroid. The English must match it.</comment>
+  </data>
+  <data name="Enum_DeviceRegistrationKind_Mkb79IPhone" xml:space="preserve">
+    <value>iPhone / audible-cli (experimental; no Widevine)</value>
+    <comment>DeviceRegistrationProfile description for Mkb79IPhone. The English must match it.</comment>
+  </data>
+  <data name="Enum_DownloadQuality_High" xml:space="preserve">
+    <value>High</value>
+    <comment>Configuration.DownloadQuality.High. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_DownloadQuality_Normal" xml:space="preserve">
+    <value>Normal</value>
+    <comment>Configuration.DownloadQuality.Normal. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_KnownDirectories_AppDir" xml:space="preserve">
+    <value>The same folder that Libation is running from</value>
+    <comment>Configuration.KnownDirectories.AppDir. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_KnownDirectories_ApplicationData" xml:space="preserve">
+    <value>User Application Data Folder</value>
+    <comment>Configuration.KnownDirectories.ApplicationData. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_KnownDirectories_LibationFiles" xml:space="preserve">
+    <value>Your settings folder (aka: Libation Files)</value>
+    <comment>Configuration.KnownDirectories.LibationFiles. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_KnownDirectories_MyDocs" xml:space="preserve">
+    <value>My Documents</value>
+    <comment>Configuration.KnownDirectories.MyDocs. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_KnownDirectories_MyMusic" xml:space="preserve">
+    <value>My Music</value>
+    <comment>Configuration.KnownDirectories.MyMusic. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_KnownDirectories_UserProfile" xml:space="preserve">
+    <value>My Users folder</value>
+    <comment>Configuration.KnownDirectories.UserProfile. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_KnownDirectories_WinTemp" xml:space="preserve">
+    <value>System temporary folder</value>
+    <comment>Configuration.KnownDirectories.WinTemp. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_Theme_Dark" xml:space="preserve">
+    <value>Dark</value>
+    <comment>Configuration.Theme.Dark. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_Theme_Light" xml:space="preserve">
+    <value>Light</value>
+    <comment>Configuration.Theme.Light. The English must match its [Description], or its name if it has none.</comment>
+  </data>
+  <data name="Enum_Theme_System" xml:space="preserve">
+    <value>System</value>
+    <comment>Configuration.Theme.System. The English must match its [Description], or its name if it has none.</comment>
   </data>
   <data name="ExceptionDisplay_InnerException" xml:space="preserve">
     <value> inner exception</value>
@@ -1281,6 +1405,33 @@ Would you like to create a new install settings in this folder?
   <data name="LiberatedStatusBatchManualDialog_ToDownloadAgainNextTimeChange" xml:space="preserve">
     <value>To download again next time: change to Download Pending
 To not download: change to Downloaded</value>
+  </data>
+  <data name="LibraryStatsText_AllBooksBackedUp" xml:space="preserve">
+    <value>All {0} backed up</value>
+    <comment>{0} = count of books, e.g. "12 books"</comment>
+  </data>
+  <data name="LibraryStatsText_AllPdfsDownloaded" xml:space="preserve">
+    <value>All {0} PDFs downloaded</value>
+    <comment>{0} = count</comment>
+  </data>
+  <data name="LibraryStatsText_Backups" xml:space="preserve">
+    <value>BACKUPS: No progress: {0}  In process: {1}  Fully backed up: {2}</value>
+    <comment>{0}, {1}, {2} = counts of books</comment>
+  </data>
+  <data name="LibraryStatsText_Errors" xml:space="preserve">
+    <value>  Errors: {0}</value>
+    <comment>Appended to the backups line. {0} = count</comment>
+  </data>
+  <data name="LibraryStatsText_NoBooks" xml:space="preserve">
+    <value>No books. Begin by importing your library</value>
+  </data>
+  <data name="LibraryStatsText_Pdfs" xml:space="preserve">
+    <value>PDFs: NOT d/l'ed: {0}  Downloaded: {1}</value>
+    <comment>{0}, {1} = counts of PDFs</comment>
+  </data>
+  <data name="LibraryStatsText_Unavailable" xml:space="preserve">
+    <value>  Unavailable: {0}</value>
+    <comment>Appended to the backups or PDFs line. {0} = count</comment>
   </data>
   <data name="LocateAudiobooksDialog_DoubleClickToOpenContainingFolder" xml:space="preserve">
     <value>Double-click to open containing folder.</value>
@@ -2337,6 +2488,301 @@ Order</value>
   </data>
   <data name="SeriesViewGrid_Title" xml:space="preserve">
     <value>Title</value>
+  </data>
+  <data name="Setting_AllowLibationFixup" xml:space="preserve">
+    <value>Allow Libation to fix up audiobook metadata</value>
+    <comment>Configuration.AllowLibationFixup [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_AudiobookshelfApiToken" xml:space="preserve">
+    <value>API Token</value>
+    <comment>Configuration.AudiobookshelfApiToken [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_AudiobookshelfEnabled" xml:space="preserve">
+    <value>Automatically upload downloaded books</value>
+    <comment>Configuration.AudiobookshelfEnabled [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_AudiobookshelfFolderId" xml:space="preserve">
+    <value>Folder</value>
+    <comment>Configuration.AudiobookshelfFolderId [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_AudiobookshelfIncludePdfs" xml:space="preserve">
+    <value>Include PDFs when uploading to Audiobookshelf</value>
+    <comment>Configuration.AudiobookshelfIncludePdfs [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_AudiobookshelfLibraryId" xml:space="preserve">
+    <value>Library</value>
+    <comment>Configuration.AudiobookshelfLibraryId [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_AudiobookshelfServerUrl" xml:space="preserve">
+    <value>Server URL (base address only)</value>
+    <comment>Configuration.AudiobookshelfServerUrl [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_AutoDownloadEpisodes" xml:space="preserve">
+    <value>Auto download books? After scan, download new books in 'checked' accounts.</value>
+    <comment>Configuration.AutoDownloadEpisodes [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_AutoScan" xml:space="preserve">
+    <value>Automatically run periodic scans in the background?</value>
+    <comment>Configuration.AutoScan [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_AutoScrollQueue" xml:space="preserve">
+    <value>Auto-scroll the download queue to keep active downloads in view.</value>
+    <comment>Configuration.AutoScrollQueue [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_BadBook" xml:space="preserve">
+    <value>When liberating books and there is an error, Libation should:</value>
+    <comment>Configuration.BadBook [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_Books" xml:space="preserve">
+    <value>Location for book storage. Includes destination of newly liberated books</value>
+    <comment>Configuration.Books [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_ChapterFileTemplate" xml:space="preserve">
+    <value>How to format the saved audio files when split by chapters</value>
+    <comment>Configuration.ChapterFileTemplate [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_ChapterTitleTemplate" xml:space="preserve">
+    <value>How to format the file's Title stored in metadata</value>
+    <comment>Configuration.ChapterTitleTemplate [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_CheckForPreRelease" xml:space="preserve">
+    <value>Include pre-releases when checking for Libation updates</value>
+    <comment>Configuration.CheckForPreRelease [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_CheckForUpgradesAtStartup" xml:space="preserve">
+    <value>Check for new Libation versions at startup</value>
+    <comment>Configuration.CheckForUpgradesAtStartup [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_ClipsBookmarksFileFormat" xml:space="preserve">
+    <value>File format to save clips and bookmarks</value>
+    <comment>Configuration.ClipsBookmarksFileFormat [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_CombineNestedChapterTitles" xml:space="preserve">
+    <value>Combine nested chapter titles</value>
+    <comment>Configuration.CombineNestedChapterTitles [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_CreateCueSheet" xml:space="preserve">
+    <value>Create a cue sheet (.cue)</value>
+    <comment>Configuration.CreateCueSheet [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_CreationTime" xml:space="preserve">
+    <value>Set file "created" timestamp to:</value>
+    <comment>Configuration.CreationTime [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_DailyDownloadLimit" xml:space="preserve">
+    <value>Daily download limit (rolling 24 hours):</value>
+    <comment>Configuration.DailyDownloadLimit [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_DailyDownloadLimitQuantity" xml:space="preserve">
+    <value>Limit:</value>
+    <comment>Configuration.DailyDownloadLimitQuantity [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_DailyDownloadLimitUnit" xml:space="preserve">
+    <value>Unit:</value>
+    <comment>Configuration.DailyDownloadLimitUnit [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_DecryptToLossy" xml:space="preserve">
+    <value>Decrypt to lossy format?</value>
+    <comment>Configuration.DecryptToLossy [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_DeviceRegistrationKind" xml:space="preserve">
+    <value>Experimental: virtual device to register as when signing in.</value>
+    <comment>Configuration.DeviceRegistrationKind [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_DownloadClipsBookmarks" xml:space="preserve">
+    <value>Download clips and bookmarks?</value>
+    <comment>Configuration.DownloadClipsBookmarks [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_DownloadCoverArt" xml:space="preserve">
+    <value>Save cover image alongside audiobook?</value>
+    <comment>Configuration.DownloadCoverArt [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_DownloadEpisodes" xml:space="preserve">
+    <value>Download episodes? (eg: podcasts). When unchecked, episodes already in Libation will not be downloaded.</value>
+    <comment>Configuration.DownloadEpisodes [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_DownloadSpeedLimit" xml:space="preserve">
+    <value>Global download speed limit in bytes per second.</value>
+    <comment>Configuration.DownloadSpeedLimit [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_FileDownloadQuality" xml:space="preserve">
+    <value>Audio quality to request from Audible:</value>
+    <comment>Configuration.FileDownloadQuality [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_FileTemplate" xml:space="preserve">
+    <value>How to format the saved pdf and audio files</value>
+    <comment>Configuration.FileTemplate [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_FirstLaunch" xml:space="preserve">
+    <value>Indicates that this is the first time Libation has been run</value>
+    <comment>Configuration.FirstLaunch [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_FolderTemplate" xml:space="preserve">
+    <value>How to format the folders in which files will be saved</value>
+    <comment>Configuration.FolderTemplate [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_GridColumnsDisplayIndices" xml:space="preserve">
+    <value>A Dictionary of GridView data property names and int indicating its column's display index in ProductsGrid</value>
+    <comment>Configuration.GridColumnsDisplayIndices [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_GridColumnsVisibilities" xml:space="preserve">
+    <value>A Dictionary of GridView data property names and bool indicating its column's visibility in ProductsGrid</value>
+    <comment>Configuration.GridColumnsVisibilities [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_GridColumnsWidths" xml:space="preserve">
+    <value>A Dictionary of GridView data property names and int indicating its column's width in ProductsGrid</value>
+    <comment>Configuration.GridColumnsWidths [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_GridFontScaleFactor" xml:space="preserve">
+    <value>Book display font size</value>
+    <comment>Configuration.GridFontScaleFactor [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_GridScaleFactor" xml:space="preserve">
+    <value>Book display grid size</value>
+    <comment>Configuration.GridScaleFactor [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_ImportEpisodes" xml:space="preserve">
+    <value>Import episodes? (eg: podcasts) When unchecked, episodes will not be imported into Libation.</value>
+    <comment>Configuration.ImportEpisodes [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_ImportPlusTitles" xml:space="preserve">
+    <value>Import Audible Plus books (books you do not own)? When unchecked, Audible Plus books will not be imported into Libation.</value>
+    <comment>Configuration.ImportPlusTitles [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_InProgress" xml:space="preserve">
+    <value>Temporary location of files while they're in process of being downloaded and decrypted.&#xD;
+When decryption is complete, the final file will be in Books location&#xD;
+Recommend not using a folder which is backed up real time. Eg: Dropbox, iCloud, Google Drive</value>
+    <comment>Configuration.InProgress [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_LameBitrate" xml:space="preserve">
+    <value>Lame target bitrate [16,320]</value>
+    <comment>Configuration.LameBitrate [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_LameConstantBitrate" xml:space="preserve">
+    <value>Restrict encoder to constant bitrate?</value>
+    <comment>Configuration.LameConstantBitrate [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_LameDownsampleMono" xml:space="preserve">
+    <value>Lame encoder downsamples to mono</value>
+    <comment>Configuration.LameDownsampleMono [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_LameEncoderQuality" xml:space="preserve">
+    <value>Lame encoder quality</value>
+    <comment>Configuration.LameEncoderQuality [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_LameMatchSourceBR" xml:space="preserve">
+    <value>Match the source bitrate?</value>
+    <comment>Configuration.LameMatchSourceBR [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_LameTargetBitrate" xml:space="preserve">
+    <value>Lame encoder target. true = Bitrate, false = Quality</value>
+    <comment>Configuration.LameTargetBitrate [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_LameVBRQuality" xml:space="preserve">
+    <value>Lame target VBR quality [10,100]</value>
+    <comment>Configuration.LameVBRQuality [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_LastWriteTime" xml:space="preserve">
+    <value>Set file "modified" timestamp to:</value>
+    <comment>Configuration.LastWriteTime [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_LibationFiles" xml:space="preserve">
+    <value>Location for storage of program-created files</value>
+    <comment>Configuration.LibationFiles [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_LogLevel" xml:space="preserve">
+    <value>The importance of a log event</value>
+    <comment>Configuration.LogLevel [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_MaxConcurrentDownloads" xml:space="preserve">
+    <value>Maximum number of books to download and decrypt simultaneously. Set to 1 to download one book at a time.</value>
+    <comment>Configuration.MaxConcurrentDownloads [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_MaxSampleRate" xml:space="preserve">
+    <value>Maximum audio sample rate</value>
+    <comment>Configuration.MaxSampleRate [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_MergeOpeningAndEndCredits" xml:space="preserve">
+    <value>Merge Opening/End Credits into the following/preceding chapters</value>
+    <comment>Configuration.MergeOpeningAndEndCredits [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_MinimumFileDuration" xml:space="preserve">
+    <value>Minimum file duration (seconds)</value>
+    <comment>Configuration.MinimumFileDuration [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_MoveMoovToBeginning" xml:space="preserve">
+    <value>Move the mp4 moov atom to the beginning of the file?</value>
+    <comment>Configuration.MoveMoovToBeginning [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_OverwriteExisting" xml:space="preserve">
+    <value>Overwrite existing files if they already exist?</value>
+    <comment>Configuration.OverwriteExisting [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_PostgresqlConnectionString" xml:space="preserve">
+    <value>Connection string for Postgresql</value>
+    <comment>Configuration.PostgresqlConnectionString [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_ReplacementCharacters" xml:space="preserve">
+    <value>Edit how filename characters are replaced</value>
+    <comment>Configuration.ReplacementCharacters [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_Request_xHE_AAC" xml:space="preserve">
+    <value>Request xHE-AAC codec</value>
+    <comment>Configuration.Request_xHE_AAC [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_RetainAaxFile" xml:space="preserve">
+    <value>Retain the Aax file after successfully decrypting</value>
+    <comment>Configuration.RetainAaxFile [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_SaveMetadataToFile" xml:space="preserve">
+    <value>Save audiobook metadata to metadata.json</value>
+    <comment>Configuration.SaveMetadataToFile [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_SavePodcastsToParentFolder" xml:space="preserve">
+    <value>Save all podcast episodes in a series to the series parent folder?</value>
+    <comment>Configuration.SavePodcastsToParentFolder [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_ShowImportedStats" xml:space="preserve">
+    <value>Show number of newly imported titles? When unchecked, no pop-up will appear after library scan.</value>
+    <comment>Configuration.ShowImportedStats [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_SplitFilesByChapter" xml:space="preserve">
+    <value>Split my books into multiple files by chapter</value>
+    <comment>Configuration.SplitFilesByChapter [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_StripAudibleBrandAudio" xml:space="preserve">
+    <value>Strip audible branding from the start and end of audiobooks.&#xD;
+(e.g. "This is Audible")</value>
+    <comment>Configuration.StripAudibleBrandAudio [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_StripUnabridged" xml:space="preserve">
+    <value>Strip "(Unabridged)" from audiobook metadata tags</value>
+    <comment>Configuration.StripUnabridged [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_ThemeVariant" xml:space="preserve">
+    <value>Libation's display color theme</value>
+    <comment>Configuration.ThemeVariant [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_TokenStorageMethod" xml:space="preserve">
+    <value>Store authentication tokens encrypted. Unchecking this option stores tokens in plaintext.</value>
+    <comment>Configuration.TokenStorageMethod [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_UiLanguage" xml:space="preserve">
+    <value>Display language. Empty follows the system language.</value>
+    <comment>Configuration.UiLanguage [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_UseCoverAsFolderIcon" xml:space="preserve">
+    <value>Set cover art as the folder's icon.</value>
+    <comment>Configuration.UseCoverAsFolderIcon [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_UseWebView" xml:space="preserve">
+    <value>Use Libation's built-in web browser to log into Audible?</value>
+    <comment>Configuration.UseWebView [Description]. The English must match it.</comment>
+  </data>
+  <data name="Setting_UseWidevine" xml:space="preserve">
+    <value>Use Widevine DRM</value>
+    <comment>Configuration.UseWidevine [Description]. The English must match it.</comment>
   </data>
   <data name="SettingsDialog_AudioFileSettings" xml:space="preserve">
     <value>Audio File Settings</value>

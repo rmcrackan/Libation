@@ -130,7 +130,7 @@ public class GridContextMenu
 
 		string confirmMessage = string.Format(
 			toRemove.Length == 1 ? Strings.GridContextMenu_AboutToRemoveOneFromAudible : Strings.GridContextMenu_AboutToRemoveManyFromAudible,
-			"book".PluralizeWithCount(toRemove.Length),
+			Counted.Books(toRemove.Length),
 			toRemove.AggregateTitles());
 		DialogResult result = await MessageBoxBase.Show(confirmMessage, Strings.GridContextMenu_ConfirmRemoveFromAudibleLibrary, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
 		if (result != DialogResult.Yes)
@@ -170,7 +170,7 @@ public class GridContextMenu
 		}
 		if (failedToRemove.Count > 0)
 		{
-			string booksStr = "book".PluralizeWithCount(failedToRemove.Count);
+			string booksStr = Counted.Books(failedToRemove.Count);
 			string message = string.Format(Strings.GridContextMenu_FailedToRemoveFromAudible, booksStr, failedToRemove.AggregateTitles());
 			await MessageBoxBase.Show(message, string.Format(Strings.GridContextMenu_FailedToRemoveFromAudible2, booksStr));
 		}
@@ -182,7 +182,7 @@ public class GridContextMenu
 		{
 			Serilog.Log.Logger.Error(ex, "Failed to delete locally removed from Audible books.");
 
-			string booksStr = "book".PluralizeWithCount(removedFromAudible.Count);
+			string booksStr = Counted.Books(removedFromAudible.Count);
 			string message = string.Format(Strings.GridContextMenu_FailedToDeleteFromLibation, booksStr, removedFromAudible.AggregateTitles());
 			await MessageBoxBase.Show(message, string.Format(Strings.GridContextMenu_FailedToDeleteFromLibation2, booksStr));
 		}

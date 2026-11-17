@@ -16,7 +16,7 @@ public static class TrashBinUi
 
 	/// <summary>Status bar text. Only meaningful when <see cref="ShowStatus"/> is true.</summary>
 	public static string StatusText(int booksInTrash)
-		=> string.Format(Strings.TrashBinUi_InTrash, "book".PluralizeWithCount(booksInTrash));
+		=> string.Format(Strings.TrashBinUi_InTrash, Counted.Books(booksInTrash));
 
 	/// <summary>An empty trash is the normal case and says nothing useful, so it stays off screen.</summary>
 	public static bool ShowStatus(int booksInTrash) => booksInTrash > 0;

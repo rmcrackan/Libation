@@ -102,7 +102,7 @@ internal sealed class BackupRequest
 			return Strings.BackupRequest_LibationFoundNoTitlesThatNeed;
 
 		var sb = new StringBuilder();
-		sb.AppendLine(string.Format(Strings.BackupRequest_NoneOfTheCouldBeQueued, "title".PluralizeWithCount(RequestedCount)));
+		sb.AppendLine(string.Format(Strings.BackupRequest_NoneOfTheCouldBeQueued, Counted.Titles(RequestedCount)));
 		sb.AppendLine();
 
 		//the count comes before the advice so the numbers stay scannable
@@ -132,7 +132,7 @@ internal sealed class BackupRequest
 			sb.AppendLine(string.Format(
 				Strings.BackupRequest_DeferredGroupNextAttempt,
 				group.First().KindLabel,
-				"title".PluralizeWithCount(group.Count()),
+				Counted.Titles(group.Count()),
 				DeferredDownloadUserMessage.DescribeWhen(group.Min(d => d.RetryAfter), now)));
 		}
 
