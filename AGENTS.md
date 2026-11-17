@@ -37,8 +37,8 @@ plus a headless CLI (`LibationCli`) that shares the same config and SQLite libra
 - Chardonnay's user-facing text lives in `Source/LibationUiBase/Resources/Strings.resx`. Add new text
   there and read it as `Strings.Key` (C#) or `{x:Static res:Strings.Key}` (XAML), as whole sentences
   with `{0}` holes; text left inline stays English in every language. Settings `[Description]` text
-  needs a `Setting_`/`Enum_` copy (`SettingsTextTests` checks it). Keep `Program.Main` and the crash
-  handler free of `Strings`. Details: `docs/development/translations.md`.
+  needs a `Setting_`/`Enum_` copy (`SettingsTextTests` checks it). `Program.Main` and the crash
+  handler must not name types that are new in LibationUiBase, such as `Strings`. Details: `docs/development/translations.md`.
 
 ### Testing
 - Test projects live under `Source/_Tests/` and use MSTest on **Microsoft.Testing.Platform**

@@ -1514,15 +1514,19 @@ Copy the current url from your browser&apos;s address bar and paste it here: </v
   </data>
   <data name="MainVM_AreYouSureYouWantTo" xml:space="preserve">
     <value>Are you sure you want to replace tags in {0}?</value>
+    <comment>{0} = "this 1 book" or "these 3 books" (MessageBox_ThisBook / MessageBox_TheseBooks)</comment>
   </data>
   <data name="MainVM_AreYouSureYouWantTo2" xml:space="preserve">
     <value>Are you sure you want to replace book downloaded status in {0}?</value>
+    <comment>{0} = "this 1 book" or "these 3 books" (MessageBox_ThisBook / MessageBox_TheseBooks)</comment>
   </data>
   <data name="MainVM_AreYouSureYouWantTo3" xml:space="preserve">
     <value>Are you sure you want to replace PDF downloaded status in {0}?</value>
+    <comment>{0} = "this 1 book" or "these 3 books" (MessageBox_ThisBook / MessageBox_TheseBooks)</comment>
   </data>
   <data name="MainVM_AreYouSureYouWantTo4" xml:space="preserve">
     <value>Are you sure you want to remove {0} from Libation&apos;s library?</value>
+    <comment>{0} = "this 1 book" or "these 3 books" (MessageBox_ThisBook / MessageBox_TheseBooks)</comment>
   </data>
   <data name="MainVM_BadFilterString" xml:space="preserve">
     <value>Bad filter string: &quot;{0}&quot;&#xD;
@@ -2258,6 +2262,7 @@ Run Scan (or `libationcli scan`) so Libation can refresh your library, then try 
   </data>
   <data name="ProductsDisplayViewModel_AreYouSureYouWantTo" xml:space="preserve">
     <value>Are you sure you want to remove {0} from Libation&apos;s library?</value>
+    <comment>{0} = "this 1 book" or "these 3 books" (MessageBox_ThisBook / MessageBox_TheseBooks)</comment>
   </data>
   <data name="ProductsDisplayViewModel_ErrorScanningLibrary" xml:space="preserve">
     <value>Error scanning library</value>
@@ -3125,6 +3130,7 @@ about this release</value>
     <value>There is a new {0} available. Would you like to update?&#xD;
 &#xD;
 After you close Libation, the upgrade will start automatically.</value>
+    <comment>{0} = "release" or "pre-release" (UpgradeNotificationDialog_Release / _PreRelease)</comment>
   </data>
   <data name="UpgradeNotificationDialog_UpgradeAvailable" xml:space="preserve">
     <value>Upgrade Available</value>

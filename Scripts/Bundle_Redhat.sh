@@ -86,8 +86,8 @@ rm libation_glass.svg
 rm Libation.desktop
 
 find . -maxdepth 1 -type f -exec install -t %{buildroot}%{_libdir}/%{name}/ {} +
-# RPM 4.20+ puts BUILDROOT inside this folder, so leave it out.
-find . -mindepth 1 -maxdepth 1 -type d ! -name BUILDROOT -exec cp -r -t %{buildroot}%{_libdir}/%{name}/ {} +
+# RPM 4.20+ keeps BUILDROOT and SPECPARTS in this folder, so leave them out.
+find . -mindepth 1 -maxdepth 1 -type d ! -name BUILDROOT ! -name SPECPARTS -exec cp -r -t %{buildroot}%{_libdir}/%{name}/ {} +
 
 %post
 
