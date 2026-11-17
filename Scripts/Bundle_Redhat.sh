@@ -71,7 +71,7 @@ mkdir -p %{buildroot}%{_datadir}/applications
 if [ ! -f "libation_glass.svg" ] && [ -f "../libation_glass.svg" ]; then
     find .. -maxdepth 1 -type f -exec cp -t . {} +
     # Folders too, such as the per-language ones that hold translations, but not this build folder itself.
-    find .. -mindepth 1 -maxdepth 1 -type d ! -name '%{name}-%{version}-build' -exec cp -r -t . {} +
+    find .. -mindepth 1 -maxdepth 1 -type d ! -samefile . -exec cp -r -t . {} +
 fi
 
 if test -f 'libcoreclrtraceptprovider.so'; then
