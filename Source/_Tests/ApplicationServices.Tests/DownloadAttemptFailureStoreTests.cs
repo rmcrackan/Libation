@@ -253,4 +253,22 @@ public class DownloadAttemptFailureStoreTests
 		DownloadAttemptFailureStore.GetDeferred(DateTimeOffset.Now).Count.Should().Be(0);
 		DownloadAttemptFailureStore.Find(book, DateTimeOffset.Now).Should().BeNull();
 	}
+
+	[TestMethod]
+	public void ClearForAccount_clears_matching_kind_only_for_that_account()
+	{
+		var targetDenied = Book("B001", "a@example.com");
+		var targetPreorder = Book("B002", "a@example.com");
+		var otherDenied = Book("B003", "b@example.com");
+
+		DownloadAttemptFailureStore.Record(targetDenied, DownloadFailureKind.LicenseDenied, "throttled");
+		DownloadAttemptFailureStore.Record(targetPreorder, DownloadFailureKind.AssetUnavailable, "preorder");
+		DownloadAttemptFailureStore.Record(otherDenied, DownloadFailureKind.LicenseDenied, "throttled");
+
+		DownloadAttemptFailureStore.ClearForAccount("a@example.com", DownloadFailureKind.LicenseDenied);
+
+		DownloadAttemptFailureStore.Find(targetDenied, DateTimeOffset.Now).Should().BeNull();
+		Assert.IsNotNull(DownloadAttemptFailureStore.Find(targetPreorder, DateTimeOffset.Now));
+		Assert.IsNotNull(DownloadAttemptFailureStore.Find(otherDenied, DateTimeOffset.Now));
+	}
 }

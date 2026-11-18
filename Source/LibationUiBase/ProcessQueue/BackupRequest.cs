@@ -22,7 +22,7 @@ internal sealed class BackupRequest
 		public static readonly SkipReason AlreadyDownloaded = new("Already downloaded");
 		public static readonly SkipReason PreviousError = new("Previously failed to download", "mark it 'Download Pending' to try again");
 		public static readonly SkipReason AbsentFromLastScan = new(AbsentFromLastScanUserMessage.Label, AbsentFromLastScanUserMessage.Advice);
-		public static readonly SkipReason WaitingToRetry = new("Waiting before trying again after a recent failure", "download the title on its own to try it now");
+		public static readonly SkipReason WaitingToRetry = new("Titles waiting to retry after a recent failure", "download a title on its own to try it now");
 
 		public static readonly SkipReason[] All = [AlreadyDownloaded, PreviousError, AbsentFromLastScan, WaitingToRetry];
 	}

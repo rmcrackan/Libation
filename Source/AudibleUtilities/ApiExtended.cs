@@ -16,6 +16,9 @@ namespace AudibleUtilities;
 public class ApiExtended
 {
 	public static Func<Account, ILoginChoiceEager>? LoginChoiceFactory { get; set; }
+	/// <summary>Raised after an account completes a forced re-registration or credential upgrade.</summary>
+	public static event Action<Account>? AccountReRegistered;
+	internal static void OnAccountReRegistered(Account account) => AccountReRegistered?.Invoke(account);
 	public Api Api { get; private set; }
 	public Account Account { get; private set; }
 
@@ -168,16 +171,20 @@ public class ApiExtended
 				}
 
 				bool missingRequiredTokens = account.IdentityTokens is not null && !account.IdentityTokens.HasRequiredTokens(AccountCredentialStatus.RequiredAuthenticationMethods);
+				bool forceLogin = missingRequiredTokens || account.RequiresReRegistration;
 				var api = await EzApiCreator.GetApiAsync(
 					LoginChoiceFactory(account),
 					locale,
 					AudibleApiStorage.AccountsSettingsFile,
 					account.GetIdentityTokensJsonPath(),
 					Configuration.Instance.GetDeviceRegistrationProfile(),
-					forceLogin: missingRequiredTokens || account.RequiresReRegistration,
+					forceLogin: forceLogin,
 					requiredAuthMethods: AccountCredentialStatus.RequiredAuthenticationMethods);
 
 				SyncAccountFromDiskAfterLogin(account);
+
+				if (forceLogin)
+					OnAccountReRegistered(account);
 
 				// login happens against the account's own marketplace, so the api it hands back reads that one.
 				// re-create once the tokens exist if some other marketplace is the one actually wanted.

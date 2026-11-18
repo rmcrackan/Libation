@@ -1,7 +1,9 @@
+using ApplicationServices;
 using AudibleApi;
 using AudibleApi.Common;
 using AudibleUtilities;
 using CommandLine;
+using DataLayer;
 using LibationFileManager;
 using System;
 using System.Linq;
@@ -162,6 +164,7 @@ internal class LoginExternalOptions : OptionsBase
 			return;
 		}
 
+		var forceLogin = requirement is LoginRequiredReason.Forced or LoginRequiredReason.MissingRequiredTokens or LoginRequiredReason.RequiresReRegistration or LoginRequiredReason.ObsoleteDeviceRegistration;
 		var loginExternal = new CliLoginExternal(presetResponse);
 		try
 		{
@@ -171,13 +174,16 @@ internal class LoginExternalOptions : OptionsBase
 				AudibleApiStorage.AccountsSettingsFile,
 				jsonPath,
 				registrationProfile,
-				forceLogin: requirement is LoginRequiredReason.Forced or LoginRequiredReason.MissingRequiredTokens or LoginRequiredReason.RequiresReRegistration or LoginRequiredReason.ObsoleteDeviceRegistration,
+				forceLogin: forceLogin,
 				requiredAuthMethods: requiredAuth);
 
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			var account = persister.AccountsSettings.GetAccount(accountId, locale.Name);
 			if (account is not null)
 				account.RequiresReRegistration = false;
+
+			if (forceLogin)
+				DownloadAttemptFailureStore.ClearForAccount(accountId, DataLayer.DownloadFailureKind.LicenseDenied);
 		}
 		catch (Exception ex)
 		{
