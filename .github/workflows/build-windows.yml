@@ -98,12 +98,12 @@ jobs:
           
           $artifact="${{ matrix.artifact_stem }}.${{ inputs.libation-version }}-windows-${{ matrix.release_name }}-${{ matrix.architecture }}.zip"
           "artifact=$artifact" >> $env:GITHUB_OUTPUT
-          Compress-Archive -Path * -DestinationPath "$artifact"
+          Compress-Archive -Path * -DestinationPath "../$artifact"
 
       - uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.zip.outputs.artifact }}
-          path: ./bin/${{ steps.zip.outputs.artifact }}
+          path: ./${{ steps.zip.outputs.artifact }}
           if-no-files-found: error
           retention-days: ${{ inputs.retention-days }}
 
