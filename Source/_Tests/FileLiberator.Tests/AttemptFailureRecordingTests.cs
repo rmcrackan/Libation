@@ -1,6 +1,7 @@
 using ApplicationServices;
 using AudibleApi;
 using AudibleApi.Common;
+using AudibleUtilities;
 using DataLayer;
 using Dinah.Core.ErrorHandling;
 using LibationFileManager;
@@ -203,5 +204,89 @@ public class AttemptFailureRecordingTests
 		protected override bool RecordsAttemptFailures => true;
 		public override bool Validate(LibraryBook libraryBook) => false;
 		public override Task<StatusHandler> ProcessAsync(LibraryBook libraryBook) => throw new InvalidOperationException("must not run");
+	}
+
+	[TestMethod]
+	public async Task Manual_reregistration_clears_license_denied_deferrals_for_that_account()
+	{
+		var refusedBook = MockLibraryBook.CreateBook(title: "Manual 1", account: "manual@example.com", bookStatus: LiberatedStatus.NotLiberated);
+		var preorderBook = MockLibraryBook.CreateBook(title: "Manual 2", account: "manual@example.com", bookStatus: LiberatedStatus.NotLiberated);
+		var otherAccountBook = MockLibraryBook.CreateBook(title: "Manual 3", account: "other@example.com", bookStatus: LiberatedStatus.NotLiberated);
+
+		var failingDownload = new FakeDownload { Configuration = Configuration.Instance, Throw = Denied() };
+		await Assert.ThrowsExactlyAsync<ContentLicenseDeniedException>(() => failingDownload.ProcessSingleAsync(refusedBook, validate: true));
+		DownloadAttemptFailureStore.Record(preorderBook, DownloadFailureKind.AssetUnavailable, "preorder");
+		DownloadAttemptFailureStore.Record(otherAccountBook, DownloadFailureKind.LicenseDenied, "throttled");
+
+		Assert.IsNotNull(Deferred(refusedBook));
+
+		Action<Account> handler = a => DownloadAttemptFailureStore.ClearForAccount(a.AccountId, DownloadFailureKind.LicenseDenied);
+		ApiExtended.AccountReRegistered += handler;
+		try
+		{
+			// User unchecked the account in AccountsDialog (RequiresReRegistration = true) and completed login.
+			var account = new Account("manual@example.com") { RequiresReRegistration = true };
+			account.RequiresReRegistration = false;
+			ApiExtended.OnAccountReRegistered(account);
+
+			Assert.IsNull(Deferred(refusedBook));
+			Assert.IsNotNull(Deferred(preorderBook));
+			Assert.IsNotNull(Deferred(otherAccountBook));
+		}
+		finally
+		{
+			ApiExtended.AccountReRegistered -= handler;
+		}
+	}
+
+	[TestMethod]
+	public async Task Throttled_device_recovery_reregistration_clears_throttled_deferrals()
+	{
+		Configuration.Instance.UseWidevine = false;
+		var book = MockLibraryBook.CreateBook(title: "Throttled 1", account: "throttled@example.com", bookStatus: LiberatedStatus.NotLiberated);
+		var throttledEx = ThrottledDenied();
+
+		var failingDownload = new FakeDownload { Configuration = Configuration.Instance, Throw = throttledEx };
+		await Assert.ThrowsExactlyAsync<ContentLicenseDeniedException>(() => failingDownload.ProcessSingleAsync(book, validate: true));
+		Assert.IsNotNull(Deferred(book));
+
+		var accountsSettings = new AccountsSettings();
+		var account = new Account("throttled@example.com");
+		accountsSettings.Add(account);
+		Assert.IsTrue(ThrottledDeviceRecovery.ShouldRecover(throttledEx, account, Configuration.Instance));
+
+		ThrottledDeviceRecovery.ApplyRecovery(accountsSettings, Configuration.Instance, account);
+		Assert.IsTrue(account.RequiresReRegistration);
+
+		Action<Account> handler = a => DownloadAttemptFailureStore.ClearForAccount(a.AccountId, DownloadFailureKind.LicenseDenied);
+		ApiExtended.AccountReRegistered += handler;
+		try
+		{
+			account.RequiresReRegistration = false;
+			ApiExtended.OnAccountReRegistered(account);
+
+			Assert.IsNull(Deferred(book));
+		}
+		finally
+		{
+			ApiExtended.AccountReRegistered -= handler;
+		}
+	}
+
+	private static ContentLicenseDeniedException ThrottledDenied()
+	{
+		var license = new ContentLicense
+		{
+			LicenseDenialReasons =
+			[
+				new LicenseDenialReason
+				{
+					ValidationType = "AYCL",
+					RejectionReason = RejectionReason.CustomerThrottled,
+					Message = "Customer throttled"
+				}
+			]
+		};
+		return new ContentLicenseDeniedException(new Uri("https://audible.com/licenserequest"), license);
 	}
 }
