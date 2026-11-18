@@ -7,6 +7,7 @@ using Polly;
 using Polly.Retry;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Threading.Channels;
 
 namespace AudibleUtilities;
@@ -114,6 +115,41 @@ public class ApiExtended
 			await InteractiveLoginGate.WaitAsync();
 			try
 			{
+				// Re-read disk state first: another concurrent caller may have completed login while we waited on the gate.
+				if (File.Exists(AudibleApiStorage.AccountsSettingsFile))
+				{
+					Account? reloaded;
+					using (var persister = AudibleApiStorage.GetAccountsSettingsPersister())
+						reloaded = persister.AccountsSettings.GetAccount(account.AccountId, locale.Name);
+
+					if (reloaded is not null)
+					{
+						// Sync IdentityTokens before RequiresReRegistration: any setter on `account`
+						// triggers an attached caller AccountsSettingsPersister to flush its in-memory copy.
+						if (reloaded.IdentityTokens is not null)
+							account.IdentityTokens = reloaded.IdentityTokens;
+						account.RequiresReRegistration = reloaded.RequiresReRegistration;
+					}
+
+					if (!account.RequiresReRegistration
+						&& AccountCredentialStatus.GetSignInStatus(account) == AccountSignInStatus.Modern)
+					{
+						try
+						{
+							var cachedApi = await EzApiCreator.GetApiAsync(
+								locale,
+								AudibleApiStorage.AccountsSettingsFile,
+								account.GetIdentityTokensJsonPath(),
+								storeLocale);
+							return new ApiExtended(cachedApi, account);
+						}
+						catch (Exception retryEx)
+						{
+							Serilog.Log.Logger.Debug(retryEx, "Non-interactive retry after InteractiveLoginGate failed for {Account}; proceeding with interactive login.", account.MaskedLogEntry);
+						}
+					}
+				}
+
 				Serilog.Log.Logger.Information("{@DebugInfo}", new
 				{
 					LoginType = nameof(ILoginChoiceEager),
@@ -141,13 +177,7 @@ public class ApiExtended
 					forceLogin: missingRequiredTokens || account.RequiresReRegistration,
 					requiredAuthMethods: AccountCredentialStatus.RequiredAuthenticationMethods);
 
-				account.RequiresReRegistration = false;
-				using (var persister = AudibleApiStorage.GetAccountsSettingsPersister())
-				{
-					var matching = persister.AccountsSettings.GetAccount(account.AccountId, account.Locale?.Name);
-					if (matching is not null)
-						matching.RequiresReRegistration = false;
-				}
+				SyncAccountFromDiskAfterLogin(account);
 
 				// login happens against the account's own marketplace, so the api it hands back reads that one.
 				// re-create once the tokens exist if some other marketplace is the one actually wanted.
@@ -165,6 +195,28 @@ public class ApiExtended
 				InteractiveLoginGate.Release();
 			}
 		}
+	}
+
+	/// <summary>
+	/// Reloads newly persisted tokens onto the in-memory <paramref name="account"/> before clearing
+	/// <see cref="Account.RequiresReRegistration"/>, so an open caller persister cannot flush stale
+	/// invalidated tokens back over the new ones on disk.
+	/// </summary>
+	internal static void SyncAccountFromDiskAfterLogin(Account account, string? accountsSettingsFile = null)
+	{
+		using (var persister = accountsSettingsFile is null
+			? AudibleApiStorage.GetAccountsSettingsPersister()
+			: new AccountsSettingsPersister(accountsSettingsFile))
+		{
+			var matching = persister.AccountsSettings.GetAccount(account.AccountId, account.Locale?.Name);
+			if (matching is not null)
+			{
+				if (matching.IdentityTokens is not null)
+					account.IdentityTokens = matching.IdentityTokens;
+				matching.RequiresReRegistration = false;
+			}
+		}
+		account.RequiresReRegistration = false;
 	}
 
 	private static AsyncRetryPolicy policy { get; }
