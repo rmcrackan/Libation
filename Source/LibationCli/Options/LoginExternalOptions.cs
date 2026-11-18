@@ -1,7 +1,9 @@
+using ApplicationServices;
 using AudibleApi;
 using AudibleApi.Common;
 using AudibleUtilities;
 using CommandLine;
+using DataLayer;
 using LibationFileManager;
 using System;
 using System.Linq;
