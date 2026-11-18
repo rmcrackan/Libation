@@ -185,8 +185,8 @@ public class BackupRequestTests
 		var request = BackupRequest.Create([waiting], Deferring(waiting));
 		var body = request.BuildNothingQueuedBody();
 
-		StringAssert.Contains(body, "Waiting before trying again after a recent failure: 1");
-		StringAssert.Contains(body, "download the title on its own to try it now");
+		StringAssert.Contains(body, "Titles waiting to retry after a recent failure: 1");
+		StringAssert.Contains(body, "download a title on its own to try it now");
 		StringAssert.Contains(body, "Audible denied a download license (1 title)");
 		StringAssert.Contains(body, "Next attempt in about 20 hours");
 	}

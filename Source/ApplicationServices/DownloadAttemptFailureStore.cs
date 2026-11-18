@@ -99,6 +99,32 @@ public static class DownloadAttemptFailureStore
 		}
 	}
 
+	/// <summary>
+	/// Forgets recorded failures of <paramref name="kind"/> for <paramref name="account"/> (for example,
+	/// when an account completes a fresh re-registration and prior license denials no longer apply).
+	/// </summary>
+	public static void ClearForAccount(string? account, DownloadFailureKind kind)
+	{
+		if (string.IsNullOrWhiteSpace(account))
+			return;
+
+		try
+		{
+			using var context = DbContexts.GetContext();
+
+			var deleted = context.DownloadAttemptFailures
+				.Where(f => f.Account == account && f.Kind == kind)
+				.ExecuteDelete();
+
+			if (deleted > 0)
+				Serilog.Log.Logger.Debug("Cleared {count} recorded {kind} download failure(s) for account {account}", deleted, kind, account.ToMask());
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Failed to clear recorded {kind} download failures for account {account}", kind, account.ToMask());
+		}
+	}
+
 	/// <summary>Titles whose wait has not elapsed. Empty when the query fails, so downloading carries on.</summary>
 	public static IReadOnlyList<DeferredDownload> GetDeferred(DateTimeOffset now)
 	{

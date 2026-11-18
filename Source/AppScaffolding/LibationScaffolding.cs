@@ -391,6 +391,9 @@ public static class LibationScaffolding
 
 		LibraryCommands.BookUserDefinedItemCommitted += (_, books)
 			=> SearchEngineCommands.OnBookUserDefinedItemCommitted(books);
+
+		ApiExtended.AccountReRegistered += account
+			=> DownloadAttemptFailureStore.ClearForAccount(account.AccountId, DataLayer.DownloadFailureKind.LicenseDenied);
 	}
 
 	public static VersionCheckOutcome LastVersionCheckOutcome => lastVersionCheckOutcome;
