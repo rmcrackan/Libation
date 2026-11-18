@@ -77,6 +77,12 @@ public partial class WebLoginDialog : Form
 
 	private void WebView_NavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
 	{
+		if (Uri.TryCreate(e.Uri, UriKind.Absolute, out var uri) && AudibleAppLinkMessage.ForNavigation(uri) is string appLinkMessage)
+		{
+			e.Cancel = true;
+			BeginInvoke(() => MessageBox.Show(this, appLinkMessage, AudibleAppLinkMessage.Caption, MessageBoxButtons.OK, MessageBoxIcon.Information));
+			return;
+		}
 		if (e.Uri.Contains("/ap/maplanding") is true)
 		{
 			ResponseUrl = e.Uri;
@@ -92,8 +98,9 @@ public partial class WebLoginDialog : Form
 
 	private static string getScript(string? accountID) => $$"""
 		(function() {
-			var email = document.querySelector("input[id='ap_email_login']");
-			if (email !== null)
+			// ap_email_login is the Amazon email field; ap_email with autocomplete=username is the pre-amazon username field. Never overwrite what's already there.
+			var email = document.querySelector("input[id='ap_email_login']") || document.querySelector("input[id='ap_email'][autocomplete='username']");
+			if (email !== null && !email.value)
 				email.value = '{{accountID}}';
 		
 			var pass = document.querySelector("input[name='password']");
