@@ -70,9 +70,9 @@
 			<Button Grid.Column="2" Command="{Binding LoFiDefaults}" CommandParameter="{Binding EnvironmentIsWindows}" Content="LoFi Defaults" />
 			<Button Grid.Column="3" Command="{Binding Barebones}" CommandParameter="{Binding EnvironmentIsWindows}" Content="Barebones" />
 
-			<Button Grid.Row="1" Grid.Column="1" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding Defaults}" CommandParameter="True" Content="Defaults" />
-			<Button Grid.Row="1" Grid.Column="2" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding LoFiDefaults}" CommandParameter="True" Content="LoFi Defaults" />
-			<Button Grid.Row="1" Grid.Column="3" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding Barebones}" CommandParameter="True" Content="Barebones" />
+			<Button Grid.Row="1" Grid.Column="1" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding Defaults}" CommandParameter="{x:True}" Content="Defaults" />
+			<Button Grid.Row="1" Grid.Column="2" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding LoFiDefaults}" CommandParameter="{x:True}" Content="LoFi Defaults" />
+			<Button Grid.Row="1" Grid.Column="3" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding Barebones}" CommandParameter="{x:True}" Content="Barebones" />
 						
 			<Button Grid.RowSpan="2" Grid.Column="4" Command="{Binding Close}" Content="Cancel" />
 			<Button Grid.RowSpan="2" Grid.Column="5" Classes="SaveButton" Command="{Binding SaveAndClose}" Content="Save" />
