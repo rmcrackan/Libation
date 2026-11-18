@@ -39,6 +39,18 @@ There are two possible causes of this error.
    1. [Run hangover](#how-to-run-the-hangover-app) and execute the following command in the "Database" tab: `PRAGMA journal_mode=DELETE`
    2. run this command in your terminal: `sqlite3 "path/to/libation/files/LibationContext.db" "PRAGMA journal_mode=DELETE;"`
 
+## Library fails to load after downgrading from a pre-release (`FormatException`)
+
+**Symptoms:** After downgrading from a pre-release build (for example `14.3.0-rc.1` back to `14.2.5`), Libation throws `System.FormatException` while loading the library and the book grid stays empty.
+
+**Cause:** Pre-release builds record semantic version strings with a suffix (such as `14.3.0-rc.1`) in `UserDefinedItem.LastDownloadedVersion`. Releases prior to `14.3.0` parse that column with `System.Version.Parse`, which rejects the `-...` suffix.
+
+**Fix:** [Run hangover](#how-to-run-the-hangover-app) and execute the following command in the "Database" tab (or run it with `sqlite3` against `LibationContext.db`) to strip the pre-release suffix:
+
+```sql
+UPDATE UserDefinedItem SET LastDownloadedVersion = substr(LastDownloadedVersion, 1, instr(LastDownloadedVersion, '-') - 1) WHERE LastDownloadedVersion LIKE '%-%';
+```
+
 ## Library scan fails ("Unexpected character" or "HTML instead of JSON")
 
 Audible returned an HTML page instead of JSON. Common causes: transient outage, expired login, VPN/proxy, or rate limiting. What to try:
