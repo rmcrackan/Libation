@@ -86,6 +86,12 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 		dialog.NavigationStarted += async (_, e) =>
 		{
 			Serilog.Log.Logger.Debug("WebView navigation started: {Url}", e.Request?.ToString() ?? "[null]");
+			if (AudibleAppLinkMessage.ForNavigation(e.Request) is string appLinkMessage)
+			{
+				e.Cancel = true;
+				await MessageBox.Show(App.MainWindow, appLinkMessage, AudibleAppLinkMessage.Caption, MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return;
+			}
 			if (e.Request?.AbsolutePath.StartsWith("/ap/maplanding") is true)
 			{
 				tcs.TrySetResult(e.Request.ToString());
@@ -234,8 +240,9 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 	private static string getScript(string accountID) => $$"""
 		(function() {
 			function populateForm(){
-				var email = document.querySelector("input[id='ap_email_login']");
-				if (email !== null)
+				// ap_email_login is the Amazon email field; ap_email with autocomplete=username is the pre-amazon username field. Never overwrite what's already there.
+				var email = document.querySelector("input[id='ap_email_login']") || document.querySelector("input[id='ap_email'][autocomplete='username']");
+				if (email !== null && !email.value)
 					email.value = '{{accountID}}';
 				
 				var pass = document.querySelector("input[name='password']");
