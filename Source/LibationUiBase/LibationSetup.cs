@@ -8,6 +8,7 @@ using Serilog;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase;
 
@@ -103,13 +104,8 @@ public class LibationSetup
 
 			// path did not result in valid settings
 			var continueResult = await MessageBoxBase.ShowAsyncImpl(null,
-				$"""
-				No valid settings were found at this location.				
-				Would you like to create a new install settings in this folder?
-				
-				{chooseFolderResult.SelectedDirectory}
-				""",
-				"New install?",
+				string.Format(Strings.LibationSetup_NoValidSettingsWereFoundAt, chooseFolderResult.SelectedDirectory),
+				Strings.LibationSetup_NewInstall,
 				MessageBoxButtons.YesNo,
 				MessageBoxIcon.Question,
 				MessageBoxDefaultButton.Button1);
@@ -127,14 +123,8 @@ public class LibationSetup
 		if (!TryCreateDirectory())
 		{
 			var result = await MessageBoxBase.ShowAsyncImpl(null,
-					$"""
-					Could not create the Libation Settings folder at:
-					{Files.Location.Path}
-					
-					Would you like to create a new install settings in this folder?
-					{LibationFiles.DefaultLibationFilesDirectory}
-					""",
-					"Error Creating Libation Settings",
+					string.Format(Strings.LibationSetup_CouldNotCreateTheLibationSettings, Files.Location.Path, LibationFiles.DefaultLibationFilesDirectory),
+					Strings.LibationSetup_ErrorCreatingLibationSettings,
 					MessageBoxButtons.YesNo,
 					MessageBoxIcon.Question,
 					MessageBoxDefaultButton.Button1);
@@ -148,11 +138,8 @@ public class LibationSetup
 			if (!TryCreateDirectory())
 			{
 				await MessageBoxBase.ShowAsyncImpl(null,
-					$"""
-					An error occurred while creating default settings folder:
-					{LibationFiles.DefaultLibationFilesDirectory}
-					""",
-					"Error Creating Libation Settings",
+					string.Format(Strings.LibationSetup_AnErrorOccurredWhileCreatingDefault, LibationFiles.DefaultLibationFilesDirectory),
+					Strings.LibationSetup_ErrorCreatingLibationSettings,
 					MessageBoxButtons.OK,
 					MessageBoxIcon.Error,
 					MessageBoxDefaultButton.Button1);
@@ -178,14 +165,8 @@ public class LibationSetup
 			if (!Files.Location.PathWithoutPrefix.Equals(LibationFiles.DefaultLibationFilesDirectory, StringComparison.OrdinalIgnoreCase))
 			{
 				var result = await MessageBoxBase.ShowAsyncImpl(null,
-					$"""
-					Could not create the Libation Settings file at:
-					{Files.SettingsFilePath}
-					
-					Would you like to create a new install settings in this folder?
-					{LibationFiles.DefaultLibationFilesDirectory}
-					""",
-					"Error Creating Libation Settings",
+					string.Format(Strings.LibationSetup_CouldNotCreateTheLibationSettings2, Files.SettingsFilePath, LibationFiles.DefaultLibationFilesDirectory),
+					Strings.LibationSetup_ErrorCreatingLibationSettings,
 					MessageBoxButtons.YesNo,
 					MessageBoxIcon.Question,
 					MessageBoxDefaultButton.Button1);
@@ -201,11 +182,8 @@ public class LibationSetup
 			else
 			{
 				await MessageBoxBase.ShowAsyncImpl(null,
-					$"""
-					An error occurred while creating default settings file in:
-					{LibationFiles.DefaultLibationFilesDirectory}
-					""",
-					"Error Creating Libation Settings",
+					string.Format(Strings.LibationSetup_AnErrorOccurredWhileCreatingDefault2, LibationFiles.DefaultLibationFilesDirectory),
+					Strings.LibationSetup_ErrorCreatingLibationSettings,
 					MessageBoxButtons.OK,
 					MessageBoxIcon.Error,
 					MessageBoxDefaultButton.Button1);

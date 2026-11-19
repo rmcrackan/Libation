@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -7,7 +8,7 @@
 		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
 		x:DataType="dialogs:DescriptionDisplayDialog"
 		WindowDecorations="None"
-        Title="DescriptionDisplay">
+        Title="{x:Static res:Strings.DescriptionDisplayDialog_DescriptionDisplay}">
 
 	<Window.Styles>
 		<Style Selector="TextBox[IsReadOnly=true] /template/ Border#PART_BorderElement">

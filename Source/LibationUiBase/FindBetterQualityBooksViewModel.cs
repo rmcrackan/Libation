@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase;
 
@@ -28,16 +29,16 @@ public record MarkBooksResult(
 			return null;
 
 		var message = MarkedCount == 1
-			? "Marked 1 book as Download Pending."
-			: $"Marked {MarkedCount} books as Download Pending.";
+			? Strings.FindBetterQualityBooksViewModel_Marked1BookAsDownloadPending
+			: string.Format(Strings.FindBetterQualityBooksViewModel_MarkedBooksAsDownloadPending, MarkedCount);
 
 		if (WidevineEnabled || AccountsMarkedForReRegistration)
 		{
-			message += "\r\n\r\nLibation has automatically configured your download settings for higher-quality audio and marked your accounts for a fresh sign-in on your next scan or download so that the higher-quality audio can be acquired.";
+			message += Strings.FindBetterQualityBooksViewModel_LibationHasAutomaticallyConfiguredYourDownload;
 		}
 		else if (XHeAacRequested)
 		{
-			message += "\r\n\r\nLibation has automatically enabled xHE-AAC audio requests in your settings.";
+			message += Strings.FindBetterQualityBooksViewModel_LibationHasAutomaticallyEnabledXHEAAC;
 		}
 
 		return message;
@@ -46,29 +47,10 @@ public record MarkBooksResult(
 
 public class FindBetterQualityBooksViewModel : ReactiveObject
 {
-	public const string StartScanBtnText = "Scan Audible for Higher Quality Audio";
-	public const string StopScanBtnText = "Stop Scanning";
-	public const string UseWidevineSboxText = "Use Widevine?";
-	public const string InitialMessage = """
-		This tool will scan your liberated audiobooks to see if Audible
-		has a higher quality version available.
-
-		For each liberated audiobook in your library, it will try to read the existing audio file to determine its codec and bitrate. If no local file is found, it will use the 'Last Downloaded' format information stored in the database.
-		
-		It will then query Audible's API to get the highest quality format currently available for that audiobook.
-		
-		If you check the 'Use Widevine' option, it will query for Widevine-protected formats, which may or may not be xHE-AAC. If unchecked, it will query for Audible DRM-protected formats, which are typically AAC-LC.
-
-		Click 'Scan Audible for Higher Quality Audio' to begin.
-
-		When done, click 'Mark X books as Download Pending' to allow Libation to re-download those books in the higher quality format.
-
-		Marking books will automatically configure Widevine and xHE-AAC settings and prompt for a fresh account sign-in if needed, ensuring the upgraded audio streams are downloaded.
-
-		Note: If you have a large library, downloading many higher-quality audiobooks in quick succession may trigger Audible's daily download limits. You can configure a daily download limit or download delay in Settings > Network if needed.
-
-		Display this help message again in the future?
-		""";
+	public static string StartScanBtnText => Strings.FindBetterQualityBooksViewModel_ScanAudibleForHigherQualityAudio;
+	public static string StopScanBtnText => Strings.FindBetterQualityBooksViewModel_StopScanning;
+	public static string UseWidevineSboxText => Strings.FindBetterQualityBooksViewModel_UseWidevine;
+	public static string InitialMessage => Strings.FindBetterQualityBooksViewModel_ThisToolWillScanYourLiberated;
 
 	public event EventHandler<BookDataViewModel>? BookScanned;
 	public IList<BookDataViewModel>? Books { get => field; set => RaiseAndSetIfChanged(ref field, value); }
@@ -81,8 +63,8 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 		{
 			RaiseAndSetIfChanged(ref field, value);
 			MarkBooksButtonText = value == 0 ? null
-				: value == 1 ? "Mark 1 book as 'Download Pending'"
-				: $"Mark {value} books as 'Download Pending'";
+				: value == 1 ? Strings.FindBetterQualityBooksViewModel_Mark1BookAsDownloadPending
+				: string.Format(Strings.FindBetterQualityBooksViewModel_MarkBooksAsDownloadPending, value);
 		}
 	}
 	public bool IsScanning { get => field; set { RaiseAndSetIfChanged(ref field, value); ScanButtonText = field ? StopScanBtnText : StartScanBtnText; } }
@@ -165,7 +147,7 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 			b.AvailableCodec = null;
 			b.ScanStatus = ProcessBookStatus.Queued;
 		}
-		ScanCount = $"0 of {Books.Count:N0} scanned";
+		ScanCount = string.Format(Strings.FindBetterQualityBooksViewModel_0OfScanned, Books.Count);
 
 		try
 		{
@@ -191,13 +173,13 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 						}
 						else if (b.LibraryBook.Book.UserDefinedItem.LastDownloadedFormat is not null)
 						{
-							b.FoundFile = "File not found. Using 'Last Downloaded' format.";
+							b.FoundFile = Strings.FindBetterQualityBooksViewModel_FileNotFoundUsingLastDownloaded;
 							b.Bitrate = b.LibraryBook.Book.UserDefinedItem.LastDownloadedFormat.BitRate;
 							b.Codec = b.LibraryBook.Book.UserDefinedItem.LastDownloadedFormat.CodecString;
 						}
 						else
 						{
-							b.FoundFile = "File not found and no 'Last Downloaded' format found.";
+							b.FoundFile = Strings.FindBetterQualityBooksViewModel_FileNotFoundAndNoLast;
 							b.ScanStatus = ProcessBookStatus.Failed;
 							continue;
 						}
@@ -218,13 +200,13 @@ public class FindBetterQualityBooksViewModel : ReactiveObject
 				catch (Exception ex)
 				{
 					Serilog.Log.Logger.Error(ex, "Error checking for better quality for {@Asin}", new { b.Asin });
-					b.FoundFile = $"Error: {ex.Message}";
+					b.FoundFile = string.Format(Strings.FindBetterQualityBooksViewModel_Error, ex.Message);
 					b.ScanStatus = ProcessBookStatus.Failed;
 				}
 				finally
 				{
 					SignificantCount = Books.Count(b => b.IsSignificant);
-					ScanCount = $"{i + 1:N0} of {Books.Count:N0} scanned";
+					ScanCount = string.Format(Strings.FindBetterQualityBooksViewModel_OfScanned, (i + 1), Books.Count);
 					BookScanned?.Invoke(this, b);
 				}
 			}

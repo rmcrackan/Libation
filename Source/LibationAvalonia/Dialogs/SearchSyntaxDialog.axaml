@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -8,7 +9,7 @@
 		MinWidth="500" MinHeight="650"
 		Width="800" Height="650"
         x:Class="LibationAvalonia.Dialogs.SearchSyntaxDialog"
-        Title="Filter Options"
+        Title="{x:Static res:Strings.SearchSyntaxDialog_FilterOptions}"
 		WindowStartupLocation="CenterOwner">
 	
 	<Grid
@@ -42,31 +43,31 @@
 			RowDefinitions="Auto,Auto">
 
 			<TextBlock
-				Text="Full Lucene query syntax is supported&#xa;Fields with similar names are synomyns (eg: Author, Authors, AuthorNames)" />
+				Text="{x:Static res:Strings.SearchSyntaxDialog_FullLuceneQuerySyntaxIsSupported}" />
 
-			<TextBlock Grid.Row="1" Text="TAG FORMAT: [tagName]" />
+			<TextBlock Grid.Row="1" Text="{x:Static res:Strings.SearchSyntaxDialog_TAGFORMATTagName}" />
 		</Grid>
 
 		<Grid Grid.Row="1" RowDefinitions="Auto,Auto,*">
-			<TextBlock Text="STRING FIELDS" />
+			<TextBlock Text="{x:Static res:Strings.SearchSyntaxDialog_STRINGFIELDS}" />
 			<TextBlock Grid.Row="1" Text="{Binding StringUsage}" />
 			<ListBox Grid.Row="2" DoubleTapped="ListBox_DoubleTapped" ItemsSource="{Binding StringFields}"/>
 		</Grid>
 
 		<Grid Grid.Row="1" Grid.Column="1" RowDefinitions="Auto,Auto,*">
-			<TextBlock Text="NUMBER FIELDS" />
+			<TextBlock Text="{x:Static res:Strings.SearchSyntaxDialog_NUMBERFIELDS}" />
 			<TextBlock Grid.Row="1" Text="{Binding NumberUsage}" />
 			<ListBox Grid.Row="2" DoubleTapped="ListBox_DoubleTapped" ItemsSource="{Binding NumberFields}"/>
 		</Grid>
 
 		<Grid Grid.Row="1" Grid.Column="2" RowDefinitions="Auto,Auto,*">
-			<TextBlock Text="BOOLEAN (TRUE/FALSE) FIELDS" />
+			<TextBlock Text="{x:Static res:Strings.SearchSyntaxDialog_BOOLEANTRUEFALSEFIELDS}" />
 			<TextBlock Grid.Row="1" Text="{Binding BoolUsage}" />
 			<ListBox Grid.Row="2" DoubleTapped="ListBox_DoubleTapped" ItemsSource="{Binding BoolFields}"/>
 		</Grid>
 
 		<Grid Grid.Row="1" Grid.Column="3" RowDefinitions="Auto,Auto,*">
-			<TextBlock Text="ID FIELDS" />
+			<TextBlock Text="{x:Static res:Strings.SearchSyntaxDialog_IDFIELDS}" />
 			<TextBlock Grid.Row="1" Text="{Binding IdUsage}" />
 			<ListBox Grid.Row="2" DoubleTapped="ListBox_DoubleTapped" ItemsSource="{Binding IdFields}"/>
 		</Grid>		

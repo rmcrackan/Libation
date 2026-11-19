@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using LibationUiBase;
 
 namespace LibationAvalonia.Controls;
 
@@ -16,7 +17,7 @@ public class KnownDirectoryConverter : IValueConverter
 	public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
 	{
 		if (value is Configuration.KnownDirectories dir)
-			return dir.GetDescription();
+			return SettingsText.Of(dir);
 		return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
 	}
 

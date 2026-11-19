@@ -6,6 +6,7 @@ using LibationUiBase;
 using ReactiveUI;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels;
 
@@ -14,9 +15,9 @@ partial class MainVM
 	private readonly System.ComponentModel.BackgroundWorker updateCountsBw = new();
 
 	/// <summary> The "Begin Book and PDF Backup" menu item header text </summary>
-	public string BookBackupsToolStripText { get; private set; } = "Begin Book and PDF Backups: 0";
+	public string BookBackupsToolStripText { get; private set; } = Strings.MainVM_BeginBookAndPDFBackups0;
 	/// <summary> The "Begin PDF Only Backup" menu item header text </summary>
-	public string PdfBackupsToolStripText { get; private set; } = "Begin PDF Only Backups: 0";
+	public string PdfBackupsToolStripText { get; private set; } = Strings.MainVM_BeginPDFOnlyBackups0;
 
 	/// <summary> How many books are in the trash, where nothing else on screen would reveal them </summary>
 	public int BooksInTrash
@@ -55,6 +56,9 @@ partial class MainVM
 		}
 	}
 
+	/// <summary>The backup counts line in the status bar.</summary>
+	public string? StatusText => LibraryStats is null ? null : LibraryStatsText.Of(LibraryStats);
+
 	/// <summary> The user's library statistics </summary>
 	public LibraryCommands.LibraryStats? LibraryStats
 	{
@@ -62,16 +66,17 @@ partial class MainVM
 		set
 		{
 			this.RaiseAndSetIfChanged(ref field, value);
+			this.RaisePropertyChanged(nameof(StatusText));
 
 			BookBackupsToolStripText
 				= LibraryStats?.HasPendingBooks ?? false
-				? "Begin " + menufyText($"Book and PDF Backups: {LibraryStats.PendingBooks} remaining")
-				: "All books have been liberated";
+				? string.Format(Strings.MainVM_BeginMenu, menufyText(string.Format(Strings.MainVM_BookAndPDFBackupsRemaining, LibraryStats.PendingBooks)))
+				: Strings.MainVM_AllBooksHaveBeenLiberated;
 
 			PdfBackupsToolStripText
 				= LibraryStats?.pdfsNotDownloaded > 0
-				? "Begin " + menufyText($"PDF Only Backups: {LibraryStats.pdfsNotDownloaded} remaining")
-				: "All PDFs have been downloaded";
+				? string.Format(Strings.MainVM_BeginMenu, menufyText(string.Format(Strings.MainVM_PDFOnlyBackupsRemaining, LibraryStats.pdfsNotDownloaded)))
+				: Strings.MainVM_AllPDFsHaveBeenDownloaded;
 
 			this.RaisePropertyChanged(nameof(BookBackupsToolStripText));
 			this.RaisePropertyChanged(nameof(PdfBackupsToolStripText));

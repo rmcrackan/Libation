@@ -5,6 +5,7 @@ using ReactiveUI;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels;
 
@@ -46,7 +47,7 @@ partial class MainVM
 			await MessageBox.Show(
 				MainWindow,
 				HangoverLauncher.GetLaunchFailureMessage(ex),
-				"Launch Hangover",
+				Strings.MainVM_LaunchHangover,
 				MessageBoxButtons.OK,
 				MessageBoxIcon.Warning);
 		}

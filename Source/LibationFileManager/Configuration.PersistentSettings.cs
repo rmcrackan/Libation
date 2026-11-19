@@ -171,6 +171,9 @@ public partial class Configuration
 		set => SetString(value ?? WinTemp);
 	}
 
+	[Description("Display language. Empty follows the system language.")]
+	public string? UiLanguage { get => GetString(); set => SetString(value); }
+
 	[Description("Libation's display color theme")]
 	public Theme ThemeVariant { get => GetNonString(defaultValue: Theme.System); set => SetNonString(value); }
 

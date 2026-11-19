@@ -13,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static DtoImporterService.PerfLogger;
@@ -720,36 +719,6 @@ public static class LibraryCommands
 
 		public bool HasBookResults => 0 < (booksFullyBackedUp + booksDownloadedOnly + booksNoProgress + booksError + booksUnavailable);
 		public bool HasPdfResults => 0 < (pdfsNotDownloaded + pdfsDownloaded + pdfsUnavailable);
-
-		public string StatusString => HasPdfResults ? $"{toBookStatusString()}  |  {toPdfStatusString()}" : toBookStatusString();
-
-		private string toBookStatusString()
-		{
-			if (!HasBookResults) return "No books. Begin by importing your library";
-
-			if (!HasPendingBooks && booksError + booksUnavailable == 0) return $"All {"book".PluralizeWithCount(booksFullyBackedUp)} backed up";
-
-			var sb = new StringBuilder($"BACKUPS: No progress: {booksNoProgress}  In process: {booksDownloadedOnly}  Fully backed up: {booksFullyBackedUp}");
-
-			if (booksError > 0)
-				sb.Append($"  Errors: {booksError}");
-			if (booksUnavailable > 0)
-				sb.Append($"  Unavailable: {booksUnavailable}");
-
-			return sb.ToString();
-		}
-
-		private string toPdfStatusString()
-		{
-			if (pdfsNotDownloaded + pdfsUnavailable == 0) return $"All {pdfsDownloaded} PDFs downloaded";
-
-			var sb = new StringBuilder($"PDFs: NOT d/l'ed: {pdfsNotDownloaded}  Downloaded: {pdfsDownloaded}");
-
-			if (pdfsUnavailable > 0)
-				sb.Append($"  Unavailable: {pdfsUnavailable}");
-
-			return sb.ToString();
-		}
 	}
 
 	/// <param name="requestedBy">

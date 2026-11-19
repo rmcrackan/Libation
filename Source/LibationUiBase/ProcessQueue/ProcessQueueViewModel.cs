@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase.ProcessQueue;
 
@@ -140,7 +141,7 @@ public class ProcessQueueViewModel : ReactiveObject
 	/// </remarks>
 	public string? ConcurrencyHint
 		=> EffectiveConcurrentDownloads < MaxConcurrentDownloads
-			? $"({EffectiveConcurrentDownloads} at a time)"
+			? string.Format(Strings.ProcessQueueViewModel_AtATime, EffectiveConcurrentDownloads)
 			: null;
 	public string? RunningTime { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public bool ProgressBarVisible { get => field; set => RaiseAndSetIfChanged(ref field, value); }
@@ -299,8 +300,8 @@ public class ProcessQueueViewModel : ReactiveObject
 			{
 				Serilog.Log.Logger.Warning("Download not queued: {libraryBook} is absent from the last library scan.", item.LogFriendly());
 				await MessageBoxBase.Show(
-					"This title is marked absent from your last library scan.\n\nRun Scan (or `libationcli scan`) so Libation can refresh your library, then try again.",
-					"Library scan required",
+					Strings.ProcessQueueViewModel_ThisTitleIsMarkedAbsentFrom,
+					Strings.ProcessQueueViewModel_LibraryScanRequired,
 					MessageBoxButtons.OK,
 					MessageBoxIcon.Information);
 				return false;
@@ -326,9 +327,8 @@ public class ProcessQueueViewModel : ReactiveObject
 			if (!item.Book.AudioExists)
 			{
 				await MessageBoxBase.Show(
-					"Libation could not queue a download for this title.\n\n"
-					+ "If it should be downloadable: confirm it is not already liberated, try marking it \"Download Pending\", or check whether a library scan is required.",
-					"Download not queued",
+					Strings.ProcessQueueViewModel_LibationCouldNotQueueADownload,
+					Strings.ProcessQueueViewModel_DownloadNotQueued,
 					MessageBoxButtons.OK,
 					MessageBoxIcon.Information);
 			}
@@ -385,8 +385,8 @@ public class ProcessQueueViewModel : ReactiveObject
 		{
 			Serilog.Log.Logger.Error("Books location is not set in configuration.");
 			await MessageBoxBase.Show(
-				"Please choose a \"Books location\" folder in the Settings menu.",
-				"Books Directory Not Set",
+				Strings.ProcessQueueViewModel_PleaseChooseABooksLocationFolder,
+				Strings.ProcessQueueViewModel_BooksDirectoryNotSet,
 				MessageBoxButtons.OK,
 				MessageBoxIcon.Error);
 			return false;
@@ -395,8 +395,8 @@ public class ProcessQueueViewModel : ReactiveObject
 		{
 			Serilog.Log.Logger.Error("Failed to create books directory: {booksDir}", config.Books?.Path);
 			await MessageBoxBase.Show(
-				$"Libation was unable to create the \"Books location\" folder at:\n{config.Books}\n\nPlease change the Books location in the settings menu.",
-				"Failed to Create Books Directory",
+				string.Format(Strings.ProcessQueueViewModel_LibationWasUnableToCreateThe, config.Books),
+				Strings.ProcessQueueViewModel_FailedToCreateBooksDirectory,
 				MessageBoxButtons.OK,
 				MessageBoxIcon.Error);
 			return false;
@@ -408,8 +408,8 @@ public class ProcessQueueViewModel : ReactiveObject
 		{
 			Serilog.Log.Logger.Error("Books directory exists but cannot be read: {booksDir}", (string)booksDirectory);
 			await MessageBoxBase.Show(
-				$"Libation was unable to read the \"Books location\" folder at:\n{booksDirectory}\n\nIf it is on a removable or network drive, check that the drive is connected and working. Otherwise, change the Books location in the settings menu.",
-				"Unable to Read Books Directory",
+				string.Format(Strings.ProcessQueueViewModel_LibationWasUnableToReadThe, booksDirectory),
+				Strings.ProcessQueueViewModel_UnableToReadBooksDirectory,
 				MessageBoxButtons.OK,
 				MessageBoxIcon.Error);
 			return false;
@@ -418,8 +418,8 @@ public class ProcessQueueViewModel : ReactiveObject
 		{
 			Serilog.Log.Logger.Error("Failed to create DownloadsInProgressDirectory in {InProgress}", config.InProgress);
 			await MessageBoxBase.Show(
-				$"Libation was unable to create the \"Downloads In Progress\" folder in:\n{config.InProgress}\n\nPlease change the In Progress location in the settings menu.",
-				"Failed to Create Downloads In Progress Directory",
+				string.Format(Strings.ProcessQueueViewModel_LibationWasUnableToCreateThe2, config.InProgress),
+				Strings.ProcessQueueViewModel_FailedToCreateDownloadsInProgress,
 				MessageBoxButtons.OK,
 				MessageBoxIcon.Error);
 			return false;
@@ -428,8 +428,8 @@ public class ProcessQueueViewModel : ReactiveObject
 		{
 			Serilog.Log.Logger.Error("Failed to create DecryptInProgressDirectory in {InProgress}", config.InProgress);
 			await MessageBoxBase.Show(
-				$"Libation was unable to create the \"Decrypt In Progress\" folder in:\n{config.InProgress}\n\nPlease change the In Progress location in the settings menu.",
-				"Failed to Create Decrypt In Progress Directory",
+				string.Format(Strings.ProcessQueueViewModel_LibationWasUnableToCreateThe3, config.InProgress),
+				Strings.ProcessQueueViewModel_FailedToCreateDecryptInProgress,
 				MessageBoxButtons.OK,
 				MessageBoxIcon.Error);
 			return false;
@@ -578,7 +578,7 @@ public class ProcessQueueViewModel : ReactiveObject
 				nextBook.StatusOverride = null;
 				if (paused)
 				{
-					var resumed = $"Daily download limit: capacity is available again. Resuming with {nextBook.LibraryBook.Book.TitleWithSubtitle}.";
+					var resumed = string.Format(Strings.ProcessQueueViewModel_DailyDownloadLimitCapacityIsAvailable, nextBook.LibraryBook.Book.TitleWithSubtitle);
 					Serilog.Log.Logger.Information("Daily download limit no longer blocks {libraryBook}. Resuming the queue.", nextBook.LibraryBook.LogFriendly());
 					AddQueueLogEntry(resumed);
 				}

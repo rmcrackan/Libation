@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -8,7 +9,7 @@
 		WindowStartupLocation="CenterScreen"
 		Width="500" Height="350"
 		Icon="/Assets/libation.ico"
-        Title="Welcome to Libation"
+        Title="{x:Static res:Strings.SetupDialog_WelcomeToLibation}"
 		ShowInTaskbar="True"
 		x:DataType="dialogs:SetupDialog">
 
@@ -17,15 +18,9 @@
 		HorizontalAlignment="Stretch"
 		RowDefinitions="*,Auto,Auto">
 		
-		<TextBlock Grid.Row="0" TextWrapping="Wrap" Text="This appears to be your first time using Libation or a previous setup was incomplete.
-&#xa;
-&#xa;Please fill in a few settings. You can also change these settings later.
-&#xa;
-&#xa;After you make your selections, get started by importing your library.
-&#xa;Go to Import > Scan Library
-&#xa;
-&#xa;Download your entire library from the &quot;Liberate&quot; tab or
-&#xa;liberate your books one at a time by clicking the stoplight." />
+		<ScrollViewer Grid.Row="0">
+			<TextBlock TextWrapping="Wrap" Text="{x:Static res:Strings.SetupDialog_ThisAppearsToBeYourFirst}" />
+		</ScrollViewer>
 
 		<Grid
 			Grid.Row="1"
@@ -43,7 +38,7 @@
 				<TextBlock
 					FontSize="18"
 					TextAlignment="Center"
-					Text="NEW USER"/>
+					Text="{x:Static res:Strings.SetupDialog_NEWUSER}"/>
 
 			</Button>
 
@@ -53,7 +48,7 @@
 				
 			<TextBlock
 				VerticalAlignment="Top"
-				Text="Theme:  " />
+				Text="{x:Static res:Strings.SetupDialog_Theme}" />
 			
 			<ComboBox
 				Grid.Row="1"
@@ -61,9 +56,9 @@
 				SelectedIndex="0"
 				SelectedItem="{Binding SelectedTheme, Mode=OneWayToSource}">
 				<ComboBox.Items>
-                    <ComboBoxItem Content="System" />
-					<ComboBoxItem Content="Light" />
-					<ComboBoxItem Content="Dark" />
+                    <ComboBoxItem Content="{x:Static res:Strings.SetupDialog_System}" />
+					<ComboBoxItem Content="{x:Static res:Strings.SetupDialog_Light}" />
+					<ComboBoxItem Content="{x:Static res:Strings.SetupDialog_Dark}" />
 				</ComboBox.Items>
 			</ComboBox>
 
@@ -77,7 +72,8 @@
 
 			<TextBlock
 				TextAlignment="Center"
-				Text="RETURNING USER&#xa;&#xa;I have previously installed Libation. This is an upgrade or re-install."/>
+				TextWrapping="Wrap"
+				Text="{x:Static res:Strings.SetupDialog_RETURNINGUSERIHavePreviouslyInstalled}"/>
 		
 		</Button>		
 	</Grid>

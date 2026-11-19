@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Views;
 
@@ -120,15 +121,7 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 			var ex = e.GetException();
 			var body = AccountSettingsDecryptFailure.TryFindInTree(ex, out _)
 				? AccountSettingsDecryptFailure.GetRecoveredDialogBody(ex, backupFile.PathWithoutPrefix)
-				: $"""
-					Libation could not load your account settings, so it had created a new, empty account settings file.
-
-					You will need to re-add you Audible account(s) before scanning or downloading.
-
-					The old account settings file has been archived at '{backupFile.PathWithoutPrefix}'
-
-					{ex}
-					""";
+				: string.Format(Strings.MainWindow_LibationCouldNotLoadYourAccount, backupFile.PathWithoutPrefix, ex);
 
 			await MessageBox.Show(
 				this,
@@ -140,14 +133,8 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 
 		void showAccountSettingsUnrecoveredMessage()
 		{
-			var messageBoxWindow = MessageBox.Show(this, $"""
-			Libation could not load your account settings. The file may be corrupted, but Libation is unable to delete it.
-
-			Please move or delete the account settings file '{e.SettingsFilePath}'
-
-			{e.GetException().ToString()}
-			""",
-			"Error Loading Account Settings",
+			var messageBoxWindow = MessageBox.Show(this, string.Format(Strings.MainWindow_LibationCouldNotLoadYourAccount2, e.SettingsFilePath, e.GetException().ToString()),
+			Strings.MainWindow_ErrorLoadingAccountSettings,
 			MessageBoxButtons.OK);
 
 			//Force the message box to show synchronously because we're not handling the exception
@@ -167,8 +154,8 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 		{
 			var result = await MessageBox.Show(
 				this,
-				"Please set a valid Books location in the settings dialog.",
-				"Books Directory Not Set",
+				Strings.MainWindow_PleaseSetAValidBooksLocation,
+				Strings.MainWindow_BooksDirectoryNotSet,
 				MessageBoxButtons.OKCancel,
 				MessageBoxIcon.Warning,
 				MessageBoxDefaultButton.Button1);
@@ -179,7 +166,7 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 
 		if (Configuration.Instance.FirstLaunch)
 		{
-			var result = await MessageBox.Show(this, "Would you like a guided tour to get started?", "Libation Walkthrough", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+			var result = await MessageBox.Show(this, Strings.MainWindow_WouldYouLikeAGuidedTour, Strings.MainWindow_LibationWalkthrough, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
 
 			if (result is DialogResult.Yes)
 			{
@@ -275,7 +262,7 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 		upgrader.DownloadProgress += async (_, e) => await Dispatcher.UIThread.InvokeAsync(() => ViewModel?.DownloadProgress = e.ProgressPercentage);
 		upgrader.DownloadBegin += async (_, _) => await Dispatcher.UIThread.InvokeAsync(() => setProgressVisible(true));
 		upgrader.DownloadCompleted += async (_, _) => await Dispatcher.UIThread.InvokeAsync(() => setProgressVisible(false));
-		upgrader.UpgradeFailed += async (_, message) => await Dispatcher.UIThread.InvokeAsync(() => { setProgressVisible(false); MessageBox.Show(this, message, "Upgrade Failed", MessageBoxButtons.OK, MessageBoxIcon.Error); });
+		upgrader.UpgradeFailed += async (_, message) => await Dispatcher.UIThread.InvokeAsync(() => { setProgressVisible(false); MessageBox.Show(this, message, Strings.MainWindow_UpgradeFailed, MessageBoxButtons.OK, MessageBoxIcon.Error); });
 
 #if !DEBUG
 		Opened += async (_, _) => await upgrader.CheckForUpgradeAtStartupAsync(upgradeAvailable);

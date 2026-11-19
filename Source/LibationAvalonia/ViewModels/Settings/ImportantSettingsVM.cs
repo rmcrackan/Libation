@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels.Settings;
 
@@ -45,6 +46,7 @@ public class ImportantSettingsVM : ViewModelBase
 		GridFontScaleFactor = scaleFactorToLinearRange(config.GridFontScaleFactor);
 
 		themeVariant = Themes.Single(v => v.Value == config.ThemeVariant);
+		SelectedLanguage = Languages.FirstOrDefault(l => l.Name == (config.UiLanguage ?? "")) ?? Languages[0];
 
 		initialTokenStorageMethod = config.TokenStorageMethod;
 		osSecretStoreAvailable = IdentityTokenStorageWiring.IsOsSecretStoreAvailable(out var unavailableReason);
@@ -88,6 +90,7 @@ public class ImportantSettingsVM : ViewModelBase
 		config.CheckForPreRelease = CheckForPreRelease;
 		config.LogLevel = LoggingLevel;
 		config.TokenStorageMethod = SelectedTokenStorageMethod;
+		config.UiLanguage = SelectedLanguage.Name;
 		initialTokenStorageMethod = SelectedTokenStorageMethod;
 		RefreshTokenStorageUiState();
 	}
@@ -140,31 +143,34 @@ public class ImportantSettingsVM : ViewModelBase
 		Configuration.KnownDirectories.UserProfile
 	};
 
-	public string BooksText { get; } = Configuration.GetDescription(nameof(Configuration.Books));
-	public string SavePodcastsToParentFolderText { get; } = Configuration.GetDescription(nameof(Configuration.SavePodcastsToParentFolder));
-	public string OverwriteExistingText { get; } = Configuration.GetDescription(nameof(Configuration.OverwriteExisting));
-	public string CreationTimeText { get; } = Configuration.GetDescription(nameof(Configuration.CreationTime));
-	public string LastWriteTimeText { get; } = Configuration.GetDescription(nameof(Configuration.LastWriteTime));
+	public string BooksText { get; } = SettingsText.Label(nameof(Configuration.Books));
+	public string SavePodcastsToParentFolderText { get; } = SettingsText.Label(nameof(Configuration.SavePodcastsToParentFolder));
+	public string OverwriteExistingText { get; } = SettingsText.Label(nameof(Configuration.OverwriteExisting));
+	public string CreationTimeText { get; } = SettingsText.Label(nameof(Configuration.CreationTime));
+	public string LastWriteTimeText { get; } = SettingsText.Label(nameof(Configuration.LastWriteTime));
 	public EnumDisplay<Configuration.DateTimeSource>[] DateTimeSources { get; }
 		= Enum.GetValues<Configuration.DateTimeSource>()
 		.Select(v => new EnumDisplay<Configuration.DateTimeSource>(v))
 		.ToArray();
 
-	public string UseWebViewText { get; } = Configuration.GetDescription(nameof(Configuration.UseWebView));
+	public string UseWebViewText { get; } = SettingsText.Label(nameof(Configuration.UseWebView));
 	public string DeviceRegistrationKindText { get; } = DeviceRegistrationSettingsUi.SettingLabel;
 	public string DeviceRegistrationKindTip { get; } = Configuration.GetHelpText(nameof(Configuration.DeviceRegistrationKind));
 	public string DeviceRegistrationReLoginNote { get; } = DeviceRegistrationSettingsUi.ReLoginNote;
 	public EnumDisplay<DeviceRegistrationKind>[] DeviceRegistrationOptions { get; } = DeviceRegistrationSettingsUi.Options;
 	/// <summary>When true, the Use WebView setting is disabled (e.g. when running in Linux Snap to avoid portal/sandbox crashes).</summary>
 	public bool UseWebViewSettingDisabled => Configuration.IsRunningUnderSnap;
-	public string UseWebViewSnapMessage { get; } = Configuration.IsRunningUnderSnap ? "Disabled when running in Linux Snap (avoids login crash). Use external browser instead." : "";
-	public string CheckForUpgradesAtStartupText { get; } = Configuration.GetDescription(nameof(Configuration.CheckForUpgradesAtStartup));
+	public string UseWebViewSnapMessage { get; } = Configuration.IsRunningUnderSnap ? Strings.ImportantSettingsVM_DisabledWhenRunningInLinuxSnap : "";
+	public string CheckForUpgradesAtStartupText { get; } = SettingsText.Label(nameof(Configuration.CheckForUpgradesAtStartup));
 	public string CheckForUpgradesAtStartupTip { get; } = Configuration.GetHelpText(nameof(Configuration.CheckForUpgradesAtStartup));
-	public string CheckForPreReleaseText { get; } = Configuration.GetDescription(nameof(Configuration.CheckForPreRelease));
+	public string CheckForPreReleaseText { get; } = SettingsText.Label(nameof(Configuration.CheckForPreRelease));
 	public string CheckForPreReleaseTip { get; } = Configuration.GetHelpText(nameof(Configuration.CheckForPreRelease));
 	public Serilog.Events.LogEventLevel[] LoggingLevels { get; } = Enum.GetValues<Serilog.Events.LogEventLevel>();
-	public string GridScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridScaleFactor));
-	public string GridFontScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridFontScaleFactor));
+	public string GridScaleFactorText { get; } = SettingsText.Label(nameof(Configuration.GridScaleFactor));
+	public string GridFontScaleFactorText { get; } = SettingsText.Label(nameof(Configuration.GridFontScaleFactor));
+	public UiLanguageOption[] Languages { get; } = UiLanguage.Options();
+	public UiLanguageOption SelectedLanguage { get; set; }
+
 	public EnumDisplay<Configuration.Theme>[] Themes { get; }
 		= Enum.GetValues<Configuration.Theme>()
 		.Select(v => new EnumDisplay<Configuration.Theme>(v))

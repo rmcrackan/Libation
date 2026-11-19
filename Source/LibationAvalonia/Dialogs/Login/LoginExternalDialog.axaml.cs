@@ -5,6 +5,7 @@ using Dinah.Core;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs.Login;
 
@@ -47,7 +48,7 @@ public partial class LoginExternalDialog : DialogWindow
 		Serilog.Log.Logger.Information("Submit button clicked: {@DebugInfo}", new { ResponseUrl });
 		if (!Uri.TryCreate(ResponseUrl, UriKind.Absolute, out _))
 		{
-			await MessageBox.Show("Invalid response URL");
+			await MessageBox.Show(Strings.LoginExternalDialog_InvalidResponseURL);
 			return;
 		}
 		await base.SaveAndCloseAsync();

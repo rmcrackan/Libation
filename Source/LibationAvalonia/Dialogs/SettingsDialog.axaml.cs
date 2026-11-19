@@ -6,6 +6,7 @@ using LibationUiBase;
 using LibationUiBase.Forms;
 using System;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -27,7 +28,7 @@ public partial class SettingsDialog : DialogWindow
 
 		if (string.IsNullOrWhiteSpace(settingsDisp.ImportantSettings.BooksDirectory))
 		{
-			await MessageBox.Show(this.GetParentWindow(), "Cannot set Books Location to blank", "Location is blank", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			await MessageBox.Show(this.GetParentWindow(), Strings.SettingsDialog_CannotSetBooksLocationToBlank, Strings.SettingsDialog_LocationIsBlank, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			return;
 		}
 
@@ -61,7 +62,7 @@ public partial class SettingsDialog : DialogWindow
 			}
 			catch (Exception ex)
 			{
-				await MessageBox.Show(this, $"Error creating Books Location:\n\n{ex.Message}", "Error creating directory", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				await MessageBox.Show(this, string.Format(Strings.SettingsDialog_ErrorCreatingBooksLocation, ex.Message), Strings.SettingsDialog_ErrorCreatingDirectory, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
 		}

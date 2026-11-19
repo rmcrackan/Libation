@@ -7,6 +7,7 @@ using ReactiveUI;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels;
 
@@ -16,15 +17,15 @@ partial class MainVM
 	private int _visibleCount = 0;
 
 	/// <summary> The Bottom-right visible book count status text </summary>
-	public string VisibleCountText => $"Visible: {_visibleCount}";
+	public string VisibleCountText => string.Format(Strings.MainVM_Visible, _visibleCount);
 	/// <summary> The Visible Books menu item header text </summary>
-	public string VisibleCountMenuItemText => menufyText($"Visible Books {_visibleCount}");
+	public string VisibleCountMenuItemText => menufyText(string.Format(Strings.MainVM_VisibleBooks, _visibleCount));
 	/// <summary> Indicates if any of the books visible in the Products Display haven't been liberated </summary>
 	public bool AnyVisibleNotLiberated => _visibleNotLiberated > 0;
 	/// <summary> The "Liberate Visible Books" menu item header text (submenu item of the "Liberate Menu" menu item) </summary>
-	public string LiberateVisibleToolStripText { get; private set; } = "Liberate _Visible Books: 0";
+	public string LiberateVisibleToolStripText { get; private set; } = Strings.MainVM_LiberateVisibleBooks0;
 	/// <summary> The "Liberate" menu item header text (submenu item of the "Visible Books" menu item) </summary>
-	public string LiberateVisibleToolStripText_2 { get; private set; } = menufyText("Liberate: 0");
+	public string LiberateVisibleToolStripText_2 { get; private set; } = menufyText(Strings.MainVM_Liberate0);
 
 	private void Configure_VisibleBooks()
 	{
@@ -53,13 +54,13 @@ partial class MainVM
 
 		LiberateVisibleToolStripText
 			= AnyVisibleNotLiberated
-			? "Liberate " + menufyText($"Visible Books: {visibleNotLiberated}")
-			: "All visible books are liberated";
+			? string.Format(Strings.MainVM_LiberateMenu, menufyText(string.Format(Strings.MainVM_VisibleBooksCount, visibleNotLiberated)))
+			: Strings.MainVM_AllVisibleBooksAreLiberated;
 
 		LiberateVisibleToolStripText_2
 			= AnyVisibleNotLiberated
-			? menufyText($"Liberate: {visibleNotLiberated}")
-			: "All visible books are liberated";
+			? menufyText(string.Format(Strings.MainVM_Liberate, visibleNotLiberated))
+			: Strings.MainVM_AllVisibleBooksAreLiberated;
 
 		this.RaisePropertyChanged(nameof(AnyVisibleNotLiberated));
 		this.RaisePropertyChanged(nameof(LiberateVisibleToolStripText));
@@ -102,8 +103,8 @@ partial class MainVM
 			MainWindow,
 			visibleLibraryBooks,
 			// do not use `$` string interpolation. See impl.
-			"Are you sure you want to replace tags in {0}?",
-			"Replace tags?");
+			Strings.MainVM_AreYouSureYouWantTo,
+			Strings.MainVM_ReplaceTags);
 
 		if (confirmationResult != DialogResult.Yes)
 			return;
@@ -124,8 +125,8 @@ partial class MainVM
 			MainWindow,
 			visibleLibraryBooks,
 			// do not use `$` string interpolation. See impl.
-			"Are you sure you want to replace book downloaded status in {0}?",
-			"Replace downloaded status?");
+			Strings.MainVM_AreYouSureYouWantTo2,
+			Strings.MainVM_ReplaceDownloadedStatus);
 
 		if (confirmationResult != DialogResult.Yes)
 			return;
@@ -146,8 +147,8 @@ partial class MainVM
 			MainWindow,
 			visibleLibraryBooks,
 			// do not use `$` string interpolation. See impl.
-			"Are you sure you want to replace PDF downloaded status in {0}?",
-			"Replace downloaded status?");
+			Strings.MainVM_AreYouSureYouWantTo3,
+			Strings.MainVM_ReplaceDownloadedStatus);
 
 		if (confirmationResult != DialogResult.Yes)
 			return;
@@ -170,7 +171,7 @@ partial class MainVM
 
 		var confirmationResult = await MessageBox.Show(
 			bulkSetStatus.AggregateMessage,
-			"Replace downloaded status?",
+			Strings.MainVM_ReplaceDownloadedStatus,
 			MessageBoxButtons.YesNo,
 			MessageBoxIcon.Question,
 			MessageBoxDefaultButton.Button1);
@@ -189,8 +190,8 @@ partial class MainVM
 			MainWindow,
 			visibleLibraryBooks,
 			// do not use `$` string interpolation. See impl.
-			"Are you sure you want to remove {0} from Libation's library?",
-			"Remove books from Libation?",
+			Strings.MainVM_AreYouSureYouWantTo4,
+			Strings.MainVM_RemoveBooksFromLibation2,
 			MessageBoxDefaultButton.Button2);
 
 		if (confirmationResult is DialogResult.Yes)

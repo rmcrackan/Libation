@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using LibationUiBase.Resources;
+using LibationUiBase;
 
 namespace LibationAvalonia.ViewModels.Settings;
 
@@ -144,14 +146,14 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	public ICommand ConnectCommand { get; }
 
 	// Labels from Configuration descriptions
-	public string EnabledText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfEnabled));
-	public string IncludePdfsText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfIncludePdfs));
-	public string ServerUrlText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfServerUrl));
-	public string ApiTokenText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfApiToken));
-	public string LibraryText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfLibraryId));
-	public string FolderText { get; } = Configuration.GetDescription(nameof(Configuration.AudiobookshelfFolderId));
-	public string PlaintextWarningText { get; } = "Warning: The API token is stored as plaintext in Settings.json.";
-	public string ConnectButtonText { get; } = "Connect / Refresh";
+	public string EnabledText { get; } = SettingsText.Label(nameof(Configuration.AudiobookshelfEnabled));
+	public string IncludePdfsText { get; } = SettingsText.Label(nameof(Configuration.AudiobookshelfIncludePdfs));
+	public string ServerUrlText { get; } = SettingsText.Label(nameof(Configuration.AudiobookshelfServerUrl));
+	public string ApiTokenText { get; } = SettingsText.Label(nameof(Configuration.AudiobookshelfApiToken));
+	public string LibraryText { get; } = SettingsText.Label(nameof(Configuration.AudiobookshelfLibraryId));
+	public string FolderText { get; } = SettingsText.Label(nameof(Configuration.AudiobookshelfFolderId));
+	public string PlaintextWarningText { get; } = Strings.AudiobookshelfSettingsVM_WarningTheAPITokenIsStored;
+	public string ConnectButtonText { get; } = Strings.AudiobookshelfSettingsVM_ConnectRefresh;
 
 	private void UpdateLibraryNames()
 	{
@@ -179,7 +181,7 @@ public class AudiobookshelfSettingsVM : ViewModelBase
 	private async Task ConnectAsync()
 	{
 		IsConnecting = true;
-		StatusText = "Connecting...";
+		StatusText = Strings.AudiobookshelfSettingsVM_Connecting;
 		StatusIsError = false;
 
 		try

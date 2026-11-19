@@ -6,6 +6,7 @@ using LibationUiBase.ProcessQueue;
 using ReactiveUI;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels;
 
@@ -23,7 +24,7 @@ public partial class MainVM : ViewModelBase
 	{
 		MainWindow = mainWindow;
 
-		ProductsDisplay.RemovableCountChanged += (_, removeCount) => RemoveBooksButtonText = removeCount == 1 ? "Remove 1 Book from Libation" : $"Remove {removeCount} Books from Libation";
+		ProductsDisplay.RemovableCountChanged += (_, removeCount) => RemoveBooksButtonText = removeCount == 1 ? Strings.MainVM_Remove1BookFromLibation : string.Format(Strings.MainVM_RemoveBooksFromLibation3, removeCount);
 		LibraryCommands.LibrarySizeChanged += LibraryCommands_LibrarySizeChanged;
 
 		Configure_NonUI();
@@ -57,7 +58,7 @@ public partial class MainVM : ViewModelBase
 		}
 		catch (System.Exception ex)
 		{
-			await MessageBox.ShowAdminAlert(MainWindow, "An error occurred while updating the library.", "Library Size Change Error", ex);
+			await MessageBox.ShowAdminAlert(MainWindow, Strings.MainVM_AnErrorOccurredWhileUpdatingThe, Strings.MainVM_LibrarySizeChangeError, ex);
 		}
 	}
 

@@ -1,4 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -125,7 +126,7 @@
 		<controls:GroupBox
 			Margin="5"
 			Grid.Row="2"
-			Label="Custom File Naming">
+			Label="{x:Static res:Strings.DownloadDecrypt_CustomFileNaming}">
 
 			<Grid
 				RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
@@ -158,7 +159,7 @@
 				<Button
 					Grid.Row="1"
 					Grid.Column="1"
-					Content="Edit"
+					Content="{x:Static res:Strings.DownloadDecrypt_Edit}"
 					Click="EditFolderTemplateButton_Click" />
 
 				<TextBlock
@@ -174,7 +175,7 @@
 				<Button
 					Grid.Row="3"
 					Grid.Column="1"
-					Content="Edit"
+					Content="{x:Static res:Strings.DownloadDecrypt_Edit}"
 					Click="EditFileTemplateButton_Click" />
 
 				<TextBlock
@@ -190,7 +191,7 @@
 				<Button
 					Grid.Row="5"
 					Grid.Column="1"
-					Content="Edit"
+					Content="{x:Static res:Strings.DownloadDecrypt_Edit}"
 					Click="EditChapterFileTemplateButton_Click" />
 
 				<Button
@@ -206,7 +207,7 @@
 		<controls:GroupBox
 			Grid.Row="3"
 			Margin="5"
-			Label="Temporary Files Location">
+			Label="{x:Static res:Strings.DownloadDecrypt_TemporaryFilesLocation}">
 
 			<StackPanel
 				Margin="0,5" >

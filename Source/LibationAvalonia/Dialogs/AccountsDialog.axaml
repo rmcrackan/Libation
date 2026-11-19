@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -7,7 +8,7 @@
 		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
 		x:DataType="dialogs:AccountsDialog"
         x:Class="LibationAvalonia.Dialogs.AccountsDialog"
-        Title="Audible Accounts">
+        Title="{x:Static res:Strings.AccountsDialog_AudibleAccounts}">
 	<Grid RowDefinitions="*,Auto">
 		<DataGrid
 			Grid.Row="0"
@@ -22,7 +23,7 @@
 
 			<DataGrid.Columns>
 
-				<DataGridTemplateColumn Header="Delete">
+				<DataGridTemplateColumn Header="{x:Static res:Strings.AccountsDialog_Delete}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 
@@ -38,12 +39,12 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn Header="Export">
+				<DataGridTemplateColumn Header="{x:Static res:Strings.AccountsDialog_Export}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 
 							<Button
-								Content="Export"
+								Content="{x:Static res:Strings.AccountsDialog_Export}"
 								VerticalAlignment="Stretch"
 								HorizontalAlignment="Stretch"
 								HorizontalContentAlignment="Center"
@@ -57,9 +58,9 @@
 
 				<DataGridCheckBoxColumn
 					Binding="{Binding LibraryScan, Mode=TwoWay}"
-					Header="Include in&#xa;library scan?"/>
+					Header="{x:Static res:Strings.AccountsDialog_IncludeInLibraryScan}"/>
 
-				<DataGridTemplateColumn Header="Signed in?">
+				<DataGridTemplateColumn Header="{x:Static res:Strings.AccountsDialog_SignedIn}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<CheckBox
@@ -75,10 +76,11 @@
 
 				<DataGridTextColumn
 					Width="2*"
+					MinWidth="150"
 					Binding="{Binding AccountId, Mode=TwoWay}"
-					Header="Audible&#xa;email/login"/>
+					Header="{x:Static res:Strings.AccountsDialog_AudibleEmailLogin}"/>
 
-				<DataGridTemplateColumn Width="Auto" Header="Locale">
+				<DataGridTemplateColumn Width="Auto" Header="{x:Static res:Strings.AccountsDialog_Locale}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<ComboBox
@@ -101,7 +103,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn Width="Auto" Header="Marketplaces">
+				<DataGridTemplateColumn Width="Auto" Header="{x:Static res:Strings.AccountsDialog_Marketplaces}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 
@@ -121,7 +123,7 @@
 				<DataGridTextColumn
 					Width="Auto"
 					Binding="{Binding AccountName, Mode=TwoWay}"
-					Header="Account Nickname&#xa;(optional)"/>
+					Header="{x:Static res:Strings.AccountsDialog_AccountNicknameOptional}"/>
 
 			</DataGrid.Columns>
 		</DataGrid>
@@ -132,13 +134,13 @@
 
 			<Button
 				Grid.Column="0"
-				Content="Import from audible-cli"
+				Content="{x:Static res:Strings.AccountsDialog_ImportFromAudibleCli}"
 				Click="ImportButton_Clicked" />
 
 			<Button
 				Grid.Column="1"
 				Classes="SaveButton"
-				Content="Save"
+				Content="{x:Static res:Strings.AccountsDialog_Save}"
 				Click="SaveButton_Clicked" />
 		</Grid>
 	</Grid>

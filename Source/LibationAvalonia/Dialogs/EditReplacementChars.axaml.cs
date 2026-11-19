@@ -19,6 +19,7 @@ public partial class EditReplacementChars : DialogWindow
 	public EditReplacementChars()
 	{
 		InitializeComponent();
+		WidenToFit(buttonRow);
 
 		Replacements = new(SOURCE);
 

@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -8,7 +9,7 @@
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
 		x:DataType="dialogs:ThemePickerDialog"
-		Title="Theme Editor">
+		Title="{x:Static res:Strings.ThemePickerDialog_ThemeEditor}">
 	
 	<Grid ColumnDefinitions="Auto,*">
 		<controls:ThemePreviewControl Name="ThemePickerPreviewControl" Margin="5" Grid.Column="1" />
@@ -27,7 +28,7 @@
 				IsReadOnly="False"
 				ItemsSource="{Binding ThemeColors}">
 				<DataGrid.Columns>
-					<DataGridTemplateColumn Width="Auto" Header="Color">
+					<DataGridTemplateColumn Width="Auto" Header="{x:Static res:Strings.ThemePickerDialog_Color}">
 						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate>
 								<controls:ColorPickerExt
@@ -41,7 +42,7 @@
 					<DataGridTextColumn
 						Width="Auto"
 						Binding="{Binding ThemeItemName, Mode=TwoWay}"
-						Header="Theme Item"/>
+						Header="{x:Static res:Strings.ThemePickerDialog_ThemeItem}"/>
 				</DataGrid.Columns>
 			</DataGrid>
 			<Grid
@@ -49,11 +50,11 @@
 				ColumnDefinitions="Auto,*,Auto">
 				<Button
 					Grid.Column="0"
-					Content="Import Theme"
+					Content="{x:Static res:Strings.ThemePickerDialog_ImportTheme}"
 					Command="{Binding ImportTheme}" />
 				<Button
 					Grid.Column="2"
-					Content="Export Theme"
+					Content="{x:Static res:Strings.ThemePickerDialog_ExportTheme}"
 					Command="{Binding ExportTheme}" />
 			</Grid>
 			<Grid
@@ -61,19 +62,19 @@
 				ColumnDefinitions="Auto,Auto,Auto,*,Auto">			
 				<Button
 					Grid.Column="0"
-					Content="Cancel"
+					Content="{x:Static res:Strings.ThemePickerDialog_Cancel}"
 					Command="{Binding CancelAndClose}" />			
 				<Button
 					Grid.Column="1"
-					Content="Reset"
+					Content="{x:Static res:Strings.ThemePickerDialog_Reset}"
 					Command="{Binding ResetColors}" />			
 				<Button
 					Grid.Column="2"
-					Content="Defaults"
+					Content="{x:Static res:Strings.ThemePickerDialog_Defaults}"
 					Command="{Binding LoadDefaultColors}" />			
 				<Button
 					Grid.Column="4"
-					Content="Save"
+					Content="{x:Static res:Strings.ThemePickerDialog_Save}"
 					Command="{Binding SaveAndCloseAsync}" />
 			</Grid>
 		</Grid>

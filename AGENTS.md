@@ -33,6 +33,13 @@ plus a headless CLI (`LibationCli`) that shares the same config and SQLite libra
   normal build serve as the static-analysis check. (A known transitive `NU1903` SQLite
   vulnerability warning is expected and harmless.)
 
+### UI text
+- Chardonnay's user-facing text lives in `Source/LibationUiBase/Resources/Strings.resx`. Add new text
+  there and read it as `Strings.Key` (C#) or `{x:Static res:Strings.Key}` (XAML), as whole sentences
+  with `{0}` holes; text left inline stays English in every language. Settings `[Description]` text
+  needs a `Setting_`/`Enum_` copy (`SettingsTextTests` checks it). `Program.Main` and the crash
+  handler must not name types that are new in LibationUiBase, such as `Strings`. Details: `docs/development/translations.md`.
+
 ### Testing
 - Test projects live under `Source/_Tests/` and use MSTest on **Microsoft.Testing.Platform**
   (configured via `global.json` `test.runner`). Because of this runner, `dotnet test` requires

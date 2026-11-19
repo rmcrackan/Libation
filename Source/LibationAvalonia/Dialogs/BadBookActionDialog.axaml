@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -19,20 +20,20 @@
 			FontSize="12"/>
 
 		<StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="10,10,10,10" Spacing="6">
-			<CheckBox Name="applyToAllCheckBox" Content="Apply to all remaining books in this queue"/>
-			<CheckBox Name="rememberInSettingsCheckBox" Content="Remember this choice in Settings"/>
+			<CheckBox Name="applyToAllCheckBox" Content="{x:Static res:Strings.BadBookActionDialog_ApplyToAllRemainingBooksIn}"/>
+			<CheckBox Name="rememberInSettingsCheckBox" Content="{x:Static res:Strings.BadBookActionDialog_RememberThisChoiceInSettings}"/>
 		</StackPanel>
 
 		<DockPanel Height="45" Grid.Row="2" Grid.ColumnSpan="2" Background="{DynamicResource SystemChromeMediumLowColor}">
 			<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="5" DockPanel.Dock="Bottom">
 				<Button MinWidth="75" MinHeight="28" Name="abortButton" Click="AbortButton_Click" Margin="5">
-					<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Abort"/>
+					<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="{x:Static res:Strings.BadBookActionDialog_Abort}"/>
 				</Button>
 				<Button MinWidth="75" MinHeight="28" Name="retryButton" Click="RetryButton_Click" Margin="5">
-					<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Retry"/>
+					<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="{x:Static res:Strings.BadBookActionDialog_Retry}"/>
 				</Button>
 				<Button MinWidth="75" MinHeight="28" Name="ignoreButton" Click="IgnoreButton_Click" Margin="5">
-					<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Ignore"/>
+					<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="{x:Static res:Strings.BadBookActionDialog_Ignore}"/>
 				</Button>
 			</StackPanel>
 		</DockPanel>

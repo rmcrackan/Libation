@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -10,7 +11,7 @@
         x:Class="LibationAvalonia.Dialogs.Login.LoginExternalDialog"
 		xmlns:login="clr-namespace:LibationAvalonia.Dialogs.Login"
 		x:DataType="login:LoginExternalDialog"
-        Title="Audible Login External">
+        Title="{x:Static res:Strings.LoginExternalDialog_AudibleLoginExternal}">
 
 	<Grid RowDefinitions="Auto,Auto,2*,Auto,*" ColumnDefinitions="*" Margin="5">
 
@@ -18,7 +19,7 @@
 			Grid.Row="0"
 			Orientation="Horizontal">
 			
-			<TextBlock Text="Locale: " />
+			<TextBlock Text="{x:Static res:Strings.LoginExternalDialog_Locale}" />
 			<TextBlock Text="{Binding Account.Locale.Name}" />
 			
 		</StackPanel>
@@ -27,7 +28,7 @@
 			Grid.Row="1"
 			Orientation="Horizontal">
 			
-			<TextBlock Text="Username: " />
+			<TextBlock Text="{x:Static res:Strings.LoginExternalDialog_Username}" />
 			<TextBlock Text="{Binding Account.AccountId}" />
 			
 		</StackPanel>
@@ -44,7 +45,7 @@
 				Grid.Row="0"
 				Grid.Column="0"
 				VerticalAlignment="Center"
-				Text="Paste this URL into your browser:" />
+				Text="{x:Static res:Strings.LoginExternalDialog_PasteThisURLIntoYourBrowser}" />
 			
 			<TextBox
 				Grid.Row="1"
@@ -59,14 +60,14 @@
 				Grid.Row="2"
 				Grid.Column="0"
 				Margin="0,5,0,0"
-				Content="Copy URL to Clipboard"
+				Content="{x:Static res:Strings.LoginExternalDialog_CopyURLToClipboard}"
 				Click="CopyUrlToClipboard_Click" />
 			
 			<Button
 				Grid.Row="2"
 				Grid.Column="1"
 				Margin="0,5,0,0"
-				Content="Launch in Browser"
+				Content="{x:Static res:Strings.LoginExternalDialog_LaunchInBrowser}"
 				Click="LaunchInBrowser_Click" />
 			
 		</Grid>
@@ -78,17 +79,11 @@
 			<TextBlock
 				TextWrapping="Wrap"
 				FontWeight="Bold"
-				Text="tl;dr : an ERROR on Amazon is GOOD. Sorry, I can't control their weird login" />
+				Text="{x:Static res:Strings.LoginExternalDialog_TlDrAnERROROnAmazon}" />
 			
 			<TextBlock
 				TextWrapping="Wrap"
-				Text="Login with your Amazon/Audible credentials.
-&#xa;After login is complete, your browser will show you an error page similar to:
-&#xa;     Looking for Something?
-&#xa;     We're sorry. The Web address you entered is not a functioning page on our site
-&#xa;Don't worry -- this is ACTUALLY A SUCCESSFUL LOGIN.
-&#xa;Copy the current url from your browser's address bar and paste it here:
-" />
+				Text="{x:Static res:Strings.LoginExternalDialog_LoginWithYourAmazonAudibleCredentials}" />
 		</StackPanel>
 
 		<Grid
@@ -112,7 +107,7 @@
 				Margin="0,5,0,0"
 				Classes="SaveButton"
 				HorizontalAlignment="Right"
-				Content="Submit"
+				Content="{x:Static res:Strings.LoginExternalDialog_Submit}"
 				Click="Submit_Click" />
 		</Grid>
 	</Grid>

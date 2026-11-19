@@ -9,6 +9,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -37,10 +38,10 @@ public partial class AboutDialog : DialogWindow
 		_viewModel.CanCheckForUpgrade = true;
 		_viewModel.UpgradeButtonText = result.Outcome switch
 		{
-			VersionCheckOutcome.UpToDate => "Libation is up to date. Check Again.",
-			VersionCheckOutcome.UnableToDetermine => "Unable to check for updates. Try again later.",
-			VersionCheckOutcome.UpdateAvailable when result.UpgradeProperties is { } p => $"Version {p.LatestRelease:3} is available",
-			_ => "Check for Upgrade"
+			VersionCheckOutcome.UpToDate => Strings.AboutDialog_LibationIsUpToDateCheck,
+			VersionCheckOutcome.UnableToDetermine => Strings.AboutDialog_UnableToCheckForUpdatesTry,
+			VersionCheckOutcome.UpdateAvailable when result.UpgradeProperties is { } p => string.Format(Strings.AboutDialog_VersionIsAvailable, p.LatestRelease),
+			_ => Strings.AboutDialog_CheckForUpgrade
 		};
 
 		async Task OnUpgradeAvailable(UpgradeEventArgs e)
@@ -73,13 +74,13 @@ public class AboutVM : ViewModelBase
 {
 	public string Version { get; }
 	public bool CanCheckForUpgrade { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = true;
-	public string UpgradeButtonText { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = "Check for Upgrade";
+	public string UpgradeButtonText { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = Strings.AboutDialog_CheckForUpgrade;
 
 	public IEnumerable<LibationContributor> PrimaryContributors => LibationContributor.PrimaryContributors;
 	public IEnumerable<LibationContributor> AdditionalContributors => LibationContributor.AdditionalContributors;
 
 	public AboutVM()
 	{
-		Version = $"Libation {AppScaffolding.LibationScaffolding.Variety} v{AppScaffolding.LibationScaffolding.BuildVersion}";
+		Version = string.Format(Strings.AboutDialog_LibationV, AppScaffolding.LibationScaffolding.Variety, AppScaffolding.LibationScaffolding.BuildVersion);
 	}
 }

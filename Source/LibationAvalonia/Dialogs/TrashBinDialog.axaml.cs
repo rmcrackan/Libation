@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -94,8 +95,8 @@ public class TrashBinViewModel : ViewModelBase
 		var checkedCount = visible.Count(e => e.Remove is true);
 		var plusCheckedCount = visible.Count(e => e.LibraryBook.IsAudiblePlus && e.Remove is true);
 
-		CheckedCountText = $"Checked: {checkedCount} of {visible.Length}";
-		AudiblePlusCheckedCountText = $"Checked: {plusCheckedCount} of {plusVisibleCount}";
+		CheckedCountText = string.Format(Strings.TrashBinDialog_CheckedOf, checkedCount, visible.Length);
+		AudiblePlusCheckedCountText = string.Format(Strings.TrashBinDialog_CheckedOf, plusCheckedCount, plusVisibleCount);
 
 		bool? everythingChecked = checkedCount == 0 || visible.Length == 0 ? false
 			: checkedCount == visible.Length ? true
@@ -124,10 +125,10 @@ public class TrashBinViewModel : ViewModelBase
 	}
 
 	public async Task RestoreCheckedAsync()
-		=> await ChangeCheckedBooksAsync(books => books.RestoreBooksAsync(), "Could not restore books.");
+		=> await ChangeCheckedBooksAsync(books => books.RestoreBooksAsync(), Strings.TrashBinDialog_CouldNotRestoreBooks);
 
 	public async Task PermanentlyDeleteCheckedAsync()
-		=> await ChangeCheckedBooksAsync(books => books.PermanentlyDeleteBooksAsync(), "Could not permanently delete books.");
+		=> await ChangeCheckedBooksAsync(books => books.PermanentlyDeleteBooksAsync(), Strings.TrashBinDialog_CouldNotPermanentlyDeleteBooks);
 
 	private Task ChangeCheckedBooksAsync(Func<LibraryBook[], Task<int>> operation, string message)
 		=> LibationUiBase.LibraryOperation.RunAsync(async () =>
@@ -136,7 +137,7 @@ public class TrashBinViewModel : ViewModelBase
 			var qtyChanges = await operation(selection);
 			if (qtyChanges > 0)
 				await ReloadAsync();
-		}, ex => MessageBox.ShowAdminAlert(null, message, "Trash bin operation failed", ex),
+		}, ex => MessageBox.ShowAdminAlert(null, message, Strings.TrashBinDialog_TrashBinOperationFailed, ex),
 			enabled => ControlsEnabled = enabled);
 
 	private static List<LibraryBook> GetDeletedLibraryBooks()

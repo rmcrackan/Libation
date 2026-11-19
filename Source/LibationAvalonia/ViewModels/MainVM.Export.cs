@@ -4,6 +4,7 @@ using FileManager;
 using LibationFileManager;
 using System;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels;
 
@@ -18,30 +19,30 @@ partial class MainVM
 			var startFolder = Configuration.Instance.Books?.PathWithoutPrefix;
 			var options = new FilePickerSaveOptions
 			{
-				Title = "Where to export Library",
+				Title = Strings.MainVM_WhereToExportLibrary,
 				SuggestedStartLocation = startFolder is null ? null : await MainWindow.StorageProvider.TryGetFolderFromPathAsync(startFolder),
-				SuggestedFileName = $"Libation Library Export {DateTime.Now:yyyy-MM-dd}",
+				SuggestedFileName = string.Format(Strings.MainVM_LibationLibraryExport, DateTime.Now),
 				DefaultExtension = "xlsx",
 				ShowOverwritePrompt = true,
 				FileTypeChoices = new FilePickerFileType[]
 				{
-					new("Excel Workbook (*.xlsx)")
+					new(Strings.MainVM_ExcelWorkbookXlsx)
 					{
 						Patterns = new[] { "*.xlsx" },
 						//https://gist.github.com/RhetTbull/7221ef3cfd9d746f34b2550d4419a8c2
 						AppleUniformTypeIdentifiers = new[] { "org.openxmlformats.spreadsheetml.sheet" }
 					},
-					new("CSV files (*.csv)")
+					new(Strings.MainVM_CSVFilesCsv)
 					{
 						Patterns = new[] { "*.csv" },
 						AppleUniformTypeIdentifiers = new[] { "public.comma-separated-values-text" }
 					},
-					new("JSON files (*.json)")
+					new(Strings.MainVM_JSONFilesJson)
 					{
 						Patterns = new[] { "*.json" },
 						AppleUniformTypeIdentifiers = new[] { "public.json" }
 					},
-					new("All files (*.*)") { Patterns = new[] { "*" } }
+					new(Strings.MainVM_AllFiles) { Patterns = new[] { "*" } }
 					}
 			};
 
@@ -64,11 +65,11 @@ partial class MainVM
 					break;
 			}
 
-			await MessageBox.Show("Library exported to:\r\n" + selectedFile, "Library Exported");
+			await MessageBox.Show(string.Format(Strings.MainVM_LibraryExportedTo, selectedFile), Strings.MainVM_LibraryExported);
 		}
 		catch (Exception ex)
 		{
-			await MessageBox.ShowAdminAlert(MainWindow, "Error attempting to export your library.", "Error exporting", ex);
+			await MessageBox.ShowAdminAlert(MainWindow, Strings.MainVM_ErrorAttemptingToExportYourLibrary, Strings.MainVM_ErrorExporting, ex);
 		}
 	}
 }

@@ -5,6 +5,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels.Settings;
 
@@ -108,29 +109,29 @@ public class DownloadDecryptSettingsVM : ViewModelBase
 	public bool DailyDownloadLimitApproximateNoteVisible
 		=> DailyDownloadLimitQuantityVisible && DailyDownloadLimitUnit?.Value is not Configuration.DailyLimitUnit.Books;
 
-	public string DailyDownloadLimitGroupboxText { get; } = Configuration.GetDescription(nameof(Configuration.DailyDownloadLimit));
+	public string DailyDownloadLimitGroupboxText { get; } = SettingsText.Label(nameof(Configuration.DailyDownloadLimit));
 	public string DailyDownloadLimitTip { get; } = Configuration.GetHelpText(nameof(Configuration.DailyDownloadLimit));
-	public string DailyDownloadLimitQuantityText { get; } = Configuration.GetDescription(nameof(Configuration.DailyDownloadLimitQuantity));
-	public string DailyDownloadLimitUnitText { get; } = Configuration.GetDescription(nameof(Configuration.DailyDownloadLimitUnit));
+	public string DailyDownloadLimitQuantityText { get; } = SettingsText.Label(nameof(Configuration.DailyDownloadLimitQuantity));
+	public string DailyDownloadLimitUnitText { get; } = SettingsText.Label(nameof(Configuration.DailyDownloadLimitUnit));
 	public string DailyDownloadLimitApproximateNoteText { get; }
-		= "MB and GB are approximate: Libation does not know precisely how large an audiobook is before downloading it, so it assumes about 400 MB per book when deciding whether another download would exceed the limit.";
+		= Strings.DownloadDecryptSettingsVM_MBAndGBAreApproximateLibation;
 	public string DailyDownloadLimitDescriptionText { get; }
-		= "Rolling 24 hours, not a calendar day. Only downloads Libation completes are counted; books you download from the Audible app or website are not.";
+		= Strings.DownloadDecryptSettingsVM_Rolling24HoursNotACalendar;
 
 	#endregion
 
-	public string UseCoverAsFolderIconText { get; } = Configuration.GetDescription(nameof(Configuration.UseCoverAsFolderIcon));
-	public string SaveMetadataToFileText { get; } = Configuration.GetDescription(nameof(Configuration.SaveMetadataToFile));
-	public string BadBookGroupboxText { get; } = Configuration.GetDescription(nameof(Configuration.BadBook));
-	public string BadBookAskText { get; } = Configuration.BadBookAction.Ask.GetDescription() ?? nameof(Configuration.BadBookAction.Ask);
-	public string BadBookAbortText { get; } = Configuration.BadBookAction.Abort.GetDescription() ?? nameof(Configuration.BadBookAction.Abort);
-	public string BadBookRetryText { get; } = Configuration.BadBookAction.Retry.GetDescription() ?? nameof(Configuration.BadBookAction.Retry);
-	public string BadBookIgnoreText { get; } = Configuration.BadBookAction.Ignore.GetDescription() ?? nameof(Configuration.BadBookAction.Ignore);
-	public string FolderTemplateText { get; } = Configuration.GetDescription(nameof(Configuration.FolderTemplate));
-	public string FileTemplateText { get; } = Configuration.GetDescription(nameof(Configuration.FileTemplate));
-	public string ChapterFileTemplateText { get; } = Configuration.GetDescription(nameof(Configuration.ChapterFileTemplate));
-	public string EditCharReplacementText { get; } = Configuration.GetDescription(nameof(Configuration.ReplacementCharacters));
-	public string InProgressDescriptionText { get; } = Configuration.GetDescription(nameof(Configuration.InProgress));
+	public string UseCoverAsFolderIconText { get; } = SettingsText.Label(nameof(Configuration.UseCoverAsFolderIcon));
+	public string SaveMetadataToFileText { get; } = SettingsText.Label(nameof(Configuration.SaveMetadataToFile));
+	public string BadBookGroupboxText { get; } = SettingsText.Label(nameof(Configuration.BadBook));
+	public string BadBookAskText { get; } = SettingsText.Of(Configuration.BadBookAction.Ask);
+	public string BadBookAbortText { get; } = SettingsText.Of(Configuration.BadBookAction.Abort);
+	public string BadBookRetryText { get; } = SettingsText.Of(Configuration.BadBookAction.Retry);
+	public string BadBookIgnoreText { get; } = SettingsText.Of(Configuration.BadBookAction.Ignore);
+	public string FolderTemplateText { get; } = SettingsText.Label(nameof(Configuration.FolderTemplate));
+	public string FileTemplateText { get; } = SettingsText.Label(nameof(Configuration.FileTemplate));
+	public string ChapterFileTemplateText { get; } = SettingsText.Label(nameof(Configuration.ChapterFileTemplate));
+	public string EditCharReplacementText { get; } = SettingsText.Label(nameof(Configuration.ReplacementCharacters));
+	public string InProgressDescriptionText { get; } = SettingsText.Label(nameof(Configuration.InProgress));
 
 	public string FolderTemplate { get => _folderTemplate; set { this.RaiseAndSetIfChanged(ref _folderTemplate, value); } }
 	public string FileTemplate { get => _fileTemplate; set { this.RaiseAndSetIfChanged(ref _fileTemplate, value); } }

@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -39,7 +40,7 @@ public partial class BookRecordsDialog : DialogWindow
 	public BookRecordsDialog(LibraryBook libraryBook) : this()
 	{
 		this.libraryBook = libraryBook;
-		Title = $"{libraryBook.Book.TitleWithSubtitle} - Clips and Bookmarks";
+		Title = string.Format(Strings.BookRecordsDialog_ClipsAndBookmarks, libraryBook.Book.TitleWithSubtitle);
 
 		Loaded += BookRecordsDialog_Loaded;
 	}
@@ -116,7 +117,7 @@ public partial class BookRecordsDialog : DialogWindow
 		finally { await setControlEnabled(sender, true); }
 
 		if (!success)
-			await MessageBox.Show(this, $"Libation was unable to delete the {records.Count} selected records", "Deletion Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			await MessageBox.Show(this, string.Format(Strings.BookRecordsDialog_LibationWasUnableToDeleteThe, records.Count), Strings.BookRecordsDialog_DeletionFailed, MessageBoxButtons.OK, MessageBoxIcon.Error);
 	}
 
 	public async void ReloadAll_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -133,7 +134,7 @@ public partial class BookRecordsDialog : DialogWindow
 		catch (Exception ex)
 		{
 			Serilog.Log.Error(ex, ex.Message);
-			await MessageBox.Show(this, $"Libation was unable to reload records", "Reload Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			await MessageBox.Show(this, Strings.BookRecordsDialog_LibationWasUnableToReloadRecords, Strings.BookRecordsDialog_ReloadFailed, MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
 		finally { await setControlEnabled(sender, true); }
 	}
@@ -149,28 +150,28 @@ public partial class BookRecordsDialog : DialogWindow
 			var saveFileDialog =
 			await Dispatcher.UIThread.InvokeAsync(() => new FilePickerSaveOptions
 			{
-				Title = "Where to export book records",
-				SuggestedFileName = $"{libraryBook.Book.TitleWithSubtitle} - Records",
+				Title = Strings.BookRecordsDialog_WhereToExportBookRecords,
+				SuggestedFileName = string.Format(Strings.BookRecordsDialog_Records, libraryBook.Book.TitleWithSubtitle),
 				DefaultExtension = "xlsx",
 				ShowOverwritePrompt = true,
 				FileTypeChoices = new FilePickerFileType[]
 				{
-					new("Excel Workbook (*.xlsx)")
+					new(Strings.BookRecordsDialog_ExcelWorkbookXlsx)
 					{
 						Patterns = new[] { "*.xlsx" },
 						AppleUniformTypeIdentifiers = new[] { "org.openxmlformats.spreadsheetml.sheet" }
 					},
-					new("CSV files (*.csv)")
+					new(Strings.BookRecordsDialog_CSVFilesCsv)
 					{
 						Patterns = new[] { "*.csv" },
 						AppleUniformTypeIdentifiers = new[] { "public.comma-separated-values-text" }
 					},
-					new("JSON files (*.json)")
+					new(Strings.BookRecordsDialog_JSONFilesJson)
 					{
 						Patterns = new[] { "*.json" },
 						AppleUniformTypeIdentifiers  = new[] { "public.json" }
 					},
-					new("All files (*.*)") { Patterns = new[] { "*" } },
+					new(Strings.BookRecordsDialog_AllFiles) { Patterns = new[] { "*" } },
 				}
 			});
 
@@ -196,7 +197,7 @@ public partial class BookRecordsDialog : DialogWindow
 		}
 		catch (Exception ex)
 		{
-			await MessageBox.ShowAdminAlert(this, "Error attempting to export your library.", "Error exporting", ex);
+			await MessageBox.ShowAdminAlert(this, Strings.BookRecordsDialog_ErrorAttemptingToExportYourLibrary, Strings.BookRecordsDialog_ErrorExporting, ex);
 		}
 	}
 

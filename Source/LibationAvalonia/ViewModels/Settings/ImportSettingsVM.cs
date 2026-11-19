@@ -1,4 +1,5 @@
 ﻿using LibationFileManager;
+using LibationUiBase;
 
 namespace LibationAvalonia.ViewModels.Settings;
 
@@ -24,13 +25,13 @@ public class ImportSettingsVM
 		config.AutoDownloadEpisodes = AutoDownloadEpisodes;
 	}
 
-	public string AutoScanText { get; } = Configuration.GetDescription(nameof(Configuration.AutoScan));
-	public string ShowImportedStatsText { get; } = Configuration.GetDescription(nameof(Configuration.ShowImportedStats));
-	public string ImportEpisodesText { get; } = Configuration.GetDescription(nameof(Configuration.ImportEpisodes));
-	public string ImportPlusTitlesText { get; } = Configuration.GetDescription(nameof(Configuration.ImportPlusTitles));
+	public string AutoScanText { get; } = SettingsText.Label(nameof(Configuration.AutoScan));
+	public string ShowImportedStatsText { get; } = SettingsText.Label(nameof(Configuration.ShowImportedStats));
+	public string ImportEpisodesText { get; } = SettingsText.Label(nameof(Configuration.ImportEpisodes));
+	public string ImportPlusTitlesText { get; } = SettingsText.Label(nameof(Configuration.ImportPlusTitles));
 	public string ImportPlusTitlesTip => Configuration.ImportPlusTitlesToolTip;
-	public string DownloadEpisodesText { get; } = Configuration.GetDescription(nameof(Configuration.DownloadEpisodes));
-	public string AutoDownloadEpisodesText { get; } = Configuration.GetDescription(nameof(Configuration.AutoDownloadEpisodes));
+	public string DownloadEpisodesText { get; } = SettingsText.Label(nameof(Configuration.DownloadEpisodes));
+	public string AutoDownloadEpisodesText { get; } = SettingsText.Label(nameof(Configuration.AutoDownloadEpisodes));
 
 	public bool AutoScan { get; set; }
 	public bool ShowImportedStats { get; set; }

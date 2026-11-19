@@ -3,6 +3,7 @@ using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Interactivity;
 using DataLayer;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Controls;
 
@@ -34,7 +35,7 @@ public class DataGridMyRatingColumn : DataGridTemplateColumn
 		cell.Tag = this;
 
 		if (!IsReadOnly)
-			ToolTip.SetTip(myRatingElement, "Click to change ratings");
+			ToolTip.SetTip(myRatingElement, Strings.DataGridMyRatingColumn_ClickToChangeRatings);
 
 		return myRatingElement;
 	}

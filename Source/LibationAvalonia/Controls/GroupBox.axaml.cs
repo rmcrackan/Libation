@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Controls;
 
@@ -11,7 +12,7 @@ public partial class GroupBox : ContentControl
 	public GroupBox()
 	{
 		InitializeComponent();
-		Label = "This is a groupbox label";
+		Label = Strings.GroupBox_ThisIsAGroupboxLabel;
 	}
 
 	public string Label

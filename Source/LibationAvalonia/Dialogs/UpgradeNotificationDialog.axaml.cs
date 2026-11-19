@@ -3,14 +3,15 @@ using Avalonia.Controls;
 using Dinah.Core;
 using LibationFileManager;
 using LibationUiBase.Forms;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
 public partial class UpgradeNotificationDialog : DialogWindow
 {
 	private static string GetReleaseMessage(bool preRelease)
-		=> string.Format(UpdateMessage, preRelease ? "pre-release" : "release");
-	private const string UpdateMessage = "There is a new {0} available. Would you like to update?\r\n\r\nAfter you close Libation, the upgrade will start automatically.";
+		=> string.Format(UpdateMessage, preRelease ? Strings.UpgradeNotificationDialog_PreRelease : Strings.UpgradeNotificationDialog_Release);
+	private static string UpdateMessage => Strings.UpgradeNotificationDialog_ThereIsANewAvailableWould;
 	public string? TopMessage { get; }
 	public string? DownloadLinkText { get; }
 	public string? ReleaseNotes { get; }
@@ -35,13 +36,13 @@ public partial class UpgradeNotificationDialog : DialogWindow
 
 	public UpgradeNotificationDialog(UpgradeProperties upgradeProperties, bool canUpgrade, string? upgradeUnavailableReason = null) : this()
 	{
-		Title = $"Libation version {upgradeProperties.LatestRelease.ToVersionString()} is now available.";
+		Title = string.Format(Strings.UpgradeNotificationDialog_LibationVersionIsNowAvailable, upgradeProperties.LatestRelease.ToVersionString());
 		CanUpgrade = canUpgrade;
 		PackageUrl = upgradeProperties.ZipUrl;
 		DownloadLinkText = upgradeProperties.ZipName;
 		ReleaseNotes = upgradeProperties.Notes;
 		TopMessage = canUpgrade ? GetReleaseMessage(upgradeProperties.IsPreRelease) : upgradeUnavailableReason ?? "";
-		OkText = canUpgrade ? "Yes" : "OK";
+		OkText = canUpgrade ? Strings.UpgradeNotificationDialog_Yes : Strings.UpgradeNotificationDialog_OK;
 		DataContext = this;
 	}
 

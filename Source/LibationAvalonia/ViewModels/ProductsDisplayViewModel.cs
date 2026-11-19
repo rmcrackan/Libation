@@ -16,6 +16,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels;
 
@@ -402,8 +403,8 @@ public class ProductsDisplayViewModel : ViewModelBase
 			null,
 			booksToRemove,
 			// do not use `$` string interpolation. See impl.
-			"Are you sure you want to remove {0} from Libation's library?",
-			"Remove books from Libation?");
+			Strings.ProductsDisplayViewModel_AreYouSureYouWantTo,
+			Strings.ProductsDisplayViewModel_RemoveBooksFromLibation);
 
 		if (result != DialogResult.Yes)
 			return;
@@ -490,8 +491,8 @@ public class ProductsDisplayViewModel : ViewModelBase
 			{
 				await MessageBox.ShowAdminAlert(
 					null,
-					"Error scanning library. You may still manually select books to remove from Libation's library.",
-					"Error scanning library",
+					Strings.ProductsDisplayViewModel_ErrorScanningLibraryYouMayStill,
+					Strings.ProductsDisplayViewModel_ErrorScanningLibrary,
 					ex);
 			}
 		}

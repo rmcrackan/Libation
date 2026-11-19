@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -52,7 +53,7 @@ public partial class LocateAudiobooksDialog : DialogWindow
 	{
 		var folderPicker = new FolderPickerOpenOptions
 		{
-			Title = "Select the folder to search for audiobooks",
+			Title = Strings.LocateAudiobooksDialog_SelectTheFolderToSearchFor,
 			AllowMultiple = false,
 		};
 
@@ -84,7 +85,7 @@ public partial class LocateAudiobooksDialog : DialogWindow
 		else
 		{
 			await _viewModel.FindAndAddBooksAsync(selectedFolder, tokenSource.Token);
-			await MessageBox.Show(this, $"Libation has found {_viewModel.FoundAsinCount} unique audiobooks and added them to its database. ", $"Found {_viewModel.FoundAsinCount} Audiobooks");
+			await MessageBox.Show(this, string.Format(Strings.LocateAudiobooksDialog_LibationHasFoundUniqueAudiobooksAnd, _viewModel.FoundAsinCount), string.Format(Strings.LocateAudiobooksDialog_FoundAudiobooks, _viewModel.FoundAsinCount));
 		}
 	}
 

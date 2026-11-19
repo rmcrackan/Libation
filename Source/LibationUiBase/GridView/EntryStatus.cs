@@ -5,6 +5,7 @@ using LibationFileManager;
 using LibationUiBase.StatusIcons;
 using System;
 using System.Collections.Generic;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase.GridView;
 
@@ -136,41 +137,41 @@ public class EntryStatus : ReactiveObject, IComparable
 	private string GetTooltip()
 	{
 		if (IsSeries)
-			return Expanded ? "Click to Collapse" : "Click to Expand";
+			return Expanded ? Strings.EntryStatus_ClickToCollapse : Strings.EntryStatus_ClickToExpand;
 
 		if (IsUnavailable)
-			return "This book cannot be downloaded\nbecause it wasn't found during\nthe most recent library scan";
+			return Strings.EntryStatus_ThisBookCannotBeDownloadedBecause;
 
 		if (BookStatus == LiberatedStatus.Error)
-			return "Book downloaded ERROR";
+			return Strings.EntryStatus_BookDownloadedERROR;
 
 		string libState = BookStatus switch
 		{
-			LiberatedStatus.Liberated => "Liberated",
-			LiberatedStatus.PartialDownload => "File has been at least\r\npartially downloaded",
-			LiberatedStatus.NotLiberated => "Book download pending",
+			LiberatedStatus.Liberated => Strings.EntryStatus_Liberated,
+			LiberatedStatus.PartialDownload => Strings.EntryStatus_FileHasBeenAtLeastPartially,
+			LiberatedStatus.NotLiberated => Strings.EntryStatus_BookDownloadPending,
 			_ => throw new Exception("Unexpected liberation state")
 		};
 
 		string pdfState = PdfStatus switch
 		{
-			LiberatedStatus.Liberated => "\r\nPDF downloaded",
-			LiberatedStatus.NotLiberated => "\r\nPDF download pending",
+			LiberatedStatus.Liberated => Strings.EntryStatus_PDFDownloaded,
+			LiberatedStatus.NotLiberated => Strings.EntryStatus_PDFDownloadPending,
 			// Set when Audible granted a license carrying no PDF link, which is by far the likeliest way a
 			// title arrives here, and says more than "ERROR" about why Libation has stopped asking.
-			LiberatedStatus.Error => "\r\nPDF could not be downloaded\r\nand will not be tried again",
+			LiberatedStatus.Error => Strings.EntryStatus_PDFCouldNotBeDownloadedAnd,
 			null => "",
 			_ => throw new Exception("Unexpected PDF state")
 		};
 
-		var plusState = isAudiblePlus ? "\r\nAudible Plus title" : "";
+		var plusState = isAudiblePlus ? Strings.EntryStatus_AudiblePlusTitle : "";
 
 		var mouseoverText = libState + pdfState + plusState;
 
 		if (BookStatus == LiberatedStatus.NotLiberated ||
 			BookStatus == LiberatedStatus.PartialDownload ||
 			PdfStatus == LiberatedStatus.NotLiberated)
-			mouseoverText += "\r\nClick to download";
+			mouseoverText += Strings.EntryStatus_ClickToDownload;
 
 		return mouseoverText;
 	}

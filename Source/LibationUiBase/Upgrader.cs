@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase;
 
@@ -54,7 +55,7 @@ public class Upgrader : UpgraderBase
 		}
 		catch (Exception ex)
 		{
-			string message = "An error occurred while checking for app upgrades.";
+			string message = Strings.Upgrader_AnErrorOccurredWhileCheckingFor;
 			Serilog.Log.Logger.Error(ex, message);
 			OnUpgradeFailed(message, ex);
 			return new VersionCheckResult(VersionCheckOutcome.UnableToDetermine);
@@ -65,7 +66,7 @@ public class Upgrader : UpgraderBase
 	{
 		if (upgradeProperties.ZipUrl is null)
 		{
-			string message = "Download link for new version not found.";
+			string message = Strings.Upgrader_DownloadLinkForNewVersionNot;
 			Serilog.Log.Logger.Warning(message);
 			OnUpgradeFailed(message, null);
 			return null;
@@ -108,7 +109,7 @@ public class Upgrader : UpgraderBase
 		}
 		catch (Exception ex)
 		{
-			var message = $"Failed to download the upgrade: {upgradeProperties.ZipUrl}";
+			var message = string.Format(Strings.Upgrader_FailedToDownloadTheUpgrade, upgradeProperties.ZipUrl);
 			Serilog.Log.Logger.Error(ex, message);
 			OnUpgradeFailed(message, ex);
 			return null;
@@ -131,7 +132,7 @@ public class Upgrader : UpgraderBase
 		}
 		catch (Exception ex)
 		{
-			var message = "Failed to create a temp directory for the upgrade download.";
+			var message = Strings.Upgrader_FailedToCreateATempDirectory;
 			Serilog.Log.Logger.Error(ex, message);
 			OnUpgradeFailed(message, ex);
 			return null;
@@ -193,16 +194,11 @@ public class MockUpgrader : UpgraderBase
 
 public abstract class UpgraderBase
 {
-	internal const string ApplicationControlUpgradeMessage =
-		$"""
-		A new version is available, but Libation cannot install it itself: Smart App Control is On for this PC, and it blocks files Windows does not recognise. Replacing Libation's files in place is what leaves it unable to start.
+	internal static string ApplicationControlUpgradeMessage =>
+		string.Format(Strings.Upgrader_ANewVersionIsAvailableBut, StartupAssemblyBootstrap.TroubleshootApplicationControlUrl);
 
-		Download the release below and install it yourself. If Windows blocks that too, see:
-		{StartupAssemblyBootstrap.TroubleshootApplicationControlUrl}
-		""";
-
-	internal const string ApplicationControlUpgradeSummary =
-		"Libation cannot install this update while Smart App Control is On.";
+	internal static string ApplicationControlUpgradeSummary =>
+		Strings.Upgrader_LibationCannotInstallThisUpdateWhile;
 
 	public event EventHandler? DownloadBegin;
 	public event EventHandler<DownloadProgress>? DownloadProgress;
@@ -326,13 +322,13 @@ public abstract class UpgraderBase
 				{
 					Serilog.Log.Logger.Error(ex, "In-app upgrade failed integrity check and was rolled back");
 					OnUpgradeFailed(
-						$"The in-app upgrade did not complete successfully. Libation restored your previous install files from backup.{Environment.NewLine}{Environment.NewLine}{ex.Message}",
+						string.Format(Strings.Upgrader_TheInAppUpgradeDidNot, Environment.NewLine, Environment.NewLine, ex.Message),
 						ex);
 				}
 				catch (Exception ex)
 				{
 					Serilog.Log.Logger.Error(ex, "Auto-upgrader did not complete successfully");
-					OnUpgradeFailed("The upgrade installer did not complete successfully. You can install the downloaded package manually from your temp folder.", ex);
+					OnUpgradeFailed(Strings.Upgrader_TheUpgradeInstallerDidNotComplete, ex);
 				}
 			}
 
@@ -340,7 +336,7 @@ public abstract class UpgraderBase
 		}
 		catch (Exception ex)
 		{
-			var message = "An error occurred while checking for app upgrades.";
+			var message = Strings.Upgrader_AnErrorOccurredWhileCheckingFor;
 			Serilog.Log.Logger.Error(ex, message);
 			OnUpgradeFailed(message, ex);
 			return new VersionCheckResult(VersionCheckOutcome.UnableToDetermine);

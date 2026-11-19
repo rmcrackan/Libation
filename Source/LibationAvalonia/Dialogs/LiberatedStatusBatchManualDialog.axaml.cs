@@ -1,6 +1,7 @@
 using DataLayer;
 using System.Collections;
 using System.Collections.Generic;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -29,19 +30,20 @@ public partial class LiberatedStatusBatchManualDialog : DialogWindow
 
 	public List<liberatedComboBoxItem> BookStatuses { get; } =
 	[
-		new liberatedComboBoxItem { Status = LiberatedStatus.Liberated, Text = "Downloaded" },
-		new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = "Download Pending" },
+		new liberatedComboBoxItem { Status = LiberatedStatus.Liberated, Text = Strings.LiberatedStatusBatchManualDialog_Downloaded },
+		new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = Strings.LiberatedStatusBatchManualDialog_DownloadPending },
 	];
 
 	public LiberatedStatusBatchManualDialog(bool isPdf) : this()
 	{
 		if (isPdf)
-			Title = Title?.Replace("book", "PDF");
+			Title = Strings.LiberatedStatusBatchManualDialog_LiberatedStatusWhetherThePdfHas;
 	}
 
 	public LiberatedStatusBatchManualDialog()
 	{
 		InitializeComponent();
+		WidenToFit(content);
 		SelectedItem = BookStatuses[0];
 		DataContext = this;
 		ControlToFocusOnShow = SaveButton;

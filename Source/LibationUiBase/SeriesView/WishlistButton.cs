@@ -4,6 +4,7 @@ using DataLayer;
 using FileLiberator;
 using System;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase.SeriesView;
 
@@ -15,9 +16,9 @@ internal class WishlistButton : SeriesButton
 
 	public override bool HasButtonAction => !InLibrary;
 	public override string DisplayText
-		=> InLibrary ? "Already\r\nOwned"
-		: InWishList ? "Remove\r\nFrom\r\nWishlist"
-		: "Add to\r\nWishlist";
+		=> InLibrary ? Strings.WishlistButton_AlreadyOwned
+		: InWishList ? Strings.WishlistButton_RemoveFromWishlist
+		: Strings.WishlistButton_AddToWishlist;
 
 	public override bool Enabled
 	{

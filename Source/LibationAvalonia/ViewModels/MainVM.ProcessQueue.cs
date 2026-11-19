@@ -5,6 +5,7 @@ using LibationUiBase.GridView;
 using ReactiveUI;
 using System;
 using System.Linq;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.ViewModels;
 
@@ -43,7 +44,7 @@ partial class MainVM
 				if (!Go.To.File(filePath?.ShortPathName))
 				{
 					var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
-					await MessageBox.Show($"File not found" + suffix);
+					await MessageBox.Show(string.Format(Strings.MainVM_FileNotFound, suffix));
 				}
 			}
 		}

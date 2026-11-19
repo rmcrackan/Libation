@@ -9,6 +9,7 @@ using LibationUiBase;
 using LibationUiBase.Forms;
 using System;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Dialogs.Login;
 
@@ -77,7 +78,7 @@ public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 
 		NativeWebDialog dialog = new()
 		{
-			Title = "Audible Login",
+			Title = Strings.AvaloniaLoginChoiceEager_AudibleLogin,
 			CanUserResize = true
 		};
 		dialog.EnvironmentRequested += Dialog_EnvironmentRequested;

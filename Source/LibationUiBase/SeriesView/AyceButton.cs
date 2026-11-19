@@ -7,6 +7,7 @@ using FileLiberator;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase.SeriesView;
 
@@ -19,8 +20,8 @@ internal class AyceButton : SeriesButton
 
 	public override bool HasButtonAction => true;
 	public override string DisplayText
-		=> InLibrary ? "Remove\r\nFrom\r\nLibrary"
-		: "FREE\r\n\r\nAdd to\r\nLibrary";
+		=> InLibrary ? Strings.AyceButton_RemoveFromLibrary
+		: Strings.AyceButton_FREEAddToLibrary;
 
 	public override bool Enabled
 	{

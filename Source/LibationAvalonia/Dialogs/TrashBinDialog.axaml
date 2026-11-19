@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -10,23 +11,23 @@
 		x:CompileBindings="True"
 		MinWidth="680" MinHeight="480" 
 		Width="680" Height="480"
-        Title="Trash Bin"
+        Title="{x:Static res:Strings.TrashBinDialog_TrashBin}"
 		WindowStartupLocation="CenterOwner"
 		Icon="/Assets/libation.ico">
 	
 	<Grid Margin="5"
 		RowDefinitions="Auto,Auto,*,Auto">
 		
-		<TextBlock Text="Check books you want to permanently delete from or restore to Libation"/>
+		<TextBlock Text="{x:Static res:Strings.TrashBinDialog_CheckBooksYouWantToPermanently}"/>
 
 		<Grid Margin="0,5" Grid.Row="1" Grid.ColumnDefinitions="Auto,*,Auto">
-			<TextBlock VerticalAlignment="Center" Text="Search Deleted Books:"/>
+			<TextBlock VerticalAlignment="Center" Text="{x:Static res:Strings.TrashBinDialog_SearchDeletedBooks}"/>
 			<TextBox Name="searchTb" Margin="5,0" Grid.Column="1" Text="{Binding FilterString}" IsEnabled="{Binding ControlsEnabled}">
 				<TextBox.KeyBindings>
 					<KeyBinding Command="{Binding FilterBtnAsync}" Gesture="Enter" />
 				</TextBox.KeyBindings>
 			</TextBox>
-			<Button Classes="SaveButton" Grid.Column="2" Command="{Binding FilterBtnAsync}" IsEnabled="{Binding ControlsEnabled}" VerticalAlignment="Stretch" Content="Filter" />
+			<Button Classes="SaveButton" Grid.Column="2" Command="{Binding FilterBtnAsync}" IsEnabled="{Binding ControlsEnabled}" VerticalAlignment="Stretch" Content="{x:Static res:Strings.TrashBinDialog_Filter}" />
 		</Grid>
 
 		<views:ProductsDisplay
@@ -39,51 +40,53 @@
 		<Grid
 			Margin="0,5,0,0"
 			Grid.Row="3"
-			ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+			ColumnDefinitions="*,Auto,Auto">
 
-			<CheckBox
-				IsEnabled="{Binding	ControlsEnabled}"
-				IsThreeState="True"
-				Margin="0,0,14,0"
-				IsChecked="{Binding EverythingChecked}"
-				Content="Everything" />
-			
-			<TextBlock
-				Grid.Column="1"
-				Margin="0,0,14,0"
-				VerticalAlignment="Center"
-				Text="{Binding CheckedCountText}" />
+			<!-- Wraps instead of pushing the buttons off the window when the labels are long. -->
+			<WrapPanel VerticalAlignment="Center">
 
-			<CheckBox
-				Grid.Column="2"
-				IsEnabled="{Binding	ControlsEnabled}"
-				IsThreeState="True"
-				Margin="0,0,15,0"
-				IsChecked="{Binding AudiblePlusChecked}"
-				Content="Audible Plus Books" />
+				<CheckBox
+					IsEnabled="{Binding	ControlsEnabled}"
+					IsThreeState="True"
+					Margin="0,0,14,0"
+					IsChecked="{Binding EverythingChecked}"
+					Content="{x:Static res:Strings.TrashBinDialog_Everything}" />
 			
-			<TextBlock
-				Grid.Column="3"
-				VerticalAlignment="Center"
-				Text="{Binding AudiblePlusCheckedCountText}" />
+				<TextBlock
+					Margin="0,0,14,0"
+					VerticalAlignment="Center"
+					Text="{Binding CheckedCountText}" />
+
+				<CheckBox
+					IsEnabled="{Binding	ControlsEnabled}"
+					IsThreeState="True"
+					Margin="0,0,15,0"
+					IsChecked="{Binding AudiblePlusChecked}"
+					Content="{x:Static res:Strings.TrashBinDialog_AudiblePlusBooks}" />
 			
+				<TextBlock
+					VerticalAlignment="Center"
+					Text="{Binding AudiblePlusCheckedCountText}" />
+			
+			</WrapPanel>
+
 			<Button
 				IsEnabled="{Binding	ControlsEnabled}"
-				Grid.Column="4"
+				Grid.Column="1"
 				Margin="0,0,20,0"
 				HorizontalAlignment="Right"
 				VerticalAlignment="Stretch"
 				VerticalContentAlignment="Center"
-				Content="Restore"
+				Content="{x:Static res:Strings.TrashBinDialog_Restore}"
 				Command="{Binding RestoreCheckedAsync}"/>
 			
 			<Button
 				IsEnabled="{Binding	ControlsEnabled}"
-				Grid.Column="5"
+				Grid.Column="2"
 				Command="{Binding PermanentlyDeleteCheckedAsync}" >
 				<TextBlock
 					TextAlignment="Center"
-					Text="Permanently Delete&#xa;from Libation" />
+					Text="{x:Static res:Strings.TrashBinDialog_PermanentlyDeleteFromLibation}" />
 			</Button>
 		</Grid>
 	</Grid>

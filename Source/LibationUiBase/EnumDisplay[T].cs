@@ -1,5 +1,4 @@
-﻿using Dinah.Core;
-using System;
+﻿using System;
 
 namespace LibationUiBase;
 
@@ -10,7 +9,7 @@ public class EnumDisplay<T> where T : Enum
 	public EnumDisplay(T value, string? description = null)
 	{
 		Value = value;
-		Description = description ?? value.GetDescription() ?? value.ToString();
+		Description = description ?? SettingsText.Of(value);
 	}
 	public override string ToString() => Description;
 

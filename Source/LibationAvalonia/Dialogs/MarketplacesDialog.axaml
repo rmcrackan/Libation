@@ -1,5 +1,6 @@
 <Window
 	xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -11,7 +12,7 @@
 	xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
 	x:DataType="dialogs:MarketplacesDialog"
 	x:CompileBindings="True"
-	Title="Marketplaces"
+	Title="{x:Static res:Strings.MarketplacesDialog_Marketplaces}"
 	WindowStartupLocation="CenterOwner">
 
 	<Grid
@@ -74,7 +75,7 @@
 			Grid.Column="2"
 			Classes="SaveButton"
 			HorizontalAlignment="Right"
-			Content="Save"
+			Content="{x:Static res:Strings.MarketplacesDialog_Save}"
 			Name="SaveButton"
 			Command="{Binding SaveAndClose}" />
 	</Grid>

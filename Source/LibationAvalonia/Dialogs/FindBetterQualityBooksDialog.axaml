@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -8,7 +9,7 @@
 		Width="800" Height="450"
         x:Class="LibationAvalonia.Dialogs.FindBetterQualityBooksDialog"
 		x:DataType="vm:FindBetterQualityBooksViewModel"
-        Title="Scan Audible for Better Quality Audiobooks">
+        Title="{x:Static res:Strings.FindBetterQualityBooksDialog_ScanAudibleForBetterQualityAudiobooks}">
 
   <Grid Margin="5" RowDefinitions="*,Auto">
 	  <DataGrid
@@ -31,51 +32,51 @@
     				Width="120"
 				    IsReadOnly="False"
 				    Binding="{Binding Asin}"
-				    Header="ASIN"/>
+				    Header="{x:Static res:Strings.FindBetterQualityBooksDialog_ASIN}"/>
 
 				<DataGridTextColumn
     				Width="120"
 				    IsReadOnly="True"
 				    Binding="{Binding Title}"
-				    Header="Title"/>
+				    Header="{x:Static res:Strings.FindBetterQualityBooksDialog_Title}"/>
 
 				<DataGridTextColumn
     				Width="120"
 				    IsReadOnly="True"
 				    Binding="{Binding FoundFile}"
-				    Header="Best Found File"/>
+				    Header="{x:Static res:Strings.FindBetterQualityBooksDialog_BestFoundFile}"/>
 
 				<DataGridTextColumn
     				Width="90"
 				    IsReadOnly="True"
 				    Binding="{Binding Codec}"
-				    Header="Existing&#xa;Codec"/>
+				    Header="{x:Static res:Strings.FindBetterQualityBooksDialog_ExistingCodec}"/>
 
 				<DataGridTextColumn
     				Width="90"
 				    IsReadOnly="True"
 					SortMemberPath="Bitrate"
 				    Binding="{Binding BitrateString}"
-				    Header="Existing&#xa;Bitrate"/>
+				    Header="{x:Static res:Strings.FindBetterQualityBooksDialog_ExistingBitrate}"/>
 
 				<DataGridTextColumn
     				Width="90"
 				    IsReadOnly="True"
 				    Binding="{Binding AvailableCodec}"
-				    Header="Available&#xa;Codec"/>
+				    Header="{x:Static res:Strings.FindBetterQualityBooksDialog_AvailableCodec}"/>
 
 				<DataGridTextColumn
     				Width="90"
 				    IsReadOnly="True"
 					SortMemberPath="AvailableBitrate"
 				    Binding="{Binding AvailableBitrateString}"
-				    Header="Available&#xa;Bitrate"/>
+				    Header="{x:Static res:Strings.FindBetterQualityBooksDialog_AvailableBitrate}"/>
 
 			  <DataGridCheckBoxColumn
     				Width="90"
 				    IsReadOnly="True"
 					Binding="{Binding IsSignificant}"
-				    Header="Significantly&#xa;Greater?"/>
+				    Header="{x:Static res:Strings.FindBetterQualityBooksDialog_SignificantlyGreater}"/>
 
           </DataGrid.Columns>
       </DataGrid>

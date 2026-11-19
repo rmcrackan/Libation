@@ -108,7 +108,7 @@ public partial class Form1
 	private void updateBottomStats(object? _, System.ComponentModel.RunWorkerCompletedEventArgs e)
 	{
 		var libraryStats = getLibraryStats(e);
-		statusStrip1.UIThreadAsync(() => backupsCountsLbl.Text = libraryStats?.StatusString ?? "ERROR GETTING STATUS");
+		statusStrip1.UIThreadAsync(() => backupsCountsLbl.Text = libraryStats is null ? "ERROR GETTING STATUS" : LibationUiBase.LibraryStatsText.Of(libraryStats));
 
 		//Whether the library is empty is only known once these counts have been taken, which is also what
 		//keeps the getting-started panel off screen while a full library is still loading.

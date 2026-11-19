@@ -6,6 +6,7 @@ using Dinah.Core;
 using LibationAvalonia.Dialogs;
 using LibationUiBase.SeriesView;
 using System;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Views;
 
@@ -58,8 +59,8 @@ public partial class SeriesViewDialog : DialogWindow
 
 			TabItems.Add(new TabItem
 			{
-				Header = "ERROR",
-				Content = new TextBlock { Text = "ERROR LOADING SERIES INFO\r\n\r\n" + ex.Message, Foreground = Brushes.Red }
+				Header = Strings.SeriesViewDialog_ERROR,
+				Content = new TextBlock { Text = string.Format(Strings.SeriesViewDialog_ERRORLOADINGSERIESINFO, ex.Message), Foreground = Brushes.Red }
 			});
 		}
 	}

@@ -10,6 +10,7 @@ using LibationUiBase.Forms;
 using LibationUiBase.SeriesView;
 using System.Collections.Generic;
 using System.Linq;
+using LibationUiBase.Resources;
 
 namespace LibationAvalonia.Views;
 
@@ -60,7 +61,7 @@ public partial class SeriesViewGrid : UserControl
 		var pictureId = libraryBook.PictureLarge ?? libraryBook.PictureId;
 		if (string.IsNullOrEmpty(pictureId))
 		{
-			await MessageBox.Show(this.GetParentWindow(), "No cover art is available for this book.", "No Cover Art", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			await MessageBox.Show(this.GetParentWindow(), Strings.SeriesViewGrid_NoCoverArtIsAvailableFor, Strings.SeriesViewGrid_NoCoverArt, MessageBoxButtons.OK, MessageBoxIcon.Information);
 			return;
 		}
 
@@ -81,7 +82,7 @@ public partial class SeriesViewGrid : UserControl
 
 		PictureStorage.PictureCached += PictureCached;
 		(bool isDefault, byte[] initialImageBts) = PictureStorage.GetPicture(picDef);
-		var windowTitle = $"{libraryBook.Title} - Cover";
+		var windowTitle = string.Format(Strings.SeriesViewGrid_Cover, libraryBook.Title);
 
 		imageDisplayDialog.Title = windowTitle;
 		imageDisplayDialog.SetCoverBytes(initialImageBts);

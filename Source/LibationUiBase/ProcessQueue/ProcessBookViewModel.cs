@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase.ProcessQueue;
 
@@ -61,7 +62,7 @@ public class ProcessBookViewModel : ReactiveObject
 	public string? Author { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public string? Title { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public int Progress { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
-	public TimeSpan TimeRemaining { get => field; set { RaiseAndSetIfChanged(ref field, value); ETA = $"ETA: {value:mm\\:ss}"; } }
+	public TimeSpan TimeRemaining { get => field; set { RaiseAndSetIfChanged(ref field, value); ETA = string.Format(Strings.ProcessBookViewModel_ETA, value); } }
 	public string? ETA { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
 	public object? Cover { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
 	public bool IsFinished => Status is not ProcessBookStatus.Queued and not ProcessBookStatus.Working;
@@ -82,19 +83,19 @@ public class ProcessBookViewModel : ReactiveObject
 
 	public string StatusText => StatusOverride ?? (Result, LibraryBook.IsAudiblePlus) switch
 	{
-		(ProcessBookResult.Success, _) => "Finished",
-		(ProcessBookResult.Cancelled, _) => "Cancelled",
-		(ProcessBookResult.ValidationFail, _) => "Validation fail",
-		(ProcessBookResult.FailedRetry, _) => "Error, will retry later",
-		(ProcessBookResult.FailedSkip, _) => "Error, Skipping",
-		(ProcessBookResult.FailedAbort, _) => "Error, Abort",
-		(ProcessBookResult.LicenseDenied, true) => "License denied (Plus; often temporary)",
-		(ProcessBookResult.LicenseDenied, false) => "License Denied",
-		(ProcessBookResult.LicenseDeniedPossibleOutage, _) => "Possible Service Interruption",
-		(ProcessBookResult.LicenseDeniedThrottled, _) => "License denied (throttled)",
-		(ProcessBookResult.LicenseDeniedThrottledRecovered, _) => "License denied (re-login needed)",
+		(ProcessBookResult.Success, _) => Strings.ProcessBookViewModel_Finished,
+		(ProcessBookResult.Cancelled, _) => Strings.ProcessBookViewModel_Cancelled,
+		(ProcessBookResult.ValidationFail, _) => Strings.ProcessBookViewModel_ValidationFail,
+		(ProcessBookResult.FailedRetry, _) => Strings.ProcessBookViewModel_ErrorWillRetryLater,
+		(ProcessBookResult.FailedSkip, _) => Strings.ProcessBookViewModel_ErrorSkipping,
+		(ProcessBookResult.FailedAbort, _) => Strings.ProcessBookViewModel_ErrorAbort,
+		(ProcessBookResult.LicenseDenied, true) => Strings.ProcessBookViewModel_LicenseDeniedPlusOftenTemporary,
+		(ProcessBookResult.LicenseDenied, false) => Strings.ProcessBookViewModel_LicenseDenied,
+		(ProcessBookResult.LicenseDeniedPossibleOutage, _) => Strings.ProcessBookViewModel_PossibleServiceInterruption,
+		(ProcessBookResult.LicenseDeniedThrottled, _) => Strings.ProcessBookViewModel_LicenseDeniedThrottled,
+		(ProcessBookResult.LicenseDeniedThrottledRecovered, _) => Strings.ProcessBookViewModel_LicenseDeniedReLoginNeeded,
 		(ProcessBookResult.WidevineRecommended, _) => WidevineRecommendationUserMessage.QueueStatusText,
-		(ProcessBookResult.DiskFull, _) => "Disk full, queue stopped",
+		(ProcessBookResult.DiskFull, _) => Strings.ProcessBookViewModel_DiskFullQueueStopped,
 		_ => Status.ToString(),
 	};
 
@@ -551,39 +552,22 @@ public class ProcessBookViewModel : ReactiveObject
 		try
 		{
 			static string trunc(string str)
-				=> string.IsNullOrWhiteSpace(str) ? "[empty]"
+				=> string.IsNullOrWhiteSpace(str) ? Strings.ProcessBookViewModel_Empty
 				: (str.Length > 50) ? $"{str.Truncate(47)}..."
 				: str;
 
-			details = $"""
-				  Title: {libraryBook.Book.TitleWithSubtitle}
-				  ID: {libraryBook.Book.AudibleProductId}
-				  Author: {trunc(libraryBook.Book.AuthorNames)}
-				  Narr: {trunc(libraryBook.Book.NarratorNames)}
-				""";
+			details = string.Format(Strings.ProcessBookViewModel_TitleIDAuthorNarr, libraryBook.Book.TitleWithSubtitle, libraryBook.Book.AudibleProductId, trunc(libraryBook.Book.AuthorNames), trunc(libraryBook.Book.NarratorNames));
 		}
 		catch
 		{
-			details = "[Error retrieving details]";
+			details = Strings.ProcessBookViewModel_ErrorRetrievingDetails;
 		}
 
-		var skipDialogText = $"""
-			An error occurred while trying to process this book.
-			{details}
-			
-			- ABORT: Stop processing books.
-			
-			- RETRY: Skip this book for now, but retry if it is requeued. Continue processing the queued books.
-			
-			- IGNORE: Permanently ignore this book. Continue processing the queued books. (Will not try this book again later.)
-
-			Check "Apply to all remaining books" to use your choice for the rest of this queue.
-			Check "Remember in Settings" to save your choice in Download/Decrypt settings.
-			""";
+		var skipDialogText = string.Format(Strings.ProcessBookViewModel_AnErrorOccurredWhileTryingTo, details);
 
 		try
 		{
-			var result = await BadBookActionDialogBase.Show(skipDialogText, "Skip this book?");
+			var result = await BadBookActionDialogBase.Show(skipDialogText, Strings.ProcessBookViewModel_SkipThisBook);
 
 			// This is the book the user was looking at when they said stop, so this is the book whose
 			// row should say so afterwards. Every other book in flight inherits the answer through

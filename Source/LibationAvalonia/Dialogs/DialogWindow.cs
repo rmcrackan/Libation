@@ -69,6 +69,27 @@ public abstract class DialogWindow : Window
 		ControlToFocusOnShow?.Focus();
 	}
 
+	/// <summary>
+	/// Once the window opens, widens it, up to the screen's width, until <paramref name="control"/> fits at its natural width.
+	/// For rows of buttons or labels sized for English: a longer translation would otherwise run off the edge.
+	/// </summary>
+	protected void WidenToFit(Control control)
+	{
+		Opened += (_, _) =>
+		{
+			control.Measure(Avalonia.Size.Infinity);
+			var missing = control.DesiredSize.Width - control.Bounds.Width - control.Margin.Left - control.Margin.Right;
+			control.InvalidateMeasure();
+			if (missing < 1)
+				return;
+
+			var screenWidth = Screens.ScreenFromWindow(this) is { } screen ? screen.WorkingArea.Width / screen.Scaling : double.PositiveInfinity;
+			var width = Math.Min(Bounds.Width + Math.Ceiling(missing), screenWidth);
+			MaxWidth = Math.Max(MaxWidth, width);
+			Width = width;
+		};
+	}
+
 	public void Close(DialogResult dialogResult)
 	{
 		DialogResult = dialogResult;

@@ -1,11 +1,12 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="550" d:DesignHeight="135"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
         x:Class="LibationAvalonia.Dialogs.LiberatedStatusBatchAutoDialog"
-        Title="Liberated status: Whether the book has been downloaded"
+        Title="{x:Static res:Strings.LiberatedStatusBatchAutoDialog_LiberatedStatusWhetherTheBookHas}"
 		MinHeight="135" MaxHeight="135"
 		MinWidth="550" MaxWidth="550"
 		Width="550" Height="135"
@@ -25,7 +26,7 @@
 
 				<TextBlock
 					TextWrapping="Wrap"
-					Text="If the audio file can be found, mark the book 'Downloaded'" />
+					Text="{x:Static res:Strings.LiberatedStatusBatchAutoDialog_IfTheAudioFileCanBe}" />
 			</CheckBox>
 			<CheckBox
 				Margin="0,0,0,10"
@@ -33,7 +34,7 @@
 
 				<TextBlock
 					TextWrapping="Wrap"
-					Text="If the audio file cannot be found, mark the book 'Download Pending'" />
+					Text="{x:Static res:Strings.LiberatedStatusBatchAutoDialog_IfTheAudioFileCannotBe}" />
 			</CheckBox>
 		</StackPanel>
 		
@@ -42,7 +43,7 @@
 			Classes="SaveButton"
 			Name="SaveButton"
 			HorizontalAlignment="Right"
-			Content="Save"
+			Content="{x:Static res:Strings.LiberatedStatusBatchAutoDialog_Save}"
 			Command="{Binding SaveAndClose}"/>
 	</Grid>
 </Window>

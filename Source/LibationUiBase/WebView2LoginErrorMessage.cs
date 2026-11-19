@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase;
 
@@ -9,47 +10,31 @@ namespace LibationUiBase;
 /// </summary>
 public static class WebView2LoginErrorMessage
 {
-	public const string Caption = "Sign-in browser could not start";
+	public static string Caption => Strings.WebView2LoginErrorMessage_SignInBrowserCouldNotStart;
 
 	public static string ExplainerBody
 	{
 		get
 		{
-			const string localIssue =
-				"This is a local sign-in or system setup issue — not a failure of the library scan itself.\r\n\r\n";
-			const string thingsToTry = "Things to try:\r\n";
-			const string settingsBullet =
-				"• In Libation Settings, try turning off the option to use the embedded browser and use external browser sign-in instead.\r\n";
-			const string securityBullet =
-				"• Check that security software is not blocking Libation or the embedded browser.\r\n";
-			const string permissionsBullet =
-				"• Ensure your account can write to local app data folders (permissions).\r\n";
-			const string adminBullet =
-				"• If you run as Administrator, try running Libation as a normal user (or the reverse).\r\n\r\n";
-			const string footer = "After sign-in works, use Import again to scan your library.";
+			string localIssue =
+				Strings.WebView2LoginErrorMessage_ThisIsALocalSignIn;
+			string thingsToTry = Strings.WebView2LoginErrorMessage_ThingsToTry;
+			string settingsBullet =
+				Strings.WebView2LoginErrorMessage_InLibationSettingsTryTurningOff;
+			string securityBullet =
+				Strings.WebView2LoginErrorMessage_CheckThatSecuritySoftwareIsNot;
+			string permissionsBullet =
+				Strings.WebView2LoginErrorMessage_EnsureYourAccountCanWriteTo;
+			string adminBullet =
+				Strings.WebView2LoginErrorMessage_IfYouRunAsAdministratorTry;
+			string footer = Strings.WebView2LoginErrorMessage_AfterSignInWorksUseImport;
 
 			if (OperatingSystem.IsLinux())
 			{
-				return "Libation could not start the in-app sign-in browser. On Linux this uses WebKit2GTK (native WebKit). "
-					+ localIssue
-					+ thingsToTry
-					+ "• Install WebKit2GTK for your distro (e.g. on Arch: webkit2gtk or webkit2gtk-4.1).\r\n"
-					+ settingsBullet
-					+ securityBullet
-					+ permissionsBullet
-					+ adminBullet
-					+ footer;
+				return string.Format(Strings.WebView2LoginErrorMessage_LibationCouldNotStartTheIn, localIssue, thingsToTry, settingsBullet, securityBullet, permissionsBullet, adminBullet, footer);
 			}
 
-			return "Libation could not start the in-app sign-in browser. On Windows this uses Microsoft WebView2. "
-				+ localIssue
-				+ thingsToTry
-				+ "• On Windows: install or repair the Microsoft Edge WebView2 Runtime from https://developer.microsoft.com/microsoft-edge/webview2/\r\n"
-				+ settingsBullet
-				+ securityBullet
-				+ permissionsBullet
-				+ adminBullet
-				+ footer;
+			return string.Format(Strings.WebView2LoginErrorMessage_LibationCouldNotStartTheIn2, localIssue, thingsToTry, settingsBullet, securityBullet, permissionsBullet, adminBullet, footer);
 		}
 	}
 

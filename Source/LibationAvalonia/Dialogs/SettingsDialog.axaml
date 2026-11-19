@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -10,7 +11,7 @@
         xmlns:settings="clr-namespace:LibationAvalonia.Controls.Settings"
         xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
 		x:DataType="vm:SettingsVM"
-        Title="Edit Settings">
+        Title="{x:Static res:Strings.SettingsDialog_EditSettings}">
 
 	<Grid RowDefinitions="*,Auto">
 
@@ -19,15 +20,19 @@
 			Margin="10"
 			HorizontalAlignment="Right"
 			Classes="SaveButton"
-			Content="Save"
+			Content="{x:Static res:Strings.SettingsDialog_Save}"
 			Name="saveBtn"
 			Click="SaveButton_Clicked" />
 
 		<TabControl Name="tabControl" Grid.Column="0">
+			<!-- Tabs are 45 high but sit in a 30 high strip, centered on it. Negative margins do that instead of a fixed
+			     height, so long tab names can wrap to a second row without drawing over the page. -->
+			<TabControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<WrapPanel Margin="0,-8,0,-7"/>
+				</ItemsPanelTemplate>
+			</TabControl.ItemsPanel>
 			<TabControl.Styles>
-				<Style Selector="TabControl /template/ ItemsPresenter#PART_ItemsPresenter">
-					<Setter Property="Height" Value="30"/>
-				</Style>
 				<Style Selector="TabControl /template/ ContentPresenter#PART_SelectedContentHost">
 					<Setter Property="BorderBrush" Value="{DynamicResource SystemBaseLowColor}" />
 					<Setter Property="BorderThickness" Value="1" />
@@ -45,7 +50,7 @@
 
 			<TabItem>
 				<TabItem.Header>
-					<TextBlock Text="Important Settings"/>
+					<TextBlock Text="{x:Static res:Strings.SettingsDialog_ImportantSettings}"/>
 				</TabItem.Header>
 
 				<ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -54,7 +59,7 @@
 			</TabItem>
 			<TabItem>
 				<TabItem.Header>
-					<TextBlock Text="Import Library"/>
+					<TextBlock Text="{x:Static res:Strings.SettingsDialog_ImportLibrary}"/>
 				</TabItem.Header>
 
 				<ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -64,7 +69,7 @@
 
 			<TabItem>
 				<TabItem.Header>
-					<TextBlock Text="Download/Decrypt"/>
+					<TextBlock Text="{x:Static res:Strings.SettingsDialog_DownloadDecrypt}"/>
 				</TabItem.Header>
 				
 				<ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -74,7 +79,7 @@
 			
 			<TabItem>
 				<TabItem.Header>
-					<TextBlock Text="Audio File Settings"/>
+					<TextBlock Text="{x:Static res:Strings.SettingsDialog_AudioFileSettings}"/>
 				</TabItem.Header>
 				<ScrollViewer VerticalScrollBarVisibility="Auto">
 					<settings:Audio DataContext="{Binding AudioSettings, Mode=OneTime}" />

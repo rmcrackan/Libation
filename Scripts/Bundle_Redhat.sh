@@ -70,6 +70,8 @@ mkdir -p %{buildroot}%{_datadir}/applications
 # RPM 4.20+ runs %install in a dedicated %{name}-%{version}-build subdirectory of ~/rpmbuild/BUILD
 if [ ! -f "libation_glass.svg" ] && [ -f "../libation_glass.svg" ]; then
     find .. -maxdepth 1 -type f -exec cp -t . {} +
+    # Folders too, such as the per-language ones that hold translations, but not this build folder itself.
+    find .. -mindepth 1 -maxdepth 1 -type d ! -samefile . -exec cp -r -t . {} +
 fi
 
 if test -f 'libcoreclrtraceptprovider.so'; then
@@ -84,6 +86,8 @@ rm libation_glass.svg
 rm Libation.desktop
 
 find . -maxdepth 1 -type f -exec install -t %{buildroot}%{_libdir}/%{name}/ {} +
+# RPM 4.20+ keeps BUILDROOT and SPECPARTS in this folder, so leave them out.
+find . -mindepth 1 -maxdepth 1 -type d ! -name BUILDROOT ! -name SPECPARTS -exec cp -r -t %{buildroot}%{_libdir}/%{name}/ {} +
 
 %post
 
@@ -121,9 +125,9 @@ for f in *; do
     echo "Deleting $f"
   elif [[ ! " ${notinstalled[*]} " =~ " ${f} " ]]; then
     echo "%{_libdir}/%{name}/${f}" >> ~/rpmbuild/SPECS/libation.spec
-    cp $f ~/rpmbuild/BUILD/
+    cp -r $f ~/rpmbuild/BUILD/
   else
-    cp $f ~/rpmbuild/BUILD/
+    cp -r $f ~/rpmbuild/BUILD/
   fi
 done
 

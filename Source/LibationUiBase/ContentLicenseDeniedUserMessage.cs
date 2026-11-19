@@ -1,6 +1,7 @@
 using ApplicationServices;
 using LibationFileManager;
 using System;
+using LibationUiBase.Resources;
 
 namespace LibationUiBase;
 
@@ -11,38 +12,32 @@ namespace LibationUiBase;
 /// </summary>
 public static class ContentLicenseDeniedUserMessage
 {
-	public const string DialogCaption = "Content license denied";
+	public static string DialogCaption => Strings.ContentLicenseDeniedUserMessage_ContentLicenseDenied;
 
 	/// <summary>Generic outage / GenericError-style denial: not specific to Plus titles.</summary>
 	public static string BuildDialogBodyForPossibleOutage(string bookTitleWithSubtitle, AudibleApi.Locale? locale = null,
 		AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine, bool hasAdditionalMarketplaces = false)
 		=> BuildBody(bookTitleWithSubtitle,
-			"This may be a temporary interruption of service. If Audible's app can play the title, try these registration recovery steps.", locale, updateStatus, hasAdditionalMarketplaces);
+			Strings.ContentLicenseDeniedUserMessage_ThisMayBeATemporaryInterruption, locale, updateStatus, hasAdditionalMarketplaces);
 
 	/// <summary>Audible named CustomerThrottled. Shown for any title, Plus or owned.</summary>
 	public static string BuildDialogBodyForThrottling(string bookTitleWithSubtitle, AudibleApi.Locale? locale = null,
 		AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine, bool hasAdditionalMarketplaces = false)
 		=> BuildBody(bookTitleWithSubtitle,
-			"Audible says this account is being throttled. This can also happen with an old device registration. Try these recovery steps first.", locale, updateStatus, hasAdditionalMarketplaces);
+			Strings.ContentLicenseDeniedUserMessage_AudibleSaysThisAccountIsBeing, locale, updateStatus, hasAdditionalMarketplaces);
 
 	/// <summary>Audible throttled on legacy or non-Widevine registration; settings updated and account marked for re-registration.</summary>
 	public static string BuildDialogBodyForThrottlingRecovered(string bookTitleWithSubtitle)
-		=> $"You were denied a content license for {bookTitleWithSubtitle}\n\n"
-			+ "Audible reported throttling on your account's legacy device registration.\n\n"
-			+ "Libation has automatically updated your settings to Android emulator and Widevine DRM, and marked your account for a fresh sign-in.\n\n"
-			+ "No accounts need to be deleted. Next time you Scan or Liberate, you will be prompted to sign in once to establish the new device registration.";
+		=> string.Format(Strings.ContentLicenseDeniedUserMessage_YouWereDeniedAContentLicense, bookTitleWithSubtitle);
 
 	/// <summary>Plus denials may indicate registration trouble, rate limits, or lost access.</summary>
 	public static string BuildDialogBodyForPlusCatalog(string bookTitleWithSubtitle, AudibleApi.Locale? locale = null,
 		AppScaffolding.VersionCheckOutcome updateStatus = AppScaffolding.VersionCheckOutcome.UnableToDetermine, bool hasAdditionalMarketplaces = false)
 		=> BuildBody(bookTitleWithSubtitle,
-			"This title is from the Audible Plus catalog. It may have left Plus, or Audible may be limiting downloads. Check your access in Audible's app; if it plays, try these recovery steps.", locale, updateStatus, hasAdditionalMarketplaces);
+			Strings.ContentLicenseDeniedUserMessage_ThisTitleIsFromTheAudible, locale, updateStatus, hasAdditionalMarketplaces);
 
 	private static string BuildBody(string title, string diagnosis, AudibleApi.Locale? locale, AppScaffolding.VersionCheckOutcome updateStatus, bool hasAdditionalMarketplaces)
-		=> $"You were denied a content license for {title}\n\n{diagnosis}\n\n"
-			+ AppScaffolding.LicenseRecoveryGuidance.Explanation + "\n\n"
-			+ AppScaffolding.LicenseRecoveryGuidance.BuildSteps(locale, updateStatus, hasAdditionalMarketplaces: hasAdditionalMarketplaces) + "\n\n"
-			+ AppScaffolding.LicenseRecoveryGuidance.Fallback + AppendSuggestion();
+		=> string.Format(Strings.ContentLicenseDeniedUserMessage_YouWereDeniedAContentLicense2, title, diagnosis, AppScaffolding.LicenseRecoveryGuidance.Explanation, AppScaffolding.LicenseRecoveryGuidance.BuildSteps(locale, updateStatus, hasAdditionalMarketplaces: hasAdditionalMarketplaces), AppScaffolding.LicenseRecoveryGuidance.Fallback, AppendSuggestion());
 
 	/// <summary>
 	/// When Audible names CustomerThrottled, the throttling dialog already says so. This extra paragraph is

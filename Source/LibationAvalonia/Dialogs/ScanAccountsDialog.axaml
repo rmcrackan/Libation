@@ -1,5 +1,6 @@
 <Window
 	xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -11,7 +12,7 @@
 	xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
 	x:DataType="dialogs:ScanAccountsDialog"
 	x:CompileBindings="True"
-    Title="Which Accounts?"
+    Title="{x:Static res:Strings.ScanAccountsDialog_WhichAccounts}"
 	WindowStartupLocation="CenterOwner">
 
 	<Grid
@@ -22,7 +23,8 @@
 			Grid.Row="0"
 			Grid.Column="0"
 			Grid.ColumnSpan="2"
-			Text="Check the accounts to scan and import.&#xa;To change default selections, go to: Settings > Accounts"/>
+			TextWrapping="Wrap"
+			Text="{x:Static res:Strings.ScanAccountsDialog_CheckTheAccountsToScanAnd}"/>
 
 		<DockPanel
 			Grid.Row="1"
@@ -47,7 +49,7 @@
 			Grid.Row="2"
 			Grid.Column="0"
 			Padding="20,6"
-			Content="Edit Accounts"
+			Content="{x:Static res:Strings.ScanAccountsDialog_EditAccounts}"
 			Command="{Binding EditAccountsAsync}"/>
 		
 		<Button
@@ -55,7 +57,7 @@
 			Grid.Column="1"
 			Classes="SaveButton"
 			HorizontalAlignment="Right"
-			Content="Import"
+			Content="{x:Static res:Strings.ScanAccountsDialog_Import}"
 			Name="ImportButton"
 			Command="{Binding SaveAndClose}"/>
 	</Grid>

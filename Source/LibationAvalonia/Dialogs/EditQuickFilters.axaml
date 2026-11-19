@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+		xmlns:res="using:LibationUiBase.Resources"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -6,7 +7,7 @@
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="350"
         Width="800" Height="450"
         x:Class="LibationAvalonia.Dialogs.EditQuickFilters"
-        Title="Edit Quick Filters"
+        Title="{x:Static res:Strings.EditQuickFilters_EditQuickFilters}"
 		x:DataType="dialogs:EditQuickFilters">
 	<Grid RowDefinitions="*,Auto">
 		<DataGrid
@@ -20,7 +21,7 @@
 			GridLinesVisibility="All">
 			<DataGrid.Columns>
 
-				<DataGridTemplateColumn Header="Delete">
+				<DataGridTemplateColumn Header="{x:Static res:Strings.EditQuickFilters_Delete}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 
@@ -40,15 +41,15 @@
     				Width="*"
 				    IsReadOnly="False"
 				    Binding="{Binding Name, Mode=TwoWay}"
-				    Header="Name"/>
+				    Header="{x:Static res:Strings.EditQuickFilters_Name}"/>
 
 				<DataGridTextColumn
 					Width="*"
 					IsReadOnly="False"
 					Binding="{Binding FilterString, Mode=TwoWay}"
-					Header="Filter"/>
+					Header="{x:Static res:Strings.EditQuickFilters_Filter}"/>
 
-				<DataGridTemplateColumn Header="Move&#xa;Up">
+				<DataGridTemplateColumn Header="{x:Static res:Strings.EditQuickFilters_MoveUp}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 
@@ -70,7 +71,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 				
-				<DataGridTemplateColumn Header="Move&#xa;Down">
+				<DataGridTemplateColumn Header="{x:Static res:Strings.EditQuickFilters_MoveDown}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 
@@ -102,7 +103,7 @@
 				Grid.Column="1"
 				Classes="SaveButton"
 				Name="saveBtn"
-				Content="Save"
+				Content="{x:Static res:Strings.EditQuickFilters_Save}"
 				Command="{Binding SaveAndClose}" />
 		</Grid>
 	</Grid>
