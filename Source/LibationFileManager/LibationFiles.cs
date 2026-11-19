@@ -46,7 +46,7 @@ public class LibationFiles
 	internal LibationFiles()
 	{
 		var libationFilesDir = Environment.GetEnvironmentVariable(LIBATION_FILES_DIR);
-		if (Directory.Exists(libationFilesDir))
+		if (!string.IsNullOrWhiteSpace(libationFilesDir))
 		{
 			Location = libationFilesDir;
 		}

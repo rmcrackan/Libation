@@ -21,12 +21,14 @@ internal class GetLicenseOptions : OptionsBase
 		if (string.IsNullOrWhiteSpace(Asin))
 		{
 			Console.Error.WriteLine("ASIN is required.");
+			Environment.ExitCode = (int)ExitCode.RunTimeError;
 			return;
 		}
 
 		if (DbContexts.GetLibraryBook_Flat_NoTracking(Asin) is not LibraryBook libraryBook)
 		{
 			Console.Error.WriteLine($"Book not found with asin={Asin}");
+			Environment.ExitCode = (int)ExitCode.RunTimeError;
 			return;
 		}
 

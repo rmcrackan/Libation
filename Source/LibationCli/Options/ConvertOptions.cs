@@ -13,6 +13,7 @@ public class ConvertOptions : ProcessableOptionsBase
 		if (AudibleFileStorage.BooksDirectory is null)
 		{
 			Console.Error.WriteLine("Error: Books directory is not set. Please configure the 'Books' setting in Settings.json.");
+			Environment.ExitCode = (int)ExitCode.RunTimeError;
 			return Task.CompletedTask;
 		}
 

@@ -43,6 +43,7 @@ public class SetDownloadStatusOptions : OptionsBase
 		if (Force && SetDownloaded && SetPending)
 		{
 			PrintVerbUsage("ERROR:\nWhen run with --force option, only one download status option may be used.");
+			Environment.ExitCode = (int)ExitCode.RunTimeError;
 			return;
 		}
 
@@ -56,6 +57,7 @@ public class SetDownloadStatusOptions : OptionsBase
 			if (libraryBooks.Count == 0)
 			{
 				Console.Error.WriteLine("Could not find any books matching asins");
+				Environment.ExitCode = (int)ExitCode.RunTimeError;
 				return;
 			}
 		}
