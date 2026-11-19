@@ -193,6 +193,21 @@ library scan?</value>
 &#xD;
 Please use the Libation window that is already open. Running more than one copy of Libation against the same folder at the same time can corrupt your library.</value>
   </data>
+  <data name="AudibleAppLinkMessage_AudibleUsernamesCantSignIn" xml:space="preserve">
+    <value>Audible usernames can't sign in on this page. It only accepts Amazon accounts.&#xD;
+&#xD;
+Close this window, open Settings &gt; Accounts, and set this account's Locale to the matching pre-amazon locale (pre-amazon - us, pre-amazon - uk or pre-amazon - germany). Put your Audible username in "Audible email/login". Then scan the library again.</value>
+    <comment>Keep the locale names (pre-amazon - us, ...) as they are, since the Locale list shows them untranslated. Write "Audible email/login" as AccountsDialog_AudibleEmailLogin is translated, on one line.</comment>
+  </data>
+  <data name="AudibleAppLinkMessage_ChangeTheAccountsLocaleTo" xml:space="preserve">
+    <value>Change the account's locale to switch sign-in</value>
+  </data>
+  <data name="AudibleAppLinkMessage_ThisPageOnlyAcceptsAudible" xml:space="preserve">
+    <value>This page only accepts Audible usernames.&#xD;
+&#xD;
+To sign in with an Amazon account, close this window, open Settings &gt; Accounts, and set this account's Locale to one that doesn't start with pre-amazon. Then scan the library again.</value>
+    <comment>Keep "pre-amazon" as it is, since the Locale list shows the locale names untranslated.</comment>
+  </data>
   <data name="AudioSettingsVM_Hz" xml:space="preserve">
     <value>{0:N0} Hz</value>
     <comment>{0} = ((int)v)</comment>

@@ -1,3 +1,4 @@
+using LibationUiBase.Resources;
 using System;
 
 namespace LibationUiBase;
@@ -9,24 +10,15 @@ namespace LibationUiBase;
 /// </summary>
 public static class AudibleAppLinkMessage
 {
-	public const string Caption = "Change the account's locale to switch sign-in";
-
-	private const string ToUsername =
-		"Audible usernames can't sign in on this page. It only accepts Amazon accounts.\r\n\r\n"
-		+ "Close this window, open Settings > Accounts, and set this account's Locale to the matching pre-amazon locale "
-		+ "(pre-amazon - us, pre-amazon - uk or pre-amazon - germany). Put your Audible username in \"Audible email/login\". "
-		+ "Then scan the library again.";
-
-	private const string ToAmazon =
-		"This page only accepts Audible usernames.\r\n\r\n"
-		+ "To sign in with an Amazon account, close this window, open Settings > Accounts, and set this account's Locale "
-		+ "to one that doesn't start with pre-amazon. Then scan the library again.";
+	public static string Caption => Strings.AudibleAppLinkMessage_ChangeTheAccountsLocaleTo;
 
 	/// <returns>The message to show instead of navigating to <paramref name="uri"/>, or null if it isn't an audible:// link.</returns>
 	public static string? ForNavigation(Uri? uri)
 	{
 		if (uri?.Scheme != "audible")
 			return null;
-		return uri.Query.Contains("pageType=public", StringComparison.OrdinalIgnoreCase) ? ToAmazon : ToUsername;
+		return uri.Query.Contains("pageType=public", StringComparison.OrdinalIgnoreCase)
+			? Strings.AudibleAppLinkMessage_ThisPageOnlyAcceptsAudible
+			: Strings.AudibleAppLinkMessage_AudibleUsernamesCantSignIn;
 	}
 }
