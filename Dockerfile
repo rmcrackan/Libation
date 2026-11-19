@@ -31,7 +31,7 @@ ENV LIBATION_BOOKS_DIR=/data
 
 
 RUN apt-get update && apt-get -y upgrade && \
-    apt-get install -y jq && \
+    rm -rf /var/lib/apt/lists/* && \
     mkdir -m777 ${LIBATION_CONFIG_INTERNAL} ${LIBATION_BOOKS_DIR}
 
 COPY --from=build /Source/bin/Publish/Linux-chardonnay /libation

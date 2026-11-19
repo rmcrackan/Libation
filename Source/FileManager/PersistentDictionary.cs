@@ -339,7 +339,15 @@ public class PersistentDictionary : IJsonBackedDictionary
 			settingsJsonContents = File.ReadAllText(Filepath);
 		}
 
-		var jObject = JsonConvert.DeserializeObject<JObject>(settingsJsonContents);
+		JObject? jObject;
+		try
+		{
+			jObject = JsonConvert.DeserializeObject<JObject>(settingsJsonContents);
+		}
+		catch (JsonException ex)
+		{
+			throw InvalidConfigurationValueException.ForPath(Filepath, null, $"Settings file '{Filepath}' contains invalid JSON: {ex.Message}");
+		}
 
 		if (jObject is null)
 		{

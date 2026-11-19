@@ -10,7 +10,7 @@ namespace LibationCli;
 
 public static class Setup
 {
-	public static void Initialize()
+	public static void Initialize(bool ephemeralSettings = true)
 	{
 		//***********************************************//
 		//                                               //
@@ -31,7 +31,7 @@ public static class Setup
 			PrintLibationFilestipAndExit();
 		}
 
-		LibationScaffolding.RunPostConfigMigrations(config, ephemeralSettings: true);
+		LibationScaffolding.RunPostConfigMigrations(config, ephemeralSettings);
 
 #if classic
 		LibationScaffolding.RunPostMigrationScaffolding(Variety.Classic, config);

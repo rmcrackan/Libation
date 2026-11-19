@@ -271,6 +271,13 @@ libationcli get-setting -b
 libationcli get-setting FileDownloadQuality
 ```
 
+## Persist Libation Settings
+
+```console
+libationcli set-setting FileDownloadQuality=Normal
+libationcli set-setting Books="/data" InProgress="/tmp"
+```
+
 ## Override Libation Settings for the Command
 
 ```console
