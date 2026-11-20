@@ -185,6 +185,9 @@ public class NetworkFileStream : Stream, IUpdatable
 
     // avoid infinite retry loops if the server consistently fails for a particular title
     private const int MAX_TLS_RETRIES = 5;
+    private const int MAX_EOF_RETRIES = 5;
+
+    private sealed class PrematureEofException(string message) : WebException(message);
 
     private async Task DownloadLoopInternal(HttpClient client, BlockResponse blockResponse)
 	{
@@ -193,6 +196,7 @@ public class NetworkFileStream : Stream, IUpdatable
 			var startPosition = WritePosition;
 
             var tlsRetryCount = 0;
+            var eofRetryCount = 0;
             while (WritePosition < ContentLength && !IsCancelled)
 			{
 				try
@@ -205,15 +209,7 @@ public class NetworkFileStream : Stream, IUpdatable
 							&& WritePosition < ContentLength && !IsCancelled)
 				{
 					Serilog.Log.Logger.Debug($"The download connection ended before the file completed downloading all 0x{ContentLength:X10} bytes");
-
-					//the download made *some* progress since the last attempt.
-					//Try again to complete the download from where it left off.
-					//Make sure to rewind file to last flush position.
-					_writeFile.Position = startPosition = WritePosition;
-					blockResponse.Dispose();
-					blockResponse = await RequestNextByteRangeAsync(client);
-
-					Serilog.Log.Logger.Debug($"Resuming the file download starting at position 0x{WritePosition:X10}.");
+					(startPosition, blockResponse) = await resumeFromWritePositionAsync(client, blockResponse);
                 }
                 catch (IOException e)
                     when (e.InnerException is System.ComponentModel.Win32Exception { NativeErrorCode: -2146893008 }
@@ -222,12 +218,17 @@ public class NetworkFileStream : Stream, IUpdatable
 							&& ++tlsRetryCount <= MAX_TLS_RETRIES)
                 {
                     Serilog.Log.Logger.Warning($"TLS decryption failure at position 0x{WritePosition:X10}. Reconnecting and resuming download.");
-
-                    _writeFile.Position = startPosition = WritePosition;
-                    blockResponse.Dispose();
-                    blockResponse = await RequestNextByteRangeAsync(client);
-
-                    Serilog.Log.Logger.Debug($"Resuming the file download starting at position 0x{WritePosition:X10}.");
+                    (startPosition, blockResponse) = await resumeFromWritePositionAsync(client, blockResponse);
+                }
+                catch (PrematureEofException)
+                    when (WritePosition != startPosition
+                            && WritePosition < ContentLength && !IsCancelled
+                            && ++eofRetryCount <= MAX_EOF_RETRIES)
+                {
+                    Serilog.Log.Logger.Warning(
+                        "Download stream from {Host} ended early at 0x{WritePosition:X10}/0x{ContentLength:X10} (retry {Retry}/{MaxRetries}). Reconnecting and resuming download.",
+                        Uri.Host, WritePosition, ContentLength, eofRetryCount, MAX_EOF_RETRIES);
+                    (startPosition, blockResponse) = await resumeFromWritePositionAsync(client, blockResponse);
                 }
             }
 		}
@@ -244,6 +245,16 @@ public class NetworkFileStream : Stream, IUpdatable
 			blockResponse.Dispose();
 			client.Dispose();
 		}
+	}
+
+	private async Task<(long StartPosition, BlockResponse NextBlock)> resumeFromWritePositionAsync(HttpClient client, BlockResponse currentBlock)
+	{
+		// Rewind file to last flush position before requesting the next byte range.
+		_writeFile.Position = WritePosition;
+		currentBlock.Dispose();
+		var nextBlock = await RequestNextByteRangeAsync(client);
+		Serilog.Log.Logger.Debug($"Resuming the file download starting at position 0x{WritePosition:X10}.");
+		return (WritePosition, nextBlock);
 	}
 
     private async Task<BlockResponse> RequestNextByteRangeAsync(HttpClient client)
@@ -352,7 +363,12 @@ public class NetworkFileStream : Stream, IUpdatable
 			WritePosition = downloadPosition;
 
 			if (!IsCancelled && WritePosition < endPosition)
-				throw new WebException($"Downloaded size (0x{WritePosition:X10}) is less than {nameof(ContentLength)} (0x{ContentLength:X10}).");
+			{
+				Serilog.Log.Logger.Warning(
+					"Download stream ended early before expected endPosition. {@DebugInfo}",
+					new { Host = Uri.Host, StatusCode = (int)block.Response.StatusCode, WritePosition, endPosition, ContentLength });
+				throw new PrematureEofException($"Downloaded size (0x{WritePosition:X10}) is less than {nameof(ContentLength)} (0x{ContentLength:X10}).");
+			}
 
 			if (WritePosition > endPosition)
 				throw new WebException($"Downloaded size (0x{WritePosition:X10}) is greater than {nameof(ContentLength)} (0x{ContentLength:X10}).");
