@@ -81,6 +81,8 @@ sudo docker run -d \
 
 By default the container will scan for new books once and download any new ones. This is configurable by passing in a value for the `SLEEP_TIME` environment variable. For example, if you pass in `10m` it will keep running, scan for new books, and download them every 10 minutes.
 
+When `SLEEP_TIME` is set, a failed scan (including having no accounts yet) is logged and retried on the next run instead of stopping the container. Before each scan the container reloads `AccountsSettings.json` (and `libation-master.key`) from `/config` if they changed, so you can start a fresh container and then add your first account with `docker exec` as described in [Adding Audible accounts without the GUI](#adding-audible-accounts-without-the-gui). With the default `SLEEP_TIME=-1`, a failed scan still exits with an error.
+
 ```bash
 sudo docker run -d \
   -v /opt/libation/config:/config \

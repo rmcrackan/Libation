@@ -181,13 +181,39 @@ shutdown() {
   exit "${2}"
 }
 
+# Re-copy a config file when the mounted copy is newer than the internal one, so
+# accounts added with `docker exec ... LibationCli login-external --libationFiles /config`
+# are picked up by the running loop without restarting the container.
+refresh_config_file() {
+  FILE=$1
+  FULLPATH=${LIBATION_CONFIG_DIR}/${FILE}
+  if [ -f "${FULLPATH}" ] && [ "${FULLPATH}" -nt "${LIBATION_CONFIG_INTERNAL}/${FILE}" ]; then
+    info "${FULLPATH} changed, reloading ${FILE}"
+    cp "${FULLPATH}" "${LIBATION_CONFIG_INTERNAL}/"
+  fi
+}
+
+refresh_config() {
+  refresh_config_file AccountsSettings.json
+  if [ -z "${LIBATION_MASTER_KEY_FILE}" ] && [ -z "${LIBATION_MASTER_KEY}" ]; then
+    refresh_config_file libation-master.key
+  fi
+}
+
 run() {
+  refresh_config
   info "scanning accounts"
   run_child /libation/LibationCli scan
   local scan_exit=$?
   if [ "${scan_exit}" -ne 0 ]; then
     error "scan failed (exit ${scan_exit}); skipping liberate. If the log shows Failed to decrypt ExistingAccessToken, see https://getlibation.com/docs/frequently-asked-questions#docker-finds-no-new-books-failed-to-decrypt-existingaccesstoken"
-    exit "${scan_exit}"
+    # When running once, fail the container. When looping, keep going so the next
+    # scan can succeed, e.g. after the first account is added with `docker exec`.
+    if [ "${SLEEP_TIME}" == -1 ]; then
+      exit "${scan_exit}"
+    fi
+    warn "trying again in ${SLEEP_TIME}"
+    return "${scan_exit}"
   fi
   info "liberating books"
   run_child /libation/LibationCli liberate
