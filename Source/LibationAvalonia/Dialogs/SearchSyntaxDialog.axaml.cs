@@ -12,7 +12,7 @@ public partial class SearchSyntaxDialog : DialogWindow
 	public string NumberUsage { get; }
 	public string BoolUsage { get; }
 	public string IdUsage { get; }
-	public string[] StringFields { get; } = SearchEngine.FieldIndexRules.StringFieldNames.ToArray();
+	public string[] StringFields { get; } = SearchEngine.FieldIndexRules.StringFieldNames.Distinct().ToArray();
 	public string[] NumberFields { get; } = SearchEngine.FieldIndexRules.NumberFieldNames.ToArray();
 	public string[] BoolFields { get; } = SearchEngine.FieldIndexRules.BoolFieldNames.ToArray();
 	public string[] IdFields { get; } = SearchEngine.FieldIndexRules.IdFieldNames.ToArray();

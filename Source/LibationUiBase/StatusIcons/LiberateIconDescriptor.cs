@@ -12,7 +12,7 @@ public enum LiberateIconKind
 	SeriesCollapsed,
 	/// <summary>A series row which can be collapsed.</summary>
 	SeriesExpanded,
-	/// <summary>A book whose download errored.</summary>
+	/// <summary>A book whose download errored: a red stoplight with a "!" badge.</summary>
 	Error
 }
 

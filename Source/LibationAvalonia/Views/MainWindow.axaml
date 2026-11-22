@@ -106,8 +106,8 @@
 						
 					<!-- Remove Books -->
 					<MenuItem IsVisible="{Binding OneAccount}" IsEnabled="{Binding RemoveMenuItemsEnabled}" Command="{Binding RemoveBooksAsync}" Header="_Remove Library Books" />
-					<MenuItem IsVisible="{Binding MultipleAccounts}" IsEnabled="{Binding RemoveMenuItemsEnabled}" Command="{Binding RemoveBooksAllAsync}" Header="_Remove Books from All Accounts" />
-					<MenuItem IsVisible="{Binding MultipleAccounts}" IsEnabled="{Binding RemoveMenuItemsEnabled}" Command="{Binding RemoveBooksSomeAsync}" Header="_Remove Books from Some Accounts" />
+					<MenuItem IsVisible="{Binding MultipleAccounts}" IsEnabled="{Binding RemoveMenuItemsEnabled}" Command="{Binding RemoveBooksAllAsync}" Header="Remove Books from All Accounts" />
+					<MenuItem IsVisible="{Binding MultipleAccounts}" IsEnabled="{Binding RemoveMenuItemsEnabled}" Command="{Binding RemoveBooksSomeAsync}" Header="Remove Books from Some Accounts" />
 						
 					<Separator />
 					<MenuItem Command="{Binding LocateAudiobooksAsync}" Header="L_ocate Audiobooks..." ToolTip.Tip="{Binding LocateAudiobooksTip}" />
@@ -163,7 +163,7 @@
 				
 			<StackPanel IsVisible="{Binding ActivelyScanning}" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
 				<Path VerticalAlignment="Center" Fill="{DynamicResource IconFill}" Data="{StaticResource ImportIcon}" />
-				<TextBlock Margin="5,0,5,0" VerticalAlignment="Center" Text="{Binding ScanningText}"/>
+				<TextBlock Margin="8,0" VerticalAlignment="Center" Text="{Binding ScanningText}"/>
 			</StackPanel>
 		</Grid>
 		</Border>
@@ -231,7 +231,7 @@
 		</Grid>
 		
 		<Border Grid.Row="2" Margin="8,0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumLowColor}">
-			<SplitView IsPaneOpen="{Binding QueueOpen}" DisplayMode="Inline" OpenPaneLength="400" MinWidth="400" PanePlacement="Right">
+			<SplitView IsPaneOpen="{Binding QueueOpen}" DisplayMode="Inline" OpenPaneLength="320" MinWidth="320" PanePlacement="Right">
 
 				<!-- Process Queue -->
 				<SplitView.Pane>
@@ -250,85 +250,133 @@
 						LiberateSeriesClicked="ProductsDisplay_LiberateSeriesClicked"
 						ConvertToMp3Clicked="ProductsDisplay_ConvertToMp3Clicked" />
 
-					<!-- A filter that matched nothing. A trashed book is filtered out of the library and out of
-					     the search index, so searching for one looks the same as searching for a book that was
-					     never imported. Say so here rather than leaving the grid silently blank. -->
+					<!-- Trashed books are filtered out of the library and the search index, so say so rather than leaving the grid blank. -->
 					<StackPanel
 						IsVisible="{Binding NoMatchesVisible}"
 						HorizontalAlignment="Center"
 						VerticalAlignment="Center"
-						Spacing="10">
-						<TextBlock
-							FontSize="16"
+						Spacing="8">
+						<Path
+							Width="40"
+							Height="40"
+							Stretch="Uniform"
 							HorizontalAlignment="Center"
-							Foreground="{DynamicResource SystemBaseMediumColor}"
-							Text="{Binding NoMatchesText}" />
+							Data="{StaticResource NoMatchesIcon}"
+							Stroke="{DynamicResource SecondaryForegroundBrush}"
+							StrokeThickness="2"
+							StrokeLineCap="Round"
+							StrokeJoin="Round" />
+						<TextBlock
+							FontSize="18"
+							FontWeight="SemiBold"
+							HorizontalAlignment="Center"
+							Text="No books match" />
+						<TextBlock
+							IsVisible="{Binding NoMatchesQuery, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+							FontFamily="Menlo, Consolas, monospace"
+							FontSize="12"
+							MaxWidth="480"
+							HorizontalAlignment="Center"
+							TextTrimming="CharacterEllipsis"
+							Foreground="{DynamicResource SecondaryForegroundBrush}"
+							Text="{Binding NoMatchesQuery}" />
+						<TextBlock
+							FontSize="14"
+							HorizontalAlignment="Center"
+							Foreground="{DynamicResource SecondaryForegroundBrush}"
+							Text="Try fewer terms, or check the filter syntax." />
+						<StackPanel
+							Orientation="Horizontal"
+							HorizontalAlignment="Center"
+							Margin="0,8,0,0"
+							Spacing="8">
+							<Button Padding="16,6" Click="ClearFilterButton_Click" Content="Clear search" />
+							<Button Padding="16,6" Classes="Ghost" Command="{Binding FilterHelpBtn}" Content="Filter syntax" />
+						</StackPanel>
 						<StackPanel
 							IsVisible="{Binding NoMatchesTrashHintVisible}"
 							Orientation="Horizontal"
 							HorizontalAlignment="Center"
-							Spacing="10">
+							Margin="0,8,0,0"
+							Spacing="8">
 							<TextBlock
-								FontSize="16"
+								FontSize="14"
 								VerticalAlignment="Center"
+								Foreground="{DynamicResource SecondaryForegroundBrush}"
 								Text="{Binding NoMatchesTrashHintText}" />
 							<Button
-								Padding="10,4"
+								Padding="12,4"
+								Classes="Ghost"
 								VerticalAlignment="Center"
 								Command="{Binding ShowTrashBinAsync}"
 								Content="Open Trash Bin" />
 						</StackPanel>
 					</StackPanel>
 
-					<!-- Nothing in the library at all. An empty library has two causes with different next
-					     steps, so this offers the one that applies rather than the same advice to everybody. -->
+					<!-- An empty library has two causes with different next steps, so offer the one that applies. -->
 					<StackPanel
 						IsVisible="{Binding GettingStartedVisible}"
 						HorizontalAlignment="Center"
 						VerticalAlignment="Center"
-						Spacing="10">
+						Spacing="8">
+						<Path
+							Width="40"
+							Height="40"
+							Stretch="Uniform"
+							HorizontalAlignment="Center"
+							Data="{StaticResource EmptyLibraryIcon}"
+							Stroke="{DynamicResource SecondaryForegroundBrush}"
+							StrokeThickness="2"
+							StrokeLineCap="Round"
+							StrokeJoin="Round" />
 						<TextBlock
 							FontSize="18"
+							FontWeight="SemiBold"
 							HorizontalAlignment="Center"
 							Text="{Binding GettingStartedHeadline}" />
 						<TextBlock
 							FontSize="14"
 							HorizontalAlignment="Center"
-							Foreground="{DynamicResource SystemBaseMediumColor}"
+							Foreground="{DynamicResource SecondaryForegroundBrush}"
 							Text="{Binding GettingStartedDetail}" />
 						<StackPanel
 							Orientation="Horizontal"
 							HorizontalAlignment="Center"
-							Spacing="10">
+							Margin="0,8,0,0"
+							Spacing="8">
 							<Button
-								Padding="14,5"
+								Padding="16,6"
+								Classes="Primary"
 								IsVisible="{Binding GettingStartedAddAccountVisible}"
 								Command="{Binding AddAccountsAsync}"
 								Content="Add Account" />
 							<Button
-								Padding="14,5"
+								Padding="16,6"
+								Classes="Primary"
 								IsVisible="{Binding GettingStartedScanVisible}"
 								Command="{Binding GettingStartedScanAsync}"
 								Content="Scan Library" />
 							<Button
-								Padding="14,5"
+								Padding="16,6"
+								Classes="Ghost"
 								Command="{Binding StartWalkthroughAsync}"
 								Content="Take a Guided Tour" />
 						</StackPanel>
 
-						<!-- The books are not gone, they are in the trash. Saying so keeps the headline above
-						     from reading as though they were never there. -->
 						<StackPanel
 							IsVisible="{Binding GettingStartedTrashVisible}"
 							Orientation="Horizontal"
 							HorizontalAlignment="Center"
-							Spacing="10">
+							Margin="0,8,0,0"
+							Spacing="8">
 							<TextBlock
 								FontSize="14"
 								VerticalAlignment="Center"
+								Foreground="{DynamicResource SecondaryForegroundBrush}"
 								Text="{Binding GettingStartedTrashText}" />
 							<Button
-								Padding="10,4"
+								Padding="12,4"
+								Classes="Ghost"
 								VerticalAlignment="Center"
 								Command="{Binding ShowTrashBinAsync}"
 								Content="Open Trash Bin" />
@@ -339,21 +387,53 @@
 		</Border>
 			
 		<!-- Bottom Status Strip -->
-		<Grid Grid.Row="3" Margin="8" VerticalAlignment="Bottom" ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+		<Grid Grid.Row="3" Margin="16,8" VerticalAlignment="Bottom" ColumnDefinitions="Auto,Auto,Auto,*,Auto">
 			<Grid.Styles>
 				<Style Selector="ProgressBar:horizontal">
 					<Setter Property="MinWidth" Value="100" />
 				</Style>
+				<Style Selector="Ellipse.statusDot">
+					<Setter Property="Width" Value="8" />
+					<Setter Property="Height" Value="8" />
+					<Setter Property="VerticalAlignment" Value="Center" />
+				</Style>
+				<Style Selector="StackPanel > StackPanel > TextBlock">
+					<Setter Property="FontSize" Value="12" />
+					<Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}" />
+					<Setter Property="VerticalAlignment" Value="Center" />
+				</Style>
 			</Grid.Styles>
 			<TextBlock FontSize="14" Grid.Column="0" Text="Upgrading:" VerticalAlignment="Center" IsVisible="{Binding DownloadProgress, Converter={x:Static ObjectConverters.IsNotNull}}" />
-			<ProgressBar Grid.Column="1" Margin="5,0,10,0" VerticalAlignment="Stretch" Width="100" Value="{Binding DownloadProgress, TargetNullValue=0}" IsVisible="{Binding DownloadProgress, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-			<TextBlock FontSize="14" Grid.Column="2" Text="{Binding VisibleCountText}" VerticalAlignment="Center" />
-			<Button FontSize="14" Grid.Column="3" Margin="0,0,16,0" Padding="8,2" VerticalAlignment="Center"
+			<ProgressBar Grid.Column="1" Margin="8,0,12,0" VerticalAlignment="Stretch" Width="100" Value="{Binding DownloadProgress, TargetNullValue=0}" IsVisible="{Binding DownloadProgress, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+			<TextBlock FontSize="12" FontWeight="SemiBold" Grid.Column="2" Margin="0,0,16,0" Text="{Binding BookCountText}" VerticalAlignment="Center" />
+			<StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right" VerticalAlignment="Center" ClipToBounds="True"
+						IsVisible="{Binding StatusCountsVisible}" ToolTip.Tip="{Binding LibraryStats?.StatusString}">
+				<StackPanel Orientation="Horizontal" Spacing="6">
+					<Ellipse Classes="statusDot" Fill="#30A46C" />
+					<TextBlock Text="{Binding DownloadedCountText}" />
+				</StackPanel>
+				<StackPanel Orientation="Horizontal" Spacing="6">
+					<Ellipse Classes="statusDot" Fill="#F2555A" />
+					<TextBlock Text="{Binding ToDoCountText}" />
+				</StackPanel>
+				<StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding InProgressCountVisible}">
+					<Ellipse Classes="statusDot" Fill="#F5B800" />
+					<TextBlock Text="{Binding InProgressCountText}" />
+				</StackPanel>
+				<StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding ErrorCountVisible}">
+					<Ellipse Classes="statusDot" Fill="{DynamicResource ErrorForegroundBrush}" />
+					<TextBlock Text="{Binding ErrorCountText}" />
+				</StackPanel>
+				<StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding UnavailableCountVisible}">
+					<Ellipse Classes="statusDot" Fill="{DynamicResource SecondaryForegroundBrush}" Opacity="0.6" />
+					<TextBlock Text="{Binding UnavailableCountText}" />
+				</StackPanel>
+			</StackPanel>
+			<Button Classes="Ghost" FontSize="12" Grid.Column="4" Margin="16,0,0,0" Padding="8,4" VerticalAlignment="Center"
 					Command="{Binding ShowTrashBinAsync}"
-					Content="{Binding TrashBinStatusText}"
+					Content="{Binding TrashBinShortText}"
 					ToolTip.Tip="{Binding TrashBinStatusToolTip}"
 					IsVisible="{Binding TrashBinStatusVisible}" />
-			<TextBlock FontSize="14" Grid.Column="4" Text="{Binding LibraryStats?.StatusString}" VerticalAlignment="Center" />		
 		</Grid>
 	</Grid>
 </Window>

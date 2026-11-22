@@ -57,7 +57,7 @@
 			<!-- Plaintext warning -->
 			<TextBlock Grid.Row="2" Grid.Column="1"
 					   Text="{Binding PlaintextWarningText}"
-					   Foreground="DarkOrange"
+					   Foreground="{DynamicResource WarningForegroundBrush}"
 					   TextWrapping="Wrap"
 					   IsVisible="{Binding PlaintextWarningVisible}"
 					   Margin="0,0,0,10" />

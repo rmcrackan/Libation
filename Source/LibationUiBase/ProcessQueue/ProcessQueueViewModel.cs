@@ -126,18 +126,7 @@ public class ProcessQueueViewModel : ReactiveObject
 	/// </summary>
 	public int MaxAllowedConcurrentDownloads => Configuration.ConcurrentDownloadsHardLimit;
 
-	/// <summary>
-	/// Sits beside the spinner when this machine cannot deliver the number the user chose, and is
-	/// null when it can. Closes the gap left by bounding the control at the hard limit: the setting
-	/// keeps saying what was asked for, and this says what will happen.
-	/// </summary>
-	/// <remarks>
-	/// Kept short on purpose. It lives in whatever width is left beside the spinners on a 400px
-	/// pane, and the longer wording it replaced ("on this machine") fit on some machines and
-	/// ellipsed to "(4 on this machi..." on others - which left it existing only in the tooltip on
-	/// exactly the machines it was written for. The reason it is smaller than the setting is what
-	/// the tooltip is for; the number is what has to be legible.
-	/// </remarks>
+	/// <summary>Shown under the queue spinners when this machine can't run as many downloads as chosen; null otherwise.</summary>
 	public string? ConcurrencyHint
 		=> EffectiveConcurrentDownloads < MaxConcurrentDownloads
 			? $"({EffectiveConcurrentDownloads} at a time)"
@@ -147,6 +136,9 @@ public class ProcessQueueViewModel : ReactiveObject
 	public bool AnyCompleted => CompletedCount > 0;
 	public bool AnyQueued => QueuedCount > 0;
 	public bool AnyErrors => ErrorCount > 0;
+	public bool QueueEmpty => Queue.Count == 0;
+	public bool HasUnfinished => Queue.Count - Queue.Completed.Count > 0;
+	public bool HasFinished => Queue.Completed.Count > 0;
 	public double Progress => 100d * Queue.Completed.Count / Queue.Count;
 	public decimal SpeedLimitIncrement { get; private set; }
 
@@ -203,12 +195,21 @@ public class ProcessQueueViewModel : ReactiveObject
 		ErrorCount = errCount;
 		CompletedCount = completeCount;
 		RaisePropertyChanged(nameof(Progress));
+		RaiseQueueShapeChanged();
 	}
 
 	private void Queue_QueuedCountChanged(object? sender, int cueCount)
 	{
 		QueuedCount = cueCount;
 		RaisePropertyChanged(nameof(Progress));
+		RaiseQueueShapeChanged();
+	}
+
+	private void RaiseQueueShapeChanged()
+	{
+		RaisePropertyChanged(nameof(QueueEmpty));
+		RaisePropertyChanged(nameof(HasUnfinished));
+		RaisePropertyChanged(nameof(HasFinished));
 	}
 
 	private void ProcessBook_LogWritten(object? sender, string logMessage) => AddQueueLogEntry(logMessage);

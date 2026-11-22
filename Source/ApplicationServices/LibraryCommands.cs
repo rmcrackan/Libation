@@ -743,7 +743,7 @@ public static class LibraryCommands
 		{
 			if (pdfsNotDownloaded + pdfsUnavailable == 0) return $"All {pdfsDownloaded} PDFs downloaded";
 
-			var sb = new StringBuilder($"PDFs: NOT d/l'ed: {pdfsNotDownloaded}  Downloaded: {pdfsDownloaded}");
+			var sb = new StringBuilder($"PDFs: not downloaded: {pdfsNotDownloaded}  Downloaded: {pdfsDownloaded}");
 
 			if (pdfsUnavailable > 0)
 				sb.Append($"  Unavailable: {pdfsUnavailable}");

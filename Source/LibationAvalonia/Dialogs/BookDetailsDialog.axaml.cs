@@ -75,6 +75,9 @@ public partial class BookDetailsDialog : DialogWindow
 		}
 	}
 
+	public void CancelButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		=> CancelAndClose();
+
 	public async void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		=> await SaveAndCloseAsync();
 	public class liberatedComboBoxItem
@@ -118,16 +121,19 @@ public partial class BookDetailsDialog : DialogWindow
 			var title = string.IsNullOrEmpty(Book.Subtitle) ? Book.Title : $"{Book.Title}\r\n        {Book.Subtitle}";
 
 			//init book details
-			DetailsText = $"""
-			Title: {title}
-			Author(s): {Book.AuthorNames}
-			Narrator(s): {Book.NarratorNames}
-			Length: {(Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min")}
-			Category: {string.Join(", ", Book.LowestCategoryNames())}
-			Purchase Date: {libraryBook.DateAdded:d}
-			Language: {Book.Language}
-			Audible ID: {Book.AudibleProductId}
-			""";
+			var length = Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min";
+			var lines = new List<string>
+			{
+				$"Title: {title}",
+				$"Author(s): {Book.AuthorNames}",
+				$"Narrator(s): {Book.NarratorNames}",
+				$"Length: {length}",
+				$"Category: {string.Join(", ", Book.LowestCategoryNames())}",
+				$"Purchase Date: {libraryBook.DateAdded:d}",
+				$"Language: {Book.Language}",
+				$"Audible ID: {Book.AudibleProductId}",
+			};
+			DetailsText = string.Join("\r\n", lines.Where(l => !l.EndsWith(": ")));
 
 			var seriesNames = libraryBook.Book.SeriesNames();
 			if (!string.IsNullOrWhiteSpace(seriesNames))

@@ -15,6 +15,7 @@ namespace LibationUiBase.GridView;
 public delegate void LiberateClickedHandler(object? sender, System.Collections.Generic.IList<LibraryBook> libraryBooks, Configuration config);
 public class GridContextMenu
 {
+	public string BookDetailsText => "Book details...";
 	public string CopyCellText => $"{Accelerator}Copy Cell Contents";
 	public string LiberateEpisodesText => $"{Accelerator}Liberate All Episodes";
 	public string SetDownloadedText => $"Mark as '{Accelerator}Downloaded'";

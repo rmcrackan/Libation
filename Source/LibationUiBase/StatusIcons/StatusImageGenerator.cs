@@ -34,8 +34,8 @@ public static class StatusImageGenerator
 		var (layers, size) = Compose(descriptor, LiberateIconPalette.For(descriptor.IsDark));
 
 		var info = new SKImageInfo(
-			(int)MathF.Ceiling(size.Width * RenderScale),
-			(int)MathF.Ceiling(size.Height * RenderScale),
+			(int)MathF.Ceiling(size.Width) * RenderScale,
+			(int)MathF.Ceiling(size.Height) * RenderScale,
 			SKColorType.Rgba8888,
 			SKAlphaType.Premul);
 
@@ -63,14 +63,6 @@ public static class StatusImageGenerator
 
 		switch (descriptor.Kind)
 		{
-			case LiberateIconKind.Error:
-			{
-				var error = ParsePath(LiberateIconGeometry.BookError);
-				var size = MoveToOrigin(error);
-				layers.Add((error, palette.Error));
-				return (layers, size);
-			}
-
 			case LiberateIconKind.SeriesCollapsed:
 			case LiberateIconKind.SeriesExpanded:
 			{
@@ -104,32 +96,39 @@ public static class StatusImageGenerator
 			_ => LiberateIconGeometry.GreenLampTop
 		};
 
-		//The lamp goes under the body, so it shows through the bezel cut out of it.
+		//Lamps go under the body, so they show through the bezels cut out of it. Unlit ones are
+		//opaque, otherwise the row's selection colour shows through them.
 		var lamp = new SKPath();
 		lamp.AddRect(SKRect.Create(LiberateIconGeometry.LampLeft, lampTop, LiberateIconGeometry.LampWidth, LiberateIconGeometry.LampHeight));
-
+		var unlit = new SKPath { FillType = SKPathFillType.Winding };
+		foreach (var top in new[] { LiberateIconGeometry.RedLampTop, LiberateIconGeometry.YellowLampTop, LiberateIconGeometry.GreenLampTop })
+			unlit.AddRect(SKRect.Create(LiberateIconGeometry.LampLeft, top, LiberateIconGeometry.LampWidth, LiberateIconGeometry.LampHeight));
+		var isError = descriptor.Kind is LiberateIconKind.Error;
+		var hasBadge = descriptor.IsPlus || isError;
 
 		//Sitting flush with the top edge keeps the badge out of the stoplight's height, so a Plus
 		//title's stoplight is drawn at exactly the same size as a purchased one's.
 		var badgeRadius = LiberateIconGeometry.PlusBadgeDiameter / 2;
 		var badgeCenterX = stoplightWidth + LiberateIconGeometry.PlusBadgeCornerOffset;
-		var badgeCenterY = badgeRadius;
+		var badgeCenterY = isError ? LiberateIconGeometry.StoplightHeight - badgeRadius : badgeRadius;
 
 		//The badge overlaps whatever it lands on rather than displacing it, so the icon is no wider
 		//than a purchased one once a PDF is present. What keeps that from looking muddy is the rim:
 		//a hole cut through everything underneath, so the row - not the stoplight or the PDF -
 		//shows through the gap around the circle.
-		if (descriptor.IsPlus)
+		if (hasBadge)
 		{
 			using var rim = BadgeRim(badgeCenterX, badgeCenterY, badgeRadius);
 			body = Difference(body, rim);
 			lamp = Difference(lamp, rim);
+			unlit = Difference(unlit, rim);
 		}
 
+		layers.Add((unlit, palette.Unlit));
 		layers.Add((lamp, palette.Lamp(descriptor.Lamp)));
 		layers.Add((body, palette.IconFill));
 
-		var width = descriptor.IsPlus ? badgeCenterX + badgeRadius : stoplightWidth;
+		var width = hasBadge ? badgeCenterX + badgeRadius : stoplightWidth;
 
 		if (descriptor.Pdf is not PdfOverlay.None)
 		{
@@ -146,7 +145,7 @@ public static class StatusImageGenerator
 			var top = (LiberateIconGeometry.StoplightHeight - pdfBounds.Height * pdfScale) / 2;
 			pdf.Transform(ScaleThenTranslate(pdfScale, left - pdfBounds.Left * pdfScale, top - pdfBounds.Top * pdfScale));
 
-			if (descriptor.IsPlus)
+			if (hasBadge)
 			{
 				using var rim = BadgeRim(badgeCenterX, badgeCenterY, badgeRadius);
 				pdf = Difference(pdf, rim);
@@ -157,13 +156,15 @@ public static class StatusImageGenerator
 		}
 
 		//Drawn last so the badge sits on top of everything it overlaps.
-		if (descriptor.IsPlus)
+		if (hasBadge)
 		{
 			var badge = new SKPath();
 			badge.AddCircle(badgeCenterX, badgeCenterY, badgeRadius);
 
-			layers.Add((badge, palette.PlusBadge));
-			layers.Add((PlusGlyph(badgeCenterX, badgeCenterY), palette.PlusBadgeGlyph));
+			layers.Add((badge, isError ? palette.Error : palette.PlusBadge));
+			layers.Add(isError
+				? (ExclamationGlyph(badgeCenterX, badgeCenterY), SKColors.White)
+				: (PlusGlyph(badgeCenterX, badgeCenterY), palette.PlusBadgeGlyph));
 		}
 
 		return (layers, new SKSize(width, LiberateIconGeometry.StoplightHeight));
@@ -191,6 +192,15 @@ public static class StatusImageGenerator
 		plus.AddRoundRect(SKRect.Create(centerX - extent / 2, centerY - thickness / 2, extent, thickness), corner, corner);
 		plus.AddRoundRect(SKRect.Create(centerX - thickness / 2, centerY - extent / 2, thickness, extent), corner, corner);
 		return plus;
+	}
+
+	private static SKPath ExclamationGlyph(float centerX, float centerY)
+	{
+		const float barWidth = 2.6f;
+		var glyph = new SKPath { FillType = SKPathFillType.Winding };
+		glyph.AddRoundRect(SKRect.Create(centerX - barWidth / 2, centerY - 5, barWidth, 6.5f), 1.2f, 1.2f);
+		glyph.AddCircle(centerX, centerY + 4.2f, 1.5f);
+		return glyph;
 	}
 
 	private static SKPath ParsePath(string svgPathData)
