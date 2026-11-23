@@ -8,6 +8,22 @@
 			 x:DataType="vm:LiberateStatusButtonViewModel"
              x:Class="LibationAvalonia.Views.LiberateStatusButton">
 
+	<UserControl.Styles>
+		<Style Selector="Button#button">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="CornerRadius" Value="6" />
+		</Style>
+		<Style Selector="Button#button:disabled /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="Transparent" />
+		</Style>
+		<Style Selector="Button#button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="{DynamicResource Surface2Brush}" />
+		</Style>
+		<Style Selector="Button#button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="{DynamicResource BorderSubtleBrush}" />
+		</Style>
+	</UserControl.Styles>
+
 	<Button
 		Name="button"
 		HorizontalAlignment="Stretch"
