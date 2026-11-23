@@ -167,7 +167,8 @@ public class BookInspectorViewModel : ViewModelBase
 			}
 
 			var book = entry.Book;
-			Description = string.Join("\n\n", (book.Description ?? "").Split('\n').Select(p => p.Trim()).Where(p => p.Length > 0));
+			// Rows imported before descriptions were flattened still hold Audible HTML until a rescan.
+			Description = AudibleUtilities.HtmlText.ToPlainText(book.Description, "\n\n");
 			TitleText = entry.Title ?? book.Title;
 			Cover ??= entry.Cover as IImage;
 			Byline = string.IsNullOrWhiteSpace(entry.Narrators) ? entry.Authors ?? "" : $"{entry.Authors} · narrated by {entry.Narrators}";

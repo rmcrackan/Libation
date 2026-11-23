@@ -19,11 +19,9 @@ public static partial class HtmlText
 
         // Not every summary is marked up. Running the unmarked ones through the parser risks a stray
         // '<' swallowing the rest of the sentence, and buys nothing.
-        if (!html.Contains('<'))
-            return (WebUtility.HtmlDecode(html) ?? html).Trim();
-
-        // Replace block-level boundaries with newlines, then strip all remaining tags.
-        var stripped = StripTags().Replace(BlockBoundary().Replace(html, "\n"), "");
+        var stripped = html.Contains('<')
+            ? StripTags().Replace(BlockBoundary().Replace(html, "\n"), "")
+            : html;
 
         var text = WebUtility.HtmlDecode(stripped) ?? stripped;
 

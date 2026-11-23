@@ -298,10 +298,9 @@ public abstract class GridEntry : ReactiveObject
 	#region Static library display functions		
 
 	/// <summary>This information should not change during <see cref="GridEntry"/> lifetime, so call only once.</summary>
-	/// <remarks>Descriptions are stored as plain text with one newline between paragraphs. The grid has the
-	/// room to set them off with a blank line instead.</remarks>
+	/// <remarks>Flattened again because rows imported before the import-time flattening still hold HTML.</remarks>
 	private static string GetDescriptionDisplay(Book book)
-		=> book?.Description?.Replace("\n", "\r\n\r\n") ?? "";
+		=> AudibleUtilities.HtmlText.ToPlainText(book?.Description, "\r\n\r\n");
 
 	private static string TrimTextToWord(string text, int maxLength)
 	{
