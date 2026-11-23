@@ -324,6 +324,10 @@
 	<NativeMenu.Menu>
 		<NativeMenu>
 			<NativeMenuItem Header="About Libation" />
+			<NativeMenuItemSeparator />
+			<NativeMenuItem Header="Settings…" Gesture="{OnPlatform macOS='⌘+,'}" />
+			<NativeMenuItem Header="Accounts…" Gesture="{OnPlatform macOS='⌘+.'}" />
+			<NativeMenuItemSeparator />
 		</NativeMenu>
 	</NativeMenu.Menu>
 

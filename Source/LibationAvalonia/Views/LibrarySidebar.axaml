@@ -9,7 +9,7 @@
 			<Button Classes="SidebarItem" Classes.selected="{Binding IsSelected}" Click="Item_Click">
 				<Grid ColumnDefinitions="*,Auto">
 					<TextBlock Text="{Binding Label}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-					<TextBlock Grid.Column="1" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}" Text="{Binding Count}" />
+					<TextBlock Grid.Column="1" Classes="SidebarCount" VerticalAlignment="Center" Text="{Binding Count}" />
 				</Grid>
 			</Button>
 		</DataTemplate>
@@ -52,7 +52,27 @@
 			<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 			<Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColor}" />
 			<Style Selector="^.selected /template/ ContentPresenter#PART_ContentPresenter">
-				<Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+				<Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="Foreground" Value="White" />
+				<Setter Property="FontWeight" Value="SemiBold" />
+			</Style>
+			<Style Selector="^.selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="Foreground" Value="White" />
+			</Style>
+			<Style Selector="^.selected:pressed /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="Foreground" Value="White" />
+			</Style>
+			<Style Selector="^ TextBlock.SidebarCount">
+				<Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}" />
+			</Style>
+			<Style Selector="^.selected TextBlock">
+				<Setter Property="Foreground" Value="White" />
+			</Style>
+			<Style Selector="^.selected TextBlock.SidebarCount">
+				<Setter Property="Foreground" Value="White" />
+				<Setter Property="Opacity" Value="0.85" />
 			</Style>
 			<Style Selector="^:pointerover:not(.selected) /template/ ContentPresenter#PART_ContentPresenter">
 				<Setter Property="Background" Value="#22808080" />
@@ -99,7 +119,7 @@
 				<Button Classes="SidebarItem" Command="{Binding ShowTrashBinAsync}">
 					<Grid ColumnDefinitions="*,Auto">
 						<TextBlock Text="Trash" VerticalAlignment="Center" />
-						<TextBlock Grid.Column="1" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}" Text="{Binding TrashCountText}" />
+						<TextBlock Grid.Column="1" Classes="SidebarCount" VerticalAlignment="Center" Text="{Binding TrashCountText}" />
 					</Grid>
 				</Button>
 				<Grid ColumnDefinitions="*,Auto">

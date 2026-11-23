@@ -102,6 +102,18 @@
 					<Button Classes="Ghost" Click="Details_Click" Content="Book details…" />
 				</StackPanel>
 
+				<StackPanel Spacing="4" IsVisible="{Binding HasDescription}">
+					<TextBlock Text="Description" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+					<SelectableTextBlock
+						Text="{Binding Description}"
+						FontSize="14"
+						LineHeight="20"
+						TextWrapping="Wrap"
+						TextTrimming="CharacterEllipsis"
+						MaxLines="{Binding DescriptionMaxLines}" />
+					<Button Classes="Ghost" Padding="0,2" HorizontalAlignment="Left" IsVisible="{Binding DescriptionIsLong}" Click="ToggleDescription_Click" Content="{Binding DescriptionToggleText}" />
+				</StackPanel>
+
 				<ItemsControl ItemsSource="{Binding Details}">
 					<ItemsControl.ItemTemplate>
 						<DataTemplate x:DataType="dialogs:BookDetailsDialog+DetailItem">

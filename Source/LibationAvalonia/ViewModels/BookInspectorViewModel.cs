@@ -53,6 +53,22 @@ public class BookInspectorViewModel : ViewModelBase
 	public bool PrimaryVisible { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	public bool ShowFileVisible { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	public string ShowFileText { get; } = OperatingSystem.IsMacOS() ? "Show in Finder" : OperatingSystem.IsWindows() ? "Show in Explorer" : "Show in folder";
+	public string Description { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); this.RaisePropertyChanged(nameof(HasDescription)); this.RaisePropertyChanged(nameof(DescriptionIsLong)); } } = "";
+	public bool HasDescription => Description.Length > 0;
+	public bool DescriptionIsLong => Description.Length > 300;
+	public bool DescriptionExpanded
+	{
+		get => field;
+		private set
+		{
+			this.RaiseAndSetIfChanged(ref field, value);
+			this.RaisePropertyChanged(nameof(DescriptionToggleText));
+			this.RaisePropertyChanged(nameof(DescriptionMaxLines));
+		}
+	}
+	public string DescriptionToggleText => DescriptionExpanded ? "Show less" : "Show more";
+	public int DescriptionMaxLines => DescriptionExpanded ? 0 : 6;
+	public void ToggleDescription() => DescriptionExpanded = !DescriptionExpanded;
 	public IReadOnlyList<DetailItem> Details { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = [];
 
 	public string? Tags
@@ -78,6 +94,7 @@ public class BookInspectorViewModel : ViewModelBase
 		entry = newEntry;
 		if (entry is not null)
 			entry.PropertyChanged += Entry_PropertyChanged;
+		DescriptionExpanded = false;
 
 		Refresh();
 		LoadLargeCover();
@@ -144,9 +161,13 @@ public class BookInspectorViewModel : ViewModelBase
 			this.RaisePropertyChanged(nameof(HasBook));
 
 			if (entry is null)
+			{
+				Description = "";
 				return;
+			}
 
 			var book = entry.Book;
+			Description = string.Join("\n\n", (book.Description ?? "").Split('\n').Select(p => p.Trim()).Where(p => p.Length > 0));
 			TitleText = entry.Title ?? book.Title;
 			Cover ??= entry.Cover as IImage;
 			Byline = string.IsNullOrWhiteSpace(entry.Narrators) ? entry.Authors ?? "" : $"{entry.Authors} · narrated by {entry.Narrators}";

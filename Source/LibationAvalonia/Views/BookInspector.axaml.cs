@@ -59,6 +59,8 @@ public partial class BookInspector : UserControl
 	private void ShowFile_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => viewModel.ShowFile();
 	private void Audible_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => viewModel.OpenInAudible();
 
+	private void ToggleDescription_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => viewModel.ToggleDescription();
+
 	private void Details_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{
 		if (Entry is LibraryBookEntry entry)

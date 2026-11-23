@@ -101,7 +101,11 @@ partial class MainVM
 	public async Task SelectScopeAsync(LibraryScope scope)
 	{
 		if (ProductsDisplay.Scope == scope)
-			return;
+		{
+			if (scope is LibraryScope.All)
+				return;
+			scope = LibraryScope.All;
+		}
 
 		foreach (var (key, item) in scopeItems)
 			item.IsSelected = key == scope;
@@ -137,7 +141,7 @@ partial class MainVM
 			QuickFilterItems.Clear();
 			QuickFilterItems.AddRange(QuickFilters.Filters.Select(filter => new SidebarItem(
 				string.IsNullOrWhiteSpace(filter.Name) ? filter.Filter : filter.Name,
-				() => PerformFilter(filter))));
+				() => SelectedNamedFilter?.Filter == filter.Filter ? FilterBtn(string.Empty) : PerformFilter(filter))));
 			markSelectedQuickFilter();
 		});
 

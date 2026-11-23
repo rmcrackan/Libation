@@ -59,16 +59,17 @@
 					<NativeMenuItem Command="{Binding RemoveVisibleAsync}" Header="Remove from library..." />
 				</NativeMenu>
 			</NativeMenuItem>
-			<NativeMenuItem Header="Settings">
+			<NativeMenuItem Header="Tools">
 				<NativeMenu>
-					<NativeMenuItem Command="{Binding ShowAccountsAsync}" Header="Accounts..." Gesture="{OnPlatform macOS='⌘+.'}" />
-					<NativeMenuItem Command="{Binding ShowSettingsAsync}" Header="Settings..." Gesture="{OnPlatform macOS='⌘+,'}" />
-					<NativeMenuItemSeparator />
 					<NativeMenuItem Command="{Binding ShowTrashBinAsync}" Header="{Binding TrashBinMenuText}" Gesture="{OnPlatform macOS='alt+⌘+T'}" />
 					<NativeMenuItem Command="{Binding LaunchHangover}" Header="Launch Hangover" />
 					<NativeMenuItemSeparator />
+					<NativeMenuItem Command="{Binding ShowFindBetterQualityBooksAsync}" Header="Scan for Better Quality Audiobooks" />
+				</NativeMenu>
+			</NativeMenuItem>
+			<NativeMenuItem Header="Help">
+				<NativeMenu>
 					<NativeMenuItem Command="{Binding StartWalkthroughAsync}" Header="Take a Guided Tour of Libation" />
-					<NativeMenuItem Command="{Binding ShowAboutAsync}" Header="About..." />
 				</NativeMenu>
 			</NativeMenuItem>
 		</NativeMenu>
