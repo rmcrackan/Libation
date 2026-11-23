@@ -202,6 +202,12 @@ public class NetworkFileStream : Stream, IUpdatable
 				try
 				{
 					await DownloadToFile(blockResponse);
+					if (WritePosition < ContentLength && !IsCancelled)
+					{
+						if (WritePosition == startPosition)
+							throw new WebException($"Download made no progress at position 0x{WritePosition:X10} of 0x{ContentLength:X10}.");
+						(startPosition, blockResponse) = await resumeFromWritePositionAsync(client, blockResponse);
+					}
 				}
 				catch (HttpIOException e)
 					when (e.HttpRequestError is HttpRequestError.ResponseEnded
