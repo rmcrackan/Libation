@@ -82,57 +82,47 @@
 
 		<ScrollViewer IsVisible="{Binding HasEntry}" HorizontalScrollBarVisibility="Disabled">
 			<StackPanel Margin="16,16,20,16" Spacing="12">
-				<StackPanel Orientation="Horizontal" Spacing="12">
-					<Border CornerRadius="6" ClipToBounds="True" Width="120" Height="120">
-						<Image Source="{Binding Cover}" Stretch="UniformToFill" />
-					</Border>
-					<Path
-						Width="56"
-						VerticalAlignment="Bottom"
-						Stretch="Uniform"
-						Fill="{DynamicResource IconFill}"
-						IsVisible="{Binding IsSpatial}"
-						ToolTip.Tip="Dolby Atmos"
-						Data="{StaticResource DolbyAtmosLogoVertical}" />
-				</StackPanel>
+				<Grid ColumnDefinitions="96,*" ColumnSpacing="12">
+					<StackPanel Spacing="8">
+						<Border CornerRadius="6" ClipToBounds="True" Width="96" Height="96">
+							<Image Source="{Binding Cover}" Stretch="UniformToFill" />
+						</Border>
+						<Path
+							Width="64"
+							HorizontalAlignment="Center"
+							Stretch="Uniform"
+							Fill="{DynamicResource IconFill}"
+							IsVisible="{Binding IsSpatial}"
+							ToolTip.Tip="Dolby Atmos"
+							Data="{StaticResource DolbyAtmosLogoVertical}" />
+					</StackPanel>
+					<StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Top">
+						<SelectableTextBlock Text="{Binding TitleText}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap" />
+						<SelectableTextBlock
+							Text="{Binding Subtitle}"
+							IsVisible="{Binding HasSubtitle}"
+							FontSize="14"
+							TextWrapping="Wrap"
+							Foreground="{DynamicResource SecondaryForegroundBrush}" />
+						<TextBlock
+							Text="{Binding Byline}"
+							IsVisible="{Binding Byline, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+							FontSize="14"
+							TextWrapping="Wrap"
+							Foreground="{DynamicResource SecondaryForegroundBrush}" />
+						<Border
+							Classes="Pill"
+							Margin="0,4,0,0"
+							IsVisible="{Binding HasBook}"
+							Classes.Success="{Binding StatusIsSuccess}"
+							Classes.Warning="{Binding StatusIsWarning}"
+							Classes.Error="{Binding StatusIsError}">
+							<TextBlock Text="{Binding StatusText}" />
+						</Border>
+					</StackPanel>
+				</Grid>
 
-				<SelectableTextBlock Text="{Binding TitleText}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
-				<SelectableTextBlock
-					Text="{Binding Subtitle}"
-					IsVisible="{Binding HasSubtitle}"
-					FontSize="14"
-					TextWrapping="Wrap"
-					Foreground="{DynamicResource SecondaryForegroundBrush}" />
-				<TextBlock
-					Text="{Binding Byline}"
-					IsVisible="{Binding Byline, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-					FontSize="14"
-					TextWrapping="Wrap"
-					Foreground="{DynamicResource SecondaryForegroundBrush}" />
-
-				<Border
-					Classes="Pill"
-					IsVisible="{Binding HasBook}"
-					Classes.Success="{Binding StatusIsSuccess}"
-					Classes.Warning="{Binding StatusIsWarning}"
-					Classes.Error="{Binding StatusIsError}">
-					<TextBlock Text="{Binding StatusText}" />
-				</Border>
-
-				<WrapPanel Orientation="Horizontal" ItemSpacing="8" LineSpacing="8" IsVisible="{Binding HasBook}">
-					<Button Classes="Primary" Click="Primary_Click" IsVisible="{Binding PrimaryVisible}" Content="{Binding PrimaryText}" />
-					<Button Click="ShowFile_Click" IsVisible="{Binding ShowFileVisible}" Content="{Binding ShowFileText}" />
-					<Button Classes="Ghost" Padding="0,4" Click="Audible_Click" Content="View on Audible" />
-				</WrapPanel>
-
-				<SelectableTextBlock
-					Text="{Binding ShortFilePath}"
-					IsVisible="{Binding HasFilePath}"
-					ToolTip.Tip="{Binding FilePath}"
-					Classes="Mono"
-					FontSize="12"
-					TextWrapping="Wrap"
-					Foreground="{DynamicResource SecondaryForegroundBrush}" />
+				<Button Classes="Primary" HorizontalAlignment="Left" Click="Primary_Click" IsVisible="{Binding PrimaryVisible}" Content="{Binding PrimaryText}" />
 
 				<StackPanel Spacing="4" Margin="0,8,0,0" IsVisible="{Binding HasDescription}">
 					<TextBlock Classes="SectionHeader" Text="Description" />
@@ -153,7 +143,12 @@
 							<DataTemplate x:DataType="vm:DetailItem">
 								<Grid ColumnDefinitions="100,*" Margin="0,0,0,6">
 									<TextBlock Text="{Binding Label}" FontSize="14" Foreground="{DynamicResource SecondaryForegroundBrush}" />
-									<SelectableTextBlock Grid.Column="1" Text="{Binding Value}" Classes.Mono="{Binding IsMono}" FontSize="14" TextWrapping="Wrap" />
+									<SelectableTextBlock Grid.Column="1" IsVisible="{Binding IsText}" Text="{Binding Value}" Classes.Mono="{Binding IsMono}" FontSize="14" TextWrapping="Wrap" />
+									<Button Grid.Column="1" Classes="Ghost" Padding="0" HorizontalAlignment="Left" IsVisible="{Binding IsAudibleLink}" Click="Audible_Click" ToolTip.Tip="View on Audible" FontSize="14" FontFamily="Cascadia Mono,Menlo,Consolas,DejaVu Sans Mono,monospace" Content="{Binding Value}" />
+									<StackPanel Grid.Column="1" Spacing="2" IsVisible="{Binding IsFile}">
+										<SelectableTextBlock Text="{Binding Value}" ToolTip.Tip="{Binding Tip}" Classes="Mono" FontSize="12" TextWrapping="Wrap" />
+										<Button Classes="Ghost" Padding="0" HorizontalAlignment="Left" FontSize="14" Click="ShowFile_Click" Content="{Binding ShowFileTip}" />
+									</StackPanel>
 								</Grid>
 							</DataTemplate>
 						</ItemsControl.ItemTemplate>

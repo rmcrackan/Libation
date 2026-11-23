@@ -15,7 +15,15 @@ using System.Threading.Tasks;
 
 namespace LibationAvalonia.ViewModels;
 
-public record DetailItem(string Label, string Value, bool IsMono = false);
+public enum DetailKind { Text, AudibleLink, File }
+
+public record DetailItem(string Label, string Value, bool IsMono = false, DetailKind Kind = DetailKind.Text, string? Tip = null)
+{
+	public bool IsText => Kind is DetailKind.Text;
+	public bool IsAudibleLink => Kind is DetailKind.AudibleLink;
+	public bool IsFile => Kind is DetailKind.File;
+	public string ShowFileTip => OperatingSystem.IsMacOS() ? "Show in Finder" : OperatingSystem.IsWindows() ? "Show in Explorer" : "Show in folder";
+}
 
 public record RatingRow(string Label, string Audible, string Yours);
 
@@ -62,8 +70,6 @@ public class BookInspectorViewModel : ViewModelBase
 	public bool StatusIsError { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	public string PrimaryText { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "";
 	public bool PrimaryVisible { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
-	public bool ShowFileVisible { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
-	public string ShowFileText { get; } = OperatingSystem.IsMacOS() ? "Show in Finder" : OperatingSystem.IsWindows() ? "Show in Explorer" : "Show in folder";
 	public string Description { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); this.RaisePropertyChanged(nameof(HasDescription)); this.RaisePropertyChanged(nameof(DescriptionIsLong)); } } = "";
 	public IReadOnlyList<IReadOnlyList<DescriptionRun>> DescriptionParagraphs { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = [];
 	public bool HasDescription => Description.Length > 0;
@@ -86,9 +92,6 @@ public class BookInspectorViewModel : ViewModelBase
 	public string Subtitle { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); this.RaisePropertyChanged(nameof(HasSubtitle)); } } = "";
 	public bool HasSubtitle => Subtitle.Length > 0;
 	public bool IsSpatial { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
-	public string FilePath { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); this.RaisePropertyChanged(nameof(HasFilePath)); } } = "";
-	public string ShortFilePath { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "";
-	public bool HasFilePath => FilePath.Length > 0;
 	public IReadOnlyList<StatusOption> BookStatusItems { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = [];
 	public StatusOption? BookStatusSelected { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	public IReadOnlyList<StatusOption> PdfStatusItems { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = [];
@@ -227,16 +230,18 @@ public class BookInspectorViewModel : ViewModelBase
 			}
 			Add("Account", string.IsNullOrWhiteSpace(entry.Account) ? null : $"{entry.Account} ({locale.Name})");
 			if (lb is not null)
-				details.Add(new("Audible ID", book.AudibleProductId, true));
+				details.Add(new("Audible ID", book.AudibleProductId, true, DetailKind.AudibleLink));
+			var filePath = entry is LibraryBookEntry && entry.Liberate?.IsUnavailable is not true && entry.Liberate?.BookStatus is LiberatedStatus.Liberated ? AudioPath() : null;
+			if (filePath is not null)
+				details.Add(new("File", RelativeToBooks(filePath), true, DetailKind.File, filePath));
 			Details = details;
 			Ratings = lb is null ? [] : BuildRatings(book.Rating, book.UserDefinedItem.Rating);
 
 			if (entry is not LibraryBookEntry)
 			{
 				StatusText = "";
-				PrimaryVisible = ShowFileVisible = false;
+				PrimaryVisible = false;
 				StatusIsSuccess = StatusIsWarning = StatusIsError = false;
-				FilePath = ShortFilePath = "";
 				BookStatusItems = PdfStatusItems = [];
 				BookStatusSelected = PdfStatusSelected = null;
 				HasPdf = false;
@@ -254,7 +259,6 @@ public class BookInspectorViewModel : ViewModelBase
 				_ => ("Not downloaded", false, false, false)
 			};
 
-			ShowFileVisible = !unavailable && status is LiberatedStatus.Liberated && AudioPath() is not null;
 			PrimaryVisible = !unavailable && status is not LiberatedStatus.Liberated;
 			PrimaryText = status switch
 			{
@@ -262,9 +266,6 @@ public class BookInspectorViewModel : ViewModelBase
 				LiberatedStatus.Error => "Retry",
 				_ => "Liberate"
 			};
-
-			FilePath = AudioPath() ?? "";
-			ShortFilePath = FilePath.Length <= 64 ? FilePath : "\u2026" + FilePath[^64..];
 
 			var stored = book.UserDefinedItem.BookStatus;
 			List<StatusOption> bookItems = [new(LiberatedStatus.Liberated, "Downloaded"), new(LiberatedStatus.NotLiberated, "Download Pending")];
@@ -321,6 +322,15 @@ public class BookInspectorViewModel : ViewModelBase
 		{
 			return null;
 		}
+	}
+
+	private static string RelativeToBooks(string path)
+	{
+		var books = (string?)Configuration.Instance.Books;
+		if (string.IsNullOrWhiteSpace(books))
+			return path;
+		var relative = System.IO.Path.GetRelativePath(books, path);
+		return relative.StartsWith("..") || System.IO.Path.IsPathRooted(relative) ? path : relative;
 	}
 
 	public void ShowFile()
