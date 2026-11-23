@@ -25,6 +25,11 @@
 			LoadingRow="ProductsDisplay_LoadingRow"
 			CanUserReorderColumns="True">
 
+			<DataGrid.Resources>
+				<!-- Grid selects rows only; the current-cell outline implies otherwise. -->
+				<SolidColorBrush x:Key="DataGridCellFocusVisualPrimaryBrush" Color="Transparent"/>
+				<SolidColorBrush x:Key="DataGridCellFocusVisualSecondaryBrush" Color="Transparent"/>
+			</DataGrid.Resources>
 			<DataGrid.Styles>
 				<Style Selector="DataGridColumnHeader">
 					<Setter Property="ContextMenu">
