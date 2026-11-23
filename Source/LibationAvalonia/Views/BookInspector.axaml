@@ -35,6 +35,11 @@
 		<Style Selector="Border.Pill.Error > TextBlock">
 			<Setter Property="Foreground" Value="{DynamicResource ErrorForegroundBrush}" />
 		</Style>
+		<Style Selector="TextBlock.SectionHeader">
+			<Setter Property="FontSize" Value="12" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}" />
+		</Style>
 		<Style Selector="SelectableTextBlock.Mono">
 			<Setter Property="FontFamily" Value="Cascadia Mono,Menlo,Consolas,DejaVu Sans Mono,monospace" />
 		</Style>
@@ -76,10 +81,20 @@
 		</ScrollViewer>
 
 		<ScrollViewer IsVisible="{Binding HasEntry}" HorizontalScrollBarVisibility="Disabled">
-			<StackPanel Margin="16" Spacing="12">
-				<Border CornerRadius="6" ClipToBounds="True" Width="120" Height="120" HorizontalAlignment="Left">
-					<Image Source="{Binding Cover}" Stretch="UniformToFill" />
-				</Border>
+			<StackPanel Margin="16,16,20,16" Spacing="12">
+				<StackPanel Orientation="Horizontal" Spacing="12">
+					<Border CornerRadius="6" ClipToBounds="True" Width="120" Height="120">
+						<Image Source="{Binding Cover}" Stretch="UniformToFill" />
+					</Border>
+					<Path
+						Width="56"
+						VerticalAlignment="Bottom"
+						Stretch="Uniform"
+						Fill="{DynamicResource IconFill}"
+						IsVisible="{Binding IsSpatial}"
+						ToolTip.Tip="Dolby Atmos"
+						Data="{StaticResource DolbyAtmosLogoVertical}" />
+				</StackPanel>
 
 				<SelectableTextBlock Text="{Binding TitleText}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
 				<SelectableTextBlock
@@ -107,6 +122,7 @@
 				<WrapPanel Orientation="Horizontal" ItemSpacing="8" LineSpacing="8" IsVisible="{Binding HasBook}">
 					<Button Classes="Primary" Click="Primary_Click" IsVisible="{Binding PrimaryVisible}" Content="{Binding PrimaryText}" />
 					<Button Click="ShowFile_Click" IsVisible="{Binding ShowFileVisible}" Content="{Binding ShowFileText}" />
+					<Button Classes="Ghost" Padding="0,4" Click="Audible_Click" Content="View on Audible" />
 				</WrapPanel>
 
 				<SelectableTextBlock
@@ -118,8 +134,8 @@
 					TextWrapping="Wrap"
 					Foreground="{DynamicResource SecondaryForegroundBrush}" />
 
-				<StackPanel Spacing="4" IsVisible="{Binding HasDescription}">
-					<TextBlock Text="Description" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+				<StackPanel Spacing="4" Margin="0,8,0,0" IsVisible="{Binding HasDescription}">
+					<TextBlock Classes="SectionHeader" Text="Description" />
 					<SelectableTextBlock
 						Name="descriptionText"
 						FontSize="14"
@@ -130,30 +146,52 @@
 					<Button Classes="Ghost" Padding="0,2" HorizontalAlignment="Left" IsVisible="{Binding DescriptionIsLong}" Click="ToggleDescription_Click" Content="{Binding DescriptionToggleText}" />
 				</StackPanel>
 
-				<ItemsControl ItemsSource="{Binding Details}">
-					<ItemsControl.ItemTemplate>
-						<DataTemplate x:DataType="vm:DetailItem">
-							<Grid ColumnDefinitions="88,*" Margin="0,0,0,6">
-								<TextBlock Text="{Binding Label}" FontSize="14" Foreground="{DynamicResource SecondaryForegroundBrush}" />
-								<SelectableTextBlock Grid.Column="1" Text="{Binding Value}" Classes.Mono="{Binding IsMono}" FontSize="14" TextWrapping="Wrap" />
-							</Grid>
-						</DataTemplate>
-					</ItemsControl.ItemTemplate>
-				</ItemsControl>
+				<StackPanel Spacing="4" Margin="0,8,0,0">
+					<TextBlock Classes="SectionHeader" Text="Details" />
+					<ItemsControl ItemsSource="{Binding Details}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate x:DataType="vm:DetailItem">
+								<Grid ColumnDefinitions="100,*" Margin="0,0,0,6">
+									<TextBlock Text="{Binding Label}" FontSize="14" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+									<SelectableTextBlock Grid.Column="1" Text="{Binding Value}" Classes.Mono="{Binding IsMono}" FontSize="14" TextWrapping="Wrap" />
+								</Grid>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</StackPanel>
 
-				<StackPanel Spacing="4" IsVisible="{Binding HasBook}">
-					<TextBlock Text="Tags" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+				<StackPanel Spacing="4" Margin="0,8,0,0" IsVisible="{Binding HasRatings}">
+					<TextBlock Classes="SectionHeader" Text="Ratings" />
+					<Grid ColumnDefinitions="100,120,*" Margin="0,0,0,2">
+						<TextBlock Grid.Column="1" Text="Audible" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+						<TextBlock Grid.Column="2" Text="Yours" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+					</Grid>
+					<ItemsControl ItemsSource="{Binding Ratings}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate x:DataType="vm:RatingRow">
+								<Grid ColumnDefinitions="100,120,*" Margin="0,0,0,6">
+									<TextBlock Text="{Binding Label}" FontSize="14" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+									<TextBlock Grid.Column="1" Text="{Binding Audible}" FontSize="16" Foreground="{DynamicResource WarningForegroundBrush}" />
+									<TextBlock Grid.Column="2" Text="{Binding Yours}" FontSize="16" Foreground="{DynamicResource WarningForegroundBrush}" />
+								</Grid>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</StackPanel>
+
+				<StackPanel Spacing="4" Margin="0,8,0,0" IsVisible="{Binding HasBook}">
+					<TextBlock Classes="SectionHeader" Text="Tags" />
 					<controls:TagChipEditor Name="tagEditor" Tags="{Binding Tags, Mode=TwoWay}" />
 				</StackPanel>
 
-				<StackPanel Spacing="8" IsVisible="{Binding HasBook}" ToolTip.Tip="Whether the book and PDF have been downloaded">
-					<TextBlock Text="Download status" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" />
-					<Grid ColumnDefinitions="72,*" RowDefinitions="Auto,Auto" RowSpacing="8">
+				<StackPanel Spacing="8" Margin="0,8,0,0" IsVisible="{Binding HasBook}" ToolTip.Tip="Whether the book and PDF have been downloaded">
+					<TextBlock Classes="SectionHeader" Text="Download status" />
+					<Grid ColumnDefinitions="100,*" RowDefinitions="Auto,Auto" RowSpacing="8">
 						<TextBlock Text="Audiobook" FontSize="14" VerticalAlignment="Center" />
 						<controls:WheelComboBox
 							Name="bookStatusCombo"
 							Grid.Column="1"
-							HorizontalAlignment="Stretch"
+							HorizontalAlignment="Left" Width="200"
 							ItemsSource="{Binding BookStatusItems}"
 							SelectedItem="{Binding BookStatusSelected, Mode=OneWay}"
 							SelectionChanged="BookStatus_SelectionChanged">
@@ -168,7 +206,7 @@
 							Name="pdfStatusCombo"
 							Grid.Row="1"
 							Grid.Column="1"
-							HorizontalAlignment="Stretch"
+							HorizontalAlignment="Left" Width="200"
 							IsVisible="{Binding HasPdf}"
 							ItemsSource="{Binding PdfStatusItems}"
 							SelectedItem="{Binding PdfStatusSelected, Mode=OneWay}"
@@ -186,8 +224,6 @@
 						Foreground="{DynamicResource SecondaryForegroundBrush}"
 						Text="Change this only if the files were moved or deleted outside Libation." />
 				</StackPanel>
-
-				<Button Classes="Ghost" Padding="0,2" HorizontalAlignment="Left" IsVisible="{Binding HasBook}" Click="Audible_Click" Content="View on Audible" />
 			</StackPanel>
 		</ScrollViewer>
 	</Panel>

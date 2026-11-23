@@ -17,6 +17,8 @@ namespace LibationAvalonia.ViewModels;
 
 public record DetailItem(string Label, string Value, bool IsMono = false);
 
+public record RatingRow(string Label, string Audible, string Yours);
+
 public class StatusOption(LiberatedStatus status, string text)
 {
 	public LiberatedStatus Status { get; } = status;
@@ -83,6 +85,7 @@ public class BookInspectorViewModel : ViewModelBase
 	public bool IsRefreshing => refreshing;
 	public string Subtitle { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); this.RaisePropertyChanged(nameof(HasSubtitle)); } } = "";
 	public bool HasSubtitle => Subtitle.Length > 0;
+	public bool IsSpatial { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	public string FilePath { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); this.RaisePropertyChanged(nameof(HasFilePath)); } } = "";
 	public string ShortFilePath { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "";
 	public bool HasFilePath => FilePath.Length > 0;
@@ -92,6 +95,8 @@ public class BookInspectorViewModel : ViewModelBase
 	public StatusOption? PdfStatusSelected { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	public bool HasPdf { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	public IReadOnlyList<DetailItem> Details { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = [];
+	public IReadOnlyList<RatingRow> Ratings { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); this.RaisePropertyChanged(nameof(HasRatings)); } } = [];
+	public bool HasRatings => Ratings.Count > 0;
 
 	public string? Tags
 	{
@@ -193,9 +198,10 @@ public class BookInspectorViewModel : ViewModelBase
 			// Rows imported before descriptions were flattened still hold Audible HTML until a rescan.
 			Description = AudibleUtilities.HtmlText.ToPlainText(book.Description, "\n\n");
 			DescriptionParagraphs = DescriptionMarkup.Parse(book.Description);
-			TitleText = entry.Title ?? book.Title;
+			TitleText = string.IsNullOrWhiteSpace(book.Subtitle) ? entry.Title ?? book.Title : book.Title;
 			Cover ??= entry.Cover as IImage;
 			Subtitle = string.IsNullOrWhiteSpace(book.Subtitle) ? "" : book.Subtitle.Trim();
+			IsSpatial = book.IsSpatial;
 			Byline = string.IsNullOrWhiteSpace(entry.Narrators) ? entry.Authors ?? "" : $"{entry.Authors} · narrated by {entry.Narrators}";
 
 			var locale = AudibleApi.Localization.Get(book.Locale);
@@ -218,13 +224,12 @@ public class BookInspectorViewModel : ViewModelBase
 			if (lb is not null)
 			{
 				Add("Language", book.Language);
-				Add("Book rating", StarLine(book.Rating));
-				Add("My rating", StarLine(book.UserDefinedItem.Rating));
 			}
 			Add("Account", string.IsNullOrWhiteSpace(entry.Account) ? null : $"{entry.Account} ({locale.Name})");
 			if (lb is not null)
 				details.Add(new("Audible ID", book.AudibleProductId, true));
 			Details = details;
+			Ratings = lb is null ? [] : BuildRatings(book.Rating, book.UserDefinedItem.Rating);
 
 			if (entry is not LibraryBookEntry)
 			{
@@ -283,10 +288,26 @@ public class BookInspectorViewModel : ViewModelBase
 		}
 	}
 
-	private static string? StarLine(Rating? rating)
-		=> rating?.ToStarString()?.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries) is { Length: > 0 } lines
-			? string.Join("   ", lines.Select(l => l.Trim()))
-			: null;
+	private static IReadOnlyList<RatingRow> BuildRatings(Rating? audible, Rating? yours)
+	{
+		static bool Empty(Rating? r) => r is null || (r.OverallRating <= 0 && r.PerformanceRating <= 0 && r.StoryRating <= 0);
+		if (Empty(audible) && Empty(yours))
+			return [];
+		return
+		[
+			new("Overall", Stars(audible?.OverallRating), Stars(yours?.OverallRating)),
+			new("Performance", Stars(audible?.PerformanceRating), Stars(yours?.PerformanceRating)),
+			new("Story", Stars(audible?.StoryRating), Stars(yours?.StoryRating)),
+		];
+	}
+
+	private static string Stars(float? value)
+	{
+		if (value is not > 0)
+			return "\u2014";
+		var halves = (int)Math.Round(Math.Min(value.Value, 5f) * 2, MidpointRounding.AwayFromZero);
+		return new string('\u2605', halves / 2) + (halves % 2 == 1 ? "\u00BD" : "");
+	}
 
 	public LibraryBook? CurrentBook => (entry as LibraryBookEntry)?.LibraryBook;
 
