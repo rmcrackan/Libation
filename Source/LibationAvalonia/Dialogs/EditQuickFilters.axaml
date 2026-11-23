@@ -100,7 +100,7 @@
 
 			<Button
 				Grid.Column="1"
-				Classes="SaveButton"
+				Classes="Primary"
 				Name="saveBtn"
 				Content="Save"
 				Command="{Binding SaveAndClose}" />

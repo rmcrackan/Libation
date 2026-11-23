@@ -116,6 +116,7 @@ partial class MainVM
 	private async Task RefreshNoMatchesStateAsync(string? searchString)
 	{
 		NoMatchesText = GridEmptyStateUi.NoMatchesText(searchString);
+		NoMatchesQuery = searchString?.Trim() ?? "";
 
 		//Search the trash whenever a filter emptied the grid, including when the library itself is empty:
 		//someone who trashed everything and then searched for one of those books is exactly who needs telling.
@@ -132,6 +133,8 @@ partial class MainVM
 	}
 
 	/// <summary> Shown over the grid when a filter matches nothing </summary>
+	/// <summary> The search text that matched nothing </summary>
+	public string NoMatchesQuery { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "";
 	public string NoMatchesText { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "";
 	/// <summary> Follow-up naming matches that are in the trash </summary>
 	public string NoMatchesTrashHintText { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "";

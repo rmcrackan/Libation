@@ -80,7 +80,7 @@
 				TabIndex="0"
 				FontSize="16"
 				Name="btnYes"
-				Classes="SaveButton"
+				Classes="Primary"
 				VerticalAlignment="Stretch"
 				HorizontalAlignment="Right"
 				VerticalContentAlignment="Center"

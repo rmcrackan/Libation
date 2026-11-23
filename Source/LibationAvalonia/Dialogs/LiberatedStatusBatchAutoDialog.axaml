@@ -39,7 +39,7 @@
 		
 		<Button
 			Grid.Row="1"
-			Classes="SaveButton"
+			Classes="Primary"
 			Name="SaveButton"
 			HorizontalAlignment="Right"
 			Content="Save"

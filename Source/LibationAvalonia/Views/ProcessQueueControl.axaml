@@ -29,7 +29,7 @@
 				<TabItem.Header>
 					<TextBlock FontSize="14" VerticalAlignment="Center">Process Queue</TextBlock>
 				</TabItem.Header>
-				<Grid ColumnDefinitions="*" RowDefinitions="*,72">
+				<Grid ColumnDefinitions="*" RowDefinitions="*,Auto">
 					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemRegionColor}">
 						<ScrollViewer
 							Name="scroller"
@@ -50,79 +50,94 @@
 							</ItemsControl>
 						</ScrollViewer>
 					</Border>
-					<!-- The pane is a fixed 400px, which is not enough for the settings and both buttons
-					     on one line - Cancel All was the one that got clipped, down to "Ca". The two
-					     spinners get a full-width row of their own, and the buttons sit under them in
-					     Auto columns so that neither can be squeezed by whatever is beside it. -->
+					<StackPanel
+						Grid.Row="0"
+						IsVisible="{Binding QueueEmpty}"
+						HorizontalAlignment="Center"
+						VerticalAlignment="Center"
+						Margin="16"
+						Spacing="8">
+						<Path
+							Width="40"
+							Height="40"
+							Stretch="Uniform"
+							HorizontalAlignment="Center"
+							Data="{StaticResource EmptyQueueIcon}"
+							Stroke="{DynamicResource SecondaryForegroundBrush}"
+							StrokeThickness="2"
+							StrokeLineCap="Round"
+							StrokeJoin="Round" />
+						<TextBlock FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Text="Nothing in the queue" />
+						<TextBlock
+							FontSize="14"
+							HorizontalAlignment="Center"
+							TextAlignment="Center"
+							TextWrapping="Wrap"
+							Foreground="{DynamicResource SecondaryForegroundBrush}"
+							Text="Click a book's status icon, or use Liberate, to start downloading." />
+					</StackPanel>
 					<Grid Grid.Column="0" Grid.Row="1" RowDefinitions="Auto,*">
 						<Grid.Styles>
 							<Style Selector="NumericUpDown#PART_Spinner">
 								<Setter Property="Background" Value="Black"/>
 							</Style>
 							<Style Selector="TextBlock.settingLabel">
-								<Setter Property="FontSize" Value="11" />
+								<Setter Property="FontSize" Value="12" />
 								<Setter Property="Margin" Value="0,0,6,0" />
 								<Setter Property="VerticalAlignment" Value="Center" />
-								<Setter Property="HorizontalAlignment" Value="Right" />
+							</Style>
+							<Style Selector="NumericUpDown.SmallNumericUpDown">
+								<Setter Property="MinWidth" Value="76" />
+								<Setter Property="FontSize" Value="12" />
+								<Setter Property="VerticalContentAlignment" Value="Center" />
 							</Style>
 						</Grid.Styles>
-						<Grid Grid.Row="0" Margin="0,0,0,4" VerticalAlignment="Center"
-						      ColumnDefinitions="Auto,Auto,*,Auto,Auto">
-							<TextBlock Grid.Column="0" Classes="settingLabel" Text="At once" />
+						<!-- Short labels keep both spinners on one line in the 320px pane; tooltips carry the detail. -->
+						<Grid Grid.Row="0" Margin="0,4" ColumnDefinitions="Auto,Auto,*,Auto,Auto" RowDefinitions="Auto,Auto">
+							<TextBlock Grid.Column="0" Classes="settingLabel" Text="Downloads" ToolTip.Tip="How many books download and decrypt at the same time." />
 							<NumericUpDown
 								Grid.Column="1"
 								Classes="SmallNumericUpDown"
-								MinWidth="86"
-								FontSize="12"
-								HorizontalContentAlignment="Center"
-								VerticalContentAlignment="Center"
 								ToolTip.Tip="How many books to download and decrypt at the same time. 1 downloads one at a time."
 								Value="{Binding MaxConcurrentDownloads, Mode=TwoWay}"
 								Minimum="{Binding MinConcurrentDownloads}"
 								Maximum="{Binding MaxAllowedConcurrentDownloads}"
 								Increment="1"
 								FormatString="0" />
-							<!-- Sits in the spare column between the two spinners, and only when this machine
-							     cannot keep up with the number chosen. That column is whatever the two
-							     spinners leave, so the hint is kept short enough to fit it with room over
-							     rather than sized to it - see ProcessQueueViewModel.ConcurrencyHint. The
-							     trimming below is a backstop, not the plan. -->
-							<TextBlock
-								Grid.Column="2"
-								Classes="settingLabel"
-								HorizontalAlignment="Left"
-								Margin="6,0,6,0"
-								Opacity="0.7"
-								TextTrimming="CharacterEllipsis"
-								ToolTip.Tip="Fewer books download at once than the number chosen, because this machine has fewer processors to decrypt them."
-								IsVisible="{Binding ConcurrencyHint, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-								Text="{Binding ConcurrencyHint}" />
-							<TextBlock Grid.Column="3" Classes="settingLabel" Text="DL Limit" />
+							<TextBlock Grid.Column="3" Classes="settingLabel" Margin="12,0,6,0" Text="Max MB/s" ToolTip.Tip="Maximum download speed in MB per second. ∞ means unlimited." />
 							<NumericUpDown
 								Grid.Column="4"
 								Classes="SmallNumericUpDown"
-								MinWidth="86"
-								FontSize="12"
-								HorizontalContentAlignment="Center"
-								VerticalContentAlignment="Center"
+								ToolTip.Tip="Maximum download speed in MB per second. ∞ means unlimited."
 								TextConverter="{StaticResource myConverter}"
 								Value="{Binding SpeedLimit, Mode=TwoWay}"
 								Minimum="0"
 								KeyDown="NumericUpDown_KeyDown"
 								Increment="{Binding SpeedLimitIncrement}"
 								Maximum="999" />
+							<!-- Only shown when this machine can't run as many downloads as chosen. -->
+							<TextBlock
+								Grid.Row="1"
+								Grid.ColumnSpan="5"
+								FontSize="12"
+								Margin="0,2,0,0"
+								Foreground="{DynamicResource SecondaryForegroundBrush}"
+								TextTrimming="CharacterEllipsis"
+								ToolTip.Tip="Fewer books download at once than the number chosen, because this machine has fewer processors to decrypt them."
+								IsVisible="{Binding ConcurrencyHint, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+								Text="{Binding ConcurrencyHint}" />
 						</Grid>
 						<Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto">
-							<Button Name="cancelAllBtn" Grid.Column="0" FontSize="12" VerticalAlignment="Stretch" Click="CancelAllBtn_Click">Cancel All</Button>
+							<Button Name="cancelAllBtn" Grid.Column="0" FontSize="12" IsEnabled="{Binding HasUnfinished}" VerticalAlignment="Stretch" Click="CancelAllBtn_Click">Cancel All</Button>
 							<CheckBox
 								Grid.Column="1"
 								FontSize="12"
-								Margin="10,0,10,0"
+								Margin="12,0"
 								VerticalAlignment="Center"
 								IsChecked="{Binding AutoScrollQueue, Mode=TwoWay}"
 								ToolTip.Tip="Keep active downloads scrolled into view."
 								Content="Auto-scroll" />
-							<Button Grid.Column="3" FontSize="12" VerticalAlignment="Stretch" Click="ClearFinishedBtn_Click">Clear Finished</Button>
+							<Button Grid.Column="3" FontSize="12" IsEnabled="{Binding HasFinished}" VerticalAlignment="Stretch" Click="ClearFinishedBtn_Click">Clear Finished</Button>
 						</Grid>
 					</Grid>
 				</Grid>
@@ -157,7 +172,7 @@
 			</TabItem>
 		</TabControl>
 		<!-- Queue Status -->
-		<Grid Grid.Row="1" Margin="5,0,0,0" ColumnDefinitions="Auto,*,Auto">
+		<Grid Grid.Row="1" Margin="8,0,0,0" ColumnDefinitions="Auto,*,Auto">
 			
 			<Panel Grid.Column="0">
 				<Panel.Styles>
@@ -196,7 +211,7 @@
 					<TextBlock Text="{Binding ErrorCount}" />
 				</StackPanel>
 			</StackPanel>
-			<Panel Grid.Column="2" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalAlignment="Center">
+			<Panel Grid.Column="2" Margin="0,0,8,0" HorizontalAlignment="Right" VerticalAlignment="Center">
 				<TextBlock Text="{Binding RunningTime}" />
 			</Panel>
 		</Grid>

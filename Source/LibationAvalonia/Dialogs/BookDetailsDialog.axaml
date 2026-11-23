@@ -12,7 +12,7 @@
 		x:CompileBindings="True"
         Title="Book Details" Name="BookDetails">
 
-	<Grid RowDefinitions="*,Auto,Auto,40">
+	<Grid RowDefinitions="*,Auto,Auto,Auto">
 		<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*,Auto" Margin="10">
 			<Image Source="{Binding Cover}" />
 
@@ -25,22 +25,21 @@
 				IsVisible="{Binding IsSpatial}"
 				Data="{StaticResource DolbyAtmosLogoVertical}" />
 
-			<controls:LinkLabel
-				Grid.Row="2"
-				HorizontalAlignment="Center"
-				TextAlignment="Center"
-				VerticalAlignment="Bottom"
-				TextWrapping="Wrap"
-				Command="{Binding OpenInAudibleCommand}"
-				Text="Open in &#xa;Audible&#xa;(Browser)" />
-			
 			<TextBox
 				Grid.Column="1"
-				Grid.RowSpan="3"
-				Margin="10,0,0,0"
+				Grid.RowSpan="2"
+				Margin="16,0,0,0"
 				TextWrapping="Wrap"
 				FontSize="12"
 				Text="{Binding DetailsText}" />
+
+			<controls:LinkLabel
+				Grid.Row="2"
+				Grid.Column="1"
+				HorizontalAlignment="Left"
+				Margin="16,8,0,0"
+				Command="{Binding OpenInAudibleCommand}"
+				Text="Open in Audible (Browser)" />
 		</Grid>
 		
 		<controls:GroupBox
@@ -61,7 +60,8 @@
 		</controls:GroupBox>
 		
 		<controls:GroupBox
-			Label="Liberated status: Whether the book/pdf has been downloaded"
+			Label="Download status"
+			ToolTip.Tip="Whether the book and PDF have been downloaded"
 			Grid.Row="2"
 			Margin="10,10,10,10">
 			
@@ -135,14 +135,25 @@
 			</StackPanel>			
 		</controls:GroupBox>
 
-		<Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="10,0,10,10">
-			
+		<StackPanel
+			Grid.Row="3"
+			Orientation="Horizontal"
+			HorizontalAlignment="Right"
+			Spacing="8"
+			Margin="16,0,16,16">
+
 			<Button
-				Grid.Column="1"
+				Padding="16,6"
+				Content="Cancel"
+				IsCancel="True"
+				Click="CancelButton_Clicked" />
+
+			<Button
+				Padding="16,6"
 				Content="Save"
-				Classes="SaveButton"
+				Classes="Primary"
 				Click="SaveButton_Clicked" />
-		</Grid>
+		</StackPanel>
 		
 	</Grid>
 </Window>

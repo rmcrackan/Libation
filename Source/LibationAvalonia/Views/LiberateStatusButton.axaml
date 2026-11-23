@@ -8,13 +8,6 @@
 			 x:DataType="vm:LiberateStatusButtonViewModel"
              x:Class="LibationAvalonia.Views.LiberateStatusButton">
 
-	<UserControl.Styles>
-		<Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
-			<Setter Property="Background" Value="{DynamicResource SystemChromeDisabledLowColor}" />
-			<Setter Property="BorderBrush" Value="{DynamicResource SystemChromeDisabledLowColor}" />
-		</Style>
-	</UserControl.Styles>
-
 	<Button
 		Name="button"
 		HorizontalAlignment="Stretch"

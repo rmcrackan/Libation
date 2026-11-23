@@ -27,7 +27,7 @@
 			Grid.Row="1"
 			HorizontalAlignment="Right"
 			Margin="5"
-			Classes="SaveButton"
+			Classes="Primary"
 			Content="Save"
 			Click="Save_Click" />
 	</Grid>

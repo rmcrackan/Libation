@@ -11,20 +11,22 @@
         Title="Filter Options"
 		WindowStartupLocation="CenterOwner">
 	
+	<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
 	<Grid
+		MinWidth="700"
 		RowDefinitions="Auto,*"
 		ColumnDefinitions="*,*,*,*">
 
 		<Grid.Styles>
 			<Style Selector="Grid > Grid">
-				<Setter Property="Margin" Value="10,0" />
+				<Setter Property="Margin" Value="16,0" />
 			</Style>
 			<Style Selector="Grid > TextBlock">
 				<Setter Property="TextWrapping" Value="Wrap" />
 			</Style>
 			<Style Selector="TextBlock">
 				<Setter Property="FontSize" Value="12" />
-				<Setter Property="Margin" Value="0,5" />
+				<Setter Property="Margin" Value="0,4" />
 			</Style>
 			<Style Selector="ListBox">
 				<Setter Property="Margin" Value="0,5,0,10"/>
@@ -42,33 +44,34 @@
 			RowDefinitions="Auto,Auto">
 
 			<TextBlock
-				Text="Full Lucene query syntax is supported&#xa;Fields with similar names are synomyns (eg: Author, Authors, AuthorNames)" />
+				Text="Full Lucene query syntax is supported&#xa;Fields with similar names are synonyms (eg: Author, Authors, AuthorNames)" />
 
-			<TextBlock Grid.Row="1" Text="TAG FORMAT: [tagName]" />
+			<TextBlock Grid.Row="1" Text="Tag format: [tagName]" />
 		</Grid>
 
-		<Grid Grid.Row="1" RowDefinitions="Auto,Auto,*">
-			<TextBlock Text="STRING FIELDS" />
+		<Grid Grid.Row="1" RowDefinitions="Auto,Auto,Auto">
+			<TextBlock Text="String fields" />
 			<TextBlock Grid.Row="1" Text="{Binding StringUsage}" />
 			<ListBox Grid.Row="2" DoubleTapped="ListBox_DoubleTapped" ItemsSource="{Binding StringFields}"/>
 		</Grid>
 
-		<Grid Grid.Row="1" Grid.Column="1" RowDefinitions="Auto,Auto,*">
-			<TextBlock Text="NUMBER FIELDS" />
+		<Grid Grid.Row="1" Grid.Column="1" RowDefinitions="Auto,Auto,Auto">
+			<TextBlock Text="Number fields" />
 			<TextBlock Grid.Row="1" Text="{Binding NumberUsage}" />
 			<ListBox Grid.Row="2" DoubleTapped="ListBox_DoubleTapped" ItemsSource="{Binding NumberFields}"/>
 		</Grid>
 
-		<Grid Grid.Row="1" Grid.Column="2" RowDefinitions="Auto,Auto,*">
-			<TextBlock Text="BOOLEAN (TRUE/FALSE) FIELDS" />
+		<Grid Grid.Row="1" Grid.Column="2" RowDefinitions="Auto,Auto,Auto">
+			<TextBlock Text="Boolean (true/false) fields" />
 			<TextBlock Grid.Row="1" Text="{Binding BoolUsage}" />
 			<ListBox Grid.Row="2" DoubleTapped="ListBox_DoubleTapped" ItemsSource="{Binding BoolFields}"/>
 		</Grid>
 
-		<Grid Grid.Row="1" Grid.Column="3" RowDefinitions="Auto,Auto,*">
-			<TextBlock Text="ID FIELDS" />
+		<Grid Grid.Row="1" Grid.Column="3" RowDefinitions="Auto,Auto,Auto">
+			<TextBlock Text="ID fields" />
 			<TextBlock Grid.Row="1" Text="{Binding IdUsage}" />
 			<ListBox Grid.Row="2" DoubleTapped="ListBox_DoubleTapped" ItemsSource="{Binding IdFields}"/>
 		</Grid>		
 	</Grid>
+	</ScrollViewer>
 </Window>

@@ -131,13 +131,13 @@
 				</CheckBox>
 				<TextBlock
 					Margin="24,4,0,0"
-					Foreground="DarkRed"
+					Foreground="{DynamicResource ErrorForegroundBrush}"
 					IsVisible="{Binding PlaintextWarningVisible}"
 					Text="{Binding PlaintextWarningText}"
 					TextWrapping="Wrap" />
 				<TextBlock
 					Margin="24,4,0,0"
-					Foreground="DarkRed"
+					Foreground="{DynamicResource ErrorForegroundBrush}"
 					IsVisible="{Binding OsStoreUnavailableVisible}"
 					Text="{Binding OsStoreUnavailableMessage}"
 					TextWrapping="Wrap" />
@@ -147,13 +147,13 @@
 					HorizontalAlignment="Right"
 					Spacing="10">
 					<Button
-						Padding="20,0"
+						Padding="16,6"
 						Content="{Binding ExportButtonText}"
 						ToolTip.Tip="{Binding ExportButtonToolTip}"
 						IsEnabled="{Binding ExportButtonEnabled}"
 						Click="ExportMasterKey_Click" />
 					<Button
-						Padding="20,0"
+						Padding="16,6"
 						Content="{Binding ConvertButtonText}"
 						ToolTip.Tip="{Binding ConvertButtonToolTip}"
 						IsEnabled="{Binding ConvertButtonEnabled}"
@@ -180,7 +180,7 @@
 
 			<Button
 				Margin="50,0,0,0"
-				Padding="20,0"
+				Padding="16,6"
 				VerticalAlignment="Stretch"
 				Content="Open Log Folder"
 				Command="{Binding OpenLogFolderButton}" />
@@ -235,7 +235,7 @@
 					Grid.Row="1"
 					HorizontalAlignment="Right"
 					Margin="0,5"
-					Padding="20,0"
+					Padding="16,6"
 					VerticalAlignment="Stretch"
 					Content="Apply Display Settings"
 					Command="{Binding ApplyDisplaySettings}"/>
@@ -249,8 +249,7 @@
 			VerticalAlignment="Bottom">
 			<TextBlock
 				Grid.Column="0"
-				FontSize="16"
-				Margin="0,0,15,0"
+				Margin="0,0,16,0"
 				VerticalAlignment="Center"
 				Text="Theme:"/>
 
@@ -264,7 +263,7 @@
 			<Button
 				Grid.Column="2"
 				HorizontalAlignment="Right"
-				Padding="20,0"
+				Padding="16,6"
 				VerticalAlignment="Stretch"
 				Content="Edit Theme Colors"
 				Click="EditThemeColors_Click"/>

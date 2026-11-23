@@ -55,7 +55,7 @@
 			Grid.Row="1"
 			Grid.Column="1"
 			Margin="10,0"
-			Classes="SaveButton"
+			Classes="Primary"
 			VerticalAlignment="Stretch"
 			HorizontalAlignment="Right"
 			Content="Save"

@@ -98,7 +98,7 @@
 				<TextBlock
 					Grid.Row="2"
 					Margin="5"
-					Foreground="Firebrick"
+					Foreground="{DynamicResource ErrorForegroundBrush}"
 					Text="{Binding WarningText}"
 					IsVisible="{Binding WarningText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 			</Grid>
@@ -110,7 +110,7 @@
 			Command="{Binding GoToNamingTemplateWiki}" />
 		<Button
 			Grid.Row="2"
-				Classes="SaveButton"
+				Classes="Primary"
 			HorizontalAlignment="Right"
 			Content="Save"
 			Click="SaveButton_Click" />

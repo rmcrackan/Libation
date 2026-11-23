@@ -17,7 +17,7 @@
 	<Grid
 		ColumnDefinitions="*,Auto"
 		RowDefinitions="Auto,*,Auto"
-		Margin="10">
+		Margin="16">
 		<TextBlock
 			Grid.Row="0"
 			Grid.Column="0"
@@ -46,17 +46,26 @@
 		<Button
 			Grid.Row="2"
 			Grid.Column="0"
-			Padding="20,6"
-			Content="Edit Accounts"
+			Padding="16,6"
+			Content="Edit Accounts…"
 			Command="{Binding EditAccountsAsync}"/>
 		
-		<Button
+		<StackPanel
 			Grid.Row="2"
 			Grid.Column="1"
-			Classes="SaveButton"
-			HorizontalAlignment="Right"
-			Content="Import"
-			Name="ImportButton"
-			Command="{Binding SaveAndClose}"/>
+			Orientation="Horizontal"
+			Spacing="8">
+			<Button
+				Padding="16,6"
+				IsCancel="True"
+				Content="Cancel"
+				Command="{Binding CancelAndClose}"/>
+			<Button
+				Padding="16,6"
+				Classes="Primary"
+				Content="Scan"
+				Name="ImportButton"
+				Command="{Binding SaveAndClose}"/>
+		</StackPanel>
 	</Grid>
 </Window>

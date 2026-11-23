@@ -50,6 +50,9 @@ public partial class SettingsDialog : DialogWindow
 		await base.SaveAndCloseAsync();
 	}
 
+	public void CancelButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		=> CancelAndClose();
+
 	public async void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{
 		LongPath lonNewBooks = settingsDisp.ImportantSettings.GetBooksDirectory();

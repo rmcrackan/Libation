@@ -10,18 +10,28 @@
         xmlns:settings="clr-namespace:LibationAvalonia.Controls.Settings"
         xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
 		x:DataType="vm:SettingsVM"
-        Title="Edit Settings">
+        Title="Settings">
 
 	<Grid RowDefinitions="*,Auto">
 
-		<Button
+		<StackPanel
 			Grid.Row="1"
-			Margin="10"
+			Margin="16"
 			HorizontalAlignment="Right"
-			Classes="SaveButton"
-			Content="Save"
-			Name="saveBtn"
-			Click="SaveButton_Clicked" />
+			Orientation="Horizontal"
+			Spacing="8">
+			<Button
+				Padding="16,6"
+				IsCancel="True"
+				Content="Cancel"
+				Click="CancelButton_Clicked" />
+			<Button
+				Padding="16,6"
+				Classes="Primary"
+				Content="Save"
+				Name="saveBtn"
+				Click="SaveButton_Clicked" />
+		</StackPanel>
 
 		<TabControl Name="tabControl" Grid.Column="0">
 			<TabControl.Styles>
@@ -45,38 +55,38 @@
 
 			<TabItem>
 				<TabItem.Header>
-					<TextBlock Text="Important Settings"/>
+					<TextBlock Text="General"/>
 				</TabItem.Header>
 
-				<ScrollViewer VerticalScrollBarVisibility="Auto">
+				<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,16,0">
 					<settings:Important DataContext="{Binding ImportantSettings, Mode=OneTime}" />
 				</ScrollViewer>
 			</TabItem>
 			<TabItem>
 				<TabItem.Header>
-					<TextBlock Text="Import Library"/>
+					<TextBlock Text="Import"/>
 				</TabItem.Header>
 
-				<ScrollViewer VerticalScrollBarVisibility="Auto">
+				<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,16,0">
 					<settings:Import DataContext="{Binding ImportSettings, Mode=OneTime}" />
 				</ScrollViewer>
 			</TabItem>
 
 			<TabItem>
 				<TabItem.Header>
-					<TextBlock Text="Download/Decrypt"/>
+					<TextBlock Text="Downloads"/>
 				</TabItem.Header>
 				
-				<ScrollViewer VerticalScrollBarVisibility="Auto">
+				<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,16,0">
 					<settings:DownloadDecrypt DataContext="{Binding DownloadDecryptSettings, Mode=OneTime}" />
 				</ScrollViewer>
 			</TabItem>
 			
 			<TabItem>
 				<TabItem.Header>
-					<TextBlock Text="Audio File Settings"/>
+					<TextBlock Text="Audio"/>
 				</TabItem.Header>
-				<ScrollViewer VerticalScrollBarVisibility="Auto">
+				<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,16,0">
 					<settings:Audio DataContext="{Binding AudioSettings, Mode=OneTime}" />
 				</ScrollViewer>
 			</TabItem>
@@ -84,7 +94,7 @@
 				<TabItem.Header>
 					<TextBlock Text="Audiobookshelf"/>
 				</TabItem.Header>
-				<ScrollViewer VerticalScrollBarVisibility="Auto">
+				<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,16,0">
 					<settings:Audiobookshelf DataContext="{Binding AudiobookshelfSettings, Mode=OneTime}" />
 				</ScrollViewer>
 			</TabItem>

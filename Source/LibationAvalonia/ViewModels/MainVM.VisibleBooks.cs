@@ -36,6 +36,7 @@ partial class MainVM
 	{
 		_visibleCount = visibleCount;
 		this.RaisePropertyChanged(nameof(VisibleCountText));
+		this.RaisePropertyChanged(nameof(BookCountText));
 		this.RaisePropertyChanged(nameof(VisibleCountMenuItemText));
 		updateNoMatchesVisible();
 	}

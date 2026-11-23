@@ -6,7 +6,7 @@ namespace LibationUiBase.StatusIcons;
 /// </summary>
 /// <remarks>
 /// Path data is SVG path mini-language, and is filled using the even-odd rule so that nested
-/// subpaths (the stoplight's lamp bezels, the error ring, the series square's border) cut holes.
+/// subpaths (the stoplight's lamp bezels, the series square's border) cut holes.
 /// </remarks>
 internal static class LiberateIconGeometry
 {
@@ -45,10 +45,6 @@ internal static class LiberateIconGeometry
 	/// <summary>A vertical bar, unioned with <see cref="SeriesMinus"/> to turn the minus into a plus.</summary>
 	public const string SeriesPlusBar
 		= "M28,53 v-42 a 1,1 0 0 1 1,-1 h6 a 1,1 0 0 1 1,1 v42 a 1,1 0 0 1 -1,1 h-6 a 1,1 0 0 1 -1,-1";
-
-	/// <summary>A "no entry" sign. Natural size 64 x 64.</summary>
-	public const string BookError
-		= "M32,0 a 32,32 0 0 1 0,64 a 32,32 0 0 1 0,-64 m 0,4 a 28,28 0 0 1 0,56 a 28,28 0 0 1 0,-56 m-21,24 h42 a 1,1 0 0 1 1,1 v6 a 1,1 0 0 1 -1,1 h-42 a 1,1 0 0 1 -1,-1 v-6 a 1,1 0 0 1 1,-1";
 
 	#region Layout, in the same units as the artwork above
 

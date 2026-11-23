@@ -128,6 +128,9 @@
 	c0.076-0.164,69.684-155.714,76.225-170.333H967.85z
 	   </StreamGeometry>
 	   
+		<StreamGeometry x:Key="EmptyLibraryIcon">M4,5 A2,2 0 0 1 6,3 H18 V19 H6 A2,2 0 0 0 4,21 Z M4,21 V5 M9,7 H15</StreamGeometry>
+		<StreamGeometry x:Key="NoMatchesIcon">M18,11 A7,7 0 1 1 4,11 A7,7 0 1 1 18,11 Z M20,20 L16,16</StreamGeometry>
+		<StreamGeometry x:Key="EmptyQueueIcon">M12,4 V15 M7,11 L12,16 L17,11 M5,20 H19</StreamGeometry>
    </ResourceDictionary>
   </Styles.Resources>
 </Styles>

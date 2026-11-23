@@ -122,7 +122,7 @@
 				<controls:DataGridTemplateColumnExt Header="Cover" CanUserResize="False" CanUserSort="False" SortMemberPath="Cover">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
-							<Image Opacity="{Binding Liberate.Opacity}" Tapped="Cover_Click" Source="{Binding Cover}" ToolTip.Tip="Click to see full size" />
+							<Image Tag="NoRowDoubleTap" Opacity="{Binding Liberate.Opacity}" Tapped="Cover_Click" Source="{Binding Cover}" ToolTip.Tip="Click to see full size" />
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 					<controls:DataGridTemplateColumnExt.ClipboardContentBinding>
@@ -211,7 +211,7 @@
 				<controls:DataGridTemplateColumnExt Header="Description" MinWidth="10" Width="{Binding DescriptionWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Description">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
-							<Panel Opacity="{Binding Liberate.Opacity}" Tapped="Description_Click" ToolTip.Tip="Click to see full description" >
+							<Panel Tag="NoRowDoubleTap" Opacity="{Binding Liberate.Opacity}" Tapped="Description_Click" ToolTip.Tip="Click to see full description" >
 								<TextBlock Text="{Binding Description}" VerticalAlignment="Top" />
 							</Panel>
 						</DataTemplate>

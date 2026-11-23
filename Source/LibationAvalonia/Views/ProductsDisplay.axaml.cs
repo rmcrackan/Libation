@@ -38,6 +38,15 @@ public partial class ProductsDisplay : UserControl
 	public static readonly StyledProperty<bool> DisableColumnCustomizationProperty =
 	AvaloniaProperty.Register<Controls.GroupBox, bool>(nameof(DisableColumnCustomization));
 
+	public static readonly StyledProperty<bool> HideLiberateColumnProperty =
+	AvaloniaProperty.Register<ProductsDisplay, bool>(nameof(HideLiberateColumn));
+
+	public bool HideLiberateColumn
+	{
+		get { return GetValue(HideLiberateColumnProperty); }
+		set { SetValue(HideLiberateColumnProperty, value); }
+	}
+
 	public bool DisableContextMenu
 	{
 		get { return GetValue(DisableContextMenuProperty); }
@@ -73,6 +82,7 @@ public partial class ProductsDisplay : UserControl
 		fontSizeH2Style = new Style(_ => tboxH2Selector);
 		fontSizeH2Style.Setters.Add(fontSizeH2Setter);
 
+		productsGrid.DoubleTapped += ProductsGrid_DoubleTapped;
 		Configuration.Instance.PropertyChanged += Configuration_GridScaleChanged;
 		Configuration.Instance.PropertyChanged += Configuration_FontChanged;
 
@@ -159,6 +169,8 @@ public partial class ProductsDisplay : UserControl
 	{
 		if (change.Property == DisableColumnCustomizationProperty)
 			ApplyDisableColumnCustimaziton();
+		else if (change.Property == HideLiberateColumnProperty)
+			ApplyHideLiberateColumn();
 		base.OnPropertyChanged(change);
 	}
 
@@ -168,6 +180,28 @@ public partial class ProductsDisplay : UserControl
 			e.Row.DynamicResource(DataGridRow.BackgroundProperty, "SeriesEntryGridBackgroundBrush");
 		else
 			e.Row.DynamicResource(DataGridRow.BackgroundProperty, "SystemRegionColor");
+
+		var unavailable = e.Row.DataContext is GridEntry { Liberate.IsUnavailable: true };
+		e.Row.Opacity = unavailable ? 0.5 : 1;
+		ToolTip.SetTip(e.Row, unavailable ? "No longer available from Audible" : null);
+	}
+
+	private void ProductsGrid_DoubleTapped(object? sender, TappedEventArgs e)
+	{
+		if (e.Handled || e.Source is not Visual source || source.FindAncestorOfType<DataGridRow>() is not { DataContext: LibraryBookEntry entry })
+			return;
+
+		//Controls with their own click, double-click or edit behavior keep it.
+		for (Visual? v = source; v is not null && v is not DataGridRow; v = v.GetVisualParent())
+		{
+			if (v is Button or TextBox or CheckBox or MyRatingCellEditor or Avalonia.Controls.Primitives.DataGridRowHeader
+				|| (v is DataGridCell { Tag: DataGridMyRatingColumn })
+				|| (v is Control { Tag: "NoRowDoubleTap" }))
+				return;
+		}
+
+		TagsButtonClicked?.Invoke(this, entry.LibraryBook);
+		e.Handled = true;
 	}
 
 	private void RemoveColumn_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
@@ -209,7 +243,7 @@ public partial class ProductsDisplay : UserControl
 
 	private void setFontScale(double scaleFactor)
 	{
-		const double TextBlockFontSize = 11;
+		const double TextBlockFontSize = 12;
 		const double H1FontSize = 14;
 		const double H2FontSize = 12;
 
@@ -265,6 +299,16 @@ public partial class ProductsDisplay : UserControl
 
 		var entries = args.RowItems;
 		var ctx = new GridContextMenu(entries, '_');
+
+		if (entries.Length == 1 && entries[0] is LibraryBookEntry detailsEntry)
+		{
+			args.ContextMenuItems.Add(new MenuItem
+			{
+				Header = ctx.BookDetailsText,
+				Command = ReactiveCommand.Create(() => TagsButtonClicked?.Invoke(this, detailsEntry.LibraryBook))
+			});
+			args.ContextMenuItems.Add(new Separator());
+		}
 
 		if (App.MainWindow?.Clipboard is IClipboard clipboard)
 		{
@@ -382,15 +426,6 @@ public partial class ProductsDisplay : UserControl
 		}
 
 		#endregion
-		#region Remove from library
-
-		args.ContextMenuItems.Add(new MenuItem
-		{
-			Header = ctx.RemoveText,
-			Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.RemoveAsync, "Could not remove books from the library."))
-		});
-
-		#endregion
 		#region Download audiobook(s)
 		var selectedBookCount = entries.OfType<LibraryBookEntry>().Count();
 		if (selectedBookCount >= 1)
@@ -469,8 +504,22 @@ public partial class ProductsDisplay : UserControl
 
 		#endregion
 
+		void addRemoveFromLibrary()
+		{
+			if (args.ContextMenuItems.LastOrDefault() is not Separator)
+				args.ContextMenuItems.Add(new Separator());
+			args.ContextMenuItems.Add(new MenuItem
+			{
+				Header = ctx.RemoveText,
+				Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.RemoveAsync, "Could not remove books from the library."))
+			});
+		}
+
 		if (entries.Length > 1)
+		{
+			addRemoveFromLibrary();
 			return;
+		}
 
 		args.ContextMenuItems.Add(new Separator());
 
@@ -539,6 +588,8 @@ public partial class ProductsDisplay : UserControl
 		}
 
 		#endregion
+
+		addRemoveFromLibrary();
 	}
 
 	#endregion
@@ -578,6 +629,13 @@ public partial class ProductsDisplay : UserControl
 
 			column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, productsGrid.Columns.IndexOf(column));
 		}
+	}
+
+	private void ApplyHideLiberateColumn()
+	{
+		var column = productsGrid.Columns.FirstOrDefault(c => c.SortMemberPath == nameof(GridEntry.Liberate));
+		if (column is not null)
+			column.IsVisible = !HideLiberateColumn && Configuration.Instance.GetColumnVisibility(nameof(GridEntry.Liberate));
 	}
 
 	private void ApplyDisableColumnCustimaziton()
@@ -669,7 +727,10 @@ public partial class ProductsDisplay : UserControl
 	public void Version_DoubleClick(object sender, Avalonia.Input.TappedEventArgs args)
 	{
 		if (sender is Control panel && panel.DataContext is LibraryBookEntry lbe && lbe.LastDownload?.IsValid is true)
+		{
 			lbe.LastDownload.OpenReleaseUrl();
+			args.Handled = true;
+		}
 	}
 
 	public async void Cover_Click(object sender, Avalonia.Input.TappedEventArgs args)
