@@ -17,7 +17,7 @@
 	<Grid RowDefinitions="*,Auto" Margin="12,0,12,10">
 		<Panel Grid.Row="0">
 			<Grid Name="queuePage" ColumnDefinitions="*" RowDefinitions="*,Auto">
-					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemRegionColor}">
+					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource BorderSubtleBrush}" Background="{DynamicResource SystemRegionColor}">
 						<ScrollViewer
 							Name="scroller"
 							HorizontalScrollBarVisibility="Disabled"
@@ -129,7 +129,7 @@
 					</Grid>
 			</Grid>
 			<Grid Name="logPage" ColumnDefinitions="*" RowDefinitions="*,40">
-					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemRegionColor}">
+					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource BorderSubtleBrush}" Background="{DynamicResource SystemRegionColor}">
 						<DataGrid AutoGenerateColumns="False" ItemsSource="{Binding LogEntries}">
 							<DataGrid.Columns>
 								<DataGridTextColumn SortMemberPath="LogDate" Header="Timestamp" CanUserSort="True" Binding="{Binding LogDateString}" Width="90"/>

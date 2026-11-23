@@ -41,6 +41,7 @@ public abstract class GridEntry : ReactiveObject
 	public LastDownloadStatus? LastDownload { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
 	public object? Cover { get => _lazyCover?.Value; }
 	public string? Series { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+	public string SeriesGroup => SeriesBrowseKey.GroupName(Book);
 	public SeriesOrder? SeriesOrder { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
 	public string? Title { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
 	public string? Authors { get => field; private set => RaiseAndSetIfChanged(ref field, value); }

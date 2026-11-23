@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
@@ -121,7 +122,7 @@ public partial class ProductsDisplay : UserControl
 
 		productsGrid.TemplateApplied += ProductsGrid_TemplateApplied;
 		productsGrid.LayoutUpdated += (_, _) => UpdateFrozenEdge();
-		productsGrid.Sorting += (_, _) => seriesScopeSortActive = false;
+		productsGrid.Sorting += ProductsGrid_Sorting;
 		SeriesColumn?.PropertyChanged += SeriesColumn_PropertyChanged;
 		UpdateSeriesColumnClass();
 
@@ -174,6 +175,7 @@ public partial class ProductsDisplay : UserControl
 	#region Series scope sort, frozen column edge
 
 	private bool seriesScopeSortActive;
+	private bool scopeSortPending;
 	private ProductsDisplayViewModel? subscribedViewModel;
 	private ScrollBar? hScrollBar;
 
@@ -202,17 +204,56 @@ public partial class ProductsDisplay : UserControl
 		{
 			comparer.PropertyName = SeriesBrowseKey.MemberName;
 			comparer.FallbackDirection = ListSortDirection.Ascending;
+			scopeSortPending = true;
 			column.Sort(ListSortDirection.Ascending);
+			SetSeriesGrouping(true);
 			seriesScopeSortActive = true;
 		}
 		else
 		{
 			comparer.PropertyName = column.SortMemberPath;
 			comparer.FallbackDirection = ListSortDirection.Descending;
+			SetSeriesGrouping(false);
+			scopeSortPending = false;
 			if (seriesScopeSortActive)
 				column.ClearSort();
 			seriesScopeSortActive = false;
 		}
+	}
+
+	private void ProductsGrid_Sorting(object? sender, DataGridColumnEventArgs e)
+	{
+		// column.Sort raises Sorting on a later dispatcher pass.
+		if (scopeSortPending)
+		{
+			scopeSortPending = false;
+			return;
+		}
+		seriesScopeSortActive = false;
+		SetSeriesGrouping(false);
+	}
+
+	private void SetSeriesGrouping(bool on)
+	{
+		if (_viewModel?.GridEntries is not { } view)
+			return;
+
+		var existing = view.GroupDescriptions.OfType<DataGridPathGroupDescription>().Where(g => g.PropertyName == nameof(GridEntry.SeriesGroup)).ToList();
+		if (on && existing.Count == 0)
+		{
+			view.GroupDescriptions.Add(new DataGridPathGroupDescription(nameof(GridEntry.SeriesGroup)));
+			// Zeroes the row-group spacer column; the grid only reads a header's indent when it changes.
+			Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+			{
+				if (productsGrid.GetVisualDescendants().OfType<DataGridRowGroupHeader>().FirstOrDefault() is { } h)
+				{
+					h.SublevelIndent = 1;
+					h.SublevelIndent = 0;
+				}
+			}, Avalonia.Threading.DispatcherPriority.Background);
+		}
+		else if (!on)
+			existing.ForEach(g => view.GroupDescriptions.Remove(g));
 	}
 
 	private void SeriesColumn_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
@@ -715,7 +756,7 @@ public partial class ProductsDisplay : UserControl
 			var column = productsGrid.Columns
 				.Single(c => c.SortMemberPath == itemName);
 
-			column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, productsGrid.Columns.IndexOf(column));
+			column.DisplayIndex = Math.Clamp(displayIndices.GetValueOrDefault(itemName, productsGrid.Columns.IndexOf(column)), 0, productsGrid.Columns.Count - 1);
 		}
 
 		//FrozenColumnCount covers display indices 0-3
@@ -784,7 +825,8 @@ public partial class ProductsDisplay : UserControl
 
 	private void ProductsGrid_ColumnDisplayIndexChanged(object? sender, DataGridColumnEventArgs e)
 	{
-		if (DisableColumnCustomization) return;
+		// Grouping inserts a spacer column at index 0 and shifts the rest.
+		if (DisableColumnCustomization || _viewModel?.GridEntries?.GroupDescriptions.Count > 0) return;
 		var config = Configuration.Instance;
 
 		var dictionary = config.GridColumnsDisplayIndices;
