@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
+using ApplicationServices;
 using DataLayer;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
@@ -26,7 +27,6 @@ public partial class BookInspector : UserControl
 
 	public event EventHandler? EditSelectionTagsClicked;
 	public event LiberateClickedHandler? LiberateClicked;
-	public event EventHandler<LibraryBook>? DetailsClicked;
 
 	private readonly BookInspectorViewModel viewModel = new();
 
@@ -46,6 +46,7 @@ public partial class BookInspector : UserControl
 	}
 
 	public void ExpandDescription() => viewModel.ExpandDescription();
+	public void FocusTagInput() => tagEditor.InputTextBox.Focus();
 
 	private void RenderDescription()
 	{
@@ -90,10 +91,24 @@ public partial class BookInspector : UserControl
 
 	private void ToggleDescription_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => viewModel.ToggleDescription();
 
-	private void Details_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+	private async void BookStatus_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+		=> await ApplyStatusAsync(sender, pdf: false);
+	private async void PdfStatus_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+		=> await ApplyStatusAsync(sender, pdf: true);
+
+	private async Task ApplyStatusAsync(object? sender, bool pdf)
 	{
-		if (Entry is LibraryBookEntry entry)
-			DetailsClicked?.Invoke(this, entry.LibraryBook);
+		if (viewModel.IsRefreshing || viewModel.CurrentBook is not { } book
+			|| (sender as ComboBox)?.SelectedItem is not StatusOption option)
+			return;
+
+		var current = pdf ? book.Book.UserDefinedItem.PdfStatus : book.Book.UserDefinedItem.BookStatus;
+		if (current == option.Status)
+			return;
+
+		await LibraryOperation.RunAsync(
+			() => pdf ? book.UpdatePdfStatusAsync(option.Status) : book.UpdateBookStatusAsync(option.Status),
+			ex => MessageBox.ShowAdminAlert(this.GetParentWindow(), "Could not update download status.", "Library operation failed", ex));
 	}
 
 	private void BulkLiberate_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

@@ -31,6 +31,7 @@ public partial class ProductsDisplay : UserControl
 	public event EventHandler<LibraryBook[]>? ConvertToMp3Clicked;
 	public event EventHandler<LibraryBook>? TagsButtonClicked;
 	public event EventHandler<GridEntry>? DescriptionClicked;
+	public event EventHandler<LibraryBook>? DetailsClicked;
 
 
 	public static readonly StyledProperty<bool> DisableContextMenuProperty =
@@ -202,7 +203,7 @@ public partial class ProductsDisplay : UserControl
 				return;
 		}
 
-		TagsButtonClicked?.Invoke(this, entry.LibraryBook);
+		DetailsClicked?.Invoke(this, entry.LibraryBook);
 		e.Handled = true;
 	}
 
@@ -307,7 +308,7 @@ public partial class ProductsDisplay : UserControl
 			args.ContextMenuItems.Add(new MenuItem
 			{
 				Header = ctx.BookDetailsText,
-				Command = ReactiveCommand.Create(() => TagsButtonClicked?.Invoke(this, detailsEntry.LibraryBook))
+				Command = ReactiveCommand.Create(() => DetailsClicked?.Invoke(this, detailsEntry.LibraryBook))
 			});
 			args.ContextMenuItems.Add(new Separator());
 		}
@@ -790,6 +791,12 @@ public partial class ProductsDisplay : UserControl
 			imageDisplayDialog.Activate();
 		else
 			imageDisplayDialog.Show();
+	}
+
+	public void SelectEntry(GridEntry entry)
+	{
+		productsGrid.SelectedItem = entry;
+		productsGrid.ScrollIntoView(entry, null);
 	}
 
 	public void Description_Click(object sender, Avalonia.Input.TappedEventArgs args)

@@ -329,6 +329,7 @@
 					DataContext="{Binding ProductsDisplay, Mode=OneTime}"
 					LiberateClicked="ProductsDisplay_LiberateClicked"
 					TagsButtonClicked="ProductsDisplay_TagsButtonClicked"
+					DetailsClicked="ProductsDisplay_DetailsClicked"
 					DescriptionClicked="ProductsDisplay_DescriptionClicked"
 					LiberateSeriesClicked="ProductsDisplay_LiberateSeriesClicked"
 					ConvertToMp3Clicked="ProductsDisplay_ConvertToMp3Clicked" />
@@ -536,8 +537,7 @@
 							EmptyText="{Binding InspectorEmptyText}"
 							Selection="{Binding SelectedEntries}"
 							EditSelectionTagsClicked="BookInspector_EditSelectionTagsClicked"
-							LiberateClicked="ProductsDisplay_LiberateClicked"
-							DetailsClicked="ProductsDisplay_TagsButtonClicked" />
+							LiberateClicked="ProductsDisplay_LiberateClicked" />
 						<Panel IsVisible="{Binding QueueOpen}">
 							<views:ProcessQueueControl
 								DataContext="{Binding ProcessQueue, Mode=OneTime}"

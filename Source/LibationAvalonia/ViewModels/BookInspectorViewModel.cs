@@ -12,9 +12,17 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using static LibationAvalonia.Dialogs.BookDetailsDialog;
 
 namespace LibationAvalonia.ViewModels;
+
+public record DetailItem(string Label, string Value, bool IsMono = false);
+
+public class StatusOption(LiberatedStatus status, string text)
+{
+	public LiberatedStatus Status { get; } = status;
+	public string Text { get; } = text;
+	public override string ToString() => Text;
+}
 
 public class BookInspectorViewModel : ViewModelBase
 {
@@ -72,6 +80,17 @@ public class BookInspectorViewModel : ViewModelBase
 	public int DescriptionMaxLines => DescriptionExpanded ? 0 : 6;
 	public void ToggleDescription() => DescriptionExpanded = !DescriptionExpanded;
 	public void ExpandDescription() => DescriptionExpanded = true;
+	public bool IsRefreshing => refreshing;
+	public string Subtitle { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); this.RaisePropertyChanged(nameof(HasSubtitle)); } } = "";
+	public bool HasSubtitle => Subtitle.Length > 0;
+	public string FilePath { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); this.RaisePropertyChanged(nameof(HasFilePath)); } } = "";
+	public string ShortFilePath { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "";
+	public bool HasFilePath => FilePath.Length > 0;
+	public IReadOnlyList<StatusOption> BookStatusItems { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = [];
+	public StatusOption? BookStatusSelected { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
+	public IReadOnlyList<StatusOption> PdfStatusItems { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = [];
+	public StatusOption? PdfStatusSelected { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
+	public bool HasPdf { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	public IReadOnlyList<DetailItem> Details { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = [];
 
 	public string? Tags
@@ -176,6 +195,7 @@ public class BookInspectorViewModel : ViewModelBase
 			DescriptionParagraphs = DescriptionMarkup.Parse(book.Description);
 			TitleText = entry.Title ?? book.Title;
 			Cover ??= entry.Cover as IImage;
+			Subtitle = string.IsNullOrWhiteSpace(book.Subtitle) ? "" : book.Subtitle.Trim();
 			Byline = string.IsNullOrWhiteSpace(entry.Narrators) ? entry.Authors ?? "" : $"{entry.Authors} · narrated by {entry.Narrators}";
 
 			var locale = AudibleApi.Localization.Get(book.Locale);
@@ -185,11 +205,25 @@ public class BookInspectorViewModel : ViewModelBase
 				if (!string.IsNullOrWhiteSpace(value))
 					details.Add(new(label, value.Trim()));
 			}
+			var lb = (entry as LibraryBookEntry)?.LibraryBook;
+			var firstSeries = book.SeriesLink.FirstOrDefault(s => !string.IsNullOrWhiteSpace(s.Series.Name));
+			var series = firstSeries is null || lb is null ? entry.Series
+				: string.IsNullOrWhiteSpace(firstSeries.Order) ? firstSeries.Series.Name : $"{firstSeries.Series.Name} \u00B7 Book {firstSeries.Order}";
+
 			Add("Length", entry.Length);
+			Add("Released", book.DatePublished?.ToString("d"));
 			Add("Purchased", entry.PurchaseDate);
-			Add("Account", string.IsNullOrWhiteSpace(entry.Account) ? null : $"{entry.Account} ({locale.Name})");
-			Add("Series", entry.Series);
+			Add("Series", series);
 			Add("Category", entry.Category);
+			if (lb is not null)
+			{
+				Add("Language", book.Language);
+				Add("Book rating", StarLine(book.Rating));
+				Add("My rating", StarLine(book.UserDefinedItem.Rating));
+			}
+			Add("Account", string.IsNullOrWhiteSpace(entry.Account) ? null : $"{entry.Account} ({locale.Name})");
+			if (lb is not null)
+				details.Add(new("Audible ID", book.AudibleProductId, true));
 			Details = details;
 
 			if (entry is not LibraryBookEntry)
@@ -197,6 +231,10 @@ public class BookInspectorViewModel : ViewModelBase
 				StatusText = "";
 				PrimaryVisible = ShowFileVisible = false;
 				StatusIsSuccess = StatusIsWarning = StatusIsError = false;
+				FilePath = ShortFilePath = "";
+				BookStatusItems = PdfStatusItems = [];
+				BookStatusSelected = PdfStatusSelected = null;
+				HasPdf = false;
 				return;
 			}
 
@@ -220,6 +258,22 @@ public class BookInspectorViewModel : ViewModelBase
 				_ => "Liberate"
 			};
 
+			FilePath = AudioPath() ?? "";
+			ShortFilePath = FilePath.Length <= 64 ? FilePath : "\u2026" + FilePath[^64..];
+
+			var stored = book.UserDefinedItem.BookStatus;
+			List<StatusOption> bookItems = [new(LiberatedStatus.Liberated, "Downloaded"), new(LiberatedStatus.NotLiberated, "Download Pending")];
+			if (stored == LiberatedStatus.Error)
+				bookItems.Add(new(LiberatedStatus.Error, "Error"));
+			BookStatusItems = bookItems;
+			BookStatusSelected = bookItems.SingleOrDefault(i => i.Status == stored);
+
+			var storedPdf = book.UserDefinedItem.PdfStatus;
+			HasPdf = storedPdf is not null;
+			List<StatusOption> pdfItems = storedPdf is null ? [] : [new(LiberatedStatus.Liberated, "Downloaded"), new(LiberatedStatus.NotLiberated, "Download Pending")];
+			PdfStatusItems = pdfItems;
+			PdfStatusSelected = pdfItems.SingleOrDefault(i => i.Status == storedPdf);
+
 			if (pendingTagBook is null)
 				Tags = book.UserDefinedItem.Tags;
 		}
@@ -228,6 +282,13 @@ public class BookInspectorViewModel : ViewModelBase
 			refreshing = false;
 		}
 	}
+
+	private static string? StarLine(Rating? rating)
+		=> rating?.ToStarString()?.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries) is { Length: > 0 } lines
+			? string.Join("   ", lines.Select(l => l.Trim()))
+			: null;
+
+	public LibraryBook? CurrentBook => (entry as LibraryBookEntry)?.LibraryBook;
 
 	private string? AudioPath()
 	{

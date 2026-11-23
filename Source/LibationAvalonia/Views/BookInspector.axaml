@@ -3,8 +3,7 @@
              xmlns:controls="clr-namespace:LibationAvalonia.Controls"
              xmlns:views="clr-namespace:LibationAvalonia.Views"
              xmlns:vm="clr-namespace:LibationAvalonia.ViewModels"
-             xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
-             x:Class="LibationAvalonia.Views.BookInspector">
+                          x:Class="LibationAvalonia.Views.BookInspector">
 
 	<UserControl.Styles>
 		<Style Selector="Border.Pill">
@@ -35,6 +34,9 @@
 		</Style>
 		<Style Selector="Border.Pill.Error > TextBlock">
 			<Setter Property="Foreground" Value="{DynamicResource ErrorForegroundBrush}" />
+		</Style>
+		<Style Selector="SelectableTextBlock.Mono">
+			<Setter Property="FontFamily" Value="Cascadia Mono,Menlo,Consolas,DejaVu Sans Mono,monospace" />
 		</Style>
 	</UserControl.Styles>
 
@@ -80,6 +82,12 @@
 				</Border>
 
 				<SelectableTextBlock Text="{Binding TitleText}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+				<SelectableTextBlock
+					Text="{Binding Subtitle}"
+					IsVisible="{Binding HasSubtitle}"
+					FontSize="14"
+					TextWrapping="Wrap"
+					Foreground="{DynamicResource SecondaryForegroundBrush}" />
 				<TextBlock
 					Text="{Binding Byline}"
 					IsVisible="{Binding Byline, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
@@ -96,11 +104,19 @@
 					<TextBlock Text="{Binding StatusText}" />
 				</Border>
 
-				<StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding HasBook}">
+				<WrapPanel Orientation="Horizontal" ItemSpacing="8" LineSpacing="8" IsVisible="{Binding HasBook}">
 					<Button Classes="Primary" Click="Primary_Click" IsVisible="{Binding PrimaryVisible}" Content="{Binding PrimaryText}" />
 					<Button Click="ShowFile_Click" IsVisible="{Binding ShowFileVisible}" Content="{Binding ShowFileText}" />
-					<Button Classes="Ghost" Click="Details_Click" Content="Book details…" />
-				</StackPanel>
+				</WrapPanel>
+
+				<SelectableTextBlock
+					Text="{Binding ShortFilePath}"
+					IsVisible="{Binding HasFilePath}"
+					ToolTip.Tip="{Binding FilePath}"
+					Classes="Mono"
+					FontSize="12"
+					TextWrapping="Wrap"
+					Foreground="{DynamicResource SecondaryForegroundBrush}" />
 
 				<StackPanel Spacing="4" IsVisible="{Binding HasDescription}">
 					<TextBlock Text="Description" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" />
@@ -116,10 +132,10 @@
 
 				<ItemsControl ItemsSource="{Binding Details}">
 					<ItemsControl.ItemTemplate>
-						<DataTemplate x:DataType="dialogs:BookDetailsDialog+DetailItem">
+						<DataTemplate x:DataType="vm:DetailItem">
 							<Grid ColumnDefinitions="88,*" Margin="0,0,0,6">
 								<TextBlock Text="{Binding Label}" FontSize="14" Foreground="{DynamicResource SecondaryForegroundBrush}" />
-								<SelectableTextBlock Grid.Column="1" Text="{Binding Value}" FontSize="14" TextWrapping="Wrap" />
+								<SelectableTextBlock Grid.Column="1" Text="{Binding Value}" Classes.Mono="{Binding IsMono}" FontSize="14" TextWrapping="Wrap" />
 							</Grid>
 						</DataTemplate>
 					</ItemsControl.ItemTemplate>
@@ -128,6 +144,47 @@
 				<StackPanel Spacing="4" IsVisible="{Binding HasBook}">
 					<TextBlock Text="Tags" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" />
 					<controls:TagChipEditor Name="tagEditor" Tags="{Binding Tags, Mode=TwoWay}" />
+				</StackPanel>
+
+				<StackPanel Spacing="8" IsVisible="{Binding HasBook}" ToolTip.Tip="Whether the book and PDF have been downloaded">
+					<TextBlock Text="Download status" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+					<Grid ColumnDefinitions="72,*" RowDefinitions="Auto,Auto" RowSpacing="8">
+						<TextBlock Text="Audiobook" FontSize="14" VerticalAlignment="Center" />
+						<controls:WheelComboBox
+							Name="bookStatusCombo"
+							Grid.Column="1"
+							HorizontalAlignment="Stretch"
+							ItemsSource="{Binding BookStatusItems}"
+							SelectedItem="{Binding BookStatusSelected, Mode=OneWay}"
+							SelectionChanged="BookStatus_SelectionChanged">
+							<ComboBox.ItemTemplate>
+								<DataTemplate x:DataType="vm:StatusOption">
+									<TextBlock FontSize="14" Text="{Binding Text}" />
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</controls:WheelComboBox>
+						<TextBlock Grid.Row="1" Text="PDF" FontSize="14" VerticalAlignment="Center" IsVisible="{Binding HasPdf}" />
+						<controls:WheelComboBox
+							Name="pdfStatusCombo"
+							Grid.Row="1"
+							Grid.Column="1"
+							HorizontalAlignment="Stretch"
+							IsVisible="{Binding HasPdf}"
+							ItemsSource="{Binding PdfStatusItems}"
+							SelectedItem="{Binding PdfStatusSelected, Mode=OneWay}"
+							SelectionChanged="PdfStatus_SelectionChanged">
+							<ComboBox.ItemTemplate>
+								<DataTemplate x:DataType="vm:StatusOption">
+									<TextBlock FontSize="14" Text="{Binding Text}" />
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</controls:WheelComboBox>
+					</Grid>
+					<TextBlock
+						FontSize="12"
+						TextWrapping="Wrap"
+						Foreground="{DynamicResource SecondaryForegroundBrush}"
+						Text="Change this only if the files were moved or deleted outside Libation." />
 				</StackPanel>
 
 				<Button Classes="Ghost" Padding="0,2" HorizontalAlignment="Left" IsVisible="{Binding HasBook}" Click="Audible_Click" Content="View on Audible" />

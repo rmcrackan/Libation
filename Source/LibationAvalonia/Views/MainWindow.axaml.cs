@@ -263,19 +263,27 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 		Dispatcher.UIThread.Post(bookInspector.ExpandDescription, DispatcherPriority.Background);
 	}
 
-	BookDetailsDialog? bookDetailsForm;
 	private async void BookInspector_EditSelectionTagsClicked(object? sender, EventArgs e)
 		=> await (ViewModel?.ReplaceSelectionTagsAsync() ?? Task.CompletedTask);
 
-	public void ProductsDisplay_TagsButtonClicked(object _, LibraryBook libraryBook)
+	public void ProductsDisplay_DetailsClicked(object? _, LibraryBook libraryBook) => ShowInInspector(libraryBook);
+
+	public void ProductsDisplay_TagsButtonClicked(object? _, LibraryBook libraryBook)
 	{
-		if (bookDetailsForm is null || !bookDetailsForm.IsVisible)
-		{
-			bookDetailsForm = new BookDetailsDialog(libraryBook);
-			bookDetailsForm.Show(this);
-		}
-		else
-			bookDetailsForm.LibraryBook = libraryBook;
+		ShowInInspector(libraryBook);
+		// After the selection has reached the inspector, which rebuilds on a new entry.
+		Dispatcher.UIThread.Post(bookInspector.FocusTagInput, DispatcherPriority.Background);
+	}
+
+	private void ShowInInspector(LibraryBook libraryBook)
+	{
+		if (ViewModel is null)
+			return;
+		if (ViewModel.SelectedEntry?.AudibleProductId != libraryBook.Book.AudibleProductId
+			&& ViewModel.ProductsDisplay.GetVisibleGridEntries().FirstOrDefault(e => e.AudibleProductId == libraryBook.Book.AudibleProductId) is { } entry)
+			productsDisplay.SelectEntry(entry);
+		ViewModel.InspectorOpen = true;
+		ViewModel.ShowDetailsTab();
 	}
 
 	public async void filterSearchTb_KeyPress(object _, KeyEventArgs e)
