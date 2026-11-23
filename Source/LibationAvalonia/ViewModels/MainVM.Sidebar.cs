@@ -55,6 +55,18 @@ partial class MainVM
 		}
 	}
 
+	public const double SidebarMinWidth = 180, SidebarMaxWidth = 400, InspectorMinWidth = 280, InspectorMaxWidth = 640, GridMinWidth = 400;
+
+	public double SidebarWidth { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = 220;
+	public double InspectorWidth { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = 340;
+	public bool IsResizingPanel { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+
+	public void SavePanelWidths()
+	{
+		Configuration.Instance.SetNonString(Math.Round(SidebarWidth), nameof(SidebarWidth));
+		Configuration.Instance.SetNonString(Math.Round(InspectorWidth), nameof(InspectorWidth));
+	}
+
 	public int SelectedCount => ProductsDisplay.SelectedEntries.Count;
 	public bool SelectedCountVisible => SelectedCount > 0;
 	public string SelectedCountText => $"· {SelectedCount} selected";
@@ -68,6 +80,8 @@ partial class MainVM
 	{
 		InspectorOpen = Configuration.Instance.GetNonString(defaultValue: true, nameof(InspectorOpen));
 		SidebarOpen = Configuration.Instance.GetNonString(defaultValue: true, nameof(SidebarOpen));
+		SidebarWidth = Math.Clamp(Configuration.Instance.GetNonString(defaultValue: 220d, nameof(SidebarWidth)), SidebarMinWidth, SidebarMaxWidth);
+		InspectorWidth = Math.Clamp(Configuration.Instance.GetNonString(defaultValue: 340d, nameof(InspectorWidth)), InspectorMinWidth, InspectorMaxWidth);
 
 		SidebarItem scope(LibraryScope s, string label)
 			=> scopeItems[s] = new(label, () => SelectScopeAsync(s)) { IsSelected = s is LibraryScope.All };

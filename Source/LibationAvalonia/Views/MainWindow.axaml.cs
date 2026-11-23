@@ -221,6 +221,34 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 		await vm.BindToGridTask;
 	}
 
+	private void PanelGrip_DragStarted(object? sender, Avalonia.Input.VectorEventArgs e)
+	{
+		if (ViewModel is not null) ViewModel.IsResizingPanel = true;
+	}
+
+	private void PanelGrip_DragCompleted(object? sender, Avalonia.Input.VectorEventArgs e)
+	{
+		if (ViewModel is null) return;
+		ViewModel.IsResizingPanel = false;
+		ViewModel.SavePanelWidths();
+	}
+
+	private void SidebarGrip_DragDelta(object? sender, Avalonia.Input.VectorEventArgs e)
+	{
+		if (ViewModel is not MainVM vm) return;
+		var other = vm.InspectorOpen ? vm.InspectorWidth : 0;
+		var max = Math.Min(MainVM.SidebarMaxWidth, Bounds.Width - other - MainVM.GridMinWidth);
+		vm.SidebarWidth = Math.Clamp(vm.SidebarWidth + e.Vector.X, MainVM.SidebarMinWidth, Math.Max(MainVM.SidebarMinWidth, max));
+	}
+
+	private void InspectorGrip_DragDelta(object? sender, Avalonia.Input.VectorEventArgs e)
+	{
+		if (ViewModel is not MainVM vm) return;
+		var other = vm.SidebarOpen ? vm.SidebarWidth : 0;
+		var max = Math.Min(MainVM.InspectorMaxWidth, Bounds.Width - other - MainVM.GridMinWidth);
+		vm.InspectorWidth = Math.Clamp(vm.InspectorWidth - e.Vector.X, MainVM.InspectorMinWidth, Math.Max(MainVM.InspectorMinWidth, max));
+	}
+
 	public void ProductsDisplay_LiberateClicked(object _, IList<LibraryBook> libraryBook, Configuration config) => ViewModel?.LiberateClicked(libraryBook, config);
 	public void ProductsDisplay_LiberateSeriesClicked(object _, SeriesEntry series) => ViewModel?.LiberateSeriesClicked(series);
 	public void ProductsDisplay_ConvertToMp3Clicked(object _, LibraryBook[] libraryBook) => ViewModel?.ConvertToMp3Clicked(libraryBook);

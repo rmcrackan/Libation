@@ -176,14 +176,35 @@
 				</Setter>
 			</Style>
 			<Style Selector="Border.SlidePanel.left.open">
-				<Setter Property="Width" Value="220" />
+				<Setter Property="Width" Value="{Binding SidebarWidth}" />
 			</Style>
 			<Style Selector="Border.SlidePanel.right.open">
-				<Setter Property="Width" Value="340" />
+				<Setter Property="Width" Value="{Binding InspectorWidth}" />
+			</Style>
+			<Style Selector="Border.SlidePanel.resizing">
+				<Setter Property="Transitions" Value="{x:Null}" />
+			</Style>
+			<Style Selector="Thumb.PanelGrip">
+				<Setter Property="Width" Value="6" />
+				<Setter Property="Cursor" Value="SizeWestEast" />
+				<Setter Property="Background" Value="Transparent" />
+				<Setter Property="ZIndex" Value="2" />
+				<Setter Property="Template">
+					<ControlTemplate>
+						<Border Background="{TemplateBinding Background}" />
+					</ControlTemplate>
+				</Setter>
+				<Style Selector="^:pointerover, ^:pressed">
+					<Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+					<Setter Property="Opacity" Value="0.35" />
+				</Style>
 			</Style>
 		</Grid.Styles>
-		<Border Grid.Column="0" Classes="SlidePanel left" Classes.open="{Binding SidebarOpen}" IsHitTestVisible="{Binding SidebarOpen}">
-			<views:LibrarySidebar Name="librarySidebar" Width="220" HorizontalAlignment="Left" />
+		<Border Grid.Column="0" Classes="SlidePanel left" Classes.open="{Binding SidebarOpen}" Classes.resizing="{Binding IsResizingPanel}" IsHitTestVisible="{Binding SidebarOpen}">
+			<Panel Width="{Binding SidebarWidth}" HorizontalAlignment="Left">
+				<views:LibrarySidebar Name="librarySidebar" />
+				<Thumb Classes="PanelGrip" HorizontalAlignment="Right" DragStarted="PanelGrip_DragStarted" DragDelta="SidebarGrip_DragDelta" DragCompleted="PanelGrip_DragCompleted" />
+			</Panel>
 		</Border>
 		<Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
 		<Grid Grid.Row="0" Margin="12,8" ColumnDefinitions="Auto,*,Auto" MinHeight="36">
@@ -446,9 +467,9 @@
 					</StackPanel>
 				</Panel>
 
-			<Border Grid.Column="1" Classes="SlidePanel right" Classes.open="{Binding InspectorOpen}" IsHitTestVisible="{Binding InspectorOpen}">
+			<Border Grid.Column="1" Classes="SlidePanel right" Classes.open="{Binding InspectorOpen}" Classes.resizing="{Binding IsResizingPanel}" IsHitTestVisible="{Binding InspectorOpen}">
 				<Grid
-					Width="340"
+					Width="{Binding InspectorWidth}"
 					HorizontalAlignment="Right"
 					RowDefinitions="Auto,*"
 					Background="{DynamicResource SystemRegionColor}">
@@ -485,6 +506,7 @@
 						</Style>
 					</Grid.Styles>
 					<Border Grid.RowSpan="2" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1,0,0,0" IsHitTestVisible="False" ZIndex="1" />
+					<Thumb Grid.RowSpan="2" Classes="PanelGrip" HorizontalAlignment="Left" DragStarted="PanelGrip_DragStarted" DragDelta="InspectorGrip_DragDelta" DragCompleted="PanelGrip_DragCompleted" />
 					<Border Grid.Row="0" Margin="12,10,12,6" Padding="2" CornerRadius="7" Background="{DynamicResource NeutralSoftBrush}">
 						<Grid ColumnDefinitions="*,*,*">
 							<Button Grid.Column="0" Classes="Seg" Classes.active="{Binding DetailsTabActive}" Command="{Binding ShowDetailsTab}" Content="Details" />

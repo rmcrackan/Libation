@@ -121,6 +121,9 @@
 				<Setter Property="Background" Value="{DynamicResource TextControlBackground}" />
 			</Style>
 		</Style>
+		<Style Selector="TextBox[AcceptsReturn=false]">
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
 		<Style Selector="TextBox.Mono">
 			<Setter Property="FontFamily" Value="Cascadia Mono,Menlo,Consolas,DejaVu Sans Mono,monospace" />
 		</Style>
