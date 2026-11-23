@@ -75,7 +75,7 @@
 	</NativeMenu.Menu>
 
 	<Grid RowDefinitions="Auto,*">
-		<Border Grid.Row="0"  BorderBrush="{DynamicResource SystemBaseLowColor}" BorderThickness="0,1">
+		<Border Grid.Row="0" IsVisible="{Binding MenuBarVisible}" BorderBrush="{DynamicResource SystemBaseLowColor}" BorderThickness="0,1">
 			<Grid ColumnDefinitions="*,Auto">
 			<!-- Menu Strip -->
 			<Menu VerticalAlignment="Top" IsVisible="{Binding MenuBarVisible}">
@@ -161,10 +161,6 @@
 				</MenuItem>
 			</Menu>
 				
-			<StackPanel IsVisible="{Binding ActivelyScanning}" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-				<Path VerticalAlignment="Center" Fill="{DynamicResource IconFill}" Data="{StaticResource ImportIcon}" />
-				<TextBlock Margin="8,0" VerticalAlignment="Center" Text="{Binding ScanningText}"/>
-			</StackPanel>
 		</Grid>
 		</Border>
 		<Grid Grid.Row="1" ColumnDefinitions="Auto,*">
@@ -489,7 +485,7 @@
 		</Grid>
 
 		<!-- Bottom Status Strip -->
-		<Grid Grid.Row="2" Margin="16,8" VerticalAlignment="Bottom" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+		<Grid Grid.Row="2" Margin="16,8" VerticalAlignment="Bottom" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto">
 			<Grid.Styles>
 				<Style Selector="ProgressBar:horizontal">
 					<Setter Property="MinWidth" Value="100" />
@@ -509,7 +505,11 @@
 			<ProgressBar Grid.Column="1" Margin="8,0,12,0" VerticalAlignment="Stretch" Width="100" Value="{Binding DownloadProgress, TargetNullValue=0}" IsVisible="{Binding DownloadProgress, Converter={x:Static ObjectConverters.IsNotNull}}"/>
 			<TextBlock FontSize="12" FontWeight="SemiBold" Grid.Column="2" Margin="0,0,16,0" Text="{Binding BookCountText}" VerticalAlignment="Center" />
 			<TextBlock FontSize="12" Grid.Column="3" Margin="-8,0,16,0" IsVisible="{Binding SelectedCountVisible}" Foreground="{DynamicResource SecondaryForegroundBrush}" Text="{Binding SelectedCountText}" VerticalAlignment="Center" />
-			<StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right" VerticalAlignment="Center" ClipToBounds="True"
+			<StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="6" Margin="0,0,16,0" VerticalAlignment="Center" IsVisible="{Binding ActivelyScanning}">
+				<Path Width="12" Height="12" Stretch="Uniform" VerticalAlignment="Center" Fill="{DynamicResource IconFill}" Data="{StaticResource ImportIcon}" />
+				<TextBlock FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}" Text="{Binding ScanningText}" />
+			</StackPanel>
+			<StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right" VerticalAlignment="Center" ClipToBounds="True"
 						IsVisible="{Binding StatusCountsVisible}" ToolTip.Tip="{Binding LibraryStats?.StatusString}">
 				<StackPanel Orientation="Horizontal" Spacing="6">
 					<Ellipse Classes="statusDot" Fill="#30A46C" />
@@ -532,7 +532,7 @@
 					<TextBlock Text="{Binding UnavailableCountText}" />
 				</StackPanel>
 			</StackPanel>
-			<Button Classes="Ghost" FontSize="12" Grid.Column="5" Margin="16,0,0,0" Padding="8,4" VerticalAlignment="Center"
+			<Button Classes="Ghost" FontSize="12" Grid.Column="6" Margin="16,0,0,0" Padding="8,4" VerticalAlignment="Center"
 					Command="{Binding ShowTrashBinAsync}"
 					Content="{Binding TrashBinShortText}"
 					ToolTip.Tip="{Binding TrashBinStatusToolTip}"
