@@ -164,7 +164,26 @@
 		</Grid>
 		</Border>
 		<Grid Grid.Row="1" ColumnDefinitions="Auto,*">
-		<views:LibrarySidebar Name="librarySidebar" Grid.Column="0" Width="220" IsVisible="{Binding SidebarOpen}" />
+		<Grid.Styles>
+			<Style Selector="Border.SlidePanel">
+				<Setter Property="Width" Value="0" />
+				<Setter Property="ClipToBounds" Value="True" />
+				<Setter Property="Transitions">
+					<Transitions>
+						<DoubleTransition Property="Width" Duration="0:0:0.18" Easing="CubicEaseOut" />
+					</Transitions>
+				</Setter>
+			</Style>
+			<Style Selector="Border.SlidePanel.left.open">
+				<Setter Property="Width" Value="220" />
+			</Style>
+			<Style Selector="Border.SlidePanel.right.open">
+				<Setter Property="Width" Value="340" />
+			</Style>
+		</Grid.Styles>
+		<Border Grid.Column="0" Classes="SlidePanel left" Classes.open="{Binding SidebarOpen}" IsHitTestVisible="{Binding SidebarOpen}">
+			<views:LibrarySidebar Name="librarySidebar" Width="220" HorizontalAlignment="Left" />
+		</Border>
 		<Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
 		<Grid Grid.Row="0" Margin="12,8" ColumnDefinitions="Auto,*,Auto" MinHeight="36">
 			<Grid.Styles>
@@ -292,7 +311,7 @@
 						<TextBlock FontSize="12" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding QueueBadgeText}" />
 					</Border>
 				</Panel>
-				<Button Classes="IconBtn" Classes.active="{Binding InspectorOpen}" Command="{Binding ToggleInspectorBtn}" ToolTip.Tip="Show inspector">
+				<Button Classes="IconBtn" Classes.active="{Binding InspectorOpen}" Command="{Binding ToggleInspectorBtn}" ToolTip.Tip="Show panel">
 					<Path Data="M4,4 L20,4 L20,20 L4,20 Z M15,4 L15,20" />
 				</Button>
 			</StackPanel>
@@ -442,45 +461,61 @@
 					</StackPanel>
 				</Panel>
 
-			<Border
-				Grid.Column="1"
-				Width="300"
-				IsVisible="{Binding InspectorOpen}"
-				Background="{DynamicResource SystemRegionColor}"
-				BorderBrush="{DynamicResource BorderSubtleBrush}"
-				BorderThickness="1,0,0,0">
-				<views:BookInspector
-					Name="bookInspector"
-					Entry="{Binding SelectedEntry}"
-					EmptyText="{Binding InspectorEmptyText}"
-					Selection="{Binding SelectedEntries}"
-					EditSelectionTagsClicked="BookInspector_EditSelectionTagsClicked"
-					LiberateClicked="ProductsDisplay_LiberateClicked"
-					DetailsClicked="ProductsDisplay_TagsButtonClicked" />
-			</Border>
-
-			<Border
-				Grid.Column="0"
-				Grid.ColumnSpan="2"
-				Width="360"
-				HorizontalAlignment="Right"
-				IsVisible="{Binding QueueOpen}"
-				Background="{DynamicResource SystemRegionColor}"
-				BorderBrush="{DynamicResource BorderSubtleBrush}"
-				BorderThickness="1,0,0,0"
-				BoxShadow="-6 0 18 0 #33000000">
-				<Panel>
-					<views:ProcessQueueControl DataContext="{Binding ProcessQueue, Mode=OneTime}"/>
-					<Button
-						Classes="Ghost"
-						HorizontalAlignment="Right"
-						VerticalAlignment="Top"
-						Margin="0,2,4,0"
-						Padding="8,2"
-						Command="{Binding CloseQueueBtn}"
-						Content="×"
-						ToolTip.Tip="Close queue" />
-				</Panel>
+			<Border Grid.Column="1" Classes="SlidePanel right" Classes.open="{Binding InspectorOpen}" IsHitTestVisible="{Binding InspectorOpen}">
+				<Grid
+					Width="340"
+					HorizontalAlignment="Right"
+					RowDefinitions="Auto,*"
+					Background="{DynamicResource SystemRegionColor}">
+					<Grid.Styles>
+						<Style Selector="Button.Seg">
+							<Setter Property="Background" Value="Transparent" />
+							<Setter Property="BorderThickness" Value="0" />
+							<Setter Property="CornerRadius" Value="5" />
+							<Setter Property="Padding" Value="0,5" />
+							<Setter Property="FontSize" Value="13" />
+							<Setter Property="HorizontalAlignment" Value="Stretch" />
+							<Setter Property="HorizontalContentAlignment" Value="Center" />
+							<Style Selector="^.active /template/ ContentPresenter#PART_ContentPresenter">
+								<Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+							</Style>
+						</Style>
+					</Grid.Styles>
+					<Border Grid.RowSpan="2" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1,0,0,0" IsHitTestVisible="False" ZIndex="1" />
+					<Border Grid.Row="0" Margin="12,10,12,6" Padding="2" CornerRadius="7" Background="{DynamicResource NeutralSoftBrush}">
+						<Grid ColumnDefinitions="*,*">
+							<Button Grid.Column="0" Classes="Seg" Classes.active="{Binding DetailsTabActive}" Command="{Binding ShowDetailsTab}" Content="Details" />
+							<Button Grid.Column="1" Classes="Seg" Classes.active="{Binding QueueTabActive}" Command="{Binding ShowQueueTab}">
+								<StackPanel Orientation="Horizontal" Spacing="6">
+									<TextBlock VerticalAlignment="Center" Text="Queue" />
+									<Border
+										IsVisible="{Binding QueueBadgeVisible}"
+										MinWidth="16"
+										Height="16"
+										Padding="4,0"
+										CornerRadius="8"
+										Background="{DynamicResource SystemAccentColor}">
+										<TextBlock FontSize="12" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding QueueBadgeText}" />
+									</Border>
+								</StackPanel>
+							</Button>
+						</Grid>
+					</Border>
+					<Panel Grid.Row="1">
+						<views:BookInspector
+							Name="bookInspector"
+							IsVisible="{Binding DetailsTabActive}"
+							Entry="{Binding SelectedEntry}"
+							EmptyText="{Binding InspectorEmptyText}"
+							Selection="{Binding SelectedEntries}"
+							EditSelectionTagsClicked="BookInspector_EditSelectionTagsClicked"
+							LiberateClicked="ProductsDisplay_LiberateClicked"
+							DetailsClicked="ProductsDisplay_TagsButtonClicked" />
+						<Panel IsVisible="{Binding QueueTabActive}">
+							<views:ProcessQueueControl DataContext="{Binding ProcessQueue, Mode=OneTime}" />
+						</Panel>
+					</Panel>
+				</Grid>
 			</Border>
 		</Grid>
 

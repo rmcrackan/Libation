@@ -32,12 +32,15 @@ partial class MainVM
 	public string AccountsLine { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "No accounts";
 	public string TrashCountText => BooksInTrash > 0 ? BooksInTrash.ToString() : "";
 
+	/// <summary> The right-hand panel (Details or Queue) is open. </summary>
 	public bool InspectorOpen
 	{
 		get => field;
 		set
 		{
 			this.RaiseAndSetIfChanged(ref field, value);
+			this.RaisePropertyChanged(nameof(QueueOpen));
+			this.RaisePropertyChanged(nameof(DetailsOpen));
 			Configuration.Instance.SetNonString(value, nameof(InspectorOpen));
 		}
 	}
