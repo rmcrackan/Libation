@@ -91,7 +91,7 @@
 					TextWrapping="Wrap"
 					Foreground="{DynamicResource SecondaryForegroundBrush}"
 					Text="Type words to search titles, authors, narrators, series and more. Words match any of them — use AND to require all. To search one field, type field:value." />
-				<TextBlock Classes="Caption" Text="Click an example to use it, or a field to add it to the search box." />
+				<TextBlock Classes="Caption" Text="Examples come from your library. Click one to use it, or a field to add it to the search box." />
 			</StackPanel>
 
 			<StackPanel Spacing="8">

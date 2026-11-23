@@ -1,11 +1,15 @@
 using Avalonia.Controls;
+using ApplicationServices;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
+using LibationUiBase;
 using LibationAvalonia.ViewModels;
 using LibationSearchEngine;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs;
 
@@ -90,7 +94,11 @@ public partial class SearchSyntaxDialog : DialogWindow
 	{
 		private static readonly List<FieldInfo> AllFields = BuildFields();
 
-		public IReadOnlyList<ExampleRow> Examples { get; } =
+		public IReadOnlyList<ExampleRow> Examples
+		{
+			get;
+			set => this.RaiseAndSetIfChanged(ref field, value);
+		} =
 		[
 			new("title:\"wizard of oz\"", "Title contains the exact phrase"),
 			new("author:sanderson", "Books by an author"),
@@ -170,6 +178,26 @@ public partial class SearchSyntaxDialog : DialogWindow
 	{
 		InitializeComponent();
 		DataContext = _viewModel;
+		Opened += (_, _) => _ = LoadExamplesAsync();
+	}
+
+	private async Task LoadExamplesAsync()
+	{
+		try
+		{
+			var examples = await Task.Run(() =>
+			{
+				var library = DbContexts.GetLibrary_Flat_NoTracking();
+				return SearchExamples.Build(library, q => SearchEngineCommands.Search(q).Docs.Count());
+			});
+			if (examples.Count > 0)
+				await Dispatcher.UIThread.InvokeAsync(() =>
+					_viewModel.Examples = examples.Select(e => new ExampleRow(e.Query, e.Description)).ToList());
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Error(ex, "Failed to build search examples from the library");
+		}
 	}
 
 	private void Field_Click(object? sender, RoutedEventArgs e)
