@@ -5,6 +5,7 @@ using Avalonia.Media;
 using DataLayer;
 using LibationAvalonia.ViewModels;
 using LibationUiBase.GridView;
+using LibationUiBase.StatusIcons;
 using System;
 
 namespace LibationAvalonia.Views;
@@ -40,6 +41,7 @@ public partial class LiberateStatusButton : UserControl
 		button.DataContext = viewModel;
 
 		DataContextChanged += LiberateStatusButton_DataContextChanged;
+		iconHost.SizeChanged += (_, _) => AlignIcon();
 
 		//The icon is rendered for a specific theme, so it has to be re-rendered when the theme changes.
 		ActualThemeVariantChanged += (_, _) => (DataContext as GridEntry)?.Liberate?.Invalidate(nameof(EntryStatus.ButtonImage));
@@ -53,12 +55,29 @@ public partial class LiberateStatusButton : UserControl
 		status?.Liberate?.Invalidate(nameof(status.Liberate.BookStatus), nameof(status.Liberate.ButtonImage));
 	}
 
+	/// <summary>Centers the stoplight itself, so badges and the PDF glyph don't shift it off its neighbours.</summary>
+	private void AlignIcon()
+	{
+		if (ButtonImage is not { Size: { Width: > 0, Height: > 0 } size } || iconHost.Bounds.Width <= 0)
+			return;
+
+		var hostWidth = iconHost.Bounds.Width;
+		var scale = Math.Min(iconHost.Bounds.Height * 0.8 / size.Height, hostWidth / size.Width);
+		var imageWidth = size.Width * scale;
+		var anchorWidth = DataContext is SeriesEntry ? imageWidth : size.Height * scale * StatusImageGenerator.StoplightAspect;
+		var left = Math.Clamp((hostWidth - anchorWidth) / 2, 0, Math.Max(0, hostWidth - imageWidth));
+		icon.Margin = new Thickness(left, 0, 0, 0);
+	}
+
 	private void Button_Click(object sender, RoutedEventArgs e) => Click?.Invoke(this, EventArgs.Empty);
 
 	protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
 	{
 		if (change.Property == ButtonImageProperty)
+		{
 			viewModel.ButtonImage = ButtonImage;
+			AlignIcon();
+		}
 
 		viewModel.IsButtonEnabled = BookStatus is not LiberatedStatus.Error && (!IsUnavailable || (BookStatus is LiberatedStatus.Liberated && PdfStatus is null or LiberatedStatus.Liberated));
 

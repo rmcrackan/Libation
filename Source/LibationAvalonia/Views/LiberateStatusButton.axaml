@@ -31,9 +31,11 @@
 		Padding="0"
 		IsEnabled="{Binding	IsButtonEnabled}" Click="Button_Click" >
 
-		<Grid RowDefinitions="*,8*,*">
+		<Grid Name="iconHost" RowDefinitions="*,8*,*">
 			<Image
+				Name="icon"
 				Grid.Row="1"
+				HorizontalAlignment="Left"
 				Stretch="Uniform"
 				RenderOptions.BitmapInterpolationMode="HighQuality"
 				Source="{Binding ButtonImage}" />

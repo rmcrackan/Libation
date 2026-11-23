@@ -29,6 +29,15 @@ public static class StatusImageGenerator
 
 	private static readonly Dictionary<LiberateIconDescriptor, byte[]> cache = [];
 
+	/// <summary>Stoplight body width over height; badges and the PDF glyph extend the image to its right.</summary>
+	public static float StoplightAspect { get; } = GetStoplightAspect();
+
+	private static float GetStoplightAspect()
+	{
+		using var body = ParsePath(LiberateIconGeometry.StoplightBody);
+		return body.TightBounds.Width / body.TightBounds.Height;
+	}
+
 	private static byte[] Render(LiberateIconDescriptor descriptor)
 	{
 		var (layers, size) = Compose(descriptor, LiberateIconPalette.For(descriptor.IsDark));
