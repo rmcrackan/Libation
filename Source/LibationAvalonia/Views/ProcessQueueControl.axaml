@@ -14,22 +14,9 @@
 	<UserControl.Resources>
 		<views:DecimalConverter x:Key="myConverter" />
 	</UserControl.Resources>
-	<Grid RowDefinitions="*,Auto">
-		<TabControl Grid.Row="0">
-			<TabControl.Styles>
-				<Style Selector="TabControl /template/ ItemsPresenter#PART_ItemsPresenter">
-					<Setter Property="Height" Value="33"/>
-				</Style>
-				<Style Selector="TabItem /template/ Border#PART_LayoutRoot">
-					<Setter Property="Height" Value="33"/>
-				</Style>
-			</TabControl.Styles>
-			<!-- Queue Tab -->
-			<TabItem>
-				<TabItem.Header>
-					<TextBlock FontSize="14" VerticalAlignment="Center">Process Queue</TextBlock>
-				</TabItem.Header>
-				<Grid ColumnDefinitions="*" RowDefinitions="*,Auto">
+	<Grid RowDefinitions="*,Auto" Margin="12,0,12,10">
+		<Panel Grid.Row="0">
+			<Grid Name="queuePage" ColumnDefinitions="*" RowDefinitions="*,Auto">
 					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemRegionColor}">
 						<ScrollViewer
 							Name="scroller"
@@ -140,14 +127,8 @@
 							<Button Grid.Column="3" FontSize="12" IsEnabled="{Binding HasFinished}" VerticalAlignment="Stretch" Click="ClearFinishedBtn_Click">Clear Finished</Button>
 						</Grid>
 					</Grid>
-				</Grid>
-			</TabItem>
-			<!-- Log Tab -->
-			<TabItem>
-				<TabItem.Header>
-					<TextBlock FontSize="14" VerticalAlignment="Center">Queue Log</TextBlock>
-				</TabItem.Header>
-				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
+			</Grid>
+			<Grid Name="logPage" ColumnDefinitions="*" RowDefinitions="*,40">
 					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemRegionColor}">
 						<DataGrid AutoGenerateColumns="False" ItemsSource="{Binding LogEntries}">
 							<DataGrid.Columns>
@@ -168,11 +149,10 @@
 						<Button Grid.Column="0" FontSize="12" HorizontalAlignment="Left" Click="LogCopyBtn_Click">Copy Log Entries to Clipboard</Button>
 						<Button Grid.Column="1" FontSize="12" HorizontalAlignment="Right" Click="ClearLogBtn_Click">Clear Log</Button>
 					</Grid>
-				</Grid>
-			</TabItem>
-		</TabControl>
+			</Grid>
+		</Panel>
 		<!-- Queue Status -->
-		<Grid Grid.Row="1" Margin="8,0,0,0" ColumnDefinitions="Auto,*,Auto">
+		<Grid Grid.Row="1" Margin="0,8,0,0" ColumnDefinitions="Auto,*,Auto">
 			
 			<Panel Grid.Column="0">
 				<Panel.Styles>

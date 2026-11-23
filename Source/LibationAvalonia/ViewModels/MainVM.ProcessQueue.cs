@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace LibationAvalonia.ViewModels;
 
-public enum RightPanelTab { Details, Queue }
+public enum RightPanelTab { Details, Queue, Log }
 
 partial class MainVM
 {
@@ -22,18 +22,20 @@ partial class MainVM
 			this.RaisePropertyChanged(nameof(QueueOpen));
 			this.RaisePropertyChanged(nameof(DetailsOpen));
 			this.RaisePropertyChanged(nameof(QueueTabActive));
+			this.RaisePropertyChanged(nameof(LogTabActive));
 			this.RaisePropertyChanged(nameof(DetailsTabActive));
 		}
 	} = RightPanelTab.Details;
 
 	public bool QueueTabActive => SelectedRightTab == RightPanelTab.Queue;
+	public bool LogTabActive => SelectedRightTab == RightPanelTab.Log;
 	public bool DetailsTabActive => SelectedRightTab == RightPanelTab.Details;
 	public bool DetailsOpen => InspectorOpen && DetailsTabActive;
 
-	/// <summary> Right panel is open on the Queue tab. Setting false only leaves the tab. </summary>
+	/// <summary> Right panel is open on the Queue or Log tab. Setting false only leaves the tab. </summary>
 	public bool QueueOpen
 	{
-		get => InspectorOpen && QueueTabActive;
+		get => InspectorOpen && (QueueTabActive || LogTabActive);
 		set
 		{
 			if (value)
@@ -41,13 +43,14 @@ partial class MainVM
 				SelectedRightTab = RightPanelTab.Queue;
 				InspectorOpen = true;
 			}
-			else if (QueueTabActive)
+			else if (QueueTabActive || LogTabActive)
 				SelectedRightTab = RightPanelTab.Details;
 		}
 	}
 
 	public void ShowDetailsTab() => SelectedRightTab = RightPanelTab.Details;
 	public void ShowQueueTab() => SelectedRightTab = RightPanelTab.Queue;
+	public void ShowLogTab() => SelectedRightTab = RightPanelTab.Log;
 
 	/// <summary> Books waiting or downloading </summary>
 	public int QueueBadgeCount => ProcessQueue.Queue.Count - ProcessQueue.Queue.Completed.Count;

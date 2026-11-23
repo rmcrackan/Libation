@@ -294,23 +294,6 @@
 					</SplitButton>
 				</StackPanel>
 
-				<Panel>
-					<Button Classes="IconBtn" Classes.active="{Binding QueueOpen}" Command="{Binding ToggleQueueHideBtn}" ToolTip.Tip="Show queue">
-						<Path Data="M4,6 L20,6 M4,12 L20,12 M4,18 L14,18" />
-					</Button>
-					<Border
-						IsVisible="{Binding QueueBadgeVisible}"
-						IsHitTestVisible="False"
-						HorizontalAlignment="Right"
-						VerticalAlignment="Top"
-						MinWidth="16"
-						Height="16"
-						Padding="4,0"
-						CornerRadius="8"
-						Background="{DynamicResource SystemAccentColor}">
-						<TextBlock FontSize="12" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding QueueBadgeText}" />
-					</Border>
-				</Panel>
 				<Button Classes="IconBtn" Classes.active="{Binding InspectorOpen}" Command="{Binding ToggleInspectorBtn}" ToolTip.Tip="Show panel">
 					<Path Data="M4,4 L20,4 L20,20 L4,20 Z M15,4 L15,20" />
 				</Button>
@@ -477,18 +460,37 @@
 							<Setter Property="HorizontalAlignment" Value="Stretch" />
 							<Setter Property="HorizontalContentAlignment" Value="Center" />
 							<Style Selector="^.active /template/ ContentPresenter#PART_ContentPresenter">
-								<Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+								<Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+								<Setter Property="Foreground" Value="White" />
+								<Setter Property="FontWeight" Value="SemiBold" />
+							</Style>
+							<Style Selector="^:pointerover:not(.active) /template/ ContentPresenter#PART_ContentPresenter">
+								<Setter Property="Background" Value="{DynamicResource NeutralSoftBrush}" />
+							</Style>
+							<Style Selector="^.active:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+								<Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+								<Setter Property="Foreground" Value="White" />
+							</Style>
+							<Style Selector="^.active TextBlock">
+								<Setter Property="Foreground" Value="White" />
+							</Style>
+							<Style Selector="^.active Border.badge">
+								<Setter Property="Background" Value="White" />
+							</Style>
+							<Style Selector="^.active Border.badge TextBlock">
+								<Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" />
 							</Style>
 						</Style>
 					</Grid.Styles>
 					<Border Grid.RowSpan="2" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1,0,0,0" IsHitTestVisible="False" ZIndex="1" />
 					<Border Grid.Row="0" Margin="12,10,12,6" Padding="2" CornerRadius="7" Background="{DynamicResource NeutralSoftBrush}">
-						<Grid ColumnDefinitions="*,*">
+						<Grid ColumnDefinitions="*,*,*">
 							<Button Grid.Column="0" Classes="Seg" Classes.active="{Binding DetailsTabActive}" Command="{Binding ShowDetailsTab}" Content="Details" />
 							<Button Grid.Column="1" Classes="Seg" Classes.active="{Binding QueueTabActive}" Command="{Binding ShowQueueTab}">
 								<StackPanel Orientation="Horizontal" Spacing="6">
 									<TextBlock VerticalAlignment="Center" Text="Queue" />
 									<Border
+										Classes="badge"
 										IsVisible="{Binding QueueBadgeVisible}"
 										MinWidth="16"
 										Height="16"
@@ -499,6 +501,7 @@
 									</Border>
 								</StackPanel>
 							</Button>
+							<Button Grid.Column="2" Classes="Seg" Classes.active="{Binding LogTabActive}" Command="{Binding ShowLogTab}" Content="Log" />
 						</Grid>
 					</Border>
 					<Panel Grid.Row="1">
@@ -511,8 +514,10 @@
 							EditSelectionTagsClicked="BookInspector_EditSelectionTagsClicked"
 							LiberateClicked="ProductsDisplay_LiberateClicked"
 							DetailsClicked="ProductsDisplay_TagsButtonClicked" />
-						<Panel IsVisible="{Binding QueueTabActive}">
-							<views:ProcessQueueControl DataContext="{Binding ProcessQueue, Mode=OneTime}" />
+						<Panel IsVisible="{Binding QueueOpen}">
+							<views:ProcessQueueControl
+								DataContext="{Binding ProcessQueue, Mode=OneTime}"
+								ShowLog="{Binding $parent[Window].((vm:MainVM)DataContext).LogTabActive}" />
 						</Panel>
 					</Panel>
 				</Grid>
