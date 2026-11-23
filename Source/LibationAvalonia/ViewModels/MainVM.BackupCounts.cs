@@ -28,19 +28,12 @@ partial class MainVM
 		{
 			this.RaiseAndSetIfChanged(ref field, value);
 			this.RaisePropertyChanged(nameof(TrashBinMenuText));
-			this.RaisePropertyChanged(nameof(TrashBinStatusText));
-			this.RaisePropertyChanged(nameof(TrashBinStatusVisible));
-			this.RaisePropertyChanged(nameof(TrashBinShortText));
 			this.RaisePropertyChanged(nameof(TrashCountText));
 			RaiseGettingStartedChanged();
 		}
 	}
 
 	public string TrashBinMenuText => TrashBinUi.MenuText(BooksInTrash);
-	public string TrashBinStatusText => TrashBinUi.StatusText(BooksInTrash);
-	public bool TrashBinStatusVisible => TrashBinUi.ShowStatus(BooksInTrash);
-	public string TrashBinShortText => $"Trash ({BooksInTrash})";
-	public string TrashBinStatusToolTip => TrashBinUi.StatusToolTip;
 
 	/// <summary>
 	/// Re-read the trash count. Kept off <see cref="LibraryCommands.GetCounts"/> on purpose: that also runs

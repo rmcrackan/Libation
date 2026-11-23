@@ -190,6 +190,7 @@ public abstract class GridEntry : ReactiveObject
 		nameof(Title) => Book.TitleSortable(),
 		nameof(Series) => Book.SeriesSortable(),
 		nameof(SeriesOrder) => SeriesOrder,
+		SeriesBrowseKey.MemberName => SeriesBrowseKey.For(Book),
 		nameof(Length) => GetLengthInMinutes(),
 		nameof(MyRating) => Book.UserDefinedItem.Rating,
 		nameof(PurchaseDate) => GetPurchaseDate(),
@@ -246,6 +247,7 @@ public abstract class GridEntry : ReactiveObject
 		{ typeof(DateTime), Comparer<DateTime>.Default },
 		{ typeof(EntryStatus), Comparer<EntryStatus>.Default },
 		{ typeof(SeriesOrder), Comparer<SeriesOrder>.Default },
+		{ typeof(SeriesBrowseKey), Comparer<SeriesBrowseKey>.Default },
 		{ typeof(LastDownloadStatus), Comparer<LastDownloadStatus>.Default },
 	};
 

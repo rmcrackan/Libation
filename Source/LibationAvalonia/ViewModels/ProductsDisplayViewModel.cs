@@ -30,7 +30,7 @@ public class ProductsDisplayViewModel : ViewModelBase
 	/// <summary>Grid entries included in the filter set. If null, all grid entries are shown</summary>
 	private HashSet<GridEntry>? FilteredInGridEntries;
 	public string? FilterString { get; private set; }
-	public LibraryScope Scope { get; private set; }
+	public LibraryScope Scope { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 
 	public event EventHandler? SelectionChanged;
 	public IReadOnlyList<GridEntry> SelectedEntries { get; private set; } = [];

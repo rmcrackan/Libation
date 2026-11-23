@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
@@ -18,6 +19,7 @@ using LibationUiBase.Forms;
 using LibationUiBase.GridView;
 using ReactiveUI;
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -117,6 +119,12 @@ public partial class ProductsDisplay : UserControl
 		setFontScale(Configuration.Instance.GridFontScaleFactor);
 		Configure_ColumnCustomization();
 
+		productsGrid.TemplateApplied += ProductsGrid_TemplateApplied;
+		productsGrid.LayoutUpdated += (_, _) => UpdateFrozenEdge();
+		productsGrid.Sorting += (_, _) => seriesScopeSortActive = false;
+		SeriesColumn?.PropertyChanged += SeriesColumn_PropertyChanged;
+		UpdateSeriesColumnClass();
+
 		foreach (var column in productsGrid.Columns)
 		{
 			column.CustomSortComparer = new RowComparer(column);
@@ -162,6 +170,83 @@ public partial class ProductsDisplay : UserControl
 		contextMenu.Open(cell);
 		e.Handled = true;
 	}
+
+	#region Series scope sort, frozen column edge
+
+	private bool seriesScopeSortActive;
+	private ProductsDisplayViewModel? subscribedViewModel;
+	private ScrollBar? hScrollBar;
+
+	private DataGridColumn? SeriesColumn => productsGrid.Columns.FirstOrDefault(c => c.SortMemberPath == nameof(GridEntry.Series));
+
+	protected override void OnDataContextChanged(EventArgs e)
+	{
+		subscribedViewModel?.PropertyChanged -= ViewModel_PropertyChanged;
+		subscribedViewModel = _viewModel;
+		subscribedViewModel?.PropertyChanged += ViewModel_PropertyChanged;
+		base.OnDataContextChanged(e);
+	}
+
+	private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+	{
+		if (e.PropertyName == nameof(ProductsDisplayViewModel.Scope))
+			ApplyScopeSort();
+	}
+
+	private void ApplyScopeSort()
+	{
+		if (SeriesColumn is not { CustomSortComparer: RowComparer comparer } column)
+			return;
+
+		if (_viewModel?.Scope is LibraryScope.Series)
+		{
+			comparer.PropertyName = SeriesBrowseKey.MemberName;
+			comparer.FallbackDirection = ListSortDirection.Ascending;
+			column.Sort(ListSortDirection.Ascending);
+			seriesScopeSortActive = true;
+		}
+		else
+		{
+			comparer.PropertyName = column.SortMemberPath;
+			comparer.FallbackDirection = ListSortDirection.Descending;
+			if (seriesScopeSortActive)
+				column.ClearSort();
+			seriesScopeSortActive = false;
+		}
+	}
+
+	private void SeriesColumn_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+	{
+		if (e.Property == DataGridColumn.IsVisibleProperty)
+			UpdateSeriesColumnClass();
+	}
+
+	private void UpdateSeriesColumnClass()
+		=> productsGrid.Classes.Set("seriesColumnShown", SeriesColumn?.IsVisible is true);
+
+	private void ProductsGrid_TemplateApplied(object? sender, TemplateAppliedEventArgs e)
+	{
+		hScrollBar = e.NameScope.Find<ScrollBar>("PART_HorizontalScrollbar");
+		hScrollBar?.ValueChanged += (_, _) => UpdateFrozenEdge();
+	}
+
+	private void UpdateFrozenEdge()
+	{
+		var x = productsGrid.Columns
+			.Where(c => c.IsVisible && c.DisplayIndex < productsGrid.FrozenColumnCount)
+			.Sum(c => c.ActualWidth);
+		var margin = new Thickness(
+			x,
+			0,
+			0,
+			hScrollBar is { IsVisible: true } ? hScrollBar.Bounds.Height : 0);
+
+		if (frozenEdge.Margin != margin)
+			frozenEdge.Margin = margin;
+		frozenEdge.IsVisible = hScrollBar is { Value: > 0 };
+	}
+
+	#endregion
 
 	protected override void OnApplyTemplate(Avalonia.Controls.Primitives.TemplateAppliedEventArgs e)
 	{

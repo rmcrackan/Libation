@@ -550,7 +550,7 @@
 
 		<!-- Bottom Status Strip -->
 		<Border Grid.Row="2" VerticalAlignment="Bottom" Padding="16,8" Background="{DynamicResource Surface2Brush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,1,0,0">
-		<Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto">
+		<Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*">
 			<Grid.Styles>
 				<Style Selector="ProgressBar:horizontal">
 					<Setter Property="MinWidth" Value="100" />
@@ -597,11 +597,6 @@
 					<TextBlock Text="{Binding UnavailableCountText}" />
 				</StackPanel>
 			</StackPanel>
-			<Button Classes="Ghost" FontSize="12" Grid.Column="6" Margin="16,0,0,0" Padding="8,4" VerticalAlignment="Center"
-					Command="{Binding ShowTrashBinAsync}"
-					Content="{Binding TrashBinShortText}"
-					ToolTip.Tip="{Binding TrashBinStatusToolTip}"
-					IsVisible="{Binding TrashBinStatusVisible}" />
 		</Grid>
 		</Border>
 		</Grid>

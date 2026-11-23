@@ -12,6 +12,7 @@ internal class RowComparer : RowComparerBase
 
 	private DataGridColumn? Column { get; }
 	public override string? PropertyName { get; set; }
+	public ListSortDirection FallbackDirection { get; set; } = ListSortDirection.Descending;
 
 	public RowComparer(DataGridColumn? column)
 	{
@@ -23,5 +24,5 @@ internal class RowComparer : RowComparerBase
 	protected override ListSortDirection GetSortOrder()
 		=> Column is null ? ListSortDirection.Descending
 		: CurrentSortingStatePi?.GetValue(HeaderCellPi?.GetValue(Column)) is ListSortDirection lsd ? lsd
-		: ListSortDirection.Descending;
+		: FallbackDirection;
 }
