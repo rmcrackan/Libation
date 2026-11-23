@@ -46,11 +46,11 @@ public class SearchEngine
 		{
 			{ FieldType.ID, lb => lb.Book.AudibleProductId.ToLowerInvariant(), nameof(Book.AudibleProductId), "ProductId", "Id", "ASIN" },
 			{ FieldType.Raw, lb => lb.Book.AudibleProductId, _ID_ },
-			{ FieldType.String, lb => lb.Book.TitleWithSubtitle, "Title", "ProductId", "Id", "ASIN" },
+			{ FieldType.String, lb => lb.Book.TitleWithSubtitle, "Title" },
 			{ FieldType.String, lb => lb.Book.AuthorNames, "AuthorNames", "Author", "Authors" },
 			{ FieldType.String, lb => lb.Book.NarratorNames, "NarratorNames", "Narrator", "Narrators" },
 			{ FieldType.String, lb => lb.Book.Publisher, nameof(Book.Publisher) },
-			{ FieldType.String, lb => lb.Book.SeriesNames(), "SeriesNames", "Narrator", "Series" },
+			{ FieldType.String, lb => lb.Book.SeriesNames(), "SeriesNames", "Series" },
 			{ FieldType.String, lb => string.Join(", ", lb.Book.SeriesLink.Select(s => s.Series.AudibleSeriesId)), "SeriesId" },
 			{ FieldType.String, lb => lb.Book.AllCategoryIds() is not { } categories ? null : string.Join(", ", categories), "CategoriesId", "CategoryId" },
 			{ FieldType.String, lb => lb.Book.AllCategoryNames() is null ? null : string.Join(", ", lb.Book.AllCategoryNames()), "Category", "Categories", "CategoriesNames" },
@@ -70,7 +70,7 @@ public class SearchEngine
 			{ FieldType.Bool, lb => (!string.IsNullOrWhiteSpace(lb.Book.SeriesNames())).ToString(), "IsInSeries", "InSeries" },
 			{ FieldType.Bool, lb => (!string.IsNullOrWhiteSpace(lb.Book.Subtitle)).ToString(), "HasSubtitle", "HasSubtitles" },
 			{ FieldType.Bool, lb => titleIsShortened(lb.Book).ToString(), "TitleHasColon", "ColonInTitle" },
-			{ FieldType.Bool, lb => lb.Book.UserDefinedItem.IsFinished.ToString(), nameof(UserDefinedItem.IsFinished), "Finished", "IsFinished" },
+			{ FieldType.Bool, lb => lb.Book.UserDefinedItem.IsFinished.ToString(), nameof(UserDefinedItem.IsFinished), "Finished" },
 			{ FieldType.Bool, lb => lb.IsAudiblePlus.ToString(), nameof(LibraryBook.IsAudiblePlus), "AudiblePlus", "Plus" },
             // all numbers are padded to 8 char.s
             // This will allow a single method to auto-pad numbers. The method will match these as well as date: yyyymmdd
@@ -99,6 +99,19 @@ public class SearchEngine
 	{
 		var libraryList = library.ToList();
 
+		var failures = createIndex(libraryList, overwrite);
+
+		if (overwrite)
+		{
+			try { File.WriteAllText(SchemaFilePath, schemaFingerprint); }
+			catch (Exception ex) { Serilog.Log.Logger.Warning(ex, "Could not record the search index schema."); }
+		}
+
+		return failures;
+	}
+
+	private int createIndex(List<LibraryBook> libraryList, bool overwrite)
+	{
 		// location of index/create the index
 		using var index = getIndex();
 
@@ -123,6 +136,24 @@ public class SearchEngine
 		}
 
 		return failures;
+	}
+
+	private static readonly string schemaFingerprint
+		= string.Join("\n", FieldIndexRules.Select(r => $"{r.FieldType}:{string.Join(",", r.FieldNames)}"));
+
+	private string SchemaFilePath => Path.Combine(SearchEngineDirectory, "schema.txt");
+
+	/// <summary>False when the index was built under different field rules, or has no schema record.</summary>
+	public bool IsIndexSchemaCurrent()
+	{
+		try
+		{
+			return File.Exists(SchemaFilePath) && File.ReadAllText(SchemaFilePath) == schemaFingerprint;
+		}
+		catch
+		{
+			return false;
+		}
 	}
 
 	/// <summary>Name a book for a log line without risking a second exception from the book that just threw.</summary>

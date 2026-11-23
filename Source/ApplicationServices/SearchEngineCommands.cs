@@ -75,6 +75,15 @@ public static class SearchEngineCommands
 			if (indexed < 0)
 				return;
 
+			if (!engine.IsIndexSchemaCurrent())
+			{
+				Log.Information("Search index was built with older field rules; rebuilding.");
+				var schemaFailures = fullReIndex(engine);
+				if (schemaFailures > 0)
+					Log.Error("{Failures} book(s) could not be added to the search index. Search cannot find them, and a negated filter hides them.", schemaFailures);
+				return;
+			}
+
 			var expected = DbContexts.GetIndexableBookCount();
 
 			// more documents than books is stale rather than harmful: an extra document matches no grid row.
