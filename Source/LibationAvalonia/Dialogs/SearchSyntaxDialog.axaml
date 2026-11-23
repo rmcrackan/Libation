@@ -2,76 +2,194 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
-		x:DataType="dialogs:SearchSyntaxDialog"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="50"
-		MinWidth="500" MinHeight="650"
-		Width="800" Height="650"
+        xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
+        x:DataType="dialogs:SearchSyntaxDialog+SearchSyntaxViewModel"
+        x:CompileBindings="True"
+        mc:Ignorable="d" d:DesignWidth="760" d:DesignHeight="760"
+        MinWidth="520" MinHeight="480"
+        Width="760" Height="760"
         x:Class="LibationAvalonia.Dialogs.SearchSyntaxDialog"
-        Title="Filter Options"
-		WindowStartupLocation="CenterOwner">
-	
-	<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-	<Grid
-		MinWidth="700"
-		RowDefinitions="Auto,*"
-		ColumnDefinitions="*,*,*,*">
+        Title="Search syntax"
+        WindowStartupLocation="CenterOwner">
 
-		<Grid.Styles>
-			<Style Selector="Grid > Grid">
-				<Setter Property="Margin" Value="16,0" />
+	<Window.Styles>
+		<Style Selector="TextBlock.Subhead">
+			<Setter Property="FontSize" Value="16" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+		</Style>
+		<Style Selector="TextBlock.Caption">
+			<Setter Property="FontSize" Value="12" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}" />
+			<Setter Property="TextWrapping" Value="Wrap" />
+		</Style>
+		<Style Selector="Button.Code">
+			<Setter Property="FontFamily" Value="Menlo,Consolas,monospace" />
+			<Setter Property="FontSize" Value="13" />
+			<Setter Property="Padding" Value="6,2" />
+			<Setter Property="CornerRadius" Value="4" />
+			<Setter Property="Background" Value="{DynamicResource NeutralSoftBrush}" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="Cursor" Value="Hand" />
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
 			</Style>
-			<Style Selector="Grid > TextBlock">
-				<Setter Property="TextWrapping" Value="Wrap" />
+		</Style>
+		<Style Selector="Border.Chip">
+			<Setter Property="Background" Value="{DynamicResource NeutralSoftBrush}" />
+			<Setter Property="CornerRadius" Value="4" />
+			<Setter Property="Padding" Value="6,2" />
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="HorizontalAlignment" Value="Left" />
+		</Style>
+		<Style Selector="Border.Chip > TextBlock">
+			<Setter Property="FontFamily" Value="Menlo,Consolas,monospace" />
+			<Setter Property="FontSize" Value="13" />
+		</Style>
+		<Style Selector="Button.Tile">
+			<Setter Property="Width" Value="230" />
+			<Setter Property="Padding" Value="8,6" />
+			<Setter Property="CornerRadius" Value="6" />
+			<Setter Property="Margin" Value="0,0,4,4" />
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="Cursor" Value="Hand" />
+			<Setter Property="HorizontalAlignment" Value="Left" />
+			<Setter Property="VerticalAlignment" Value="Top" />
+			<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+			<Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Background" Value="{DynamicResource NeutralSoftBrush}" />
 			</Style>
-			<Style Selector="TextBlock">
-				<Setter Property="FontSize" Value="12" />
-				<Setter Property="Margin" Value="0,4" />
-			</Style>
-			<Style Selector="ListBox">
-				<Setter Property="Margin" Value="0,5,0,10"/>
-				<Style Selector="^ > ListBoxItem">
-					<Setter Property="Padding" Value="0"/>
-					<Style Selector="^ TextBlock">
-						<Setter Property="Margin" Value="8,1"/>
-					</Style>
-				</Style>
-			</Style>
-		</Grid.Styles>
+		</Style>
+		<Style Selector="Border.Card">
+			<Setter Property="CornerRadius" Value="8" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="ClipToBounds" Value="True" />
+		</Style>
+	</Window.Styles>
 
-		<Grid
-			Grid.ColumnSpan="4"
-			RowDefinitions="Auto,Auto">
+	<Window.Resources>
+		<DataTemplate x:Key="FieldTile" x:DataType="dialogs:SearchSyntaxDialog+FieldInfo">
+			<Button Classes="Tile" Click="Field_Click" ToolTip.Tip="{Binding ToolTipText}">
+				<StackPanel Spacing="2">
+					<TextBlock FontFamily="Menlo,Consolas,monospace" FontSize="13" FontWeight="SemiBold" Text="{Binding DisplayName}" />
+					<TextBlock FontSize="12" TextWrapping="Wrap" Text="{Binding Description}" />
+					<TextBlock FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryForegroundBrush}" IsVisible="{Binding HasSynonyms}" Text="{Binding AlsoText}" />
+				</StackPanel>
+			</Button>
+		</DataTemplate>
+	</Window.Resources>
 
-			<TextBlock
-				Text="Full Lucene query syntax is supported&#xa;Fields with similar names are synonyms (eg: Author, Authors, AuthorNames)" />
+	<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+		<StackPanel Margin="24" Spacing="24" MaxWidth="900">
 
-			<TextBlock Grid.Row="1" Text="Tag format: [tagName]" />
-		</Grid>
+			<StackPanel Spacing="8">
+				<TextBlock Text="Searching your library" FontSize="20" FontWeight="SemiBold" />
+				<TextBlock
+					FontSize="14"
+					TextWrapping="Wrap"
+					Foreground="{DynamicResource SecondaryForegroundBrush}"
+					Text="Type words to search titles, authors, narrators, series and more. Words match any of them — use AND to require all. To search one field, type field:value." />
+				<TextBlock Classes="Caption" Text="Click an example to use it, or a field to add it to the search box." />
+			</StackPanel>
 
-		<Grid Grid.Row="1" RowDefinitions="Auto,Auto,Auto">
-			<TextBlock Text="String fields" />
-			<TextBlock Grid.Row="1" Text="{Binding StringUsage}" />
-			<ListBox Grid.Row="2" DoubleTapped="ListBox_DoubleTapped" ItemsSource="{Binding StringFields}"/>
-		</Grid>
+			<StackPanel Spacing="8">
+				<TextBlock Classes="Subhead" Text="Examples" />
+				<Border Classes="Card">
+					<ItemsControl ItemsSource="{Binding Examples}" Margin="0,-1,0,0" Grid.IsSharedSizeScope="True">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate x:DataType="dialogs:SearchSyntaxDialog+ExampleRow">
+								<Border BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="Auto" SharedSizeGroup="Code" />
+											<ColumnDefinition Width="*" />
+										</Grid.ColumnDefinitions>
+										<Button Classes="Code" HorizontalAlignment="Left" Content="{Binding Code}" Click="Example_Click" />
+										<TextBlock Grid.Column="1" Margin="12,0,0,0" FontSize="14" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding Description}" />
+									</Grid>
+								</Border>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</Border>
+			</StackPanel>
 
-		<Grid Grid.Row="1" Grid.Column="1" RowDefinitions="Auto,Auto,Auto">
-			<TextBlock Text="Number fields" />
-			<TextBlock Grid.Row="1" Text="{Binding NumberUsage}" />
-			<ListBox Grid.Row="2" DoubleTapped="ListBox_DoubleTapped" ItemsSource="{Binding NumberFields}"/>
-		</Grid>
+			<StackPanel Spacing="8">
+				<TextBlock Classes="Subhead" Text="Combining searches" />
+				<Border Classes="Card">
+					<ItemsControl ItemsSource="{Binding Combining}" Margin="0,-1,0,0" Grid.IsSharedSizeScope="True">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate x:DataType="dialogs:SearchSyntaxDialog+ExampleRow">
+								<Border BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="Auto" SharedSizeGroup="Code" />
+											<ColumnDefinition Width="*" />
+										</Grid.ColumnDefinitions>
+										<Border Classes="Chip" HorizontalAlignment="Left"><TextBlock Text="{Binding Code}" /></Border>
+										<TextBlock Grid.Column="1" Margin="12,0,0,0" FontSize="14" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding Description}" />
+									</Grid>
+								</Border>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</Border>
+			</StackPanel>
 
-		<Grid Grid.Row="1" Grid.Column="2" RowDefinitions="Auto,Auto,Auto">
-			<TextBlock Text="Boolean (true/false) fields" />
-			<TextBlock Grid.Row="1" Text="{Binding BoolUsage}" />
-			<ListBox Grid.Row="2" DoubleTapped="ListBox_DoubleTapped" ItemsSource="{Binding BoolFields}"/>
-		</Grid>
+			<StackPanel Spacing="16">
+				<Grid ColumnDefinitions="*,Auto">
+					<TextBlock Classes="Subhead" Text="Fields" VerticalAlignment="Center" />
+					<TextBox Grid.Column="1" Width="220" PlaceholderText="Filter fields" Text="{Binding FieldFilter, Mode=TwoWay}">
+						<TextBox.InnerRightContent>
+							<Button
+								Classes="Ghost"
+								Padding="8,2"
+								VerticalAlignment="Center"
+								Click="ClearFieldFilter_Click"
+								Content="×"
+								IsVisible="{Binding FieldFilter, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+								ToolTip.Tip="Clear filter" />
+						</TextBox.InnerRightContent>
+					</TextBox>
+				</Grid>
 
-		<Grid Grid.Row="1" Grid.Column="3" RowDefinitions="Auto,Auto,Auto">
-			<TextBlock Text="ID fields" />
-			<TextBlock Grid.Row="1" Text="{Binding IdUsage}" />
-			<ListBox Grid.Row="2" DoubleTapped="ListBox_DoubleTapped" ItemsSource="{Binding IdFields}"/>
-		</Grid>		
-	</Grid>
+				<TextBlock Classes="Caption" Text="No matching fields." IsVisible="{Binding HasNone}" />
+
+				<StackPanel Spacing="4" IsVisible="{Binding HasText}">
+					<TextBlock FontSize="13" FontWeight="SemiBold" Text="Text" />
+					<TextBlock Classes="Caption" Text="field:word or field:&quot;several words&quot;" />
+					<ItemsControl ItemsSource="{Binding TextFields}" Margin="0,4,0,0" ItemTemplate="{StaticResource FieldTile}">
+						<ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+					</ItemsControl>
+				</StackPanel>
+
+				<StackPanel Spacing="4" IsVisible="{Binding HasNumber}">
+					<TextBlock FontSize="13" FontWeight="SemiBold" Text="Numbers and dates" />
+					<TextBlock Classes="Caption" Text="field:value or field:[low TO high]. Dates are yyyymmdd." />
+					<ItemsControl ItemsSource="{Binding NumberFields}" Margin="0,4,0,0" ItemTemplate="{StaticResource FieldTile}">
+						<ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+					</ItemsControl>
+				</StackPanel>
+
+				<StackPanel Spacing="4" IsVisible="{Binding HasBool}">
+					<TextBlock FontSize="13" FontWeight="SemiBold" Text="Yes / no" />
+					<TextBlock Classes="Caption" Text="Name finds books where it's true; -Name where it's false." />
+					<ItemsControl ItemsSource="{Binding BoolFields}" Margin="0,4,0,0" ItemTemplate="{StaticResource FieldTile}">
+						<ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+					</ItemsControl>
+				</StackPanel>
+
+				<StackPanel Spacing="4" IsVisible="{Binding HasId}">
+					<TextBlock FontSize="13" FontWeight="SemiBold" Text="ID" />
+					<TextBlock Classes="Caption" Text="Audible product ID (ASIN)." />
+					<ItemsControl ItemsSource="{Binding IdFields}" Margin="0,4,0,0" ItemTemplate="{StaticResource FieldTile}">
+						<ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+					</ItemsControl>
+				</StackPanel>
+			</StackPanel>
+
+		</StackPanel>
 	</ScrollViewer>
 </Window>

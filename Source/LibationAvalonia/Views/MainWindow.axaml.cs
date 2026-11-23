@@ -300,7 +300,8 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 	public SearchSyntaxDialog ShowSearchSyntaxDialog()
 	{
 		var dialog = new SearchSyntaxDialog();
-		dialog.TagDoubleClicked += Dialog_TagDoubleClicked;
+		dialog.InsertRequested += Dialog_InsertRequested;
+		dialog.ReplaceRequested += Dialog_ReplaceRequested;
 		dialog.Closed += Dialog_Closed;
 		filterHelpBtn.IsEnabled = false;
 		dialog.Show(this);
@@ -308,15 +309,27 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 
 		void Dialog_Closed(object? sender, EventArgs e)
 		{
-			dialog.TagDoubleClicked -= Dialog_TagDoubleClicked;
+			dialog.InsertRequested -= Dialog_InsertRequested;
+			dialog.ReplaceRequested -= Dialog_ReplaceRequested;
 			filterHelpBtn.IsEnabled = true;
 		}
-		void Dialog_TagDoubleClicked(object? sender, string tag)
+		void Dialog_InsertRequested(object? sender, string tag)
 		{
-			var text = filterSearchTb.Text;
-			filterSearchTb.Text = text?.Insert(Math.Min(Math.Max(0, filterSearchTb.CaretIndex), text.Length), tag);
-			filterSearchTb.CaretIndex += tag.Length;
+			var text = filterSearchTb.Text ?? "";
+			var caret = Math.Clamp(filterSearchTb.CaretIndex, 0, text.Length);
+			if (caret > 0 && !char.IsWhiteSpace(text[caret - 1]) && text[caret - 1] != '(')
+				tag = " " + tag;
+			filterSearchTb.Text = text.Insert(caret, tag);
+			filterSearchTb.CaretIndex = caret + tag.Length;
 			filterSearchTb.Focus();
+		}
+		async void Dialog_ReplaceRequested(object? sender, string query)
+		{
+			filterSearchTb.Text = query;
+			filterSearchTb.CaretIndex = query.Length;
+			filterSearchTb.Focus();
+			if (ViewModel is not null)
+				await ViewModel.FilterBtn(query);
 		}
 	}
 }
