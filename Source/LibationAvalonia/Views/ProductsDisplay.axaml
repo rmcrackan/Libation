@@ -165,7 +165,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
-								<TextBlock Text="{Binding Authors}" />
+								<TextBlock Text="{Binding Authors}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Authors}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -178,7 +178,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
-								<TextBlock Text="{Binding Narrators}" />
+								<TextBlock Text="{Binding Narrators}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Narrators}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -204,7 +204,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
-								<TextBlock Text="{Binding Series}" />
+								<TextBlock Text="{Binding Series}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Series}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -243,7 +243,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
-								<TextBlock Text="{Binding Category}" />
+								<TextBlock Text="{Binding Category}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Category}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -297,7 +297,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
-								<TextBlock Text="{Binding Misc}" TextWrapping="WrapWithOverflow" />
+								<TextBlock Text="{Binding Misc}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Misc}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>

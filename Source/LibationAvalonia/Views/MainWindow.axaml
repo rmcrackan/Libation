@@ -549,7 +549,8 @@
 		</Grid>
 
 		<!-- Bottom Status Strip -->
-		<Grid Grid.Row="2" Margin="16,8" VerticalAlignment="Bottom" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto">
+		<Border Grid.Row="2" VerticalAlignment="Bottom" Padding="16,8" Background="{DynamicResource Surface2Brush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,1,0,0">
+		<Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto">
 			<Grid.Styles>
 				<Style Selector="ProgressBar:horizontal">
 					<Setter Property="MinWidth" Value="100" />
@@ -576,15 +577,15 @@
 			<StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right" VerticalAlignment="Center" ClipToBounds="True"
 						IsVisible="{Binding StatusCountsVisible}" ToolTip.Tip="{Binding LibraryStats?.StatusString}">
 				<StackPanel Orientation="Horizontal" Spacing="6">
-					<Ellipse Classes="statusDot" Fill="#30A46C" />
+					<Ellipse Classes="statusDot" Fill="{DynamicResource SuccessForegroundBrush}" />
 					<TextBlock Text="{Binding DownloadedCountText}" />
 				</StackPanel>
 				<StackPanel Orientation="Horizontal" Spacing="6">
-					<Ellipse Classes="statusDot" Fill="#F2555A" />
+					<Ellipse Classes="statusDot" Fill="{DynamicResource SystemAccentColor}" />
 					<TextBlock Text="{Binding ToDoCountText}" />
 				</StackPanel>
 				<StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding InProgressCountVisible}">
-					<Ellipse Classes="statusDot" Fill="#F5B800" />
+					<Ellipse Classes="statusDot" Fill="{DynamicResource WarningForegroundBrush}" />
 					<TextBlock Text="{Binding InProgressCountText}" />
 				</StackPanel>
 				<StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding ErrorCountVisible}">
@@ -602,6 +603,7 @@
 					ToolTip.Tip="{Binding TrashBinStatusToolTip}"
 					IsVisible="{Binding TrashBinStatusVisible}" />
 		</Grid>
+		</Border>
 		</Grid>
 		</Grid>
 	</Grid>

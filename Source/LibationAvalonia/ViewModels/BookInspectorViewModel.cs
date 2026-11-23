@@ -25,7 +25,7 @@ public record DetailItem(string Label, string Value, bool IsMono = false, Detail
 	public string ShowFileTip => OperatingSystem.IsMacOS() ? "Show in Finder" : OperatingSystem.IsWindows() ? "Show in Explorer" : "Show in folder";
 }
 
-public record RatingRow(string Label, string Audible, string Yours);
+public record RatingRow(string Label, string Audible, string Yours, bool ShowAudible, bool ShowYours, int YoursColumn);
 
 public class StatusOption(LiberatedStatus status, string text)
 {
@@ -63,7 +63,8 @@ public class BookInspectorViewModel : ViewModelBase
 	public bool HasBook => entry is LibraryBookEntry;
 	public IImage? Cover { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	public string TitleText { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "";
-	public string Byline { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "";
+	public string Authors { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "";
+	public string NarratedBy { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "";
 	public string StatusText { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = "";
 	public bool StatusIsSuccess { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	public bool StatusIsWarning { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
@@ -98,8 +99,11 @@ public class BookInspectorViewModel : ViewModelBase
 	public StatusOption? PdfStatusSelected { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	public bool HasPdf { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	public IReadOnlyList<DetailItem> Details { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = [];
-	public IReadOnlyList<RatingRow> Ratings { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); this.RaisePropertyChanged(nameof(HasRatings)); } } = [];
+	public IReadOnlyList<RatingRow> Ratings { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); this.RaisePropertyChanged(nameof(HasRatings)); this.RaisePropertyChanged(nameof(ShowAudibleRating)); this.RaisePropertyChanged(nameof(ShowYourRating)); this.RaisePropertyChanged(nameof(YourRatingColumn)); } } = [];
 	public bool HasRatings => Ratings.Count > 0;
+	public bool ShowAudibleRating => Ratings.Count > 0 && Ratings[0].ShowAudible;
+	public bool ShowYourRating => Ratings.Count > 0 && Ratings[0].ShowYours;
+	public int YourRatingColumn => ShowAudibleRating ? 2 : 1;
 
 	public string? Tags
 	{
@@ -205,7 +209,8 @@ public class BookInspectorViewModel : ViewModelBase
 			Cover ??= entry.Cover as IImage;
 			Subtitle = string.IsNullOrWhiteSpace(book.Subtitle) ? "" : book.Subtitle.Trim();
 			IsSpatial = book.IsSpatial;
-			Byline = string.IsNullOrWhiteSpace(entry.Narrators) ? entry.Authors ?? "" : $"{entry.Authors} · narrated by {entry.Narrators}";
+			Authors = entry.Authors ?? "";
+			NarratedBy = string.IsNullOrWhiteSpace(entry.Narrators) ? "" : $"Narrated by {entry.Narrators}";
 
 			var locale = AudibleApi.Localization.Get(book.Locale);
 			var details = new List<DetailItem>();
@@ -294,11 +299,13 @@ public class BookInspectorViewModel : ViewModelBase
 		static bool Empty(Rating? r) => r is null || (r.OverallRating <= 0 && r.PerformanceRating <= 0 && r.StoryRating <= 0);
 		if (Empty(audible) && Empty(yours))
 			return [];
+		bool showAudible = !Empty(audible), showYours = !Empty(yours);
+		var yoursColumn = showAudible ? 2 : 1;
 		return
 		[
-			new("Overall", Stars(audible?.OverallRating), Stars(yours?.OverallRating)),
-			new("Performance", Stars(audible?.PerformanceRating), Stars(yours?.PerformanceRating)),
-			new("Story", Stars(audible?.StoryRating), Stars(yours?.StoryRating)),
+			new("Overall", Stars(audible?.OverallRating), Stars(yours?.OverallRating), showAudible, showYours, yoursColumn),
+			new("Performance", Stars(audible?.PerformanceRating), Stars(yours?.PerformanceRating), showAudible, showYours, yoursColumn),
+			new("Story", Stars(audible?.StoryRating), Stars(yours?.StoryRating), showAudible, showYours, yoursColumn),
 		];
 	}
 

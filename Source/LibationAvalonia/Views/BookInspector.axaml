@@ -105,9 +105,21 @@
 							TextWrapping="Wrap"
 							Foreground="{DynamicResource SecondaryForegroundBrush}" />
 						<TextBlock
-							Text="{Binding Byline}"
-							IsVisible="{Binding Byline, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+							Text="{Binding Authors}"
+							IsVisible="{Binding Authors, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+							ToolTip.Tip="{Binding Authors}"
 							FontSize="14"
+							MaxLines="2"
+							TextTrimming="CharacterEllipsis"
+							TextWrapping="Wrap"
+							Foreground="{DynamicResource SecondaryForegroundBrush}" />
+						<TextBlock
+							Text="{Binding NarratedBy}"
+							IsVisible="{Binding NarratedBy, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+							ToolTip.Tip="{Binding NarratedBy}"
+							FontSize="13"
+							MaxLines="2"
+							TextTrimming="CharacterEllipsis"
 							TextWrapping="Wrap"
 							Foreground="{DynamicResource SecondaryForegroundBrush}" />
 						<Border
@@ -158,16 +170,16 @@
 				<StackPanel Spacing="4" Margin="0,8,0,0" IsVisible="{Binding HasRatings}">
 					<TextBlock Classes="SectionHeader" Text="Ratings" />
 					<Grid ColumnDefinitions="100,120,*" Margin="0,0,0,2">
-						<TextBlock Grid.Column="1" Text="Audible" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" />
-						<TextBlock Grid.Column="2" Text="Yours" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+						<TextBlock Grid.Column="1" Text="Audible" IsVisible="{Binding ShowAudibleRating}" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+						<TextBlock Grid.Column="{Binding YourRatingColumn}" Text="Yours" IsVisible="{Binding ShowYourRating}" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" />
 					</Grid>
 					<ItemsControl ItemsSource="{Binding Ratings}">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate x:DataType="vm:RatingRow">
 								<Grid ColumnDefinitions="100,120,*" Margin="0,0,0,6">
 									<TextBlock Text="{Binding Label}" FontSize="14" Foreground="{DynamicResource SecondaryForegroundBrush}" />
-									<TextBlock Grid.Column="1" Text="{Binding Audible}" FontSize="16" Foreground="{DynamicResource WarningForegroundBrush}" />
-									<TextBlock Grid.Column="2" Text="{Binding Yours}" FontSize="16" Foreground="{DynamicResource WarningForegroundBrush}" />
+									<TextBlock Grid.Column="1" Text="{Binding Audible}" IsVisible="{Binding ShowAudible}" FontSize="16" Foreground="{DynamicResource WarningForegroundBrush}" />
+									<TextBlock Grid.Column="{Binding YoursColumn}" Text="{Binding Yours}" IsVisible="{Binding ShowYours}" FontSize="16" Foreground="{DynamicResource WarningForegroundBrush}" />
 								</Grid>
 							</DataTemplate>
 						</ItemsControl.ItemTemplate>
