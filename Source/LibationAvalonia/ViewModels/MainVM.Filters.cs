@@ -29,6 +29,7 @@ partial class MainVM
 			//Which explanation the empty grid carries depends on whether a filter is applied.
 			this.RaisePropertyChanged(nameof(HasActiveFilter));
 			RaiseGettingStartedChanged();
+			markSelectedQuickFilter();
 		}
 	} = new(string.Empty, null);
 	public AvaloniaList<Control> QuickFilterMenuItems { get; } = new();
@@ -145,7 +146,7 @@ partial class MainVM
 	#region Getting started
 
 	/// <summary>A filter is applied, so an empty grid is the filter's doing rather than the library's.</summary>
-	public bool HasActiveFilter => !string.IsNullOrWhiteSpace(SelectedNamedFilter?.Filter);
+	public bool HasActiveFilter => !string.IsNullOrWhiteSpace(SelectedNamedFilter?.Filter) || ProductsDisplay.Scope != LibraryScope.All;
 
 	/// <summary>
 	/// The grid is empty because there is nothing in the library at all. Held back until

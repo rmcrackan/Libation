@@ -132,9 +132,26 @@ public class DownloadDecryptSettingsVM : ViewModelBase
 	public string EditCharReplacementText { get; } = Configuration.GetDescription(nameof(Configuration.ReplacementCharacters));
 	public string InProgressDescriptionText { get; } = Configuration.GetDescription(nameof(Configuration.InProgress));
 
-	public string FolderTemplate { get => _folderTemplate; set { this.RaiseAndSetIfChanged(ref _folderTemplate, value); } }
-	public string FileTemplate { get => _fileTemplate; set { this.RaiseAndSetIfChanged(ref _fileTemplate, value); } }
-	public string ChapterFileTemplate { get => _chapterFileTemplate; set { this.RaiseAndSetIfChanged(ref _chapterFileTemplate, value); } }
+	public string FolderTemplate
+	{
+		get => _folderTemplate;
+		set { this.RaiseAndSetIfChanged(ref _folderTemplate, value); this.RaisePropertyChanged(nameof(FolderTemplateExample)); }
+	}
+	public string FileTemplate
+	{
+		get => _fileTemplate;
+		set { this.RaiseAndSetIfChanged(ref _fileTemplate, value); this.RaisePropertyChanged(nameof(FileTemplateExample)); }
+	}
+	public string ChapterFileTemplate
+	{
+		get => _chapterFileTemplate;
+		set { this.RaiseAndSetIfChanged(ref _chapterFileTemplate, value); this.RaisePropertyChanged(nameof(ChapterFileTemplateExample)); }
+	}
+
+	private string Extension => Config.DecryptToLossy ? ".mp3" : ".m4b";
+	public string FolderTemplateExample => TemplateExamples.Folder(Config.Books, FolderTemplate);
+	public string FileTemplateExample => TemplateExamples.File(Config.Books, FileTemplate, Extension);
+	public string ChapterFileTemplateExample => TemplateExamples.ChapterFile(Config.Books, ChapterFileTemplate, Extension);
 	public bool UseCoverAsFolderIcon { get; set; }
 	public bool SaveMetadataToFile { get; set; }
 

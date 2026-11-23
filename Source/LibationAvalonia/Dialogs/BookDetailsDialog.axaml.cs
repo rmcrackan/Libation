@@ -8,6 +8,7 @@ using LibationAvalonia.Controls;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
 using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,7 +38,7 @@ public partial class BookDetailsDialog : DialogWindow
 	public BookDetailsDialog()
 	{
 		InitializeComponent();
-		ControlToFocusOnShow = tagsTbox;
+		ControlToFocusOnShow = tagEditor.InputTextBox;
 
 		if (Design.IsDesignMode)
 		{
@@ -87,10 +88,25 @@ public partial class BookDetailsDialog : DialogWindow
 		public override string? ToString() => Text;
 	}
 
+	public record DetailItem(string Label, string Value, bool IsMono = false);
+
 	public class BookDetailsDialogViewModel : ViewModelBase
 	{
 		public Bitmap Cover { get; set; }
-		public string DetailsText { get; set; }
+		public string TitleText { get; }
+		public string? Subtitle { get; }
+		public string? SeriesLine { get; }
+		public string AuthorNames { get; }
+		public IReadOnlyList<DetailItem> Details { get; }
+		public string? FilePath { get; }
+		public string? ShortFilePath { get; }
+		public string ShowFileText { get; }
+		public ICommand ShowFileCommand { get; }
+		public string StatusText { get; }
+		public bool StatusIsSuccess { get; }
+		public bool StatusIsWarning { get; }
+		public bool StatusIsError { get; }
+		public bool StatusIsNeutral { get; }
 		public string Tags { get; set; }
 		public bool IsSpatial { get; }
 
@@ -110,69 +126,90 @@ public partial class BookDetailsDialog : DialogWindow
 			OpenInAudibleCommand = ReactiveCommand.Create(() => Go.To.Url(link));
 			IsSpatial = libraryBook.Book.IsSpatial;
 
-			//init tags
 			Tags = libraryBook.Book.UserDefinedItem.Tags;
 
-			//init cover image
 			byte[]? picture = libraryBook.Book.PictureId is not string picId ? null
 				: PictureStorage.GetPictureSynchronously(new PictureDefinition(picId, PictureSize._80x80));
 			Cover = AvaloniaUtils.TryLoadImageOrDefault(picture, PictureSize._80x80);
 
-			var title = string.IsNullOrEmpty(Book.Subtitle) ? Book.Title : $"{Book.Title}\r\n        {Book.Subtitle}";
+			TitleText = Book.Title;
+			Subtitle = string.IsNullOrWhiteSpace(Book.Subtitle) ? null : Book.Subtitle;
+			AuthorNames = Book.AuthorNames;
 
-			//init book details
-			var length = Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min";
-			var lines = new List<string>
+			var firstSeries = Book.SeriesLink.FirstOrDefault(s => !string.IsNullOrWhiteSpace(s.Series.Name));
+			if (firstSeries is not null)
+				SeriesLine = string.IsNullOrWhiteSpace(firstSeries.Order)
+					? firstSeries.Series.Name
+					: $"{firstSeries.Series.Name} \u00B7 Book {firstSeries.Order}";
+
+			var details = new List<DetailItem>();
+			void Add(string label, string? value, bool mono = false)
 			{
-				$"Title: {title}",
-				$"Author(s): {Book.AuthorNames}",
-				$"Narrator(s): {Book.NarratorNames}",
-				$"Length: {length}",
-				$"Category: {string.Join(", ", Book.LowestCategoryNames())}",
-				$"Purchase Date: {libraryBook.DateAdded:d}",
-				$"Language: {Book.Language}",
-				$"Audible ID: {Book.AudibleProductId}",
+				if (!string.IsNullOrWhiteSpace(value))
+					details.Add(new(label, value.Trim(), mono));
+			}
+
+			Add("Narrator(s)", Book.NarratorNames);
+			Add("Length", Book.LengthInMinutes <= 0 ? null
+				: Book.LengthInMinutes >= 60 ? $"{Book.LengthInMinutes / 60}h {Book.LengthInMinutes % 60}m" : $"{Book.LengthInMinutes}m");
+			Add("Released", Book.DatePublished?.ToString("d"));
+			Add("Purchased", libraryBook.DateAdded.ToString("d"));
+			Add("Account", string.IsNullOrWhiteSpace(libraryBook.Account) ? null : $"{libraryBook.Account} ({locale.Name})");
+			Add("Category", string.Join(", ", Book.LowestCategoryNames()));
+			Add("Language", Book.Language);
+			Add("Book rating", StarLine(Book.Rating));
+			Add("My rating", StarLine(Book.UserDefinedItem.Rating));
+			Add("Audible ID", Book.AudibleProductId, mono: true);
+			Details = details;
+
+			try
+			{
+				FilePath = AudibleFileStorage.Audio.GetPath(Book.AudibleProductId)?.PathWithoutPrefix;
+			}
+			catch
+			{
+				FilePath = null;
+			}
+			ShortFilePath = FilePath is null ? null : TrimPath(FilePath);
+			ShowFileText = OperatingSystem.IsMacOS() ? "Show in Finder" : OperatingSystem.IsWindows() ? "Show in Explorer" : "Show in folder";
+			ShowFileCommand = ReactiveCommand.Create(() => { if (FilePath is not null) Go.To.File(FilePath); });
+
+			var bookStatus = Book.UserDefinedItem.BookStatus;
+			var pdfStatus = Book.UserDefinedItem.PdfStatus;
+			(StatusText, StatusIsSuccess, StatusIsWarning, StatusIsError, StatusIsNeutral) = LibraryCommands.Liberated_Status(Book) switch
+			{
+				LiberatedStatus.PartialDownload => ("Partially downloaded", false, true, false, false),
+				LiberatedStatus.Liberated => ("Downloaded", true, false, false, false),
+				LiberatedStatus.Error => ("Error", false, false, true, false),
+				_ => ("Not downloaded", false, false, false, true)
 			};
-			DetailsText = string.Join("\r\n", lines.Where(l => !l.EndsWith(": ")));
 
-			var seriesNames = libraryBook.Book.SeriesNames();
-			if (!string.IsNullOrWhiteSpace(seriesNames))
-				DetailsText += $"\r\nSeries: {seriesNames}";
+			BookLiberatedItems.Add(new() { Status = LiberatedStatus.Liberated, Text = "Downloaded" });
+			BookLiberatedItems.Add(new() { Status = LiberatedStatus.NotLiberated, Text = "Download Pending" });
 
-			var bookRating = libraryBook.Book.Rating?.ToStarString();
-			if (!string.IsNullOrWhiteSpace(bookRating))
-				DetailsText += $"\r\nBook Rating:\r\n{bookRating}";
+			if (bookStatus == LiberatedStatus.Error)
+				BookLiberatedItems.Add(new() { Status = LiberatedStatus.Error, Text = "Error" });
 
-			var myRating = libraryBook.Book.UserDefinedItem.Rating?.ToStarString();
-			if (!string.IsNullOrWhiteSpace(myRating))
-				DetailsText += $"\r\nMy Rating:\r\n{myRating}";
+			BookLiberatedSelectedItem = BookLiberatedItems.SingleOrDefault(s => s.Status == bookStatus);
 
-
-			//init book status
+			if (pdfStatus is not null)
 			{
-				var status = libraryBook.Book.UserDefinedItem.BookStatus;
+				PdfLiberatedItems.Add(new() { Status = LiberatedStatus.Liberated, Text = "Downloaded" });
+				PdfLiberatedItems.Add(new() { Status = LiberatedStatus.NotLiberated, Text = "Download Pending" });
 
-				BookLiberatedItems.Add(new() { Status = LiberatedStatus.Liberated, Text = "Downloaded" });
-				BookLiberatedItems.Add(new() { Status = LiberatedStatus.NotLiberated, Text = "Download Pending" });
-
-				if (status == LiberatedStatus.Error)
-					BookLiberatedItems.Add(new() { Status = LiberatedStatus.Error, Text = "Error" });
-
-				BookLiberatedSelectedItem = BookLiberatedItems.SingleOrDefault(s => s.Status == status);
+				PdfLiberatedSelectedItem = PdfLiberatedItems.SingleOrDefault(s => s.Status == pdfStatus);
 			}
+		}
 
-			//init pdf status
-			{
-				var status = libraryBook.Book.UserDefinedItem.PdfStatus;
+		private static string? StarLine(Rating? rating)
+			=> rating?.ToStarString()?.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries) is { Length: > 0 } lines
+				? string.Join("   ", lines.Select(l => l.Trim()))
+				: null;
 
-				if (status is not null)
-				{
-					PdfLiberatedItems.Add(new() { Status = LiberatedStatus.Liberated, Text = "Downloaded" });
-					PdfLiberatedItems.Add(new() { Status = LiberatedStatus.NotLiberated, Text = "Download Pending" });
-
-					PdfLiberatedSelectedItem = PdfLiberatedItems.SingleOrDefault(s => s.Status == status);
-				}
-			}
+		private static string TrimPath(string path)
+		{
+			const int max = 64;
+			return path.Length <= max ? path : "\u2026" + path[^max..];
 		}
 	}
 }

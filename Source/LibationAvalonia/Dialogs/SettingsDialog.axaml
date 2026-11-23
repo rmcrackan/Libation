@@ -2,8 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="200"
-		MinWidth="900" MinHeight="750"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="750"
+		MinWidth="900" MinHeight="700"
 		Width="900" Height="750"
         x:Class="LibationAvalonia.Dialogs.SettingsDialog"
         xmlns:controls="clr-namespace:LibationAvalonia.Controls"
@@ -12,92 +12,102 @@
 		x:DataType="vm:SettingsVM"
         Title="Settings">
 
-	<Grid RowDefinitions="*,Auto">
+	<Window.Styles>
+		<Style Selector="ListBox#sectionList > ListBoxItem">
+			<Setter Property="MinHeight" Value="32" />
+			<Setter Property="Height" Value="32" />
+			<Setter Property="Padding" Value="12,0" />
+			<Setter Property="Margin" Value="0,0,0,2" />
+			<Setter Property="CornerRadius" Value="6" />
+			<Setter Property="FontSize" Value="14" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="ListBox#sectionList > ListBoxItem:selected /template/ ContentPresenter, ListBox#sectionList > ListBoxItem:selected:pointerover /template/ ContentPresenter, ListBox#sectionList > ListBoxItem:selected:focus /template/ ContentPresenter">
+			<Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+		</Style>
+	</Window.Styles>
 
-		<StackPanel
-			Grid.Row="1"
-			Margin="16"
-			HorizontalAlignment="Right"
-			Orientation="Horizontal"
-			Spacing="8">
-			<Button
-				Padding="16,6"
-				IsCancel="True"
-				Content="Cancel"
-				Click="CancelButton_Clicked" />
-			<Button
-				Padding="16,6"
-				Classes="Primary"
-				Content="Save"
-				Name="saveBtn"
-				Click="SaveButton_Clicked" />
-		</StackPanel>
+	<Grid ColumnDefinitions="200,*" RowDefinitions="*,Auto">
 
-		<TabControl Name="tabControl" Grid.Column="0">
-			<TabControl.Styles>
-				<Style Selector="TabControl /template/ ItemsPresenter#PART_ItemsPresenter">
-					<Setter Property="Height" Value="30"/>
-				</Style>
-				<Style Selector="TabControl /template/ ContentPresenter#PART_SelectedContentHost">
-					<Setter Property="BorderBrush" Value="{DynamicResource SystemBaseLowColor}" />
-					<Setter Property="BorderThickness" Value="1" />
-				</Style>
-				<Style Selector="TabItem">
-					<Setter Property="MinHeight" Value="45"/>
-					<Setter Property="Height" Value="45"/>
-					<Setter Property="Padding" Value="8,2,8,10"/>
-					<Style Selector="^ > TextBlock" >
-						<Setter Property="FontSize" Value="14" />
-						<Setter Property="VerticalAlignment" Value="Center" />
-					</Style>
-				</Style>
-			</TabControl.Styles>
+		<Border
+			Grid.Column="0"
+			Grid.RowSpan="2"
+			Background="{DynamicResource Surface2Brush}"
+			BorderBrush="{DynamicResource BorderSubtleBrush}"
+			BorderThickness="0,0,1,0">
+			<ListBox
+				Name="sectionList"
+				Margin="8,16"
+				Padding="0"
+				Background="Transparent"
+				SelectionChanged="SectionList_SelectionChanged">
+				<ListBoxItem Content="General" Tag="Appearance, sign-in, updates, authentication tokens and logging." />
+				<ListBoxItem Content="Library &amp; import" Tag="Where your books live, and how Libation scans and imports your library." />
+				<ListBoxItem Content="Downloads" Tag="Download limits, failure handling and temporary files." />
+				<ListBoxItem Content="File naming" Tag="Templates that decide where downloaded books are saved and what they are called." />
+				<ListBoxItem Content="Audio" Tag="Audio format, extras, chapters and MP3 encoding." />
+				<ListBoxItem Content="Audiobookshelf" Tag="Sync your listening progress with an Audiobookshelf server." />
+			</ListBox>
+		</Border>
 
-			<TabItem>
-				<TabItem.Header>
-					<TextBlock Text="General"/>
-				</TabItem.Header>
+		<Grid Grid.Column="1" Grid.Row="0" RowDefinitions="Auto,*">
+			<StackPanel Margin="24,24,24,0" Spacing="2">
+				<TextBlock Name="sectionTitle" FontSize="20" FontWeight="SemiBold" />
+				<TextBlock
+					Name="sectionDescription"
+					FontSize="12"
+					TextWrapping="Wrap"
+					Foreground="{DynamicResource SecondaryForegroundBrush}" />
+			</StackPanel>
 
-				<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,16,0">
-					<settings:Important DataContext="{Binding ImportantSettings, Mode=OneTime}" />
-				</ScrollViewer>
-			</TabItem>
-			<TabItem>
-				<TabItem.Header>
-					<TextBlock Text="Import"/>
-				</TabItem.Header>
-
-				<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,16,0">
+			<Panel Grid.Row="1">
+			<ScrollViewer Name="generalSection" VerticalScrollBarVisibility="Auto">
+				<settings:Important Margin="24,16,24,24" DataContext="{Binding ImportantSettings, Mode=OneTime}" />
+			</ScrollViewer>
+			<ScrollViewer Name="librarySection" VerticalScrollBarVisibility="Auto" IsVisible="False">
+				<StackPanel Margin="24,16,24,24" Spacing="24">
+					<settings:Library DataContext="{Binding ImportantSettings, Mode=OneTime}" />
 					<settings:Import DataContext="{Binding ImportSettings, Mode=OneTime}" />
-				</ScrollViewer>
-			</TabItem>
+				</StackPanel>
+			</ScrollViewer>
+			<ScrollViewer Name="downloadsSection" VerticalScrollBarVisibility="Auto" IsVisible="False">
+				<settings:DownloadDecrypt Margin="24,16,24,24" DataContext="{Binding DownloadDecryptSettings, Mode=OneTime}" />
+			</ScrollViewer>
+			<ScrollViewer Name="namingSection" VerticalScrollBarVisibility="Auto" IsVisible="False">
+				<settings:FileNaming Margin="24,16,24,24" DataContext="{Binding}" />
+			</ScrollViewer>
+			<ScrollViewer Name="audioSection" VerticalScrollBarVisibility="Auto" IsVisible="False">
+				<settings:Audio Margin="24,16,24,24" DataContext="{Binding AudioSettings, Mode=OneTime}" />
+			</ScrollViewer>
+			<ScrollViewer Name="audiobookshelfSection" VerticalScrollBarVisibility="Auto" IsVisible="False">
+				<settings:Audiobookshelf Margin="24,16,24,24" DataContext="{Binding AudiobookshelfSettings, Mode=OneTime}" />
+			</ScrollViewer>
+			</Panel>
+		</Grid>
 
-			<TabItem>
-				<TabItem.Header>
-					<TextBlock Text="Downloads"/>
-				</TabItem.Header>
-				
-				<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,16,0">
-					<settings:DownloadDecrypt DataContext="{Binding DownloadDecryptSettings, Mode=OneTime}" />
-				</ScrollViewer>
-			</TabItem>
-			
-			<TabItem>
-				<TabItem.Header>
-					<TextBlock Text="Audio"/>
-				</TabItem.Header>
-				<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,16,0">
-					<settings:Audio DataContext="{Binding AudioSettings, Mode=OneTime}" />
-				</ScrollViewer>
-			</TabItem>
-			<TabItem>
-				<TabItem.Header>
-					<TextBlock Text="Audiobookshelf"/>
-				</TabItem.Header>
-				<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,16,0">
-					<settings:Audiobookshelf DataContext="{Binding AudiobookshelfSettings, Mode=OneTime}" />
-				</ScrollViewer>
-			</TabItem>
-		</TabControl>
+		<Border
+			Grid.Column="1"
+			Grid.Row="1"
+			BorderBrush="{DynamicResource BorderSubtleBrush}"
+			BorderThickness="0,1,0,0">
+			<StackPanel
+				Margin="24,12"
+				HorizontalAlignment="Right"
+				Orientation="Horizontal"
+				Spacing="8">
+				<Button
+					Padding="16,6"
+					IsCancel="True"
+					Content="Cancel"
+					Click="CancelButton_Clicked" />
+				<Button
+					Padding="16,6"
+					Classes="Primary"
+					Content="Save"
+					Name="saveBtn"
+					Click="SaveButton_Clicked" />
+			</StackPanel>
+		</Border>
 	</Grid>
 </Window>

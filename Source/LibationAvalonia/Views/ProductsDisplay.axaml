@@ -15,10 +15,12 @@
 		<DataGrid
 			Name="productsGrid"
 			ClipboardCopyMode="IncludeHeader"
-			GridLinesVisibility="All"
+			GridLinesVisibility="Horizontal"
+			HorizontalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
+			FrozenColumnCount="4"
 			AutoGenerateColumns="False"
 			ItemsSource="{Binding GridEntries}"
-			CanUserSortColumns="True" BorderThickness="3"
+			CanUserSortColumns="True" BorderThickness="0"
 			CanUserResizeColumns="True"
 			LoadingRow="ProductsDisplay_LoadingRow"
 			CanUserReorderColumns="True">
@@ -122,7 +124,9 @@
 				<controls:DataGridTemplateColumnExt Header="Cover" CanUserResize="False" CanUserSort="False" SortMemberPath="Cover">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
-							<Image Tag="NoRowDoubleTap" Opacity="{Binding Liberate.Opacity}" Tapped="Cover_Click" Source="{Binding Cover}" ToolTip.Tip="Click to see full size" />
+							<Border Margin="8" CornerRadius="6" ClipToBounds="True" Opacity="{Binding Liberate.Opacity}">
+								<Image Tag="NoRowDoubleTap" Tapped="Cover_Click" Source="{Binding Cover}" Stretch="UniformToFill" ToolTip.Tip="Click to see full size" />
+							</Border>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 					<controls:DataGridTemplateColumnExt.ClipboardContentBinding>
@@ -134,7 +138,16 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
-								<TextBlock Classes="h1" Text="{Binding Title}" />
+								<StackPanel VerticalAlignment="Center" Margin="4,0" Spacing="2">
+									<TextBlock Classes="h1" FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Text="{Binding Title}" />
+									<TextBlock
+										Classes="h2"
+										TextWrapping="NoWrap"
+										TextTrimming="CharacterEllipsis"
+										IsVisible="{Binding Series, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+										Foreground="{DynamicResource SecondaryForegroundBrush}"
+										Text="{Binding Series}" />
+								</StackPanel>
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>

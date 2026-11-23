@@ -1,0 +1,121 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:LibationAvalonia.ViewModels"
+             x:Class="LibationAvalonia.Views.LibrarySidebar"
+             x:DataType="vm:MainVM">
+
+	<UserControl.Resources>
+		<DataTemplate x:Key="SidebarItemTemplate" x:DataType="vm:SidebarItem">
+			<Button Classes="SidebarItem" Classes.selected="{Binding IsSelected}" Click="Item_Click">
+				<Grid ColumnDefinitions="*,Auto">
+					<TextBlock Text="{Binding Label}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+					<TextBlock Grid.Column="1" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}" Text="{Binding Count}" />
+				</Grid>
+			</Button>
+		</DataTemplate>
+	</UserControl.Resources>
+
+	<UserControl.Styles>
+		<Style Selector="TextBlock.SidebarCaption">
+			<Setter Property="FontSize" Value="12" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}" />
+			<Setter Property="Margin" Value="12,16,12,4" />
+		</Style>
+		<Style Selector="Button.SidebarIcon">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="CornerRadius" Value="6" />
+			<Setter Property="Padding" Value="7" />
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Style Selector="^ Path">
+				<Setter Property="Stroke" Value="{DynamicResource SecondaryForegroundBrush}" />
+				<Setter Property="StrokeThickness" Value="1.6" />
+				<Setter Property="StrokeLineCap" Value="Round" />
+				<Setter Property="StrokeJoin" Value="Round" />
+				<Setter Property="Stretch" Value="Uniform" />
+				<Setter Property="Width" Value="14" />
+				<Setter Property="Height" Value="14" />
+			</Style>
+			<Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Background" Value="#22808080" />
+			</Style>
+		</Style>
+		<Style Selector="Button.SidebarItem">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="CornerRadius" Value="6" />
+			<Setter Property="Height" Value="32" />
+			<Setter Property="Padding" Value="10,0" />
+			<Setter Property="Margin" Value="8,0" />
+			<Setter Property="HorizontalAlignment" Value="Stretch" />
+			<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+			<Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColor}" />
+			<Style Selector="^.selected /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+			</Style>
+			<Style Selector="^:pointerover:not(.selected) /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Background" Value="#22808080" />
+			</Style>
+		</Style>
+	</UserControl.Styles>
+
+	<Border Background="{DynamicResource Surface2Brush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,1,0">
+		<Grid RowDefinitions="*,Auto">
+			<ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Disabled" IsEnabled="{Binding !RemoveButtonsVisible}">
+				<StackPanel Margin="0,0,0,12">
+					<TextBlock Classes="SidebarCaption" Text="LIBRARY" Margin="12,12,12,4" />
+					<ItemsControl ItemsSource="{Binding LibraryScopeItems}" ItemTemplate="{StaticResource SidebarItemTemplate}" />
+
+					<TextBlock Classes="SidebarCaption" Text="BROWSE" />
+					<ItemsControl ItemsSource="{Binding BrowseScopeItems}" ItemTemplate="{StaticResource SidebarItemTemplate}" />
+
+					<Grid ColumnDefinitions="*,Auto">
+						<TextBlock Classes="SidebarCaption" Text="QUICK FILTERS" VerticalAlignment="Center" />
+						<Button
+							Grid.Column="1"
+							Classes="SidebarIcon"
+							Margin="0,12,8,0"
+							IsVisible="{Binding QuickFilterItems.Count}"
+							Command="{Binding EditQuickFiltersAsync}"
+							ToolTip.Tip="Edit quick filters">
+							<Path Data="M4,20 L8,19 L19,8 L16,5 L5,16 Z M14,7 L17,10" />
+						</Button>
+					</Grid>
+					<ItemsControl ItemsSource="{Binding QuickFilterItems}" ItemTemplate="{StaticResource SidebarItemTemplate}" />
+					<Button
+						Name="addQuickFilterBtn"
+						Classes="Ghost"
+						Margin="8,2,8,0"
+						Padding="10,0"
+						Height="32"
+						HorizontalAlignment="Left"
+						Command="{Binding AddQuickFilterBtn}"
+						Content="+ Save current search" />
+				</StackPanel>
+			</ScrollViewer>
+
+			<StackPanel Grid.Row="1" Margin="0,8,0,12" Spacing="2">
+				<Button Classes="SidebarItem" Command="{Binding ShowTrashBinAsync}">
+					<Grid ColumnDefinitions="*,Auto">
+						<TextBlock Text="Trash" VerticalAlignment="Center" />
+						<TextBlock Grid.Column="1" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}" Text="{Binding TrashCountText}" />
+					</Grid>
+				</Button>
+				<Grid ColumnDefinitions="*,Auto">
+					<Button Classes="SidebarItem" Margin="8,0,0,0" Command="{Binding ShowAccountsAsync}">
+						<TextBlock
+							FontSize="12"
+							VerticalAlignment="Center"
+							TextTrimming="CharacterEllipsis"
+							Foreground="{DynamicResource SecondaryForegroundBrush}"
+							Text="{Binding AccountsLine}" />
+					</Button>
+					<Button Grid.Column="1" Classes="SidebarIcon" Margin="2,0,8,0" Command="{Binding ShowSettingsAsync}" ToolTip.Tip="Settings">
+						<Path Data="M12,9 A3,3 0 1 0 12,15 A3,3 0 1 0 12,9 Z M19.4,15 L21,16.5 L19,20 L17,19.4 C16.5,19.8 16,20.1 15.4,20.3 L15,22 L9,22 L8.6,20.3 C8,20.1 7.5,19.8 7,19.4 L5,20 L3,16.5 L4.6,15 C4.5,14.7 4.5,14.3 4.5,12 C4.5,9.7 4.5,9.3 4.6,9 L3,7.5 L5,4 L7,4.6 C7.5,4.2 8,3.9 8.6,3.7 L9,2 L15,2 L15.4,3.7 C16,3.9 16.5,4.2 17,4.6 L19,4 L21,7.5 L19.4,9" />
+					</Button>
+				</Grid>
+			</StackPanel>
+		</Grid>
+	</Border>
+</UserControl>

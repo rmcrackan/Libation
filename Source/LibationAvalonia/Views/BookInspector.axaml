@@ -1,0 +1,125 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+             xmlns:views="clr-namespace:LibationAvalonia.Views"
+             xmlns:vm="clr-namespace:LibationAvalonia.ViewModels"
+             xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
+             x:Class="LibationAvalonia.Views.BookInspector">
+
+	<UserControl.Styles>
+		<Style Selector="Border.Pill">
+			<Setter Property="CornerRadius" Value="999" />
+			<Setter Property="Padding" Value="10,3" />
+			<Setter Property="HorizontalAlignment" Value="Left" />
+			<Setter Property="Background" Value="{DynamicResource NeutralSoftBrush}" />
+		</Style>
+		<Style Selector="Border.Pill > TextBlock">
+			<Setter Property="FontSize" Value="12" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Success">
+			<Setter Property="Background" Value="{DynamicResource SuccessSoftBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Success > TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource SuccessForegroundBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Warning">
+			<Setter Property="Background" Value="{DynamicResource WarningSoftBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Warning > TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource WarningForegroundBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Error">
+			<Setter Property="Background" Value="{DynamicResource ErrorSoftBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Error > TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource ErrorForegroundBrush}" />
+		</Style>
+	</UserControl.Styles>
+
+	<Panel Name="root" x:DataType="vm:BookInspectorViewModel">
+		<TextBlock
+			IsVisible="{Binding ShowEmpty}"
+			Margin="24"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			TextAlignment="Center"
+			TextWrapping="Wrap"
+			FontSize="14"
+			Foreground="{DynamicResource SecondaryForegroundBrush}"
+			Text="{Binding $parent[views:BookInspector].EmptyText}" />
+
+		<ScrollViewer IsVisible="{Binding IsMulti}" HorizontalScrollBarVisibility="Disabled">
+			<StackPanel Margin="16" Spacing="12">
+				<TextBlock Text="{Binding MultiTitle}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+				<TextBlock
+					Text="{Binding MultiSubtitle}"
+					IsVisible="{Binding MultiSubtitleVisible}"
+					FontSize="14"
+					Foreground="{DynamicResource SecondaryForegroundBrush}" />
+
+				<Button Classes="Primary" Click="BulkLiberate_Click" IsVisible="{Binding LiberateVisible}" Content="{Binding LiberateText}" HorizontalAlignment="Left" />
+
+				<StackPanel Spacing="2" Margin="0,4,0,0">
+					<Button Classes="Ghost" Padding="0,4" HorizontalAlignment="Left" Click="BulkSetDownloaded_Click" IsEnabled="{Binding SetDownloadedEnabled}" Content="Mark as downloaded" />
+					<Button Classes="Ghost" Padding="0,4" HorizontalAlignment="Left" Click="BulkSetNotDownloaded_Click" IsEnabled="{Binding SetNotDownloadedEnabled}" Content="Mark as not downloaded" />
+					<Button Classes="Ghost" Padding="0,4" HorizontalAlignment="Left" Click="BulkSetPdfDownloaded_Click" IsVisible="{Binding PdfVisible}" IsEnabled="{Binding SetPdfDownloadedEnabled}" Content="Mark PDFs as downloaded" />
+					<Button Classes="Ghost" Padding="0,4" HorizontalAlignment="Left" Click="BulkSetPdfNotDownloaded_Click" IsVisible="{Binding PdfVisible}" IsEnabled="{Binding SetPdfNotDownloadedEnabled}" Content="Mark PDFs as not downloaded" />
+					<Button Classes="Ghost" Padding="0,4" HorizontalAlignment="Left" Click="BulkEditTags_Click" Content="Edit tags…" />
+				</StackPanel>
+
+				<Button Classes="Destructive Quiet" Click="BulkRemove_Click" HorizontalAlignment="Left" Content="Remove from library…" />
+			</StackPanel>
+		</ScrollViewer>
+
+		<ScrollViewer IsVisible="{Binding HasEntry}" HorizontalScrollBarVisibility="Disabled">
+			<StackPanel Margin="16" Spacing="12">
+				<Border CornerRadius="6" ClipToBounds="True" Width="120" Height="120" HorizontalAlignment="Left">
+					<Image Source="{Binding Cover}" Stretch="UniformToFill" />
+				</Border>
+
+				<SelectableTextBlock Text="{Binding TitleText}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+				<TextBlock
+					Text="{Binding Byline}"
+					IsVisible="{Binding Byline, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+					FontSize="14"
+					TextWrapping="Wrap"
+					Foreground="{DynamicResource SecondaryForegroundBrush}" />
+
+				<Border
+					Classes="Pill"
+					IsVisible="{Binding HasBook}"
+					Classes.Success="{Binding StatusIsSuccess}"
+					Classes.Warning="{Binding StatusIsWarning}"
+					Classes.Error="{Binding StatusIsError}">
+					<TextBlock Text="{Binding StatusText}" />
+				</Border>
+
+				<StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding HasBook}">
+					<Button Classes="Primary" Click="Primary_Click" IsVisible="{Binding PrimaryVisible}" Content="{Binding PrimaryText}" />
+					<Button Click="ShowFile_Click" IsVisible="{Binding ShowFileVisible}" Content="{Binding ShowFileText}" />
+					<Button Classes="Ghost" Click="Details_Click" Content="Book details…" />
+				</StackPanel>
+
+				<ItemsControl ItemsSource="{Binding Details}">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate x:DataType="dialogs:BookDetailsDialog+DetailItem">
+							<Grid ColumnDefinitions="88,*" Margin="0,0,0,6">
+								<TextBlock Text="{Binding Label}" FontSize="14" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+								<SelectableTextBlock Grid.Column="1" Text="{Binding Value}" FontSize="14" TextWrapping="Wrap" />
+							</Grid>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+
+				<StackPanel Spacing="4" IsVisible="{Binding HasBook}">
+					<TextBlock Text="Tags" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+					<controls:TagChipEditor Name="tagEditor" Tags="{Binding Tags, Mode=TwoWay}" />
+				</StackPanel>
+
+				<Button Classes="Ghost" Padding="0,2" HorizontalAlignment="Left" IsVisible="{Binding HasBook}" Click="Audible_Click" Content="View on Audible" />
+			</StackPanel>
+		</ScrollViewer>
+	</Panel>
+</UserControl>

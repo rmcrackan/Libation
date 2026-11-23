@@ -2,9 +2,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="550" d:DesignHeight="450"
-		MinWidth="550" MinHeight="450"
-		Width="650" Height="500"
+        mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="720"
+		MinWidth="560" MinHeight="480"
+		Width="640" Height="720"
         x:Class="LibationAvalonia.Dialogs.BookDetailsDialog"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
@@ -12,148 +12,232 @@
 		x:CompileBindings="True"
         Title="Book Details" Name="BookDetails">
 
-	<Grid RowDefinitions="*,Auto,Auto,Auto">
-		<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*,Auto" Margin="10">
-			<Image Source="{Binding Cover}" />
+	<Window.Styles>
+		<Style Selector="SelectableTextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
+		</Style>
+		<Style Selector="Border.Pill">
+			<Setter Property="CornerRadius" Value="999" />
+			<Setter Property="Padding" Value="10,3" />
+			<Setter Property="HorizontalAlignment" Value="Left" />
+			<Setter Property="Background" Value="{DynamicResource NeutralSoftBrush}" />
+		</Style>
+		<Style Selector="Border.Pill > TextBlock">
+			<Setter Property="FontSize" Value="12" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Success">
+			<Setter Property="Background" Value="{DynamicResource SuccessSoftBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Success > TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource SuccessForegroundBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Warning">
+			<Setter Property="Background" Value="{DynamicResource WarningSoftBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Warning > TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource WarningForegroundBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Error">
+			<Setter Property="Background" Value="{DynamicResource ErrorSoftBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Error > TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource ErrorForegroundBrush}" />
+		</Style>
+		<Style Selector="TextBlock.Subhead">
+			<Setter Property="FontSize" Value="16" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+			<Setter Property="Margin" Value="0,0,0,8" />
+		</Style>
+		<Style Selector="TextBlock.Caption">
+			<Setter Property="FontSize" Value="12" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}" />
+		</Style>
+	</Window.Styles>
 
-			<Path
-				Grid.Row="1"
-				VerticalAlignment="Center"
-				Stretch="Uniform"
-				Width="80"
-				Fill="{DynamicResource IconFill}"
-				IsVisible="{Binding IsSpatial}"
-				Data="{StaticResource DolbyAtmosLogoVertical}" />
+	<Grid RowDefinitions="*,Auto">
+		<ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Disabled">
+			<StackPanel Margin="24" Spacing="24">
 
-			<TextBox
-				Grid.Column="1"
-				Grid.RowSpan="2"
-				Margin="16,0,0,0"
-				TextWrapping="Wrap"
-				FontSize="12"
-				Text="{Binding DetailsText}" />
+				<Grid ColumnDefinitions="Auto,*">
+					<StackPanel Spacing="8" VerticalAlignment="Top">
+						<Border CornerRadius="6" ClipToBounds="True" Width="96" Height="96">
+							<Image Source="{Binding Cover}" Stretch="UniformToFill" />
+						</Border>
+						<Path
+							HorizontalAlignment="Center"
+							Stretch="Uniform"
+							Width="72"
+							Fill="{DynamicResource IconFill}"
+							IsVisible="{Binding IsSpatial}"
+							Data="{StaticResource DolbyAtmosLogoVertical}" />
+					</StackPanel>
 
-			<controls:LinkLabel
-				Grid.Row="2"
-				Grid.Column="1"
-				HorizontalAlignment="Left"
-				Margin="16,8,0,0"
-				Command="{Binding OpenInAudibleCommand}"
-				Text="Open in Audible (Browser)" />
-		</Grid>
-		
-		<controls:GroupBox
-			Label="Edit Tags"
-			Grid.Row="1"
-			Margin="10,0,10,0">
-			
-			<StackPanel Orientation="Vertical">
-				<TextBlock FontSize="12" VerticalAlignment="Top">
-					Tags are separated by a space. Each tag can contain letters, numbers, and underscores
-				</TextBlock>
+					<StackPanel Grid.Column="1" Margin="16,0,0,0" Spacing="2">
+						<SelectableTextBlock
+							Text="{Binding TitleText}"
+							FontSize="20"
+							FontWeight="SemiBold"
+							TextWrapping="Wrap" />
+						<SelectableTextBlock
+							Text="{Binding Subtitle}"
+							IsVisible="{Binding Subtitle, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+							FontSize="14"
+							Foreground="{DynamicResource SecondaryForegroundBrush}"
+							TextWrapping="Wrap" />
+						<Button
+							Classes="Ghost"
+							Padding="0,2"
+							HorizontalAlignment="Left"
+							Command="{Binding OpenInAudibleCommand}"
+							Content="View on Audible" />
+						<TextBlock
+							Text="{Binding SeriesLine}"
+							IsVisible="{Binding SeriesLine, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+							FontSize="14"
+							Foreground="{DynamicResource SecondaryForegroundBrush}"
+							TextWrapping="Wrap" />
+						<SelectableTextBlock
+							Text="{Binding AuthorNames}"
+							FontSize="14"
+							TextWrapping="Wrap" />
+						<Border
+							Classes="Pill"
+							Classes.Success="{Binding StatusIsSuccess}"
+							Classes.Warning="{Binding StatusIsWarning}"
+							Classes.Error="{Binding StatusIsError}"
+							Margin="0,8,0,0">
+							<TextBlock Text="{Binding StatusText}" />
+						</Border>
+					</StackPanel>
+				</Grid>
 
-				<TextBox Margin="0,5,0,5"
-					MinHeight="25"
-					FontSize="12" Name="tagsTbox"
-					Text="{Binding Tags, Mode=TwoWay}"/>
+				<StackPanel>
+					<TextBlock Classes="Subhead" Text="Details" />
+					<ItemsControl ItemsSource="{Binding Details}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate x:DataType="dialogs:BookDetailsDialog+DetailItem">
+								<Grid ColumnDefinitions="120,*" Margin="0,0,0,8">
+									<TextBlock
+										Text="{Binding Label}"
+										FontSize="14"
+										Foreground="{DynamicResource SecondaryForegroundBrush}" />
+									<SelectableTextBlock
+										Grid.Column="1"
+										Text="{Binding Value}"
+										FontSize="14"
+										Classes.Mono="{Binding IsMono}"
+										TextWrapping="Wrap" />
+								</Grid>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+
+					<Grid ColumnDefinitions="120,*,Auto" IsVisible="{Binding ShortFilePath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+						<TextBlock
+							Text="File"
+							FontSize="14"
+							VerticalAlignment="Center"
+							Foreground="{DynamicResource SecondaryForegroundBrush}" />
+						<SelectableTextBlock
+							Grid.Column="1"
+							Text="{Binding ShortFilePath}"
+							ToolTip.Tip="{Binding FilePath}"
+							FontFamily="Menlo,Consolas,monospace"
+							FontSize="12"
+							VerticalAlignment="Center"
+							TextWrapping="Wrap" />
+						<Button
+							Grid.Column="2"
+							Classes="Ghost"
+							Margin="8,0,0,0"
+							Command="{Binding ShowFileCommand}"
+							Content="{Binding ShowFileText}" />
+					</Grid>
+				</StackPanel>
+
+				<StackPanel>
+					<TextBlock Classes="Subhead" Text="Tags" />
+					<controls:TagChipEditor Name="tagEditor" Tags="{Binding Tags, Mode=TwoWay}" />
+					<TextBlock
+						Classes="Caption"
+						Margin="0,4,0,0"
+						Text="Letters, numbers, and underscores. Press Enter, Space, or comma to add." />
+				</StackPanel>
+
+				<StackPanel ToolTip.Tip="Whether the book and PDF have been downloaded">
+					<TextBlock Classes="Subhead" Text="Download status" />
+					<Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto">
+						<TextBlock
+							Text="Audiobook"
+							FontSize="14"
+							VerticalAlignment="Center"
+							Margin="0,0,12,0" />
+						<controls:WheelComboBox
+							Grid.Column="1"
+							HorizontalAlignment="Stretch"
+							VerticalAlignment="Center"
+							SelectionChanged="BookStatus_SelectionChanged"
+							SelectedItem="{Binding BookLiberatedSelectedItem, Mode=TwoWay}"
+							ItemsSource="{Binding BookLiberatedItems}">
+							<ComboBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock FontSize="14" Text="{Binding Text}" />
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</controls:WheelComboBox>
+
+						<TextBlock
+							Grid.Column="2"
+							Text="PDF"
+							FontSize="14"
+							VerticalAlignment="Center"
+							Margin="24,0,12,0"
+							IsVisible="{Binding HasPDF}" />
+						<controls:WheelComboBox
+							Grid.Column="3"
+							IsVisible="{Binding HasPDF}"
+							HorizontalAlignment="Stretch"
+							VerticalAlignment="Center"
+							SelectedItem="{Binding PdfLiberatedSelectedItem, Mode=TwoWay}"
+							ItemsSource="{Binding PdfLiberatedItems}">
+							<ComboBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock FontSize="14" Text="{Binding Text}" />
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</controls:WheelComboBox>
+					</Grid>
+					<TextBlock
+						Classes="Caption"
+						Margin="0,8,0,0"
+						TextWrapping="Wrap"
+						Text="Change this only if the files were moved or deleted outside Libation." />
+				</StackPanel>
+
 			</StackPanel>
-		</controls:GroupBox>
-		
-		<controls:GroupBox
-			Label="Download status"
-			ToolTip.Tip="Whether the book and PDF have been downloaded"
-			Grid.Row="2"
-			Margin="10,10,10,10">
-			
-			<StackPanel Orientation="Vertical">
-				
-				<TextBlock
-					FontSize="12"
-					VerticalAlignment="Top"
-					Margin="10,10,0,0"
-					Text="To download again next time: change to Download Pending&#xA;To not download: change to Downloaded" />
+		</ScrollViewer>
 
-				<Grid Margin="0,10,0,5" ColumnDefinitions="Auto,Auto,50,Auto,Auto,*">
-					
-					<TextBlock
-						Grid.Column="0"
-						Margin="0,0,10,0"
-						VerticalAlignment="Center"
-						Text="Book" />
-					
-					<TextBlock
-						Grid.Column="3"
-						Margin="0,0,10,0"
-						VerticalAlignment="Center"
-						Text="PDF" />
+		<Border Grid.Row="1" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
+			<StackPanel
+				Orientation="Horizontal"
+				HorizontalAlignment="Right"
+				Spacing="8"
+				Margin="24,16">
 
-					<controls:WheelComboBox
-						Grid.Column="1"
-						Width="150"
-						MinHeight="25"
-						Height="25"
-						VerticalAlignment="Center"
-						SelectionChanged="BookStatus_SelectionChanged"
-						SelectedItem="{Binding BookLiberatedSelectedItem, Mode=TwoWay}"
-						ItemsSource="{Binding BookLiberatedItems}">
-						
-						<ComboBox.ItemTemplate>
-							<DataTemplate>
-								
-								<TextBlock
-									FontSize="12"
-									Text="{Binding Text}" />
-								
-							</DataTemplate>
-						</ComboBox.ItemTemplate>
-						
-					</controls:WheelComboBox>
-					
-					<controls:WheelComboBox
-						IsEnabled="{Binding HasPDF}"
-						Grid.Column="4"
-						MinHeight="25"
-						Height="25"
-						Width="150"
-						VerticalAlignment="Center"
-						SelectedItem="{Binding PdfLiberatedSelectedItem, Mode=TwoWay}"
-						ItemsSource="{Binding PdfLiberatedItems}">
-						
-						<ComboBox.ItemTemplate>
-							<DataTemplate>
-								
-								<TextBlock
-									FontSize="12"
-									Text="{Binding Text}" />
-								
-							</DataTemplate>
-						</ComboBox.ItemTemplate>
-						
-					</controls:WheelComboBox>
-					
-				</Grid>				
-			</StackPanel>			
-		</controls:GroupBox>
+				<Button
+					Padding="16,6"
+					Content="Cancel"
+					IsCancel="True"
+					Click="CancelButton_Clicked" />
 
-		<StackPanel
-			Grid.Row="3"
-			Orientation="Horizontal"
-			HorizontalAlignment="Right"
-			Spacing="8"
-			Margin="16,0,16,16">
-
-			<Button
-				Padding="16,6"
-				Content="Cancel"
-				IsCancel="True"
-				Click="CancelButton_Clicked" />
-
-			<Button
-				Padding="16,6"
-				Content="Save"
-				Classes="Primary"
-				Click="SaveButton_Clicked" />
-		</StackPanel>
-		
+				<Button
+					Padding="16,6"
+					Content="Save"
+					Classes="Primary"
+					Click="SaveButton_Clicked" />
+			</StackPanel>
+		</Border>
 	</Grid>
 </Window>

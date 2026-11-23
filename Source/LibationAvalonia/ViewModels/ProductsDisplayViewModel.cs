@@ -30,6 +30,16 @@ public class ProductsDisplayViewModel : ViewModelBase
 	/// <summary>Grid entries included in the filter set. If null, all grid entries are shown</summary>
 	private HashSet<GridEntry>? FilteredInGridEntries;
 	public string? FilterString { get; private set; }
+	public LibraryScope Scope { get; private set; }
+
+	public event EventHandler? SelectionChanged;
+	public IReadOnlyList<GridEntry> SelectedEntries { get; private set; } = [];
+
+	public void SetSelectedEntries(IEnumerable<GridEntry> entries)
+	{
+		SelectedEntries = entries.ToList();
+		SelectionChanged?.Invoke(this, EventArgs.Empty);
+	}
 
 	public DataGridCollectionView? GridEntries { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	public bool RemoveColumnVisible { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
@@ -118,7 +128,7 @@ public class ProductsDisplayViewModel : ViewModelBase
 
 		//Create the filtered-in list before adding entries to GridEntries to avoid a refresh or UI action
 		var searchResultSet = SearchEngine?.GetSearchResultSet(FilterString);
-		FilteredInGridEntries = geList.Union(seriesEntries.SelectMany(s => s.Children)).FilterEntries(searchResultSet);
+		FilteredInGridEntries = FilterEntries(geList.Union(seriesEntries.SelectMany(s => s.Children)), searchResultSet);
 
 		// Adding SOURCE to the DataGridViewCollection _after_ building the SOURCE list 
 		//Saves ~500 ms on a library of ~4500 books.
@@ -349,9 +359,27 @@ public class ProductsDisplayViewModel : ViewModelBase
 			return;
 
 		var results = SearchEngine?.GetSearchResultSet(searchString);
-		FilteredInGridEntries = SOURCE.FilterEntries(results);
+		FilteredInGridEntries = FilterEntries(SOURCE, results);
 
 		await refreshGrid();
+	}
+
+	public Task SetScopeAsync(LibraryScope scope)
+	{
+		Scope = scope;
+		return Filter(FilterString);
+	}
+
+	/// <summary>The search result ANDed with <see cref="Scope"/>; a series row stays while any of its episodes does.</summary>
+	private HashSet<GridEntry>? FilterEntries(IEnumerable<GridEntry> entries, LibationSearchEngine.SearchResultSet? searchResultSet)
+	{
+		var bySearch = entries.FilterEntries(searchResultSet);
+		if (Scope is LibraryScope.All)
+			return bySearch;
+
+		var books = (bySearch ?? entries.ToHashSet()).OfType<LibraryBookEntry>().Where(b => Scope.Matches(b)).ToList();
+		var parents = books.Select(b => b.Parent).OfType<SeriesEntry>().Distinct();
+		return books.Cast<GridEntry>().Concat(parents).ToHashSet();
 	}
 
 	private bool CollectionFilter(object item)
@@ -370,9 +398,9 @@ public class ProductsDisplayViewModel : ViewModelBase
 	{
 
 		var searchResultSet = SearchEngine?.GetSearchResultSet(FilterString);
-		var filterResults = SOURCE.FilterEntries(searchResultSet);
+		var filterResults = FilterEntries(SOURCE, searchResultSet);
 
-		if (FilteredInGridEntries.SearchSetsDiffer(filterResults))
+		if (FilteredInGridEntries?.Count != filterResults?.Count || FilteredInGridEntries.SearchSetsDiffer(filterResults))
 		{
 			FilteredInGridEntries = filterResults;
 			await refreshGrid();
@@ -510,7 +538,7 @@ public class ProductsDisplayViewModel : ViewModelBase
 
 	#region Column Widths
 	public bool DisablePersistColumnWidths { get; set; }
-	public DataGridLength TitleWidth { get => getColumnWidth("Title", 200); set => setColumnWidth("Title", value); }
+	public DataGridLength TitleWidth { get => getColumnWidth("Title", 300); set => setColumnWidth("Title", value); }
 	public DataGridLength AuthorsWidth { get => getColumnWidth("Authors", 100); set => setColumnWidth("Authors", value); }
 	public DataGridLength NarratorsWidth { get => getColumnWidth("Narrators", 100); set => setColumnWidth("Narrators", value); }
 	public DataGridLength LengthWidth { get => getColumnWidth("Length", 80); set => setColumnWidth("Length", value); }

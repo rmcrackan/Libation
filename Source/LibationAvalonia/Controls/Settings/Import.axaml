@@ -7,40 +7,34 @@
 			 xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
 			 x:DataType="vm:ImportSettingsVM"
              x:Class="LibationAvalonia.Controls.Settings.Import">
-	
-	<StackPanel Margin="5">
-		<StackPanel.Styles>
-			<Style Selector="CheckBox">
-				<Setter Property="Margin" Value="0,0,0,10" />
-				<Style Selector="^ > TextBlock">
-					<Setter Property="TextWrapping" Value="Wrap" />
-				</Style>
-			</Style>
-		</StackPanel.Styles>
 
-		<CheckBox IsChecked="{Binding AutoScan, Mode=TwoWay}">
-			<TextBlock Text="{Binding AutoScanText}" />
-		</CheckBox>
+	<StackPanel Spacing="24">
+		<controls:SettingGroup Header="Scanning">
+			<controls:SettingRow Label="{Binding AutoScanText}">
+				<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding AutoScan, Mode=TwoWay}" />
+			</controls:SettingRow>
 
-		<CheckBox IsChecked="{Binding ShowImportedStats, Mode=TwoWay}">
-			<TextBlock Text="{Binding ShowImportedStatsText}" />
-		</CheckBox>
+			<controls:SettingRow Label="{Binding ShowImportedStatsText}">
+				<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding ShowImportedStats, Mode=TwoWay}" />
+			</controls:SettingRow>
+		</controls:SettingGroup>
 
-		<CheckBox IsChecked="{Binding ImportEpisodes, Mode=TwoWay}">
-			<TextBlock Text="{Binding ImportEpisodesText}" />
-		</CheckBox>
+		<controls:SettingGroup Header="Podcasts">
+			<controls:SettingRow Label="{Binding ImportEpisodesText}">
+				<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding ImportEpisodes, Mode=TwoWay}" />
+			</controls:SettingRow>
 
-		<CheckBox IsChecked="{Binding ImportPlusTitles, Mode=TwoWay}"
-				  ToolTip.Tip="{Binding ImportPlusTitlesTip}">
-			<TextBlock Text="{Binding ImportPlusTitlesText}" />
-		</CheckBox>
+			<controls:SettingRow Label="{Binding ImportPlusTitlesText}" Description="{Binding ImportPlusTitlesTip}">
+				<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding ImportPlusTitles, Mode=TwoWay}" />
+			</controls:SettingRow>
 
-		<CheckBox IsChecked="{Binding DownloadEpisodes, Mode=TwoWay}">
-			<TextBlock Text="{Binding DownloadEpisodesText}" />
-		</CheckBox>
+			<controls:SettingRow Label="{Binding DownloadEpisodesText}">
+				<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding DownloadEpisodes, Mode=TwoWay}" />
+			</controls:SettingRow>
 
-		<CheckBox IsChecked="{Binding AutoDownloadEpisodes, Mode=TwoWay}">
-			<TextBlock Text="{Binding AutoDownloadEpisodesText}" />
-		</CheckBox>
+			<controls:SettingRow Label="{Binding AutoDownloadEpisodesText}">
+				<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding AutoDownloadEpisodes, Mode=TwoWay}" />
+			</controls:SettingRow>
+		</controls:SettingGroup>
 	</StackPanel>
 </UserControl>

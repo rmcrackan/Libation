@@ -74,15 +74,16 @@ public partial class ProductsDisplay : UserControl
 		fontSizeStyle = new Style(_ => tboxSelector);
 		fontSizeStyle.Setters.Add(fontSizeSetter);
 
-		var tboxH1Selector = cellSelector.Child().Is<Panel>().Child().Is<TextBlock>().Class("h1");
+		var tboxH1Selector = cellSelector.Descendant().Is<TextBlock>().Class("h1");
 		fontSizeH1Style = new Style(_ => tboxH1Selector);
 		fontSizeH1Style.Setters.Add(fontSizeH1Setter);
 
-		var tboxH2Selector = cellSelector.Child().Is<Panel>().Child().Is<TextBlock>().Class("h2");
+		var tboxH2Selector = cellSelector.Descendant().Is<TextBlock>().Class("h2");
 		fontSizeH2Style = new Style(_ => tboxH2Selector);
 		fontSizeH2Style.Setters.Add(fontSizeH2Setter);
 
 		productsGrid.DoubleTapped += ProductsGrid_DoubleTapped;
+		productsGrid.SelectionChanged += (_, _) => _viewModel?.SetSelectedEntries(productsGrid.SelectedItems.OfType<GridEntry>());
 		Configuration.Instance.PropertyChanged += Configuration_GridScaleChanged;
 		Configuration.Instance.PropertyChanged += Configuration_FontChanged;
 
@@ -261,9 +262,9 @@ public partial class ProductsDisplay : UserControl
 
 	private void setGridScale(double scaleFactor)
 	{
-		const float BaseRowHeight = 80;
+		const float BaseRowHeight = 64;
 		const float BaseLiberateWidth = 75;
-		const float BaseCoverWidth = 80;
+		const float BaseCoverWidth = 64;
 
 		foreach (var column in productsGrid.Columns)
 		{
@@ -628,6 +629,15 @@ public partial class ProductsDisplay : UserControl
 				.Single(c => c.SortMemberPath == itemName);
 
 			column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, productsGrid.Columns.IndexOf(column));
+		}
+
+		//FrozenColumnCount covers display indices 0-3
+		string[] frozen = [nameof(GridEntry.Remove), nameof(GridEntry.Liberate), nameof(GridEntry.Cover), nameof(GridEntry.Title)];
+		for (var i = 0; i < frozen.Length; i++)
+		{
+			var column = productsGrid.Columns.Single(c => c.SortMemberPath == frozen[i]);
+			column.DisplayIndex = i;
+			column.CanUserReorder = false;
 		}
 	}
 

@@ -3,97 +3,84 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
+             xmlns:controls="clr-namespace:LibationAvalonia.Controls"
              xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
              x:DataType="vm:AudiobookshelfSettingsVM"
              x:Class="LibationAvalonia.Controls.Settings.Audiobookshelf">
 
-	<StackPanel Margin="6" Spacing="0">
-		<CheckBox IsChecked="{Binding Enabled, Mode=TwoWay}"
-				  Content="{Binding EnabledText}"
-				  Margin="0,0,0,10" />
+	<StackPanel Spacing="24">
+		<controls:SettingGroup Header="Connection">
+			<controls:SettingRow Label="{Binding EnabledText}">
+				<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding Enabled, Mode=TwoWay}" />
+			</controls:SettingRow>
 
-		<CheckBox IsChecked="{Binding IncludePdfs, Mode=TwoWay}"
-				  Content="{Binding IncludePdfsText}"
-				  IsEnabled="{Binding Enabled}"
-				  Margin="0,0,0,10" />
+			<controls:SettingRow Label="{Binding IncludePdfsText}" IsEnabled="{Binding Enabled}">
+				<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding IncludePdfs, Mode=TwoWay}" />
+			</controls:SettingRow>
 
-		<Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
-			<!-- Server URL -->
-			<TextBlock Grid.Row="0" Grid.Column="0"
-					   Text="{Binding ServerUrlText}"
-					   VerticalAlignment="Center"
-					   Margin="0,0,10,6" />
-			<TextBox Grid.Row="0" Grid.Column="1"
-					 Text="{Binding ServerUrl, Mode=TwoWay}"
-					 PlaceholderText="http://localhost:13378"
-					 IsEnabled="{Binding Enabled}"
-					 Margin="0,0,10,6" />
+			<controls:SettingRow Label="{Binding ServerUrlText}">
+				<TextBox
+					Width="300"
+					Text="{Binding ServerUrl, Mode=TwoWay}"
+					PlaceholderText="http://localhost:13378"
+					IsEnabled="{Binding Enabled}" />
+			</controls:SettingRow>
 
-			<!-- API Token -->
-			<TextBlock Grid.Row="1" Grid.Column="0"
-					   Text="{Binding ApiTokenText}"
-					   VerticalAlignment="Center"
-					   Margin="0,0,10,10" />
-			<TextBox Grid.Row="1" Grid.Column="1"
-					 Text="{Binding ApiToken, Mode=TwoWay}"
-					 PasswordChar="*"
-					 PlaceholderText="Your ABS API token"
-					 IsEnabled="{Binding Enabled}"
-					 Margin="0,0,10,10" />
+			<controls:SettingRow Label="{Binding ApiTokenText}">
+				<TextBox
+					Width="300"
+					Text="{Binding ApiToken, Mode=TwoWay}"
+					PasswordChar="*"
+					PlaceholderText="Your ABS API token"
+					IsEnabled="{Binding Enabled}" />
+			</controls:SettingRow>
 
-			<!-- Connect Button -->
-			<Button Grid.Row="0" Grid.Column="2"
-					Grid.RowSpan="2"
-					Content="{Binding ConnectButtonText}"
-					Command="{Binding ConnectCommand}"
-					IsEnabled="{Binding CanConnect}"
-					HorizontalAlignment="Left"
-					HorizontalContentAlignment="Center"
-					MinWidth="150"
-					MinHeight="34"
-					VerticalAlignment="Stretch"
-					Margin="0,0,0,10" />
+			<controls:SettingRow Stacked="True" IsVisible="{Binding PlaintextWarningVisible}">
+				<TextBlock
+					Text="{Binding PlaintextWarningText}"
+					Foreground="{DynamicResource WarningForegroundBrush}"
+					TextWrapping="Wrap" />
+			</controls:SettingRow>
 
-			<!-- Plaintext warning -->
-			<TextBlock Grid.Row="2" Grid.Column="1"
-					   Text="{Binding PlaintextWarningText}"
-					   Foreground="{DynamicResource WarningForegroundBrush}"
-					   TextWrapping="Wrap"
-					   IsVisible="{Binding PlaintextWarningVisible}"
-					   Margin="0,0,0,10" />
+			<controls:SettingRow Stacked="True">
+				<Grid ColumnDefinitions="*,Auto">
+					<ProgressBar
+						IsIndeterminate="True"
+						IsVisible="{Binding IsConnecting}"
+						VerticalAlignment="Center" />
+					<TextBlock
+						Text="{Binding StatusText}"
+						TextWrapping="Wrap"
+						VerticalAlignment="Center"
+						IsVisible="{Binding !IsConnecting}" />
+					<Button
+						Grid.Column="1"
+						Margin="16,0,0,0"
+						Content="{Binding ConnectButtonText}"
+						Command="{Binding ConnectCommand}"
+						IsEnabled="{Binding CanConnect}"
+						HorizontalContentAlignment="Center"
+						MinWidth="150" />
+				</Grid>
+			</controls:SettingRow>
+		</controls:SettingGroup>
 
-			<!-- Status -->
-			<ProgressBar Grid.Row="4" Grid.Column="1"
-						 IsIndeterminate="True"
-						 IsVisible="{Binding IsConnecting}"
-						 Margin="0,0,0,6" />
-			<TextBlock Grid.Row="5" Grid.Column="1"
-					   Text="{Binding StatusText}"
-					   TextWrapping="Wrap"
-					   IsVisible="{Binding !IsConnecting}"
-					   Margin="0,0,0,8" />
+		<controls:SettingGroup Header="Destination">
+			<controls:SettingRow Label="{Binding LibraryText}">
+				<ComboBox
+					MinWidth="240"
+					ItemsSource="{Binding LibraryNames}"
+					SelectedIndex="{Binding SelectedLibraryIndex, Mode=TwoWay}"
+					IsEnabled="{Binding Enabled}" />
+			</controls:SettingRow>
 
-			<!-- Library -->
-			<TextBlock Grid.Row="6" Grid.Column="0"
-					   Text="{Binding LibraryText}"
-					   VerticalAlignment="Center"
-					   Margin="0,0,10,7" />
-			<ComboBox Grid.Row="6" Grid.Column="1"
-					  ItemsSource="{Binding LibraryNames}"
-					  SelectedIndex="{Binding SelectedLibraryIndex, Mode=TwoWay}"
-					  IsEnabled="{Binding Enabled}"
-					  Margin="0,0,0,7" />
-
-			<!-- Folder -->
-			<TextBlock Grid.Row="7" Grid.Column="0"
-					   Text="{Binding FolderText}"
-					   VerticalAlignment="Center"
-					   Margin="0,0,10,0" />
-			<ComboBox Grid.Row="7" Grid.Column="1"
-					  ItemsSource="{Binding FolderNames}"
-					  SelectedIndex="{Binding SelectedFolderIndex, Mode=TwoWay}"
-					  IsEnabled="{Binding Enabled}"
-					  Margin="0,0,0,0" />
-		</Grid>
+			<controls:SettingRow Label="{Binding FolderText}">
+				<ComboBox
+					MinWidth="240"
+					ItemsSource="{Binding FolderNames}"
+					SelectedIndex="{Binding SelectedFolderIndex, Mode=TwoWay}"
+					IsEnabled="{Binding Enabled}" />
+			</controls:SettingRow>
+		</controls:SettingGroup>
 	</StackPanel>
 </UserControl>

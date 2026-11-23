@@ -226,6 +226,9 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 	public void ProductsDisplay_ConvertToMp3Clicked(object _, LibraryBook[] libraryBook) => ViewModel?.ConvertToMp3Clicked(libraryBook);
 
 	BookDetailsDialog? bookDetailsForm;
+	private async void BookInspector_EditSelectionTagsClicked(object? sender, EventArgs e)
+		=> await (ViewModel?.ReplaceSelectionTagsAsync() ?? Task.CompletedTask);
+
 	public void ProductsDisplay_TagsButtonClicked(object _, LibraryBook libraryBook)
 	{
 		if (bookDetailsForm is null || !bookDetailsForm.IsVisible)
@@ -256,6 +259,16 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 		// Typed text lives only in the TextBox (OneWay binding). If the VM filter was already empty,
 		// PerformFilter does not refresh the binding, so clear the control explicitly (WinForms sets Text in performFilter).
 		filterSearchTb.Text = string.Empty;
+	}
+
+	internal Button addQuickFilterBtn => librarySidebar.addQuickFilterBtn;
+
+	private async void ClearAllFilters_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+	{
+		if (ViewModel is null)
+			return;
+		await ViewModel.SelectScopeAsync(LibraryScope.All);
+		ClearFilterButton_Click(sender, e);
 	}
 
 	private void Configure_Upgrade()

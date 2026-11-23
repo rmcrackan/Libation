@@ -163,7 +163,12 @@ public class AudioSettingsVM : ViewModelBase
 	public int LameBitrate { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
 	public int LameVBRQuality { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
 
-	public string ChapterTitleTemplate { get => _chapterTitleTemplate; set { this.RaiseAndSetIfChanged(ref _chapterTitleTemplate, value); } }
+	public string ChapterTitleTemplate
+	{
+		get => _chapterTitleTemplate;
+		set { this.RaiseAndSetIfChanged(ref _chapterTitleTemplate, value); this.RaisePropertyChanged(nameof(ChapterTitleTemplateExample)); }
+	}
+	public string ChapterTitleTemplateExample => TemplateExamples.ChapterTitle(ChapterTitleTemplate);
 
 	public bool AllowLibationFixup
 	{

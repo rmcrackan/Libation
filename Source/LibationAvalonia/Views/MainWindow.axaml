@@ -74,7 +74,7 @@
 		</NativeMenu>
 	</NativeMenu.Menu>
 
-	<Grid RowDefinitions="Auto,Auto,*,Auto">
+	<Grid RowDefinitions="Auto,*">
 		<Border Grid.Row="0"  BorderBrush="{DynamicResource SystemBaseLowColor}" BorderThickness="0,1">
 			<Grid ColumnDefinitions="*,Auto">
 			<!-- Menu Strip -->
@@ -167,88 +167,150 @@
 			</StackPanel>
 		</Grid>
 		</Border>
-		<!-- Buttons and Search Box -->
-		<Grid Grid.Row="1" Margin="8" Height="30" ColumnDefinitions="Auto,*,Auto">
-
+		<Grid Grid.Row="1" ColumnDefinitions="Auto,*">
+		<views:LibrarySidebar Name="librarySidebar" Grid.Column="0" Width="220" IsVisible="{Binding SidebarOpen}" />
+		<Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
+		<Grid Grid.Row="0" Margin="12,8" ColumnDefinitions="Auto,*,Auto" MinHeight="36">
 			<Grid.Styles>
-				<Style Selector="TextBox">
-					<Setter Property="MinHeight" Value="10" />
+				<Style Selector="Button.IconBtn">
+					<Setter Property="Padding" Value="8" />
+					<Setter Property="Background" Value="Transparent" />
+					<Setter Property="BorderThickness" Value="0" />
+					<Setter Property="CornerRadius" Value="6" />
+					<Setter Property="VerticalAlignment" Value="Center" />
+					<Style Selector="^.active /template/ ContentPresenter#PART_ContentPresenter">
+						<Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+					</Style>
 				</Style>
-				<Style Selector="Button">
-					<Setter Property="Padding" Value="15,6" />
-					<Setter Property="Margin" Value="10,0,0,0" />
-					<Setter Property="HorizontalContentAlignment" Value="Center" />
-					<Setter Property="VerticalContentAlignment" Value="Center" />
+				<Style Selector="Button.IconBtn Path">
+					<Setter Property="Stroke" Value="{DynamicResource IconFill}" />
+					<Setter Property="StrokeThickness" Value="1.6" />
+					<Setter Property="StrokeLineCap" Value="Round" />
+					<Setter Property="StrokeJoin" Value="Round" />
+					<Setter Property="Stretch" Value="Uniform" />
+					<Setter Property="Width" Value="16" />
+					<Setter Property="Height" Value="16" />
 				</Style>
 			</Grid.Styles>
-				
-			<StackPanel Grid.Column="0" IsVisible="{Binding !RemoveButtonsVisible}" Orientation="Horizontal">
-				<Button Name="filterHelpBtn" Margin="0" Command="{Binding FilterHelpBtn}" Content="?"/>
-				<Button Name="addQuickFilterBtn" Command="{Binding AddQuickFilterBtn}" Content="Add To Quick Filters"/>
-			</StackPanel>
 
-			<StackPanel Grid.Column="1" Orientation="Horizontal">
-				<Button IsVisible="{Binding RemoveButtonsVisible}" IsEnabled="{Binding RemoveBooksButtonEnabled}" Command="{Binding RemoveBooksBtn}" Content="{Binding RemoveBooksButtonText}"/>
-				<Button IsVisible="{Binding RemoveButtonsVisible}" Command="{Binding DoneRemovingBtn}" Content="Done Removing Books"/>
-			</StackPanel>
-				
-			<Grid
-				Grid.Column="1"
-				Margin="10,0,0,0"
-				ColumnDefinitions="*,Auto"
-				IsVisible="{Binding !RemoveButtonsVisible}">
+			<Button Grid.Column="0" Classes="IconBtn" Classes.active="{Binding SidebarOpen}" Margin="0,0,8,0" Command="{Binding ToggleSidebarBtn}" ToolTip.Tip="Toggle sidebar">
+				<Path Data="M4,4 L20,4 L20,20 L4,20 Z M9,4 L9,20" />
+			</Button>
+
+			<Grid Grid.Column="1" ColumnDefinitions="*,Auto" IsVisible="{Binding !RemoveButtonsVisible}">
 				<TextBox
 					Grid.Column="0"
 					Name="filterSearchTb"
-					VerticalAlignment="Stretch"
-					InnerRightContent="{x:Null}"
+					VerticalAlignment="Center"
+					PlaceholderText="Search title, author, narrator…  try author:austen"
 					ScrollViewer.HorizontalScrollBarVisibility="Auto"
 					ScrollViewer.VerticalScrollBarVisibility="Disabled"
 					Text="{Binding SelectedNamedFilter.Filter, Mode=OneWay}"
-					KeyDown="filterSearchTb_KeyPress" />
+					KeyDown="filterSearchTb_KeyPress">
+					<TextBox.InnerRightContent>
+						<Button
+							Classes="Ghost"
+							Padding="8,2"
+							VerticalAlignment="Center"
+							Click="ClearFilterButton_Click"
+							Content="×"
+							ToolTip.Tip="Clear search" />
+					</TextBox.InnerRightContent>
+				</TextBox>
 				<Button
 					Grid.Column="1"
-					Margin="6,0,0,0"
-					Padding="10,4"
-					VerticalAlignment="Stretch"
-					VerticalContentAlignment="Center"
-					Click="ClearFilterButton_Click"
-					Content="×"
-					ToolTip.Tip="Clear filter" />
+					Name="filterHelpBtn"
+					Classes="Ghost"
+					Margin="4,0,0,0"
+					VerticalAlignment="Center"
+					Command="{Binding FilterHelpBtn}"
+					Content="Syntax" />
 			</Grid>
 
-			<StackPanel Grid.Column="2" Height="30" Orientation="Horizontal">
-				<Button Name="filterBtn" IsVisible="{Binding !RemoveButtonsVisible}" Command="{Binding FilterBtn}" CommandParameter="{Binding #filterSearchTb.Text}" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Filter"/>
-				<Button Padding="2,6" VerticalAlignment="Stretch" Command="{Binding ToggleQueueHideBtn}">
-					<Path Stretch="Uniform" Fill="{DynamicResource IconFill}" Data="{StaticResource	LeftArrows}">
-						<Path.RenderTransform>
-							<RotateTransform Angle="{Binding QueueButtonAngle}"/>
-						</Path.RenderTransform>
-					</Path>
-				</Button>
+			<StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" IsVisible="{Binding RemoveButtonsVisible}">
+				<Button IsEnabled="{Binding RemoveBooksButtonEnabled}" Command="{Binding RemoveBooksBtn}" Content="{Binding RemoveBooksButtonText}"/>
+				<Button Command="{Binding DoneRemovingBtn}" Content="Done Removing Books"/>
 			</StackPanel>
 
-		</Grid>
-		
-		<Border Grid.Row="2" Margin="8,0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumLowColor}">
-			<SplitView IsPaneOpen="{Binding QueueOpen}" DisplayMode="Inline" OpenPaneLength="320" MinWidth="320" PanePlacement="Right">
+			<StackPanel Grid.Column="2" Margin="12,0,0,0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+				<StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding !RemoveButtonsVisible}">
+					<SplitButton
+						IsVisible="{Binding OneAccount}"
+						IsEnabled="{Binding !ActivelyScanning}"
+						Command="{Binding ScanAccountAsync}"
+						Content="Scan library">
+						<SplitButton.Flyout>
+							<MenuFlyout Placement="BottomEdgeAlignedRight">
+								<MenuItem Command="{Binding ToggleAutoScan}" Header="Scan automatically">
+									<MenuItem.Icon>
+										<CheckBox BorderThickness="0" IsChecked="{Binding AutoScanChecked, Mode=TwoWay}" IsHitTestVisible="False" />
+									</MenuItem.Icon>
+								</MenuItem>
+							</MenuFlyout>
+						</SplitButton.Flyout>
+					</SplitButton>
+					<SplitButton
+						IsVisible="{Binding MultipleAccounts}"
+						IsEnabled="{Binding !ActivelyScanning}"
+						Command="{Binding ScanAllAccountsAsync}"
+						Content="Scan library">
+						<SplitButton.Flyout>
+							<MenuFlyout Placement="BottomEdgeAlignedRight">
+								<MenuItem Command="{Binding ScanSomeAccountsAsync}" Header="Scan some accounts…" />
+								<MenuItem Command="{Binding ToggleAutoScan}" Header="Scan automatically">
+									<MenuItem.Icon>
+										<CheckBox BorderThickness="0" IsChecked="{Binding AutoScanChecked, Mode=TwoWay}" IsHitTestVisible="False" />
+									</MenuItem.Icon>
+								</MenuItem>
+							</MenuFlyout>
+						</SplitButton.Flyout>
+					</SplitButton>
+					<SplitButton
+						Classes="Primary"
+						IsVisible="{Binding LiberateAllVisible}"
+						Command="{Binding BackupAllBooks}"
+						Content="{Binding LiberateAllText}">
+						<SplitButton.Flyout>
+							<MenuFlyout Placement="BottomEdgeAlignedRight">
+								<MenuItem Command="{Binding BackupAllPdfs}" Header="{Binding PdfOnlyText}" />
+								<MenuItem Command="{Binding ConvertAllToMp3Async}" Header="Convert all M4B to MP3…" />
+							</MenuFlyout>
+						</SplitButton.Flyout>
+					</SplitButton>
+				</StackPanel>
 
-				<!-- Process Queue -->
-				<SplitView.Pane>
-					<Border BorderThickness="1,0,0,0" BorderBrush="{DynamicResource SystemBaseMediumLowColor}">
-						<views:ProcessQueueControl DataContext="{Binding ProcessQueue, Mode=OneTime}"/>
-					</Border>
-				</SplitView.Pane>
-
-				<!-- Product Display Grid -->
 				<Panel>
-					<views:ProductsDisplay
-						Name="productsDisplay"
-						DataContext="{Binding ProductsDisplay, Mode=OneTime}"						
-						LiberateClicked="ProductsDisplay_LiberateClicked"
-						TagsButtonClicked="ProductsDisplay_TagsButtonClicked"
-						LiberateSeriesClicked="ProductsDisplay_LiberateSeriesClicked"
-						ConvertToMp3Clicked="ProductsDisplay_ConvertToMp3Clicked" />
+					<Button Classes="IconBtn" Classes.active="{Binding QueueOpen}" Command="{Binding ToggleQueueHideBtn}" ToolTip.Tip="Show queue">
+						<Path Data="M4,6 L20,6 M4,12 L20,12 M4,18 L14,18" />
+					</Button>
+					<Border
+						IsVisible="{Binding QueueBadgeVisible}"
+						IsHitTestVisible="False"
+						HorizontalAlignment="Right"
+						VerticalAlignment="Top"
+						MinWidth="16"
+						Height="16"
+						Padding="4,0"
+						CornerRadius="8"
+						Background="{DynamicResource SystemAccentColor}">
+						<TextBlock FontSize="12" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding QueueBadgeText}" />
+					</Border>
+				</Panel>
+				<Button Classes="IconBtn" Classes.active="{Binding InspectorOpen}" Command="{Binding ToggleInspectorBtn}" ToolTip.Tip="Show inspector">
+					<Path Data="M4,4 L20,4 L20,20 L4,20 Z M15,4 L15,20" />
+				</Button>
+			</StackPanel>
+		</Grid>
+
+		<Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+			<Panel Grid.Column="0">
+				<views:ProductsDisplay
+					Name="productsDisplay"
+					DataContext="{Binding ProductsDisplay, Mode=OneTime}"
+					LiberateClicked="ProductsDisplay_LiberateClicked"
+					TagsButtonClicked="ProductsDisplay_TagsButtonClicked"
+					LiberateSeriesClicked="ProductsDisplay_LiberateSeriesClicked"
+					ConvertToMp3Clicked="ProductsDisplay_ConvertToMp3Clicked" />
 
 					<!-- Trashed books are filtered out of the library and the search index, so say so rather than leaving the grid blank. -->
 					<StackPanel
@@ -290,7 +352,7 @@
 							HorizontalAlignment="Center"
 							Margin="0,8,0,0"
 							Spacing="8">
-							<Button Padding="16,6" Click="ClearFilterButton_Click" Content="Clear search" />
+							<Button Padding="16,6" Click="ClearAllFilters_Click" Content="Clear filters" />
 							<Button Padding="16,6" Classes="Ghost" Command="{Binding FilterHelpBtn}" Content="Filter syntax" />
 						</StackPanel>
 						<StackPanel
@@ -383,11 +445,51 @@
 						</StackPanel>
 					</StackPanel>
 				</Panel>
-			</SplitView>
-		</Border>
-			
+
+			<Border
+				Grid.Column="1"
+				Width="300"
+				IsVisible="{Binding InspectorOpen}"
+				Background="{DynamicResource SystemRegionColor}"
+				BorderBrush="{DynamicResource BorderSubtleBrush}"
+				BorderThickness="1,0,0,0">
+				<views:BookInspector
+					Name="bookInspector"
+					Entry="{Binding SelectedEntry}"
+					EmptyText="{Binding InspectorEmptyText}"
+					Selection="{Binding SelectedEntries}"
+					EditSelectionTagsClicked="BookInspector_EditSelectionTagsClicked"
+					LiberateClicked="ProductsDisplay_LiberateClicked"
+					DetailsClicked="ProductsDisplay_TagsButtonClicked" />
+			</Border>
+
+			<Border
+				Grid.Column="0"
+				Grid.ColumnSpan="2"
+				Width="360"
+				HorizontalAlignment="Right"
+				IsVisible="{Binding QueueOpen}"
+				Background="{DynamicResource SystemRegionColor}"
+				BorderBrush="{DynamicResource BorderSubtleBrush}"
+				BorderThickness="1,0,0,0"
+				BoxShadow="-6 0 18 0 #33000000">
+				<Panel>
+					<views:ProcessQueueControl DataContext="{Binding ProcessQueue, Mode=OneTime}"/>
+					<Button
+						Classes="Ghost"
+						HorizontalAlignment="Right"
+						VerticalAlignment="Top"
+						Margin="0,2,4,0"
+						Padding="8,2"
+						Command="{Binding CloseQueueBtn}"
+						Content="×"
+						ToolTip.Tip="Close queue" />
+				</Panel>
+			</Border>
+		</Grid>
+
 		<!-- Bottom Status Strip -->
-		<Grid Grid.Row="3" Margin="16,8" VerticalAlignment="Bottom" ColumnDefinitions="Auto,Auto,Auto,*,Auto">
+		<Grid Grid.Row="2" Margin="16,8" VerticalAlignment="Bottom" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto">
 			<Grid.Styles>
 				<Style Selector="ProgressBar:horizontal">
 					<Setter Property="MinWidth" Value="100" />
@@ -406,7 +508,8 @@
 			<TextBlock FontSize="14" Grid.Column="0" Text="Upgrading:" VerticalAlignment="Center" IsVisible="{Binding DownloadProgress, Converter={x:Static ObjectConverters.IsNotNull}}" />
 			<ProgressBar Grid.Column="1" Margin="8,0,12,0" VerticalAlignment="Stretch" Width="100" Value="{Binding DownloadProgress, TargetNullValue=0}" IsVisible="{Binding DownloadProgress, Converter={x:Static ObjectConverters.IsNotNull}}"/>
 			<TextBlock FontSize="12" FontWeight="SemiBold" Grid.Column="2" Margin="0,0,16,0" Text="{Binding BookCountText}" VerticalAlignment="Center" />
-			<StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right" VerticalAlignment="Center" ClipToBounds="True"
+			<TextBlock FontSize="12" Grid.Column="3" Margin="-8,0,16,0" IsVisible="{Binding SelectedCountVisible}" Foreground="{DynamicResource SecondaryForegroundBrush}" Text="{Binding SelectedCountText}" VerticalAlignment="Center" />
+			<StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right" VerticalAlignment="Center" ClipToBounds="True"
 						IsVisible="{Binding StatusCountsVisible}" ToolTip.Tip="{Binding LibraryStats?.StatusString}">
 				<StackPanel Orientation="Horizontal" Spacing="6">
 					<Ellipse Classes="statusDot" Fill="#30A46C" />
@@ -429,11 +532,13 @@
 					<TextBlock Text="{Binding UnavailableCountText}" />
 				</StackPanel>
 			</StackPanel>
-			<Button Classes="Ghost" FontSize="12" Grid.Column="4" Margin="16,0,0,0" Padding="8,4" VerticalAlignment="Center"
+			<Button Classes="Ghost" FontSize="12" Grid.Column="5" Margin="16,0,0,0" Padding="8,4" VerticalAlignment="Center"
 					Command="{Binding ShowTrashBinAsync}"
 					Content="{Binding TrashBinShortText}"
 					ToolTip.Tip="{Binding TrashBinStatusToolTip}"
 					IsVisible="{Binding TrashBinStatusVisible}" />
+		</Grid>
+		</Grid>
 		</Grid>
 	</Grid>
 </Window>
