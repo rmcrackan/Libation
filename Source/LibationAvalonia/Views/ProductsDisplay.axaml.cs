@@ -30,6 +30,7 @@ public partial class ProductsDisplay : UserControl
 	public event EventHandler<SeriesEntry>? LiberateSeriesClicked;
 	public event EventHandler<LibraryBook[]>? ConvertToMp3Clicked;
 	public event EventHandler<LibraryBook>? TagsButtonClicked;
+	public event EventHandler<GridEntry>? DescriptionClicked;
 
 
 	public static readonly StyledProperty<bool> DisableContextMenuProperty =
@@ -793,27 +794,8 @@ public partial class ProductsDisplay : UserControl
 
 	public void Description_Click(object sender, Avalonia.Input.TappedEventArgs args)
 	{
-		if (sender is Control tblock && tblock.DataContext is GridEntry gEntry)
-		{
-			var pt = tblock.PointToScreen(tblock.Bounds.TopRight);
-			var displayWindow = new DescriptionDisplayDialog
-			{
-				SpawnLocation = new Point(pt.X, pt.Y),
-				DescriptionText = gEntry.Description,
-			};
-
-			void CloseWindow(object? o, DataGridRowEventArgs e)
-			{
-				displayWindow.Close();
-			}
-			productsGrid.LoadingRow += CloseWindow;
-			displayWindow.Closing += (_, _) =>
-			{
-				productsGrid.LoadingRow -= CloseWindow;
-			};
-
-			displayWindow.Show();
-		}
+		if (sender is Control { DataContext: GridEntry gEntry })
+			DescriptionClicked?.Invoke(this, gEntry);
 	}
 
 	public void OnTagsButtonClick(object sender, Avalonia.Interactivity.RoutedEventArgs args)

@@ -225,6 +225,16 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 	public void ProductsDisplay_LiberateSeriesClicked(object _, SeriesEntry series) => ViewModel?.LiberateSeriesClicked(series);
 	public void ProductsDisplay_ConvertToMp3Clicked(object _, LibraryBook[] libraryBook) => ViewModel?.ConvertToMp3Clicked(libraryBook);
 
+	public void ProductsDisplay_DescriptionClicked(object? _, GridEntry entry)
+	{
+		if (ViewModel is null)
+			return;
+		ViewModel.InspectorOpen = true;
+		ViewModel.ShowDetailsTab();
+		// After the tap's row selection has reached the inspector, which collapses on a new entry.
+		Dispatcher.UIThread.Post(bookInspector.ExpandDescription, DispatcherPriority.Background);
+	}
+
 	BookDetailsDialog? bookDetailsForm;
 	private async void BookInspector_EditSelectionTagsClicked(object? sender, EventArgs e)
 		=> await (ViewModel?.ReplaceSelectionTagsAsync() ?? Task.CompletedTask);

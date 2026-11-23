@@ -1,5 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
+using Avalonia.Media;
 using DataLayer;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
@@ -36,6 +38,33 @@ public partial class BookInspector : UserControl
 	{
 		InitializeComponent();
 		root.DataContext = viewModel;
+		viewModel.PropertyChanged += (_, e) =>
+		{
+			if (e.PropertyName == nameof(BookInspectorViewModel.DescriptionParagraphs))
+				RenderDescription();
+		};
+	}
+
+	public void ExpandDescription() => viewModel.ExpandDescription();
+
+	private void RenderDescription()
+	{
+		var inlines = new InlineCollection();
+		foreach (var paragraph in viewModel.DescriptionParagraphs)
+		{
+			if (inlines.Count > 0)
+			{
+				inlines.Add(new LineBreak());
+				inlines.Add(new LineBreak());
+			}
+			foreach (var run in paragraph)
+				inlines.Add(new Run(run.Text)
+				{
+					FontWeight = run.Bold ? FontWeight.Bold : FontWeight.Normal,
+					FontStyle = run.Italic ? FontStyle.Italic : FontStyle.Normal,
+				});
+		}
+		descriptionText.Inlines = inlines;
 	}
 
 	protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)

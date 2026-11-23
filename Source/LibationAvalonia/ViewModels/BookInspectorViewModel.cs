@@ -4,6 +4,7 @@ using Avalonia.Threading;
 using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
+using LibationUiBase;
 using LibationUiBase.GridView;
 using ReactiveUI;
 using System;
@@ -54,6 +55,7 @@ public class BookInspectorViewModel : ViewModelBase
 	public bool ShowFileVisible { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 	public string ShowFileText { get; } = OperatingSystem.IsMacOS() ? "Show in Finder" : OperatingSystem.IsWindows() ? "Show in Explorer" : "Show in folder";
 	public string Description { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); this.RaisePropertyChanged(nameof(HasDescription)); this.RaisePropertyChanged(nameof(DescriptionIsLong)); } } = "";
+	public IReadOnlyList<IReadOnlyList<DescriptionRun>> DescriptionParagraphs { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = [];
 	public bool HasDescription => Description.Length > 0;
 	public bool DescriptionIsLong => Description.Length > 300;
 	public bool DescriptionExpanded
@@ -66,9 +68,10 @@ public class BookInspectorViewModel : ViewModelBase
 			this.RaisePropertyChanged(nameof(DescriptionMaxLines));
 		}
 	}
-	public string DescriptionToggleText => DescriptionExpanded ? "Show less" : "Show more";
+	public string DescriptionToggleText => DescriptionExpanded ? "Show less ▴" : "Show more ▾";
 	public int DescriptionMaxLines => DescriptionExpanded ? 0 : 6;
 	public void ToggleDescription() => DescriptionExpanded = !DescriptionExpanded;
+	public void ExpandDescription() => DescriptionExpanded = true;
 	public IReadOnlyList<DetailItem> Details { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); } = [];
 
 	public string? Tags
@@ -163,12 +166,14 @@ public class BookInspectorViewModel : ViewModelBase
 			if (entry is null)
 			{
 				Description = "";
+				DescriptionParagraphs = [];
 				return;
 			}
 
 			var book = entry.Book;
 			// Rows imported before descriptions were flattened still hold Audible HTML until a rescan.
 			Description = AudibleUtilities.HtmlText.ToPlainText(book.Description, "\n\n");
+			DescriptionParagraphs = DescriptionMarkup.Parse(book.Description);
 			TitleText = entry.Title ?? book.Title;
 			Cover ??= entry.Cover as IImage;
 			Byline = string.IsNullOrWhiteSpace(entry.Narrators) ? entry.Authors ?? "" : $"{entry.Authors} · narrated by {entry.Narrators}";

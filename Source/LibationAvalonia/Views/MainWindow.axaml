@@ -308,6 +308,7 @@
 					DataContext="{Binding ProductsDisplay, Mode=OneTime}"
 					LiberateClicked="ProductsDisplay_LiberateClicked"
 					TagsButtonClicked="ProductsDisplay_TagsButtonClicked"
+					DescriptionClicked="ProductsDisplay_DescriptionClicked"
 					LiberateSeriesClicked="ProductsDisplay_LiberateSeriesClicked"
 					ConvertToMp3Clicked="ProductsDisplay_ConvertToMp3Clicked" />
 

@@ -229,7 +229,7 @@
 				<controls:DataGridTemplateColumnExt Header="Description" MinWidth="10" Width="{Binding DescriptionWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Description">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
-							<Panel Tag="NoRowDoubleTap" Opacity="{Binding Liberate.Opacity}" Tapped="Description_Click" ToolTip.Tip="Click to see full description" >
+							<Panel Background="Transparent" Cursor="Hand" Opacity="{Binding Liberate.Opacity}" Tapped="Description_Click" ToolTip.Tip="Click to read in the Details panel">
 								<TextBlock Text="{Binding Description}" VerticalAlignment="Top" />
 							</Panel>
 						</DataTemplate>
