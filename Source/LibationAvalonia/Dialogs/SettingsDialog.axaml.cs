@@ -19,6 +19,9 @@ public partial class SettingsDialog : DialogWindow
 		InitializeComponent();
 
 		DataContext = settingsDisp = new(config);
+		sectionList.SelectedIndex = 0;
+		// Initial focus scrolls the first section past its heading.
+		Opened += (_, _) => Avalonia.Threading.Dispatcher.UIThread.Post(() => generalSection.Offset = default, Avalonia.Threading.DispatcherPriority.Background);
 	}
 
 	protected override async Task SaveAndCloseAsync()
@@ -49,6 +52,22 @@ public partial class SettingsDialog : DialogWindow
 		await MessageBox.VerboseLoggingWarning_ShowIfTrue();
 		await base.SaveAndCloseAsync();
 	}
+
+	private void SectionList_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+	{
+		if (sectionList.SelectedItem is not ListBoxItem item)
+			return;
+
+		sectionTitle.Text = item.Content as string;
+		sectionDescription.Text = item.Tag as string;
+
+		Control[] sections = [generalSection, librarySection, downloadsSection, namingSection, audioSection, audiobookshelfSection];
+		for (var i = 0; i < sections.Length; i++)
+			sections[i].IsVisible = i == sectionList.SelectedIndex;
+	}
+
+	public void CancelButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		=> CancelAndClose();
 
 	public async void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{

@@ -1,0 +1,157 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Documents;
+using Avalonia.Media;
+using ApplicationServices;
+using DataLayer;
+using LibationAvalonia.ViewModels;
+using LibationFileManager;
+using LibationUiBase.GridView;
+using LibationUiBase;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace LibationAvalonia.Views;
+
+public partial class BookInspector : UserControl
+{
+	public static readonly StyledProperty<GridEntry?> EntryProperty =
+		AvaloniaProperty.Register<BookInspector, GridEntry?>(nameof(Entry));
+	public static readonly StyledProperty<string?> EmptyTextProperty =
+		AvaloniaProperty.Register<BookInspector, string?>(nameof(EmptyText));
+
+	public static readonly StyledProperty<IReadOnlyList<GridEntry>?> SelectionProperty =
+		AvaloniaProperty.Register<BookInspector, IReadOnlyList<GridEntry>?>(nameof(Selection));
+
+	public event EventHandler? EditSelectionTagsClicked;
+	public event LiberateClickedHandler? LiberateClicked;
+
+	private readonly BookInspectorViewModel viewModel = new();
+
+	public GridEntry? Entry { get => GetValue(EntryProperty); set => SetValue(EntryProperty, value); }
+	public IReadOnlyList<GridEntry>? Selection { get => GetValue(SelectionProperty); set => SetValue(SelectionProperty, value); }
+	public string? EmptyText { get => GetValue(EmptyTextProperty); set => SetValue(EmptyTextProperty, value); }
+
+	public BookInspector()
+	{
+		InitializeComponent();
+		root.DataContext = viewModel;
+		viewModel.PropertyChanged += (_, e) =>
+		{
+			if (e.PropertyName == nameof(BookInspectorViewModel.DescriptionParagraphs))
+				RenderDescription();
+		};
+	}
+
+	public void ExpandDescription() => viewModel.ExpandDescription();
+	public void FocusTagInput() => tagEditor.InputTextBox.Focus();
+
+	private void RenderDescription()
+	{
+		var inlines = new InlineCollection();
+		foreach (var paragraph in viewModel.DescriptionParagraphs)
+		{
+			if (inlines.Count > 0)
+			{
+				inlines.Add(new LineBreak());
+				inlines.Add(new LineBreak());
+			}
+			foreach (var run in paragraph)
+				inlines.Add(new Run(run.Text)
+				{
+					FontWeight = run.Bold ? FontWeight.Bold : FontWeight.Normal,
+					FontStyle = run.Italic ? FontStyle.Italic : FontStyle.Normal,
+				});
+		}
+		descriptionText.Inlines = inlines;
+	}
+
+	protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+	{
+		base.OnPropertyChanged(change);
+		if (change.Property == EntryProperty)
+		{
+			tagEditor.CommitPending();
+			viewModel.SetEntry(Entry);
+		}
+		else if (change.Property == SelectionProperty)
+			viewModel.SetSelection(Selection);
+	}
+
+	private void Primary_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+	{
+		if (Entry is LibraryBookEntry entry)
+			LiberateClicked?.Invoke(this, [entry.LibraryBook], Configuration.Instance);
+	}
+
+	private void ShowFile_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => viewModel.ShowFile();
+	private void Audible_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => viewModel.OpenInAudible();
+
+	private void ToggleDescription_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => viewModel.ToggleDescription();
+
+	private async void BookStatus_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+		=> await ApplyStatusAsync(sender, pdf: false);
+	private async void PdfStatus_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+		=> await ApplyStatusAsync(sender, pdf: true);
+
+	private async Task ApplyStatusAsync(object? sender, bool pdf)
+	{
+		if (viewModel.IsRefreshing || viewModel.CurrentBook is not { } book
+			|| (sender as ComboBox)?.SelectedItem is not StatusOption option)
+			return;
+
+		var current = pdf ? book.Book.UserDefinedItem.PdfStatus : book.Book.UserDefinedItem.BookStatus;
+		if (current == option.Status)
+			return;
+
+		await LibraryOperation.RunAsync(
+			() => pdf ? book.UpdatePdfStatusAsync(option.Status) : book.UpdateBookStatusAsync(option.Status),
+			ex => MessageBox.ShowAdminAlert(this.GetParentWindow(), "Could not update download status.", "Library operation failed", ex));
+	}
+
+	private void BulkLiberate_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+	{
+		if (viewModel.Bulk is { } menu)
+			LiberateClicked?.Invoke(this, menu.LibraryBookEntries.Select(b => b.LibraryBook).UnLiberated().ToList(), Configuration.Instance);
+	}
+
+	private void BulkEditTags_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => EditSelectionTagsClicked?.Invoke(this, EventArgs.Empty);
+
+	private async void BulkSetDownloaded_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+		=> await RunBulkAsync(m => m.SetDownloaded(), "Could not update download status.");
+	private async void BulkSetNotDownloaded_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+		=> await RunBulkAsync(m => m.SetNotDownloaded(), "Could not update download status.");
+	private async void BulkSetPdfDownloaded_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+		=> await RunBulkAsync(m => m.SetPdfDownloaded(), "Could not update download status.");
+	private async void BulkSetPdfNotDownloaded_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+		=> await RunBulkAsync(m => m.SetPdfNotDownloaded(), "Could not update download status.");
+
+	private async void BulkRemove_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+	{
+		if (viewModel.Bulk is not { } menu)
+			return;
+
+		var confirmed = await MessageBox.ShowConfirmationDialog(
+			this.GetParentWindow(),
+			menu.LibraryBookEntries.Select(b => b.LibraryBook).ToList(),
+			// do not use `$` string interpolation. See impl.
+			"Are you sure you want to remove {0} from Libation's library?",
+			"Remove books from Libation?",
+			LibationUiBase.Forms.MessageBoxDefaultButton.Button2);
+
+		if (confirmed is LibationUiBase.Forms.DialogResult.Yes)
+			await RunBulkAsync(m => m.RemoveAsync(), "Could not remove books from the library.");
+	}
+
+	private async Task RunBulkAsync(Func<GridContextMenu, Task> operation, string message)
+	{
+		if (viewModel.Bulk is not { } menu)
+			return;
+
+		await LibraryOperation.RunAsync(() => operation(menu),
+			ex => MessageBox.ShowAdminAlert(this.GetParentWindow(), message, "Library operation failed", ex));
+		viewModel.SetSelection(Selection);
+	}
+}

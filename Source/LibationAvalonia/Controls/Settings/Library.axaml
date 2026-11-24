@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+             xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
+             x:DataType="vm:ImportantSettingsVM"
+             x:Class="LibationAvalonia.Controls.Settings.Library">
+
+	<controls:SettingGroup Header="Locations">
+		<controls:SettingRow Stacked="True" Label="Books Location" Description="{Binding BooksText}">
+			<controls:DirectoryOrCustomSelectControl
+				SubDirectory="Books"
+				Directory="{Binding BooksDirectory, Mode=TwoWay}"
+				KnownDirectories="{Binding KnownDirectories}" />
+		</controls:SettingRow>
+
+		<controls:SettingRow Label="{Binding SavePodcastsToParentFolderText}">
+			<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding SavePodcastsToParentFolder, Mode=TwoWay}" />
+		</controls:SettingRow>
+
+		<controls:SettingRow Label="{Binding OverwriteExistingText}">
+			<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding OverwriteExisting, Mode=TwoWay}" />
+		</controls:SettingRow>
+
+		<controls:SettingRow Label="{Binding CreationTimeText}">
+			<controls:WheelComboBox
+				MinWidth="200"
+				SelectedItem="{Binding CreationTime, Mode=TwoWay}"
+				ItemsSource="{Binding DateTimeSources}" />
+		</controls:SettingRow>
+
+		<controls:SettingRow Label="{Binding LastWriteTimeText}">
+			<controls:WheelComboBox
+				MinWidth="200"
+				SelectedItem="{Binding LastWriteTime, Mode=TwoWay}"
+				ItemsSource="{Binding DateTimeSources}" />
+		</controls:SettingRow>
+	</controls:SettingGroup>
+</UserControl>

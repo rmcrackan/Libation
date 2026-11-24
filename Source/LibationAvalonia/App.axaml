@@ -23,7 +23,12 @@
 
 			<ResourceDictionary.ThemeDictionaries>
 				<ResourceDictionary x:Key="Light">
-					<SolidColorBrush x:Key="SeriesEntryGridBackgroundBrush" Opacity="0.3" Color="#abffab" />
+					<SolidColorBrush x:Key="SeriesEntryGridBackgroundBrush" Opacity="0.12" Color="#abffab" />
+					<SolidColorBrush x:Key="ErrorForegroundBrush" Color="#C62828" />
+					<SolidColorBrush x:Key="WarningForegroundBrush" Color="#9A5B00" />
+					<SolidColorBrush x:Key="SecondaryForegroundBrush" Color="#5B6370" />
+					<SolidColorBrush x:Key="DestructiveBrush" Color="#C62828" />
+					<SolidColorBrush x:Key="DestructiveHoverBrush" Color="#B02222" />
 					<SolidColorBrush x:Key="ProcessQueueBookFailedBrush" Color="LightCoral" />
 					<SolidColorBrush x:Key="ProcessQueueBookCompletedBrush" Color="PaleGreen" />
 					<SolidColorBrush x:Key="ProcessQueueBookCancelledBrush" Color="Khaki" />
@@ -31,9 +36,35 @@
 					<SolidColorBrush x:Key="HyperlinkVisited" Color="Purple" />
 					<SolidColorBrush x:Key="CancelRed" Color="FireBrick" />
 					<SolidColorBrush x:Key="IconFill" Color="#231F20" />
+					<SolidColorBrush x:Key="ChipBackgroundBrush" Color="#E8F0FE" />
+					<SolidColorBrush x:Key="ChipForegroundBrush" Color="#1E40AF" />
+					<SolidColorBrush x:Key="SuccessSoftBrush" Color="#E6F4EA" />
+					<SolidColorBrush x:Key="SuccessForegroundBrush" Color="#1E7D3A" />
+					<SolidColorBrush x:Key="WarningSoftBrush" Color="#FDF1DC" />
+					<SolidColorBrush x:Key="ErrorSoftBrush" Color="#FDE8E8" />
+					<SolidColorBrush x:Key="NeutralSoftBrush" Color="#ECEEF1" />
+					<SolidColorBrush x:Key="AccentSoftBrush" Color="#E8F0FE" />
+					<SolidColorBrush x:Key="Surface2Brush" Color="#F1F3F5" />
+					<SolidColorBrush x:Key="BorderSubtleBrush" Color="#E3E6EA" />
+					<SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF" />
+					<SolidColorBrush x:Key="DividerBrush" Color="#EDEFF2" />
+					<SolidColorBrush x:Key="DataGridRowSelectedBackgroundBrush" Color="#DBEAFE" />
+					<SolidColorBrush x:Key="DataGridRowSelectedUnfocusedBackgroundBrush" Color="#DBEAFE" />
+					<SolidColorBrush x:Key="DataGridRowSelectedHoveredBackgroundBrush" Color="#CFE2FD" />
+					<SolidColorBrush x:Key="DataGridRowSelectedHoveredUnfocusedBackgroundBrush" Color="#CFE2FD" />
+					<x:Double x:Key="DataGridRowSelectedBackgroundOpacity">1</x:Double>
+					<x:Double x:Key="DataGridRowSelectedUnfocusedBackgroundOpacity">1</x:Double>
+					<x:Double x:Key="DataGridRowSelectedHoveredBackgroundOpacity">1</x:Double>
+					<x:Double x:Key="DataGridRowSelectedHoveredUnfocusedBackgroundOpacity">1</x:Double>
+					<SolidColorBrush x:Key="DataGridColumnHeaderBackgroundBrush" Color="#FFFFFF" />
 				</ResourceDictionary>
 				<ResourceDictionary x:Key="Dark">
-					<SolidColorBrush x:Key="SeriesEntryGridBackgroundBrush" Opacity="0.3" Color="#bed2fa" />
+					<SolidColorBrush x:Key="SeriesEntryGridBackgroundBrush" Opacity="0.12" Color="#bed2fa" />
+					<SolidColorBrush x:Key="ErrorForegroundBrush" Color="#FF6B6B" />
+					<SolidColorBrush x:Key="WarningForegroundBrush" Color="#FBBF24" />
+					<SolidColorBrush x:Key="SecondaryForegroundBrush" Color="#A4ABB5" />
+					<SolidColorBrush x:Key="DestructiveBrush" Color="#E5484D" />
+					<SolidColorBrush x:Key="DestructiveHoverBrush" Color="#EE6064" />
 					<SolidColorBrush x:Key="ProcessQueueBookFailedBrush" Color="#502727" />
 					<SolidColorBrush x:Key="ProcessQueueBookCompletedBrush" Color="#1c3e20" />
 					<SolidColorBrush x:Key="ProcessQueueBookCancelledBrush" Color="#4e4b15" />
@@ -41,6 +72,27 @@
 					<SolidColorBrush x:Key="HyperlinkVisited" Color="Orchid" />
 					<SolidColorBrush x:Key="CancelRed" Color="#802727" />
 					<SolidColorBrush x:Key="IconFill" Color="#DCE0DF" />
+					<SolidColorBrush x:Key="ChipBackgroundBrush" Color="#1E2F52" />
+					<SolidColorBrush x:Key="ChipForegroundBrush" Color="#A9C1F5" />
+					<SolidColorBrush x:Key="SuccessSoftBrush" Color="#1B3A26" />
+					<SolidColorBrush x:Key="SuccessForegroundBrush" Color="#6FD08C" />
+					<SolidColorBrush x:Key="WarningSoftBrush" Color="#3D2F0F" />
+					<SolidColorBrush x:Key="ErrorSoftBrush" Color="#4A2020" />
+					<SolidColorBrush x:Key="NeutralSoftBrush" Color="#2B2F36" />
+					<SolidColorBrush x:Key="AccentSoftBrush" Color="#1E3A66" />
+					<SolidColorBrush x:Key="Surface2Brush" Color="#2A2D32" />
+					<SolidColorBrush x:Key="BorderSubtleBrush" Color="#3A3E44" />
+					<SolidColorBrush x:Key="SurfaceBrush" Color="#25272B" />
+					<SolidColorBrush x:Key="DividerBrush" Color="#32353A" />
+					<SolidColorBrush x:Key="DataGridRowSelectedBackgroundBrush" Color="#1E3A66" />
+					<SolidColorBrush x:Key="DataGridRowSelectedUnfocusedBackgroundBrush" Color="#1E3A66" />
+					<SolidColorBrush x:Key="DataGridRowSelectedHoveredBackgroundBrush" Color="#24467A" />
+					<SolidColorBrush x:Key="DataGridRowSelectedHoveredUnfocusedBackgroundBrush" Color="#24467A" />
+					<x:Double x:Key="DataGridRowSelectedBackgroundOpacity">1</x:Double>
+					<x:Double x:Key="DataGridRowSelectedUnfocusedBackgroundOpacity">1</x:Double>
+					<x:Double x:Key="DataGridRowSelectedHoveredBackgroundOpacity">1</x:Double>
+					<x:Double x:Key="DataGridRowSelectedHoveredUnfocusedBackgroundOpacity">1</x:Double>
+					<SolidColorBrush x:Key="DataGridColumnHeaderBackgroundBrush" Color="#1E1F22" />
 				</ResourceDictionary>
 			</ResourceDictionary.ThemeDictionaries>
 		</ResourceDictionary>		
@@ -53,16 +105,29 @@
 		<FluentTheme>
 			<FluentTheme.Palettes>
 				<ColorPaletteResources x:Key="Light" />
-				<ColorPaletteResources x:Key="Dark" />
+				<ColorPaletteResources x:Key="Dark" RegionColor="#1E1F22" />
 			</FluentTheme.Palettes>
 		</FluentTheme>
 
 		<Style Selector="TextBox[IsReadOnly=true]">
-			<Setter Property="Background" Value="{DynamicResource SystemChromeDisabledHighColor}" />
 			<Setter Property="CaretBrush" Value="{DynamicResource SystemControlTransparentBrush}" />
 			<Style Selector="^ /template/ Border#PART_BorderElement">
-				<Setter Property="Background" Value="{DynamicResource SystemChromeDisabledHighColor}" />
+				<Setter Property="Background" Value="{DynamicResource TextControlBackground}" />
+				<Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
 			</Style>
+			<Style Selector="^:pointerover /template/ Border#PART_BorderElement">
+				<Setter Property="Background" Value="{DynamicResource TextControlBackground}" />
+				<Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
+			</Style>
+			<Style Selector="^:focus /template/ Border#PART_BorderElement">
+				<Setter Property="Background" Value="{DynamicResource TextControlBackground}" />
+			</Style>
+		</Style>
+		<Style Selector="TextBox[AcceptsReturn=false]">
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="TextBox.Mono">
+			<Setter Property="FontFamily" Value="Cascadia Mono,Menlo,Consolas,DejaVu Sans Mono,monospace" />
 		</Style>
 		<Style Selector="controls|LinkLabel">
 			<Setter Property="Foreground" Value="{DynamicResource HyperlinkNew}"/>
@@ -74,8 +139,149 @@
 				<Setter Property="Foreground" Value="{DynamicResource SystemChromeAltLowColor}" />
 			</Style>
 		</Style>
-		<Style Selector="Button.SaveButton">
-			<Setter Property="Padding" Value="30,6" />
+		<Style Selector="SplitButton.Primary">
+			<Setter Property="Foreground" Value="White" />
+			<Style Selector="^ /template/ Button /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="White" />
+				<Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="BorderBrush" Value="Transparent" />
+			</Style>
+			<Style Selector="^ /template/ Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="White" />
+				<Setter Property="Background" Value="{DynamicResource SystemAccentColorLight1}" />
+			</Style>
+			<Style Selector="^ /template/ Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="White" />
+				<Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
+			</Style>
+			<Style Selector="^ /template/ Border#SeparatorBorder">
+				<Setter Property="Background" Value="#55FFFFFF" />
+			</Style>
+			<Style Selector="^ /template/ Button#PART_SecondaryButton /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="TextElement.Foreground" Value="White" />
+			</Style>
+		</Style>
+		<Style Selector="Button.Primary">
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+			<Setter Property="BorderBrush" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="Padding" Value="16,6" />
+			<Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="White" />
+				<Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="BorderBrush" Value="Transparent" />
+			</Style>
+			<Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="White" />
+				<Setter Property="Background" Value="{DynamicResource SystemAccentColorLight1}" />
+				<Setter Property="BorderBrush" Value="Transparent" />
+			</Style>
+			<Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="White" />
+				<Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
+				<Setter Property="BorderBrush" Value="Transparent" />
+			</Style>
+			<Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Opacity" Value="0.45" />
+			</Style>
+		</Style>
+				<Style Selector="Button.SaveButton">
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+			<Setter Property="BorderBrush" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="Padding" Value="16,6" />
+			<Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="White" />
+				<Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="BorderBrush" Value="Transparent" />
+			</Style>
+			<Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="White" />
+				<Setter Property="Background" Value="{DynamicResource SystemAccentColorLight1}" />
+				<Setter Property="BorderBrush" Value="Transparent" />
+			</Style>
+			<Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="White" />
+				<Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
+				<Setter Property="BorderBrush" Value="Transparent" />
+			</Style>
+			<Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Opacity" Value="0.45" />
+			</Style>
+		</Style>
+				<Style Selector="Button.Destructive">
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="Background" Value="{DynamicResource DestructiveBrush}" />
+			<Setter Property="BorderBrush" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="White" />
+				<Setter Property="Background" Value="{DynamicResource DestructiveBrush}" />
+				<Setter Property="BorderBrush" Value="Transparent" />
+			</Style>
+			<Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="White" />
+				<Setter Property="Background" Value="{DynamicResource DestructiveHoverBrush}" />
+				<Setter Property="BorderBrush" Value="Transparent" />
+			</Style>
+			<Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="White" />
+				<Setter Property="Background" Value="{DynamicResource DestructiveHoverBrush}" />
+				<Setter Property="BorderBrush" Value="Transparent" />
+			</Style>
+			<Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Opacity" Value="0.45" />
+			</Style>
+		</Style>
+		<Style Selector="Button.Destructive.Quiet">
+			<Setter Property="Foreground" Value="{DynamicResource DestructiveBrush}" />
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderBrush" Value="{DynamicResource DestructiveBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="{DynamicResource DestructiveBrush}" />
+				<Setter Property="Background" Value="Transparent" />
+				<Setter Property="BorderBrush" Value="{DynamicResource DestructiveBrush}" />
+			</Style>
+			<Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="{DynamicResource DestructiveBrush}" />
+				<Setter Property="Background" Value="#22808080" />
+				<Setter Property="BorderBrush" Value="{DynamicResource DestructiveBrush}" />
+			</Style>
+			<Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="{DynamicResource DestructiveBrush}" />
+				<Setter Property="Background" Value="#33808080" />
+				<Setter Property="BorderBrush" Value="{DynamicResource DestructiveBrush}" />
+			</Style>
+			<Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Opacity" Value="0.45" />
+			</Style>
+		</Style>
+		<Style Selector="Button.Ghost">
+			<Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" />
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderBrush" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="Background" Value="Transparent" />
+				<Setter Property="BorderBrush" Value="Transparent" />
+			</Style>
+			<Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="Background" Value="#22808080" />
+				<Setter Property="BorderBrush" Value="Transparent" />
+			</Style>
+			<Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="Background" Value="#33808080" />
+				<Setter Property="BorderBrush" Value="Transparent" />
+			</Style>
+			<Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Opacity" Value="0.45" />
+			</Style>
 		</Style>
 		<Style Selector="ScrollBar">
 			<!-- It's called AutoHide, but this is really the mouseover shrink/expand. -->
@@ -123,6 +329,10 @@
 	<NativeMenu.Menu>
 		<NativeMenu>
 			<NativeMenuItem Header="About Libation" />
+			<NativeMenuItemSeparator />
+			<NativeMenuItem Header="Settings…" Gesture="{OnPlatform macOS='⌘+,'}" />
+			<NativeMenuItem Header="Accounts…" Gesture="{OnPlatform macOS='⌘+.'}" />
+			<NativeMenuItemSeparator />
 		</NativeMenu>
 	</NativeMenu.Menu>
 

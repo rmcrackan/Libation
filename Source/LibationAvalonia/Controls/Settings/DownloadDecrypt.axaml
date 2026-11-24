@@ -7,39 +7,25 @@
 			 xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
 			 x:DataType="vm:DownloadDecryptSettingsVM"
              x:Class="LibationAvalonia.Controls.Settings.DownloadDecrypt">
-	
-	<Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
-		<controls:GroupBox
-			Grid.Row="0"
-			Margin="5"
-			Label="{Binding DailyDownloadLimitGroupboxText}">
 
-			<StackPanel Margin="0,5">
-
-				<TextBlock
-					Margin="0,0,0,8"
-					TextWrapping="Wrap"
-					Text="{Binding DailyDownloadLimitDescriptionText}" />
-
+	<StackPanel Spacing="24">
+		<controls:SettingGroup Header="Downloading">
+			<controls:SettingRow
+				Label="{Binding DailyDownloadLimitGroupboxText}"
+				Description="{Binding DailyDownloadLimitDescriptionText}">
 				<controls:WheelComboBox
-					HorizontalAlignment="Left"
 					MinWidth="200"
 					ToolTip.Tip="{Binding DailyDownloadLimitTip}"
 					ItemsSource="{Binding DailyDownloadLimitScopes}"
 					SelectedItem="{Binding DailyDownloadLimit}" />
+			</controls:SettingRow>
 
-				<StackPanel
-					Margin="0,8,0,0"
-					Orientation="Horizontal"
-					IsVisible="{Binding DailyDownloadLimitQuantityVisible}">
-
-					<TextBlock
-						VerticalAlignment="Center"
-						Text="{Binding DailyDownloadLimitQuantityText}" />
-
+			<controls:SettingRow
+				Label="{Binding DailyDownloadLimitQuantityText}"
+				IsVisible="{Binding DailyDownloadLimitQuantityVisible}">
+				<StackPanel Orientation="Horizontal" Spacing="8">
 					<NumericUpDown
 						Classes="SmallNumericUpDown"
-						Margin="5,0,0,0"
 						MinWidth="140"
 						Minimum="1"
 						Maximum="2147483647"
@@ -49,206 +35,54 @@
 						Value="{Binding DailyDownloadLimitQuantity, Mode=TwoWay}" />
 
 					<controls:WheelComboBox
-						Margin="10,0,0,0"
 						MinWidth="90"
 						ItemsSource="{Binding DailyDownloadLimitUnits}"
 						SelectedItem="{Binding DailyDownloadLimitUnit}" />
-
 				</StackPanel>
+			</controls:SettingRow>
 
-				<TextBlock
-					Margin="0,6,0,0"
-					FontStyle="Italic"
-					Opacity="0.8"
-					TextWrapping="Wrap"
-					IsVisible="{Binding DailyDownloadLimitApproximateNoteVisible}"
-					Text="{Binding DailyDownloadLimitApproximateNoteText}" />
+			<controls:SettingRow
+				IsVisible="{Binding DailyDownloadLimitApproximateNoteVisible}"
+				Description="{Binding DailyDownloadLimitApproximateNoteText}" />
+		</controls:SettingGroup>
 
-			</StackPanel>
-		</controls:GroupBox>
-
-		<controls:GroupBox
-			Grid.Row="1"
-			Margin="5"
-			Label="{Binding BadBookGroupboxText}">
-
-			<Grid
-				ColumnDefinitions="*,*"
-				RowDefinitions="Auto,Auto">
-				<Grid.Styles>
-					<Style Selector="RadioButton">
-						<Setter Property="Margin" Value="0,5,0,5" />
-						<Style Selector="^ > TextBlock">
-							<Setter Property="TextWrapping" Value="Wrap" />
+		<controls:SettingGroup Header="{Binding BadBookGroupboxText}">
+			<controls:SettingRow Stacked="True">
+				<WrapPanel Orientation="Horizontal">
+					<WrapPanel.Styles>
+						<Style Selector="RadioButton">
+							<Setter Property="Margin" Value="0,0,24,0" />
 						</Style>
-					</Style>
-				</Grid.Styles>
+					</WrapPanel.Styles>
+					<RadioButton IsChecked="{Binding BadBookAsk, Mode=TwoWay}" Content="{Binding BadBookAskText}" />
+					<RadioButton IsChecked="{Binding BadBookAbort, Mode=TwoWay}" Content="{Binding BadBookAbortText}" />
+					<RadioButton IsChecked="{Binding BadBookRetry, Mode=TwoWay}" Content="{Binding BadBookRetryText}" />
+					<RadioButton IsChecked="{Binding BadBookIgnore, Mode=TwoWay}" Content="{Binding BadBookIgnoreText}" />
+				</WrapPanel>
+			</controls:SettingRow>
+		</controls:SettingGroup>
 
-				<RadioButton
-					Grid.Column="0"
-					Grid.Row="0"
-					IsChecked="{Binding BadBookAsk, Mode=TwoWay}">
-
-					<TextBlock Text="{Binding BadBookAskText}" />
-
-				</RadioButton>
-
-				<RadioButton
-					Grid.Column="1"
-					Grid.Row="0"
-					IsChecked="{Binding BadBookAbort, Mode=TwoWay}">
-
-					<TextBlock Text="{Binding BadBookAbortText}" />
-
-				</RadioButton>
-
-				<RadioButton
-					Grid.Column="0"
-					Grid.Row="1"
-					IsChecked="{Binding BadBookRetry, Mode=TwoWay}">
-
-					<TextBlock Text="{Binding BadBookRetryText}" />
-
-				</RadioButton>
-
-				<RadioButton
-					Grid.Column="1"
-					Grid.Row="1"
-					IsChecked="{Binding BadBookIgnore, Mode=TwoWay}">
-
-					<TextBlock Text="{Binding BadBookIgnoreText}" />
-
-				</RadioButton>
-			</Grid>
-		</controls:GroupBox>
-
-		<controls:GroupBox
-			Margin="5"
-			Grid.Row="2"
-			Label="Custom File Naming">
-
-			<Grid
-				RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
-				ColumnDefinitions="*,Auto">
-
-				<Grid.Styles>
-					<Style Selector="TextBox">
-						<Setter Property="Margin" Value="0,5,10,10" />
-						<Setter Property="FontSize" Value="14" />
-						<Setter Property="IsReadOnly" Value="True" />
-					</Style>
-					<Style Selector="Button">
-						<Setter Property="VerticalAlignment" Value="Stretch" />
-						<Setter Property="Margin" Value="0,5,0,10" />
-						<Setter Property="Padding" Value="30,0" />
-					</Style>
-				</Grid.Styles>
-
-				<TextBlock
-					Grid.Row="0"
-					Grid.Column="0"
-					Margin="0,5,0,0"
-					Text="{Binding FolderTemplateText}" />
-
-				<TextBox
-					Grid.Row="1"
-					Grid.Column="0"
-					Text="{Binding FolderTemplate}" />
-
-				<Button
-					Grid.Row="1"
-					Grid.Column="1"
-					Content="Edit"
-					Click="EditFolderTemplateButton_Click" />
-
-				<TextBlock
-					Grid.Row="2"
-					Grid.Column="0"
-					Text="{Binding FileTemplateText}" />
-
-				<TextBox
-					Grid.Row="3"
-					Grid.Column="0"
-					Text="{Binding FileTemplate}" />
-
-				<Button
-					Grid.Row="3"
-					Grid.Column="1"
-					Content="Edit"
-					Click="EditFileTemplateButton_Click" />
-
-				<TextBlock
-					Grid.Row="4"
-					Grid.Column="0"
-					Text="{Binding ChapterFileTemplateText}" />
-
-				<TextBox
-					Grid.Row="5"
-					Grid.Column="0"
-					Text="{Binding ChapterFileTemplate}" />
-
-				<Button
-					Grid.Row="5"
-					Grid.Column="1"
-					Content="Edit"
-					Click="EditChapterFileTemplateButton_Click" />
-
-				<Button
-					Grid.Row="6"
-					Grid.Column="0"
-					Height="30"
-					Margin="0"
-					Content="{Binding EditCharReplacementText}"
-					Click="EditCharReplacementButton_Click" />
-
-			</Grid>
-		</controls:GroupBox>
-		<controls:GroupBox
-			Grid.Row="3"
-			Margin="5"
-			Label="Temporary Files Location">
-
-			<StackPanel
-				Margin="0,5" >
-
-				<TextBlock
-					Margin="0,0,0,10"
-					TextWrapping="Wrap"
-					Text="{Binding InProgressDescriptionText}" />
-
+		<controls:SettingGroup Header="Locations">
+			<controls:SettingRow
+				Stacked="True"
+				Label="Temporary files location"
+				Description="{Binding InProgressDescriptionText}">
 				<controls:DirectoryOrCustomSelectControl
 					Directory="{Binding InProgressDirectory, Mode=TwoWay}"
 					KnownDirectories="{Binding KnownDirectories}" />
+			</controls:SettingRow>
+		</controls:SettingGroup>
 
-			</StackPanel>
-		</controls:GroupBox>
+		<controls:SettingGroup Header="Files">
+			<controls:SettingRow
+				Label="{Binding UseCoverAsFolderIconText}"
+				IsVisible="{Binding !Config.IsLinux}">
+				<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding UseCoverAsFolderIcon, Mode=TwoWay}" />
+			</controls:SettingRow>
 
-		<StackPanel
-			Grid.Row="4"
-			Orientation="Horizontal">
-
-			<CheckBox
-				Margin="5"
-				VerticalAlignment="Top"
-				IsVisible="{Binding !Config.IsLinux}"
-				IsChecked="{Binding UseCoverAsFolderIcon, Mode=TwoWay}">
-
-				<TextBlock
-					TextWrapping="Wrap"
-					Text="{Binding UseCoverAsFolderIconText}" />
-
-			</CheckBox>
-
-			<CheckBox
-				Margin="5"
-				VerticalAlignment="Top"
-				IsChecked="{Binding SaveMetadataToFile, Mode=TwoWay}">
-
-				<TextBlock
-					TextWrapping="Wrap"
-					Text="{Binding SaveMetadataToFileText}" />
-
-			</CheckBox>
-		</StackPanel>
-	</Grid>
+			<controls:SettingRow Label="{Binding SaveMetadataToFileText}">
+				<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding SaveMetadataToFile, Mode=TwoWay}" />
+			</controls:SettingRow>
+		</controls:SettingGroup>
+	</StackPanel>
 </UserControl>

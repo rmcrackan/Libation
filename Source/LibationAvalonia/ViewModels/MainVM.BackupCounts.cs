@@ -1,6 +1,7 @@
 ﻿using ApplicationServices;
 using Avalonia.Threading;
 using DataLayer;
+using Dinah.Core;
 using LibationFileManager;
 using LibationUiBase;
 using ReactiveUI;
@@ -17,6 +18,7 @@ partial class MainVM
 	public string BookBackupsToolStripText { get; private set; } = "Begin Book and PDF Backups: 0";
 	/// <summary> The "Begin PDF Only Backup" menu item header text </summary>
 	public string PdfBackupsToolStripText { get; private set; } = "Begin PDF Only Backups: 0";
+	public string PdfOnlyText => LibraryStats?.pdfsNotDownloaded > 0 ? $"Download PDFs only ({LibraryStats.pdfsNotDownloaded})" : "All PDFs downloaded";
 
 	/// <summary> How many books are in the trash, where nothing else on screen would reveal them </summary>
 	public int BooksInTrash
@@ -26,16 +28,12 @@ partial class MainVM
 		{
 			this.RaiseAndSetIfChanged(ref field, value);
 			this.RaisePropertyChanged(nameof(TrashBinMenuText));
-			this.RaisePropertyChanged(nameof(TrashBinStatusText));
-			this.RaisePropertyChanged(nameof(TrashBinStatusVisible));
+			this.RaisePropertyChanged(nameof(TrashCountText));
 			RaiseGettingStartedChanged();
 		}
 	}
 
 	public string TrashBinMenuText => TrashBinUi.MenuText(BooksInTrash);
-	public string TrashBinStatusText => TrashBinUi.StatusText(BooksInTrash);
-	public bool TrashBinStatusVisible => TrashBinUi.ShowStatus(BooksInTrash);
-	public string TrashBinStatusToolTip => TrashBinUi.StatusToolTip;
 
 	/// <summary>
 	/// Re-read the trash count. Kept off <see cref="LibraryCommands.GetCounts"/> on purpose: that also runs
@@ -75,11 +73,38 @@ partial class MainVM
 
 			this.RaisePropertyChanged(nameof(BookBackupsToolStripText));
 			this.RaisePropertyChanged(nameof(PdfBackupsToolStripText));
+			this.RaisePropertyChanged(nameof(PdfOnlyText));
+
+			foreach (var name in new[] { nameof(BookCountText), nameof(StatusCountsVisible), nameof(DownloadedCountText), nameof(ToDoCountText),
+				nameof(InProgressCountText), nameof(InProgressCountVisible), nameof(ErrorCountText), nameof(ErrorCountVisible),
+				nameof(UnavailableCountText), nameof(UnavailableCountVisible) })
+				this.RaisePropertyChanged(name);
+
+			updateSidebarCounts();
 
 			//Whether the library is empty is only known once these counts have been taken.
 			RaiseGettingStartedChanged();
 		}
 	}
+
+	private int LibraryTotal => LibraryStats is { } s
+		? s.booksFullyBackedUp + s.booksDownloadedOnly + s.booksNoProgress + s.booksError + s.booksUnavailable
+		: 0;
+
+	/// <summary> "30 books", or "12 of 30 books" while filtered </summary>
+	public string BookCountText => LibraryStats is null || _visibleCount == LibraryTotal
+		? "book".PluralizeWithCount(_visibleCount)
+		: $"{_visibleCount} of {"book".PluralizeWithCount(LibraryTotal)}";
+
+	public bool StatusCountsVisible => LibraryStats?.HasBookResults ?? false;
+	public string DownloadedCountText => $"{LibraryStats?.booksFullyBackedUp} downloaded";
+	public string ToDoCountText => $"{LibraryStats?.booksNoProgress} to do";
+	public string InProgressCountText => $"{LibraryStats?.booksDownloadedOnly} in progress";
+	public bool InProgressCountVisible => LibraryStats?.booksDownloadedOnly > 0;
+	public string ErrorCountText => "error".PluralizeWithCount(LibraryStats?.booksError ?? 0);
+	public bool ErrorCountVisible => LibraryStats?.booksError > 0;
+	public string UnavailableCountText => $"{LibraryStats?.booksUnavailable} unavailable";
+	public bool UnavailableCountVisible => LibraryStats?.booksUnavailable > 0;
 
 	private void Configure_BackupCounts()
 	{

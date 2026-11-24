@@ -9,9 +9,18 @@
              x:Class="LibationAvalonia.Views.LiberateStatusButton">
 
 	<UserControl.Styles>
-		<Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
-			<Setter Property="Background" Value="{DynamicResource SystemChromeDisabledLowColor}" />
-			<Setter Property="BorderBrush" Value="{DynamicResource SystemChromeDisabledLowColor}" />
+		<Style Selector="Button#button">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="CornerRadius" Value="6" />
+		</Style>
+		<Style Selector="Button#button:disabled /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="Transparent" />
+		</Style>
+		<Style Selector="Button#button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="{DynamicResource Surface2Brush}" />
+		</Style>
+		<Style Selector="Button#button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="{DynamicResource BorderSubtleBrush}" />
 		</Style>
 	</UserControl.Styles>
 
@@ -19,12 +28,16 @@
 		Name="button"
 		HorizontalAlignment="Stretch"
 		VerticalAlignment="Stretch"
+		HorizontalContentAlignment="Stretch"
+		VerticalContentAlignment="Stretch"
 		Padding="0"
 		IsEnabled="{Binding	IsButtonEnabled}" Click="Button_Click" >
 
-		<Grid RowDefinitions="*,8*,*">
+		<Grid Name="iconHost" RowDefinitions="*,8*,*">
 			<Image
+				Name="icon"
 				Grid.Row="1"
+				HorizontalAlignment="Left"
 				Stretch="Uniform"
 				RenderOptions.BitmapInterpolationMode="HighQuality"
 				Source="{Binding ButtonImage}" />

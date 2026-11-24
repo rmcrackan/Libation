@@ -15,14 +15,21 @@
 		<DataGrid
 			Name="productsGrid"
 			ClipboardCopyMode="IncludeHeader"
-			GridLinesVisibility="All"
+			GridLinesVisibility="Horizontal"
+			HorizontalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
+			FrozenColumnCount="4"
 			AutoGenerateColumns="False"
 			ItemsSource="{Binding GridEntries}"
-			CanUserSortColumns="True" BorderThickness="3"
+			CanUserSortColumns="True" BorderThickness="0"
 			CanUserResizeColumns="True"
 			LoadingRow="ProductsDisplay_LoadingRow"
 			CanUserReorderColumns="True">
 
+			<DataGrid.Resources>
+				<!-- Grid selects rows only; the current-cell outline implies otherwise. -->
+				<SolidColorBrush x:Key="DataGridCellFocusVisualPrimaryBrush" Color="Transparent"/>
+				<SolidColorBrush x:Key="DataGridCellFocusVisualSecondaryBrush" Color="Transparent"/>
+			</DataGrid.Resources>
 			<DataGrid.Styles>
 				<Style Selector="DataGridColumnHeader">
 					<Setter Property="ContextMenu">
@@ -64,6 +71,23 @@
 					<Setter Property="HorizontalAlignment" Value="Stretch"/>
 					<Setter Property="TextWrapping" Value="Wrap"/>
 					<Setter Property="Padding" Value="4"/>
+				</Style>
+				<Style Selector="DataGrid.seriesColumnShown Panel.TitleSeries">
+					<Setter Property="IsVisible" Value="False" />
+				</Style>
+				<Style Selector="DataGridRowGroupHeader">
+					<Setter Property="Height" Value="28" />
+					<Setter Property="Padding" Value="12,0,0,0" />
+					<Setter Property="FontSize" Value="13" />
+					<Setter Property="FontWeight" Value="SemiBold" />
+					<Setter Property="Background" Value="{DynamicResource Surface2Brush}" />
+					<Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}" />
+					<Setter Property="IsItemCountVisible" Value="False" />
+				</Style>
+				<Style Selector="DataGridRowGroupHeader /template/ ToggleButton#PART_ExpanderButton">
+					<Setter Property="Width" Value="0" />
+					<Setter Property="Opacity" Value="0" />
+					<Setter Property="IsHitTestVisible" Value="False" />
 				</Style>
 				<Style Selector="DataGridCell Path">
 					<Setter Property="Stretch" Value="Uniform" />
@@ -122,7 +146,9 @@
 				<controls:DataGridTemplateColumnExt Header="Cover" CanUserResize="False" CanUserSort="False" SortMemberPath="Cover">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
-							<Image Opacity="{Binding Liberate.Opacity}" Tapped="Cover_Click" Source="{Binding Cover}" ToolTip.Tip="Click to see full size" />
+							<Border Margin="8" CornerRadius="6" ClipToBounds="True" Opacity="{Binding Liberate.Opacity}">
+								<Image Tag="NoRowDoubleTap" Tapped="Cover_Click" Source="{Binding Cover}" Stretch="UniformToFill" ToolTip.Tip="Click to see full size" />
+							</Border>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 					<controls:DataGridTemplateColumnExt.ClipboardContentBinding>
@@ -134,7 +160,18 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
-								<TextBlock Classes="h1" Text="{Binding Title}" />
+								<StackPanel VerticalAlignment="Center" Margin="4,0" Spacing="2">
+									<TextBlock Classes="h1" FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Text="{Binding Title}" />
+									<Panel Classes="TitleSeries">
+										<TextBlock
+											Classes="h2"
+											TextWrapping="NoWrap"
+											TextTrimming="CharacterEllipsis"
+											IsVisible="{Binding Series, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+											Foreground="{DynamicResource SecondaryForegroundBrush}"
+											Text="{Binding Series}" />
+									</Panel>
+								</StackPanel>
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -147,7 +184,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
-								<TextBlock Text="{Binding Authors}" />
+								<TextBlock Text="{Binding Authors}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Authors}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -160,7 +197,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
-								<TextBlock Text="{Binding Narrators}" />
+								<TextBlock Text="{Binding Narrators}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Narrators}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -186,7 +223,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
-								<TextBlock Text="{Binding Series}" />
+								<TextBlock Text="{Binding Series}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Series}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -211,7 +248,7 @@
 				<controls:DataGridTemplateColumnExt Header="Description" MinWidth="10" Width="{Binding DescriptionWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Description">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
-							<Panel Opacity="{Binding Liberate.Opacity}" Tapped="Description_Click" ToolTip.Tip="Click to see full description" >
+							<Panel Background="Transparent" Cursor="Hand" Opacity="{Binding Liberate.Opacity}" Tapped="Description_Click" ToolTip.Tip="Click to read in the Details panel">
 								<TextBlock Text="{Binding Description}" VerticalAlignment="Top" />
 							</Panel>
 						</DataTemplate>
@@ -225,7 +262,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
-								<TextBlock Text="{Binding Category}" />
+								<TextBlock Text="{Binding Category}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Category}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -279,7 +316,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{Binding Liberate.Opacity}">
-								<TextBlock Text="{Binding Misc}" TextWrapping="WrapWithOverflow" />
+								<TextBlock Text="{Binding Misc}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Misc}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -377,5 +414,17 @@
 
 			</DataGrid.Columns>
 		</DataGrid>
+
+		<Grid Name="frozenEdge" IsVisible="False" IsHitTestVisible="False" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="9">
+			<Border Width="1" HorizontalAlignment="Left" Background="{DynamicResource BorderSubtleBrush}" />
+			<Border Width="8" HorizontalAlignment="Right">
+				<Border.Background>
+					<LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+						<GradientStop Offset="0" Color="#26000000" />
+						<GradientStop Offset="1" Color="#00000000" />
+					</LinearGradientBrush>
+				</Border.Background>
+			</Border>
+		</Grid>
 	</Grid>
 </UserControl>

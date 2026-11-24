@@ -1,0 +1,29 @@
+<ItemsControl xmlns="https://github.com/avaloniaui"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+              x:Class="LibationAvalonia.Controls.SettingGroup">
+
+	<ItemsControl.Styles>
+		<Style Selector="controls|SettingGroup">
+			<Setter Property="Template">
+				<ControlTemplate>
+					<StackPanel Spacing="8">
+						<TextBlock
+							FontSize="14"
+							FontWeight="SemiBold"
+							IsVisible="{TemplateBinding Header, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+							Text="{TemplateBinding Header}" />
+						<Border
+							Background="{DynamicResource SurfaceBrush}"
+							BorderBrush="{DynamicResource BorderSubtleBrush}"
+							BorderThickness="1"
+							CornerRadius="10"
+							ClipToBounds="True">
+							<ItemsPresenter Name="PART_ItemsPresenter" Margin="0,-1,0,0" />
+						</Border>
+					</StackPanel>
+				</ControlTemplate>
+			</Setter>
+		</Style>
+	</ItemsControl.Styles>
+</ItemsControl>

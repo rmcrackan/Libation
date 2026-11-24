@@ -1,0 +1,237 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+             xmlns:views="clr-namespace:LibationAvalonia.Views"
+             xmlns:vm="clr-namespace:LibationAvalonia.ViewModels"
+                          x:Class="LibationAvalonia.Views.BookInspector">
+
+	<UserControl.Styles>
+		<Style Selector="Border.Pill">
+			<Setter Property="CornerRadius" Value="999" />
+			<Setter Property="Padding" Value="10,3" />
+			<Setter Property="HorizontalAlignment" Value="Left" />
+			<Setter Property="Background" Value="{DynamicResource NeutralSoftBrush}" />
+		</Style>
+		<Style Selector="Border.Pill > TextBlock">
+			<Setter Property="FontSize" Value="12" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Success">
+			<Setter Property="Background" Value="{DynamicResource SuccessSoftBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Success > TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource SuccessForegroundBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Warning">
+			<Setter Property="Background" Value="{DynamicResource WarningSoftBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Warning > TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource WarningForegroundBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Error">
+			<Setter Property="Background" Value="{DynamicResource ErrorSoftBrush}" />
+		</Style>
+		<Style Selector="Border.Pill.Error > TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource ErrorForegroundBrush}" />
+		</Style>
+		<Style Selector="TextBlock.SectionHeader">
+			<Setter Property="FontSize" Value="12" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+			<Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}" />
+		</Style>
+		<Style Selector="SelectableTextBlock.Mono">
+			<Setter Property="FontFamily" Value="Cascadia Mono,Menlo,Consolas,DejaVu Sans Mono,monospace" />
+		</Style>
+	</UserControl.Styles>
+
+	<Panel Name="root" x:DataType="vm:BookInspectorViewModel">
+		<TextBlock
+			IsVisible="{Binding ShowEmpty}"
+			Margin="24"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			TextAlignment="Center"
+			TextWrapping="Wrap"
+			FontSize="14"
+			Foreground="{DynamicResource SecondaryForegroundBrush}"
+			Text="{Binding $parent[views:BookInspector].EmptyText}" />
+
+		<ScrollViewer IsVisible="{Binding IsMulti}" HorizontalScrollBarVisibility="Disabled">
+			<StackPanel Margin="16" Spacing="12">
+				<TextBlock Text="{Binding MultiTitle}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+				<TextBlock
+					Text="{Binding MultiSubtitle}"
+					IsVisible="{Binding MultiSubtitleVisible}"
+					FontSize="14"
+					Foreground="{DynamicResource SecondaryForegroundBrush}" />
+
+				<Button Classes="Primary" Click="BulkLiberate_Click" IsVisible="{Binding LiberateVisible}" Content="{Binding LiberateText}" HorizontalAlignment="Left" />
+
+				<StackPanel Spacing="2" Margin="0,4,0,0">
+					<Button Classes="Ghost" Padding="0,4" HorizontalAlignment="Left" Click="BulkSetDownloaded_Click" IsEnabled="{Binding SetDownloadedEnabled}" Content="Mark as downloaded" />
+					<Button Classes="Ghost" Padding="0,4" HorizontalAlignment="Left" Click="BulkSetNotDownloaded_Click" IsEnabled="{Binding SetNotDownloadedEnabled}" Content="Mark as not downloaded" />
+					<Button Classes="Ghost" Padding="0,4" HorizontalAlignment="Left" Click="BulkSetPdfDownloaded_Click" IsVisible="{Binding PdfVisible}" IsEnabled="{Binding SetPdfDownloadedEnabled}" Content="Mark PDFs as downloaded" />
+					<Button Classes="Ghost" Padding="0,4" HorizontalAlignment="Left" Click="BulkSetPdfNotDownloaded_Click" IsVisible="{Binding PdfVisible}" IsEnabled="{Binding SetPdfNotDownloadedEnabled}" Content="Mark PDFs as not downloaded" />
+					<Button Classes="Ghost" Padding="0,4" HorizontalAlignment="Left" Click="BulkEditTags_Click" Content="Edit tags…" />
+				</StackPanel>
+
+				<Button Classes="Destructive Quiet" Click="BulkRemove_Click" HorizontalAlignment="Left" Content="Remove from library…" />
+			</StackPanel>
+		</ScrollViewer>
+
+		<ScrollViewer IsVisible="{Binding HasEntry}" HorizontalScrollBarVisibility="Disabled">
+			<StackPanel Margin="16,16,20,16" Spacing="12">
+				<Grid ColumnDefinitions="96,*" ColumnSpacing="12">
+					<StackPanel Spacing="8">
+						<Border CornerRadius="6" ClipToBounds="True" Width="96" Height="96">
+							<Image Source="{Binding Cover}" Stretch="UniformToFill" />
+						</Border>
+						<Path
+							Width="64"
+							HorizontalAlignment="Center"
+							Stretch="Uniform"
+							Fill="{DynamicResource IconFill}"
+							IsVisible="{Binding IsSpatial}"
+							ToolTip.Tip="Dolby Atmos"
+							Data="{StaticResource DolbyAtmosLogoVertical}" />
+					</StackPanel>
+					<StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Top">
+						<SelectableTextBlock Text="{Binding TitleText}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap" />
+						<SelectableTextBlock
+							Text="{Binding Subtitle}"
+							IsVisible="{Binding HasSubtitle}"
+							FontSize="14"
+							TextWrapping="Wrap"
+							Foreground="{DynamicResource SecondaryForegroundBrush}" />
+						<TextBlock
+							Text="{Binding Authors}"
+							IsVisible="{Binding Authors, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+							ToolTip.Tip="{Binding Authors}"
+							FontSize="14"
+							MaxLines="2"
+							TextTrimming="CharacterEllipsis"
+							TextWrapping="Wrap"
+							Foreground="{DynamicResource SecondaryForegroundBrush}" />
+						<TextBlock
+							Text="{Binding NarratedBy}"
+							IsVisible="{Binding NarratedBy, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+							ToolTip.Tip="{Binding NarratedBy}"
+							FontSize="13"
+							MaxLines="2"
+							TextTrimming="CharacterEllipsis"
+							TextWrapping="Wrap"
+							Foreground="{DynamicResource SecondaryForegroundBrush}" />
+						<Border
+							Classes="Pill"
+							Margin="0,4,0,0"
+							IsVisible="{Binding HasBook}"
+							Classes.Success="{Binding StatusIsSuccess}"
+							Classes.Warning="{Binding StatusIsWarning}"
+							Classes.Error="{Binding StatusIsError}">
+							<TextBlock Text="{Binding StatusText}" />
+						</Border>
+					</StackPanel>
+				</Grid>
+
+				<Button Classes="Primary" HorizontalAlignment="Left" Click="Primary_Click" IsVisible="{Binding PrimaryVisible}" Content="{Binding PrimaryText}" />
+
+				<StackPanel Spacing="4" Margin="0,8,0,0" IsVisible="{Binding HasDescription}">
+					<TextBlock Classes="SectionHeader" Text="Description" />
+					<SelectableTextBlock
+						Name="descriptionText"
+						FontSize="14"
+						LineHeight="20"
+						TextWrapping="Wrap"
+						TextTrimming="CharacterEllipsis"
+						MaxLines="{Binding DescriptionMaxLines}" />
+					<Button Classes="Ghost" Padding="0,2" HorizontalAlignment="Left" IsVisible="{Binding DescriptionIsLong}" Click="ToggleDescription_Click" Content="{Binding DescriptionToggleText}" />
+				</StackPanel>
+
+				<StackPanel Spacing="4" Margin="0,8,0,0">
+					<TextBlock Classes="SectionHeader" Text="Details" />
+					<ItemsControl ItemsSource="{Binding Details}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate x:DataType="vm:DetailItem">
+								<Grid ColumnDefinitions="100,*" Margin="0,0,0,6">
+									<TextBlock Text="{Binding Label}" FontSize="14" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+									<SelectableTextBlock Grid.Column="1" IsVisible="{Binding IsText}" Text="{Binding Value}" Classes.Mono="{Binding IsMono}" FontSize="14" TextWrapping="Wrap" />
+									<Button Grid.Column="1" Classes="Ghost" Padding="0" HorizontalAlignment="Left" IsVisible="{Binding IsAudibleLink}" Click="Audible_Click" ToolTip.Tip="View on Audible" FontSize="14" FontFamily="Cascadia Mono,Menlo,Consolas,DejaVu Sans Mono,monospace" Content="{Binding Value}" />
+									<StackPanel Grid.Column="1" Spacing="2" IsVisible="{Binding IsFile}">
+										<SelectableTextBlock Text="{Binding Value}" ToolTip.Tip="{Binding Tip}" Classes="Mono" FontSize="12" TextWrapping="Wrap" />
+										<Button Classes="Ghost" Padding="0" HorizontalAlignment="Left" FontSize="14" Click="ShowFile_Click" Content="{Binding ShowFileTip}" />
+									</StackPanel>
+								</Grid>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</StackPanel>
+
+				<StackPanel Spacing="4" Margin="0,8,0,0" IsVisible="{Binding HasRatings}">
+					<TextBlock Classes="SectionHeader" Text="Ratings" />
+					<Grid ColumnDefinitions="100,120,*" Margin="0,0,0,2">
+						<TextBlock Grid.Column="1" Text="Audible" IsVisible="{Binding ShowAudibleRating}" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+						<TextBlock Grid.Column="{Binding YourRatingColumn}" Text="Yours" IsVisible="{Binding ShowYourRating}" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+					</Grid>
+					<ItemsControl ItemsSource="{Binding Ratings}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate x:DataType="vm:RatingRow">
+								<Grid ColumnDefinitions="100,120,*" Margin="0,0,0,6">
+									<TextBlock Text="{Binding Label}" FontSize="14" Foreground="{DynamicResource SecondaryForegroundBrush}" />
+									<TextBlock Grid.Column="1" Text="{Binding Audible}" IsVisible="{Binding ShowAudible}" FontSize="16" Foreground="{DynamicResource WarningForegroundBrush}" />
+									<TextBlock Grid.Column="{Binding YoursColumn}" Text="{Binding Yours}" IsVisible="{Binding ShowYours}" FontSize="16" Foreground="{DynamicResource WarningForegroundBrush}" />
+								</Grid>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</StackPanel>
+
+				<StackPanel Spacing="4" Margin="0,8,0,0" IsVisible="{Binding HasBook}">
+					<TextBlock Classes="SectionHeader" Text="Tags" />
+					<controls:TagChipEditor Name="tagEditor" Tags="{Binding Tags, Mode=TwoWay}" />
+				</StackPanel>
+
+				<StackPanel Spacing="8" Margin="0,8,0,0" IsVisible="{Binding HasBook}" ToolTip.Tip="Whether the book and PDF have been downloaded">
+					<TextBlock Classes="SectionHeader" Text="Download status" />
+					<Grid ColumnDefinitions="100,*" RowDefinitions="Auto,Auto" RowSpacing="8">
+						<TextBlock Text="Audiobook" FontSize="14" VerticalAlignment="Center" />
+						<controls:WheelComboBox
+							Name="bookStatusCombo"
+							Grid.Column="1"
+							HorizontalAlignment="Left" Width="200"
+							ItemsSource="{Binding BookStatusItems}"
+							SelectedItem="{Binding BookStatusSelected, Mode=OneWay}"
+							SelectionChanged="BookStatus_SelectionChanged">
+							<ComboBox.ItemTemplate>
+								<DataTemplate x:DataType="vm:StatusOption">
+									<TextBlock FontSize="14" Text="{Binding Text}" />
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</controls:WheelComboBox>
+						<TextBlock Grid.Row="1" Text="PDF" FontSize="14" VerticalAlignment="Center" IsVisible="{Binding HasPdf}" />
+						<controls:WheelComboBox
+							Name="pdfStatusCombo"
+							Grid.Row="1"
+							Grid.Column="1"
+							HorizontalAlignment="Left" Width="200"
+							IsVisible="{Binding HasPdf}"
+							ItemsSource="{Binding PdfStatusItems}"
+							SelectedItem="{Binding PdfStatusSelected, Mode=OneWay}"
+							SelectionChanged="PdfStatus_SelectionChanged">
+							<ComboBox.ItemTemplate>
+								<DataTemplate x:DataType="vm:StatusOption">
+									<TextBlock FontSize="14" Text="{Binding Text}" />
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</controls:WheelComboBox>
+					</Grid>
+					<TextBlock
+						FontSize="12"
+						TextWrapping="Wrap"
+						Foreground="{DynamicResource SecondaryForegroundBrush}"
+						Text="Change this only if the files were moved or deleted outside Libation." />
+				</StackPanel>
+			</StackPanel>
+		</ScrollViewer>
+	</Panel>
+</UserControl>

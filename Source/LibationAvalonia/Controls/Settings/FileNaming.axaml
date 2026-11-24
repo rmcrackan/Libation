@@ -1,0 +1,55 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="700"
+             xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+             xmlns:settings="clr-namespace:LibationAvalonia.Controls.Settings"
+             xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
+             x:DataType="vm:SettingsVM"
+             x:Class="LibationAvalonia.Controls.Settings.FileNaming">
+
+	<StackPanel Spacing="24">
+		<controls:SettingGroup Header="Templates">
+			<controls:SettingRow Stacked="True" Label="{Binding DownloadDecryptSettings.FolderTemplateText}">
+				<settings:TemplateRow
+					TemplateText="{Binding DownloadDecryptSettings.FolderTemplate}"
+					Example="{Binding DownloadDecryptSettings.FolderTemplateExample}"
+					EditClick="EditFolderTemplateButton_Click" />
+			</controls:SettingRow>
+
+			<controls:SettingRow Stacked="True" Label="{Binding DownloadDecryptSettings.FileTemplateText}">
+				<settings:TemplateRow
+					TemplateText="{Binding DownloadDecryptSettings.FileTemplate}"
+					Example="{Binding DownloadDecryptSettings.FileTemplateExample}"
+					EditClick="EditFileTemplateButton_Click" />
+			</controls:SettingRow>
+
+			<controls:SettingRow Stacked="True" Label="{Binding DownloadDecryptSettings.ChapterFileTemplateText}">
+				<settings:TemplateRow
+					TemplateText="{Binding DownloadDecryptSettings.ChapterFileTemplate}"
+					Example="{Binding DownloadDecryptSettings.ChapterFileTemplateExample}"
+					EditClick="EditChapterFileTemplateButton_Click" />
+			</controls:SettingRow>
+
+			<controls:SettingRow
+				Stacked="True"
+				IsEnabled="{Binding AudioSettings.SplitFilesByChapter}"
+				Label="{Binding AudioSettings.ChapterTitleTemplateText}">
+				<settings:TemplateRow
+					TemplateText="{Binding AudioSettings.ChapterTitleTemplate}"
+					Example="{Binding AudioSettings.ChapterTitleTemplateExample}"
+					EditClick="EditChapterTitleTemplateButton_Click" />
+			</controls:SettingRow>
+		</controls:SettingGroup>
+
+		<controls:SettingGroup Header="Characters">
+			<controls:SettingRow Label="{Binding DownloadDecryptSettings.EditCharReplacementText}">
+				<Button
+					Padding="16,6"
+					Content="Edit…"
+					Click="EditCharReplacementButton_Click" />
+			</controls:SettingRow>
+		</controls:SettingGroup>
+	</StackPanel>
+</UserControl>

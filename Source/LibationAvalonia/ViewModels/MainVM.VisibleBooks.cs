@@ -5,6 +5,7 @@ using LibationAvalonia.Dialogs;
 using LibationUiBase.Forms;
 using ReactiveUI;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -36,6 +37,7 @@ partial class MainVM
 	{
 		_visibleCount = visibleCount;
 		this.RaisePropertyChanged(nameof(VisibleCountText));
+		this.RaisePropertyChanged(nameof(BookCountText));
 		this.RaisePropertyChanged(nameof(VisibleCountMenuItemText));
 		updateNoMatchesVisible();
 	}
@@ -80,8 +82,7 @@ partial class MainVM
 	{
 		try
 		{
-			if (await ProcessQueue.QueueDownloadDecryptAsync(ProductsDisplay.GetVisibleBookEntries().UnLiberated().ToArray()))
-				setQueueCollapseState(false);
+			await ProcessQueue.QueueDownloadDecryptAsync(ProductsDisplay.GetVisibleBookEntries().UnLiberated().ToArray());
 		}
 		catch (Exception ex)
 		{
@@ -89,14 +90,16 @@ partial class MainVM
 		}
 	}
 
-	public async Task ReplaceTagsAsync()
+	public Task ReplaceTagsAsync() => ReplaceTagsAsync(ProductsDisplay.GetVisibleBookEntries);
+
+	private async Task ReplaceTagsAsync(Func<IList<LibraryBook>> getBooks)
 	{
 		var dialog = new TagsBatchDialog();
 		var result = await dialog.ShowDialog<DialogResult>(MainWindow);
 		if (result != DialogResult.OK)
 			return;
 
-		var visibleLibraryBooks = ProductsDisplay.GetVisibleBookEntries();
+		var visibleLibraryBooks = getBooks();
 
 		var confirmationResult = await MessageBox.ShowConfirmationDialog(
 			MainWindow,

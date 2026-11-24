@@ -79,7 +79,7 @@
 			HorizontalAlignment="Center"
 			Margin="10"
 			Name="OkButton"
-			Classes="SaveButton"
+			Classes="Primary"
 			Content="Ok"
 			Click="OkButton_Clicked" />
 	</Grid>

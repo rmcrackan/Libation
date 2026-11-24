@@ -34,6 +34,8 @@ public partial class MainVM : ViewModelBase
 		Configure_Liberate();
 		Configure_ProcessQueue();
 		Configure_ScanAuto();
+		Configure_Sidebar();
+		Configure_Selection();
 		Configure_SearchIndex();
 		Configure_Settings();
 		Configure_VisibleBooks();

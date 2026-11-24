@@ -37,6 +37,19 @@ public class PlainTextDescriptionTests
 		=> HtmlText.ToPlainText("<p>First.</p> <p>Second.</p>", paragraphSeparator: "\r\n\r\n")
 			.Should().Be("First.\r\n\r\nSecond.");
 
+	[TestMethod]
+	public void FlattensNestedInlineMarkup()
+		=> HtmlText.ToPlainText(
+			"<p><b>Blindsided by betrayal, by the author of </b><b><i>The Rose Arbor</i></b><b> and </b><b><i>The Venice Sketchbook</i></b><b>.</b></p> <p>Surrey, England, 1938.</p>",
+			paragraphSeparator: "\n\n")
+			.Should().Be("Blindsided by betrayal, by the author of The Rose Arbor and The Venice Sketchbook.\n\nSurrey, England, 1938.");
+
+	/// <summary>UIs flatten again at display time, so an already-stored plain description must survive it.</summary>
+	[TestMethod]
+	public void ReflatteningStoredTextOnlyChangesTheSeparator()
+		=> HtmlText.ToPlainText(HtmlText.ToPlainText("<p>First.</p><p>Second.</p>"), paragraphSeparator: "\n\n")
+			.Should().Be("First.\n\nSecond.");
+
 	/// <summary>
 	/// Unmarked summaries skip the parser, so a stray angle bracket cannot swallow the sentence after
 	/// it. Entities are still decoded, since Audible writes those into plain text too.

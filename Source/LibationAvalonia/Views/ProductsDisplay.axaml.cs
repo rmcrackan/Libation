@@ -1,5 +1,7 @@
 using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
@@ -18,6 +20,7 @@ using LibationUiBase.Forms;
 using LibationUiBase.GridView;
 using ReactiveUI;
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,6 +33,8 @@ public partial class ProductsDisplay : UserControl
 	public event EventHandler<SeriesEntry>? LiberateSeriesClicked;
 	public event EventHandler<LibraryBook[]>? ConvertToMp3Clicked;
 	public event EventHandler<LibraryBook>? TagsButtonClicked;
+	public event EventHandler<GridEntry>? DescriptionClicked;
+	public event EventHandler<LibraryBook>? DetailsClicked;
 
 
 	public static readonly StyledProperty<bool> DisableContextMenuProperty =
@@ -37,6 +42,15 @@ public partial class ProductsDisplay : UserControl
 
 	public static readonly StyledProperty<bool> DisableColumnCustomizationProperty =
 	AvaloniaProperty.Register<Controls.GroupBox, bool>(nameof(DisableColumnCustomization));
+
+	public static readonly StyledProperty<bool> HideLiberateColumnProperty =
+	AvaloniaProperty.Register<ProductsDisplay, bool>(nameof(HideLiberateColumn));
+
+	public bool HideLiberateColumn
+	{
+		get { return GetValue(HideLiberateColumnProperty); }
+		set { SetValue(HideLiberateColumnProperty, value); }
+	}
 
 	public bool DisableContextMenu
 	{
@@ -65,14 +79,16 @@ public partial class ProductsDisplay : UserControl
 		fontSizeStyle = new Style(_ => tboxSelector);
 		fontSizeStyle.Setters.Add(fontSizeSetter);
 
-		var tboxH1Selector = cellSelector.Child().Is<Panel>().Child().Is<TextBlock>().Class("h1");
+		var tboxH1Selector = cellSelector.Descendant().Is<TextBlock>().Class("h1");
 		fontSizeH1Style = new Style(_ => tboxH1Selector);
 		fontSizeH1Style.Setters.Add(fontSizeH1Setter);
 
-		var tboxH2Selector = cellSelector.Child().Is<Panel>().Child().Is<TextBlock>().Class("h2");
+		var tboxH2Selector = cellSelector.Descendant().Is<TextBlock>().Class("h2");
 		fontSizeH2Style = new Style(_ => tboxH2Selector);
 		fontSizeH2Style.Setters.Add(fontSizeH2Setter);
 
+		productsGrid.DoubleTapped += ProductsGrid_DoubleTapped;
+		productsGrid.SelectionChanged += (_, _) => _viewModel?.SetSelectedEntries(productsGrid.SelectedItems.OfType<GridEntry>());
 		Configuration.Instance.PropertyChanged += Configuration_GridScaleChanged;
 		Configuration.Instance.PropertyChanged += Configuration_FontChanged;
 
@@ -103,6 +119,12 @@ public partial class ProductsDisplay : UserControl
 		setGridScale(Configuration.Instance.GridScaleFactor);
 		setFontScale(Configuration.Instance.GridFontScaleFactor);
 		Configure_ColumnCustomization();
+
+		productsGrid.TemplateApplied += ProductsGrid_TemplateApplied;
+		productsGrid.LayoutUpdated += (_, _) => UpdateFrozenEdge();
+		productsGrid.Sorting += ProductsGrid_Sorting;
+		SeriesColumn?.PropertyChanged += SeriesColumn_PropertyChanged;
+		UpdateSeriesColumnClass();
 
 		foreach (var column in productsGrid.Columns)
 		{
@@ -150,6 +172,123 @@ public partial class ProductsDisplay : UserControl
 		e.Handled = true;
 	}
 
+	#region Series scope sort, frozen column edge
+
+	private bool seriesScopeSortActive;
+	private bool scopeSortPending;
+	private ProductsDisplayViewModel? subscribedViewModel;
+	private ScrollBar? hScrollBar;
+
+	private DataGridColumn? SeriesColumn => productsGrid.Columns.FirstOrDefault(c => c.SortMemberPath == nameof(GridEntry.Series));
+
+	protected override void OnDataContextChanged(EventArgs e)
+	{
+		subscribedViewModel?.PropertyChanged -= ViewModel_PropertyChanged;
+		subscribedViewModel = _viewModel;
+		subscribedViewModel?.PropertyChanged += ViewModel_PropertyChanged;
+		base.OnDataContextChanged(e);
+	}
+
+	private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+	{
+		if (e.PropertyName == nameof(ProductsDisplayViewModel.Scope))
+			ApplyScopeSort();
+	}
+
+	private void ApplyScopeSort()
+	{
+		if (SeriesColumn is not { CustomSortComparer: RowComparer comparer } column)
+			return;
+
+		if (_viewModel?.Scope is LibraryScope.Series)
+		{
+			comparer.PropertyName = SeriesBrowseKey.MemberName;
+			comparer.FallbackDirection = ListSortDirection.Ascending;
+			scopeSortPending = true;
+			column.Sort(ListSortDirection.Ascending);
+			SetSeriesGrouping(true);
+			seriesScopeSortActive = true;
+		}
+		else
+		{
+			comparer.PropertyName = column.SortMemberPath;
+			comparer.FallbackDirection = ListSortDirection.Descending;
+			SetSeriesGrouping(false);
+			scopeSortPending = false;
+			if (seriesScopeSortActive)
+				column.ClearSort();
+			seriesScopeSortActive = false;
+		}
+	}
+
+	private void ProductsGrid_Sorting(object? sender, DataGridColumnEventArgs e)
+	{
+		// column.Sort raises Sorting on a later dispatcher pass.
+		if (scopeSortPending)
+		{
+			scopeSortPending = false;
+			return;
+		}
+		seriesScopeSortActive = false;
+		SetSeriesGrouping(false);
+	}
+
+	private void SetSeriesGrouping(bool on)
+	{
+		if (_viewModel?.GridEntries is not { } view)
+			return;
+
+		var existing = view.GroupDescriptions.OfType<DataGridPathGroupDescription>().Where(g => g.PropertyName == nameof(GridEntry.SeriesGroup)).ToList();
+		if (on && existing.Count == 0)
+		{
+			view.GroupDescriptions.Add(new DataGridPathGroupDescription(nameof(GridEntry.SeriesGroup)));
+			// Zeroes the row-group spacer column; the grid only reads a header's indent when it changes.
+			Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+			{
+				if (productsGrid.GetVisualDescendants().OfType<DataGridRowGroupHeader>().FirstOrDefault() is { } h)
+				{
+					h.SublevelIndent = 1;
+					h.SublevelIndent = 0;
+				}
+			}, Avalonia.Threading.DispatcherPriority.Background);
+		}
+		else if (!on)
+			existing.ForEach(g => view.GroupDescriptions.Remove(g));
+	}
+
+	private void SeriesColumn_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+	{
+		if (e.Property == DataGridColumn.IsVisibleProperty)
+			UpdateSeriesColumnClass();
+	}
+
+	private void UpdateSeriesColumnClass()
+		=> productsGrid.Classes.Set("seriesColumnShown", SeriesColumn?.IsVisible is true);
+
+	private void ProductsGrid_TemplateApplied(object? sender, TemplateAppliedEventArgs e)
+	{
+		hScrollBar = e.NameScope.Find<ScrollBar>("PART_HorizontalScrollbar");
+		hScrollBar?.ValueChanged += (_, _) => UpdateFrozenEdge();
+	}
+
+	private void UpdateFrozenEdge()
+	{
+		var x = productsGrid.Columns
+			.Where(c => c.IsVisible && c.DisplayIndex < productsGrid.FrozenColumnCount)
+			.Sum(c => c.ActualWidth);
+		var margin = new Thickness(
+			x,
+			0,
+			0,
+			hScrollBar is { IsVisible: true } ? hScrollBar.Bounds.Height : 0);
+
+		if (frozenEdge.Margin != margin)
+			frozenEdge.Margin = margin;
+		frozenEdge.IsVisible = hScrollBar is { Value: > 0 };
+	}
+
+	#endregion
+
 	protected override void OnApplyTemplate(Avalonia.Controls.Primitives.TemplateAppliedEventArgs e)
 	{
 		ApplyDisableColumnCustimaziton();
@@ -159,6 +298,8 @@ public partial class ProductsDisplay : UserControl
 	{
 		if (change.Property == DisableColumnCustomizationProperty)
 			ApplyDisableColumnCustimaziton();
+		else if (change.Property == HideLiberateColumnProperty)
+			ApplyHideLiberateColumn();
 		base.OnPropertyChanged(change);
 	}
 
@@ -168,6 +309,28 @@ public partial class ProductsDisplay : UserControl
 			e.Row.DynamicResource(DataGridRow.BackgroundProperty, "SeriesEntryGridBackgroundBrush");
 		else
 			e.Row.DynamicResource(DataGridRow.BackgroundProperty, "SystemRegionColor");
+
+		var unavailable = e.Row.DataContext is GridEntry { Liberate.IsUnavailable: true };
+		e.Row.Opacity = unavailable ? 0.5 : 1;
+		ToolTip.SetTip(e.Row, unavailable ? "No longer available from Audible" : null);
+	}
+
+	private void ProductsGrid_DoubleTapped(object? sender, TappedEventArgs e)
+	{
+		if (e.Handled || e.Source is not Visual source || source.FindAncestorOfType<DataGridRow>() is not { DataContext: LibraryBookEntry entry })
+			return;
+
+		//Controls with their own click, double-click or edit behavior keep it.
+		for (Visual? v = source; v is not null && v is not DataGridRow; v = v.GetVisualParent())
+		{
+			if (v is Button or TextBox or CheckBox or MyRatingCellEditor or Avalonia.Controls.Primitives.DataGridRowHeader
+				|| (v is DataGridCell { Tag: DataGridMyRatingColumn })
+				|| (v is Control { Tag: "NoRowDoubleTap" }))
+				return;
+		}
+
+		DetailsClicked?.Invoke(this, entry.LibraryBook);
+		e.Handled = true;
 	}
 
 	private void RemoveColumn_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
@@ -209,7 +372,7 @@ public partial class ProductsDisplay : UserControl
 
 	private void setFontScale(double scaleFactor)
 	{
-		const double TextBlockFontSize = 11;
+		const double TextBlockFontSize = 12;
 		const double H1FontSize = 14;
 		const double H2FontSize = 12;
 
@@ -227,9 +390,9 @@ public partial class ProductsDisplay : UserControl
 
 	private void setGridScale(double scaleFactor)
 	{
-		const float BaseRowHeight = 80;
+		const float BaseRowHeight = 64;
 		const float BaseLiberateWidth = 75;
-		const float BaseCoverWidth = 80;
+		const float BaseCoverWidth = 64;
 
 		foreach (var column in productsGrid.Columns)
 		{
@@ -265,6 +428,16 @@ public partial class ProductsDisplay : UserControl
 
 		var entries = args.RowItems;
 		var ctx = new GridContextMenu(entries, '_');
+
+		if (entries.Length == 1 && entries[0] is LibraryBookEntry detailsEntry)
+		{
+			args.ContextMenuItems.Add(new MenuItem
+			{
+				Header = ctx.BookDetailsText,
+				Command = ReactiveCommand.Create(() => DetailsClicked?.Invoke(this, detailsEntry.LibraryBook))
+			});
+			args.ContextMenuItems.Add(new Separator());
+		}
 
 		if (App.MainWindow?.Clipboard is IClipboard clipboard)
 		{
@@ -382,15 +555,6 @@ public partial class ProductsDisplay : UserControl
 		}
 
 		#endregion
-		#region Remove from library
-
-		args.ContextMenuItems.Add(new MenuItem
-		{
-			Header = ctx.RemoveText,
-			Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.RemoveAsync, "Could not remove books from the library."))
-		});
-
-		#endregion
 		#region Download audiobook(s)
 		var selectedBookCount = entries.OfType<LibraryBookEntry>().Count();
 		if (selectedBookCount >= 1)
@@ -469,8 +633,22 @@ public partial class ProductsDisplay : UserControl
 
 		#endregion
 
+		void addRemoveFromLibrary()
+		{
+			if (args.ContextMenuItems.LastOrDefault() is not Separator)
+				args.ContextMenuItems.Add(new Separator());
+			args.ContextMenuItems.Add(new MenuItem
+			{
+				Header = ctx.RemoveText,
+				Command = ReactiveCommand.CreateFromTask(() => RunLibraryOperationAsync(ctx.RemoveAsync, "Could not remove books from the library."))
+			});
+		}
+
 		if (entries.Length > 1)
+		{
+			addRemoveFromLibrary();
 			return;
+		}
 
 		args.ContextMenuItems.Add(new Separator());
 
@@ -539,6 +717,8 @@ public partial class ProductsDisplay : UserControl
 		}
 
 		#endregion
+
+		addRemoveFromLibrary();
 	}
 
 	#endregion
@@ -576,8 +756,24 @@ public partial class ProductsDisplay : UserControl
 			var column = productsGrid.Columns
 				.Single(c => c.SortMemberPath == itemName);
 
-			column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, productsGrid.Columns.IndexOf(column));
+			column.DisplayIndex = Math.Clamp(displayIndices.GetValueOrDefault(itemName, productsGrid.Columns.IndexOf(column)), 0, productsGrid.Columns.Count - 1);
 		}
+
+		//FrozenColumnCount covers display indices 0-3
+		string[] frozen = [nameof(GridEntry.Remove), nameof(GridEntry.Liberate), nameof(GridEntry.Cover), nameof(GridEntry.Title)];
+		for (var i = 0; i < frozen.Length; i++)
+		{
+			var column = productsGrid.Columns.Single(c => c.SortMemberPath == frozen[i]);
+			column.DisplayIndex = i;
+			column.CanUserReorder = false;
+		}
+	}
+
+	private void ApplyHideLiberateColumn()
+	{
+		var column = productsGrid.Columns.FirstOrDefault(c => c.SortMemberPath == nameof(GridEntry.Liberate));
+		if (column is not null)
+			column.IsVisible = !HideLiberateColumn && Configuration.Instance.GetColumnVisibility(nameof(GridEntry.Liberate));
 	}
 
 	private void ApplyDisableColumnCustimaziton()
@@ -629,7 +825,8 @@ public partial class ProductsDisplay : UserControl
 
 	private void ProductsGrid_ColumnDisplayIndexChanged(object? sender, DataGridColumnEventArgs e)
 	{
-		if (DisableColumnCustomization) return;
+		// Grouping inserts a spacer column at index 0 and shifts the rest.
+		if (DisableColumnCustomization || _viewModel?.GridEntries?.GroupDescriptions.Count > 0) return;
 		var config = Configuration.Instance;
 
 		var dictionary = config.GridColumnsDisplayIndices;
@@ -669,7 +866,10 @@ public partial class ProductsDisplay : UserControl
 	public void Version_DoubleClick(object sender, Avalonia.Input.TappedEventArgs args)
 	{
 		if (sender is Control panel && panel.DataContext is LibraryBookEntry lbe && lbe.LastDownload?.IsValid is true)
+		{
 			lbe.LastDownload.OpenReleaseUrl();
+			args.Handled = true;
+		}
 	}
 
 	public async void Cover_Click(object sender, Avalonia.Input.TappedEventArgs args)
@@ -720,29 +920,16 @@ public partial class ProductsDisplay : UserControl
 			imageDisplayDialog.Show();
 	}
 
+	public void SelectEntry(GridEntry entry)
+	{
+		productsGrid.SelectedItem = entry;
+		productsGrid.ScrollIntoView(entry, null);
+	}
+
 	public void Description_Click(object sender, Avalonia.Input.TappedEventArgs args)
 	{
-		if (sender is Control tblock && tblock.DataContext is GridEntry gEntry)
-		{
-			var pt = tblock.PointToScreen(tblock.Bounds.TopRight);
-			var displayWindow = new DescriptionDisplayDialog
-			{
-				SpawnLocation = new Point(pt.X, pt.Y),
-				DescriptionText = gEntry.Description,
-			};
-
-			void CloseWindow(object? o, DataGridRowEventArgs e)
-			{
-				displayWindow.Close();
-			}
-			productsGrid.LoadingRow += CloseWindow;
-			displayWindow.Closing += (_, _) =>
-			{
-				productsGrid.LoadingRow -= CloseWindow;
-			};
-
-			displayWindow.Show();
-		}
+		if (sender is Control { DataContext: GridEntry gEntry })
+			DescriptionClicked?.Invoke(this, gEntry);
 	}
 
 	public void OnTagsButtonClick(object sender, Avalonia.Interactivity.RoutedEventArgs args)

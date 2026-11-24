@@ -28,6 +28,9 @@
 
 							<Button
 								Content="X"
+								Classes="Destructive Quiet"
+								ToolTip.Tip="Remove account"
+								AutomationProperties.Name="Remove account"
 								VerticalAlignment="Stretch"
 								HorizontalAlignment="Stretch"
 								HorizontalContentAlignment="Center"
@@ -74,7 +77,7 @@
 				</DataGridTemplateColumn>
 
 				<DataGridTextColumn
-					Width="2*"
+					Width="Auto"
 					Binding="{Binding AccountId, Mode=TwoWay}"
 					Header="Audible&#xa;email/login"/>
 
@@ -127,17 +130,28 @@
 		</DataGrid>
 		<Grid
 			Grid.Row="1"
-			Margin="10"
-			ColumnDefinitions="*,Auto" >
+			Margin="16"
+			ColumnDefinitions="*,Auto,Auto" >
 
 			<Button
 				Grid.Column="0"
+				HorizontalAlignment="Left"
+				Padding="16,6"
 				Content="Import from audible-cli"
 				Click="ImportButton_Clicked" />
 
 			<Button
 				Grid.Column="1"
-				Classes="SaveButton"
+				Margin="0,0,8,0"
+				Padding="16,6"
+				IsCancel="True"
+				Content="Cancel"
+				Click="CancelButton_Clicked" />
+
+			<Button
+				Grid.Column="2"
+				Padding="16,6"
+				Classes="Primary"
 				Content="Save"
 				Click="SaveButton_Clicked" />
 		</Grid>

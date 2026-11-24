@@ -3,6 +3,7 @@ using LibationFileManager;
 using LibationUiBase.Forms;
 using ReactiveUI;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -18,9 +19,18 @@ partial class MainVM
 	{
 		LaunchHangover = ReactiveCommand.CreateFromTask(LaunchHangoverAsync);
 
-		if (App.Current is Avalonia.Application app &&
-			NativeMenu.GetMenu(app)?.Items[0] is NativeMenuItem aboutMenu)
-			aboutMenu.Command = ReactiveCommand.CreateFromTask(ShowAboutAsync);
+		if (App.Current is Avalonia.Application app && NativeMenu.GetMenu(app) is NativeMenu appMenu)
+		{
+			SetAppMenuCommand(appMenu, "About Libation", ShowAboutAsync);
+			SetAppMenuCommand(appMenu, "Settings…", ShowSettingsAsync);
+			SetAppMenuCommand(appMenu, "Accounts…", ShowAccountsAsync);
+		}
+	}
+
+	private static void SetAppMenuCommand(NativeMenu menu, string header, Func<Task> action)
+	{
+		if (menu.Items.OfType<NativeMenuItem>().FirstOrDefault(i => i.Header == header) is NativeMenuItem item)
+			item.Command = ReactiveCommand.CreateFromTask(action);
 	}
 
 	public Task ShowAboutAsync() => new LibationAvalonia.Dialogs.AboutDialog().ShowDialog(MainWindow);

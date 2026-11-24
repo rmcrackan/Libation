@@ -41,6 +41,7 @@ public abstract class GridEntry : ReactiveObject
 	public LastDownloadStatus? LastDownload { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
 	public object? Cover { get => _lazyCover?.Value; }
 	public string? Series { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+	public string SeriesGroup => SeriesBrowseKey.GroupName(Book);
 	public SeriesOrder? SeriesOrder { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
 	public string? Title { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
 	public string? Authors { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
@@ -190,6 +191,7 @@ public abstract class GridEntry : ReactiveObject
 		nameof(Title) => Book.TitleSortable(),
 		nameof(Series) => Book.SeriesSortable(),
 		nameof(SeriesOrder) => SeriesOrder,
+		SeriesBrowseKey.MemberName => SeriesBrowseKey.For(Book),
 		nameof(Length) => GetLengthInMinutes(),
 		nameof(MyRating) => Book.UserDefinedItem.Rating,
 		nameof(PurchaseDate) => GetPurchaseDate(),
@@ -246,6 +248,7 @@ public abstract class GridEntry : ReactiveObject
 		{ typeof(DateTime), Comparer<DateTime>.Default },
 		{ typeof(EntryStatus), Comparer<EntryStatus>.Default },
 		{ typeof(SeriesOrder), Comparer<SeriesOrder>.Default },
+		{ typeof(SeriesBrowseKey), Comparer<SeriesBrowseKey>.Default },
 		{ typeof(LastDownloadStatus), Comparer<LastDownloadStatus>.Default },
 	};
 
@@ -298,10 +301,9 @@ public abstract class GridEntry : ReactiveObject
 	#region Static library display functions		
 
 	/// <summary>This information should not change during <see cref="GridEntry"/> lifetime, so call only once.</summary>
-	/// <remarks>Descriptions are stored as plain text with one newline between paragraphs. The grid has the
-	/// room to set them off with a blank line instead.</remarks>
+	/// <remarks>Flattened again because rows imported before the import-time flattening still hold HTML.</remarks>
 	private static string GetDescriptionDisplay(Book book)
-		=> book?.Description?.Replace("\n", "\r\n\r\n") ?? "";
+		=> AudibleUtilities.HtmlText.ToPlainText(book?.Description, "\r\n\r\n");
 
 	private static string TrimTextToWord(string text, int maxLength)
 	{

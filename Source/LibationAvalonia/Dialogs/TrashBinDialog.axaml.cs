@@ -94,8 +94,8 @@ public class TrashBinViewModel : ViewModelBase
 		var checkedCount = visible.Count(e => e.Remove is true);
 		var plusCheckedCount = visible.Count(e => e.LibraryBook.IsAudiblePlus && e.Remove is true);
 
-		CheckedCountText = $"Checked: {checkedCount} of {visible.Length}";
-		AudiblePlusCheckedCountText = $"Checked: {plusCheckedCount} of {plusVisibleCount}";
+		CheckedCountText = $"Select all ({checkedCount} of {visible.Length} checked)";
+		AudiblePlusCheckedCountText = $"Select Audible Plus ({plusCheckedCount} of {plusVisibleCount})";
 
 		bool? everythingChecked = checkedCount == 0 || visible.Length == 0 ? false
 			: checkedCount == visible.Length ? true

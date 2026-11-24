@@ -19,7 +19,8 @@ public partial class ScanAccountsDialog : DialogWindow
 			Account = account;
 			IsChecked = account.LibraryScan;
 			// lists every marketplace: one checkbox here can scan more than one
-			Text = MarketplacesUi.ScanPickerText(account);
+			var name = string.IsNullOrWhiteSpace(account.AccountName) ? account.AccountId : account.AccountName;
+			Text = $"{name} ({MarketplacesUi.MarketplacesSuffix(account)})";
 		}
 		public Account Account { get; }
 		public string Text { get; }
@@ -30,7 +31,8 @@ public partial class ScanAccountsDialog : DialogWindow
 	public ScanAccountsDialog()
 	{
 		InitializeComponent();
-		ControlToFocusOnShow = ImportButton;
+		SaveOnEnter = false;
+		ControlToFocusOnShow = lbAccounts;
 		DataContext = this;
 		LoadAccounts();
 	}
@@ -54,4 +56,7 @@ public partial class ScanAccountsDialog : DialogWindow
 
 	public new void SaveAndClose()
 		=> base.SaveAndClose();
+
+	public new void CancelAndClose()
+		=> base.CancelAndClose();
 }

@@ -221,20 +221,69 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 		await vm.BindToGridTask;
 	}
 
+	private void PanelGrip_DragStarted(object? sender, Avalonia.Input.VectorEventArgs e)
+	{
+		if (ViewModel is not null) ViewModel.IsResizingPanel = true;
+	}
+
+	private void PanelGrip_DragCompleted(object? sender, Avalonia.Input.VectorEventArgs e)
+	{
+		if (ViewModel is null) return;
+		ViewModel.IsResizingPanel = false;
+		ViewModel.SavePanelWidths();
+	}
+
+	private void SidebarGrip_DragDelta(object? sender, Avalonia.Input.VectorEventArgs e)
+	{
+		if (ViewModel is not MainVM vm) return;
+		var other = vm.InspectorOpen ? vm.InspectorWidth : 0;
+		var max = Math.Min(MainVM.SidebarMaxWidth, Bounds.Width - other - MainVM.GridMinWidth);
+		vm.SidebarWidth = Math.Clamp(vm.SidebarWidth + e.Vector.X, MainVM.SidebarMinWidth, Math.Max(MainVM.SidebarMinWidth, max));
+	}
+
+	private void InspectorGrip_DragDelta(object? sender, Avalonia.Input.VectorEventArgs e)
+	{
+		if (ViewModel is not MainVM vm) return;
+		var other = vm.SidebarOpen ? vm.SidebarWidth : 0;
+		var max = Math.Min(MainVM.InspectorMaxWidth, Bounds.Width - other - MainVM.GridMinWidth);
+		vm.InspectorWidth = Math.Clamp(vm.InspectorWidth - e.Vector.X, MainVM.InspectorMinWidth, Math.Max(MainVM.InspectorMinWidth, max));
+	}
+
 	public void ProductsDisplay_LiberateClicked(object _, IList<LibraryBook> libraryBook, Configuration config) => ViewModel?.LiberateClicked(libraryBook, config);
 	public void ProductsDisplay_LiberateSeriesClicked(object _, SeriesEntry series) => ViewModel?.LiberateSeriesClicked(series);
 	public void ProductsDisplay_ConvertToMp3Clicked(object _, LibraryBook[] libraryBook) => ViewModel?.ConvertToMp3Clicked(libraryBook);
 
-	BookDetailsDialog? bookDetailsForm;
-	public void ProductsDisplay_TagsButtonClicked(object _, LibraryBook libraryBook)
+	public void ProductsDisplay_DescriptionClicked(object? _, GridEntry entry)
 	{
-		if (bookDetailsForm is null || !bookDetailsForm.IsVisible)
-		{
-			bookDetailsForm = new BookDetailsDialog(libraryBook);
-			bookDetailsForm.Show(this);
-		}
-		else
-			bookDetailsForm.LibraryBook = libraryBook;
+		if (ViewModel is null)
+			return;
+		ViewModel.InspectorOpen = true;
+		ViewModel.ShowDetailsTab();
+		// After the tap's row selection has reached the inspector, which collapses on a new entry.
+		Dispatcher.UIThread.Post(bookInspector.ExpandDescription, DispatcherPriority.Background);
+	}
+
+	private async void BookInspector_EditSelectionTagsClicked(object? sender, EventArgs e)
+		=> await (ViewModel?.ReplaceSelectionTagsAsync() ?? Task.CompletedTask);
+
+	public void ProductsDisplay_DetailsClicked(object? _, LibraryBook libraryBook) => ShowInInspector(libraryBook);
+
+	public void ProductsDisplay_TagsButtonClicked(object? _, LibraryBook libraryBook)
+	{
+		ShowInInspector(libraryBook);
+		// After the selection has reached the inspector, which rebuilds on a new entry.
+		Dispatcher.UIThread.Post(bookInspector.FocusTagInput, DispatcherPriority.Background);
+	}
+
+	private void ShowInInspector(LibraryBook libraryBook)
+	{
+		if (ViewModel is null)
+			return;
+		if (ViewModel.SelectedEntry?.AudibleProductId != libraryBook.Book.AudibleProductId
+			&& ViewModel.ProductsDisplay.GetVisibleGridEntries().FirstOrDefault(e => e.AudibleProductId == libraryBook.Book.AudibleProductId) is { } entry)
+			productsDisplay.SelectEntry(entry);
+		ViewModel.InspectorOpen = true;
+		ViewModel.ShowDetailsTab();
 	}
 
 	public async void filterSearchTb_KeyPress(object _, KeyEventArgs e)
@@ -256,6 +305,16 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 		// Typed text lives only in the TextBox (OneWay binding). If the VM filter was already empty,
 		// PerformFilter does not refresh the binding, so clear the control explicitly (WinForms sets Text in performFilter).
 		filterSearchTb.Text = string.Empty;
+	}
+
+	internal Button addQuickFilterBtn => librarySidebar.addQuickFilterBtn;
+
+	private async void ClearAllFilters_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+	{
+		if (ViewModel is null)
+			return;
+		await ViewModel.SelectScopeAsync(LibraryScope.All);
+		ClearFilterButton_Click(sender, e);
 	}
 
 	private void Configure_Upgrade()
@@ -287,7 +346,8 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 	public SearchSyntaxDialog ShowSearchSyntaxDialog()
 	{
 		var dialog = new SearchSyntaxDialog();
-		dialog.TagDoubleClicked += Dialog_TagDoubleClicked;
+		dialog.InsertRequested += Dialog_InsertRequested;
+		dialog.ReplaceRequested += Dialog_ReplaceRequested;
 		dialog.Closed += Dialog_Closed;
 		filterHelpBtn.IsEnabled = false;
 		dialog.Show(this);
@@ -295,15 +355,27 @@ public partial class MainWindow : ReactiveWindow<MainVM>
 
 		void Dialog_Closed(object? sender, EventArgs e)
 		{
-			dialog.TagDoubleClicked -= Dialog_TagDoubleClicked;
+			dialog.InsertRequested -= Dialog_InsertRequested;
+			dialog.ReplaceRequested -= Dialog_ReplaceRequested;
 			filterHelpBtn.IsEnabled = true;
 		}
-		void Dialog_TagDoubleClicked(object? sender, string tag)
+		void Dialog_InsertRequested(object? sender, string tag)
 		{
-			var text = filterSearchTb.Text;
-			filterSearchTb.Text = text?.Insert(Math.Min(Math.Max(0, filterSearchTb.CaretIndex), text.Length), tag);
-			filterSearchTb.CaretIndex += tag.Length;
+			var text = filterSearchTb.Text ?? "";
+			var caret = Math.Clamp(filterSearchTb.CaretIndex, 0, text.Length);
+			if (caret > 0 && !char.IsWhiteSpace(text[caret - 1]) && text[caret - 1] != '(')
+				tag = " " + tag;
+			filterSearchTb.Text = text.Insert(caret, tag);
+			filterSearchTb.CaretIndex = caret + tag.Length;
 			filterSearchTb.Focus();
+		}
+		async void Dialog_ReplaceRequested(object? sender, string query)
+		{
+			filterSearchTb.Text = query;
+			filterSearchTb.CaretIndex = query.Length;
+			filterSearchTb.Focus();
+			if (ViewModel is not null)
+				await ViewModel.FilterBtn(query);
 		}
 	}
 }

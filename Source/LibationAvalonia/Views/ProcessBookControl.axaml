@@ -38,9 +38,9 @@
 			</Panel>
 			<Grid Margin="0,3,0,3" Grid.Column="1" ColumnDefinitions="*" RowDefinitions="*,16">
 				<StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
-					<TextBlock ClipToBounds="True" TextWrapping="Wrap" FontSize="11" Text="{Binding Title}" />
-					<TextBlock FontSize="10" TextWrapping="NoWrap" Text="{Binding Author}" />
-					<TextBlock FontSize="10" TextWrapping="NoWrap" Text="{Binding Narrator}" />
+					<TextBlock ClipToBounds="True" TextWrapping="Wrap" FontSize="12" Text="{Binding Title}" />
+					<TextBlock FontSize="12" TextWrapping="NoWrap" Text="{Binding Author}" />
+					<TextBlock FontSize="12" TextWrapping="NoWrap" Text="{Binding Narrator}" />
 				</StackPanel>
 				<Panel Grid.Column="0" Grid.Row="1">
 					<Panel.Styles>
@@ -86,7 +86,7 @@
 				</Panel>
 			</Grid>
 			<Panel Margin="3" Width="50" Grid.Column="2">
-				<TextPresenter FontSize="9" VerticalAlignment="Bottom" HorizontalAlignment="Right" IsVisible="{Binding IsDownloading}" Text="{Binding ETA}" />
+				<TextPresenter FontSize="12" VerticalAlignment="Bottom" HorizontalAlignment="Right" IsVisible="{Binding IsDownloading}" Text="{Binding ETA}" />
 			</Panel>
 
 		</Grid>

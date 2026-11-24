@@ -33,7 +33,7 @@ partial class MainVM
 			return;
 
 		ProcessQueue.QueueSimulatedBadBookFailures(books);
-		setQueueCollapseState(false);
+		QueueOpen = true;
 	}
 }
 #endif

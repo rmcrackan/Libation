@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:settings="clr-namespace:LibationAvalonia.Controls.Settings"
+             x:Class="LibationAvalonia.Controls.Settings.TemplateRow"
+             x:DataType="settings:TemplateRow">
+
+	<StackPanel Spacing="6">
+		<Grid ColumnDefinitions="*,Auto">
+			<Border
+				Background="{DynamicResource Surface2Brush}"
+				BorderBrush="{DynamicResource BorderSubtleBrush}"
+				BorderThickness="1"
+				CornerRadius="6"
+				Padding="10,6"
+				VerticalAlignment="Stretch">
+				<TextBlock
+					VerticalAlignment="Center"
+					FontFamily="Cascadia Mono,Menlo,Consolas,DejaVu Sans Mono,monospace"
+					TextWrapping="Wrap"
+					Text="{Binding TemplateText, RelativeSource={RelativeSource AncestorType=settings:TemplateRow}}" />
+			</Border>
+			<Button
+				Grid.Column="1"
+				Margin="8,0,0,0"
+				Padding="16,6"
+				VerticalAlignment="Stretch"
+				Content="Edit…"
+				Click="EditButton_Click" />
+		</Grid>
+		<TextBlock
+			FontSize="12"
+			TextWrapping="Wrap"
+			Foreground="{DynamicResource SecondaryForegroundBrush}"
+			Text="{Binding Example, RelativeSource={RelativeSource AncestorType=settings:TemplateRow}, StringFormat='Example: {0}'}" />
+	</StackPanel>
+</UserControl>

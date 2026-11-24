@@ -73,10 +73,9 @@ internal class Walkthrough
 
 		var settingsDialog = new SettingsDialog();
 
-		var tabsToVisit = settingsDialog.tabControl.Items.OfType<TabItem>().ToList();
+		var tabsToVisit = settingsDialog.sectionList.Items.OfType<ListBoxItem>().ToList();
 
-		foreach (var tab in tabsToVisit)
-			tab.PropertyChanged += TabControl_PropertyChanged;
+		settingsDialog.sectionList.SelectionChanged += SectionList_SelectionChanged;
 
 		settingsDialog.Opened += SettingsDialog_Opened;
 		settingsDialog.Closing += SettingsDialog_FormClosing;
@@ -86,15 +85,14 @@ internal class Walkthrough
 
 		return true;
 
-		async Task ShowTabPageMessageBoxAsync(TabItem? selectedTab)
+		async Task ShowTabPageMessageBoxAsync(ListBoxItem? selectedTab)
 		{
 			if (selectedTab is null)
 				return;
 			tabsToVisit.Remove(selectedTab);
 
 			if (!selectedTab.IsVisible
-				|| selectedTab.Header is not TextBlock header
-				|| header.Text is not string text
+				|| selectedTab.Content is not string text
 				|| !WalkthroughMessages.TryGetSettingsTab(text, out var message))
 				return;
 
@@ -112,19 +110,17 @@ internal class Walkthrough
 			await ShowTabPageMessageBoxAsync(tabsToVisit[0]);
 		}
 
-		async void TabControl_PropertyChanged(object? sender, Avalonia.AvaloniaPropertyChangedEventArgs e)
+		async void SectionList_SelectionChanged(object? sender, SelectionChangedEventArgs e)
 		{
-			if (e.Property == TabItem.IsSelectedProperty && settingsDialog.IsLoaded)
-			{
-				await ShowTabPageMessageBoxAsync(sender as TabItem);
-			}
+			if (settingsDialog.IsLoaded)
+				await ShowTabPageMessageBoxAsync(settingsDialog.sectionList.SelectedItem as ListBoxItem);
 		}
 
 		void SettingsDialog_FormClosing(object? sender, WindowClosingEventArgs e)
 		{
 			if (tabsToVisit.Count > 0)
 			{
-				settingsDialog.tabControl.SelectedItem = tabsToVisit[0];
+				settingsDialog.sectionList.SelectedItem = tabsToVisit[0];
 				e.Cancel = true;
 			}
 		}
@@ -197,9 +193,8 @@ internal class Walkthrough
 			await Task.Delay(WalkthroughHelpers.Timing.TypeCharDelayMs);
 		}
 
-		await displayControlAsync(MainForm.filterBtn);
-
-		MainForm.filterBtn.Command?.Execute(firstAuthor);
+		if (MainForm.ViewModel is { } viewModel)
+			await viewModel.FilterBtn(firstAuthor);
 
 		await Task.Delay(WalkthroughHelpers.Timing.AfterFilterMs);
 

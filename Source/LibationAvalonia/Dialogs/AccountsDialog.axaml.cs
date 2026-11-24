@@ -375,6 +375,9 @@ public partial class AccountsDialog : DialogWindow
 	public async void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		=> await SaveAndCloseAsync();
 
+	public void CancelButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		=> CancelAndClose();
+
 	protected override async void OnClosing(WindowClosingEventArgs e)
 	{
 		if (!_closeConfirmed && _isDirty && DialogResult != DialogResult.OK)

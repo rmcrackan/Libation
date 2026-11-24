@@ -236,6 +236,33 @@ public class LiberateIconTests
 
 	#endregion
 
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void unlit_lamps_are_opaque(bool isDark)
+	{
+		var palette = LiberateIconPalette.For(isDark);
+		var png = StatusImageGenerator.GetPng(LiberateIconDescriptor.ForBook(StoplightLamp.Green, PdfOverlay.None, isPlus: false, isDark));
+
+		using var bitmap = SKBitmap.Decode(png);
+		Assert.IsNotNull(bitmap);
+
+		//Red lamp's centre, 2x scale.
+		var pixel = bitmap.GetPixel((int)((LiberateIconGeometry.LampLeft + LiberateIconGeometry.LampWidth / 2) * StatusImageGenerator.RenderScale),
+			(int)((LiberateIconGeometry.RedLampTop + LiberateIconGeometry.LampHeight / 2) * StatusImageGenerator.RenderScale));
+		Assert.AreEqual(palette.Unlit, pixel);
+	}
+
+	[TestMethod]
+	public void an_error_is_a_red_stoplight_with_a_badge()
+	{
+		var palette = LiberateIconPalette.For(isDark: false);
+		var png = StatusImageGenerator.GetPng(LiberateIconDescriptor.ForError(isDark: false));
+
+		Assert.IsGreaterThan(0, FindColor(png, palette.Red).Count);
+		Assert.IsGreaterThan(0, FindColor(png, palette.Error).Count);
+	}
+
 	private static LiberateIconDescriptor Book(PdfOverlay pdf, bool isPlus, bool isDark)
 		=> LiberateIconDescriptor.ForBook(StoplightLamp.Green, pdf, isPlus, isDark);
 

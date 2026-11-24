@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Input.Platform;
 using Avalonia.Threading;
@@ -17,9 +18,32 @@ public partial class ProcessQueueControl : UserControl
 	private TrackedQueue<ProcessBookViewModel>? Queue => _viewModel?.Queue;
 	private ProcessQueueViewModel? _viewModel => DataContext as ProcessQueueViewModel;
 
+	public static readonly StyledProperty<bool> ShowLogProperty =
+		AvaloniaProperty.Register<ProcessQueueControl, bool>(nameof(ShowLog));
+
+	public bool ShowLog
+	{
+		get => GetValue(ShowLogProperty);
+		set => SetValue(ShowLogProperty, value);
+	}
+
+	protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+	{
+		base.OnPropertyChanged(change);
+		if (change.Property == ShowLogProperty)
+			UpdatePages();
+	}
+
+	private void UpdatePages()
+	{
+		queuePage.IsVisible = !ShowLog;
+		logPage.IsVisible = ShowLog;
+	}
+
 	public ProcessQueueControl()
 	{
 		InitializeComponent();
+		UpdatePages();
 
 		ProcessBookControl.PositionButtonClicked += ProcessBookControl2_ButtonClicked;
 		ProcessBookControl.CancelButtonClicked += ProcessBookControl2_CancelButtonClicked;

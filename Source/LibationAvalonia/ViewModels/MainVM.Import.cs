@@ -151,7 +151,7 @@ public partial class MainVM
 
 		ProductsDisplay.DoneRemovingBooks();
 
-		//Restore the filter
+		await SelectScopeAsync(scopeBeforeRemoval);
 		await PerformFilter(lastGoodFilter);
 	}
 
@@ -201,6 +201,8 @@ public partial class MainVM
 		//For removing books within a filter set, use
 		//Visible Books > Remove from library
 
+		scopeBeforeRemoval = ProductsDisplay.Scope;
+		await SelectScopeAsync(LibraryScope.All);
 		await ProductsDisplay.Filter(null);
 
 		RemoveBooksButtonEnabled = true;
@@ -257,6 +259,7 @@ public partial class MainVM
 	{
 		using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 		AccountsCount = persister.AccountsSettings.Accounts.Count;
+		updateAccountsLine(persister.AccountsSettings.Accounts);
 
 
 		if (NativeMenu.GetMenu(MainWindow)?.Items[0] is not NativeMenuItem ss ||

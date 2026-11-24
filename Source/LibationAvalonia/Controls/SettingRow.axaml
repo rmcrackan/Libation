@@ -1,0 +1,52 @@
+<ContentControl xmlns="https://github.com/avaloniaui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+                x:Class="LibationAvalonia.Controls.SettingRow">
+
+	<ContentControl.Styles>
+		<Style Selector="controls|SettingRow">
+			<Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}" />
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border
+						BorderBrush="{TemplateBinding BorderBrush}"
+						BorderThickness="0,1,0,0"
+						Padding="16,10">
+						<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+							<StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+								<TextBlock
+									FontSize="14"
+									FontWeight="Medium"
+									TextWrapping="Wrap"
+									IsVisible="{TemplateBinding Label, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+									Text="{TemplateBinding Label}" />
+								<TextBlock
+									FontSize="12"
+									LineHeight="16"
+									TextWrapping="Wrap"
+									Foreground="{DynamicResource SecondaryForegroundBrush}"
+									IsVisible="{TemplateBinding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+									Text="{TemplateBinding Description}" />
+							</StackPanel>
+							<ContentPresenter
+								Name="PART_Content"
+								Grid.Column="1"
+								Margin="16,0,0,0"
+								VerticalAlignment="Center"
+								HorizontalAlignment="Right"
+								Content="{TemplateBinding Content}"
+								ContentTemplate="{TemplateBinding ContentTemplate}" />
+						</Grid>
+					</Border>
+				</ControlTemplate>
+			</Setter>
+		</Style>
+		<Style Selector="controls|SettingRow[Stacked=True] /template/ ContentPresenter#PART_Content">
+			<Setter Property="Grid.Row" Value="1" />
+			<Setter Property="Grid.Column" Value="0" />
+			<Setter Property="Grid.ColumnSpan" Value="2" />
+			<Setter Property="Margin" Value="0,8,0,0" />
+			<Setter Property="HorizontalAlignment" Value="Stretch" />
+		</Style>
+	</ContentControl.Styles>
+</ContentControl>

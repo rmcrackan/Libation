@@ -8,266 +8,141 @@
 			 x:DataType="vm:ImportantSettingsVM"
              x:Class="LibationAvalonia.Controls.Settings.Important">
 
-	<Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*">
-		<controls:GroupBox
-			Grid.Row="0"
-			Margin="5"
-			Label="Books Location">
-
-			<StackPanel>
-				<TextBlock
-					Margin="5"
-					Text="{Binding BooksText}" />
-
-				<controls:DirectoryOrCustomSelectControl Margin="0,10,0,10"
-									SubDirectory="Books"
-									Directory="{Binding BooksDirectory, Mode=TwoWay}"
-									KnownDirectories="{Binding KnownDirectories}" />
-
-				<CheckBox IsChecked="{Binding SavePodcastsToParentFolder, Mode=TwoWay}">
-					<TextBlock Text="{Binding SavePodcastsToParentFolderText}" />
-				</CheckBox>
-
-				<CheckBox IsChecked="{Binding OverwriteExisting, Mode=TwoWay}">
-					<TextBlock Text="{Binding OverwriteExistingText}" />
-				</CheckBox>
-
-				<Grid
-					RowDefinitions="Auto,Auto"
-					ColumnDefinitions="Auto,*">
-
-					<TextBlock
-						VerticalAlignment="Center"
-						Margin="0,0,10,0"
-						Text="{Binding CreationTimeText}" />
-
+	<StackPanel Spacing="24">
+		<controls:SettingGroup Header="Appearance">
+			<controls:SettingRow Label="Theme">
+				<StackPanel Orientation="Horizontal" Spacing="8">
 					<controls:WheelComboBox
-						Height="25"
-						Grid.Column="1"
-						Margin="0,5"
-						HorizontalContentAlignment="Stretch"
-						SelectedItem="{Binding CreationTime, Mode=TwoWay}"
-						ItemsSource="{Binding DateTimeSources}" />
-
-					<TextBlock
-						VerticalAlignment="Center"
-						Grid.Row="1"
-						Margin="0,0,10,0"
-						Text="{Binding LastWriteTimeText}" />
-
-					<controls:WheelComboBox
-						Height="25"
-						Grid.Row="1"
-						Grid.Column="1"
-						Margin="0,5"
-						HorizontalContentAlignment="Stretch"
-						SelectedItem="{Binding LastWriteTime, Mode=TwoWay}"
-						ItemsSource="{Binding DateTimeSources}" />
-
-				</Grid>
-
-			</StackPanel>
-
-		</controls:GroupBox>
-		<StackPanel
-			Grid.Row="1"
-			Margin="10,5"
-			Spacing="5">
-			<CheckBox
-				IsEnabled="{Binding !UseWebViewSettingDisabled}"
-				IsChecked="{Binding UseWebView, Mode=TwoWay}">
-				<StackPanel>
-					<TextBlock Text="{Binding UseWebViewText}" />
-					<TextBlock
-						IsVisible="{Binding UseWebViewSettingDisabled}"
-						FontStyle="Italic"
-						Opacity="0.8"
-						Margin="0,2,0,0"
-						Text="{Binding UseWebViewSnapMessage}" />
+						Name="ThemeComboBox"
+						MinWidth="120"
+						SelectedItem="{Binding ThemeVariant, Mode=TwoWay}"
+						ItemsSource="{Binding Themes}"/>
+					<Button
+						Padding="16,6"
+						Content="Edit Theme Colors"
+						Click="EditThemeColors_Click"/>
 				</StackPanel>
-			</CheckBox>
+			</controls:SettingRow>
 
-			<TextBlock
-				Margin="0,8,0,0"
-				Text="{Binding DeviceRegistrationKindText}" />
-			<controls:WheelComboBox
-				Height="25"
-				HorizontalContentAlignment="Stretch"
-				SelectedItem="{Binding SelectedDeviceRegistration, Mode=TwoWay}"
-				ItemsSource="{Binding DeviceRegistrationOptions}"
-				ToolTip.Tip="{Binding DeviceRegistrationKindTip}" />
-			<TextBlock
-				FontStyle="Italic"
-				Opacity="0.8"
-				TextWrapping="Wrap"
-				Text="{Binding DeviceRegistrationReLoginNote}" />
+			<controls:SettingRow Label="{Binding GridScaleFactorText}">
+				<Slider
+					Width="220"
+					Value="{Binding GridScaleFactor, Mode=TwoWay}"
+					Minimum="-100"
+					Maximum="100"
+					IsSnapToTickEnabled="False"
+					TickFrequency="25"
+					TickPlacement="BottomRight" />
+			</controls:SettingRow>
 
-			<StackPanel Orientation="Horizontal" >
-				<CheckBox
-					Margin="0,0,20,0"
-					IsChecked="{Binding CheckForUpgradesAtStartup, Mode=TwoWay}"
-					ToolTip.Tip="{Binding CheckForUpgradesAtStartupTip}">
-					<TextBlock Text="{Binding CheckForUpgradesAtStartupText}" />
-				</CheckBox>
-				<CheckBox
-					IsChecked="{Binding CheckForPreRelease, Mode=TwoWay}"
-					ToolTip.Tip="{Binding CheckForPreReleaseTip}">
-					<TextBlock Text="{Binding CheckForPreReleaseText}" />
-				</CheckBox>
-				
-			</StackPanel>
+			<controls:SettingRow Label="{Binding GridFontScaleFactorText}">
+				<Slider
+					Width="220"
+					Value="{Binding GridFontScaleFactor, Mode=TwoWay}"
+					Minimum="-100"
+					Maximum="100"
+					IsSnapToTickEnabled="False"
+					TickFrequency="25"
+					TickPlacement="BottomRight" />
+			</controls:SettingRow>
 
-		</StackPanel>
+			<controls:SettingRow>
+				<Button
+					Padding="16,6"
+					Content="Apply Display Settings"
+					Command="{Binding ApplyDisplaySettings}"/>
+			</controls:SettingRow>
+		</controls:SettingGroup>
 
-		<controls:GroupBox
-			Grid.Row="2"
-			Margin="5"
-			Label="Authentication tokens">
-			<StackPanel>
-				<CheckBox
-					IsEnabled="{Binding CanEditEncryptTokens}"
-					IsChecked="{Binding EncryptTokens, Mode=TwoWay}">
-					<TextBlock Text="{Binding EncryptTokensText}" TextWrapping="Wrap" />
-				</CheckBox>
+		<controls:SettingGroup Header="Signing in">
+			<controls:SettingRow
+				Label="{Binding UseWebViewText}"
+				Description="{Binding UseWebViewSnapMessage}"
+				IsEnabled="{Binding !UseWebViewSettingDisabled}">
+				<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding UseWebView, Mode=TwoWay}" />
+			</controls:SettingRow>
+
+			<controls:SettingRow
+				Label="{Binding DeviceRegistrationKindText}"
+				Description="{Binding DeviceRegistrationReLoginNote}">
+				<controls:WheelComboBox
+					MinWidth="200"
+					SelectedItem="{Binding SelectedDeviceRegistration, Mode=TwoWay}"
+					ItemsSource="{Binding DeviceRegistrationOptions}"
+					ToolTip.Tip="{Binding DeviceRegistrationKindTip}" />
+			</controls:SettingRow>
+		</controls:SettingGroup>
+
+		<controls:SettingGroup Header="Updates">
+			<controls:SettingRow
+				Label="{Binding CheckForUpgradesAtStartupText}"
+				Description="{Binding CheckForUpgradesAtStartupTip}">
+				<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding CheckForUpgradesAtStartup, Mode=TwoWay}" />
+			</controls:SettingRow>
+
+			<controls:SettingRow
+				Label="{Binding CheckForPreReleaseText}"
+				Description="{Binding CheckForPreReleaseTip}">
+				<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding CheckForPreRelease, Mode=TwoWay}" />
+			</controls:SettingRow>
+		</controls:SettingGroup>
+
+		<controls:SettingGroup Header="Authentication tokens">
+			<controls:SettingRow
+				Label="{Binding EncryptTokensText}"
+				IsEnabled="{Binding CanEditEncryptTokens}">
+				<ToggleSwitch OnContent="" OffContent="" IsChecked="{Binding EncryptTokens, Mode=TwoWay}" />
+			</controls:SettingRow>
+
+			<controls:SettingRow Stacked="True" IsVisible="{Binding PlaintextWarningVisible}">
 				<TextBlock
-					Margin="24,4,0,0"
-					Foreground="DarkRed"
-					IsVisible="{Binding PlaintextWarningVisible}"
+					Foreground="{DynamicResource ErrorForegroundBrush}"
 					Text="{Binding PlaintextWarningText}"
 					TextWrapping="Wrap" />
+			</controls:SettingRow>
+
+			<controls:SettingRow Stacked="True" IsVisible="{Binding OsStoreUnavailableVisible}">
 				<TextBlock
-					Margin="24,4,0,0"
-					Foreground="DarkRed"
-					IsVisible="{Binding OsStoreUnavailableVisible}"
+					Foreground="{DynamicResource ErrorForegroundBrush}"
 					Text="{Binding OsStoreUnavailableMessage}"
 					TextWrapping="Wrap" />
+			</controls:SettingRow>
+
+			<controls:SettingRow Stacked="True">
 				<StackPanel
-					Margin="0,10,0,0"
 					Orientation="Horizontal"
 					HorizontalAlignment="Right"
-					Spacing="10">
+					Spacing="8">
 					<Button
-						Padding="20,0"
+						Padding="16,6"
 						Content="{Binding ExportButtonText}"
 						ToolTip.Tip="{Binding ExportButtonToolTip}"
 						IsEnabled="{Binding ExportButtonEnabled}"
 						Click="ExportMasterKey_Click" />
 					<Button
-						Padding="20,0"
+						Padding="16,6"
 						Content="{Binding ConvertButtonText}"
 						ToolTip.Tip="{Binding ConvertButtonToolTip}"
 						IsEnabled="{Binding ConvertButtonEnabled}"
 						Command="{Binding ConvertExistingTokensCommand}" />
 				</StackPanel>
-			</StackPanel>
-		</controls:GroupBox>
+			</controls:SettingRow>
+		</controls:SettingGroup>
 
-		<StackPanel
-			Grid.Row="3" Margin="5"
-			Orientation="Horizontal">
+		<controls:SettingGroup Header="Logging">
+			<controls:SettingRow Label="Logging level">
+				<controls:WheelComboBox
+					Width="140"
+					SelectedItem="{Binding LoggingLevel, Mode=TwoWay}"
+					ItemsSource="{Binding LoggingLevels}" />
+			</controls:SettingRow>
 
-			<TextBlock
-				Margin="0,0,10,0"
-				VerticalAlignment="Center"
-				Text="Logging level" />
-
-			<controls:WheelComboBox
-				Width="120"
-				Height="25"
-				HorizontalContentAlignment="Stretch"
-				SelectedItem="{Binding LoggingLevel, Mode=TwoWay}"
-				ItemsSource="{Binding LoggingLevels}" />
-
-			<Button
-				Margin="50,0,0,0"
-				Padding="20,0"
-				VerticalAlignment="Stretch"
-				Content="Open Log Folder"
-				Command="{Binding OpenLogFolderButton}" />
-
-		</StackPanel>
-
-		<controls:GroupBox
-			Grid.Row="4"
-			Margin="5"
-			Label="Display Settings">
-			<Grid
-				RowDefinitions="Auto,Auto"
-				ColumnDefinitions="Auto,Auto,*">
-
-				<TextBlock
-					Margin="0,0,10,0"
-					VerticalAlignment="Center"
-					Text="{Binding GridScaleFactorText}"/>
-
-				<Slider
-					Grid.Column="1"
-					Width="200"
-					Value="{Binding GridScaleFactor, Mode=TwoWay}"
-					VerticalAlignment="Center"
-					Minimum="-100"
-					Maximum="100"
-					IsSnapToTickEnabled="False"
-					TickFrequency="25"
-					TickPlacement="BottomRight">
-				</Slider>
-
-				<TextBlock
-					Margin="0,0,10,0"
-					Grid.Row="1"
-					VerticalAlignment="Center"
-					Text="{Binding GridFontScaleFactorText}"/>
-
-				<Slider
-					Grid.Column="1"
-					Grid.Row="1"
-					Width="200"
-					Value="{Binding GridFontScaleFactor, Mode=TwoWay}"
-					VerticalAlignment="Center"
-					Minimum="-100"
-					Maximum="100"
-					IsSnapToTickEnabled="False"
-					TickFrequency="25"
-					TickPlacement="BottomRight">
-				</Slider>
+			<controls:SettingRow>
 				<Button
-					Grid.Column="2"
-					Grid.Row="1"
-					HorizontalAlignment="Right"
-					Margin="0,5"
-					Padding="20,0"
-					VerticalAlignment="Stretch"
-					Content="Apply Display Settings"
-					Command="{Binding ApplyDisplaySettings}"/>
-			</Grid>
-		</controls:GroupBox>
-
-		<Grid
-			Grid.Row="5"
-			ColumnDefinitions="Auto,Auto,*"
-			Margin="10"
-			VerticalAlignment="Bottom">
-			<TextBlock
-				Grid.Column="0"
-				FontSize="16"
-				Margin="0,0,15,0"
-				VerticalAlignment="Center"
-				Text="Theme:"/>
-
-			<controls:WheelComboBox
-				Name="ThemeComboBox"
-				Grid.Column="1"
-				MinWidth="80"
-				SelectedItem="{Binding ThemeVariant, Mode=TwoWay}"
-				ItemsSource="{Binding Themes}"/>
-			
-			<Button
-				Grid.Column="2"
-				HorizontalAlignment="Right"
-				Padding="20,0"
-				VerticalAlignment="Stretch"
-				Content="Edit Theme Colors"
-				Click="EditThemeColors_Click"/>
-		</Grid>
-	</Grid>
+					Padding="16,6"
+					Content="Open Log Folder"
+					Command="{Binding OpenLogFolderButton}" />
+			</controls:SettingRow>
+		</controls:SettingGroup>
+	</StackPanel>
 </UserControl>

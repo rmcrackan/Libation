@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="LibationAvalonia.Controls.TagChipEditor">
+	<WrapPanel Name="Panel" Orientation="Horizontal">
+		<TextBox
+			Name="Input"
+			Width="140"
+			MinHeight="28"
+			Margin="0,2,0,2"
+			Padding="10,3"
+			Background="{DynamicResource SurfaceBrush}"
+			BorderBrush="{DynamicResource SecondaryForegroundBrush}"
+			BorderThickness="1"
+			PlaceholderText="Add tag…"
+			KeyDown="Input_KeyDown"
+			TextChanged="Input_TextChanged"
+			LostFocus="Input_LostFocus" />
+	</WrapPanel>
+</UserControl>

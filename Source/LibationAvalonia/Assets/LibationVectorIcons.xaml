@@ -2,7 +2,6 @@
         xmlns:collections="using:Avalonia.Collections">
   <Styles.Resources>
    <ResourceDictionary>   
-		<StreamGeometry x:Key="LeftArrows">M30,0 H60 L30,50 L60,100 H30 L0,50 M85,0 H115 L85,50 L115,100 H85 L55,50 M140,0 H170 L140,50 L170,100 H140 L110,50</StreamGeometry>
 		<StreamGeometry x:Key="FirstButtonIcon">M0,0 H100 V12 H53 L100,46 H0 L47,12 H0</StreamGeometry>
 		<StreamGeometry x:Key="UpButtonIcon">M0,36.66 L50,0 L100,36.66</StreamGeometry>
 		<StreamGeometry x:Key="DownButtonIcon">M0,0 L100,0 L50,36.66</StreamGeometry>
@@ -128,6 +127,9 @@
 	c0.076-0.164,69.684-155.714,76.225-170.333H967.85z
 	   </StreamGeometry>
 	   
+		<StreamGeometry x:Key="EmptyLibraryIcon">M4,5 A2,2 0 0 1 6,3 H18 V19 H6 A2,2 0 0 0 4,21 Z M4,21 V5 M9,7 H15</StreamGeometry>
+		<StreamGeometry x:Key="NoMatchesIcon">M18,11 A7,7 0 1 1 4,11 A7,7 0 1 1 18,11 Z M20,20 L16,16</StreamGeometry>
+		<StreamGeometry x:Key="EmptyQueueIcon">M12,4 V15 M7,11 L12,16 L17,11 M5,20 H19</StreamGeometry>
    </ResourceDictionary>
   </Styles.Resources>
 </Styles>
