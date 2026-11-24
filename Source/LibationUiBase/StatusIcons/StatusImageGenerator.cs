@@ -30,12 +30,18 @@ public static class StatusImageGenerator
 	private static readonly Dictionary<LiberateIconDescriptor, byte[]> cache = [];
 
 	/// <summary>Stoplight body width over height; badges and the PDF glyph extend the image to its right.</summary>
-	public static float StoplightAspect { get; } = GetStoplightAspect();
+	public static float StoplightAspect { get; } = GetStoplightWidth() / LiberateIconGeometry.StoplightHeight;
 
-	private static float GetStoplightAspect()
+	/// <summary>Width over height of the widest stoplight icon: one with a PDF glyph or badge.</summary>
+	public static float WidestStoplightAspect { get; } = MathF.Max(
+		GetStoplightWidth() + LiberateIconGeometry.PdfLeftMargin + LiberateIconGeometry.PdfWidth,
+		GetStoplightWidth() + LiberateIconGeometry.PlusBadgeCornerOffset + LiberateIconGeometry.PlusBadgeDiameter / 2)
+		/ LiberateIconGeometry.StoplightHeight;
+
+	private static float GetStoplightWidth()
 	{
 		using var body = ParsePath(LiberateIconGeometry.StoplightBody);
-		return body.TightBounds.Width / body.TightBounds.Height;
+		return body.TightBounds.Width * LiberateIconGeometry.StoplightHeight / body.TightBounds.Height;
 	}
 
 	private static byte[] Render(LiberateIconDescriptor descriptor)

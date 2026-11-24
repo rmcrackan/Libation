@@ -55,17 +55,19 @@ public partial class LiberateStatusButton : UserControl
 		status?.Liberate?.Invalidate(nameof(status.Liberate.BookStatus), nameof(status.Liberate.ButtonImage));
 	}
 
-	/// <summary>Centers the stoplight itself, so badges and the PDF glyph don't shift it off its neighbours.</summary>
+	/// <summary>Puts every stoplight at the same size and spot, leaving room to its right for the widest badge or PDF glyph.</summary>
 	private void AlignIcon()
 	{
 		if (ButtonImage is not { Size: { Width: > 0, Height: > 0 } size } || iconHost.Bounds.Width <= 0)
 			return;
 
 		var hostWidth = iconHost.Bounds.Width;
-		var scale = Math.Min(iconHost.Bounds.Height * 0.8 / size.Height, hostWidth / size.Width);
-		var imageWidth = size.Width * scale;
-		var anchorWidth = DataContext is SeriesEntry ? imageWidth : size.Height * scale * StatusImageGenerator.StoplightAspect;
-		var left = Math.Clamp((hostWidth - anchorWidth) / 2, 0, Math.Max(0, hostWidth - imageWidth));
+		var isSeries = DataContext is SeriesEntry;
+		var widestAspect = isSeries ? size.Width / size.Height : StatusImageGenerator.WidestStoplightAspect;
+		var height = Math.Min(iconHost.Bounds.Height * 0.8, hostWidth / widestAspect);
+		var anchorWidth = height * (isSeries ? size.Width / size.Height : StatusImageGenerator.StoplightAspect);
+		var left = Math.Clamp((hostWidth - anchorWidth) / 2, 0, Math.Max(0, hostWidth - height * widestAspect));
+		icon.Height = height;
 		icon.Margin = new Thickness(left, 0, 0, 0);
 	}
 

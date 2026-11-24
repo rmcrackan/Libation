@@ -28,6 +28,8 @@
 		Name="button"
 		HorizontalAlignment="Stretch"
 		VerticalAlignment="Stretch"
+		HorizontalContentAlignment="Stretch"
+		VerticalContentAlignment="Stretch"
 		Padding="0"
 		IsEnabled="{Binding	IsButtonEnabled}" Click="Button_Click" >
 
