@@ -1,3 +1,5 @@
+using Dinah.Core;
+
 namespace AudibleUtilities;
 
 /// <summary>
@@ -27,6 +29,8 @@ public sealed class AccountSummary
 	public bool RequiresReRegistration { get; }
 
 	private readonly string ownerFacingLabel;
+	private readonly string logSafeLabel;
+	private readonly string? loginExternalHint;
 
 	private AccountSummary(Account account)
 	{
@@ -34,13 +38,38 @@ public sealed class AccountSummary
 		LooksLikeMissingCredentials = AccountCredentialStatus.LooksLikeMissingCredentials(account);
 		RequiresReRegistration = account.RequiresReRegistration;
 		ownerFacingLabel = AccountCredentialStatus.FormatAccountLabel(account);
+		logSafeLabel = FormatLogSafeAccountLabel(account);
+		loginExternalHint = !string.IsNullOrWhiteSpace(account.AccountId) && !string.IsNullOrWhiteSpace(account.Locale?.Name)
+			? $"libationcli login-external --account {account.AccountId} --locale {account.Locale.Name}"
+			: null;
 	}
 
 	/// <summary>
 	/// The name and address to show the person who owns the account, on their own screen. Never log this: use
-	/// <see cref="MaskedLogEntry"/>.
+	/// <see cref="MaskedLogEntry"/> or <see cref="FormatLogSafeLabel"/>.
 	/// </summary>
 	public string RevealOwnerFacingLabel() => ownerFacingLabel;
+
+	/// <summary>
+	/// Copy-pasteable CLI sign-in command for the account's owner (unmasked). Never log this: write to stderr only.
+	/// </summary>
+	public string? RevealLoginExternalHint() => loginExternalHint;
+
+	/// <summary>
+	/// Log-safe display label for stdout (which is teed to Serilog): uses the user-defined
+	/// <see cref="Account.AccountName"/> when distinct, and masks <see cref="Account.AccountId"/>.
+	/// </summary>
+	public string FormatLogSafeLabel() => logSafeLabel;
+
+	private static string FormatLogSafeAccountLabel(Account account)
+	{
+		var maskedId = account.AccountId.ToMask();
+		var localeSuffix = string.IsNullOrWhiteSpace(account.Locale?.Name) ? "" : $", {account.Locale.Name}";
+
+		return string.IsNullOrWhiteSpace(account.AccountName) || account.AccountName.Equals(account.AccountId, StringComparison.OrdinalIgnoreCase)
+			? $"'{maskedId}'{(localeSuffix.Length > 0 ? $" ({account.Locale!.Name})" : "")}"
+			: $"'{account.AccountName}' ({maskedId}{localeSuffix})";
+	}
 
 	public override string ToString() => MaskedLogEntry;
 

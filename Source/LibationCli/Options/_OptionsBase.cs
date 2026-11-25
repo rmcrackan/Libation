@@ -77,17 +77,20 @@ public abstract class OptionsBase
 				return;
 			}
 
-			// the exception message names the account masked, because it gets logged. stderr is not teed into
-			// Serilog, so this is the one place the owner can be told which account in full.
-			if (AuthenticationExceptionHelper.FindAuthenticationRequired(ex)?.AccountInfo is { } accountInfo)
-				Console.Error.WriteLine($"Audible login is required for {accountInfo.RevealOwnerFacingLabel()}.");
+			if (AuthenticationExceptionHelper.IsAuthenticationFailure(ex))
+			{
+				var authEx = AuthenticationExceptionHelper.FindAuthenticationRequired(ex)
+					?? new AuthenticationRequiredException(account: null, message: ex.Message, innerException: ex);
+				Serilog.Log.Logger.Error(ex, "Audible authentication required");
+				AuthenticationRequiredCliSummary.WriteSummary([authEx], Console.Out, Console.Error);
+				return;
+			}
 
 			PrintVerbUsage(
 				"ERROR",
 				"=====",
 				ex.Message,
 				"",
-				// Include inner exceptions (e.g. real token failure behind AuthenticationRequiredException).
 				ex.ToString());
 		}
 	}

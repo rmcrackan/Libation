@@ -124,15 +124,30 @@ public static class LibraryCommands
 	}
 
 	#region FULL LIBRARY scan and import
+	public sealed record ImportAccountResult(
+		int TotalCount,
+		int NewCount,
+		IReadOnlyList<AuthenticationRequiredException> AuthFailures,
+		IReadOnlyCollection<string> FailedAccounts);
+
 	public static Task<(int totalCount, int newCount)> ImportAccountAsync(params Account[]? accounts)
 		=> ImportAccountAsync(accounts, allowInteractiveLogin: true);
 
 	public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Account[]? accounts, bool allowInteractiveLogin)
 	{
+		var result = await importAccountInternalAsync(accounts, allowInteractiveLogin, continueOnAuthFailure: false);
+		return (result.TotalCount, result.NewCount);
+	}
+
+	public static Task<ImportAccountResult> ImportAccountWithSummaryAsync(Account[]? accounts, bool allowInteractiveLogin)
+		=> importAccountInternalAsync(accounts, allowInteractiveLogin, continueOnAuthFailure: true);
+
+	private static async Task<ImportAccountResult> importAccountInternalAsync(Account[]? accounts, bool allowInteractiveLogin, bool continueOnAuthFailure)
+	{
 		logRestart();
 
 		if (accounts is null || accounts.Length == 0)
-			return (0, 0);
+			return new(0, 0, [], []);
 
 		await ImportGate.WaitAsync();
 		int newCount = 0;
@@ -159,14 +174,15 @@ public static class LibraryCommands
 					ImageSizes = LibraryOptions.ImageSizeOptions._500 | LibraryOptions.ImageSizeOptions._1215
 				};
 				//Importing only adds and updates, so a partially scanned library is still worth importing.
-				var importItems = (await scanAccountsAsync(accounts, libraryOptions, allowInteractiveLogin)).Items;
+				var scanResult = await scanAccountsAsync(accounts, libraryOptions, allowInteractiveLogin, continueOnAuthFailure);
+				var importItems = scanResult.Items;
 				logTime($"post {nameof(scanAccountsAsync)} all");
 
 				var totalCount = importItems.Count;
 				Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 
 				if (totalCount == 0)
-					return default;
+					return new(0, 0, scanResult.AuthFailures, scanResult.FailedAccounts);
 
 				Log.Logger.Information("Begin long-running import");
 				logTime($"pre {nameof(ImportIntoDbAsync)}");
@@ -174,7 +190,7 @@ public static class LibraryCommands
 				logTime($"post {nameof(ImportIntoDbAsync)}");
 				Log.Logger.Information($"Import complete. New count {newCount}");
 
-				return (totalCount, newCount);
+				return new(totalCount, newCount, scanResult.AuthFailures, scanResult.FailedAccounts);
 			}
             catch (Exception lfEx) when (AuthenticationExceptionHelper.IsAuthenticationFailure(lfEx))
             {
@@ -288,12 +304,16 @@ public static class LibraryCommands
 	/// Accounts that could not be scanned. Their books are absent from <paramref name="Items"/> for that reason
 	/// alone, so a caller deciding what to remove must not treat the result as the whole library.
 	/// </param>
-	private sealed record ScanResult(List<ImportItem> Items, IReadOnlyCollection<string> FailedAccounts);
+	private sealed record ScanResult(
+		List<ImportItem> Items,
+		IReadOnlyCollection<string> FailedAccounts,
+		IReadOnlyList<AuthenticationRequiredException> AuthFailures);
 
-	private static async Task<ScanResult> scanAccountsAsync(Account[] accounts, LibraryOptions libraryOptions, bool allowInteractiveLogin)
+	private static async Task<ScanResult> scanAccountsAsync(Account[] accounts, LibraryOptions libraryOptions, bool allowInteractiveLogin, bool continueOnAuthFailure = false)
 	{
 		var tasks = new List<Task<List<ImportItem>>>();
 		var failedAccounts = new List<string>();
+		var authFailures = new List<AuthenticationRequiredException>();
 
 		await using LogArchiver? archiver
 			 = Log.Logger.IsDebugEnabled()
@@ -325,7 +345,14 @@ public static class LibraryCommands
 			}
 			catch (Exception ex) when (!allowInteractiveLogin && AuthenticationExceptionHelper.IsAuthenticationFailure(ex))
 			{
-				throw;
+				if (!continueOnAuthFailure)
+					throw;
+
+				Log.Logger.Error(ex, "Authentication required while scanning account {Account}", account.MaskedLogEntry);
+				failedAccounts.Add(account.MaskedLogEntry ?? account.AccountId ?? "[unknown account]");
+				authFailures.Add(
+					AuthenticationExceptionHelper.FindAuthenticationRequired(ex)
+					?? new AuthenticationRequiredException(account, ex.Message, ex));
 			}
 			catch (Exception ex)
 			{
@@ -338,7 +365,7 @@ public static class LibraryCommands
 		// import library in parallel
 		var arrayOfLists = await Task.WhenAll(tasks);
 		var importItems = arrayOfLists.SelectMany(a => a).ToList();
-		return new ScanResult(importItems, failedAccounts);
+		return new ScanResult(importItems, failedAccounts, authFailures);
 	}
 
 	/// <param name="locale">
