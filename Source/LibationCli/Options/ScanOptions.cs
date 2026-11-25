@@ -32,14 +32,20 @@ public class ScanOptions : OptionsBase
 			: $"Scanning Audible library: {_accounts.Length} accounts. This may take a few minutes per account.";
 		Console.WriteLine(intro);
 
-		// CLI/Docker cannot interactive-login; fail closed with the real token/auth error.
-		var (TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportAccountAsync(
+		// CLI/Docker cannot interactive-login; scan healthy accounts and summarize any needing sign-in.
+		var result = await LibraryCommands.ImportAccountWithSummaryAsync(
 			_accounts,
 			allowInteractiveLogin: false);
 
 		Console.WriteLine("Scan complete.");
-		Console.WriteLine($"Total processed: {TotalBooksProcessed}");
-		Console.WriteLine($"New: {NewBooksAdded}");
+		Console.WriteLine($"Total processed: {result.TotalCount}");
+		Console.WriteLine($"New: {result.NewCount}");
+
+		if (result.AuthFailures.Count > 0)
+		{
+			AuthenticationRequiredCliSummary.WriteSummary(result.AuthFailures, Console.Out, Console.Error);
+			Environment.ExitCode = (int)ExitCode.RunTimeError;
+		}
 	}
 
 	private Account[] getAccounts()

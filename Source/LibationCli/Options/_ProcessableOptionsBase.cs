@@ -117,6 +117,8 @@ public abstract class ProcessableOptionsBase : OptionsBase
 		var skippedForDailyLimit = 0;
 		var skippedAsAbsent = 0;
 		var deferredThisRun = new List<DeferredDownload>();
+		var authFailures = new List<AuthenticationRequiredException>();
+		var unauthenticatedAccountKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 		var runLimitReached = false;
 
 		// Needs no guard against pdf or convert runs, unlike the daily limit below: the tracker counts only
@@ -242,6 +244,12 @@ public abstract class ProcessableOptionsBase : OptionsBase
 			Serilog.Log.Logger.Information(summary);
 		}
 
+		if (authFailures.Count > 0)
+		{
+			AuthenticationRequiredCliSummary.WriteSummary(authFailures, Console.Out, Console.Error);
+			Environment.ExitCode = (int)ExitCode.RunTimeError;
+		}
+
 		var done = runLimitReached
 			? "Done. Stopped early: this run's download limit was reached."
 			: "Done. All books have been processed";
@@ -262,6 +270,10 @@ public abstract class ProcessableOptionsBase : OptionsBase
 
 			config?.Invoke(libraryBook);
 
+			var accountKey = AccountKey(libraryBook);
+			if (unauthenticatedAccountKeys.Contains(accountKey))
+				return true;
+
 			if (IsSkippedByDailyLimit(processable, libraryBook))
 			{
 				skippedForDailyLimit++;
@@ -269,9 +281,15 @@ public abstract class ProcessableOptionsBase : OptionsBase
 			}
 
 			runLimit?.Attempting(libraryBook.Book.AudibleProductId);
-			await ProcessOneAsync(processable, libraryBook, validate);
+			await ProcessOneAsync(processable, libraryBook, validate, authEx =>
+			{
+				unauthenticatedAccountKeys.Add(accountKey);
+				authFailures.Add(authEx);
+			});
 			return true;
 		}
+
+		static string AccountKey(LibraryBook lb) => $"{lb.Account}|{lb.Book.Locale}";
 	}
 
 	protected bool announcedDailyLimit;
@@ -313,7 +331,7 @@ public abstract class ProcessableOptionsBase : OptionsBase
 		return true;
 	}
 
-	protected async Task ProcessOneAsync(Processable Processable, LibraryBook libraryBook, bool validate)
+	protected async Task ProcessOneAsync(Processable Processable, LibraryBook libraryBook, bool validate, Action<AuthenticationRequiredException>? onAuthFailure = null)
 	{
 		try
 		{
@@ -379,6 +397,16 @@ public abstract class ProcessableOptionsBase : OptionsBase
 
 			Serilog.Log.Logger.Error(clEx, "Content license denied {@DebugInfo}", new { Book = libraryBook.LogFriendly() });
 			ReportNextAttempt(libraryBook);
+		}
+		catch (Exception ex) when (AuthenticationExceptionHelper.IsAuthenticationFailure(ex))
+		{
+			Serilog.Log.Logger.Error(ex, "Audible authentication required for {Book}", libraryBook.LogFriendly());
+			var authEx = AuthenticationExceptionHelper.FindAuthenticationRequired(ex)
+				?? new AuthenticationRequiredException(account: null, message: ex.Message, innerException: ex);
+			if (onAuthFailure is not null)
+				onAuthFailure(authEx);
+			else
+				AuthenticationRequiredCliSummary.WriteSummary([authEx], Console.Out, Console.Error);
 		}
 		catch (Exception ex)
 		{
