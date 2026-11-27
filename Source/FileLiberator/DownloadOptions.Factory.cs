@@ -7,11 +7,13 @@ using Dinah.Core;
 using LibationFileManager;
 using NAudio.Lame;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,6 +21,12 @@ namespace FileLiberator;
 
 public partial class DownloadOptions
 {
+	private const int LicenseRequestMaxRetries = 2;
+
+	private static readonly HttpClient MpdHttpClient = new(new SocketsHttpHandler
+	{
+		PooledConnectionLifetime = TimeSpan.FromMinutes(2)
+	});
 	/// <summary>
 	/// Requests a download license from the Api using the Configuration settings to choose the appropriate content.
 	/// </summary>
@@ -149,7 +157,11 @@ public partial class DownloadOptions
 			}
 
 			token.ThrowIfCancellationRequested();
-			var license = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
+			var license = await ExecuteWithTransientRetryAsync(
+				() => api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality),
+				libraryBook.Book.AudibleProductId,
+				"ADRM license request",
+				token);
 			return LicenseInfo.Create(license);
 		}
 
@@ -162,14 +174,18 @@ public partial class DownloadOptions
 			var spatialCodecChoice = config.SpatialAudioCodec is Configuration.SpatialCodec.AC_4 ? Codecs.AC_4 : Codecs.EC_3;
 
 			var contentLic
-				= await api.GetDownloadLicenseAsync(
+				= await ExecuteWithTransientRetryAsync(
+					() => api.GetDownloadLicenseAsync(
+						libraryBook.Book.AudibleProductId,
+						dlQuality,
+						ChapterTitlesType.Tree,
+						DrmType.Widevine,
+						config.RequestSpatial,
+						aacCodecChoice,
+						spatialCodecChoice),
 					libraryBook.Book.AudibleProductId,
-					dlQuality,
-					ChapterTitlesType.Tree,
-					DrmType.Widevine,
-					config.RequestSpatial,
-					aacCodecChoice,
-					spatialCodecChoice);
+					"Widevine content license request",
+					token);
 
 			if (contentLic.DrmType is not DrmType.Widevine)
 				return LicenseInfo.Create(contentLic);
@@ -179,8 +195,16 @@ public partial class DownloadOptions
 			if (contentLic.ContentMetadata is null)
 				throw new InvalidDataException("Widevine content metadata is null.");
 
-			using var client = new HttpClient();
-			using var mpdResponse = await client.GetAsync(contentLic.LicenseResponse, token);
+			using var mpdResponse = await ExecuteWithTransientRetryAsync(
+				async () =>
+				{
+					var resp = await MpdHttpClient.GetAsync(contentLic.LicenseResponse, token);
+					resp.EnsureSuccessStatusCode();
+					return resp;
+				},
+				libraryBook.Book.AudibleProductId,
+				"MPEG-DASH manifest fetch",
+				token);
 			var dash = new MpegDash(mpdResponse.Content.ReadAsStream(token));
 
 			if (!dash.TryGetUri(new Uri(contentLic.LicenseResponse), out var contentUri))
@@ -190,7 +214,11 @@ public partial class DownloadOptions
 
 			using var session = cdm.OpenSession();
 			var challenge = session.GetLicenseChallenge(dash);
-			var licenseMessage = await api.WidevineDrmLicense(libraryBook.Book.AudibleProductId, challenge);
+			var licenseMessage = await ExecuteWithTransientRetryAsync(
+				() => api.WidevineDrmLicense(libraryBook.Book.AudibleProductId, challenge),
+				libraryBook.Book.AudibleProductId,
+				"Widevine DRM license exchange",
+				token);
 			var keys = session.ParseLicense(licenseMessage);
 			return LicenseInfo.Create(contentLic, keys.Select(k => new KeyData(k.Kid.ToByteArray(bigEndian: true), k.Key)));
 		}
@@ -202,6 +230,73 @@ public partial class DownloadOptions
 			//by disabling the "Use Widevine DRM" feature.
 			throw;
 		}
+	}
+
+	internal static async Task<T> ExecuteWithTransientRetryAsync<T>(
+		Func<Task<T>> operation,
+		string? asin,
+		string operationName,
+		CancellationToken token,
+		Func<int, TimeSpan>? retryDelay = null)
+	{
+		for (var attempt = 0; ; attempt++)
+		{
+			token.ThrowIfCancellationRequested();
+			try
+			{
+				return await operation();
+			}
+			catch (Exception ex) when (attempt < LicenseRequestMaxRetries && IsTransientLicenseRequestFailure(ex) && !token.IsCancellationRequested)
+			{
+				var delay = retryDelay?.Invoke(attempt) ?? TimeSpan.FromMilliseconds(250 * (attempt + 1));
+				Serilog.Log.Logger.Warning(
+					ex,
+					"Transient error during {OperationName} for asin [{Asin}] (retry {Retry}/{MaxRetries}). Retrying in {DelayMs} ms.",
+					operationName,
+					asin,
+					attempt + 1,
+					LicenseRequestMaxRetries,
+					(int)delay.TotalMilliseconds);
+
+				if (delay > TimeSpan.Zero)
+					await Task.Delay(delay, token);
+			}
+		}
+	}
+
+	internal static bool IsTransientLicenseRequestFailure(Exception ex)
+		=> ex switch
+		{
+			HttpRequestException => true,
+			IOException => true,
+			SocketException => true,
+			ApiErrorException apiEx when IsTransientApiTransportError(apiEx) => true,
+			_ => false
+		};
+
+	private static bool IsTransientApiTransportError(ApiErrorException apiEx)
+	{
+		if (string.IsNullOrWhiteSpace(apiEx.JsonMessage))
+			return false;
+
+		JObject json;
+		try
+		{
+			json = JObject.Parse(apiEx.JsonMessage);
+		}
+		catch (JsonException)
+		{
+			return false;
+		}
+
+		// Only retry transport-level failures before an HTTP response was received (http_status_code is null),
+		// never HTTP 4xx/5xx API rejections (like CustomerThrottled or Sable errors).
+		var statusCode = json["http_status_code"];
+		if (statusCode is not null && statusCode.Type != JTokenType.Null)
+			return false;
+
+		return json["http_request_error"]?.Value<string>() is not null
+			|| json["error"]?.Value<string>()?.StartsWith("The request failed due to ", StringComparison.Ordinal) == true;
 	}
 
 	/// <summary>
